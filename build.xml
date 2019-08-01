@@ -1,10 +1,10 @@
 <!-- Copyright 2019 Equipment & Tool Institute -->
-<project name="IUMPR" default="compile" basedir="." xmlns:jacoco="antlib:org.jacoco.ant">
+<project name="J1939_84" default="compile" basedir="." xmlns:jacoco="antlib:org.jacoco.ant">
     <description>The Ant build file for the IUMPR Project.</description>
 
     <!-- set global properties for this build -->
     <property name="project.name" value="J1939-84"/>
-    <property name="main.class.name" value="org.etools.j1939_84.Main"/>
+    <property name="main.class.name" value="org.etools.j1939_84.J1939_84"/>
 
     <!-- set directories -->
     <property name="src" location="${basedir}/src"/>
@@ -243,20 +243,5 @@
             <link href="http://docs.oracle.com/javase/8/docs/api/"/>
             <tag name="wbp.parser.entryPoint" scope="all" enabled="false" description="Entry Point for UI Parsing"/>
         </javadoc>
-    </target>
-
-    <target name="detekt">
-        <java taskname="detekt" dir="${basedir}"
-              fork="true"
-              failonerror="true"
-              classname="io.gitlab.arturbosch.detekt.cli.Main"
-              classpath="${lib-test}/detekt-cli-1.0.0-RC16-all.jar">
-            <arg value="--input"/>
-            <arg value="${basedir}/src"/>
-            <arg value="--report"/>
-            <arg value="xml:${build}/reports/detekt.xml"/>
-            <arg value="--baseline"/>
-            <arg value="${build}/reports/baseline.xml"/>
-        </java>
     </target>
 </project>
