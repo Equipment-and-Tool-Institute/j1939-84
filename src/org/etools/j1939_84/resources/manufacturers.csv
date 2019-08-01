@@ -1,0 +1,791 @@
+0,Reserved
+1,Bendix Commercial Vehicle Systems LLC
+2,"Allison Transmission, Inc."
+3,"Ametek, US Gauge Division"
+4,Ametek-Dixson
+5,AMP Inc.
+6,Berifors Electronics AB
+7,Case Corp.
+8,Caterpillar Inc.
+9,Chrysler Corp.
+10,Cummins Inc
+11,Dearborn Group Inc.
+12,"Deere & Company, Precision Farming"
+13,Delco Electronics
+14,Detroit Diesel Corporation
+15,DICKEY-john Corporation
+16,Eaton Corp
+17,"Eaton Corp, Corp Res & Dev"
+18,"Eaton Corp, Transmission Div."
+19,Eaton Corp. Trucking Info Services
+20,Eaton Ltd
+21,"Echlin Inc., Midland Brake Inc."
+22,"Ford Motor Co., Electronic Concepts & Systems"
+23,"Ford Motor Co., Heavy Truck"
+24,"Ford Motor Co., Vehicle Controls"
+25,Daimler Trucks North America LLC
+26,"General Motors Corp, Service Technology Grp"
+27,GMC
+28,Grote Ind. Inc.
+29,Hino Motors Ltd.
+30,Isuzu Motors Ltd
+31,J Pollak Corp
+32,Jacobs Vehicle Systems
+33,John Deere
+34,Kelsey Hayes Co.
+35,Kenworth Truck Co.
+36,Lucas Ind.
+37,Mack Trucks Inc.
+38,Micro Processor Systems Inc.
+39,Microfirm Inc.
+40,Motorola AIEG Inc.
+41,Motorola Inc.
+42,International Truck and Engine Corporation - Engine Electronics
+43,International Truck and Engine Corporation - Vehicle Electronics
+44,Nippondenso Co. Ltd.
+45,PACCAR
+46,"Noregon Systems, Inc"
+47,Phillips Semiconductor
+48,Pollak Alphabet
+49,RE America Inc.
+50,Robert Bosch Corp
+51,Robert Bosch GmbH
+52,"Meritor Automotive, Inc."
+53,"Continental Automotive Systems US, Inc."
+54,Meritor Wabco
+55,Ryder System Inc.
+56,SAIC
+57,Danfoss
+58,"SPX Corporation, OTC Div"
+59,VES Inc.
+60,Volvo Trucks North America Inc.
+61,Volvo Truck Corp.
+62,Wabco
+63,ZF Industries Inc.
+64,"Unused (formerly SpectraPrecision Laserplane, then SpectraPhysics)"
+65,MAN Nutzfahrzeuge AG
+66,John Deere Construction Equipment Division
+67,John Deere Coffeyville Works
+68,Scania
+69,Trimble Navigation
+70,Flex-coil Limited
+71,Vansco Electronics Ltd.
+72,Sisu Corporation
+73,"LeTourneau, Inc."
+74,Eaton Axle-Brake Division
+75,"Deere & Co, Agricultural Division"
+76,"unused (formerly Deere & Co, Construction Division)"
+77,Deere Power Systems Group
+78,"Frank W. Murphy Manufacturing, Inc"
+79,Daimler Benz AG - Engine Division (PBM)
+80,"Twin Disc, Inc."
+81,Fire Research Corp.
+82,Bobcat/Ingersoll-Rand
+83,Bendix VORAD Technologies
+84,New Holland UK Limited
+85,Kohler Co
+86,C. E. Niehoff & Company
+87,J.C. Bamford Excavators Ltd (JCB)
+88,Satloc Precision GPS
+89,"Kverneland Group, Electronics Division"
+90,Knorr-Bremse SfN GmbH
+91,BSG Bodensee Steuergeraete GmbH
+92,"Ag-Chem Equipment Co., Inc."
+93,Perkins Engines Company Ltd.
+94,CNH Industrial N.V.
+95,Pacific Insight Electronics Corp.
+96,Mech@tronic IT GmbH
+97,"Ag Leader Technology, Inc."
+98,Mueller-Elektronik GmbH & Co
+99,International Transmissions Ltd (ITL)
+100,VDO Technik AG
+101,Sensoria
+102,AGCO
+103,CLAAS E-Systems KGaA mbH & Co. KG
+104,CLAAS KGaA mbH
+105,Kiepe Elektrik GmbH & Co. KG
+106,"BAE Systems Controls, Inc."
+107,Grimme Landmaschinen GmbH & Co. KG
+108,WTK-Elecktronik GmbH
+109,TeeJet Technologies Denmark
+110,EPIQ Sensor-Nite
+111,Maschinenfabrik Bernard Krone GmbH
+112,MECALAC
+113,"Stress-Tek, Inc."
+114,"EControls, Inc."
+115,"NACCO Materials Handling Group, Inc."
+116,BEELINE Technologies
+117,HUSCO International
+118,Intron GmbH
+119,IntegriNautics
+120,RDS Technology Ltd
+121,"HED (Hydro Electronic Devices, Inc.)"
+122,FG Wilson (Engineering) Limited
+123,Basler Electric
+124,Hydac Electronic
+125,Nevada Automotive Test Center
+126,Driver Tech
+127,Holland USA
+128,Gerhard Duecker GmbH & Co. KG
+129,OMNEX Control Systems Inc.
+130,Nido - Universal Machines B.V.
+131,ITT Industries
+132,Mulag-Fahrzeugwerk
+133,Bucher Schoerling GmbH
+134,Iris Technology Ltd
+135,Airmar Technology Corporation
+136,Komatsu Ltd
+137,Maretron
+138,Georg Fritzmeier GmbH & Co. KG
+139,"Caterpillar Trimble Control Technologies (CTCT), LLC"
+140,"Lowrance Electronics, Inc."
+141,Thales Navigation Ltd.
+142,TRW Automotive (Commercial Steering Systems)
+143,W. Gmeiner GmbH & Co.
+144,Mercury Marine
+145,MurCal Controls
+146,Maxima Technologies
+147,Nautibus electronic GmbH
+148,"Blue Water Data, Inc."
+149,Holset
+150,Fleetguard
+151,"Raven Industries, Inc."
+152,elobau GmbH & Co. KG
+153,"Woodward, Industrial Controls Division"
+154,Westerbeke Corporation
+155,Vetronix Corporation
+156,ITT Industries - Cannon
+157,ISSPRO Inc.
+158,Firestone Industrial Products Company
+159,NTech Industries Inc
+160,Nido
+161,Offshore Systems (UK) Ltd
+162,Axiomatic Technologies
+163,BRP Inc.
+164,MTU Friedrichshafen GmbH
+165,CPAC Systems AB
+166,John Deere Electronic Solutions
+167,JLG Industries Inc
+168,Xantrex
+169,Marlin Technologies Inc.
+170,Computronics Corporation Ltd.
+171,Wachendorff Elektronik GmbH & Co. KG
+172,"Yanmar Co., Ltd."
+173,"Ryeso, Inc."
+174,AB Volvo Penta
+175,"Veris Technologies, Inc."
+176,Moritz Aerospace
+177,Diagnostic Systems Associates
+178,Continental Automotive GmbH
+179,TeeJet Technologies Springfield
+180,Smart Power Systems
+181,"Coretronics, Inc."
+182,Vehicle Systems Engineering B.V.
+183,"KDS Controls, Inc"
+184,EIA Electronics
+185,Beede Electrical Instrument Company
+186,"Altronic, Inc"
+187,Air-Weigh
+188,EMP Corp
+189,QUALCOMM
+190,Hella KGaA Hueck & Co
+191,XRS Corporation
+192,Floscan
+193,Jeppesen Marine
+194,TriMark Corporation
+195,General Engine Products
+196,LEMKEN GmbH & Co KG
+197,Mechron Power Systems
+198,Mystic Valley Communications
+199,Actia Corp
+200,MGM Brakes
+201,Disenos y Tecnologia S.A.
+202,"Curtis Instruments, Inc"
+203,MILtronik GmbH
+204,The Morey Corporation
+205,SmarTire Systems Inc
+206,port GmbH
+207,Otto Engineering
+208,"Drew Technologies, Inc"
+209,Bell Equip. Co. SA (PTY) LTD
+210,"Iteris, Inc."
+211,DNA Group
+212,"Sure Power Industries, Inc"
+213,CNH Belgium N.V.
+214,MC elettronica Srl
+215,Aetna Engineering/Fireboy-Xintex
+216,Paneltronics Inc.
+217,RM Michaelides Software & Elektronik GmbH
+218,Gits Manufacturing Company
+219,Cat OEM Solutions
+220,"Beede Electrical Instrument Company, Inc"
+221,SiE
+222,"Generac Power Systems, Inc."
+223,"Vaueo Retarder Co., Ltd."
+224,"EMMI Network, S.L."
+225,SKF
+226,Monaco Coach Corporation
+227,Lykketronic A/S
+228,Unused (formerly ZF Marine Electronics)
+229,Garmin International Inc.
+230,Saucon Technologies
+231,"Topcon Positioning Systems, Inc."
+232,TSD Integrated Controls
+233,Yacht Monitoring Solutions Inc.
+234,Mondial electronic GmbH
+235,SailorMade Marine Telemetry - Tetra Technology Ltd.
+236,NORAC Systems International Inc
+237,Agtron Enterprises Inc
+238,ZF Friedrichshafen AG
+239,May & Scofield Ltd
+240,Vanair Mfg
+241,Schneider Automation SAS
+242,Kokusandenki Co. Ltd
+243,"eRide, Inc."
+244,Techno-Matic
+245,"Capstan Ag Systems, Inc."
+246,"Class 1, Inc"
+247,ePULSE
+248,Cooper Standard Automotive Active Systems Group
+249,Schaltbau GmbH
+250,Kuhn Group
+251,"German Agricultural Society, Test Center (DLG)"
+252,Sensor-Technik Wiedemann GmbH
+253,Mobile Control Systems
+254,GE Sensing
+255,MEAS France
+256,Tyco Electronics AMP
+257,"Honda Motor Co., Ltd"
+258,ARAG
+259,Jetter AG
+260,Reichhardt GmbH Steuerungstechnik
+261,Red Dot Corporation
+262,"HydraForce, Inc"
+263,IMMI
+264,Autolync
+265,MTS Sensor Technologie GmbH
+266,International Thermal Research Ltd
+267,"Red Lion Controls, Inc"
+268,Accurate Technologies
+269,"Saft America Inc., Space & Defense Division"
+270,Tennant
+271,Cole Hersee
+272,"Gross Mechanical Laboratories, Inc"
+273,Active Research Limited
+274,"LTW Technology Co., LTD"
+275,Navico Egersund AS
+276,Aqua-Hot Heating Systems
+277,LHP Telematics
+278,Takata Electronics
+279,Geometris LP
+280,Leica Geosystems Pty Ltd
+281,Precision Governors LLC
+282,Medallion Instrumentation Systems
+283,CWF Hamilton & Co Ltd
+284,Mobile Tech Chile
+285,Sea Recovery Corp
+286,Coelmo srl
+287,"NTech Industries, Inc"
+288,Mitsubishi FUSO Truck & Bus Corp.
+289,Watlow
+290,Kuebler GmbH
+291,Groeneveld Transport Efficiency BV
+292,IKUSI - Angel Iglesias S.A.
+293,Spyder Controls Corp.
+294,Grayhill Inc.
+295,BEP Marine
+296,micro dynamics GmbH
+297,Zonar Systems Inc
+298,Holley Performance
+299,Rauch
+300,Systron Donner Automotive
+301,Parker Hannifin (UK) Ltd FDE group
+302,"Nissin Kogyo Co., LTD"
+303,CTS Corporation
+304,EmpirBus AB
+305,NovAtel Inc
+306,Sleipner Motor AB
+307,MAS Technologies
+308,Cyntrx
+309,Krauss-Maffei Wegmann GmbH & Co. KG
+310,TECNORD srl
+311,Patrick Power Products
+312,"Lectronix, Inc."
+313,"Ilmor Engineering, Inc."
+314,CSM GmbH
+315,Icom Incorporated
+316,ITT Flow Control
+317,Navtronics Bvba
+318,SAT Plan
+319,Cadec Global
+320,Miedema Landbouwwerktuigenfabriek B.V.
+321,"Ultra Electronics, Electrics"
+322,MICHENKA s.r.o.
+323,Mobileye Vision Technologies Ltd.
+324,Snap-on Diagnostics
+325,ASM Automation Sensorik Messtechnik GmbH
+326,Akron Brass Company
+327,Sonceboz SA
+328,Qwerty Electronik AB
+329,Deif A/S
+330,Kidde Aerospace and Defense
+331,"Horton, Inc."
+332,HWH Corporation
+333,Hadley Products Corporation
+334,Takata-Petri AG
+335,Evo Electric Ltd
+336,APE s.r.o.
+337,Carraro S.p.A.
+338,GRAF-SYTECO
+339,Competence Center ISOBUS e.V.
+340,Continental AG
+341,Boning GmbH & Co
+342,THOMAS MAGNETE GmbH
+343,Baumer Group
+344,Parvus Corporation
+345,Korean Maritime University
+346,Control Solutions
+347,Honeywell
+348,Amazonen Werke H. Dreyer
+349,Suonentieto
+350,Noris Marine Systems GmbH & Co KG
+351,Thrane & Thrane
+352,SAME DEUTZ-FAHR GROUP S.p.A.
+353,"Hegemon Electronics, Inc."
+354,Junkkari OY
+355,Mastervolt International B.V.
+356,"Fischer Panda Generators, Inc"
+357,Hardi International A/S
+358,Victron Energy BV
+359,Ludwig Bergmann GmbH
+360,HJS Emission Technology GmbH & Co KG
+361,InMach
+362,Alois Poettinger Maschinenfabrik GmbH
+363,BEI Duncan
+364,OEM Controls Inc.
+365,"Digi-Star, LLC"
+366,Viewnyx Corp.
+367,Fliegl Agrartechnik
+368,HANSENHOF_electronic
+369,Power Torque Engineering Ltd
+370,Rolls-Royce Marine AS
+371,Heinzmann GmbH & Co. KG
+372,Delphi
+373,Electronic Design Inc.
+374,"Northern Lights, Inc."
+375,Williams Controls Inc.
+376,Quake Global
+377,ifm electronic gmbh
+378,Glendinning Marine Products
+379,Yamabiko Corporation
+380,Suntech International Ltd.
+381,B & G
+382,National Agriculture and Food Research Organization
+383,MCL Industries
+384,Camano Light
+385,Johnson Outdoor Marine Electronics
+386,JLG Automation BVBA
+387,"Orscheln Products, LLC"
+388,"Innomatix, LLC"
+389,"Benchmark Electronics, Minnesota Division"
+390,Partech Inc.
+391,"Electronic Design for Industry, Inc"
+392,Tianyuan Technology Co Ltd.
+393,"Harvest Tec, Inc"
+394,Capi 2 Nederland BV
+395,GENTEC S.R.L.
+396,Beyond Measure
+397,Sanyo-kiki Co Ltd.
+398,Hilite International
+399,"ISEKI & Co., Ltd."
+400,Livorsi Marine
+401,Torqeedo GmbH
+402,"Simma Software, Inc."
+403,"Trackwell ADS, Inc."
+404,Com Nav Marine Ltd
+405,Wema System AS
+406,Vecima Networks Inc.
+407,Comtech Mobile Datacom
+408,Corvus Energy Ltd.
+409,Transfluid S.r.L.
+410,COBO S.p.A. Divisione 3B6
+411,Hy-Drive Technologies Ltd.
+412,WebTech Wireless Inc.
+413,Datapross Nijbroek bv
+414,Cattron Group International
+415,Valid Manufacturing Ltd.
+416,Kubota Corporation
+417,KZValve
+418,Intellistick Inc
+419,Fusion Electronics Ltd
+420,"Vermeer Corporation, ACS Group"
+421,"Vertex Standard Co, Ltd"
+422,True Heading AB
+423,"BSM Wireless, Inc."
+424,Odyne LLC
+425,"Methode Electronics Inc, MDI"
+429,Rota Engineering Ltd.
+430,Auteq Telematica S.A.
+431,Tohatsu Corporation
+432,"S&A Systems, Inc."
+433,Rowe Electronics
+434,Stored Energy Systems
+435,Zunhammer GmbH
+436,Kinze Manufacturing
+437,Digital Yacht Limited
+438,Comar Systems Ltd
+439,Hyundai Heavy Industries
+440,Cummins Power Generation
+441,PTG Reifendruckregelsysteme GmbH
+442,Horsch Maschinen GmbH
+443,"SignalQuest, Inc."
+444,ITT Power Solutions
+445,"KAT MECHATRONIC, Electronic Product Division"
+446,"CertTech, L.L.C."
+447,Great Plains Mfg.
+448,"Stanadyne Corporation, Electronics Systems"
+449,Polaris Industries Inc
+450,Dycor Technologies Ltd.
+451,Parker Hannifin Corp
+452,WIKA Alexander Wiegand SE & Co. KG
+453,Cooper Bussmann
+454,NGK Spark Plug Co. Ltd
+455,ADZ NAGANO GmbH
+456,General Kinetics
+457,RUSELPROM-ElectricDrive Ltd
+458,"Control Solutions, Inc."
+459,Alltek Marine Electronics Corp
+460,San Giorgio S.E.I.N.
+461,HAWE Hydraulik SE
+462,IHI Shibaura Machinery Corporation
+463,PROBOTIQ
+464,Leach International Corporation
+465,Ashcroft Inc
+466,Veethree Electronics and Marine LLC
+467,Lely Industries N.V.
+468,Tyco Fire Protection Products
+469,RA Consulting GmbH
+470,SI-TEX Marine Electronics
+471,Sea Cross Marine AB
+472,Tenneco Inc.
+473,"Boss Industries, Inc."
+474,Persen Technologies Inc.
+475,GME
+476,Hummingbird Marine Electronics
+477,OilQuick AB
+478,OceanSat BV
+479,Vapor Bus International
+480,"EnerDel, Inc."
+481,Chetco Digital Instruments
+482,Tricon Electronics
+483,Valeo
+484,Headsight Inc.
+485,MATT automotive
+486,Westport Innovations Inc.
+487,DSE Test Solutions A/S
+488,"The Charles Machine Works, Inc."
+489,"Appareo Systems, LLC"
+490,QuikQ
+491,Penny and Giles Ltd
+492,Inergy Automotive Systems
+493,Watcheye
+494,Synerject
+495,HOLMER Maschinenbau GmbH
+496,W. Gessmann GmbH
+497,SENTRON Sistemas Embarcados
+498,"Innovative Design Solutions, Inc."
+499,LCJ Capteurs
+500,Oxbo International Corporation
+501,Agrotronix S.A.
+502,Attwood Corporation
+503,Naviop S.R.L.
+504,Vesper Marine
+505,Yetter Farm Equipment
+506,IHI STAR Machinery Corporation
+507,ISOBUS Test Center
+508,Transtech Innovations
+509,MOTORTECH GmbH
+510,Marinesoft Co. Ltd
+511,Sulky
+512,Inpower LLC
+513,FarmscanAg
+514,"DISTek Integration, Inc."
+515,GINAF Trucks Nederland B.V.
+516,AVAT Automation GmbH
+517,Noland Engineering
+518,Transas USA Inc.
+519,Peeters Landbouwmachines b.v.
+520,Trapeze
+521,Clever Devices Ltd.
+522,Nebraska Tractor Test Laboratory
+523,Reggio Emilia Innovazione
+524,Vomax Instrumentation Pty. Ltd.
+525,Rust Sales INC
+526,"LOFA Industries, Inc"
+527,GKN Walterscheid GmbH
+528,"Hoganas AB, Electric Drive Systems"
+529,National Instruments Korea
+530,NMEA
+531,Genge & Thoma AG
+532,Onwa Marine Electronics Co Ltd.
+533,"Doran Manufacturing, LLC"
+534,Webasto Thermo & Comfort SE
+535,"MOTORPAL, a.s."
+536,SSI Technologies
+537,Schrader Electronics Ltd.
+538,"Crop Ventures, Inc."
+539,Mobileview
+540,Dinex A/S
+541,"Total Fire Systems, Inc."
+542,Dinamica Generale s.p.a.
+543,BAUER Maschinen GmbH
+544,Au Group Electronics
+545,GS Hydraulics
+546,"Maruyama Mfg Co, Inc."
+547,Thomson Linear LLC
+548,TM4 Inc.
+549,ROAD Deutschland GmbH
+550,SUN-A Corporation
+551,Wexler CSD Ltd.
+552,"Matsuyama Plow Mfg Co, Ltd"
+553,KIB Electronics
+554,iris-GmbH infrared & intelligent sensors
+555,Sasaki Corporation
+556,Doosan Infracore Norway
+557,Rockson Automation GmbH
+558,Davis Instruments Corp.
+559,Four Peaks Navigation
+560,"Iowa State University, Agricultural and Biosystems Engineering"
+561,b-plus GmbH
+562,Bombardier Transportation GmbH
+563,LOHR Sistemas Eletronicos LTDA
+564,Auto Power Electronic
+565,"Micro-Trak Systems, Inc."
+566,"Geode Technology, Inc."
+567,Lithiumstart LLC
+568,Makersan Ltd. Co.
+569,LORD MicroStrain Sensing Systems
+570,frenzel + berg electronic GmbH & Co. KG
+571,"Marinecraft Co., Ltd."
+572,Fasse Valves
+573,Orolia Ltd
+574,Vishay Precision Group
+575,Lytx
+576,Vectia
+577,Denchi Power Ltd
+578,advanSea
+579,"KVH Industries, Inc."
+580,"San Jose Technology, Inc."
+581,Väderstad - Verken AB
+582,Innovative Software Engineering
+583,Yachtcontrol
+584,CarMedialab GmbH
+585,Industrial Electronic Controls
+586,Suzuki Motor Corp
+587,JCA Electronics
+588,Vignal Systems
+589,"MICO, Inc."
+590,ARGO-HYTOS GMBH
+591,United States Coast Guard
+592,tecsis GmbH
+593,Sensata Technologies
+594,Kongsberg Automotive
+595,CustomWare
+596,Brunelco Electronic Innovators B.V.
+597,Hydac Filter Systems GmbH
+598,ABB Turbo Systems Ltd
+599,"Spudnik Equipment Co, LLC"
+600,Aquatic AV
+601,Navitas Systems
+602,Nomad Digital Ltd.
+603,Kereval
+604,Indexator Rototilt Systems AB
+605,Aventics GmbH
+606,Intellian Technologies
+607,Knappco/Civacon
+608,Gale Banks Engineering
+609,Walvoil S.p.A.
+610,Trail Tech
+611,Esterline
+612,Samwon IT
+613,"HKS Co., Ltd."
+614,ARLT Technologies GmbH
+615,"Networkfleet, Verizon Telematics"
+616,SMART-TEC s.r.o.
+617,Zero Emission Vehicles
+618,Evrard SA
+619,Right Weigh Load Scales
+620,Sevcon Ltd.
+621,Hagie Manufacturing Company
+622,Floyd Bell Inc
+623,Xirgo Technologies
+624,Blackbox Machine Control Pty Ltd
+625,Global MRV Inc.
+626,AVL DiTEST GmbH
+627,Radio Ocean
+628,Falck Schmidt Defence Systems
+629,"Agri Info Design, Ltd."
+630,SmartDrive Systems Inc.
+631,Reltima
+632,Pepperl+Fuchs GmbH
+633,TORC Robotics
+634,Rocky Research
+635,Argo Tractors S.p.A.
+636,Divelbiss Corporation
+637,Bavaria Yachtbau GmbH
+638,"KVH Industries, Inc."
+639,Startec s.r.l.
+640,Power Solutions International
+641,Diverse Yacht Services
+642,Moog / Aspen Motion Technologies
+643,Bogballe A/S
+644,KUS USA
+645,esd electronic system design gmbh
+646,Veenhuis Machines BV
+647,Siloking
+648,OJSC Ekran
+649,Control-Q BV
+650,Seiko Epson Corp.
+651,"Takakita Co, Ltd."
+652,MicroControl GmbH & Co. KG
+653,"AEV, spol. s r. o."
+654,"Kohler Power Systems, Detroit Engine Development Center (DEDC)"
+655,Genge & Thoma AG
+656,PRO SOLUS do Brasil
+657,Terzo Power Systems
+658,"Shenzhen Jiuzhou Himunication Technology Co., Ltd"
+659,Data Panel Corp.
+660,Auto-Gaz Centrum
+661,SPAL Automotive S.r.l.
+662,Kissling Elektrotechnik GmbH
+663,"Delta Systems, Inc"
+664,Level Developments Ltd
+665,Gebr. Bode GmbH & Co. KG
+666,"Schaeffler Technologies AG & Co., KG"
+667,Bartec
+668,MacDon Industries Ltd.
+669,"Quantum Fuel Systems Technologies Worldwide, Inc"
+670,STEMCO LP
+671,Innovative Controls Inc.
+672,OPTIMA Concept
+673,Caruelle Nicolas
+674,Yara International ASA
+675,"Kawasaki Motors Corp., USA"
+676,Danfoss IXA A/S
+677,DSA Daten- und Systemtechnik GmbH
+678,"KeepTruckin, Inc."
+679,Cimco Marine AB
+680,AMVAC Chemical Corporation
+681,BEDIA Motorentechnik GmbH & Co. KG
+682,Eckelmann AG
+683,Fosen Elektro
+684,KEB
+685,ANEDO Ltd.
+686,Taigene Electric Machinery Corp.
+687,"Flight Systems, Inc."
+688,Rockford Corp
+689,Aarcomm Systems Inc
+690,LINAK A/S
+691,Digitroll Agricultural Electronics
+692,Tanhay Corporation
+693,Agility Fuel Solutions
+694,GasTOPS Ltd.
+695,Weldon Technologies
+696,"DRS Network & Imaging Systems, LLC (DRS Technologies)"
+697,Ålö AB
+698,Scorpion Technologies Ltd.
+699,Harman International Industries
+700,K-Tec Earthmovers Inc.
+701,BigRoad Inc.
+702,"Weichai Power Co., Ltd."
+703,Hydro Tab Marine Engineering
+704,"JL Audio, Inc."
+705,SVAB Hydraulik AB
+706,Shanghai Diesel Engine Corporation Limited
+707,Rochester Gauges Inc
+708,Lars Thrane A/S
+709,Marquardt GmbH
+710,Greentronics Ltd.
+711,"DAS Co., LTD"
+712,LOR Manufacturing Company Inc.
+713,US Hybrid Corporation
+714,"Kobashi Kogyo Co., Ltd."
+715,Autonnic Research Ltd
+716,Eaton Control & Power Conversion Division (CPCD)
+717,Yacht Devices Ltd
+718,Micronet Inc
+719,Cojali S. L.
+720,WITZ Corporation
+721,Hypro
+722,Contelec AG
+723,Jabil Inc.
+724,"Electronic Applications, Inc."
+725,"Hitachi Construction Machinery Co., Ltd."
+726,MIDORI PRECISIONS
+727,Dhoot Transmission Pvt Ltd.
+728,Streumaster / Panien
+729,Liebherr
+730,BERTHOUD AGRICOLE
+731,Modine Manufacturing Company
+732,Gefran S.p.A.
+733,Intendia S.L.
+734,REAPsystems
+735,AEM Performance Electronics
+736,Terex Aerial Work Platforms - Genie
+737,Balluff GmbH
+738,Blue Ink Technologies
+739,LXNAV d.o.o.
+740,e-Traction
+741,Carling Technologies
+742,EROAD
+743,"Daemyung Elevator Co., Ltd."
+744,"Woosung Engineering Co., Ltd."
+745,Cidra Corporate Services Inc.
+746,"SureFire Ag Systems, Inc."
+747,Agratronix
+748,ISOTTA
+749,Chart Inc.
+750,Joskin SA
+751,Pacific Track
+752,Deep Sea Electronics Plc
+753,AIROD Technologies
+754,"Parker Hannifin Corp., Automation Group"
+755,Firefly Integrations
+756,Maschio Gaspardo S.P.A.
+757,IMPCO Technologies
+758,Banner Engineering Corp.
+759,Hydro-Gear
+760,Bernecker + Rainer Industrie Elektronik GmbH
+761,MITA OLEODINAMICA S.p.A.
+762,ROJ s.r.l.
+763,AT-Systems BVBA
+764,Bednar FMT s.r.o.
+765,GIGAVAC
+766,Epec Oy
+767,Alliance Wireless Technologies Inc.
+768,"Flores Automation, LLC"
+769,Trombetta
+770,MONOSEM
+771,"Shaw Development, LLC"
+772,Blink Marine
+773,Clarion Corporation of America
+774,Taisho Corporation
+775,ZIEHL-ABEGG Automotive GmbH
+776,HMI Systems LLC
+777,Ocean Signal Ltd
+778,Seakeeper Inc.
+1850,Teleflex
+1851,RayMarine
+1852,Navionics
+1853,Japan Radio Co
+1854,Northstar Technologies
+1855,Furuno USA
+1856,Trimble
+1857,Simrad
+1858,Litton
+1859,Kvasar AB
+1860,MMP
+1861,Vector Cantech
+1862,Sanshin
+1863,Thomas G. Faria Co.
+2047,Equipment & Tool Institute

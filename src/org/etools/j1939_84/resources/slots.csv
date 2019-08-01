@@ -1,0 +1,339 @@
+1,SAEpr11,Pressure,5,kPa,0.000000,8
+2,SAEpr13,Pressure,8,kPa,0.000000,8
+3,SAEtm11,Time,1,h,0.000000,8
+4,SAEtm10,Time,1,h,-125.000000,8
+5,SAEtm12,Time,1,h,-32127.000000,16
+6,SAEtm06,Time,1,s,0.000000,32
+7,SAEad01,Angle/Direction,0.0000001,deg,-210.000000,32
+8,SAEad04,Angle/Direction,0.0078125,deg,-200.000000,16
+9,SAEad05,Angle/Direction,0.0078125,deg,0.000000,16
+10,SAEad02,Angle/Direction,0.1,s,-3276.800000,16
+11,SAEad06,Angle/Direction,1,deg,-125.000000,8
+12,SAEct04,Count,1,,0.000000,16
+13,SAEds03,Distance,0.1,mm,-3200.000000,16
+14,SAEds04,Distance,0.1,mm,0.000000,16
+15,SAEds08,Distance,1,m,-125.000000,8
+16,SAEel01,"Economy, liquid",0.001953125,km/L,0.000000,16
+17,SAEeg01,"Economy, gaseous",0.001953125,km/kg,0.000000,16
+18,SAEfg01,"Flow rate, gaseous",0.05,kg/h,0.000000,16
+19,SAEfv01,"Flow rate, volumetric",0.1,m³/h,0.000000,16
+20,SAEful01,"Fuel Used, liquid",0.5,l,0.000000,32
+21,SAEfug01,"Fuel Used, gaseous",0.5,kg,0.000000,32
+22,SAEgg01,Governor gain,0.00078125,%/rpm,0.000000,16
+23,SAEgr01,Gear Ratio,0.01,,0.000000,16
+24,SAEgv01,Gear Value,1,,-125.000000,8
+25,SAEid01,"Identifier,component/software",1,,0.000000,8
+26,SAEkv01,Kinematic viscosity,1,mm²/s,0.000000,8
+27,SAEma11,Mass,0.5,kg,0.000000,16
+28,SAEma02,Mass,2,kg,0.000000,16
+29,SAEma03,Mass,10,kg,0.000000,16
+30,SAEpc01,"Percent, position/level",0.0025,%,0.000000,16
+31,SAEr02,Ratio,0.1,,0.000000,8
+32,SAEr01,Ratio,0.001,,0.000000,16
+33,SAEre01,Record,1,records,0.000000,8
+34,SAErv01,Revolutions,1000,r,0.000000,32
+35,SAEsa01,Source Address,1,,0.000000,8
+36,SAEds10,Distance,0.125,km,0.000000,32
+37,SAEds11,Distance,5,km,-160635.000000,16
+38,SAEds09,Distance,5,m,0.000000,32
+39,SAEds06,Distance,0.125,m,-2500.000000,16
+40,SAEec02,Electrical Current,1,A,-125.000000,8
+41,SAEec03,Electrical Current,1,A,0.000000,8
+42,SAEfl01,"Flow rate, liquid",0.05,l/h,0.000000,16
+43,SAEfr01,Force,5,N,0.000000,16
+44,SAEpc03,"Percent, position/level",0.4,%,0.000000,8
+45,SAEpc05,"Percent, position/level",1,%,-125.000000,8
+46,SAEpc06,"Percent, position/level",1,%,0.000000,8
+47,SAEpr10,Pressure,4,kPa,0.000000,8
+48,SAEpr02,Pressure,0.05,kPa,0.000000,8
+49,SAEpr14,Pressure,16,kPa,0.000000,8
+50,SAEpr06,Pressure,0.5,kPa,0.000000,16
+51,SAEpr09,Pressure,0.00390625,MPa,0.000000,16
+52,SAEpr01,Pressure,0.0078125,kPa,-250.000000,16
+53,SAEpr07,Pressure,2,kPa,0.000000,8
+54,SAEpr05,Pressure,0.5,kPa,0.000000,8
+55,SAEpw03,"Power, Real",0.5,kW,0.000000,16
+56,SAEr03,Ratio,1,,0.000000,8
+57,SAEtm01,Time,0.01,ms,0.000000,16
+58,SAEtm09,Time,0.05,h,0.000000,32
+59,SAEtm03,Time,0.1,s,0.000000,8
+60,SAEcd01,"Calendar, days",0.25,days,0.000000,8
+61,SAEtm08,Time,1,min,0.000000,8
+62,SAEcm01,"Calendar, months",1,months,0.000000,8
+63,SAEtm04,Time,0.25,s,0.000000,8
+64,SAEtm05,Time,1,s,0.000000,16
+65,SAEcw01,"Calendar, weeks",1,weeks,-125.000000,8
+66,SAEcy01,"Calendar, years",1,years,1985.000000,8
+67,SAEtp01,Temperature,1,C,-40.000000,8
+68,SAEtp02,Temperature,0.03125,C,-273.000000,16
+69,SAEtq01,Torque,1,Nm,-32000.000000,16
+70,SAEtq02,Torque,1,Nm,0.000000,16
+71,SAEvl02,"Velocity, linear",0.00390625,km/h,0.000000,16
+72,SAEvl03,"Velocity, linear",0.0078125,km/h,-250.000000,16
+73,SAEvl05,"Velocity, linear",1,km/h,0.000000,8
+74,SAEvl04,"Velocity, linear",0.0625,km/h,-7.810000,8
+75,SAEvm1,Volume,0.5,l,0.000000,32
+76,SAEvr01,"Velocity, rotational",0.125,rpm,0.000000,16
+77,SAEvr03,"Velocity, rotational",4,rpm,0.000000,16
+78,SAEvr02,"Velocity, rotational",0.5,rpm,0.000000,16
+79,SAEvr04,"Velocity, rotational",10,rpm,0.000000,8
+80,SAEev01,Electrical Voltage,0.05,V,0.000000,16
+81,SAEba01,Brake Applications,1,appl,0.000000,32
+82,SAEsg01,Specific Gravity,0.0001,,0.000000,16
+83,SAEsr01,Specific Resistance,0.1,Mohm*m,0.000000,8
+84,SAEst01,Step,1,steps,0.000000,8
+85,SAEpr03,Pressure,0.1,kPa,0.000000,16
+86,SAEbs01,Bit Field,,,0.000000,1
+87,SAEbs02,Bit Field,,,0.000000,2
+88,SAEbs03,Bit Field,,,0.000000,3
+89,SAEbs04,Bit Field,,,0.000000,4
+90,SAEbs05,Bit Field,,,0.000000,5
+91,SAEbs06,Bit Field,,,0.000000,6
+92,SAEbs07,Bit Field,,,0.000000,7
+93,SAEbs08,Bit Field,,,0.000000,8
+94,SAEatf0001,"ASCII, text (fixed length)",,,0.000000,8
+95,SAEds07,Distance,1,m,0.000000,8
+96,SAErc01,Road Curvature,0.0078125,1/km,-250.000000,16
+97,SAEvr05,"Velocity, rotational",32,rpm,0.000000,8
+98,SAEtq03,Torque,2,Nm,0.000000,16
+99,SAEtm07,Time,1,min,-125.000000,8
+101,SAEgv02,Gear Value,1,,0.000000,8
+104,SAEec01,Electrical Current,0.05,A,-1600.000000,16
+106,SAEpr08,Pressure,2,kPa,0.000000,16
+107,SAEpw02,"Power, Real",2,W,0.000000,16
+108,SAEatad0200,"ASCII, text (variable, ""*"" delimited)",,,0.000000,-1
+109,SAEatad0005,"ASCII, text (variable, ""*"" delimited)",,,0.000000,-1
+110,SAEatf0007,"ASCII, text (fixed length)",,,0.000000,56
+111,SAEatad1728,"ASCII, text (variable, ""*"" delimited)",,,0.000000,-1
+112,SAEie01,Inertia,0.004,kg•m²,0.000000,16
+113,SAEad03,Angle/Direction,0.0009765625,rad,-31.370000,16
+114,SAEva01,"Velocity, angular",0.0001220703125,rad/s,-3.920000,16
+115,SAEac01,Acceleration,0.00048828125,m/s²,-15.690000,16
+116,SAEpg00,PGN,,,0.000000,24
+120,SAEcb01,Control byte,1,,0.000000,8
+121,SAEgf01,Group Function,1,,0.000000,8
+122,SAEma06,Mass,2,kg,0.000000,24
+125,SAEvl01,"Velocity, linear",0.001,m/s,0.000000,16
+126,SAEds05,Distance,0.001,m,0.000000,32
+127,SAEfr02,Force,10,N,-320000.000000,16
+128,SAEpc04,"Percent, position/level",0.8,%,-100.000000,8
+129,SAEct02,Count,1,,0.000000,8
+130,SAEpr12,Pressure,5,kPa,0.000000,16
+131,SAEatf0002,"ASCII, text (fixed length)",,,0.000000,16
+132,SAEtm02,Time,1,ms,0.000000,16
+133,SAEct03,"Count (no error, N/A)",1,,0.000000,8
+134,SAEvd01,VariantData,,,0.000000,32
+135,SAEfr03,Force,1000,kN,-100.000000,8
+136,SAEad07,Angle/Direction,0.00390625,deg,-125.000000,16
+137,SAEtq04,Torque,30,Nm,0.000000,8
+138,SAEpr04,Pressure,0.125,kPa,0.000000,16
+139,SAEde01,Dielectricity,0.1,,0.000000,8
+140,SAEac02,Acceleration,0.1,m/s²,-12.500000,8
+141,SAEct01,Count,1,turns,-32.000000,6
+142,SAEds02,Distance,0.0000001,m,-209.720000,32
+143,SAEec06,Electrical Current,0.001,A,0.000000,16
+144,SAEfq01,Frequency,0.0078125,Hz,0.000000,16
+145,SAEev02,Electrical Voltage,1,V,0.000000,16
+146,SAEec04,Electrical Current,1,A,0.000000,16
+147,SAEpw01,"Power, Real",1,Watts,-2000000000.000000,32
+148,SAEpa01,"Power, Apparent",1,VA,-2000000000.000000,32
+149,SAEpt01,"Power, Reactive",1,VAr,-2000000000.000000,32
+150,SAEen01,Energy,1,kWh,0.000000,32
+151,SAEpf01,Power Factor,0.00006103515625,,-1.000000,16
+154,SAEpd01,Proprietary Data,,,0.000000,-1
+155,SAEtd01,Transfer Data,,,0.000000,-1
+158,SAEtd02,Transport Data,,,0.000000,-1
+159,SAEnm01,Name (long),1,,0.000000,64
+161,SAEpr15,Pressure,100,kPa,0.000000,8
+162,SAEprc01,Pressure Rate Change,0.1,Pa/s,0.000000,16
+202,Diagnostic,,,,,
+204,SAEio01,"Intensity, optical",0.4,mW/cm²,0.000000,8
+205,SAEpc02,"Percent, position/level",0.1,%,0.000000,10
+206,SAEtm13,Time,0.0000512,s,0.000000,16
+207,SAEct06,"Count (no error, N/A)",1,,0.000000,24
+208,SAEct05,"Count (no error, N/A)",1,,0.000000,16
+209,SAEct07,"Count (no error, N/A)",1,,0.000000,32
+211,SAEca01,"Capacity, Battery",1,mAh,0.000000,16
+212,SAEatf0004,"ASCII, text (fixed length)",,,0.000000,32
+214,SAESP00,SPN,,,0.000000,19
+215,SAEfm00,FMI,,,0.000000,5
+216,SAEOC00,OC,,,0.000000,7
+217,SAEbs21,Bit Field,,,0.000000,21
+218,SAEbs11,Bit Field,,,0.000000,11
+219,SAEvm01,"Velocity, magnitude",2,m/h,0.000000,16
+220,SAEct08,"Count (no error, N/A)",1,,0.000000,4
+221,SAEev03,Electrical Voltage,0.01,V,0.000000,16
+222,SAEvm2,Volume,0.5,l,0.000000,16
+223,SAEvr06,"Velocity, rotational",1,rpm,0.000000,16
+224,SAEtm14,Time,0.1,h,0.000000,16
+225,SAEvm3,Volume,0.5,l,-62.500000,8
+226,SAEma04,Mass,0.1,kg,0.000000,16
+227,SAEma05,Mass,0.1,g,0.000000,16
+228,SAEatvn0100,"ASCII, text (variable, non-delimited)",,,0.000000,-1
+229,SAEpr16,Pressure,50,kPa,0.000000,8
+230,SAEct09,Count,1,,-125.000000,8
+231,SAEds12,Distance,1,mm,0.000000,16
+232,SAEct10,"Count (no error, N/A)",1,,0.000000,5
+233,SAEct11,"Count (no error, N/A)",1,,0.000000,12
+234,SAEds13,Distance,10,mm,0.000000,8
+235,SAEds14,Distance,1,mm,-32000.000000,16
+236,SAEpp01,Parts Per Million,0.05,ppm,-200.000000,16
+237,SAEpc16,Percent,0.000514,%,-12.000000,16
+238,SAEtm15,Time,1,min,0.000000,16
+239,SAEby01,Number of bytes,,,0.000000,8
+241,SAEtm16,Time,0.5,ms,0.000000,8
+242,SAEad08,Angle/Direction,0.002,deg,-64.000000,16
+243,SAEva02,"Velocity, angular",0.002,deg/s,-64.000000,16
+244,SAEad09,Angle/Direction,0.1,deg,-12.500000,8
+245,SAEbs32,Bit Field,,,0.000000,32
+246,SAEpr17,Pressure,1.64,kPa,-7.000000,8
+247,SAEtm17,Time,1,ms,0.000000,8
+248,SAEad10,Angle/Direction,0.5,deg,-65.000000,8
+249,SAEev04,Electrical Voltage,0.05,V,-1606.000000,16
+250,SAEec05,Electrical Current,0.05,A,0.000000,16
+251,SAEpc07,"Percent, position/level",0.1,%,-100.000000,16
+252,SAEev05,Electrical Voltage,0.0078125,V,0.000000,32
+254,SAEpc15,"Percent, concentration",0.25,%,0.000000,8
+255,SAEco01,Conductivity,5,µSiemens/mm,0.000000,8
+256,SAEpc08,"Percent, position/level",0.0078125,%,-251.000000,16
+257,SAEer01,"Energy, reactive",1,kVArh,0.000000,32
+258,SAEatnd0200,"ASCII, text (variable, NULL delimited)",,,0.000000,-1
+259,SAEse01,Selection,1,,0.000000,8
+260,SAEct12,"Count (no error, N/A)",1,,0.000000,7
+261,SAErc02,Road Curvature,0.0078125,deg,-90.000000,16
+262,SAEfg02,"Flow rate, gaseous",0.2,kg/h,0.000000,16
+263,SAEra01,Range,1,ranges,-32.000000,6
+264,SAEpc09,"Percent, position/level",0.004,%,-125.000000,16
+267,SAEma07,Mass,2,kg,-16449535.000000,24
+268,SAEpc10,"Percent, position/level",0.125,%,0.000000,4
+270,SAEds15,Distance,1,km,0.000000,16
+271,SAEatad0025,"ASCII, text (variable, ""*"" delimited)",,,0.000000,-1
+272,SAEfm01,"Flow rate, mass",0.3,g/h,0.000000,16
+273,SAEatf0005,"ASCII, text (fixed length)",,,0.000000,40
+274,SAEtc01,Trouble code,1,,0.000000,8
+275,SAEbm08,Bit mapped,,,0.000000,8
+276,SAEbm16,Bit mapped,,,0.000000,16
+277,SAEtd03,Test data,,,0.000000,16
+278,SAEbm64,Bit mapped,,,0.000000,64
+280,SAEbs24,Bit Field,,,0.000000,24
+281,SAEbs12,Bit Field,,,0.000000,12
+282,SAEatf0016,"ASCII, text (fixed length)",,,0.000000,128
+283,SAEmd01,Manufacturer defined,1,,0.000000,-1
+284,SAEcy02,"Calendar, years",1,years,2000.000000,6
+285,SAEsh01,Specific Humidity,0.01,g/kg,0.000000,16
+286,SAEma01,Mass,4,g,0.000000,8
+287,SAEdn01,Density,0.08,g/L,0.000000,8
+288,SAEva03,"Velocity, angular",0.0078125,deg/s,-250.000000,16
+290,SAErs01,Resistance,0.1,ohm,0.000000,16
+291,SAEatad0032,"ASCII, text (variable, ""*"" delimited)",,,0.000000,-1
+292,SAEbm05,Bit mapped,,,0.000000,5
+294,SAEad11,Angle/Direction,0.00003051757813,deg,-250.000000,24
+295,SAEpc17,"Percent, gain",0.1,%,-100.000000,16
+296,SAEpp02,Parts Per Million,1,ppm,-125.000000,8
+297,SAElg01,Lambda signal gain,0.5,%/bar,0.000000,8
+298,SAEsg02,Signal gain,0.5,%/bar,0.000000,8
+299,SAEpc18,Percent,0.5,%,0.000000,8
+300,SAEful02,"Fuel Used, liquid",0.001,l,0.000000,32
+301,SAEdv01,Dynamic viscosity,0.015625,Cp,0.000000,16
+302,SAEdn02,Density,0.00003052,g/cc,0.000000,16
+303,SAEac03,Acceleration,0.01,m/s²,-320.000000,16
+305,SAEpw04,"Power, Real",0.5,W,0.000000,16
+306,SAEct13,Count,1,,-32128.000000,16
+307,SAEde02,Dielectricity,0.0001220703125,,0.000000,16
+308,SAEpc19,"Percent, droop",0.04,%,0.000000,8
+317,SAEfm02,"Flow rate, mass",0.05,g/min,0.000000,16
+318,SAEr04,Ratio,0.0001220703125,,-3.920000,16
+319,SAEtm18,Time,0.1,µs,0.000000,16
+320,SAEfq02,Frequency,0.1,MHz,0.000000,16
+321,SAEfl02,"Flow rate, liquid",0.001,l/h,0.000000,32
+322,SAEtm19,Time,0.05,s,0.000000,8
+323,SAEef01,"Energy, Fuel",0.00390625,MJ/Nm³,0.000000,16
+324,SAEtm21,Time,1,h,0.000000,16
+325,SAEid02,"Identifier,component/software",1,,0.000000,24
+326,SAEsg03,Signal gain,0.5,dBm,-125.000000,8
+333,SAEtm20,Time,0.01,s,0.000000,16
+334,SAEpc20,Percent,0.001,%,-32.000000,16
+336,SAEfm03,"Flow rate, mass",0.005,g/s,0.000000,16
+337,SAEms01,Mass Concentration,0.0125,mg/m³,0.000000,16
+339,SAEatf0008,"ASCII, text (fixed length)",,,0.000000,128
+340,SAEct14,Count,1,,0.000000,32
+342,SAEca02,"Capacity, Battery",0.01,Ah,0.000000,16
+343,SAEca03,"Capacity, Battery",100,Ah,0.000000,32
+345,SAEpc21,Percent,0.0015625,%,0.000000,16
+346,SAEpw05,"Power, Real",0.05,kW,0.000000,16
+347,SAEev06,Electrical Voltage,0.001,V,0.000000,16
+348,SAEpp03,Parts Per Million,0.1,ppm,-200.000000,16
+349,SAEpp04,Parts Per Million,0.05,ppm,-500.000000,16
+350,SAEfl03,"Flow rate, liquid",0.05,l/h,-1600.000000,16
+351,SAEca04,"Capacity, Battery",1,Ah,0.000000,16
+352,SAEec07,Electrical Current,0.005,A,0.000000,16
+353,SAEtm22,Time,0.1,µs,-3212.700000,16
+354,SAEen02,Energy,10,kJ,0.000000,16
+355,SAEpr18,Pressure,0.1,kPa,-3212.700000,16
+356,SAEma09,Mass,10,mg,0.000000,16
+357,SAEpr19,Pressure,0.0078125,kPa,0.000000,16
+359,SAEdp01,"Differential Pressure, Compensated",0.025,(kPa•s)/m³,0.000000,16
+358,SAEtp04,Temperature,0.0078125,C,-273.000000,16
+360,SAEfm04,"Flow rate, mass",0.1,kg/h,-3212.700000,16
+361,SAEfm05,"Flow rate, mass",1,kg/h,-32127.000000,16
+362,SAEr05,Ratio,0.01,,0.000000,16
+363,SAEma10,Mass,0.015625,g,0.000000,16
+364,SAEpr20,Pressure,0.0001220703125,MPa,-1.000000,16
+365,SAEad12,Angle/Direction,0.0078125,deg,-250.000000,16
+366,SAEen03,Energy,0.0001220703125,kJ/l,-1.000000,16
+367,SAEpr21,Pressure,0.0009765625,MPa,0.000000,16
+369,SAEfg03,"Flow rate, gaseous",0.00006103515625,kg/s,0.000000,16
+370,SAEpw06,"Power, Real",0.0625,kW,0.000000,16
+372,SAEfg04,"Flow rate, gaseous",0.0009765625,kg/s,0.000000,16
+373,SAEid03,"Identifier,component/software",1,,0.000000,16
+375,SAEr06,Ratio,0.03125,,-1004.000000,16
+376,SAEvm4,Volume,0.05,l,0.000000,32
+377,SAEpr22,Pressure,1,kPa,0.000000,16
+378,SAEvr07,"Velocity, rotational",1,rpm,-32127.000000,16
+379,SAEad13,Angle/Direction,0.0078125,deg,-400.000000,16
+380,SAEtm23,Time,2,µs,0.000000,16
+381,SAEatad0050,"ASCII, text (variable, ""*"" delimited)",,,0.000000,-1
+383,SAErs02,Resistance,1,kohm,0.000000,16
+384,SAEtm24,Time,6,s,0.000000,16
+385,SAErs03,Resistance,250,kohm,0.000000,8
+386,SAEpr23,Pressure,10,kPa,-40000.000000,16
+387,SAEpc22,Percent,0.01,%,-321.270000,16
+388,SAEfm06,"Flow rate, mass",0.1,kg/min,-200.000000,16
+389,SAEfi01,Fuel Injection Quantity,0.00390625,mg/stroke,-125.000000,16
+390,SAEev07,Electrical Voltage,0.1,mV,-200.000000,16
+393,SAEpr24,Pressure,0.0035176,MPa,-102.010000,16
+394,SAEr07,Ratio,0.01,,-300.000000,16
+395,SAEct15,Count,1,,0.000000,4
+396,SAEfm07,"Flow rate, mass",0.02,g/s,0.000000,16
+397,SAEfm08,"Flow rate, mass",0.2,kg/h,0.000000,16
+398,SAEvr08,"Velocity, rotational",0.25,rpm,-8031.750000,16
+399,SAEvl06,"Velocity, linear",0.00390625,km/h,-125.000000,16
+400,SAEfi02,Fuel Injection Quantity,0.03125,mg/stroke,0.000000,16
+401,SAEvl07,"Velocity, linear",0.1,m/s,0.000000,16
+403,SAEec08,Electrical Current,0.00390625,µA,0.000000,16
+404,SAEpc23,Percent,0.125,%,-16.000000,8
+405,SAEvl08,"Velocity, linear",0.125,km/h,0.000000,8
+406,SAEvl09,"Velocity, linear",0.125,km/h,-31.250000,8
+407,SAEds16,Distance,0.02,m,0.000000,8
+409,SAEev08,Electrical Voltage,0.2,V,0.000000,8
+410,SAEec09,Electrical Current,0.25,A,0.000000,8
+411,SAEprc02,Pressure Rate Change,16,kPa/deg crank angle,0.000000,8
+412,SAEma12,Mass,100,kg,0.000000,32
+413,SAEvm5,Volume,0.5,m³,0.000000,32
+414,SAEaa01,Angular Acceleration,1,rpm/s,0.000000,16
+415,SAEma13,Mass,0.001,g,0.000000,16
+416,SAEtma01,Temperature per mass flow,0.015625,C/kg/s,-502.000000,16
+418,SAEen04,Energy,0.001,kWh,0.000000,24
+419,SAEfg05,"Flow rate, gaseous",0.001,kg/h,0.000000,32
+420,SAEds17,Distance,1,cm,-125.000000,8
+421,SAEatf0003,"ASCII, text (fixed length)",,,0.000000,24
+422,SAEct16,Count,1,,0.000000,24
+423,SAEev09,Electrical Voltage,0.02044,V,0.000000,8
+424,SAEen05,Energy,100,Watt-hour,0.000000,32
+425,SAEfq03,Frequency,1,Hz,0.000000,8
+426,SAEfqr01,Frequency Rate,2,Hz/s,0.000000,8
+427,SAEvrms01,Voltage rms,2,Vrms,0.000000,8
+428,SAEpw07,"Power, Real",0.1,kW,0.000000,8
+429,SAEri01,Isolation Resistance,0.1,ohm/V,0.000000,16
+430,SAEpc11,"Percent, position/level",0.005,%,-150.000000,16
+431,SAEpr25,Pressure,0.0078125,kPa,-100.000000,16

@@ -1,6 +1,6 @@
 <!-- Copyright 2019 Equipment & Tool Institute -->
 <project name="J1939_84" default="compile" basedir="." xmlns:jacoco="antlib:org.jacoco.ant">
-    <description>The Ant build file for the IUMPR Project.</description>
+    <description>The Ant build file for the J1939-84 Project.</description>
 
     <!-- set global properties for this build -->
     <property name="project.name" value="J1939-84"/>
@@ -159,7 +159,7 @@
             <executiondata>
                 <file file="${build}/jacoco/jacoco.exec"/>
             </executiondata>
-            <structure name="IUMPR">
+            <structure name="J1939_84">
                 <classfiles>
                     <fileset dir="${build}">
                         <exclude name="**/*Test.class"/>
