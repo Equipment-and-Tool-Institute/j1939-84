@@ -11,6 +11,8 @@ import java.util.logging.Logger;
 
 import javax.swing.UIManager;
 
+import org.etools.j1939_84.ui.UserInterfaceView;
+
 /**
  * Main class for the J1939_84 Application
  *
@@ -96,7 +98,7 @@ public class J1939_84 {
 
 		EventQueue.invokeLater(() -> {
 			try {
-				// TODO Launch UI
+				new UserInterfaceView().getFrame().setVisible(true);
 			} catch (Exception e) {
 				getLogger().log(Level.SEVERE, "Error showing frame", e);
 			}

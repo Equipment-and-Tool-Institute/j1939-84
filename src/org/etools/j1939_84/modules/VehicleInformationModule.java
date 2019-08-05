@@ -3,19 +3,24 @@
  */
 package org.etools.j1939_84.modules;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 
+import java.io.IOException;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
 import org.etools.j1939_84.bus.j1939.packets.HighResVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
@@ -32,131 +37,216 @@ import org.etools.j1939_84.controllers.ResultsListener;
  */
 public class VehicleInformationModule extends FunctionalModule {
 
-    /**
-     * Constructor
-     */
-    public VehicleInformationModule() {
-        this(new DateTimeModule());
-    }
+	/**
+	 * Helper method to convert a {@link Set} of {@link CalibrationInformation}
+	 * to a {@link String}
+	 *
+	 * @param cals
+	 *             the {@link Set} of {@link CalibrationInformation}
+	 * @return {@link String}
+	 */
+	private static String calibrationAsString(Set<CalibrationInformation> cals) {
+		return cals.stream().map(t -> t.toString()).collect(Collectors.joining(NL));
+	}
 
-    /**
-     * Constructor exposed for testing
-     *
-     * @param dateTimeModule
-     *            the {@link DateTimeModule} to use
-     */
-    public VehicleInformationModule(DateTimeModule dateTimeModule) {
-        super(dateTimeModule);
-    }
+	/**
+	 * The calibrations read from the vehicle
+	 */
+	private Set<CalibrationInformation> calibrations;
 
-    /**
-     * Sends the Request for Address Claim and reports the results
-     *
-     * @param listener
-     *            the {@link ResultsListener} that will be given the report
-     */
-    public void reportAddressClaim(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(AddressClaimPacket.PGN, GLOBAL_ADDR);
-        List<AddressClaimPacket> responses = generateReport(listener, "Global Request for Address Claim",
-                AddressClaimPacket.class, request);
-        if (!responses.isEmpty() && !responses.stream().filter(p -> p.getFunctionId() == 0).findAny().isPresent()) {
-            listener.onResult("Error: No module reported Function 0");
-        }
-    }
+	/**
+	 * The Vehicle Identification Number read from the vehicle
+	 */
+	private String vin;
 
-    /**
-     * Requests the Calibration Information from all vehicle modules and
-     * generates a {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *            the {@link ResultsListener} that will be given the report
-     */
-    public void reportCalibrationInformation(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM19CalibrationInformationPacket.PGN, GLOBAL_ADDR);
-        generateReport(listener, "Global DM19 (Calibration Information) Request",
-                DM19CalibrationInformationPacket.class,
-                request);
-    }
+	/**
+	 * Constructor
+	 */
+	public VehicleInformationModule() {
+		this(new DateTimeModule());
+	}
 
-    /**
-     * Requests the Component Identification from all vehicle modules and
-     * generates a {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *            the {@link ResultsListener} that will be given the report
-     */
-    public void reportComponentIdentification(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(ComponentIdentificationPacket.PGN, GLOBAL_ADDR);
-        generateReport(listener, "Global Component Identification Request", ComponentIdentificationPacket.class,
-                request);
-    }
+	/**
+	 * Constructor exposed for testing
+	 *
+	 * @param dateTimeModule
+	 *                       the {@link DateTimeModule} to use
+	 */
+	public VehicleInformationModule(DateTimeModule dateTimeModule) {
+		super(dateTimeModule);
+	}
 
-    /**
-     * Queries the bus and reports the speed of the vehicle bus
-     *
-     * @param listener
-     *            the {@link ResultsListener} that will be given the report
-     */
-    public void reportConnectionSpeed(ResultsListener listener) {
-        String result = getDateTime() + " Baud Rate: ";
-        try {
-            int speed = getJ1939().getBus().getConnectionSpeed();
-            result += NumberFormat.getInstance(Locale.US).format(speed) + " bps";
-        } catch (BusException e) {
-            result += "Could not be determined";
-        }
-        listener.onResult(result);
-    }
+	/**
+	 * Queries the vehicle for all {@link CalibrationInformation} from the
+	 * modules
+	 *
+	 * @return a {@link Set} of {@link CalibrationInformation}
+	 * @throws IOException
+	 *                     if there are no {@link CalibrationInformation} returned
+	 */
+	private Set<CalibrationInformation> getCalibrations() throws IOException {
+		if (calibrations == null) {
+			calibrations = getJ1939().requestMultiple(DM19CalibrationInformationPacket.class)
+					.flatMap(t -> t.getCalibrationInformation().stream()).collect(Collectors.toSet());
+			if (calibrations.isEmpty()) {
+				throw new IOException("Timeout Error Reading Calibrations");
+			}
+		}
+		return calibrations;
+	}
 
-    /**
-     * Requests the Engine Hours from the engine and generates a {@link String}
-     * that's suitable for inclusion in the report
-     *
-     * @param listener
-     *            the {@link ResultsListener} that will be given the report
-     */
-    public void reportEngineHours(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(EngineHoursPacket.PGN, GLOBAL_ADDR);
-        generateReport(listener, "Engine Hours Request", EngineHoursPacket.class, request);
-    }
+	/**
+	 * Queries the vehicle for all {@link CalibrationInformation} from the
+	 * modules. A {@link String} of the resulting {@link CalibrationInformation}
+	 * is returned
+	 *
+	 * @return {@link String}
+	 * @throws IOException
+	 *                     if there are no {@link CalibrationInformation} returned
+	 */
+	public String getCalibrationsAsString() throws IOException {
+		return calibrationAsString(getCalibrations());
+	}
 
-    /**
-     * Requests the maximum Total Vehicle Distance from the vehicle and
-     * generates a {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *            the {@link ResultsListener} that will be given the report
-     */
-    public void reportVehicleDistance(ResultsListener listener) {
-        listener.onResult(getDateTime() + " Vehicle Distance");
-        Optional<HighResVehicleDistancePacket> hiResPacket = getJ1939()
-                .read(HighResVehicleDistancePacket.class, 3, TimeUnit.SECONDS)
-                .filter(p -> p.getTotalVehicleDistance() != ParsedPacket.NOT_AVAILABLE
-                        && p.getTotalVehicleDistance() != ParsedPacket.ERROR)
-                .max((p1, p2) -> Double.compare(p1.getTotalVehicleDistance(), p2.getTotalVehicleDistance()));
+	/**
+	 * Queries the vehicle for the VIN.
+	 *
+	 * @return the Vehicle Identification Number as a {@link String}
+	 * @throws IOException
+	 *                     if no value is returned from the vehicle or different
+	 *                     VINs
+	 *                     are returned
+	 */
+	public String getVin() throws IOException {
+		if (vin == null) {
+			Set<String> vins = getJ1939().requestMultiple(VehicleIdentificationPacket.class).map(t -> t.getVin())
+					.collect(Collectors.toSet());
+			if (vins.size() == 0) {
+				throw new IOException("Timeout Error Reading VIN");
+			}
+			if (vins.size() > 1) {
+				throw new IOException("Different VINs Received");
+			}
+			vin = vins.stream().findFirst().get();
+		}
+		return vin;
+	}
 
-        Optional<? extends ParsedPacket> packet;
-        if (hiResPacket.isPresent()) {
-            packet = hiResPacket;
-        } else {
-            packet = getJ1939().read(TotalVehicleDistancePacket.class, 300, TimeUnit.MILLISECONDS)
-                    .filter(p -> p.getTotalVehicleDistance() != ParsedPacket.NOT_AVAILABLE
-                            && p.getTotalVehicleDistance() != ParsedPacket.ERROR)
-                    .max((p1, p2) -> Double.compare(p1.getTotalVehicleDistance(), p2.getTotalVehicleDistance()));
-        }
+	/**
+	 * Sends the Request for Address Claim and reports the results
+	 *
+	 * @param listener
+	 *                 the {@link ResultsListener} that will be given the report
+	 */
+	public void reportAddressClaim(ResultsListener listener) {
+		Packet request = getJ1939().createRequestPacket(AddressClaimPacket.PGN, GLOBAL_ADDR);
+		List<AddressClaimPacket> responses = generateReport(listener, "Global Request for Address Claim",
+				AddressClaimPacket.class, request);
+		if (!responses.isEmpty() && !responses.stream().filter(p -> p.getFunctionId() == 0).findAny().isPresent()) {
+			listener.onResult("Error: No module reported Function 0");
+		}
+	}
 
-        listener.onResult(packet.map(getPacketMapperFunction()).orElse(TIMEOUT_MESSAGE));
-    }
+	/**
+	 * Requests the Calibration Information from all vehicle modules and
+	 * generates a {@link String} that's suitable for inclusion in the report
+	 *
+	 * @param listener
+	 *                 the {@link ResultsListener} that will be given the report
+	 */
+	public void reportCalibrationInformation(ResultsListener listener) {
+		Packet request = getJ1939().createRequestPacket(DM19CalibrationInformationPacket.PGN, GLOBAL_ADDR);
+		generateReport(listener, "Global DM19 (Calibration Information) Request",
+				DM19CalibrationInformationPacket.class, request);
+	}
 
-    /**
-     * Requests the Vehicle Identification from all vehicle modules and
-     * generates a {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *            the {@link ResultsListener} that will be given the report
-     */
-    public void reportVin(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(VehicleIdentificationPacket.PGN, GLOBAL_ADDR);
-        generateReport(listener, "Global VIN Request", VehicleIdentificationPacket.class, request);
-    }
+	/**
+	 * Requests the Component Identification from all vehicle modules and
+	 * generates a {@link String} that's suitable for inclusion in the report
+	 *
+	 * @param listener
+	 *                 the {@link ResultsListener} that will be given the report
+	 */
+	public void reportComponentIdentification(ResultsListener listener) {
+		Packet request = getJ1939().createRequestPacket(ComponentIdentificationPacket.PGN, GLOBAL_ADDR);
+		generateReport(listener, "Global Component Identification Request", ComponentIdentificationPacket.class,
+				request);
+	}
+
+	/**
+	 * Queries the bus and reports the speed of the vehicle bus
+	 *
+	 * @param listener
+	 *                 the {@link ResultsListener} that will be given the report
+	 */
+	public void reportConnectionSpeed(ResultsListener listener) {
+		String result = getDateTime() + " Baud Rate: ";
+		try {
+			int speed = getJ1939().getBus().getConnectionSpeed();
+			result += NumberFormat.getInstance(Locale.US).format(speed) + " bps";
+		} catch (BusException e) {
+			result += "Could not be determined";
+		}
+		listener.onResult(result);
+	}
+
+	/**
+	 * Requests the Engine Hours from the engine and generates a {@link String}
+	 * that's suitable for inclusion in the report
+	 *
+	 * @param listener
+	 *                 the {@link ResultsListener} that will be given the report
+	 */
+	public void reportEngineHours(ResultsListener listener) {
+		Packet request = getJ1939().createRequestPacket(EngineHoursPacket.PGN, GLOBAL_ADDR);
+		generateReport(listener, "Engine Hours Request", EngineHoursPacket.class, request);
+	}
+
+	/**
+	 * Requests the maximum Total Vehicle Distance from the vehicle and
+	 * generates a {@link String} that's suitable for inclusion in the report
+	 *
+	 * @param listener
+	 *                 the {@link ResultsListener} that will be given the report
+	 */
+	public void reportVehicleDistance(ResultsListener listener) {
+		listener.onResult(getDateTime() + " Vehicle Distance");
+		Optional<HighResVehicleDistancePacket> hiResPacket = getJ1939()
+				.read(HighResVehicleDistancePacket.class, 3, TimeUnit.SECONDS)
+				.filter(p -> p.getTotalVehicleDistance() != ParsedPacket.NOT_AVAILABLE
+						&& p.getTotalVehicleDistance() != ParsedPacket.ERROR)
+				.max((p1, p2) -> Double.compare(p1.getTotalVehicleDistance(), p2.getTotalVehicleDistance()));
+
+		Optional<? extends ParsedPacket> packet;
+		if (hiResPacket.isPresent()) {
+			packet = hiResPacket;
+		} else {
+			packet = getJ1939().read(TotalVehicleDistancePacket.class, 300, TimeUnit.MILLISECONDS)
+					.filter(p -> p.getTotalVehicleDistance() != ParsedPacket.NOT_AVAILABLE
+							&& p.getTotalVehicleDistance() != ParsedPacket.ERROR)
+					.max((p1, p2) -> Double.compare(p1.getTotalVehicleDistance(), p2.getTotalVehicleDistance()));
+		}
+
+		listener.onResult(packet.map(getPacketMapperFunction()).orElse(TIMEOUT_MESSAGE));
+	}
+
+	/**
+	 * Requests the Vehicle Identification from all vehicle modules and
+	 * generates a {@link String} that's suitable for inclusion in the report
+	 *
+	 * @param listener
+	 *                 the {@link ResultsListener} that will be given the report
+	 */
+	public void reportVin(ResultsListener listener) {
+		Packet request = getJ1939().createRequestPacket(VehicleIdentificationPacket.PGN, GLOBAL_ADDR);
+		generateReport(listener, "Global VIN Request", VehicleIdentificationPacket.class, request);
+	}
+
+	/**
+	 * Clears the cached values that have been read from the vehicle
+	 */
+	public void reset() {
+		vin = null;
+		calibrations = null;
+	}
 }

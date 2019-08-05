@@ -1,0 +1,681 @@
+/**
+ * Copyright 2019 Equipment & Tool Institute
+ */
+package org.etools.j1939_84.ui;
+
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNotNull;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.io.File;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+
+import javax.swing.JOptionPane;
+
+import org.etools.j1939_84.TestExecutor;
+import org.etools.j1939_84.bus.Adapter;
+import org.etools.j1939_84.bus.BusException;
+import org.etools.j1939_84.bus.RP1210;
+import org.etools.j1939_84.bus.RP1210Bus;
+import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.controllers.Controller;
+import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.modules.ReportFileModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.ui.help.HelpView;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.InOrder;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.junit.MockitoJUnitRunner;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
+/**
+ * Unit testing the {@link UserInterfaceController}
+ *
+ * @author Matt Gumbel (matt@soliddesign.net)
+ *
+ */
+@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The values returned are properly ignored on verify statements.")
+@RunWith(MockitoJUnitRunner.class)
+public class UserInterfaceControllerTest {
+
+	private static final String path = "file\\location\\name.j1939-84";
+
+	private static File mockFile(boolean newFile) throws IOException {
+		File file = mock(File.class);
+		when(file.exists()).thenReturn(false);
+		when(file.getName()).thenReturn("name.j1939-84");
+		when(file.getAbsolutePath()).thenReturn(path);
+		when(file.createNewFile()).thenReturn(newFile);
+		return file;
+	}
+
+	private final Adapter adapter1 = new Adapter("Adapter1", "SD", (short) 1);
+
+	private final Adapter adapter2 = new Adapter("Adapter2", "SD", (short) 2);
+
+	@Mock
+	private VehicleInformationModule comparisonModule;
+
+	private TestExecutor executor;
+
+	@Mock
+	private HelpView helpView;
+
+	private UserInterfaceController instance;
+
+	@Mock
+	private ReportFileModule reportFileModule;
+
+	@Mock
+	private RP1210 rp1210;
+
+	@Mock
+	private RP1210Bus rp1210Bus;
+
+	@Mock
+	private Runtime runtime;
+
+	private Thread shutdownHook;
+
+	@Mock
+	private UserInterfaceContract.View view;
+
+	@Before
+	public void setUp() throws Exception {
+		executor = new TestExecutor();
+		List<Adapter> adapters = new ArrayList<>();
+		adapters.add(adapter1);
+		adapters.add(adapter2);
+		when(rp1210.getAdapters()).thenReturn(adapters);
+		when(rp1210.setAdapter(any(), eq(0xF9))).thenReturn(rp1210Bus);
+
+		instance = new UserInterfaceController(view, comparisonModule, rp1210, reportFileModule, runtime, executor,
+				helpView);
+		ArgumentCaptor<Thread> captor = ArgumentCaptor.forClass(Thread.class);
+		verify(runtime).addShutdownHook(captor.capture());
+		shutdownHook = captor.getValue();
+	}
+
+	@After
+	public void tearDown() throws Exception {
+		verifyNoMoreInteractions(reportFileModule, rp1210, rp1210Bus, runtime, comparisonModule, view, helpView);
+	}
+
+	@Test
+	public void testDisconnect() throws Exception {
+		instance.onAdapterComboBoxItemSelected("Adapter1");
+		executor.run();
+
+		instance.disconnect();
+
+		verify(comparisonModule).reset();
+		verify(comparisonModule).setJ1939(any(J1939.class));
+
+		InOrder inOrder = inOrder(view);
+		inOrder.verify(view).setVin("");
+		inOrder.verify(view).setEngineCals("");
+		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStopButtonEnabled(false);
+		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(false);
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setProgressBarText("Connecting to Adapter");
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+		inOrder.verify(view).setProgressBarText("Select Report File");
+
+		verify(rp1210Bus).stop();
+		verify(rp1210).getAdapters();
+		verify(rp1210).setAdapter(adapter1, 0xF9);
+	}
+
+	@Test
+	public void testDisconnectHandlesException() throws Exception {
+		instance.onAdapterComboBoxItemSelected("Adapter1");
+		executor.run();
+
+		Mockito.doThrow(new BusException("Testing")).when(rp1210Bus).stop();
+
+		instance.disconnect();
+
+		verify(comparisonModule).reset();
+		verify(comparisonModule).setJ1939(any(J1939.class));
+
+		InOrder inOrder = inOrder(view);
+		inOrder.verify(view).setVin("");
+		inOrder.verify(view).setEngineCals("");
+		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStopButtonEnabled(false);
+		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(false);
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setProgressBarText("Connecting to Adapter");
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+		inOrder.verify(view).setProgressBarText("Select Report File");
+
+		verify(rp1210Bus).stop();
+		verify(rp1210).getAdapters();
+		verify(rp1210).setAdapter(adapter1, 0xF9);
+	}
+
+	@Test
+	public void testDisconnectWithNull() {
+		instance.disconnect();
+		// Nothing bad happens
+	}
+
+	@Test
+	public void testGetAdapters() throws Exception {
+		List<Adapter> adapters = instance.getAdapters();
+		assertEquals(2, adapters.size());
+		assertEquals("Adapter1", adapters.get(0).getName());
+		assertEquals("Adapter2", adapters.get(1).getName());
+		verify(rp1210).getAdapters();
+	}
+
+	@Test
+	public void testGetAdaptersHandlesException() throws Exception {
+		when(rp1210.getAdapters()).thenThrow(new BusException("Surprise", new Exception()));
+		assertEquals(0, instance.getAdapters().size());
+
+		// Doesn't happen again
+		assertEquals(0, instance.getAdapters().size());
+
+		verify(rp1210).getAdapters();
+
+		verify(view).displayDialog("The List of Communication Adapters could not be loaded.", "Failure",
+				JOptionPane.ERROR_MESSAGE, false);
+	}
+
+	@Test
+	public void testGetReportFileModule() {
+		assertSame(reportFileModule, instance.getReportFileModule());
+	}
+
+	@Test
+	public void testOnAdapterComboBoxItemSelectedWithFile() throws Exception {
+		File file = File.createTempFile("test", ".j1939-84");
+		instance.setReportFile(file);
+		when(rp1210Bus.getAddress()).thenReturn(0xF9);
+
+		instance.onAdapterComboBoxItemSelected("Adapter1");
+		executor.run();
+
+		J1939 actual = instance.getNewJ1939();
+		assertEquals(0xF9, actual.getBusAddress());
+
+		InOrder inOrder = inOrder(view);
+		inOrder.verify(view).setVin("");
+		inOrder.verify(view).setEngineCals("");
+		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStopButtonEnabled(false);
+		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(false);
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setProgressBarText("Connecting to Adapter");
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+		inOrder.verify(view).setProgressBarText("Push Read Vehicle Info Button");
+		inOrder.verify(view).setReadVehicleInfoButtonEnabled(true);
+
+		verify(comparisonModule).reset();
+		verify(comparisonModule).setJ1939(any(J1939.class));
+
+		verify(reportFileModule).setReportFile(any(ResultsListener.class), eq(file));
+
+		verify(rp1210).getAdapters();
+		verify(rp1210).setAdapter(adapter1, 0xF9);
+		verify(rp1210Bus).getAddress();
+	}
+
+	@Test
+	public void testOnAdapterComboBoxItemSelectedWithNoFile() throws Exception {
+		instance.setReportFile(null);
+
+		instance.onAdapterComboBoxItemSelected("Adapter1");
+		executor.run();
+
+		assertEquals("Adapter1", instance.getSelectedAdapter().getName());
+
+		InOrder inOrder = inOrder(view);
+		inOrder.verify(view).setVin("");
+		inOrder.verify(view).setEngineCals("");
+		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStopButtonEnabled(false);
+		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(false);
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setProgressBarText("Connecting to Adapter");
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+		inOrder.verify(view).setProgressBarText("Select Report File");
+
+		verify(comparisonModule).reset();
+		verify(comparisonModule).setJ1939(any(J1939.class));
+		verify(reportFileModule).setReportFile(any(ResultsListener.class), eq(null));
+
+		verify(rp1210).getAdapters();
+		verify(rp1210).setAdapter(adapter1, 0xF9);
+	}
+
+	@Test
+	public void testOnFileChosenExistingFileWithProblem() throws Exception {
+		File file = mockFile(true);
+
+		Mockito.doThrow(new IOException("There was a failure")).when(reportFileModule)
+				.setReportFile(any(ResultsListener.class), eq(file));
+
+		instance.onFileChosen(file);
+		executor.run();
+
+		assertNull(instance.getReportFile());
+		verify(view).displayDialog(
+				"File cannot be used." + NL + "There was a failure" + NL + "Please select a different file.",
+				"File Error", JOptionPane.ERROR_MESSAGE, false);
+
+		verify(comparisonModule).reset();
+
+		InOrder inOrder = inOrder(view, reportFileModule);
+		inOrder.verify(view).setVin("");
+		inOrder.verify(view).setEngineCals("");
+		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStopButtonEnabled(false);
+		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(false);
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setProgressBarText("Scanning Report File");
+		inOrder.verify(reportFileModule).setReportFile(any(ResultsListener.class), eq(file));
+		inOrder.verify(view).setSelectFileButtonText(null);
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+		inOrder.verify(view).setProgressBarText("Select Vehicle Adapter");
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+	}
+
+	@Test
+	public void testOnFileChosenNewFileWithExtensionCreated() throws Exception {
+		File file = mockFile(true);
+
+		instance.onFileChosen(file);
+		executor.run();
+
+		File reportFile = instance.getReportFile();
+		assertNotNull(reportFile);
+		assertEquals(path, reportFile.getAbsolutePath());
+		verify(view).setSelectFileButtonText(path);
+
+		verify(reportFileModule).setReportFile(any(ResultsListener.class), eq(file));
+
+		verify(comparisonModule).reset();
+
+		InOrder inOrder = inOrder(view);
+		inOrder.verify(view).setVin("");
+		inOrder.verify(view).setEngineCals("");
+		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStopButtonEnabled(false);
+		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(false);
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setProgressBarText("Scanning Report File");
+		inOrder.verify(view).setSelectFileButtonText(file.getAbsolutePath());
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+		inOrder.verify(view).setProgressBarText("Select Vehicle Adapter");
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+	}
+
+	@Test
+	public void testOnFileChosenNewFileWithExtensionNotCreated() throws Exception {
+		File file = mockFile(false);
+
+		instance.onFileChosen(file);
+		executor.run();
+
+		assertNull(instance.getReportFile());
+		verify(view).displayDialog(
+				"File cannot be used." + NL + "File cannot be created" + NL + "Please select a different file.",
+				"File Error", JOptionPane.ERROR_MESSAGE, false);
+
+		verify(comparisonModule).reset();
+
+		InOrder inOrder = inOrder(view);
+		inOrder.verify(view).setVin("");
+		inOrder.verify(view).setEngineCals("");
+		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStopButtonEnabled(false);
+		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(false);
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setProgressBarText("Scanning Report File");
+		inOrder.verify(view).setSelectFileButtonText(null);
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+		inOrder.verify(view).setProgressBarText("Select Vehicle Adapter");
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+	}
+
+	@Test
+	public void testOnFileChosenNewFileWithoutExtensionCreated() throws Exception {
+		File tempFile = File.createTempFile("testing", ".txt");
+		assertTrue(tempFile.delete());
+		File file = new File(tempFile.getAbsolutePath());
+
+		instance.onFileChosen(file);
+		executor.run();
+
+		File reportFile = instance.getReportFile();
+		assertNotNull(reportFile);
+		assertTrue(reportFile.getAbsolutePath().endsWith(tempFile.getName() + ".j1939-84"));
+
+		verify(reportFileModule).setReportFile(any(ResultsListener.class), eq(reportFile));
+
+		verify(comparisonModule).reset();
+
+		InOrder inOrder = inOrder(view);
+		inOrder.verify(view).setVin("");
+		inOrder.verify(view).setEngineCals("");
+		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStopButtonEnabled(false);
+		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(false);
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setProgressBarText("Scanning Report File");
+		inOrder.verify(view).setSelectFileButtonText(reportFile.getAbsolutePath());
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+		inOrder.verify(view).setProgressBarText("Select Vehicle Adapter");
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+	}
+
+	@Test
+	public void testOnFileChosenWithAdapter() throws Exception {
+		instance.onAdapterComboBoxItemSelected("Adapter1");
+		executor.run();
+
+		verify(rp1210).getAdapters();
+		verify(rp1210).setAdapter(adapter1, 0xF9);
+		verify(comparisonModule).setJ1939(any(J1939.class));
+		verify(comparisonModule).reset();
+
+		InOrder inOrder1 = inOrder(view);
+		inOrder1.verify(view).setVin("");
+		inOrder1.verify(view).setEngineCals("");
+		inOrder1.verify(view).setGoButtonEnabled(false);
+		inOrder1.verify(view).setStopButtonEnabled(false);
+		inOrder1.verify(view).setReadVehicleInfoButtonEnabled(false);
+		inOrder1.verify(view).setAdapterComboBoxEnabled(false);
+		inOrder1.verify(view).setSelectFileButtonEnabled(false);
+		inOrder1.verify(view).setProgressBarText("Connecting to Adapter");
+		inOrder1.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder1.verify(view).setSelectFileButtonEnabled(true);
+		inOrder1.verify(view).setProgressBarText("Select Report File");
+
+		File file = mockFile(true);
+		instance.onFileChosen(file);
+		executor.run();
+
+		verify(reportFileModule).setReportFile(any(ResultsListener.class), eq(file));
+
+		assertSame(file, instance.getReportFile());
+
+		verify(comparisonModule, times(2)).reset();
+
+		InOrder inOrder2 = inOrder(view);
+		inOrder2.verify(view, times(2)).setVin("");
+		inOrder2.verify(view).setEngineCals("");
+		inOrder2.verify(view).setGoButtonEnabled(false);
+		inOrder2.verify(view).setStopButtonEnabled(false);
+		inOrder2.verify(view).setReadVehicleInfoButtonEnabled(false);
+		inOrder2.verify(view).setAdapterComboBoxEnabled(false);
+		inOrder2.verify(view).setSelectFileButtonEnabled(false);
+		inOrder2.verify(view).setProgressBarText("Scanning Report File");
+		inOrder2.verify(view).setSelectFileButtonText(file.getAbsolutePath());
+		inOrder2.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder2.verify(view).setSelectFileButtonEnabled(true);
+		inOrder2.verify(view).setProgressBarText("Push Read Vehicle Info Button");
+		inOrder2.verify(view).setReadVehicleInfoButtonEnabled(true);
+		inOrder2.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder2.verify(view).setSelectFileButtonEnabled(true);
+	}
+
+	@Test
+	public void testOnFileChosenWithNoAdapter() throws Exception {
+		File file = mockFile(true);
+		instance.onFileChosen(file);
+		executor.run();
+
+		verify(reportFileModule).setReportFile(any(ResultsListener.class), eq(file));
+
+		assertSame(file, instance.getReportFile());
+
+		verify(comparisonModule).reset();
+
+		InOrder inOrder = inOrder(view);
+		inOrder.verify(view).setVin("");
+		inOrder.verify(view).setEngineCals("");
+		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStopButtonEnabled(false);
+		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(false);
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setProgressBarText("Scanning Report File");
+		inOrder.verify(view).setSelectFileButtonText(file.getAbsolutePath());
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+		inOrder.verify(view).setProgressBarText("Select Vehicle Adapter");
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+	}
+
+	@Test
+	public void testOnHelpButtonClicked() throws Exception {
+		instance.onHelpButtonClicked();
+		verify(helpView).setVisible(true);
+	}
+
+	@Test
+	public void testOnReadVehicleInfoButtonClickedWithNullCals() throws Exception {
+		when(comparisonModule.getVin()).thenReturn("12345678901234567890");
+		when(comparisonModule.getCalibrationsAsString()).thenThrow(new IOException("Cals not read"));
+
+		instance.onReadVehicleInfoButtonClicked();
+		executor.run();
+
+		verify(comparisonModule).getVin();
+		verify(comparisonModule).getCalibrationsAsString();
+		verify(comparisonModule).reset();
+
+		InOrder inOrder = inOrder(view);
+		inOrder.verify(view).setVin("");
+		inOrder.verify(view).setEngineCals("");
+		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStopButtonEnabled(false);
+		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(false);
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setProgressBarValue(0, 6, 1);
+		inOrder.verify(view).setProgressBarText("Reading Vehicle Identification Number");
+		inOrder.verify(view).setVin("12345678901234567890");
+		inOrder.verify(view).setProgressBarValue(0, 6, 2);
+		inOrder.verify(view).setProgressBarText("Reading Vehicle Calibrations");
+		inOrder.verify(view).setProgressBarText("Cals not read");
+		inOrder.verify(view).displayDialog("Cals not read", "Communications Error", JOptionPane.ERROR_MESSAGE, false);
+		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStopButtonEnabled(false);
+		inOrder.verify(view).setReadVehicleInfoButtonEnabled(true);
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+	}
+
+	@Test
+	public void testOnReadVehicleInfoButtonClickedWithNullVin() throws Exception {
+		when(comparisonModule.getVin()).thenThrow(new IOException("VIN not read"));
+
+		instance.onReadVehicleInfoButtonClicked();
+		executor.run();
+
+		verify(comparisonModule).getVin();
+		verify(comparisonModule).reset();
+		verify(view).setVin("");
+		verify(view).setEngineCals("");
+		verify(view).setReadVehicleInfoButtonEnabled(false);
+		verify(view, times(2)).setGoButtonEnabled(false);
+		verify(view, times(2)).setStopButtonEnabled(false);
+		verify(view).setAdapterComboBoxEnabled(false);
+		verify(view).setSelectFileButtonEnabled(false);
+
+		verify(view).setProgressBarValue(0, 6, 1);
+		verify(view).setProgressBarText("Reading Vehicle Identification Number");
+		verify(view).setProgressBarText("VIN not read");
+		verify(view).displayDialog("VIN not read", "Communications Error", JOptionPane.ERROR_MESSAGE, false);
+
+		verify(view).setReadVehicleInfoButtonEnabled(true);
+		verify(view).setAdapterComboBoxEnabled(true);
+		verify(view).setSelectFileButtonEnabled(true);
+	}
+
+	@Test
+	public void testOnReadVehicleInfoButtonClickedWithReportFileMatched() throws Exception {
+		when(comparisonModule.getVin()).thenReturn("12345678901234567890");
+		when(comparisonModule.getCalibrationsAsString()).thenReturn("Engine Cals");
+
+		instance.onReadVehicleInfoButtonClicked();
+		executor.run();
+
+		assertEquals("12345678901234567890", instance.getVin());
+
+		verify(comparisonModule).reset();
+		verify(comparisonModule).getVin();
+		verify(comparisonModule).getCalibrationsAsString();
+
+		InOrder inOrder = inOrder(view);
+		inOrder.verify(view).setVin("");
+		inOrder.verify(view).setEngineCals("");
+		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStopButtonEnabled(false);
+		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
+		inOrder.verify(view).setAdapterComboBoxEnabled(false);
+		inOrder.verify(view).setSelectFileButtonEnabled(false);
+		inOrder.verify(view).setProgressBarValue(0, 6, 1);
+		inOrder.verify(view).setProgressBarText("Reading Vehicle Identification Number");
+		inOrder.verify(view).setVin("12345678901234567890");
+		inOrder.verify(view).setProgressBarValue(0, 6, 2);
+		inOrder.verify(view).setProgressBarText("Reading Vehicle Calibrations");
+		inOrder.verify(view).setEngineCals("Engine Cals");
+		inOrder.verify(view).setProgressBarText("Push Go Button");
+		inOrder.verify(view).setGoButtonEnabled(true);
+		inOrder.verify(view).setStopButtonEnabled(true);
+		inOrder.verify(view).setReadVehicleInfoButtonEnabled(true);
+		inOrder.verify(view).setAdapterComboBoxEnabled(true);
+		inOrder.verify(view).setSelectFileButtonEnabled(true);
+	}
+
+	@Test
+	public void testOnSelectFileButtonClicked() {
+		instance.onSelectFileButtonClicked();
+		verify(view).displayFileChooser();
+	}
+
+	@Test
+	public void testOnStopButtonClicked() throws Exception {
+		Controller controller = mock(Controller.class);
+		when(controller.isActive()).thenReturn(true);
+
+		instance.setActiveController(controller);
+		instance.onStopButtonClicked();
+
+		verify(controller).stop();
+	}
+
+	@Test
+	public void testOnStopButtonClickedWithNoController() throws Exception {
+		instance.onStopButtonClicked();
+		// Nothing (bad) happens
+	}
+
+	@Test
+	public void testOnStopButtonClickedWithStoppedController() throws Exception {
+		Controller controller = mock(Controller.class);
+		when(controller.isActive()).thenReturn(false);
+
+		instance.setActiveController(controller);
+		instance.onStopButtonClicked();
+
+		verify(controller, never()).stop();
+	}
+
+	@Test
+	public void testSetActiveController() throws Exception {
+		Controller controller1 = mock(Controller.class);
+		when(controller1.isActive()).thenReturn(true);
+		instance.setActiveController(controller1);
+		assertSame(controller1, instance.getActiveController());
+
+		Controller controller2 = mock(Controller.class);
+		instance.setActiveController(controller2);
+
+		assertSame(controller2, instance.getActiveController());
+		verify(controller1).stop();
+	}
+
+	@Test
+	public void testSetActiveControllerNoController() throws Exception {
+		Controller controller1 = mock(Controller.class);
+		instance.setActiveController(controller1);
+		assertSame(controller1, instance.getActiveController());
+	}
+
+	@Test
+	public void testSetActiveControllerStoppedController() throws Exception {
+		Controller controller1 = mock(Controller.class);
+		when(controller1.isActive()).thenReturn(false);
+		instance.setActiveController(controller1);
+		assertSame(controller1, instance.getActiveController());
+
+		Controller controller2 = mock(Controller.class);
+		instance.setActiveController(controller2);
+		assertSame(controller2, instance.getActiveController());
+
+		verify(controller1, never()).stop();
+	}
+
+	@SuppressFBWarnings(value = "RU_INVOKE_RUN", justification = "Run is correct here for testing")
+	@Test
+	public void testShutdownHook() {
+		assertEquals("Shutdown Hook Thread", shutdownHook.getName());
+		shutdownHook.run();
+		verify(reportFileModule).onProgramExit();
+	}
+
+}
