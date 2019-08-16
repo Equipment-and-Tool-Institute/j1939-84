@@ -1,7 +1,7 @@
 /**
  * Copyright 2019 Equipment & Tool Institute
  */
-package org.etools.j1939_84.ui;
+package org.etools.j1939_84.ui.widgets;
 
 import java.util.concurrent.Executor;
 
@@ -16,8 +16,8 @@ import javax.swing.SwingUtilities;
  */
 public class SwingExecutor implements Executor {
 
-    @Override
-    public void execute(Runnable command) {
-        SwingUtilities.invokeLater(command);
-    }
+	@Override
+	public void execute(Runnable command) {
+		SwingUtilities.invokeLater(command);
+	}
 }

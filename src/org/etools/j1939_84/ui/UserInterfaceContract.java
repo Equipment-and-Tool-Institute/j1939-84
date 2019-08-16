@@ -10,6 +10,7 @@ import javax.swing.JDialog;
 
 import org.etools.j1939_84.bus.Adapter;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.ReportFileModule;
 
 /**
@@ -21,10 +22,10 @@ import org.etools.j1939_84.modules.ReportFileModule;
 public interface UserInterfaceContract {
 
 	/**
-	 * The interface for a UI Controller
+	 * The interface for a UI Presenter
 	 *
 	 */
-	public interface Controller {
+	public interface Presenter {
 
 		/**
 		 * Disconnects the vehicle communications adapter
@@ -93,6 +94,11 @@ public interface UserInterfaceContract {
 		void onSelectFileButtonClicked();
 
 		/**
+		 * Called when the Start Button has been clicked
+		 */
+		void onStartButtonClicked();
+
+		/**
 		 * Called when the {@link UserInterfaceView} Stop Button is clicked
 		 */
 		void onStopButtonClicked();
@@ -133,6 +139,8 @@ public interface UserInterfaceContract {
 		 */
 		void displayFileChooser();
 
+		void displayForm(VehicleInformationListener listener, J1939 j1939);
+
 		/**
 		 * Enables or disables the Adapter Selector Combo Box
 		 *
@@ -148,8 +156,6 @@ public interface UserInterfaceContract {
 		 *             the text to set
 		 */
 		void setEngineCals(String text);
-
-		void setGoButtonEnabled(boolean enabled);
 
 		/**
 		 * Sets the text that is displayed on the progress bar
@@ -194,6 +200,8 @@ public interface UserInterfaceContract {
 		 *             the text to set
 		 */
 		void setSelectFileButtonText(String text);
+
+		void setStartButtonEnabled(boolean enabled);
 
 		/**
 		 * Enables or disables the Stop Button

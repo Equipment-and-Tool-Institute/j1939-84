@@ -24,6 +24,7 @@ import javax.swing.filechooser.FileNameExtensionFilter;
 
 import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939_84.bus.Adapter;
+import org.etools.j1939_84.ui.widgets.SwingExecutor;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,7 +45,7 @@ public class UserInterfaceViewTest {
 	private BuildNumber buildNumber;
 
 	@Mock
-	private UserInterfaceController controller;
+	private UserInterfacePresenter controller;
 
 	private UserInterfaceView instance;
 

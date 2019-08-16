@@ -5,6 +5,9 @@ package org.etools.j1939_84.controllers;
 
 import java.util.List;
 
+import org.etools.j1939_84.model.VehicleInformation;
+import org.etools.j1939_84.model.VehicleInformationListener;
+
 /**
  * The Interface for an listener that is notified when a {@link Controller} has
  * something to report
@@ -13,6 +16,24 @@ import java.util.List;
  *
  */
 public interface ResultsListener {
+
+	/**
+	 * The different types of messages which can be displayed to the user
+	 */
+	public enum MessageType {
+		// The values correspond to JOptionPane Types
+		ERROR(2), INFO(1), PLAIN(-1), QUESTION(3), WARNING(2);
+
+		private final int value;
+
+		private MessageType(int value) {
+			this.value = value;
+		}
+
+		public int getValue() {
+			return value;
+		}
+	}
 
 	/**
 	 * Called when the {@link Controller} has completed
@@ -33,7 +54,7 @@ public interface ResultsListener {
 	 * @param type
 	 *                the type of dialog to display (Error, Warning, Info, etc)
 	 */
-	void onMessage(String message, String title, int type);
+	void onMessage(String message, String title, MessageType type);
 
 	/**
 	 * Called when the {@link Controller} has progressed
@@ -83,5 +104,14 @@ public interface ResultsListener {
 	 * @param type
 	 *                the type of dialog to display (Error, Warning, Info, etc)
 	 */
-	void onUrgentMessage(String message, String title, int type);
+	void onUrgentMessage(String message, String title, MessageType type);
+
+	/**
+	 * Called to gather {@link VehicleInformation} from the user. This will display
+	 * a form used to gather that information
+	 *
+	 * @param listener the {@link VehicleInformationListener} that will be called
+	 *                 once the user has entered the {@link VehicleInformation}
+	 */
+	void onVehicleInformationNeeded(VehicleInformationListener listener);
 }

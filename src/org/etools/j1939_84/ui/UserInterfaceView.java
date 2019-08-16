@@ -38,8 +38,12 @@ import javax.swing.text.DefaultCaret;
 import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Adapter;
+import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.resources.Resources;
-import org.etools.j1939_84.ui.UserInterfaceContract.Controller;
+import org.etools.j1939_84.ui.UserInterfaceContract.Presenter;
+import org.etools.j1939_84.ui.widgets.SmartScroller;
+import org.etools.j1939_84.ui.widgets.SwingExecutor;
 
 /**
  * The View for the User Interface.
@@ -70,15 +74,13 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 	/**
 	 * The controller for the behavior of this view
 	 */
-	private final Controller controller;
+	private final Presenter controller;
 
 	private JFileChooser fileChooser;
 
 	private JLabel fileLabel;
 
 	private JFrame frame;
-
-	private JButton goButton;
 
 	private JButton helpButton;
 
@@ -98,6 +100,8 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 
 	private JSplitPane splitPane;
 
+	private JButton startButton;
+
 	private final SwingExecutor swingExecutor;
 
 	private JPanel topPanel;
@@ -115,7 +119,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 	 */
 	public UserInterfaceView() {
 		swingExecutor = new SwingExecutor();
-		controller = new UserInterfaceController(this);
+		controller = new UserInterfacePresenter(this);
 		buildNumber = new BuildNumber();
 		initialize();
 	}
@@ -123,8 +127,8 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 	/**
 	 * Constructor exposed for testing
 	 *
-	 * @param contoller
-	 *                      The {@link UserInterfaceController} that will control
+	 * @param controller
+	 *                      The {@link UserInterfacePresenter} that will control
 	 *                      the UI
 	 * @param buildNumber
 	 *                      The {@link BuildNumber} that will return the build
@@ -134,8 +138,8 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 	 *                      on
 	 *                      the Swing Thread
 	 */
-	UserInterfaceView(Controller contoller, BuildNumber buildNumber, SwingExecutor swingExecutor) {
-		controller = contoller;
+	UserInterfaceView(Presenter controller, BuildNumber buildNumber, SwingExecutor swingExecutor) {
+		this.controller = controller;
 		this.buildNumber = buildNumber;
 		this.swingExecutor = swingExecutor;
 		initialize();
@@ -162,8 +166,8 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 	public void displayDialog(String message, String title, int type, boolean modal) {
 		if (modal) {
 			try {
-				SwingUtilities.invokeAndWait(() -> JOptionPane.showConfirmDialog(getFrame(), message, title,
-						JOptionPane.OK_CANCEL_OPTION, type));
+				SwingUtilities.invokeAndWait(() -> JOptionPane
+						.showConfirmDialog(getFrame(), message, title, JOptionPane.OK_CANCEL_OPTION, type));
 			} catch (InvocationTargetException | InterruptedException e) {
 				J1939_84.getLogger().log(Level.SEVERE, "Error displaying dialog", e);
 			}
@@ -185,6 +189,11 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 				getController().onFileChosen(getFileChooser().getSelectedFile());
 			}
 		});
+	}
+
+	@Override
+	public void displayForm(VehicleInformationListener listener, J1939 j1939) {
+		new VehicleInformationDialog(listener, j1939).setVisible(true);
 	}
 
 	/**
@@ -278,11 +287,11 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 	}
 
 	/**
-	 * Returns the {@link UserInterfaceController} that controls the view
+	 * Returns the {@link UserInterfacePresenter} that controls the view
 	 *
-	 * @return the {@link UserInterfaceController}
+	 * @return the {@link UserInterfacePresenter}
 	 */
-	private Controller getController() {
+	private Presenter getController() {
 		return controller;
 	}
 
@@ -295,7 +304,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 		if (fileChooser == null) {
 			fileChooser = new JFileChooser();
 			final FileNameExtensionFilter filter = new FileNameExtensionFilter("J1939-84 Data Files",
-					UserInterfaceController.FILE_SUFFIX);
+					UserInterfacePresenter.FILE_SUFFIX);
 			fileChooser.setFileFilter(filter);
 			fileChooser.setDialogTitle("Create or Select Report File");
 
@@ -317,21 +326,6 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 			frame.setIconImage(Resources.getLogoImage());
 		}
 		return frame;
-	}
-
-	/**
-	 * Creates, caches and returns the Go Button
-	 *
-	 * @return JButton
-	 */
-	JButton getGoButton() {
-		if (goButton == null) {
-			goButton = new JButton("Go");
-			goButton.setEnabled(false);
-			goButton.addActionListener(e -> {
-			});
-		}
-		return goButton;
 	}
 
 	/**
@@ -400,7 +394,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 			gbc1.fill = GridBagConstraints.BOTH;
 			gbc1.gridx = 0;
 			gbc1.gridy = 0;
-			reportControlPanel.add(getGoButton(), gbc1);
+			reportControlPanel.add(getStartButton(), gbc1);
 
 			GridBagConstraints gbc2 = new GridBagConstraints();
 			gbc2.insets = new Insets(5, 0, 5, 5);
@@ -544,6 +538,22 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 			splitPane.setBorder(BorderFactory.createEmptyBorder());
 		}
 		return splitPane;
+	}
+
+	/**
+	 * Creates, caches and returns the Start Button
+	 *
+	 * @return JButton
+	 */
+	JButton getStartButton() {
+		if (startButton == null) {
+			startButton = new JButton("Start");
+			startButton.setEnabled(false);
+			startButton.addActionListener(e -> {
+				controller.onStartButtonClicked();
+			});
+		}
+		return startButton;
 	}
 
 	/**
@@ -755,11 +765,6 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 		});
 	}
 
-	@Override
-	public void setGoButtonEnabled(boolean enabled) {
-		getGoButton().setEnabled(enabled);
-	}
-
 	/*
 	 * (non-Javadoc)
 	 *
@@ -819,6 +824,11 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 	@Override
 	public void setSelectFileButtonText(String text) {
 		refreshUI(() -> getSelectFileButton().setText(text == null ? SELECT_FILE : text));
+	}
+
+	@Override
+	public void setStartButtonEnabled(boolean enabled) {
+		getStartButton().setEnabled(enabled);
 	}
 
 	@Override

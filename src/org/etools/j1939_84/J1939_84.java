@@ -65,7 +65,7 @@ public class J1939_84 {
 	 * @return true if it's being debugged
 	 */
 	public static final boolean isDebug() {
-		return false;
+		return true;
 	}
 
 	/**

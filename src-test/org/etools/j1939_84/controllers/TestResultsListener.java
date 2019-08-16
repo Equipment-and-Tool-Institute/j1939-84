@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import org.etools.j1939_84.model.VehicleInformationListener;
+
 /**
  * Helper class used as a {@link ResultsListener} for testing
  *
@@ -56,7 +58,7 @@ public class TestResultsListener implements ResultsListener {
 	}
 
 	@Override
-	public void onMessage(String message, String title, int type) {
+	public void onMessage(String message, String title, MessageType type) {
 		fail("Method not implemented");
 	}
 
@@ -90,7 +92,12 @@ public class TestResultsListener implements ResultsListener {
 	}
 
 	@Override
-	public void onUrgentMessage(String message, String title, int type) {
+	public void onUrgentMessage(String message, String title, MessageType type) {
+		fail("Method not implemented");
+	}
+
+	@Override
+	public void onVehicleInformationNeeded(VehicleInformationListener listener) {
 		fail("Method not implemented");
 	}
 

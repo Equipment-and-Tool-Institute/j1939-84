@@ -32,7 +32,7 @@ import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.RP1210;
 import org.etools.j1939_84.bus.RP1210Bus;
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.controllers.Controller;
+import org.etools.j1939_84.controllers.OverallController;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -50,14 +50,14 @@ import org.mockito.junit.MockitoJUnitRunner;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
- * Unit testing the {@link UserInterfaceController}
+ * Unit testing the {@link UserInterfacePresenter}
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
 @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The values returned are properly ignored on verify statements.")
 @RunWith(MockitoJUnitRunner.class)
-public class UserInterfaceControllerTest {
+public class UserInterfacePresenterTest {
 
 	private static final String path = "file\\location\\name.j1939-84";
 
@@ -82,7 +82,10 @@ public class UserInterfaceControllerTest {
 	@Mock
 	private HelpView helpView;
 
-	private UserInterfaceController instance;
+	private UserInterfacePresenter instance;
+
+	@Mock
+	private OverallController overallController;
 
 	@Mock
 	private ReportFileModule reportFileModule;
@@ -110,8 +113,14 @@ public class UserInterfaceControllerTest {
 		when(rp1210.getAdapters()).thenReturn(adapters);
 		when(rp1210.setAdapter(any(), eq(0xF9))).thenReturn(rp1210Bus);
 
-		instance = new UserInterfaceController(view, comparisonModule, rp1210, reportFileModule, runtime, executor,
-				helpView);
+		instance = new UserInterfacePresenter(view,
+				comparisonModule,
+				rp1210,
+				reportFileModule,
+				runtime,
+				executor,
+				helpView,
+				overallController);
 		ArgumentCaptor<Thread> captor = ArgumentCaptor.forClass(Thread.class);
 		verify(runtime).addShutdownHook(captor.capture());
 		shutdownHook = captor.getValue();
@@ -135,7 +144,7 @@ public class UserInterfaceControllerTest {
 		InOrder inOrder = inOrder(view);
 		inOrder.verify(view).setVin("");
 		inOrder.verify(view).setEngineCals("");
-		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStartButtonEnabled(false);
 		inOrder.verify(view).setStopButtonEnabled(false);
 		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
 		inOrder.verify(view).setAdapterComboBoxEnabled(false);
@@ -165,7 +174,7 @@ public class UserInterfaceControllerTest {
 		InOrder inOrder = inOrder(view);
 		inOrder.verify(view).setVin("");
 		inOrder.verify(view).setEngineCals("");
-		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStartButtonEnabled(false);
 		inOrder.verify(view).setStopButtonEnabled(false);
 		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
 		inOrder.verify(view).setAdapterComboBoxEnabled(false);
@@ -205,8 +214,10 @@ public class UserInterfaceControllerTest {
 
 		verify(rp1210).getAdapters();
 
-		verify(view).displayDialog("The List of Communication Adapters could not be loaded.", "Failure",
-				JOptionPane.ERROR_MESSAGE, false);
+		verify(view).displayDialog("The List of Communication Adapters could not be loaded.",
+				"Failure",
+				JOptionPane.ERROR_MESSAGE,
+				false);
 	}
 
 	@Test
@@ -229,7 +240,7 @@ public class UserInterfaceControllerTest {
 		InOrder inOrder = inOrder(view);
 		inOrder.verify(view).setVin("");
 		inOrder.verify(view).setEngineCals("");
-		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStartButtonEnabled(false);
 		inOrder.verify(view).setStopButtonEnabled(false);
 		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
 		inOrder.verify(view).setAdapterComboBoxEnabled(false);
@@ -262,7 +273,7 @@ public class UserInterfaceControllerTest {
 		InOrder inOrder = inOrder(view);
 		inOrder.verify(view).setVin("");
 		inOrder.verify(view).setEngineCals("");
-		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStartButtonEnabled(false);
 		inOrder.verify(view).setStopButtonEnabled(false);
 		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
 		inOrder.verify(view).setAdapterComboBoxEnabled(false);
@@ -291,16 +302,15 @@ public class UserInterfaceControllerTest {
 		executor.run();
 
 		assertNull(instance.getReportFile());
-		verify(view).displayDialog(
-				"File cannot be used." + NL + "There was a failure" + NL + "Please select a different file.",
-				"File Error", JOptionPane.ERROR_MESSAGE, false);
+		verify(view).displayDialog("File cannot be used." + NL + "There was a failure" + NL
+				+ "Please select a different file.", "File Error", JOptionPane.ERROR_MESSAGE, false);
 
 		verify(comparisonModule).reset();
 
 		InOrder inOrder = inOrder(view, reportFileModule);
 		inOrder.verify(view).setVin("");
 		inOrder.verify(view).setEngineCals("");
-		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStartButtonEnabled(false);
 		inOrder.verify(view).setStopButtonEnabled(false);
 		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
 		inOrder.verify(view).setAdapterComboBoxEnabled(false);
@@ -335,7 +345,7 @@ public class UserInterfaceControllerTest {
 		InOrder inOrder = inOrder(view);
 		inOrder.verify(view).setVin("");
 		inOrder.verify(view).setEngineCals("");
-		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStartButtonEnabled(false);
 		inOrder.verify(view).setStopButtonEnabled(false);
 		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
 		inOrder.verify(view).setAdapterComboBoxEnabled(false);
@@ -358,16 +368,15 @@ public class UserInterfaceControllerTest {
 		executor.run();
 
 		assertNull(instance.getReportFile());
-		verify(view).displayDialog(
-				"File cannot be used." + NL + "File cannot be created" + NL + "Please select a different file.",
-				"File Error", JOptionPane.ERROR_MESSAGE, false);
+		verify(view).displayDialog("File cannot be used." + NL + "File cannot be created" + NL
+				+ "Please select a different file.", "File Error", JOptionPane.ERROR_MESSAGE, false);
 
 		verify(comparisonModule).reset();
 
 		InOrder inOrder = inOrder(view);
 		inOrder.verify(view).setVin("");
 		inOrder.verify(view).setEngineCals("");
-		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStartButtonEnabled(false);
 		inOrder.verify(view).setStopButtonEnabled(false);
 		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
 		inOrder.verify(view).setAdapterComboBoxEnabled(false);
@@ -402,7 +411,7 @@ public class UserInterfaceControllerTest {
 		InOrder inOrder = inOrder(view);
 		inOrder.verify(view).setVin("");
 		inOrder.verify(view).setEngineCals("");
-		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStartButtonEnabled(false);
 		inOrder.verify(view).setStopButtonEnabled(false);
 		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
 		inOrder.verify(view).setAdapterComboBoxEnabled(false);
@@ -430,7 +439,7 @@ public class UserInterfaceControllerTest {
 		InOrder inOrder1 = inOrder(view);
 		inOrder1.verify(view).setVin("");
 		inOrder1.verify(view).setEngineCals("");
-		inOrder1.verify(view).setGoButtonEnabled(false);
+		inOrder1.verify(view).setStartButtonEnabled(false);
 		inOrder1.verify(view).setStopButtonEnabled(false);
 		inOrder1.verify(view).setReadVehicleInfoButtonEnabled(false);
 		inOrder1.verify(view).setAdapterComboBoxEnabled(false);
@@ -453,7 +462,7 @@ public class UserInterfaceControllerTest {
 		InOrder inOrder2 = inOrder(view);
 		inOrder2.verify(view, times(2)).setVin("");
 		inOrder2.verify(view).setEngineCals("");
-		inOrder2.verify(view).setGoButtonEnabled(false);
+		inOrder2.verify(view).setStartButtonEnabled(false);
 		inOrder2.verify(view).setStopButtonEnabled(false);
 		inOrder2.verify(view).setReadVehicleInfoButtonEnabled(false);
 		inOrder2.verify(view).setAdapterComboBoxEnabled(false);
@@ -483,7 +492,7 @@ public class UserInterfaceControllerTest {
 		InOrder inOrder = inOrder(view);
 		inOrder.verify(view).setVin("");
 		inOrder.verify(view).setEngineCals("");
-		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStartButtonEnabled(false);
 		inOrder.verify(view).setStopButtonEnabled(false);
 		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
 		inOrder.verify(view).setAdapterComboBoxEnabled(false);
@@ -519,7 +528,7 @@ public class UserInterfaceControllerTest {
 		InOrder inOrder = inOrder(view);
 		inOrder.verify(view).setVin("");
 		inOrder.verify(view).setEngineCals("");
-		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStartButtonEnabled(false);
 		inOrder.verify(view).setStopButtonEnabled(false);
 		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
 		inOrder.verify(view).setAdapterComboBoxEnabled(false);
@@ -531,7 +540,7 @@ public class UserInterfaceControllerTest {
 		inOrder.verify(view).setProgressBarText("Reading Vehicle Calibrations");
 		inOrder.verify(view).setProgressBarText("Cals not read");
 		inOrder.verify(view).displayDialog("Cals not read", "Communications Error", JOptionPane.ERROR_MESSAGE, false);
-		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStartButtonEnabled(false);
 		inOrder.verify(view).setStopButtonEnabled(false);
 		inOrder.verify(view).setReadVehicleInfoButtonEnabled(true);
 		inOrder.verify(view).setAdapterComboBoxEnabled(true);
@@ -550,7 +559,7 @@ public class UserInterfaceControllerTest {
 		verify(view).setVin("");
 		verify(view).setEngineCals("");
 		verify(view).setReadVehicleInfoButtonEnabled(false);
-		verify(view, times(2)).setGoButtonEnabled(false);
+		verify(view, times(2)).setStartButtonEnabled(false);
 		verify(view, times(2)).setStopButtonEnabled(false);
 		verify(view).setAdapterComboBoxEnabled(false);
 		verify(view).setSelectFileButtonEnabled(false);
@@ -582,7 +591,7 @@ public class UserInterfaceControllerTest {
 		InOrder inOrder = inOrder(view);
 		inOrder.verify(view).setVin("");
 		inOrder.verify(view).setEngineCals("");
-		inOrder.verify(view).setGoButtonEnabled(false);
+		inOrder.verify(view).setStartButtonEnabled(false);
 		inOrder.verify(view).setStopButtonEnabled(false);
 		inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
 		inOrder.verify(view).setAdapterComboBoxEnabled(false);
@@ -594,7 +603,7 @@ public class UserInterfaceControllerTest {
 		inOrder.verify(view).setProgressBarText("Reading Vehicle Calibrations");
 		inOrder.verify(view).setEngineCals("Engine Cals");
 		inOrder.verify(view).setProgressBarText("Push Go Button");
-		inOrder.verify(view).setGoButtonEnabled(true);
+		inOrder.verify(view).setStartButtonEnabled(true);
 		inOrder.verify(view).setStopButtonEnabled(true);
 		inOrder.verify(view).setReadVehicleInfoButtonEnabled(true);
 		inOrder.verify(view).setAdapterComboBoxEnabled(true);
@@ -608,14 +617,18 @@ public class UserInterfaceControllerTest {
 	}
 
 	@Test
-	public void testOnStopButtonClicked() throws Exception {
-		Controller controller = mock(Controller.class);
-		when(controller.isActive()).thenReturn(true);
+	public void testOnStartButtonClicked() {
+		instance.onStartButtonClicked();
+		verify(overallController).execute(any(ResultsListener.class), any(J1939.class), eq(reportFileModule));
+	}
 
-		instance.setActiveController(controller);
+	@Test
+	public void testOnStopButtonClicked() throws Exception {
+		when(overallController.isActive()).thenReturn(true);
+
 		instance.onStopButtonClicked();
 
-		verify(controller).stop();
+		verify(overallController).stop();
 	}
 
 	@Test
@@ -626,48 +639,11 @@ public class UserInterfaceControllerTest {
 
 	@Test
 	public void testOnStopButtonClickedWithStoppedController() throws Exception {
-		Controller controller = mock(Controller.class);
-		when(controller.isActive()).thenReturn(false);
+		when(overallController.isActive()).thenReturn(false);
 
-		instance.setActiveController(controller);
 		instance.onStopButtonClicked();
 
-		verify(controller, never()).stop();
-	}
-
-	@Test
-	public void testSetActiveController() throws Exception {
-		Controller controller1 = mock(Controller.class);
-		when(controller1.isActive()).thenReturn(true);
-		instance.setActiveController(controller1);
-		assertSame(controller1, instance.getActiveController());
-
-		Controller controller2 = mock(Controller.class);
-		instance.setActiveController(controller2);
-
-		assertSame(controller2, instance.getActiveController());
-		verify(controller1).stop();
-	}
-
-	@Test
-	public void testSetActiveControllerNoController() throws Exception {
-		Controller controller1 = mock(Controller.class);
-		instance.setActiveController(controller1);
-		assertSame(controller1, instance.getActiveController());
-	}
-
-	@Test
-	public void testSetActiveControllerStoppedController() throws Exception {
-		Controller controller1 = mock(Controller.class);
-		when(controller1.isActive()).thenReturn(false);
-		instance.setActiveController(controller1);
-		assertSame(controller1, instance.getActiveController());
-
-		Controller controller2 = mock(Controller.class);
-		instance.setActiveController(controller2);
-		assertSame(controller2, instance.getActiveController());
-
-		verify(controller1, never()).stop();
+		verify(overallController, never()).stop();
 	}
 
 	@SuppressFBWarnings(value = "RU_INVOKE_RUN", justification = "Run is correct here for testing")

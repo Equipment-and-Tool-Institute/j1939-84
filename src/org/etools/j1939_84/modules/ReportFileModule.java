@@ -14,10 +14,9 @@ import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.annotation.Nonnull;
-
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.model.VehicleInformationListener;
 
 /**
  * The {@link FunctionalModule} that's responsible for the log file
@@ -27,20 +26,9 @@ import org.etools.j1939_84.controllers.ResultsListener;
  */
 public class ReportFileModule extends FunctionalModule implements ResultsListener {
 
-	private Logger logger;
+	private final Logger logger;
 
 	private File reportFile;
-
-	/**
-	 * Reports the information about the report file
-	 *
-	 * @param listener
-	 *                 the {@link ResultsListener} that will be notified of the
-	 *                 results
-	 */
-	public void reportFileInformation(ResultsListener listener) {
-		listener.onResult(getDateTime() + " File: " + reportFile.getAbsolutePath());
-	}
 
 	/**
 	 * The Writer used to write results to the report file
@@ -77,7 +65,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
 	}
 
 	@Override
-	public void onMessage(String message, String title, int type) {
+	public void onMessage(String message, String title, MessageType type) {
 		// Don't care
 	}
 
@@ -125,8 +113,24 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
 	}
 
 	@Override
-	public void onUrgentMessage(String message, String title, int type) {
+	public void onUrgentMessage(String message, String title, MessageType type) {
 		// Don't care
+	}
+
+	@Override
+	public void onVehicleInformationNeeded(VehicleInformationListener listener) {
+		// Don't care
+	}
+
+	/**
+	 * Reports the information about the report file
+	 *
+	 * @param listener
+	 *                 the {@link ResultsListener} that will be notified of the
+	 *                 results
+	 */
+	public void reportFileInformation(ResultsListener listener) {
+		listener.onResult(getDateTime() + " File: " + reportFile.getAbsolutePath());
 	}
 
 	/**
@@ -141,7 +145,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
 	 *                     if there is problem with the file
 	 *
 	 */
-	public void setReportFile(@Nonnull ResultsListener listener, @Nonnull File reportFile) throws IOException {
+	public void setReportFile(ResultsListener listener, File reportFile) throws IOException {
 
 		if (writer != null) {
 			writer.close();

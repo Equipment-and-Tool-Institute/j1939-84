@@ -128,6 +128,10 @@ public class DateTimeModule {
 		return timeFormatter;
 	}
 
+	public int getYear() {
+		return now().getYear();
+	}
+
 	/**
 	 * Returns the current date/time. This is exposed to it can be overridden
 	 * for testing.

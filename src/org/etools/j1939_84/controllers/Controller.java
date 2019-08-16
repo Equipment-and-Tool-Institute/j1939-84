@@ -9,10 +9,10 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-import javax.swing.JOptionPane;
-
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.controllers.ResultsListener.MessageType;
+import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -47,7 +47,7 @@ public abstract class Controller {
 		}
 
 		@Override
-		public void onMessage(String message, String title, int type) {
+		public void onMessage(String message, String title, MessageType type) {
 			Arrays.stream(listeners).forEach(l -> l.onMessage(message, title, type));
 		}
 
@@ -72,8 +72,13 @@ public abstract class Controller {
 		}
 
 		@Override
-		public void onUrgentMessage(String message, String title, int type) {
+		public void onUrgentMessage(String message, String title, MessageType type) {
 			Arrays.stream(listeners).forEach(l -> l.onUrgentMessage(message, title, type));
+		}
+
+		@Override
+		public void onVehicleInformationNeeded(VehicleInformationListener listener) {
+			Arrays.stream(listeners).forEach(l -> l.onVehicleInformationNeeded(listener));
 		}
 	}
 
@@ -220,7 +225,8 @@ public abstract class Controller {
 		if (!getEngineSpeedModule().isEngineCommunicating()) {
 			getListener().onMessage(
 					"The engine is not communicating.  Please check the adapter connection with the vehicle and/or turn the key on/start the vehicle.",
-					"Engine Not Communicating", JOptionPane.WARNING_MESSAGE);
+					"Engine Not Communicating",
+					MessageType.WARNING);
 			updateProgress("Engine Not Communicating.  Please start vehicle or push Stop");
 			while (!getEngineSpeedModule().isEngineCommunicating()) {
 				Thread.sleep(100);
@@ -244,11 +250,7 @@ public abstract class Controller {
 	 *                         generate the report
 	 */
 	public void execute(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
-		setJ1939(j1939);
-		this.reportFileModule = reportFileModule;
-
-		ending = null;
-		compositeListener = new CompositeResultsListener(listener, reportFileModule);
+		setupRun(listener, j1939, reportFileModule);
 		getExecutor().execute(getRunnable());
 	}
 
@@ -309,6 +311,8 @@ public abstract class Controller {
 	protected DateTimeModule getDateTimeModule() {
 		return dateTimeModule;
 	}
+
+	public abstract String getDisplayName();
 
 	/**
 	 * @return the ending
@@ -392,7 +396,7 @@ public abstract class Controller {
 					if (message == null) {
 						message = "An Error Occurred";
 					}
-					getListener().onMessage(message, "Error", JOptionPane.ERROR_MESSAGE);
+					getListener().onMessage(message, "Error", MessageType.ERROR);
 				}
 			} finally {
 				finished();
@@ -447,6 +451,11 @@ public abstract class Controller {
 	 */
 	protected abstract void run() throws Throwable;
 
+	public void run(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
+		setupRun(listener, j1939, reportFileModule);
+		getRunnable().run();
+	}
+
 	/**
 	 * @param ending
 	 *               the ending to set
@@ -471,6 +480,13 @@ public abstract class Controller {
 	}
 
 	/**
+	 * @param reportFileModule the reportFileModule to set
+	 */
+	public void setReportFileModule(ReportFileModule reportFileModule) {
+		this.reportFileModule = reportFileModule;
+	}
+
+	/**
 	 * Resets the progress to zero, clears the message displayed to the user and
 	 * sets the maximum number of steps
 	 *
@@ -481,6 +497,13 @@ public abstract class Controller {
 		currentStep = 0;
 		this.maxSteps = maxSteps;
 		getListener().onProgress(currentStep, maxSteps, "");
+	}
+
+	public void setupRun(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
+		setJ1939(j1939);
+		setReportFileModule(reportFileModule);
+		ending = null;
+		compositeListener = new CompositeResultsListener(listener, reportFileModule);
 	}
 
 	/**

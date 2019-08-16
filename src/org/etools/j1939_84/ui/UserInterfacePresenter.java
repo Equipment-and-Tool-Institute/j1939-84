@@ -23,8 +23,9 @@ import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.RP1210;
 import org.etools.j1939_84.bus.RP1210Bus;
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.controllers.Controller;
+import org.etools.j1939_84.controllers.OverallController;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.ui.help.HelpView;
@@ -35,17 +36,12 @@ import org.etools.j1939_84.ui.help.HelpView;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class UserInterfaceController implements UserInterfaceContract.Controller {
+public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
 	/**
 	 * The default extension for report files created by this application
 	 */
 	static final String FILE_SUFFIX = "j1939-84";
-
-	/**
-	 * The {@link Controller} that is currently executing
-	 */
-	private Controller activeController;
 
 	/**
 	 * The possible {@link Adapter} that can be used for communications with the
@@ -55,11 +51,11 @@ public class UserInterfaceController implements UserInterfaceContract.Controller
 
 	private Bus bus;
 
-	private final VehicleInformationModule comparisonModule;
-
 	private final Executor executor;
 
 	private final HelpView helpView;
+
+	private final OverallController overallController;
 
 	/**
 	 * The {@link File} where the report is stored
@@ -75,6 +71,8 @@ public class UserInterfaceController implements UserInterfaceContract.Controller
 	 */
 	private Adapter selectedAdapter;
 
+	private final VehicleInformationModule vehicleInformationModule;
+
 	/**
 	 * The {@link IUserInterfaceView} that is being controlled
 	 */
@@ -88,40 +86,44 @@ public class UserInterfaceController implements UserInterfaceContract.Controller
 	 * @param view
 	 *             The {@link UserInterfaceView} to control
 	 */
-	public UserInterfaceController(UserInterfaceContract.View view) {
+	public UserInterfacePresenter(UserInterfaceContract.View view) {
 		this(view, new VehicleInformationModule(), new RP1210(), new ReportFileModule(), Runtime.getRuntime(),
-				Executors.newSingleThreadExecutor(), new HelpView());
+				Executors.newSingleThreadExecutor(), new HelpView(), new OverallController());
 	}
 
 	/**
 	 * Constructor used for testing
 	 *
 	 * @param view
-	 *                                     The {@link UserInterfaceView} to control
-	 * @param vehicleInformationController
-	 *                                     the {@link VehicleInformationController}
+	 *                                 The {@link UserInterfaceView} to control
+	 * @param vehicleInformationModule
+	 *                                 the {@link VehicleInformationModule}
 	 * @param rp1210
-	 *                                     the {@link RP1210}
+	 *                                 the {@link RP1210}
 	 * @param reportFileModule
-	 *                                     the {@link ReportFileModule}
+	 *                                 the {@link ReportFileModule}
 	 * @param runtime
-	 *                                     the {@link Runtime}
+	 *                                 the {@link Runtime}
 	 * @param executor
-	 *                                     the {@link Executor} used to execute
-	 *                                     {@link Thread} s
+	 *                                 the {@link Executor} used to execute
+	 *                                 {@link Thread} s
 	 * @param helpView
-	 *                                     the {@link HelpView} that will display
-	 *                                     help for the
-	 *                                     application
+	 *                                 the {@link HelpView} that will display
+	 *                                 help for the application
+	 *
+	 * @param overallController        the {@link OverallController} which will
+	 *                                 run all the other parts
 	 */
-	public UserInterfaceController(UserInterfaceContract.View view, VehicleInformationModule comparisonModule,
-			RP1210 rp1210, ReportFileModule reportFileModule, Runtime runtime, Executor executor, HelpView helpView) {
+	public UserInterfacePresenter(UserInterfaceContract.View view, VehicleInformationModule vehicleInformationModule,
+			RP1210 rp1210, ReportFileModule reportFileModule, Runtime runtime, Executor executor, HelpView helpView,
+			OverallController overallController) {
 		this.view = view;
-		this.comparisonModule = comparisonModule;
+		this.vehicleInformationModule = vehicleInformationModule;
 		this.rp1210 = rp1210;
 		this.reportFileModule = reportFileModule;
 		this.executor = executor;
 		this.helpView = helpView;
+		this.overallController = overallController;
 		runtime.addShutdownHook(new Thread(() -> reportFileModule.onProgramExit(), "Shutdown Hook Thread"));
 	}
 
@@ -150,15 +152,6 @@ public class UserInterfaceController implements UserInterfaceContract.Controller
 		}
 	}
 
-	/**
-	 * Returns the {@link Controller} that is currently executing
-	 *
-	 * @return the activeController
-	 */
-	public Controller getActiveController() {
-		return activeController;
-	}
-
 	/*
 	 * (non-Javadoc)
 	 *
@@ -171,15 +164,17 @@ public class UserInterfaceController implements UserInterfaceContract.Controller
 			try {
 				adapters.addAll(rp1210.getAdapters());
 			} catch (Exception e) {
-				getView().displayDialog("The List of Communication Adapters could not be loaded.", "Failure",
-						JOptionPane.ERROR_MESSAGE, false);
+				getView().displayDialog("The List of Communication Adapters could not be loaded.",
+						"Failure",
+						JOptionPane.ERROR_MESSAGE,
+						false);
 			}
 		}
 		return adapters;
 	}
 
 	private VehicleInformationModule getComparisonModule() {
-		return comparisonModule;
+		return vehicleInformationModule;
 	}
 
 	private Logger getLogger() {
@@ -218,8 +213,8 @@ public class UserInterfaceController implements UserInterfaceContract.Controller
 			}
 
 			@Override
-			public void onMessage(String message, String title, int type) {
-				getView().displayDialog(message, title, type, false);
+			public void onMessage(String message, String title, MessageType type) {
+				getView().displayDialog(message, title, type.getValue(), false);
 			}
 
 			@Override
@@ -246,8 +241,13 @@ public class UserInterfaceController implements UserInterfaceContract.Controller
 			}
 
 			@Override
-			public void onUrgentMessage(String message, String title, int type) {
-				getView().displayDialog(message, title, type, true);
+			public void onUrgentMessage(String message, String title, MessageType type) {
+				getView().displayDialog(message, title, type.getValue(), true);
+			}
+
+			@Override
+			public void onVehicleInformationNeeded(VehicleInformationListener listener) {
+				getView().displayForm(listener, getNewJ1939());
 			}
 
 		};
@@ -368,7 +368,7 @@ public class UserInterfaceController implements UserInterfaceContract.Controller
 				if (result) {
 					getView().setProgressBarText("Push Go Button");
 				}
-				getView().setGoButtonEnabled(result);
+				getView().setStartButtonEnabled(result);
 				getView().setStopButtonEnabled(result);
 				getView().setReadVehicleInfoButtonEnabled(true);
 				getView().setAdapterComboBoxEnabled(true);
@@ -388,6 +388,11 @@ public class UserInterfaceController implements UserInterfaceContract.Controller
 		getView().displayFileChooser();
 	}
 
+	@Override
+	public void onStartButtonClicked() {
+		overallController.execute(getResultsListener(), getNewJ1939(), getReportFileModule());
+	}
+
 	/*
 	 * (non-Javadoc)
 	 *
@@ -396,8 +401,8 @@ public class UserInterfaceController implements UserInterfaceContract.Controller
 	 */
 	@Override
 	public void onStopButtonClicked() {
-		if (getActiveController() != null && getActiveController().isActive()) {
-			getActiveController().stop();
+		if (overallController.isActive()) {
+			overallController.stop();
 		}
 	}
 
@@ -406,28 +411,9 @@ public class UserInterfaceController implements UserInterfaceContract.Controller
 		vin = null;
 		getView().setVin("");
 		getView().setEngineCals("");
-		getView().setGoButtonEnabled(false);
+		getView().setStartButtonEnabled(false);
 		getView().setStopButtonEnabled(false);
 		getView().setReadVehicleInfoButtonEnabled(false);
-	}
-
-	private void runController(Controller controller) {
-		setActiveController(controller);
-		getActiveController().execute(getResultsListener(), getNewJ1939(), getReportFileModule());
-	}
-
-	/**
-	 * Sets the {@link Controller} actively being executed. This is exposed for
-	 * testing.
-	 *
-	 * @param controller
-	 *                   the active {@link Controller}
-	 */
-	void setActiveController(Controller controller) {
-		if (activeController != null && activeController.isActive()) {
-			activeController.stop();
-		}
-		activeController = controller;
 	}
 
 	private void setBus(Bus bus) throws BusException {
@@ -470,7 +456,9 @@ public class UserInterfaceController implements UserInterfaceContract.Controller
 		} catch (BusException e) {
 			getLogger().log(Level.SEVERE, "Error Setting Adapter", e);
 			getView().displayDialog("Communications could not be established using the selected adapter.",
-					"Communication Failure", JOptionPane.ERROR_MESSAGE, false);
+					"Communication Failure",
+					JOptionPane.ERROR_MESSAGE,
+					false);
 		}
 	}
 
@@ -484,6 +472,7 @@ public class UserInterfaceController implements UserInterfaceContract.Controller
 	 * @throws IOException
 	 *                     if the file cannot be used
 	 */
+
 	private File setupReportFile(File file) throws IOException {
 		File reportFile = file;
 		if (!file.exists()) {
