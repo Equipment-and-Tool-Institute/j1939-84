@@ -22,30 +22,31 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class VehicleInformationDialogTest {
 
-	private VehicleInformationDialog instance;
+    private VehicleInformationDialog instance;
 
-	@Mock
-	private VehicleInformationContract.Presenter presenter;
+    @Mock
+    private VehicleInformationContract.Presenter presenter;
 
-	@Before
-	public void setUp() {
-		instance = new VehicleInformationDialog(presenter);
-	}
+    @Before
+    public void setUp() {
+        instance = new VehicleInformationDialog(presenter);
+    }
 
-	@After
-	public void tearDown() {
-		verifyNoMoreInteractions(presenter);
-	}
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(presenter);
+    }
 
-	@Test
-	public void testSetVisibleFalse() {
-		instance.setVisible(false);
-	}
+    @Test
+    public void testSetVisibleFalse() {
+        instance.setVisible(false);
+        verify(presenter).onDialogClosed();
+    }
 
-	@Test
-	public void testSetVisibleTrue() {
-		instance.setVisible(true);
-		verify(presenter).initialize();
-	}
+    @Test
+    public void testSetVisibleTrue() {
+        instance.setVisible(true);
+        verify(presenter).initialize();
+    }
 
 }

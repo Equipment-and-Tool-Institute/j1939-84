@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import java.util.Arrays;
+import java.util.List;
 import java.util.Objects;
 
 import org.etools.j1939_84.bus.Packet;
@@ -15,164 +17,171 @@ import org.etools.j1939_84.bus.Packet;
  */
 public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
 
-    public static final int PGN = 65230;
+	private static final List<Byte> obdValues = Arrays.asList(new Byte[] { 0x13, 0x14, 0x22, 0x23 });
 
-    private static String lookupObdCompliance(byte value) {
-        switch (value) {
-        case 1:
-            return "OBD II";
-        case 2:
-            return "OBD";
-        case 3:
-            return "OBD and OBD II";
-        case 4:
-            return "OBD I";
-        case 5:
-            return "Not intended to meet OBD II requirements";
-        case 6:
-            return "EOBD";
-        case 7:
-            return "EOBD and OBD II";
-        case 8:
-            return "EOBD and OBD";
-        case 9:
-            return "EOBD, OBD and OBD II";
-        case 10:
-            return "JOBD";
-        case 11:
-            return "JOBD and OBD II";
-        case 12:
-            return "JOBD and EOBD";
-        case 13:
-            return "JOBD, EOBD and OBD II";
-        case 14:
-            return "Heavy Duty Vehicles (EURO IV) B1";
-        case 15:
-            return "Heavy Duty Vehicles (EURO V) B2";
-        case 16:
-            return "Heavy Duty Vehicles (EURO EEC) C (gas engines)";
-        case 17:
-            return "EMD";
-        case 18:
-            return "EMD+";
-        case 19:
-            return "HD OBD P";
-        case 20:
-            return "HD OBD";
-        case 21:
-            return "WWH OBD";
-        case 22:
-            return "OBD II";
-        case 23:
-            return "HD EOBD";
+	public static final int PGN = 65230;
 
-        case 25:
-            return "OBD-M (SI-SD/I)";
-        case 26:
-            return "EURO VI";
+	private static String lookupObdCompliance(byte value) {
+		switch (value) {
+		case 1:
+			return "OBD II";
+		case 2:
+			return "OBD";
+		case 3:
+			return "OBD and OBD II";
+		case 4:
+			return "OBD I";
+		case 5:
+			return "Not intended to meet OBD II requirements";
+		case 6:
+			return "EOBD";
+		case 7:
+			return "EOBD and OBD II";
+		case 8:
+			return "EOBD and OBD";
+		case 9:
+			return "EOBD, OBD and OBD II";
+		case 10:
+			return "JOBD";
+		case 11:
+			return "JOBD and OBD II";
+		case 12:
+			return "JOBD and EOBD";
+		case 13:
+			return "JOBD, EOBD and OBD II";
+		case 14:
+			return "Heavy Duty Vehicles (EURO IV) B1";
+		case 15:
+			return "Heavy Duty Vehicles (EURO V) B2";
+		case 16:
+			return "Heavy Duty Vehicles (EURO EEC) C (gas engines)";
+		case 17:
+			return "EMD";
+		case 18:
+			return "EMD+";
+		case 19:
+			return "HD OBD P";
+		case 20:
+			return "HD OBD";
+		case 21:
+			return "WWH OBD";
+		case 22:
+			return "OBD II";
+		case 23:
+			return "HD EOBD";
 
-        case 34:
-            return "OBD, OBD II, HD OBD";
-        case 35:
-            return "OBD, OBD II, HD OBD P";
+		case 25:
+			return "OBD-M (SI-SD/I)";
+		case 26:
+			return "EURO VI";
 
-        case (byte) 251:
-            return "value 251";
-        case (byte) 252:
-            return "value 252";
-        case (byte) 253:
-            return "value 253";
-        case (byte) 254:
-            return "Error";
-        case (byte) 255:
-            return "Not available";
+		case 34:
+			return "OBD, OBD II, HD OBD";
+		case 35:
+			return "OBD, OBD II, HD OBD P";
 
-        default:
-            return "Reserved for SAE/Unknown";
-        }
-    }
+		case (byte) 251:
+			return "value 251";
+		case (byte) 252:
+			return "value 252";
+		case (byte) 253:
+			return "value 253";
+		case (byte) 254:
+			return "Error";
+		case (byte) 255:
+			return "Not available";
 
-    private final byte activeCount;
-    private final byte obdCompliance;
+		default:
+			return "Reserved for SAE/Unknown";
+		}
+	}
 
-    private final byte previousCount;
+	private final byte activeCount;
 
-    public DM5DiagnosticReadinessPacket(Packet packet) {
-        super(packet);
-        activeCount = getByte(0);
-        previousCount = getByte(1);
-        obdCompliance = getByte(2);
-    }
+	private final byte obdCompliance;
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
+	private final byte previousCount;
 
-        if (!(obj instanceof DM5DiagnosticReadinessPacket)) {
-            return false;
-        }
+	public DM5DiagnosticReadinessPacket(Packet packet) {
+		super(packet);
+		activeCount = getByte(0);
+		previousCount = getByte(1);
+		obdCompliance = getByte(2);
+	}
 
-        DM5DiagnosticReadinessPacket that = (DM5DiagnosticReadinessPacket) obj;
-        return getActiveCodeCount() == that.getActiveCodeCount()
-                && getPreviouslyActiveCodeCount() == that.getPreviouslyActiveCodeCount()
-                && getOBDCompliance() == that.getOBDCompliance() && super.equals(obj);
-    }
+	@Override
+	public boolean equals(Object obj) {
+		if (obj == this) {
+			return true;
+		}
 
-    /**
-     * Returns the number of active DTCs
-     *
-     * @return byte
-     */
-    public byte getActiveCodeCount() {
-        return activeCount;
-    }
+		if (!(obj instanceof DM5DiagnosticReadinessPacket)) {
+			return false;
+		}
 
-    @Override
-    public String getName() {
-        return "DM5";
-    }
+		DM5DiagnosticReadinessPacket that = (DM5DiagnosticReadinessPacket) obj;
+		return getActiveCodeCount() == that.getActiveCodeCount()
+				&& getPreviouslyActiveCodeCount() == that.getPreviouslyActiveCodeCount()
+				&& getOBDCompliance() == that.getOBDCompliance() && super.equals(obj);
+	}
 
-    /**
-     * Returns the value of the OBD Compliance
-     *
-     * @return byte
-     */
-    public byte getOBDCompliance() {
-        return obdCompliance;
-    }
+	/**
+	 * Returns the number of active DTCs
+	 *
+	 * @return byte
+	 */
+	public byte getActiveCodeCount() {
+		return activeCount;
+	}
 
-    /**
-     * Returns the number of previously active DTCs
-     *
-     * @return byte
-     */
-    public byte getPreviouslyActiveCodeCount() {
-        return previousCount;
-    }
+	@Override
+	public String getName() {
+		return "DM5";
+	}
 
-    @Override
-    public int hashCode() {
-        return Objects.hash(getActiveCodeCount(), getPreviouslyActiveCodeCount(), getOBDCompliance(), super.hashCode());
-    }
+	/**
+	 * Returns the value of the OBD Compliance
+	 *
+	 * @return byte
+	 */
+	public byte getOBDCompliance() {
+		return obdCompliance;
+	}
 
-    /**
-     * Returns true if this module reported that it supports HD OBD
-     *
-     * @return boolean
-     */
-    public boolean isHdObd() {
-        return getOBDCompliance() == 19 || getOBDCompliance() == 20;
-    }
+	/**
+	 * Returns the number of previously active DTCs
+	 *
+	 * @return byte
+	 */
+	public byte getPreviouslyActiveCodeCount() {
+		return previousCount;
+	}
 
-    @Override
-    public String toString() {
-        final byte obd = getOBDCompliance();
-        String result = getStringPrefix() + "OBD Compliance: " + lookupObdCompliance(obd) + " (" + (obd & 0xFF) + "), "
-                + "Active Codes: " + getValueWithUnits(getActiveCodeCount(), null) + ", Previously Active Codes: "
-                + getValueWithUnits(getPreviouslyActiveCodeCount(), null);
-        return result;
-    }
+	@Override
+	public int hashCode() {
+		return Objects.hash(getActiveCodeCount(), getPreviouslyActiveCodeCount(), getOBDCompliance(), super.hashCode());
+	}
+
+	/**
+	 * Returns true if this module reported that it supports HD OBD
+	 *
+	 * @return boolean
+	 */
+	public boolean isHdObd() {
+		return getOBDCompliance() == 19 || getOBDCompliance() == 20;
+	}
+
+	public boolean isObd() {
+		return obdValues.contains(getOBDCompliance());
+	}
+
+	@Override
+	public String toString() {
+		final byte obd = getOBDCompliance();
+		String result = getStringPrefix() + "OBD Compliance: " + lookupObdCompliance(obd) + " (" + (obd & 0xFF) + "), "
+				+ "Active Codes: " + getValueWithUnits(getActiveCodeCount(), null) + ", Previously Active Codes: "
+				+ getValueWithUnits(getPreviouslyActiveCodeCount(), null);
+		return result;
+	}
 
 }

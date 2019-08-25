@@ -369,7 +369,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 					getView().setProgressBarText("Push Go Button");
 				}
 				getView().setStartButtonEnabled(result);
-				getView().setStopButtonEnabled(result);
+				getView().setStopButtonEnabled(false);
 				getView().setReadVehicleInfoButtonEnabled(true);
 				getView().setAdapterComboBoxEnabled(true);
 				getView().setSelectFileButtonEnabled(true);
@@ -390,6 +390,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
 	@Override
 	public void onStartButtonClicked() {
+		getView().setStartButtonEnabled(false);
+		getView().setStopButtonEnabled(true);
 		overallController.execute(getResultsListener(), getNewJ1939(), getReportFileModule());
 	}
 
@@ -404,6 +406,9 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 		if (overallController.isActive()) {
 			overallController.stop();
 		}
+		getResultsListener().onComplete(false);
+		getResultsListener().onProgress("User cancelled operation");
+		getView().setStopButtonEnabled(false);
 	}
 
 	private void resetView() {

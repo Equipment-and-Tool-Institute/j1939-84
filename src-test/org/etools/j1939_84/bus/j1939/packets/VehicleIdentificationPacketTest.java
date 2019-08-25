@@ -7,9 +7,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.StandardCharsets;
 
-import org.junit.Test;
-
 import org.etools.j1939_84.bus.Packet;
+import org.junit.Test;
 
 /**
  * The Unit tests for the {@link VehicleIdentificationPacket} class
@@ -21,28 +20,65 @@ public class VehicleIdentificationPacketTest {
 
     @Test
     public void testGetVinAndToString() {
-        Packet packet = Packet.create(0, 0, 0x33, 0x48, 0x41, 0x4D, 0x4B, 0x53, 0x54, 0x4E, 0x30, 0x46, 0x4C, 0x35,
-                0x37, 0x35, 0x30, 0x31, 0x32, 0x2A);
+        Packet packet = Packet.create(0,
+                0,
+                0x33,
+                0x48,
+                0x41,
+                0x4D,
+                0x4B,
+                0x53,
+                0x54,
+                0x4E,
+                0x30,
+                0x46,
+                0x4C,
+                0x35,
+                0x37,
+                0x35,
+                0x30,
+                0x31,
+                0x32,
+                0x2A);
         VehicleIdentificationPacket instance = new VehicleIdentificationPacket(packet);
         assertEquals("3HAMKSTN0FL575012", instance.getVin());
         assertEquals("Vehicle Identification from Engine #1 (0): 3HAMKSTN0FL575012", instance.toString());
+        assertEquals("", instance.getManufacturerData());
+    }
+
+    @Test
+    public void testGetVinWithManufacturerData() {
+        String bytes = "Lorem ipsum*dolor sit amet";
+        Packet packet = Packet.create(0, 0, bytes.getBytes(StandardCharsets.UTF_8));
+        VehicleIdentificationPacket instance = new VehicleIdentificationPacket(packet);
+        assertEquals("Lorem ipsum", instance.getVin());
+        assertEquals("dolor sit amet", instance.getManufacturerData());
     }
 
     @Test
     public void testGetVinWithoutAsterisk() {
-        Packet packet = Packet.create(0, 0, 0x33, 0x48, 0x41, 0x4D, 0x4B, 0x53, 0x54, 0x4E, 0x30, 0x46, 0x4C, 0x35,
-                0x37, 0x35, 0x30, 0x31, 0x32);
+        Packet packet = Packet.create(0,
+                0,
+                0x33,
+                0x48,
+                0x41,
+                0x4D,
+                0x4B,
+                0x53,
+                0x54,
+                0x4E,
+                0x30,
+                0x46,
+                0x4C,
+                0x35,
+                0x37,
+                0x35,
+                0x30,
+                0x31,
+                0x32);
         VehicleIdentificationPacket instance = new VehicleIdentificationPacket(packet);
         assertEquals("3HAMKSTN0FL575012", instance.getVin());
-    }
-
-    @Test
-    public void testGetVinWithoutAsteriskExtraBytes() {
-        Packet packet = Packet.create(0, 0, 0x33, 0x48, 0x41, 0x4D, 0x4B, 0x53, 0x54, 0x4E, 0x30, 0x46, 0x4C, 0x35,
-                0x37, 0x35, 0x30, 0x31, 0x32, 0x2A, 0x33, 0x48, 0x41, 0x4D, 0x4B, 0x53, 0x54, 0x4E, 0x30, 0x46, 0x4C,
-                0x35, 0x37, 0x35, 0x30, 0x31, 0x32, 0x2A);
-        VehicleIdentificationPacket instance = new VehicleIdentificationPacket(packet);
-        assertEquals("3HAMKSTN0FL575012", instance.getVin());
+        assertEquals("", instance.getManufacturerData());
     }
 
     @Test
@@ -51,6 +87,7 @@ public class VehicleIdentificationPacketTest {
         Packet packet = Packet.create(0, 0, (expected + "*").getBytes(StandardCharsets.UTF_8));
         VehicleIdentificationPacket instance = new VehicleIdentificationPacket(packet);
         assertEquals(expected, instance.getVin());
+        assertEquals("", instance.getManufacturerData());
     }
 
     @Test
@@ -58,5 +95,6 @@ public class VehicleIdentificationPacketTest {
         Packet packet = Packet.create(0, 0, 0x2A);
         VehicleIdentificationPacket instance = new VehicleIdentificationPacket(packet);
         assertEquals("", instance.getVin());
+        assertEquals("", instance.getManufacturerData());
     }
 }

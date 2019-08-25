@@ -30,6 +30,36 @@ public class VehicleIdentificationPacket extends ParsedPacket {
         super(packet);
     }
 
+    /**
+     * Finds and returns the index of the asterisk in the data
+     *
+     * @param data the data of interest
+     * @return the index of the asterisk, -1 if there is no asterisk
+     */
+    private int getAsteriskIndex(byte[] data) {
+        int index = -1;
+        for (int i = 0; i < data.length; i++) {
+            if (data[i] == ASTERISK) {
+                index = i;
+                break;
+            }
+        }
+        return index;
+    }
+
+    /**
+     * Returns the data, if any, that exist beyond the asterisk
+     * NOTE: this is not defined in an SAE Document as a valid SPN
+     *
+     * @return String of any additional data
+     */
+    public String getManufacturerData() {
+        byte[] data = getPacket().getBytes();
+        int index = getAsteriskIndex(data);
+        return index == -1 || index == data.length - 1 ? ""
+                : format(Arrays.copyOfRange(data, index + 1, data.length));
+    }
+
     @Override
     public String getName() {
         return NAME;
@@ -52,13 +82,7 @@ public class VehicleIdentificationPacket extends ParsedPacket {
         byte[] data = getPacket().getBytes();
 
         // Find the location of the *
-        int index = -1;
-        for (int i = 0; i < data.length; i++) {
-            if (data[i] == ASTERISK) {
-                index = i;
-                break;
-            }
-        }
+        int index = getAsteriskIndex(data);
 
         if (index >= 0) {
             // It has a *, return just the VIN

@@ -21,6 +21,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  *
  */
 public class OverallController extends Controller {
+	private Controller activeController;
+
 	/**
 	 * The other Controllers in the order they will be executed.
 	 */
@@ -66,11 +68,21 @@ public class OverallController extends Controller {
 	@Override
 	protected void run() throws Throwable {
 		for (int i = 0; i < controllers.size(); i++) {
-			Controller controller = controllers.get(i);
-			getListener().onProgress(i, getTotalSteps(), controller.getDisplayName());
-			controller.run(getListener(), getJ1939(), getReportFileModule());
-			getListener().onProgress(i++, getTotalSteps(), controller.getDisplayName());
+			activeController = controllers.get(i);
+			getListener().onProgress(i, getTotalSteps(), activeController.getDisplayName());
+			activeController.run(getListener(), getJ1939(), getReportFileModule());
+			getListener().onProgress(i++, getTotalSteps(), activeController.getDisplayName());
+			activeController = null;
 		}
+	}
+
+	@Override
+	public void stop() {
+		if (activeController != null) {
+			activeController.stop();
+		}
+		super.stop();
+
 	}
 
 }

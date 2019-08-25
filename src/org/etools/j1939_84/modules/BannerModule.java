@@ -61,6 +61,16 @@ public class BannerModule extends FunctionalModule {
 	}
 
 	/**
+	 * Writes the Failure Footer for the report to the {@link ResultsListener}
+	 *
+	 * @param listener
+	 *                 the {@link ResultsListener}
+	 */
+	public void reportFailed(ResultsListener listener) {
+		listener.onResult(getFooter("Failed"));
+	}
+
+	/**
 	 * Writes the Footer for the report to the {@link ResultsListener}
 	 *
 	 * @param listener

@@ -12,73 +12,75 @@ import org.junit.Test;
 
 public class VinDecoderTest {
 
-	private VinDecoder instance;
+    private VinDecoder instance;
 
-	@Before
-	public void setUp() {
-		instance = new VinDecoder();
-	}
+    @Before
+    public void setUp() {
+        instance = new VinDecoder();
+    }
 
-	@Test
-	public void testGetModelYear() {
-		assertEquals(2010, instance.getModelYear("LPU918TW3AS9H90U7"));
-		assertEquals(2011, instance.getModelYear("C772J2XJ3B7ESG0VP"));
-		assertEquals(2012, instance.getModelYear("PEFFDD4Y3C8AYT0KP"));
-		assertEquals(2013, instance.getModelYear("3DRWN9784DZBMGPG7"));
-		assertEquals(2014, instance.getModelYear("7RM06PXG6EF9Z1YY1"));
-		assertEquals(2015, instance.getModelYear("B6GL6DN95FCJE8U0W"));
-		assertEquals(2016, instance.getModelYear("1SEGU7GT5G4ZEXS2R"));
-		assertEquals(2017, instance.getModelYear("7B00Z54Z5H2NYESSY"));
-		assertEquals(2018, instance.getModelYear("P00PMXW05JPGCTL72"));
-		assertEquals(2019, instance.getModelYear("5EKRP8F85KKK77XUK"));
-		assertEquals(2020, instance.getModelYear("9UD0ZKSD9LYWL9MCZ"));
-		assertEquals(2021, instance.getModelYear("WY99YFFT9M1AV3W8V"));
-		assertEquals(2022, instance.getModelYear("4E5JNFX60NCBHTA70"));
-		assertEquals(2023, instance.getModelYear("9KPV2PCWXP8WERUHD"));
-		assertEquals(2024, instance.getModelYear("PX0W9XD10RZL37HD7"));
-		assertEquals(2025, instance.getModelYear("XN1J5DTM2S4XKDYGF"));
-		assertEquals(2026, instance.getModelYear("7ZS6H3H54TUZ9WUZS"));
-		assertEquals(2027, instance.getModelYear("1B0JLLYZ7V3VZA2SC"));
-		assertEquals(2028, instance.getModelYear("HGMKPG8U4WXPJNYEE"));
-		assertEquals(2029, instance.getModelYear("57AE75W58X9JWWW1V"));
-		assertEquals(2030, instance.getModelYear("F2FJ23E95Y8702102"));
-		assertEquals(2031, instance.getModelYear("K4F6V97D719T8T25S"));
-		assertEquals(2032, instance.getModelYear("TAPH8XWE323R5AUY1"));
-		assertEquals(2033, instance.getModelYear("66G5ZS6C93ZE96UAK"));
-		assertEquals(2034, instance.getModelYear("NT6PWENT64CEN9TMD"));
-		assertEquals(2035, instance.getModelYear("UE2W812K75HJ4RH5G"));
-		assertEquals(2036, instance.getModelYear("14Z1YS83X6PZE13BX"));
-		assertEquals(2037, instance.getModelYear("1J8FF57W67HRLJKHT"));
-		assertEquals(2038, instance.getModelYear("NWPSN256382KRTURV"));
-		assertEquals(2039, instance.getModelYear("P5Z1FPK699SRBDPJ0"));
-	}
+    @Test
+    public void testGetModelYear() {
+        assertEquals(2010, instance.getModelYear("726PLAGW0A01D2339"));
+        assertEquals(2011, instance.getModelYear("BPW309DY4BRML7951"));
+        assertEquals(2012, instance.getModelYear("PS32AHRF9CMV68772"));
+        assertEquals(2013, instance.getModelYear("890WY5GL8D7U36134"));
+        assertEquals(2014, instance.getModelYear("Y9WTKEP13E50R5246"));
+        assertEquals(2015, instance.getModelYear("LLADWX593FLVJ5065"));
+        assertEquals(2016, instance.getModelYear("L61A8UXM6GWR21346"));
+        assertEquals(2017, instance.getModelYear("TV5UD90M3H6DU0452"));
+        assertEquals(2018, instance.getModelYear("SS54HF012JKJ89958"));
+        assertEquals(2019, instance.getModelYear("RV2M3HLC8KRVY8256"));
+        assertEquals(2020, instance.getModelYear("9R3SDLYJ2LE3A0368"));
+        assertEquals(2021, instance.getModelYear("DY0TWE1J4MN9F3376"));
+        assertEquals(2022, instance.getModelYear("M828RYKLXNPB25823"));
+        assertEquals(2023, instance.getModelYear("N7JDSGR32PSLS6495"));
+        assertEquals(2024, instance.getModelYear("HTVLG7V8XR0658779"));
+        assertEquals(2025, instance.getModelYear("JDFKATNW2SNHE2645"));
+        assertEquals(2026, instance.getModelYear("R37P8T4B0TD0W9194"));
+        assertEquals(2027, instance.getModelYear("36JFM6U57VWJE6400"));
+        assertEquals(2028, instance.getModelYear("9B8KNEZY8WYCE4680"));
+        assertEquals(2029, instance.getModelYear("EKCKCEPB5XCC03539"));
+        assertEquals(2030, instance.getModelYear("K3CV77CM5Y58S3528"));
+        assertEquals(2031, instance.getModelYear("8V0E8GDU81G132838"));
+        assertEquals(2032, instance.getModelYear("MK4FDL0Y42K8Y9930"));
+        assertEquals(2033, instance.getModelYear("WZRTJ90MX3UWB3530"));
+        assertEquals(2034, instance.getModelYear("CNH003FP34F285830"));
+        assertEquals(2035, instance.getModelYear("2MRKRPW295S6V7673"));
+        assertEquals(2036, instance.getModelYear("2Y9DWG7U96PPC9940"));
+        assertEquals(2037, instance.getModelYear("BTWB7VUP475RP2031"));
+        assertEquals(2038, instance.getModelYear("6PRJF3VS08H9R3889"));
+        assertEquals(2039, instance.getModelYear("92K46JCC09K7Z3062"));
+    }
 
-	@Test
-	public void testIsVinValid() {
-		assertFalse("Empty not allowed", instance.isVinValid(""));
-		assertFalse("Null not allowed", instance.isVinValid(null));
+    @Test
+    public void testIsVinValid() {
+        assertFalse("Empty not allowed", instance.isVinValid(""));
+        assertFalse("Null not allowed", instance.isVinValid(null));
 
-		assertFalse("Too short", instance.isVinValid("1234567890123456"));
-		assertFalse("Too long", instance.isVinValid("2G1WB5E37E11105673"));
+        assertFalse("Too short", instance.isVinValid("1234567890123456"));
+        assertFalse("Too long", instance.isVinValid("2G1WB5E37E11105673"));
 
-		assertFalse("Letters and numbers only", instance.isVinValid("~!@#$%^&*()_+`=[]"));
-		assertFalse("Letters and numbers only", instance.isVinValid("09876543210_+`=[]"));
-		assertFalse("Letters and numbers only", instance.isVinValid("{}<>,./?\\|:;'1234"));
+        assertFalse("Letters and numbers only", instance.isVinValid("~!@#$%^&*()_+`=[]"));
+        assertFalse("Letters and numbers only", instance.isVinValid("09876543210_+`=[]"));
+        assertFalse("Letters and numbers only", instance.isVinValid("{}<>,./?\\|:;'1234"));
 
-		assertFalse("I is not allowed", instance.isVinValid("IIIIIIIIIIIIIIIII"));
-		assertFalse("O is not allowed", instance.isVinValid("OOOOOOOOOOOOOOOOO"));
-		assertFalse("Q is not allowed", instance.isVinValid("QQQQQQQQQQQQQQQQQ"));
+        assertFalse("I is not allowed", instance.isVinValid("IIIIIIIIIIIIIIIII"));
+        assertFalse("O is not allowed", instance.isVinValid("OOOOOOOOOOOOOOOOO"));
+        assertFalse("Q is not allowed", instance.isVinValid("QQQQQQQQQQQQQQQQQ"));
 
-		assertFalse("Bad Check digit", instance.isVinValid("2G1WB5E36E1110567"));
+        assertFalse("Bad Check digit", instance.isVinValid("2G1WB5E36E1110567"));
 
-		assertTrue("VIN is valid", instance.isVinValid("2G1WB5E37E1110567"));
-	}
+        assertFalse("Non-numeric sequence", instance.isVinValid("PX0W9XD10RZL37HD7"));
 
-	@Test
-	public void testSanitize() {
-		String actual = instance.sanitize(
-				"`1234567890-=~!@#$%^&*()_+qwertyuiop[]\\QWERTYUIOP{}|asdfghjkl;'ASDFGHJKL:\"zxcvbnm,./ZXCVBNM<>?");
-		String expected = "1234567890WERTYUPWERTYUPASDFGHJKLASDFGHJKLZXCVBNMZXCVBNM";
-		assertEquals(expected, actual);
-	}
+        assertTrue("VIN is valid", instance.isVinValid("2G1WB5E37E1110567"));
+    }
+
+    @Test
+    public void testSanitize() {
+        String actual = instance.sanitize(
+                "`1234567890-=~!@#$%^&*()_+qwertyuiop[]\\QWERTYUIOP{}|asdfghjkl;'ASDFGHJKL:\"zxcvbnm,./ZXCVBNM<>?");
+        String expected = "1234567890WERTYUPWERTYUPASDFGHJKLASDFGHJKLZXCVBNMZXCVBNM";
+        assertEquals(expected, actual);
+    }
 }

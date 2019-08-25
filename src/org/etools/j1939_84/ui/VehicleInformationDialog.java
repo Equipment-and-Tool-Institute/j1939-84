@@ -433,6 +433,7 @@ public class VehicleInformationDialog extends JFrame implements VehicleInformati
 				presenter.onDialogClosed();
 			}
 		});
+		setDefaultCloseOperation(DISPOSE_ON_CLOSE);
 	}
 
 	@Override
@@ -477,9 +478,12 @@ public class VehicleInformationDialog extends JFrame implements VehicleInformati
 
 	@Override
 	public void setVisible(boolean b) {
+		super.setVisible(b);
 		if (b) {
 			presenter.initialize();
+		} else {
+			super.dispose();
+			dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
 		}
-		super.setVisible(b);
 	}
 }

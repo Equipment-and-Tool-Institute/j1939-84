@@ -166,8 +166,10 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 	public void displayDialog(String message, String title, int type, boolean modal) {
 		if (modal) {
 			try {
-				SwingUtilities.invokeAndWait(() -> JOptionPane
-						.showConfirmDialog(getFrame(), message, title, JOptionPane.OK_CANCEL_OPTION, type));
+				SwingUtilities.invokeAndWait(() -> {
+					Object[] options = { "OK" };
+					JOptionPane.showOptionDialog(getFrame(), message, title, type, type, null, options, options[0]);
+				});
 			} catch (InvocationTargetException | InterruptedException e) {
 				J1939_84.getLogger().log(Level.SEVERE, "Error displaying dialog", e);
 			}

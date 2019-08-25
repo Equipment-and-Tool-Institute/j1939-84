@@ -14,46 +14,50 @@ import java.util.Random;
  */
 public class VinGenerator {
 
-	private static final String ALLOWED_CHARS = "0123456789ABCDEFGHJKLMNPRSTUVWXYZ";
+    private static final String ALLOWED_CHARS = "0123456789ABCDEFGHJKLMNPRSTUVWXYZ";
 
-	public static void main(String... strings) {
-		VinGenerator generator = new VinGenerator();
-		int i = 0;
-		while (i < 100) {
-			String vin = generator.generateVin();
-			System.out.println(vin);
-			i++;
-		}
-	}
+    public static void main(String... strings) {
+        VinGenerator generator = new VinGenerator();
+        VinDecoder vinDecoder = new VinDecoder();
+        int nextModelYear = 2010;
+        while (nextModelYear < 2040) {
+            String vin = generator.generateVin();
+            int modelYear = vinDecoder.getModelYear(vin);
+            if (modelYear == nextModelYear) {
+                System.out.println("ModelYear " + nextModelYear + ": " + vin);
+                nextModelYear++;
+            }
+        }
+    }
 
-	private final Random random = new Random();
+    private final Random random = new Random();
 
-	private final VinDecoder vinDecoder = new VinDecoder();
+    private final VinDecoder vinDecoder = new VinDecoder();
 
-	/**
-	 * Generates a 17 character VIN
-	 *
-	 * @return the generated VIN
-	 */
-	public String generateVin() {
-		String vin = null;
-		while (!vinDecoder.isVinValid(vin)) {
-			vin = randomVin();
-		}
-		return vin;
-	}
+    /**
+     * Generates a 17 character VIN
+     *
+     * @return the generated VIN
+     */
+    public String generateVin() {
+        String vin = null;
+        while (!vinDecoder.isVinValid(vin)) {
+            vin = randomVin();
+        }
+        return vin;
+    }
 
-	private char getRandomVinChar() {
-		return ALLOWED_CHARS.charAt(random.nextInt(ALLOWED_CHARS.length()));
-	}
+    private char getRandomVinChar() {
+        return ALLOWED_CHARS.charAt(random.nextInt(ALLOWED_CHARS.length()));
+    }
 
-	private String randomVin() {
-		StringBuilder vinSb = new StringBuilder(17);
-		for (int i = 0; i < 17; i++) {
-			vinSb.append(getRandomVinChar());
-		}
-		String vin = vinSb.toString();
-		char checkSumChar = new VinDecoder().calculateCheckSum(vin);
-		return vin.substring(0, 8) + Character.toString(checkSumChar) + vin.substring(9, 17);
-	}
+    private String randomVin() {
+        StringBuilder vinSb = new StringBuilder(17);
+        for (int i = 0; i < 17; i++) {
+            vinSb.append(getRandomVinChar());
+        }
+        String vin = vinSb.toString();
+        char checkSumChar = new VinDecoder().calculateCheckSum(vin);
+        return vin.substring(0, 8) + Character.toString(checkSumChar) + vin.substring(9, 17);
+    }
 }
