@@ -1,0 +1,17 @@
+1,Verify engine off operation
+2,DM23: Emission related previously active DTCs
+3,DM2: Previously active DTCs
+4,DM12: Emissions related active DTCs
+5,DM1: Active DTCs
+6,DM5: Diagnostic readiness 1
+7,DM6: emission related pending DTCs
+8,DM27: All Pending DTCs
+9,DM29: Regulated DTC counts
+10,DM31: DTC to lamp association
+11,DM25: Expanded freeze frame
+12,DM20: Monitor performance ratio
+13,DM21: Diagnostic readiness 2
+14,DM7/DM30: Command non-continuously monitored test/scaled test results
+15,DM3: Diagnostic data clear/reset for previously active DTCs
+16,DM7/DM30: Command non-continuously monitored test/scaled test results
+17,Complete part 7 operating cycle and implant fault B

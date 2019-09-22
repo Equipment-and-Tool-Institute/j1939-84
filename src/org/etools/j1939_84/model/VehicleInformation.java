@@ -13,93 +13,93 @@ import java.util.Objects;
  */
 public class VehicleInformation {
 
-	private String certificationIntent;
-	private int emissionUnits;
-	private int engineModelYear;
-	private FuelType fuelType;
-	private int vehicleModelYear;
-	private String vin;
+    private String certificationIntent;
+    private int emissionUnits;
+    private int engineModelYear;
+    private FuelType fuelType;
+    private int vehicleModelYear;
+    private String vin;
 
-	@Override
-	public boolean equals(Object obj) {
-		if (!(obj instanceof VehicleInformation)) {
-			return false;
-		}
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof VehicleInformation)) {
+            return false;
+        }
 
-		if (this == obj) {
-			return true;
-		}
+        if (this == obj) {
+            return true;
+        }
 
-		VehicleInformation that = (VehicleInformation) obj;
+        VehicleInformation that = (VehicleInformation) obj;
 
-		return Objects.equals(certificationIntent, that.certificationIntent) && emissionUnits == that.emissionUnits
-				&& engineModelYear == that.engineModelYear && fuelType == that.fuelType
-				&& vehicleModelYear == that.vehicleModelYear && Objects.equals(vin, that.vin);
-	}
+        return Objects.equals(certificationIntent, that.certificationIntent) && emissionUnits == that.emissionUnits
+                && engineModelYear == that.engineModelYear && fuelType == that.fuelType
+                && vehicleModelYear == that.vehicleModelYear && Objects.equals(vin, that.vin);
+    }
 
-	public String getCertificationIntent() {
-		return certificationIntent;
-	}
+    public String getCertificationIntent() {
+        return certificationIntent;
+    }
 
-	public int getEmissionUnits() {
-		return emissionUnits;
-	}
+    public int getEmissionUnits() {
+        return emissionUnits;
+    }
 
-	public int getEngineModelYear() {
-		return engineModelYear;
-	}
+    public int getEngineModelYear() {
+        return engineModelYear;
+    }
 
-	public FuelType getFuelType() {
-		return fuelType;
-	}
+    public FuelType getFuelType() {
+        return fuelType;
+    }
 
-	public int getVehicleModelYear() {
-		return vehicleModelYear;
-	}
+    public int getVehicleModelYear() {
+        return vehicleModelYear;
+    }
 
-	public String getVin() {
-		return vin;
-	}
+    public String getVin() {
+        return vin;
+    }
 
-	@Override
-	public int hashCode() {
-		return Objects.hash(certificationIntent, emissionUnits, engineModelYear, fuelType, vehicleModelYear, vin);
-	}
+    @Override
+    public int hashCode() {
+        return Objects.hash(certificationIntent, emissionUnits, engineModelYear, fuelType, vehicleModelYear, vin);
+    }
 
-	public void setCertificationIntent(String certificationIntent) {
-		this.certificationIntent = certificationIntent;
-	}
+    public void setCertificationIntent(String certificationIntent) {
+        this.certificationIntent = certificationIntent;
+    }
 
-	public void setEmissionUnits(int emissionUnits) {
-		this.emissionUnits = emissionUnits;
-	}
+    public void setEmissionUnits(int emissionUnits) {
+        this.emissionUnits = emissionUnits;
+    }
 
-	public void setEngineModelYear(int engineModelYear) {
-		this.engineModelYear = engineModelYear;
-	}
+    public void setEngineModelYear(int engineModelYear) {
+        this.engineModelYear = engineModelYear;
+    }
 
-	public void setFuelType(FuelType fuelType) {
-		this.fuelType = fuelType;
-	}
+    public void setFuelType(FuelType fuelType) {
+        this.fuelType = fuelType;
+    }
 
-	public void setVehicleModelYear(int vehicleModelYear) {
-		this.vehicleModelYear = vehicleModelYear;
-	}
+    public void setVehicleModelYear(int vehicleModelYear) {
+        this.vehicleModelYear = vehicleModelYear;
+    }
 
-	public void setVin(String vin) {
-		this.vin = vin;
-	}
+    public void setVin(String vin) {
+        this.vin = vin;
+    }
 
-	@Override
-	public String toString() {
-		String result = "VehicleInformation:\n";
-		result += "Certification: " + certificationIntent + "\n";
-		result += "Emissions: " + emissionUnits + "\n";
-		result += "Engine MY: " + engineModelYear + "\n";
-		result += "FuelType: " + fuelType + "\n";
-		result += "Vehicle MY: " + vehicleModelYear + "\n";
-		result += "VIN: " + vin;
-		return result;
-	}
+    @Override
+    public String toString() {
+        String result = "Vehicle Information:\n";
+        result += "Certification: " + certificationIntent + "\n";
+        result += "Emissions: " + emissionUnits + "\n";
+        result += "Engine MY: " + engineModelYear + "\n";
+        result += "FuelType: " + fuelType + "\n";
+        result += "Vehicle MY: " + vehicleModelYear + "\n";
+        result += "VIN: " + vin;
+        return result;
+    }
 
 }

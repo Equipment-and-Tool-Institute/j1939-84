@@ -1,0 +1,10 @@
+1,Verify engine operation
+2,DM26: Diagnostic readiness 3
+3,DM5: Diagnostic readiness 1
+4,DM28: Permanent DTCs
+5,DM29: Regulated DTC Counts
+6,DM1: Active DTCs
+7,DM21: Diagnostic readiness 2
+8,DM7/DM30: Command non-continuously monitored test/scaled test results
+9,DM11: Diagnostic data clear/reset for active DTCs
+10,DM7/DM30: Command non-continuously monitored test/scaled test results

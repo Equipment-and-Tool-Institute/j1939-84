@@ -71,10 +71,39 @@ public class LookupTest {
     }
 
     @Test
+    public void testGetPartName() {
+        assertEquals("Part 1 KOEO Data Collection", Lookup.getPartName(1));
+        assertEquals("Part 2 Key On Engine Running Data Collection", Lookup.getPartName(2));
+        assertEquals("Part 3 Test Pending Fault A", Lookup.getPartName(3));
+        assertEquals("Part 4 Test Confirmed Fault A", Lookup.getPartName(4));
+        assertEquals("Part 5 Correct fault A first cycle", Lookup.getPartName(5));
+        assertEquals("Part 6 Complete fault A three cycle countdown", Lookup.getPartName(6));
+        assertEquals("Part 7 Verify DM23 transition", Lookup.getPartName(7));
+        assertEquals("Part 8 Verify fault B for general denominator demonstration", Lookup.getPartName(8));
+        assertEquals("Part 9 verify deletion of fault B with DM11", Lookup.getPartName(9));
+        assertEquals("Part 10 Prime diagnostic executive for general denominator demonstration",
+                Lookup.getPartName(10));
+        assertEquals("Part 11 Exercise general denominator", Lookup.getPartName(11));
+        assertEquals("Part 12 Verify deletion of fault B from DM28", Lookup.getPartName(12));
+        assertEquals("Unknown", Lookup.getPartName(13));
+    }
+
+    @Test
     public void testGetSpnName() {
         assertEquals("Engine Fuel Pressure", Lookup.getSpnName(18));
         assertEquals("Engine Fuel Supply Pump Actuator", Lookup.getSpnName(931));
         assertEquals("Manufacturer Assignable SPN 524287", Lookup.getSpnName(524287));
         assertEquals("Unknown", Lookup.getSpnName(-1));
+    }
+
+    @Test
+    public void testGetStepName() {
+        assertEquals("Unknown", Lookup.getStepName(13, 1));
+        assertEquals("Unknown", Lookup.getStepName(1, 0));
+        assertEquals("Unknown", Lookup.getStepName(-1, 1));
+        assertEquals("Test vehicle data collection", Lookup.getStepName(1, 1));
+        assertEquals("DM5: Diagnostic readiness 1", Lookup.getStepName(11, 10));
+        assertEquals("DM7/DM30: Command non-continuously monitored test/scaled test results",
+                Lookup.getStepName(12, 10));
     }
 }

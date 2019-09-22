@@ -1,0 +1,14 @@
+1,Confirm engine running status
+2,DM6: Emission related pending DTCs
+3,DM27: All pending DTCs
+4,DM29: Regulated DTC counts
+5,DM31: DTC to lamp association
+6,DM1: Active DTCs
+7,DM2: Previously active DTCs
+8,DM5: Diagnostic readiness 1
+9,DM12: Emissions related active DTCs
+10,DM28: permanent DTCs
+11,DM24: SPNs Supported
+12,DM20: Monitor performance ratio
+13,DM21: Diagnostic readiness 2
+14,Part 3 to Part 4 Transition - Complete Fault A First Trip

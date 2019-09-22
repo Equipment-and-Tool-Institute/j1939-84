@@ -1,0 +1,13 @@
+1,Verify engine operation
+2,DM26: Diagnostic readiness 3
+3,DM21: Diagnostic readiness 2
+4,DM29: Regulated DTC counts
+5,DM20: Monitor performance ratio
+6,DM28: Permanent DTCs
+7,DM20/DM28/Broadcast data: Waiting until general denominator is met
+8,DM20: Monitor performance ratio
+9,DM28: Permanent DTCs
+10,DM5: Diagnostic readiness 1
+11,DM26: Diagnostic Readiness 3
+12,DM21: Diagnostic readiness 2
+13,Part 11 to Part 12 Transition

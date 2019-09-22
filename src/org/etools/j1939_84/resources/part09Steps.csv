@@ -1,0 +1,25 @@
+1,Verify engine off operation
+2,DM12: Emissions related active DTCs
+3,DM22: Individual clear/reset of active and previously active DTC
+4,DM20: Monitor performance ratio
+5,DM21: Diagnostic readiness 2
+6,DM7/DM30: Command non-continuously monitored test/scaled test results
+7,DM33: Emission increasing auxiliary emission control device active time
+8,DM11: Diagnostic data clear/reset for active DTCs
+9,DM21: Diagnostic readiness 2
+10,DM7/DM30: Command non-continuously monitored test/scaled test results
+11,DM20: Monitor performance ratio
+12,DM28: Permanent DTCs
+13,DM31: DTC to lamp association
+14,DM27: All pending DTCs
+15,DM29: Regulated DTC counts
+16,DM26: Diagnostic readiness 3
+17,DM25: Expanded freeze frame
+18,DM23: Emission Related Previously Active DTCs
+19,DM12: Emissions related active DTCs
+20,DM6: Emission related pending DTCs
+21,DM5: Diagnostic readiness 1
+22,DM2: Previously active DTCs
+23,DM1: Active DTCs
+24,DM33: Emission increasing auxiliary emission control device active time
+25,Part 9 to Part 10 Transition

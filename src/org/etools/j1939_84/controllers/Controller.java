@@ -3,15 +3,24 @@
  */
 package org.etools.j1939_84.controllers;
 
+import static org.etools.j1939_84.J1939_84.NL;
+
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
+import org.etools.j1939_84.model.Outcome;
+import org.etools.j1939_84.model.PartResult;
+import org.etools.j1939_84.model.StepResult;
+import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -39,6 +48,33 @@ public abstract class Controller {
 
         private CompositeResultsListener(ResultsListener... listeners) {
             this.listeners = listeners;
+        }
+
+        @Override
+        public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
+            Arrays.stream(listeners).forEach(l -> l.addOutcome(partNumber, stepNumber, outcome, message));
+        }
+
+        @Override
+        public void beginPart(PartResult partResult) {
+            Arrays.stream(listeners).forEach(l -> l.beginPart(partResult));
+
+        }
+
+        @Override
+        public void beginStep(StepResult stepResult) {
+            Arrays.stream(listeners).forEach(l -> l.beginStep(stepResult));
+
+        }
+
+        @Override
+        public void endPart(PartResult partResult) {
+            Arrays.stream(listeners).forEach(l -> l.endPart(partResult));
+        }
+
+        @Override
+        public void endStep(StepResult stepResult) {
+            Arrays.stream(listeners).forEach(l -> l.endStep(stepResult));
         }
 
         @Override
@@ -79,6 +115,11 @@ public abstract class Controller {
         @Override
         public void onVehicleInformationNeeded(VehicleInformationListener listener) {
             Arrays.stream(listeners).forEach(l -> l.onVehicleInformationNeeded(listener));
+        }
+
+        @Override
+        public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
+            Arrays.stream(listeners).forEach(l -> l.onVehicleInformationReceived(vehicleInformation));
         }
     }
 
@@ -153,6 +194,8 @@ public abstract class Controller {
      */
     private int maxSteps;
 
+    private final Map<Integer, PartResult> partResultsMap = new HashMap<>();
+
     /**
      * The {@link ReportFileModule} used to read and write the report
      */
@@ -204,8 +247,13 @@ public abstract class Controller {
         getListener().onResult("");
     }
 
-    protected void addFailure(String message) {
-        getListener().onResult("Action Failed: " + message);
+    protected void addFailure(int partNumber, int stepNumber, String message) {
+        getListener().addOutcome(partNumber, stepNumber, Outcome.FAIL, message);
+        getListener().onResult("FAIL: " + message);
+    }
+
+    protected void addPass(int partNumber, int stepNumber) {
+
     }
 
     /**
@@ -213,8 +261,9 @@ public abstract class Controller {
      *
      * @param message the warning to add to the report
      */
-    protected void addWarning(String warning) {
-        getListener().onResult("WARN: " + warning);
+    protected void addWarning(int partNumber, int stepNumber, String message) {
+        getListener().addOutcome(partNumber, stepNumber, Outcome.WARN, message);
+        getListener().onResult("WARN: " + message);
     }
 
     /**
@@ -268,6 +317,29 @@ public abstract class Controller {
     public void execute(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
         setupRun(listener, j1939, reportFileModule);
         getExecutor().execute(getRunnable());
+    }
+
+    protected void executeTests(int partNumber, int totalSteps) throws InterruptedException {
+        PartResult partResult = getPartResult(partNumber);
+        getListener().beginPart(partResult);
+        getListener().onResult("Begin " + partResult);
+
+        for (int i = 1; i <= totalSteps; i++) {
+            StepResult stepResult = partResult.getStepResult(i);
+
+            getListener().beginStep(stepResult);
+            getListener().onResult(NL);
+            getListener().onResult("Start " + stepResult + " (" + stepResult.getIndex() + ")");
+
+            incrementProgress(stepResult.toString());
+            getListener().onResult("Do Testing;\nWait for Responses;\nWrite Messages, etc");
+            // Thread.sleep(100);
+
+            getListener().endStep(stepResult);
+            getListener().onResult("End " + stepResult);
+        }
+        getListener().endPart(partResult);
+        getListener().onResult("End " + partResult);
     }
 
     /**
@@ -383,6 +455,15 @@ public abstract class Controller {
         return J1939_84.getLogger();
     }
 
+    protected PartResult getPartResult(int partNumber) {
+        PartResult result = partResultsMap.get(partNumber);
+        if (result == null) {
+            result = new PartResult(partNumber, Lookup.getPartName(partNumber));
+            partResultsMap.put(partNumber, result);
+        }
+        return result;
+    }
+
     /**
      * Returns the {@link ReportFileModule}
      *
@@ -402,12 +483,11 @@ public abstract class Controller {
             try {
                 setupProgress(getTotalSteps());
 
-                checkEngineSpeed();
+                // checkEngineSpeed();
 
                 // Call to the specific controller
                 run();
 
-                setEnding(Ending.COMPLETED);
             } catch (Throwable e) {
                 getLogger().log(Level.SEVERE, "Error", e);
                 if (!(e instanceof InterruptedException)) {
@@ -417,10 +497,12 @@ public abstract class Controller {
                     }
                     getListener().onMessage(message, "Error", MessageType.ERROR);
                 }
-            } finally {
-                finished();
             }
         };
+    }
+
+    protected StepResult getStepResult(int partNumber, int stepNumber) {
+        return getPartResult(partNumber).getStepResult(stepNumber);
     }
 
     /**
@@ -470,8 +552,8 @@ public abstract class Controller {
      */
     protected abstract void run() throws Throwable;
 
-    public void run(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
-        setupRun(listener, j1939, reportFileModule);
+    public void run(ResultsListener listener, J1939 j1939) {
+        setupRun(listener, j1939, null);
         getRunnable().run();
     }
 
@@ -520,9 +602,13 @@ public abstract class Controller {
 
     public void setupRun(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
         setJ1939(j1939);
-        setReportFileModule(reportFileModule);
+        if (reportFileModule != null) {
+            setReportFileModule(reportFileModule);
+            compositeListener = new CompositeResultsListener(listener, reportFileModule);
+        } else {
+            compositeListener = new CompositeResultsListener(listener);
+        }
         ending = null;
-        compositeListener = new CompositeResultsListener(listener, reportFileModule);
     }
 
     /**
