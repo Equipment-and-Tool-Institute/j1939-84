@@ -79,9 +79,12 @@ public class J1939 {
     /** J1939-21 */
     private static final int SUCCESS = 0x00;
 
-    private static <T extends ParsedPacket> int getPgn(Class<T> cls)
-            throws IllegalAccessException, NoSuchFieldException {
-        return cls.getField("PGN").getInt(null);
+    private static <T extends ParsedPacket> int getPgn(Class<T> cls) {
+        try {
+            return cls.getField("PGN").getInt(null);
+        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
+            throw new IllegalStateException("Unexpected error occured.", e);
+        }
     }
 
     private static Predicate<Packet> pgnFilter(int pgn) {
@@ -208,18 +211,6 @@ public class J1939 {
      */
     private final Bus bus;
 
-    /** when true, all open streams will be closed. */
-    private boolean interrupt;
-
-    /** mechanism to interrupt all open streams when interrupt is true. */
-    private final Predicate<Packet> interruptFn = Bus.interruptFilter(t -> {
-        if (interrupt) {
-            interrupt = false;
-            return true;
-        }
-        return false;
-    });
-
     /**
      * Constructor
      *
@@ -272,6 +263,10 @@ public class J1939 {
             // The Acknowledged PGN matches
                     && response.get24(5) == pgn;
         };
+    }
+
+    public void close() {
+
     }
 
     /**
@@ -335,13 +330,6 @@ public class J1939 {
     }
 
     /**
-     * Interrupts the communications to end a read early
-     */
-    public void interrupt() {
-        interrupt = true;
-    }
-
-    /**
      * Reads the bus indefinitely
      *
      * @return {@link Stream} of {@link ParsedPacket} s
@@ -356,7 +344,7 @@ public class J1939 {
      * Watches the bus for up to the timeout for the first packet that matches
      * the PGN in the given class
      *
-     * @param <T>
+     * @param         <T>
      *                the Type of Packet to expect back
      *
      * @param T
@@ -371,12 +359,13 @@ public class J1939 {
      * @return the resulting packet
      */
     public <T extends ParsedPacket> Optional<T> read(Class<T> T, int addr, long timeout, TimeUnit unit) {
-        try {
-            int pgn = getPgn(T);
-            Stream<Packet> stream = read(timeout, unit);
-            return stream.filter(interruptFn).filter(sourceFilter(addr)).filter(pgnFilter(pgn)).findFirst()
-                    .map(t -> process(t));
-        } catch (Exception e) {
+        int pgn = getPgn(T);
+        try (Stream<Packet> stream = read(timeout, unit)) {
+            return stream
+                    .filter(sourceFilter(addr))
+                    .filter(pgnFilter(pgn))
+                    .findFirst().map(t -> process(t));
+        } catch (BusException e) {
             getLogger().log(Level.SEVERE, "Error reading packets", e);
         }
         return Optional.empty();
@@ -386,7 +375,7 @@ public class J1939 {
      * Watches the bus for up to the timeout for all the packets that match the
      * PGN in the given class
      *
-     * @param <T>
+     * @param         <T>
      *                the Type of Packet to expect back
      * @param T
      *                the class of interest
@@ -397,11 +386,13 @@ public class J1939 {
      * @return the resulting packets in a Stream
      */
     public <T extends ParsedPacket> Stream<T> read(Class<T> T, long timeout, TimeUnit unit) {
+        int pgn = getPgn(T);
         try {
-            int pgn = getPgn(T);
-            Stream<Packet> stream = read(timeout, unit);
-            return stream.filter(interruptFn).filter(pgnFilter(pgn)).distinct().map(t -> process(t));
-        } catch (Exception e) {
+            return read(timeout, unit)
+                    .filter(pgnFilter(pgn))
+                    .distinct()
+                    .map(t -> process(t));
+        } catch (BusException e) {
             getLogger().log(Level.SEVERE, "Error reading packets", e);
         }
         return Stream.empty();
@@ -416,21 +407,16 @@ public class J1939 {
      * provide the PGN for the Packet that is requested. This will request the
      * packet globally. The request will wait for up to the timeout period.
      *
-     * @param <T>
-     *            the Type of Packet to request
+     * @param   <T>
+     *          the Type of Packet to request
      * @param T
-     *            the class that extends {@link ParsedPacket} that provides the
-     *            PGN for the packet to be requested
+     *          the class that extends {@link ParsedPacket} that provides the
+     *          PGN for the packet to be requested
      * @return a {@link Stream} containing {@link ParsedPacket}
      */
     public <T extends ParsedPacket> Stream<T> requestMultiple(Class<T> T) {
-        try {
-            Packet requestPacket = createRequestPacket(getPgn(T), GLOBAL_ADDR);
-            return requestMultiple(T, requestPacket);
-        } catch (IllegalAccessException | NoSuchFieldException e) {
-            getLogger().log(Level.SEVERE, "Error requesting packet", e);
-        }
-        return Stream.empty();
+        Packet requestPacket = createRequestPacket(getPgn(T), GLOBAL_ADDR);
+        return requestMultiple(T, requestPacket, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS);
     }
 
     /**
@@ -438,7 +424,7 @@ public class J1939 {
      * provide the PGN for the Packet that is requested. This will request the
      * packet globally. The request will wait for up to 1.25 seconds
      *
-     * @param <T>
+     * @param               <T>
      *                      the Type of Packet to request
      * @param T
      *                      the class that extends {@link ParsedPacket} that
@@ -458,7 +444,7 @@ public class J1939 {
      * provide the PGN for the Packet that is requested. This will request the
      * packet globally. NACKs will be ignored.
      *
-     * @param <T>
+     * @param               <T>
      *                      the Type of Packet to request
      * @param T
      *                      the class that extends {@link ParsedPacket} that
@@ -497,9 +483,11 @@ public class J1939 {
             Stream<Packet> stream = read(timeout, unit);
             getBus().send(requestPacket);
             int destination = getDestination(requestPacket);
-            result = stream.filter(interruptFn).filter(sourceFilter(destination).or(p -> destination == GLOBAL_ADDR))
-                    .filter(pgnFilter(pgn).or(ackFilter(pgn))).distinct().map(rawPacket -> process(rawPacket));
-        } catch (Exception e) {
+            result = stream
+                    .filter(sourceFilter(destination).or(p -> destination == GLOBAL_ADDR))
+                    .filter(pgnFilter(pgn).or(ackFilter(pgn)))
+                    .distinct().map(rawPacket -> process(rawPacket));
+        } catch (BusException e) {
             getLogger().log(Level.SEVERE, "Error requesting packet", e);
         }
         return result;
@@ -509,7 +497,7 @@ public class J1939 {
      * Sends a Request for the given packet. The request will repeat the given
      * number of tries.
      *
-     * @param <T>
+     * @param              <T>
      *                     the Type of Packet that will be returned
      * @param packetToSend
      *                     the packet that will be sent
@@ -541,7 +529,7 @@ public class J1939 {
      * Sends a Request for the given packet. The request will repeat the given
      * number of tries.
      *
-     * @param <T>
+     * @param              <T>
      *                     the Type of Packet that will be returned
      * @param packetToSend
      *                     the packet that will be sent
@@ -577,7 +565,7 @@ public class J1939 {
             // request was NACK'd
             // It also needs to be able to determine if the ACK was busy and retry should be
             // used.
-            Stream<Packet> packets = stream.filter(interruptFn).filter(sourceFilter(destination))
+            Stream<Packet> packets = stream.filter(sourceFilter(destination))
                     .filter(pgnFilter(expectedResponsePGN).or(dsPgnFilter(expectedResponsePGN)));
             Optional<T> parsedPackets = packets.findFirst().map(p -> process(p));
             if (parsedPackets.isPresent()) {
@@ -598,7 +586,7 @@ public class J1939 {
      * provide the PGN for the Packet that is requested. This will request the
      * packet globally. NACKs will NOT be ignored.
      *
-     * @param <T>
+     * @param               <T>
      *                      the Type of Packet to request
      * @param T
      *                      the class that extends {@link ParsedPacket} that
@@ -623,7 +611,7 @@ public class J1939 {
             Stream<Packet> stream = read(timeout, unit);
             getBus().send(requestPacket);
             int destination = getDestination(requestPacket);
-            result = stream.filter(interruptFn).filter(sourceFilter(destination).or(p -> destination == GLOBAL_ADDR))
+            result = stream.filter(sourceFilter(destination).or(p -> destination == GLOBAL_ADDR))
                     .filter(pgnFilter(pgn).or(ackNackFilter(pgn))).distinct().map(rawPacket -> process(rawPacket));
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Error requesting packet", e);

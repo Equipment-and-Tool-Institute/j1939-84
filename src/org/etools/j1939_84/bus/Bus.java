@@ -4,7 +4,6 @@
 package org.etools.j1939_84.bus;
 
 import java.util.concurrent.TimeUnit;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 
 /**
@@ -13,11 +12,13 @@ import java.util.stream.Stream;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public interface Bus {
+public interface Bus extends AutoCloseable {
 
-    static Predicate<Packet> interruptFilter(Predicate<Packet> p) {
-        return MultiQueue.interruptFilter(p);
-    }
+    /**
+     * close() can be used to interrupt all streams using this bus.
+     */
+    @Override
+    void close();
 
     /**
      * Returns the source address used by the tool for communications
@@ -31,7 +32,7 @@ public interface Bus {
      *
      * @return the speed of the bus
      * @throws BusException
-     *             if the speed cannot be determined
+     *                      if the speed cannot be determined
      */
     int getConnectionSpeed() throws BusException;
 
@@ -39,12 +40,12 @@ public interface Bus {
      * Reads {@link Packet}s from the bus
      *
      * @param timeout
-     *            the amount of time to read packets
+     *                the amount of time to read packets
      * @param unit
-     *            the {@link TimeUnit} for the amount of time
+     *                the {@link TimeUnit} for the amount of time
      * @return a {@link Stream} of {@link Packet}s
      * @throws BusException
-     *             if there is a problem reading packets
+     *                      if there is a problem reading packets
      */
     Stream<Packet> read(long timeout, TimeUnit unit) throws BusException;
 
@@ -52,10 +53,9 @@ public interface Bus {
      * Sends a {@link Packet} to the vehicle communications bus
      *
      * @param packet
-     *            the {@link Packet} to send
+     *               the {@link Packet} to send
      * @throws BusException
-     *             if there is a problem sending the packet
+     *                      if there is a problem sending the packet
      */
     void send(Packet packet) throws BusException;
-
 }

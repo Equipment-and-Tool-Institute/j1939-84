@@ -616,7 +616,7 @@ public abstract class Controller {
      */
     public void stop() {
         ending = Ending.STOPPED;
-        getJ1939().interrupt();
+        j1939.close();
     }
 
     /**

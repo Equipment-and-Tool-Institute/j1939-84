@@ -10,7 +10,7 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
-public class MultiQueue<T> {
+public class MultiQueue<T> implements AutoCloseable {
     static private class Item<T> {
         MultiQueue.Item<T> next;
         final T value;
@@ -57,19 +57,26 @@ public class MultiQueue<T> {
         };
     }
 
+    private boolean closed;
+
     private MultiQueue.Item<T> list = new MultiQueue.Item<>(null);
 
     synchronized public void add(T v) {
         list = list.add(v);
     }
 
+    @Override
+    public void close() throws Exception {
+        closed = true;
+    }
+
     /**
      *
      * @param timeout
-     *            The stream will be valid for a period of timeout. If the
-     *            stream is not read prior to timeout, then it will be empty.
+     *                The stream will be valid for a period of timeout. If the
+     *                stream is not read prior to timeout, then it will be empty.
      * @param unit
-     *            the TimeUnit for the timeout
+     *                the TimeUnit for the timeout
      * @return the stream
      */
     public Stream<T> stream(long timeout, TimeUnit unit) {
@@ -91,7 +98,7 @@ public class MultiQueue<T> {
             public boolean tryAdvance(Consumer<? super T> action) {
                 try {
                     action.accept((item = item.next(end)).value);
-                    return true;
+                    return closed;
                 } catch (TimeOutException e) {
                     // fall through
                 }

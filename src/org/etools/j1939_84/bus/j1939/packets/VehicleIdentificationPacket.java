@@ -18,7 +18,7 @@ public class VehicleIdentificationPacket extends ParsedPacket {
     /**
      * The ASCII code for a *. It denotes the end of the VIN
      */
-    private static final byte ASTERISK = 42;
+    private static final byte ASTERISK = '*';
 
     public static final String NAME = "Vehicle Identification";
 
