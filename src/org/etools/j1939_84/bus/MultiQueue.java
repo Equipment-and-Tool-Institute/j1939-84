@@ -10,7 +10,20 @@ import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
+/**
+ * The multiqueue is a linked list that multiple visitors can traverse
+ * concurrently. Adding items only adds them to open streams. The MultiQueue is
+ * at most 1 element long.
+ *
+ * The head item holds no value. It only points to the most recent value (which
+ * is also pointed to by the second most recent item. Notice that once a second
+ * value is added, nothing references the first value, except for any open
+ * streams.
+ *
+ * @param <T>
+ */
 public class MultiQueue<T> implements AutoCloseable {
+
     static private class Item<T> {
         MultiQueue.Item<T> next;
         final T value;
@@ -44,6 +57,17 @@ public class MultiQueue<T> implements AutoCloseable {
         }
     }
 
+    public static class ResetTimeoutException extends RuntimeException {
+        private static final long serialVersionUID = -7120465100481000186L;
+        public int timeout;
+        public TimeUnit unit;
+
+        public ResetTimeoutException(int timeout, TimeUnit unit) {
+            this.timeout = timeout;
+            this.unit = unit;
+        }
+    }
+
     private static class TimeOutException extends RuntimeException {
         private static final long serialVersionUID = -7120465100481000186L;
     }
@@ -57,17 +81,17 @@ public class MultiQueue<T> implements AutoCloseable {
         };
     }
 
-    private boolean closed;
-
     private MultiQueue.Item<T> list = new MultiQueue.Item<>(null);
+
+    private long step = 0;
 
     synchronized public void add(T v) {
         list = list.add(v);
     }
 
     @Override
-    public void close() throws Exception {
-        closed = true;
+    public void close() {
+        step++;
     }
 
     /**
@@ -80,9 +104,10 @@ public class MultiQueue<T> implements AutoCloseable {
      * @return the stream
      */
     public Stream<T> stream(long timeout, TimeUnit unit) {
-        long end = System.currentTimeMillis() + unit.toMillis(timeout);
         return StreamSupport.stream(new Spliterator<T>() {
+            long end = System.currentTimeMillis() + unit.toMillis(timeout);
             Item<T> item = list;
+            long startStep = step;
 
             @Override
             public int characteristics() {
@@ -96,11 +121,15 @@ public class MultiQueue<T> implements AutoCloseable {
 
             @Override
             public boolean tryAdvance(Consumer<? super T> action) {
-                try {
-                    action.accept((item = item.next(end)).value);
-                    return closed;
-                } catch (TimeOutException e) {
-                    // fall through
+                while (true) {
+                    try {
+                        action.accept((item = item.next(end)).value);
+                        return startStep == step;
+                    } catch (ResetTimeoutException e) {
+                        end = System.currentTimeMillis() + e.unit.toMillis(e.timeout);
+                    } catch (TimeOutException e) {
+                        break;
+                    }
                 }
                 return false;
             }
