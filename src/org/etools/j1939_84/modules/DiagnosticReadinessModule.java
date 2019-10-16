@@ -191,6 +191,17 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     // .map(p -> (DM5DiagnosticReadinessPacket) p);
     // }
 
+    @SuppressWarnings("unchecked")
+    private <T extends ParsedPacket> List<T> filterPackets(List<ParsedPacket> packets, Class<T> clazz) {
+        List<T> resultPackets = new ArrayList<>();
+        for (ParsedPacket packet : packets) {
+            if (packet.getClass() == clazz) {
+                resultPackets.add((T) packet);
+            }
+        }
+        return resultPackets;
+    }
+
     /**
      * Helper method to extract all the {@link MonitoredSystem}s given a
      * {@link List} of {@link DiagnosticReadinessPacket}s
@@ -221,12 +232,14 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return the {@link List} of {@link DM20MonitorPerformanceRatioPacket}s
      */
     public List<DM20MonitorPerformanceRatioPacket> getDM20Packets(ResultsListener listener, boolean fullString) {
-        return getPackets("Global DM20 Request",
+        List<ParsedPacket> parsedPackets = getPackets("Global DM20 Request",
                 DM20MonitorPerformanceRatioPacket.PGN,
                 DM20MonitorPerformanceRatioPacket.class,
                 listener,
                 fullString,
                 obdModuleAddresses);
+
+        return filterPackets(parsedPackets, DM20MonitorPerformanceRatioPacket.class);
     }
 
     /**
@@ -242,12 +255,14 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
      */
     public List<DM21DiagnosticReadinessPacket> getDM21Packets(ResultsListener listener, boolean fullString) {
-        return getPackets("Global DM21 Request",
+        List<ParsedPacket> parsedPackets = getPackets("Global DM21 Request",
                 DM21DiagnosticReadinessPacket.PGN,
                 DM21DiagnosticReadinessPacket.class,
                 listener,
                 fullString,
                 obdModuleAddresses);
+
+        return filterPackets(parsedPackets, DM21DiagnosticReadinessPacket.class);
     }
 
     /**
@@ -263,12 +278,14 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return the {@link List} of {@link DM26TripDiagnosticReadinessPacket}s
      */
     public List<DM26TripDiagnosticReadinessPacket> getDM26Packets(ResultsListener listener, boolean fullString) {
-        return getPackets("Global DM26 Request",
+        List<ParsedPacket> parsedPackets = getPackets("Global DM26 Request",
                 DM26TripDiagnosticReadinessPacket.PGN,
                 DM26TripDiagnosticReadinessPacket.class,
                 listener,
                 fullString,
                 obdModuleAddresses);
+
+        return filterPackets(parsedPackets, DM26TripDiagnosticReadinessPacket.class);
     }
 
     /**
@@ -284,12 +301,13 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return the {@link List} of {@link DM5DiagnosticReadinessPacket}s
      */
     public List<DM5DiagnosticReadinessPacket> getDM5Packets(ResultsListener listener, boolean fullString) {
-        return getPackets("Global DM5 Request",
+        List<ParsedPacket> parsedPackets = getPackets("Global DM5 Request",
                 DM5DiagnosticReadinessPacket.PGN,
                 DM5DiagnosticReadinessPacket.class,
                 listener,
                 fullString,
                 obdModuleAddresses);
+        return filterPackets(parsedPackets, DM5DiagnosticReadinessPacket.class);
     }
 
     /**
@@ -341,7 +359,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      *                          the addresses that must respond to the request
      * @return the List of packets returned
      */
-    private <T extends ParsedPacket> List<T> getPackets(String title,
+    private <T extends ParsedPacket> List<ParsedPacket> getPackets(String title,
             int pgn,
             Class<T> clazz,
             ResultsListener listener,
@@ -354,18 +372,12 @@ public class DiagnosticReadinessModule extends FunctionalModule {
         }
 
         // Try three times to get packets and ensure there's one from the engine
-        List<T> packets = new ArrayList<>();
+        List<ParsedPacket> packets = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            packets = getJ1939().requestMultiple(clazz, request).collect(Collectors.toList());
-            if (packets.stream().filter(p -> dmModuleAddresses.contains(p.getSourceAddress())).findFirst()
-                    .isPresent()) {
-                // The engine responded, report the results
-                break;
-            } else {
-                // There was no message from the engine. Clear the results to
-                // produce a timeout message/try again
-                packets.clear();
-            }
+            Packet requestPacket = getJ1939().createRequestPacket(DM5DiagnosticReadinessPacket.PGN, J1939.GLOBAL_ADDR);
+            Stream<ParsedPacket> results = getJ1939().requestRaw(clazz, requestPacket, 5500, TimeUnit.MILLISECONDS);
+
+            packets = results.collect(Collectors.toList());
         }
 
         if (listener != null) {
@@ -701,13 +713,23 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return the {@link List} of {@link DM5DiagnosticReadinessPacket}s
      */
     public List<ParsedPacket> requestDM5Packets(ResultsListener listener, boolean fullString) {
-        Packet requestPacket = getJ1939().createRequestPacket(DM5DiagnosticReadinessPacket.PGN, J1939.GLOBAL_ADDR);
-        Stream<ParsedPacket> results = getJ1939()
-                .requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+        List<ParsedPacket> parsedPackets = getPackets("Global DM5 Request",
+                DM5DiagnosticReadinessPacket.PGN,
+                DM5DiagnosticReadinessPacket.class,
+                listener,
+                fullString,
+                obdModuleAddresses);
 
-        List<ParsedPacket> dm5Packets = results.collect(Collectors.toList());
+        List<DM5DiagnosticReadinessPacket> dm5Packets = filterPackets(parsedPackets,
+                DM5DiagnosticReadinessPacket.class);
 
-        return dm5Packets;
+        if (!parsedPackets.isEmpty()) {
+            listener.onResult("");
+            listener.onResult("Vehicle Composite of DM5:");
+            List<CompositeMonitoredSystem> systems = getCompositeSystems(dm5Packets, true);
+            listener.onResult(systems.stream().map(t -> t.toString()).collect(Collectors.toList()));
+        }
+        return parsedPackets;
 
         // return getPackets("Global DM5 Request",
         // DM5DiagnosticReadinessPacket.PGN,

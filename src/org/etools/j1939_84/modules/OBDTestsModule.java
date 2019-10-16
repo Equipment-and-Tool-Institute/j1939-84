@@ -75,18 +75,9 @@ public class OBDTestsModule extends FunctionalModule {
                 0xFF);
     }
 
-    /**
-     * Queries the vehicle to get all Scaled Tests Results and reports then back
-     * to the listener
-     *
-     * @param listener
-     *                   the {@link ResultsListener}
-     * @param obdModules
-     *                   the {@link List} of addresses for ODB Modules
-     */
-    public void reportOBDTests(ResultsListener listener, List<Integer> obdModules) {
+    private void reportObdTests(ResultsListener listener, List<DM24SPNSupportPacket> requestedPackets) {
         Map<Integer, List<ScaledTestResult>> allTestResults = new HashMap<>();
-        for (DM24SPNSupportPacket packet : requestSupportedSpnPackets(listener, obdModules).getPackets()) {
+        for (DM24SPNSupportPacket packet : requestedPackets) {
             int destination = packet.getSourceAddress();
             String moduleName = Lookup.getAddressName(destination);
             // Find tests that support scaled results, remove duplicates and use
@@ -133,6 +124,30 @@ public class OBDTestsModule extends FunctionalModule {
             listener.onResult("]");
             listener.onResult(incompleteTests.size() + " Incomplete Test" + (incompleteTests.size() == 1 ? "" : "s"));
         }
+    }
+
+    /**
+     * Queries the vehicle to get all Scaled Tests Results and reports then back
+     * to the listener
+     *
+     * @param listener
+     *                   the {@link ResultsListener}
+     * @param obdModules
+     *                   the {@link List} of addresses for ODB Modules
+     */
+    public void reportOBDTests(ResultsListener listener, List<Integer> obdModules) {
+
+        List<DM24SPNSupportPacket> requestedPackets = requestSupportedSpnPackets(listener, obdModules).getPackets();
+
+        reportObdTests(listener, requestedPackets);
+    }
+
+    public RequestResult<DM24SPNSupportPacket> requestObdTests(ResultsListener listener,
+            Collection<Integer> obdModuleAddresses) {
+        RequestResult<DM24SPNSupportPacket> requestedPackets = requestSupportedSpnPackets(listener, obdModuleAddresses);
+        reportObdTests(listener, requestedPackets.getPackets());
+        return requestedPackets;
+
     }
 
     /**

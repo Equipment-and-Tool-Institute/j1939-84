@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.model;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -46,6 +47,9 @@ public class OBDModuleInformation {
      * @return the supportedSpns
      */
     public List<SupportedSPN> getSupportedSpns() {
+        if (supportedSpns == null) {
+            supportedSpns = new ArrayList<>();
+        }
         return supportedSpns;
     }
 
