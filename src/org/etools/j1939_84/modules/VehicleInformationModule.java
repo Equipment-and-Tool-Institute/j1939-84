@@ -248,7 +248,8 @@ public class VehicleInformationModule extends FunctionalModule {
         generateReport(listener, "Global VIN Request", VehicleIdentificationPacket.class, request);
     }
 
-    public List<VehicleIdentificationPacket> requestVehicleIdentification() {
+    public List<VehicleIdentificationPacket> requestVehicleIdentification(ResultsListener listener) {
+        reportVin(listener);
         return getJ1939().requestMultiple(VehicleIdentificationPacket.class).collect(Collectors.toList());
     }
 

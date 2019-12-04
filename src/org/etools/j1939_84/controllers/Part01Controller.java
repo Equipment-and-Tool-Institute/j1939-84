@@ -23,6 +23,7 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
+import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -118,6 +119,7 @@ public class Part01Controller extends Controller {
             updateProgress("Part 1, Step 1 Collecting Vehicle Information"); // To check for test aborted
         }
 
+        getListener().onResult("User provided " + vehicleInformation);
         getListener().onVehicleInformationReceived(vehicleInformation);
     }
 
@@ -240,6 +242,7 @@ public class Part01Controller extends Controller {
         dm5Packets.filter(p -> p.isObd()).forEach(p -> {
             OBDModuleInformation info = new OBDModuleInformation(p.getSourceAddress());
             info.setObdCompliance(p.getOBDCompliance());
+            obdModules.put(p.getSourceAddress(), info);
         });
 
         if (obdModules.isEmpty()) {
@@ -259,8 +262,7 @@ public class Part01Controller extends Controller {
      * Queries the vehicle to collect the Supported SPNs. Also validates the query.
      */
     private void queryAndValidateSupportedSPNs() {
-        RequestResult<DM24SPNSupportPacket> result = obdTestsModule.requestSupportedSpnPackets(getListener(),
-                obdModules.keySet());
+        RequestResult<DM24SPNSupportPacket> result = obdTestsModule.requestObdTests(getListener(), obdModules.keySet());
 
         if (result.isRetryUsed()) {
             addFailure(1, 4, "6.1.4.2.a - Retry was required to obtain DM24 response.");
@@ -269,9 +271,11 @@ public class Part01Controller extends Controller {
         result.getPackets().stream().forEach(p -> {
             OBDModuleInformation info = obdModules.get(p.getSourceAddress());
             info.setSupportedSpns(p.getSupportedSpns());
+            obdModules.put(p.getSourceAddress(), info);
         });
 
-        Set<Integer> dataStreamSpns = obdModules.values().stream().map(info -> info.getDataStreamSpns())
+        Stream<List<SupportedSPN>> map = obdModules.values().stream().map(info -> info.getDataStreamSpns());
+        Set<Integer> dataStreamSpns = map
                 .flatMap(spns -> spns.stream()).map(s -> s.getSpn()).collect(Collectors.toSet());
 
         boolean dataStreamOk = supportedSpnModule
@@ -292,7 +296,8 @@ public class Part01Controller extends Controller {
      * Queries the vehicle for the VIN and validates the result
      */
     private void queryAndValidateVIN() {
-        List<VehicleIdentificationPacket> packets = getVehicleInformationModule().requestVehicleIdentification();
+        List<VehicleIdentificationPacket> packets = getVehicleInformationModule()
+                .requestVehicleIdentification(getListener());
         if (packets.isEmpty()) {
             addFailure(1, 5, "6.1.5.2.a - No VIN was provided");
         }
