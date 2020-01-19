@@ -329,7 +329,7 @@ public abstract class Controller {
 
             getListener().beginStep(stepResult);
             getListener().onResult(NL);
-            getListener().onResult("Start " + stepResult + " (" + stepResult.getIndex() + ")");
+            getListener().onResult("Start " + stepResult);
 
             incrementProgress(stepResult.toString());
             getListener().onResult("Do Testing;\nWait for Responses;\nWrite Messages, etc");
@@ -386,20 +386,11 @@ public abstract class Controller {
     }
 
     /**
-     * Returns the current date/time stamp for the report
-     *
-     * @return {@link String}
-     */
-    protected String getDateTime() {
-        return getDateTimeModule().getDateTime();
-    }
-
-    /**
      * Returns the {@link DateTimeModule}
      *
      * @return {@link DateTimeModule}
      */
-    protected DateTimeModule getDateTimeModule() {
+    private DateTimeModule getDateTimeModule() {
         return dateTimeModule;
     }
 
@@ -503,6 +494,15 @@ public abstract class Controller {
 
     protected StepResult getStepResult(int partNumber, int stepNumber) {
         return getPartResult(partNumber).getStepResult(stepNumber);
+    }
+
+    /**
+     * Returns the current date/time stamp for the report
+     *
+     * @return {@link String}
+     */
+    protected String getTime() {
+        return getDateTimeModule().getTime();
     }
 
     /**

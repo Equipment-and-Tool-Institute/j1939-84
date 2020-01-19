@@ -6,10 +6,9 @@ package org.etools.j1939_84.modules;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertSame;
 
+import org.etools.j1939_84.bus.j1939.J1939;
 import org.junit.Before;
 import org.junit.Test;
-
-import org.etools.j1939_84.bus.j1939.J1939;
 
 /**
  * Unit tests for the {@link FunctionalModule} class
@@ -36,7 +35,7 @@ public class FunctionalModuleTest {
 
     @Test
     public void testGetTime() {
-        assertEquals("2007-12-03T10:15:30.000", instance.getDateTime());
+        assertEquals("10:15:30.000", instance.getTime());
     }
 
     @Test

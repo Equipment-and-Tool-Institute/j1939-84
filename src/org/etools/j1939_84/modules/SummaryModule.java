@@ -92,19 +92,20 @@ public class SummaryModule {
             result = "(" + outcome + ")";
         }
 
-        int totalLength = name.length() + result.length() + 9;
+        if (!result.isEmpty()) {
+            int totalLength = name.length() + result.length() + 9;
 
-        if (totalLength > LINE_LENGTH) {
-            int overrun = totalLength - LINE_LENGTH + 3;
-            name = name.substring(0, name.length() - overrun);
+            if (totalLength > LINE_LENGTH) {
+                int overrun = totalLength - LINE_LENGTH + 3;
+                name = name.substring(0, name.length() - overrun);
+            }
+
+            int dots = LINE_LENGTH - (name.length() + result.length() + 3);
+
+            return name + dots(dots) + result + NL;
+        } else {
+            return name + NL;
         }
-
-        int dots = LINE_LENGTH - (name.length() + result.length() + 9);
-
-        String index = iResult.getIndex();
-        index = index == null ? "" : index;
-
-        return name + dots(dots) + result + " " + index + NL;
     }
 
 }

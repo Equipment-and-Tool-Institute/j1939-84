@@ -13,7 +13,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.etools.j1939_84.NumberFormatter;
 import org.etools.j1939_84.bus.Packet;
@@ -367,17 +366,25 @@ public class DiagnosticReadinessModule extends FunctionalModule {
             Collection<Integer> dmModuleAddresses) {
         Packet request = getJ1939().createRequestPacket(pgn, J1939.GLOBAL_ADDR);
         if (listener != null) {
-            listener.onResult(getDateTime() + " " + title);
+            listener.onResult(getTime() + " " + title);
             listener.onResult(getTime() + " " + request.toString());
         }
 
         // Try three times to get packets and ensure there's one from the engine
         List<ParsedPacket> packets = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            Packet requestPacket = getJ1939().createRequestPacket(DM5DiagnosticReadinessPacket.PGN, J1939.GLOBAL_ADDR);
-            Stream<ParsedPacket> results = getJ1939().requestRaw(clazz, requestPacket, 5500, TimeUnit.MILLISECONDS);
-
-            packets = results.collect(Collectors.toList());
+            packets = getJ1939().requestRaw(clazz, request, 5500, TimeUnit.MILLISECONDS).collect(Collectors.toList());
+            if (packets.stream()
+                    .filter(p -> dmModuleAddresses.contains(p.getSourceAddress()))
+                    .findFirst()
+                    .isPresent()) {
+                // The engine responded, report the results
+                break;
+            } else {
+                // There was no message from the engine. Clear the results to
+                // produce a timeout message/try again
+                packets.clear();
+            }
         }
 
         if (listener != null) {
@@ -550,7 +557,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
         String[] initialDateTime = initialTime.split("T");
         String[] finalDateTime = finalTime.split("T");
 
-        listener.onResult(getDateTime() + " Vehicle Composite Results of DM5:");
+        listener.onResult(getTime() + " Vehicle Composite Results of DM5:");
 
         String separator = "+----------------------------+----------------+----------------+";
 
@@ -628,7 +635,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
         int nameLen = 32;
         int srcLen = 3;
 
-        listener.onResult(getDateTime() + " Vehicle Composite Results of DM20:");
+        listener.onResult(getTime() + " Vehicle Composite Results of DM20:");
         // Make String of spaces for the Source Column
         String sourceSpace = padRight("", srcLen);
 

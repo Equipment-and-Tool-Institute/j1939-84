@@ -15,11 +15,6 @@ import org.etools.j1939_84.bus.Packet;
  */
 public class VehicleIdentificationPacket extends ParsedPacket {
 
-    /**
-     * The ASCII code for a *. It denotes the end of the VIN
-     */
-    private static final byte ASTERISK = 42;
-
     public static final String NAME = "Vehicle Identification";
 
     public static final int PGN = 65260;
@@ -28,23 +23,6 @@ public class VehicleIdentificationPacket extends ParsedPacket {
 
     public VehicleIdentificationPacket(Packet packet) {
         super(packet);
-    }
-
-    /**
-     * Finds and returns the index of the asterisk in the data
-     *
-     * @param data the data of interest
-     * @return the index of the asterisk, -1 if there is no asterisk
-     */
-    private int getAsteriskIndex(byte[] data) {
-        int index = -1;
-        for (int i = 0; i < data.length; i++) {
-            if (data[i] == ASTERISK) {
-                index = i;
-                break;
-            }
-        }
-        return index;
     }
 
     /**
@@ -73,25 +51,9 @@ public class VehicleIdentificationPacket extends ParsedPacket {
      */
     public String getVin() {
         if (vin == null) {
-            vin = parseVin();
+            vin = parseField(getPacket().getBytes());
         }
         return vin;
-    }
-
-    private String parseVin() {
-        byte[] data = getPacket().getBytes();
-
-        // Find the location of the *
-        int index = getAsteriskIndex(data);
-
-        if (index >= 0) {
-            // It has a *, return just the VIN
-            byte[] vinBytes = Arrays.copyOf(data, index);
-            return format(vinBytes).trim();
-        } else {
-            // It doesn't have a *, return the entire thing
-            return format(data).trim();
-        }
     }
 
     @Override

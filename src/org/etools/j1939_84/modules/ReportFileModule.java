@@ -118,7 +118,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     public void onProgramExit() {
         try {
             if (writer != null) {
-                write(getDateTime() + " End of " + BannerModule.TOOL_NAME + " Execution" + NL);
+                write(getTime() + " End of " + BannerModule.TOOL_NAME + " Execution" + NL);
                 writer.flush();
                 writer.close();
             }
@@ -176,7 +176,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      *                 results
      */
     public void reportFileInformation(ResultsListener listener) {
-        listener.onResult(getDateTime() + " File: " + reportFile.getAbsolutePath());
+        listener.onResult(getTime() + " File: " + reportFile.getAbsolutePath());
     }
 
     /**
@@ -222,7 +222,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             tempFileWriter.write(bannerModule.getHeader() + NL);
             tempFileWriter.write(NL);
             tempFileWriter.write(bannerModule.getSummaryHeader() + NL);
-            tempFileWriter.write("Generated " + getDateTime() + NL);
+            tempFileWriter.write("Generated " + getTime() + NL);
             tempFileWriter.write(NL);
             tempFileWriter.write(vehicleInformation + NL);
             tempFileWriter.write(NL);

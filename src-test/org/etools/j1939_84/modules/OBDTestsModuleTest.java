@@ -137,7 +137,7 @@ public class OBDTestsModuleTest {
         instance.reportOBDTests(listener, obdModules);
 
         String expected = "";
-        expected += "2007-12-03T10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18EA00A5 B6 FD 00 (TX)" + NL;
         expected += "10:15:30.000 18FDB600 66 00 1B 01 5C 00 1F 01 00 02 1B 01 9C F0 FB 00" + NL;
         expected += "DM24 from Engine #1 (0): (Supporting Scaled Test Results) [" + NL;
@@ -146,7 +146,7 @@ public class OBDTestsModuleTest {
         expected += "  SPN 520348 - Manufacturer Assignable SPN 520348" + NL;
         expected += "]" + NL;
         expected += "" + NL;
-        expected += "2007-12-03T10:15:30.000 Direct DM24 Request to Diesel Particulate Filter Controller (85)" + NL;
+        expected += "10:15:30.000 Direct DM24 Request to Diesel Particulate Filter Controller (85)" + NL;
         expected += "10:15:30.000 18EA55A5 B6 FD 00 (TX)" + NL;
         expected += "10:15:30.000 18FDB655 A7 13 1C 00 0C 11 18 00 9A 0C 18 00" + NL;
         expected += "DM24 from Diesel Particulate Filter Controller (85): (Supporting Scaled Test Results) [" + NL;
@@ -154,7 +154,7 @@ public class OBDTestsModuleTest {
         expected += "  SPN 3226 - Aftertreatment 1 Outlet NOx 1" + NL;
         expected += "]" + NL;
         expected += "" + NL;
-        expected += "2007-12-03T10:15:30.000 Direct DM30 Requests to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 Direct DM30 Requests to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18E300A5 F7 66 00 1F FF FF FF FF (TX)" + NL;
         expected += "10:15:30.000 18A40000 F7 66 00 12 D0 00 00 FB FF FF FF FF" + NL;
         expected += "DM30 from 0: SPN 102 FMI 18 Result: Test Not Complete." + NL;
@@ -167,7 +167,7 @@ public class OBDTestsModuleTest {
         expected += "10:15:30.000 18A40000 F7 9C F0 FF D0 00 00 FB FF FF FF FF" + NL;
         expected += "DM30 from 0: SPN 520348 FMI 31 Result: Test Not Complete." + NL;
         expected += "" + NL;
-        expected += "2007-12-03T10:15:30.000 Direct DM30 Requests to Diesel Particulate Filter Controller (85)" + NL;
+        expected += "10:15:30.000 Direct DM30 Requests to Diesel Particulate Filter Controller (85)" + NL;
         expected += "10:15:30.000 18E355A5 F7 9A 0C 1F FF FF FF FF (TX)" + NL;
         expected += "10:15:30.000 18A40055 F7 9A 0C 0A 00 01 00 FB FF FF FF FF" + NL;
         expected += "DM30 from 85: SPN 3226 FMI 10 Result: Test Not Complete." + NL;
@@ -203,7 +203,7 @@ public class OBDTestsModuleTest {
 
         instance.reportOBDTests(listener, obdModules);
         String expected = "";
-        expected += "2007-12-03T10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18EA00A5 B6 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
         expected += "" + NL;
@@ -235,14 +235,14 @@ public class OBDTestsModuleTest {
         instance.reportOBDTests(listener, obdModules);
 
         String expected = "";
-        expected += "2007-12-03T10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18EA00A5 B6 FD 00 (TX)" + NL;
         expected += "10:15:30.000 18FDB600 66 00 1B 01" + NL;
         expected += "DM24 from Engine #1 (0): (Supporting Scaled Test Results) [" + NL;
         expected += "  SPN 102 - Engine Intake Manifold #1 Pressure" + NL;
         expected += "]" + NL;
         expected += NL;
-        expected += "2007-12-03T10:15:30.000 Direct DM30 Requests to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 Direct DM30 Requests to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18E300A5 F7 66 00 1F FF FF FF FF (TX)" + NL;
         expected += "10:15:30.000 18A40000 F7 66 00 12 D0 00 00 FA FF FF FF FF" + NL;
         expected += "DM30 from 0: SPN 102 FMI 18 Result: Test Passed. Min: N/A, Value: 64,000, Max: N/A" + NL;
@@ -274,14 +274,14 @@ public class OBDTestsModuleTest {
         instance.reportOBDTests(listener, obdModules);
 
         String expected = "";
-        expected += "2007-12-03T10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18EA00A5 B6 FD 00 (TX)" + NL;
         expected += "10:15:30.000 18FDB600 66 00 1B 01" + NL;
         expected += "DM24 from Engine #1 (0): (Supporting Scaled Test Results) [" + NL;
         expected += "  SPN 102 - Engine Intake Manifold #1 Pressure" + NL;
         expected += "]" + NL;
         expected += NL;
-        expected += "2007-12-03T10:15:30.000 Direct DM30 Requests to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 Direct DM30 Requests to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18E300A5 F7 66 00 1F FF FF FF FF (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
         expected += "" + NL;
@@ -310,7 +310,7 @@ public class OBDTestsModuleTest {
         instance.reportOBDTests(listener, obdModules);
 
         String expected = "";
-        expected += "2007-12-03T10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18EA00A5 B6 FD 00 (TX)" + NL;
         expected += "10:15:30.000 18FDB600 66 00 1C 01" + NL;
         expected += "DM24 from Engine #1 (0): (Supporting Scaled Test Results) [" + NL;

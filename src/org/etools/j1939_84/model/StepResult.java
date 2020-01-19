@@ -6,15 +6,12 @@ package org.etools.j1939_84.model;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.etools.j1939_84.utils.IndexGenerator;
-
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
 public class StepResult implements IResult {
 
-    private final String index;
     private final String name;
     private Outcome outcome;
     private final int partNumber;
@@ -25,19 +22,10 @@ public class StepResult implements IResult {
         this.partNumber = partNumber;
         this.stepNumber = stepNumber;
         this.name = name;
-        index = IndexGenerator.instance().index();
     }
 
     public void addResult(ActionOutcome actionOutcome) {
         results.add(actionOutcome);
-    }
-
-    /**
-     * @return the index
-     */
-    @Override
-    public String getIndex() {
-        return index;
     }
 
     @Override

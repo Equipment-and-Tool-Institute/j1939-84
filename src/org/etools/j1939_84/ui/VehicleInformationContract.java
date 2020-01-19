@@ -14,136 +14,143 @@ import org.etools.j1939_84.model.FuelType;
  */
 public interface VehicleInformationContract {
 
-	public interface Presenter {
+    public interface Presenter {
 
-		/**
-		 * Called to initialize the presenter. This should be called when the dialog is
-		 * created/displayed
-		 */
-		void initialize();
+        /**
+         * Called to initialize the presenter. This should be called when the dialog is
+         * created/displayed
+         */
+        void initialize();
 
-		/**
-		 * Called when the Cancel Button is clicked
-		 */
-		void onCancelButtonClicked();
+        /**
+         * Called when the Cancel Button is clicked
+         */
+        void onCancelButtonClicked();
 
-		/**
-		 * Called when the text in the Certification Intent changes
-		 *
-		 * @param certification the new value
-		 */
-		void onCertificationChanged(String certification);
+        /**
+         * Called when the text in the Certification Intent changes
+         *
+         * @param certification the new value
+         */
+        void onCertificationChanged(String certification);
 
-		/**
-		 * Called when the dialog has been closed
-		 */
-		void onDialogClosed();
+        /**
+         * Called when the dialog has been closed
+         */
+        void onDialogClosed();
 
-		/**
-		 * Called when the Emissions Unit count changes
-		 *
-		 * @param count the new value
-		 */
-		void onEmissionUnitsChanged(int count);
+        /**
+         * Called when the Emissions Unit count changes
+         *
+         * @param count the new value
+         */
+        void onEmissionUnitsChanged(int count);
 
-		/**
-		 * Called when the Engine Model Year changes
-		 *
-		 * @param modelYear the new value
-		 */
-		void onEngineModelYearChanged(int modelYear);
+        /**
+         * Called when the Engine Model Year changes
+         *
+         * @param modelYear the new value
+         */
+        void onEngineModelYearChanged(int modelYear);
 
-		/**
-		 * Called when the Fuel Type changes
-		 *
-		 * @param fuelType the new value
-		 */
-		void onFuelTypeChanged(FuelType fuelType);
+        /**
+         * Called when the Fuel Type changes
+         *
+         * @param fuelType the new value
+         */
+        void onFuelTypeChanged(FuelType fuelType);
 
-		/**
-		 * Called when the OK button is clicked
-		 */
-		void onOkButtonClicked();
+        /**
+         * Called when the OK button is clicked
+         */
+        void onOkButtonClicked();
 
-		/**
-		 * Called when the Vehicle Model Year changes
-		 *
-		 * @param modelYear the new value
-		 */
-		void onVehicleModelYearChanged(int modelYear);
+        /**
+         * Called when the Vehicle Model Year changes
+         *
+         * @param modelYear the new value
+         */
+        void onVehicleModelYearChanged(int modelYear);
 
-		/**
-		 * Called when the VIN changes
-		 *
-		 * @param vin the new value
-		 */
-		void onVinChanged(String vin);
+        /**
+         * Called when the VIN changes
+         *
+         * @param vin the new value
+         */
+        void onVinChanged(String vin);
 
-	}
+    }
 
-	public interface View {
+    public interface View {
 
-		/**
-		 * Sets the Number of Emissions Units on the Vehicle
-		 *
-		 * @param count the number of Emissions Units on the Vehicle
-		 */
-		void setEmissionUnits(int count);
+        /**
+         * Sets the Certification Intent of the Vehicle/Engine
+         *
+         * @param certificationIntent the certification intent to set
+         */
+        void setCertificationIntent(String certificationIntent);
 
-		/**
-		 * Sets the Engine Model Year
-		 *
-		 * @param modelYear the Engine Model year to set
-		 */
-		void setEngineModelYear(int modelYear);
+        /**
+         * Sets the Number of Emissions Units on the Vehicle
+         *
+         * @param count the number of Emissions Units on the Vehicle
+         */
+        void setEmissionUnits(int count);
 
-		/**
-		 * Sets the Fuel Type
-		 *
-		 * @param fuelType the Fuel Type to set
-		 */
-		void setFuelType(FuelType fuelType);
+        /**
+         * Sets the Engine Model Year
+         *
+         * @param modelYear the Engine Model year to set
+         */
+        void setEngineModelYear(int modelYear);
 
-		/**
-		 * Enables and Disables the Ok Button
-		 *
-		 * @param isEnabled true to enable the button
-		 */
-		void setOkButtonEnabled(boolean isEnabled);
+        /**
+         * Sets the Fuel Type
+         *
+         * @param fuelType the Fuel Type to set
+         */
+        void setFuelType(FuelType fuelType);
 
-		/**
-		 * Sets the Vehicle Model Year
-		 *
-		 * @param modelYear the Vehicle Model Year to set
-		 */
-		void setVehicleModelYear(int modelYear);
+        /**
+         * Enables and Disables the Ok Button
+         *
+         * @param isEnabled true to enable the button
+         */
+        void setOkButtonEnabled(boolean isEnabled);
 
-		/**
-		 * Indicates if the Vehicle Model Year is valid
-		 *
-		 * @param isValid true indicates the Vehicle Model Year is valid
-		 */
-		void setVehicleModelYearValid(boolean isValid);
+        /**
+         * Sets the Vehicle Model Year
+         *
+         * @param modelYear the Vehicle Model Year to set
+         */
+        void setVehicleModelYear(int modelYear);
 
-		/**
-		 * Sets the VIN
-		 *
-		 * @param vin the VIN to set
-		 */
-		void setVin(String vin);
+        /**
+         * Indicates if the Vehicle Model Year is valid
+         *
+         * @param isValid true indicates the Vehicle Model Year is valid
+         */
+        void setVehicleModelYearValid(boolean isValid);
 
-		/**
-		 * Indicates if the VIN is valid
-		 *
-		 * @param isValid true indicate the VIN is valid
-		 */
-		void setVinValid(boolean isValid);
+        /**
+         * Sets the VIN
+         *
+         * @param vin the VIN to set
+         */
+        void setVin(String vin);
 
-		/**
-		 * Called to show or hide the dialog
-		 *
-		 * @param isVisible true to show the dialog; false to hide the dialog;
-		 */
-		void setVisible(boolean isVisible);
-	}
+        /**
+         * Indicates if the VIN is valid
+         *
+         * @param isValid true indicate the VIN is valid
+         */
+        void setVinValid(boolean isValid);
+
+        /**
+         * Called to show or hide the dialog
+         *
+         * @param isVisible true to show the dialog; false to hide the dialog;
+         */
+        void setVisible(boolean isVisible);
+    }
 }

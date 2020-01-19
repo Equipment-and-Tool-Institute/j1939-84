@@ -16,19 +16,27 @@ import org.junit.Test;
  */
 public class SwingExecutorTest {
 
-	private SwingExecutor instance;
+    private SwingExecutor instance;
 
-	@Before
-	public void setUp() throws Exception {
-		instance = new SwingExecutor();
-	}
+    @Before
+    public void setUp() throws Exception {
+        instance = new SwingExecutor();
+    }
 
-	@Test
-	public void testExecute() throws Exception {
-		int[] count = new int[] { 0 };
-		instance.execute(() -> count[0] = count[0] + 1);
-		Thread.sleep(300);
-		assertEquals(1, count[0]);
-	}
+    @Test
+    public void testExecute() throws Exception {
+        int[] count = new int[] { 0 };
+        instance.execute(() -> count[0] = count[0] + 1);
+
+        long startTime = System.currentTimeMillis();
+        while ((startTime + 5000) > System.currentTimeMillis()) {
+            if (count[0] == 1) {
+                break;
+            }
+            Thread.sleep(100);
+        }
+
+        assertEquals(1, count[0]);
+    }
 
 }

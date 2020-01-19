@@ -19,52 +19,52 @@ import org.junit.Test;
  */
 public class BannerModuleTest {
 
-	private BuildNumber buildNumber;
-	private BannerModule instance;
-	private TestResultsListener listener;
+    private BuildNumber buildNumber;
+    private BannerModule instance;
+    private TestResultsListener listener;
 
-	@Before
-	public void setup() {
-		listener = new TestResultsListener();
-		buildNumber = new BuildNumber() {
-			@Override
-			public String getVersionNumber() {
-				return "1.2.0";
-			};
-		};
-	}
+    @Before
+    public void setup() {
+        listener = new TestResultsListener();
+        buildNumber = new BuildNumber() {
+            @Override
+            public String getVersionNumber() {
+                return "1.2.0";
+            }
+        };
+    }
 
-	@Test
-	public void testAborted() {
-		instance = new BannerModule(new TestDateTimeModule(), buildNumber);
-		String expected = "2007-12-03T10:15:30.000 J1939-84 Tool Aborted" + NL;
-		instance.reportAborted(listener);
-		assertEquals(expected, listener.getResults());
-	}
+    @Test
+    public void testAborted() {
+        instance = new BannerModule(new TestDateTimeModule(), buildNumber);
+        String expected = "10:15:30.000 J1939-84 Tool Aborted" + NL;
+        instance.reportAborted(listener);
+        assertEquals(expected, listener.getResults());
+    }
 
-	@Test
-	public void testFooter() {
-		instance = new BannerModule(new TestDateTimeModule(), buildNumber);
-		String expected = "2007-12-03T10:15:30.000 J1939-84 Tool END OF REPORT" + NL;
-		instance.reportFooter(listener);
-		assertEquals(expected, listener.getResults());
-	}
+    @Test
+    public void testFooter() {
+        instance = new BannerModule(new TestDateTimeModule(), buildNumber);
+        String expected = "10:15:30.000 J1939-84 Tool END OF REPORT" + NL;
+        instance.reportFooter(listener);
+        assertEquals(expected, listener.getResults());
+    }
 
-	@Test
-	public void testHeader() {
-		instance = new BannerModule(new TestDateTimeModule(), buildNumber);
-		String expected = "";
-		expected += "2007-12-03T10:15:30.000 J1939-84 Tool version 1.2.0" + NL;
-		instance.reportHeader(listener);
-		assertEquals(expected, listener.getResults());
-	}
+    @Test
+    public void testHeader() {
+        instance = new BannerModule(new TestDateTimeModule(), buildNumber);
+        String expected = "";
+        expected += "10:15:30.000 J1939-84 Tool version 1.2.0" + NL;
+        instance.reportHeader(listener);
+        assertEquals(expected, listener.getResults());
+    }
 
-	@Test
-	public void testStopped() {
-		instance = new BannerModule(new TestDateTimeModule(), buildNumber);
-		String expected = "2007-12-03T10:15:30.000 J1939-84 Tool Stopped" + NL;
-		instance.reportStopped(listener);
-		assertEquals(expected, listener.getResults());
-	}
+    @Test
+    public void testStopped() {
+        instance = new BannerModule(new TestDateTimeModule(), buildNumber);
+        String expected = "10:15:30.000 J1939-84 Tool Stopped" + NL;
+        instance.reportStopped(listener);
+        assertEquals(expected, listener.getResults());
+    }
 
 }

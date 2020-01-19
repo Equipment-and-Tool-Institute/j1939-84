@@ -49,11 +49,11 @@ public class BannerModule extends FunctionalModule {
     }
 
     private String getFooter(String suffix) {
-        return getDateTime() + " " + TOOL_NAME + " " + suffix;
+        return getTime() + " " + TOOL_NAME + " " + suffix;
     }
 
     public String getHeader() {
-        return getDateTime() + " " + TOOL_NAME + " version " + buildNumber.getVersionNumber();
+        return getTime() + " " + TOOL_NAME + " version " + buildNumber.getVersionNumber();
     }
 
     public String getSummaryHeader() {

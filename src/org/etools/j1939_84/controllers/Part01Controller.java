@@ -167,7 +167,7 @@ public class Part01Controller extends Controller {
 
         getListener().beginStep(stepResult);
         getListener().onResult(NL);
-        getListener().onResult("Start " + stepResult + " (" + stepResult.getIndex() + ")");
+        getListener().onResult("Start " + stepResult);
 
         incrementProgress(stepResult.toString());
         executeStepTest(stepNumber);
@@ -349,7 +349,7 @@ public class Part01Controller extends Controller {
 
         PartResult partResult = getPartResult(1);
         getListener().beginPart(partResult);
-        getListener().onResult("Start " + partResult + " (" + partResult.getIndex() + ")");
+        getListener().onResult("Start " + partResult);
 
         for (int i = 1; i < 27; i++) {
             executeStep(i);

@@ -30,6 +30,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
@@ -160,6 +161,9 @@ public class J1939 {
             case AddressClaimPacket.PGN:
                 return new AddressClaimPacket(packet);
 
+            case DM56EngineFamilyPacket.PGN:
+                return new DM56EngineFamilyPacket(packet);
+
             case REQUEST_PGN:
                 // Request; just return a wrapped packet
                 return new ParsedPacket(packet);
@@ -169,6 +173,7 @@ public class J1939 {
 
                 switch (maskedId) {
                     case AcknowledgmentPacket.PGN:
+                        // Acknowledgement, return the packet that was requested
                         return new AcknowledgmentPacket(packet);
 
                     case DM7CommandTestsPacket.PGN:

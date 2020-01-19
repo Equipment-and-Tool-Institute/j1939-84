@@ -199,7 +199,7 @@ public class OBDTestsModule extends FunctionalModule {
             String moduleName,
             List<Integer> spns) {
         List<ScaledTestResult> scaledTestResults = new ArrayList<>();
-        listener.onResult(getDateTime() + " Direct DM30 Requests to " + moduleName);
+        listener.onResult(getTime() + " Direct DM30 Requests to " + moduleName);
         for (int spn : spns) {
             List<ScaledTestResult> results = requestScaledTestResultsForSpn(listener, destination, spn);
             scaledTestResults.addAll(results);
@@ -221,7 +221,7 @@ public class OBDTestsModule extends FunctionalModule {
 
         for (int address : obdModuleAddresses) {
             Packet request = getJ1939().createRequestPacket(DM24SPNSupportPacket.PGN, address);
-            listener.onResult(getDateTime() + " Direct DM24 Request to " + Lookup.getAddressName(address));
+            listener.onResult(getTime() + " Direct DM24 Request to " + Lookup.getAddressName(address));
             listener.onResult(getTime() + " " + request.toString());
             Optional<BusResult<DM24SPNSupportPacket>> results = getJ1939()
                     .requestPacket(request, DM24SPNSupportPacket.class, address, 3, TimeUnit.SECONDS.toMillis(15));

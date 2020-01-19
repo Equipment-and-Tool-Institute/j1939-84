@@ -10,7 +10,6 @@ import java.util.List;
 import java.util.Map;
 
 import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.utils.IndexGenerator;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
@@ -18,7 +17,6 @@ import org.etools.j1939_84.utils.IndexGenerator;
  */
 public class PartResult implements IResult {
 
-    private final String index;
     private final String name;
     private Outcome outcome;
     private final int partNumber;
@@ -27,7 +25,6 @@ public class PartResult implements IResult {
     public PartResult(int partNumber, String name) {
         this.partNumber = partNumber;
         this.name = name;
-        index = IndexGenerator.instance().index();
 
         for (int i = 1; i < 30; i++) {
             String stepName = Lookup.getStepName(partNumber, i);
@@ -42,14 +39,6 @@ public class PartResult implements IResult {
 
     public void addResult(StepResult stepResult) {
         stepResults.put(stepResult.getStepNumber(), stepResult);
-    }
-
-    /**
-     * @return the index
-     */
-    @Override
-    public String getIndex() {
-        return index;
     }
 
     @Override
