@@ -147,13 +147,30 @@ public class ParsedPacket {
      * @return the ASCII translation of the field data
      */
     protected static String parseField(byte[] data) {
+        return parseField(data, true);
+    }
+
+    /**
+     * Searches the data for the first asterisk returning the ASCII representation
+     * between the start of the data and the asterisk. If there is no asterisk, then
+     * entire data is translated and returned as ASCII
+     *
+     * @param data the byte array containing the field
+     * @param trim true to indicate the results should be trimmed
+     * @return the ASCII translation of the field data
+     */
+    protected static String parseField(byte[] data, boolean trim) {
         // Find the location of the *
         int index = getAsteriskIndex(data);
         if (index >= 0) {
             // It has a *, return just the field
             data = Arrays.copyOf(data, index);
         }
-        return format(data).trim();
+        if (trim) {
+            return format(data).trim();
+        } else {
+            return format(data);
+        }
     }
 
     /**

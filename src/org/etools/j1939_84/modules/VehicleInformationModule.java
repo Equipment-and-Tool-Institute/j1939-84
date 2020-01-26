@@ -294,19 +294,21 @@ public class VehicleInformationModule extends FunctionalModule {
 
     /**
      * Requests the Vehicle Identification from all vehicle modules and
-     * generates a {@link String} that's suitable for inclusion in the report
+     * generates adds the information gathered to the report returning the Packets
+     * returned by the query.
      *
      * @param listener
      *                 the {@link ResultsListener} that will be given the report
+     * @return List of {@link VehicleIdentificationPacket}
      */
-    public void reportVin(ResultsListener listener) {
+    public List<VehicleIdentificationPacket> reportVin(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(VehicleIdentificationPacket.PGN, GLOBAL_ADDR);
-        generateReport(listener, "Global VIN Request", VehicleIdentificationPacket.class, request);
+        return generateReport(listener, "Global VIN Request", VehicleIdentificationPacket.class, request);
     }
 
-    public List<VehicleIdentificationPacket> requestVehicleIdentification(ResultsListener listener) {
-        reportVin(listener);
-        return getJ1939().requestMultiple(VehicleIdentificationPacket.class).collect(Collectors.toList());
+    public List<DM56EngineFamilyPacket> reportEngineFamily(ResultsListener listener) {
+        Packet request = getJ1939().createRequestPacket(DM56EngineFamilyPacket.PGN, GLOBAL_ADDR);
+        return generateReport(listener, "Global DM56 Request", DM56EngineFamilyPacket.class, request);
     }
 
     /**

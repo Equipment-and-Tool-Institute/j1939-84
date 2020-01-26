@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
@@ -446,6 +447,71 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
+    public void testReportEngineFamily() {
+        final int pgn = DM56EngineFamilyPacket.PGN;
+        final byte[] bytes = "2015MY-EUS HD ODB   *".getBytes(UTF8);
+
+        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
+
+        DM56EngineFamilyPacket packet1 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x00, bytes));
+        DM56EngineFamilyPacket packet2 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x17, bytes));
+        DM56EngineFamilyPacket packet3 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x21, bytes));
+        when(j1939.requestMultiple(DM56EngineFamilyPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1, packet2, packet3));
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM56 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 C7 FC 00 (TX)" + NL;
+        expected += "10:15:30.000 18FCC700 32 30 31 35 4D 59 2D 45 55 53 20 48 44 20 4F 44 42 20 20 20 2A" + NL;
+        expected += "Model Year and Certification Engine Family from Engine #1 (0): " + NL;
+        expected += "Model Year: 2015MY-E" + NL;
+        expected += "Family Name: US HD ODB   " + NL;
+        expected += "10:15:30.000 18FCC717 32 30 31 35 4D 59 2D 45 55 53 20 48 44 20 4F 44 42 20 20 20 2A" + NL;
+        expected += "Model Year and Certification Engine Family from Instrument Cluster #1 (23): " + NL;
+        expected += "Model Year: 2015MY-E" + NL;
+        expected += "Family Name: US HD ODB   " + NL;
+        expected += "10:15:30.000 18FCC721 32 30 31 35 4D 59 2D 45 55 53 20 48 44 20 4F 44 42 20 20 20 2A" + NL;
+        expected += "Model Year and Certification Engine Family from Body Controller (33): " + NL;
+        expected += "Model Year: 2015MY-E" + NL;
+        expected += "Family Name: US HD ODB   " + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        List<DM56EngineFamilyPacket> packets = instance.reportEngineFamily(listener);
+        assertEquals(3, packets.size());
+        assertEquals(packet1, packets.get(0));
+        assertEquals(packet2, packets.get(1));
+        assertEquals(packet3, packets.get(2));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0xFF);
+        verify(j1939).requestMultiple(DM56EngineFamilyPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testReportEngineFamilyWithNoResponses() {
+        final int pgn = DM56EngineFamilyPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
+
+        when(j1939.requestMultiple(DM56EngineFamilyPacket.class, requestPacket)).thenReturn(Stream.empty());
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM56 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 C7 FC 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        List<DM56EngineFamilyPacket> packets = instance.reportEngineFamily(listener);
+        assertEquals(0, packets.size());
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0xFF);
+        verify(j1939).requestMultiple(DM56EngineFamilyPacket.class, requestPacket);
+    }
+
+    @Test
     public void testReportEngineHours() {
         final int pgn = EngineHoursPacket.PGN;
 
@@ -592,7 +658,11 @@ public class VehicleInformationModuleTest {
         expected += "Vehicle Identification from Body Controller (33): 12345678901234567890" + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        instance.reportVin(listener);
+        List<VehicleIdentificationPacket> packets = instance.reportVin(listener);
+        assertEquals(3, packets.size());
+        assertEquals(packet1, packets.get(0));
+        assertEquals(packet2, packets.get(1));
+        assertEquals(packet3, packets.get(2));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
@@ -614,10 +684,12 @@ public class VehicleInformationModuleTest {
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        instance.reportVin(listener);
+        List<VehicleIdentificationPacket> packets = instance.reportVin(listener);
+        assertEquals(0, packets.size());
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939).requestMultiple(VehicleIdentificationPacket.class, requestPacket);
     }
+
 }

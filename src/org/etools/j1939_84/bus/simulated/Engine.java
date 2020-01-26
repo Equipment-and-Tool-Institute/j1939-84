@@ -44,7 +44,7 @@ public class Engine implements AutoCloseable {
     private static final byte[] ENGINE_CVN7 = as4Bytes(0x1B72F353);
 
     private static final byte[] ENGINE_HOURS = as4Bytes(3564 * 20); // hrs
-    private static final byte[] ENGINE_MODEL_YEAR = "2015E-MYUS HD OBD".getBytes(A_UTF8);
+    private static final byte[] ENGINE_MODEL_YEAR = "2015E-MYUS HD OBD   ".getBytes(A_UTF8);
     private static final byte[] ENGINE_SPEED = as2Bytes(400 * 8); // rpm
     private static final byte[] ENGINE_SPEED_ZERO = as2Bytes(0); // rpm
     private static final byte NA = (byte) 0xFF;

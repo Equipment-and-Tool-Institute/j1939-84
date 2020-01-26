@@ -27,7 +27,7 @@ public class DM56EngineFamilyPacket extends ParsedPacket {
         if (familyName == null) {
             byte[] bytes = getPacket().getBytes();
             byte[] data = Arrays.copyOfRange(bytes, 8, bytes.length);
-            familyName = parseField(data);
+            familyName = parseField(data, false);
         }
         return familyName;
     }
