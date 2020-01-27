@@ -61,6 +61,15 @@ public class EchoBus implements Bus {
         return queue.stream(timeout, unit);
     }
 
+    /**
+     * Reset stream timeout for stream created with bus.read(). To be used in a
+     * stream call like peek, map or forEach.
+     */
+    @Override
+    public void resetTimeout(Stream<Packet> stream, int time, TimeUnit unit) {
+        queue.resetTimeout(stream, time, unit);
+    }
+
     @Override
     public void send(Packet p) {
         queue.add(p);

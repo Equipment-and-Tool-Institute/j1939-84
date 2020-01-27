@@ -220,6 +220,15 @@ public class RP1210Bus implements Bus {
         return queue.stream(timeout, unit);
     }
 
+    /**
+     * Reset stream timeout for stream created with bus.read(). To be used in a
+     * stream call like peek, map or forEach.
+     */
+    @Override
+    public void resetTimeout(Stream<Packet> stream, int time, TimeUnit unit) {
+        queue.resetTimeout(stream, time, unit);
+    }
+
     @Override
     public void send(Packet packet) throws BusException {
         try {
@@ -270,7 +279,7 @@ public class RP1210Bus implements Bus {
 
     /**
      * Checks the code returned from calls to the adapter to determine if it's
-     * an error
+     * an error.
      *
      * @param rtnCode
      *                the return code to check

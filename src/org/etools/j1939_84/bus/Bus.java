@@ -4,6 +4,8 @@
 package org.etools.j1939_84.bus;
 
 import java.util.concurrent.TimeUnit;
+import java.util.function.Consumer;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 /**
@@ -13,6 +15,10 @@ import java.util.stream.Stream;
  *
  */
 public interface Bus extends AutoCloseable {
+
+    static Consumer<Packet> log(Supplier<String> prefix) {
+        return p -> System.err.println(prefix.get() + p);
+    }
 
     /**
      * close() can be used to interrupt all streams using this bus.
@@ -48,6 +54,12 @@ public interface Bus extends AutoCloseable {
      *                      if there is a problem reading packets
      */
     Stream<Packet> read(long timeout, TimeUnit unit) throws BusException;
+
+    /**
+     * Reset stream timeout for stream created with bus.read(). To be used in a
+     * stream call like peek, map or forEach.
+     */
+    void resetTimeout(Stream<Packet> stream, int time, TimeUnit unit);
 
     /**
      * Sends a {@link Packet} to the vehicle communications bus
