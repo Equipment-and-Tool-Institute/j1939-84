@@ -10,9 +10,10 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-import org.junit.Test;
+import java.nio.charset.StandardCharsets;
 
 import org.etools.j1939_84.bus.Packet;
+import org.junit.Test;
 
 /**
  * Unit tests the {@link ParsedPacket} class
@@ -179,6 +180,27 @@ public class ParsedPacketTest {
     @Test
     public void testIsNotAvailableTrue() {
         assertTrue(ParsedPacket.isNotAvailable(ParsedPacket.NOT_AVAILABLE));
+    }
+
+    @Test
+    public void testParse() {
+        byte[] data = "123 *456".getBytes(StandardCharsets.UTF_8);
+        String actual = ParsedPacket.parseField(data);
+        assertEquals("123", actual);
+    }
+
+    @Test
+    public void testParseWithoutAsterisk() {
+        byte[] data = "123 ".getBytes(StandardCharsets.UTF_8);
+        String actual = ParsedPacket.parseField(data);
+        assertEquals("123", actual);
+    }
+
+    @Test
+    public void testParseWithoutTrim() {
+        byte[] data = "123 *456".getBytes(StandardCharsets.UTF_8);
+        String actual = ParsedPacket.parseField(data, false);
+        assertEquals("123 ", actual);
     }
 
     @Test

@@ -18,17 +18,18 @@ public class J1939TPTest {
     @Test
     public void testBus() {
         // verify that the bus works as expected
-        int count = 10;
-        EchoBus bus = new EchoBus(0);
-        Stream<Packet> a = bus.read(1, TimeUnit.SECONDS).limit(count - 1);
-        Stream<Packet> b = bus.read(1, TimeUnit.SECONDS).limit(count);
-        for (int i = 0; i < count; i++) {
-            bus.send(Packet.create(0xFF00 | i, 2, 0, 1, 2, 3, 4, 5, 6, 7));
+        try (EchoBus bus = new EchoBus(0)) {
+            int count = 10;
+            Stream<Packet> a = bus.read(1, TimeUnit.SECONDS).limit(count - 1);
+            Stream<Packet> b = bus.read(1, TimeUnit.SECONDS).limit(count);
+            for (int i = 0; i < count; i++) {
+                bus.send(Packet.create(0xFF00 | i, 2, 0, 1, 2, 3, 4, 5, 6, 7));
+            }
+            Collection<Packet> ac = a.collect(Collectors.toList());
+            Collection<Packet> bc = b.collect(Collectors.toList());
+            Assert.assertEquals(count - 1, ac.size());
+            Assert.assertEquals(count, bc.size());
         }
-        Collection<Packet> ac = a.collect(Collectors.toList());
-        Collection<Packet> bc = b.collect(Collectors.toList());
-        Assert.assertEquals(count - 1, ac.size());
-        Assert.assertEquals(count, bc.size());
     }
 
     public void testMissingCTS() {

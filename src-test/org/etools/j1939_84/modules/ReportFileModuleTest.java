@@ -79,7 +79,7 @@ public class ReportFileModuleTest {
         instance.setReportFile(listener, file);
         instance.onProgramExit();
         List<String> lines = Files.readAllLines(file.toPath());
-        String expected = "2007-12-03T10:15:30.000 End of J1939-84 Tool Execution";
+        String expected = "10:15:30.0000 End of J1939-84 Tool Execution";
         assertEquals(expected, lines.get(0));
     }
 
@@ -125,7 +125,7 @@ public class ReportFileModuleTest {
 
         instance.reportFileInformation(listener);
 
-        String expected = "2007-12-03T10:15:30.000 File: files/users/report.j1939_84" + NL;
+        String expected = "10:15:30.0000 File: files/users/report.j1939_84" + NL;
         assertEquals(expected, listener.getResults());
     }
 

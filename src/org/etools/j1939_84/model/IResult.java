@@ -9,8 +9,6 @@ package org.etools.j1939_84.model;
  */
 public interface IResult {
 
-    String getIndex();
-
     String getName();
 
     Outcome getOutcome();

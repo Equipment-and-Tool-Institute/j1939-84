@@ -621,6 +621,8 @@ public class UserInterfacePresenterTest {
         instance.onStartButtonClicked();
         verify(overallController).execute(any(ResultsListener.class), any(J1939.class), eq(reportFileModule));
         verify(view).setStartButtonEnabled(false);
+        verify(view).setReadVehicleInfoButtonEnabled(false);
+        verify(view).setSelectFileButtonEnabled(false);
         verify(view).setStopButtonEnabled(true);
     }
 
@@ -632,7 +634,7 @@ public class UserInterfacePresenterTest {
 
         verify(overallController).stop();
         verify(view).setProgressBarText("User cancelled operation");
-        verify(view).setStopButtonEnabled(false);
+        verify(view, times(2)).setStopButtonEnabled(false);
     }
 
     @Test
@@ -640,7 +642,7 @@ public class UserInterfacePresenterTest {
         instance.onStopButtonClicked();
 
         verify(view).setProgressBarText("User cancelled operation");
-        verify(view).setStopButtonEnabled(false);
+        verify(view, times(2)).setStopButtonEnabled(false);
     }
 
     @Test
@@ -651,7 +653,7 @@ public class UserInterfacePresenterTest {
 
         verify(overallController, never()).stop();
         verify(view).setProgressBarText("User cancelled operation");
-        verify(view).setStopButtonEnabled(false);
+        verify(view, times(2)).setStopButtonEnabled(false);
     }
 
     @SuppressFBWarnings(value = "RU_INVOKE_RUN", justification = "Run is correct here for testing")

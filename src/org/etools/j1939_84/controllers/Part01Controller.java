@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
@@ -167,7 +168,7 @@ public class Part01Controller extends Controller {
 
         getListener().beginStep(stepResult);
         getListener().onResult(NL);
-        getListener().onResult("Start " + stepResult + " (" + stepResult.getIndex() + ")");
+        getListener().onResult("Start " + stepResult);
 
         incrementProgress(stepResult.toString());
         executeStepTest(stepNumber);
@@ -205,6 +206,9 @@ public class Part01Controller extends Controller {
                 queryAndValidateVIN();
                 break;
 
+            case 6:
+                queryAndValidateEngineFamily();
+
             default:
                 Thread.sleep(100);
                 break;
@@ -219,6 +223,59 @@ public class Part01Controller extends Controller {
     @Override
     protected int getTotalSteps() {
         return 28;
+    }
+
+    private void queryAndValidateEngineFamily() {
+        // DM56: Model year and certification engine family
+        List<DM56EngineFamilyPacket> packets = getVehicleInformationModule().reportEngineFamily(getListener());
+        if (packets.isEmpty()) {
+            getListener().onResult("DM56 is not supported");
+            return;
+        }
+
+        for (DM56EngineFamilyPacket packet : packets) {
+            if (packet.getEngineModelYear() != vehicleInformation.getEngineModelYear()) {
+                addFailure(1, 6, "6.1.6.2.a - Engine model year does not match user input.");
+            }
+
+            String modelYearField = packet.getModelYearField();
+            String type = modelYearField.substring(4, 4);
+            if ("V".equals(type)) {
+                addFailure(1, 6, "6.1.6.2.b - Indicates “V” instead of “E” for cert type.");
+            }
+
+            String expected = packet.getEngineModelYear() + "E-MY";
+            if (!expected.equals(modelYearField)) {
+                addFailure(1, 6, "6.1.6.2.c - Not formatted correctly");
+            }
+
+            // TODO: See the citation for Karl Simon’s manufacturer guidance in 2.1.3.
+            // The description of the coding for engine model year is defined in CSID-07-03,
+            // a
+            // manufacturer letter that is available from US EPA at
+            // http://iaspub.epa.gov/otaqpub/publist_gl.jsp?guideyear=2007
+            //
+            // d. Fail if MY designation in engine family (1st digit) does not match user MY
+            // input.11
+
+            String familyName = packet.getFamilyName();
+            if (familyName.length() != 12) {
+                int index = familyName.indexOf("*");
+                if (index != 11) {
+                    addFailure(1,
+                            6,
+                            "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A).");
+                }
+
+                index = familyName.indexOf(0);
+                if (index != 11) {
+                    addFailure(1,
+                            6,
+                            "6.1.6.2.e. - Engine family has <> 12 characters before first “null” character (ASCII 0x00).");
+                }
+            }
+        }
+
     }
 
     /**
@@ -296,8 +353,7 @@ public class Part01Controller extends Controller {
      * Queries the vehicle for the VIN and validates the result
      */
     private void queryAndValidateVIN() {
-        List<VehicleIdentificationPacket> packets = getVehicleInformationModule()
-                .requestVehicleIdentification(getListener());
+        List<VehicleIdentificationPacket> packets = getVehicleInformationModule().reportVin(getListener());
         if (packets.isEmpty()) {
             addFailure(1, 5, "6.1.5.2.a - No VIN was provided");
         }
@@ -349,7 +405,7 @@ public class Part01Controller extends Controller {
 
         PartResult partResult = getPartResult(1);
         getListener().beginPart(partResult);
-        getListener().onResult("Start " + partResult + " (" + partResult.getIndex() + ")");
+        getListener().onResult("Start " + partResult);
 
         for (int i = 1; i < 27; i++) {
             executeStep(i);

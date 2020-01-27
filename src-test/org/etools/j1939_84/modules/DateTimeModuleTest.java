@@ -29,11 +29,8 @@ public class DateTimeModuleTest {
 
     @Test
     public void testFormat() throws Exception {
-        LocalDateTime dateTime = LocalDateTime.parse("2007-12-03T10:15:30.000");
-        assertEquals("2007-12-03T10:15:30.000", instance.format(dateTime));
-
-        LocalTime time = LocalTime.parse("10:15:30.000");
-        assertEquals("10:15:30.000", instance.format(time));
+        LocalTime dateTime = LocalTime.parse("10:15:30.000");
+        assertEquals("10:15:30.0000", instance.format(dateTime));
     }
 
     @Test
@@ -41,20 +38,20 @@ public class DateTimeModuleTest {
         DateTimeModule instance = new DateTimeModule() {
             @Override
             protected LocalDateTime now() {
-                return LocalDateTime.parse("2007-12-03T10:15:30.000");
+                return LocalDateTime.parse("2019-01-01T10:15:30.000");
             }
         };
-        assertEquals("2007-12-03T10:15:30.000", instance.getDateTime());
+        assertEquals("10:15:30.0000", instance.getTime());
     }
 
     @Test
     public void testGetDateTimeFormatter() throws Exception {
-        String expected = "10:15:30.000";
+        String expected = "10:15:30.0000";
         LocalTime time = LocalTime.parse(expected);
         String actual = instance.getTimeFormatter().format(time);
         assertEquals(expected, actual);
 
-        LocalDateTime dateTime = LocalDateTime.parse("2007-12-03T10:15:30.000");
+        LocalTime dateTime = LocalTime.parse("10:15:30.0000");
         String actualDateTime = instance.getTimeFormatter().format(dateTime);
         assertEquals(expected, actualDateTime);
     }
@@ -69,12 +66,4 @@ public class DateTimeModuleTest {
         assertTrue(after.isAfter(actual) || after.isEqual(actual));
     }
 
-    @Test
-    public void testParse() throws Exception {
-        LocalDateTime expected = LocalDateTime.parse("2007-12-03T10:15:30.000");
-        assertEquals(expected, instance.parse("2007-12-03T10:15:30.000"));
-
-        LocalTime expectedTime = LocalTime.parse("10:15:30.000");
-        assertEquals(expectedTime, instance.parse("10:15:30.000"));
-    }
 }
