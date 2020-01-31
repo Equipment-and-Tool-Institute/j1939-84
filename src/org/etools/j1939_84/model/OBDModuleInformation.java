@@ -21,9 +21,6 @@ public class OBDModuleInformation {
 
     private List<SupportedSPN> supportedSpns;
 
-    /**
-     *
-     */
     public OBDModuleInformation(int sourceAddress) {
         this.sourceAddress = sourceAddress;
     }

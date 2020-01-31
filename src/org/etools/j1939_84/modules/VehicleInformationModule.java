@@ -212,9 +212,9 @@ public class VehicleInformationModule extends FunctionalModule {
      * @param listener
      *                 the {@link ResultsListener} that will be given the report
      */
-    public void reportCalibrationInformation(ResultsListener listener) {
+    public List<DM19CalibrationInformationPacket> reportCalibrationInformation(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM19CalibrationInformationPacket.PGN, GLOBAL_ADDR);
-        generateReport(listener,
+        return generateReport(listener,
                 "Global DM19 (Calibration Information) Request",
                 DM19CalibrationInformationPacket.class,
                 request);
@@ -250,6 +250,11 @@ public class VehicleInformationModule extends FunctionalModule {
             result += "Could not be determined";
         }
         listener.onResult(result);
+    }
+
+    public List<DM56EngineFamilyPacket> reportEngineFamily(ResultsListener listener) {
+        Packet request = getJ1939().createRequestPacket(DM56EngineFamilyPacket.PGN, GLOBAL_ADDR);
+        return generateReport(listener, "Global DM56 Request", DM56EngineFamilyPacket.class, request);
     }
 
     /**
@@ -304,11 +309,6 @@ public class VehicleInformationModule extends FunctionalModule {
     public List<VehicleIdentificationPacket> reportVin(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(VehicleIdentificationPacket.PGN, GLOBAL_ADDR);
         return generateReport(listener, "Global VIN Request", VehicleIdentificationPacket.class, request);
-    }
-
-    public List<DM56EngineFamilyPacket> reportEngineFamily(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM56EngineFamilyPacket.PGN, GLOBAL_ADDR);
-        return generateReport(listener, "Global DM56 Request", DM56EngineFamilyPacket.class, request);
     }
 
     /**

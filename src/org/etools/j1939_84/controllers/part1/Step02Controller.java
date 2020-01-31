@@ -1,0 +1,54 @@
+package org.etools.j1939_84.controllers.part1;
+
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+
+import org.etools.j1939_84.controllers.Controller;
+import org.etools.j1939_84.model.Outcome;
+import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
+
+public class Step02Controller extends Controller {
+
+    Step02Controller() {
+        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
+                new DateTimeModule(), new VehicleInformationModule());
+    }
+
+    Step02Controller(ScheduledExecutorService executor, EngineSpeedModule engineSpeedModule,
+            BannerModule bannerModule, DateTimeModule dateTimeModule,
+            VehicleInformationModule vehicleInformationModule) {
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule);
+    }
+
+    @Override
+    public String getDisplayName() {
+        return "Part 1 Step 2";
+    }
+
+    @Override
+    protected int getTotalSteps() {
+        return 1;
+    }
+
+    @Override
+    protected void run() throws Throwable {
+        try {
+            if (!getEngineSpeedModule().isEngineNotRunning()) {
+                getListener().onUrgentMessage("Please turn the Engine OFF with Key ON.", "Adjust Key Switch", WARNING);
+
+                while (!getEngineSpeedModule().isEngineNotRunning() && getEnding() == null) {
+                    updateProgress("Waiting for Key ON, Engine OFF...");
+                    Thread.sleep(500);
+                }
+            }
+        } catch (InterruptedException e) {
+            getListener().addOutcome(1, 2, Outcome.ABORT, "User cancelled operation");
+            throw e;
+        }
+    }
+}
