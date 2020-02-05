@@ -58,10 +58,10 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     /**
      * Constructor exposed for testing
      *
-     * @param dateTimeModule
-     *                       The {@link DateTimeModule}
-     * @param logger
-     *                       The {@link Logger} to use for logging
+     * @param dateTimeModule The {@link DateTimeModule}
+     * @param logger         The {@link Logger} to use for logging
+     * @param summaryModule  The {@link SummaryModule}
+     * @param bannerModule   The {@link BannerModule}
      */
     public ReportFileModule(DateTimeModule dateTimeModule, Logger logger, SummaryModule summaryModule,
             BannerModule bannerModule) {

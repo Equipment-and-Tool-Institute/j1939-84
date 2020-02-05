@@ -15,6 +15,8 @@ public class RequestResult<T> {
     private final boolean retryUsed;
 
     /**
+     * @param retryUsed boolean representation of retry used
+     * @param packets   list of packets to be included in the requestResult
      *
      */
     public RequestResult(boolean retryUsed, List<T> packets) {

@@ -3,10 +3,11 @@ package org.etools.j1939_84.controllers.part1;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.model.Outcome;
+import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -16,13 +17,13 @@ public class Step02Controller extends Controller {
 
     Step02Controller() {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule());
+                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory());
     }
 
-    Step02Controller(ScheduledExecutorService executor, EngineSpeedModule engineSpeedModule,
+    Step02Controller(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule,
-            VehicleInformationModule vehicleInformationModule) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule);
+            VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory) {
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
     }
 
     @Override

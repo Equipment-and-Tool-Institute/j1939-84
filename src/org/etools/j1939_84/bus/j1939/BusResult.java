@@ -14,6 +14,8 @@ public class BusResult<T> {
 
     /**
      *
+     * @param retryUsed boolean representing retry has been used
+     * @param packet    the packet on the bus
      */
     public BusResult(boolean retryUsed, T packet) {
         this.retryUsed = retryUsed;

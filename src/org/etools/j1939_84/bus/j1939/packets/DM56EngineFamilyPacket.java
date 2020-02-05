@@ -46,7 +46,7 @@ public class DM56EngineFamilyPacket extends ParsedPacket {
     }
 
     private int getModelYearInt() {
-        return Integer.valueOf(getModelYearField().substring(0, 4));
+        return Integer.parseInt(getModelYearField().substring(0, 4));
     }
 
     @Override

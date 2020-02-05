@@ -9,16 +9,16 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
+import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
@@ -180,9 +180,9 @@ public abstract class Controller {
     private final EngineSpeedModule engineSpeedModule;
 
     /**
-     * The {@link ScheduledExecutorService} used to run the task
+     * The {@link Executor} used to run the task
      */
-    private final ScheduledExecutorService executor;
+    private final Executor executor;
 
     /**
      * The {@link J1939} use for vehicle communications
@@ -193,6 +193,8 @@ public abstract class Controller {
      * The maximum number of steps in the controller execution
      */
     private int maxSteps;
+
+    private final PartResultFactory partResultFactory;
 
     private final Map<Integer, PartResult> partResultsMap = new HashMap<>();
 
@@ -210,34 +212,32 @@ public abstract class Controller {
     /**
      * Constructor
      *
-     * @param executor
-     *                                 the {@link ScheduledExecutorService} used to
+     * @param executor                 the {@link Executor} used to
      *                                 run the process.
-     * @param engineSpeedModule
-     *                                 the {@link EngineSpeedModule} that will
-     *                                 determine if the
-     *                                 engine is communicating
-     * @param bannerModule
-     *                                 the {@link BannerModule} used to generate the
-     *                                 headers and
-     *                                 footers for the report
-     * @param dateTimeModule
-     *                                 the {@link DateTimeModule} used to generate
-     *                                 the timestamps for
-     *                                 the report
-     * @param vehicleInformationModule
-     *                                 the {@link VehicleInformationModule} that
+     *
+     * @param engineSpeedModule        the {@link EngineSpeedModule} that will
+     *                                 determine if the engine is communicating
+     *
+     * @param bannerModule             the {@link BannerModule} used to generate the
+     *                                 headers and footers for the report
+     *
+     * @param dateTimeModule           the {@link DateTimeModule} used to generate
+     *                                 the timestamps for the report
+     *
+     * @param vehicleInformationModule the {@link VehicleInformationModule} that
      *                                 will gather general
      *                                 information from the vehicle for the report
+     * @param partResultFactory        the {@link PartResultFactory} for the report
      */
-    protected Controller(ScheduledExecutorService executor, EngineSpeedModule engineSpeedModule,
+    protected Controller(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule,
-            VehicleInformationModule vehicleInformationModule) {
+            VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory) {
         this.executor = executor;
         this.engineSpeedModule = engineSpeedModule;
         this.bannerModule = bannerModule;
         this.dateTimeModule = dateTimeModule;
         this.vehicleInformationModule = vehicleInformationModule;
+        this.partResultFactory = partResultFactory;
     }
 
     /**
@@ -259,7 +259,11 @@ public abstract class Controller {
     /**
      * Adds a warning to the report
      *
-     * @param message the warning to add to the report
+     * @param partNumber the part number to add to the report
+     *
+     * @param stepNumber the step number where the warning originated
+     *
+     * @param message    the warning to add to the report
      */
     protected void addWarning(int partNumber, int stepNumber, String message) {
         getListener().addOutcome(partNumber, stepNumber, Outcome.WARN, message);
@@ -415,7 +419,7 @@ public abstract class Controller {
     /**
      * @return the executor
      */
-    private ScheduledExecutorService getExecutor() {
+    private Executor getExecutor() {
         return executor;
     }
 
@@ -449,7 +453,7 @@ public abstract class Controller {
     protected PartResult getPartResult(int partNumber) {
         PartResult result = partResultsMap.get(partNumber);
         if (result == null) {
-            result = new PartResult(partNumber, Lookup.getPartName(partNumber));
+            result = partResultFactory.create(partNumber);
             partResultsMap.put(partNumber, result);
         }
         return result;

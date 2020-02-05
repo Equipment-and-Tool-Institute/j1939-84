@@ -2,10 +2,11 @@ package org.etools.j1939_84.controllers.part1;
 
 import java.util.List;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.controllers.Controller;
+import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -17,13 +18,13 @@ public class Step06Controller extends Controller {
 
     Step06Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), dataRepository);
+                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(), dataRepository);
     }
 
-    Step06Controller(ScheduledExecutorService executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, DateTimeModule dateTimeModule,
-            VehicleInformationModule vehicleInformationModule, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule);
+    Step06Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
+            DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
+            PartResultFactory partResultFactory, DataRepository dataRepository) {
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
         this.dataRepository = dataRepository;
     }
 

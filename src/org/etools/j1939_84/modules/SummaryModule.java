@@ -49,7 +49,7 @@ public class SummaryModule {
     }
 
     /**
-     * @param partResult
+     * @param partResult {@link PartResult} to be added to partResults
      */
     public void beginPart(PartResult partResult) {
         partResults.add(partResult);

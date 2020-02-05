@@ -4,11 +4,12 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.model.Outcome;
+import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -20,13 +21,13 @@ public class Step01Controller extends Controller {
 
     Step01Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), dataRepository);
+                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(), dataRepository);
     }
 
-    Step01Controller(ScheduledExecutorService executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, DateTimeModule dateTimeModule,
-            VehicleInformationModule vehicleInformationModule, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule);
+    Step01Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
+            DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
+            PartResultFactory partResultFactory, DataRepository dataRepository) {
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
         this.dataRepository = dataRepository;
     }
 

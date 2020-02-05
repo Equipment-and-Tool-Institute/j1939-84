@@ -26,15 +26,18 @@ public class J1939TP implements Bus {
     private static final int CM_EndOfMessageACK = 19;
 
     private static final int CM_RTS = 16;
-    final static public int DT = 0xEB00;
-    static final private Map<Integer, String> errors = new HashMap<>();
+    // Most number of packet that can be sent in one CTS
+    private static final int countMax = 0xFF;
+    public final static int DT = 0xEB00;
+    private static final Map<Integer, String> errors = new HashMap<>();
     private static final int T1 = 750;
-    private static final int T2 = 1250;
 
+    private static final int T2 = 1250;
     private static final int T3 = 1250;
     private static final int T4 = 1050;
     private static final int Th = 500;
     private static final int Tr = 200;
+
     static {
         errors.put(1, "Already in one or more connection managed sessions and cannot support another.");
         errors.put(2,
@@ -49,14 +52,11 @@ public class J1939TP implements Bus {
         errors.put(250, "If a Connection Abort reason is identified that is not listed in the table use code 250");
     }
 
-    final private Bus bus;
+    private final Bus bus;
 
-    // Most number of packet that can be sent in one CTS
-    final private int countMax = 0xFF;
+    private final Executor exec = Executors.newCachedThreadPool();
 
-    final private Executor exec = Executors.newCachedThreadPool();
-
-    final private EchoBus inbound;
+    private final EchoBus inbound;
 
     J1939TP(Bus bus) {
         this(bus, bus.getAddress());

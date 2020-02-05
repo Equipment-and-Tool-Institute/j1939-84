@@ -44,8 +44,7 @@ public class OBDTestsModule extends FunctionalModule {
     /**
      * Constructor exposed for testing
      *
-     * @param dateTimeModule
-     *                       the {@link DateTimeModule} to use
+     * @param dateTimeModule the {@link DateTimeModule} to use
      */
     public OBDTestsModule(DateTimeModule dateTimeModule) {
         super(dateTimeModule);
@@ -55,10 +54,8 @@ public class OBDTestsModule extends FunctionalModule {
      * Helper method to create a DM7 packet with Test ID of 247, FMI 31 and the
      * given SPN. The request will be sent to the specific destination
      *
-     * @param destination
-     *                    the destination address for the packet
-     * @param spn
-     *                    the SPN
+     * @param destination the destination address for the packet
+     * @param spn         the SPN
      * @return Packet
      */
     private Packet createDM7Packet(int destination, int spn) {
@@ -210,8 +207,8 @@ public class OBDTestsModule extends FunctionalModule {
     /**
      * Sends a request to the vehicle for {@link DM24SPNSupportPacket}s
      *
-     * @param listener
-     *                 the {@link ResultsListener}
+     * @param listener           the {@link ResultsListener}
+     * @param obdModuleAddresses {@link Collection} of Integers}
      * @return {@link List} of {@link DM24SPNSupportPacket}s
      */
     public RequestResult<DM24SPNSupportPacket> requestSupportedSpnPackets(ResultsListener listener,

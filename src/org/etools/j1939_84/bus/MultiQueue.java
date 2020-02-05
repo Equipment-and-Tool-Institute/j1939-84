@@ -21,51 +21,9 @@ import java.util.stream.StreamSupport;
  * value is added, nothing references the first value, except for any open
  * streams.
  *
- * @param <T>
+ * @param <T> type of MultiQueue to be implemented
  */
 public class MultiQueue<T> implements AutoCloseable {
-
-    private final class SpliteratorImplementation implements Spliterator<T> {
-        long end;
-        Item<T> item = list;
-        long startStep = step;
-
-        private SpliteratorImplementation(long timeout, TimeUnit unit) {
-            setTimeout(timeout, unit);
-        }
-
-        public void setTimeout(long timeout, TimeUnit unit) {
-            end = System.currentTimeMillis() + unit.toMillis(timeout);
-        }
-
-        @Override
-        public int characteristics() {
-            return IMMUTABLE | ORDERED;
-        }
-
-        @Override
-        public long estimateSize() {
-            return Long.MAX_VALUE;
-        }
-
-        @Override
-        public boolean tryAdvance(Consumer<? super T> action) {
-            while (true) {
-                try {
-                    action.accept((item = item.next(end)).value);
-                    return startStep == step;
-                } catch (TimeOutException e) {
-                    break;
-                }
-            }
-            return false;
-        }
-
-        @Override
-        public Spliterator<T> trySplit() {
-            return null;
-        }
-    }
 
     static private class Item<T> {
         MultiQueue.Item<T> next;
@@ -100,6 +58,48 @@ public class MultiQueue<T> implements AutoCloseable {
         }
     }
 
+    private final class SpliteratorImplementation implements Spliterator<T> {
+        long end;
+        Item<T> item = list;
+        long startStep = step;
+
+        private SpliteratorImplementation(long timeout, TimeUnit unit) {
+            setTimeout(timeout, unit);
+        }
+
+        @Override
+        public int characteristics() {
+            return IMMUTABLE | ORDERED;
+        }
+
+        @Override
+        public long estimateSize() {
+            return Long.MAX_VALUE;
+        }
+
+        public void setTimeout(long timeout, TimeUnit unit) {
+            end = System.currentTimeMillis() + unit.toMillis(timeout);
+        }
+
+        @Override
+        public boolean tryAdvance(Consumer<? super T> action) {
+            while (true) {
+                try {
+                    action.accept((item = item.next(end)).value);
+                    return startStep == step;
+                } catch (TimeOutException e) {
+                    break;
+                }
+            }
+            return false;
+        }
+
+        @Override
+        public Spliterator<T> trySplit() {
+            return null;
+        }
+    }
+
     private static class TimeOutException extends RuntimeException {
         private static final long serialVersionUID = -7120465100481000186L;
     }
@@ -115,6 +115,8 @@ public class MultiQueue<T> implements AutoCloseable {
 
     private MultiQueue.Item<T> list = new MultiQueue.Item<>(null);
 
+    private final WeakHashMap<Stream<T>, SpliteratorImplementation> sliterators = new WeakHashMap<>();
+
     private long step = 0;
 
     synchronized public void add(T v) {
@@ -125,8 +127,6 @@ public class MultiQueue<T> implements AutoCloseable {
     public void close() {
         step++;
     }
-
-    private WeakHashMap<Stream<T>, SpliteratorImplementation> sliterators = new WeakHashMap<>();
 
     public void resetTimeout(Stream<T> stream, int time, TimeUnit unit) {
         sliterators.get(stream).setTimeout(time, unit);

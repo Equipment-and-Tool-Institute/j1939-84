@@ -11,11 +11,12 @@ import org.etools.j1939_84.bus.j1939.Lookup;
  */
 public class StepResultFactory {
 
-    private static String name(int partNumber, int stepNumber) {
-        return Lookup.getStepName(partNumber, stepNumber);
-    }
-
     public StepResult create(int partNumber, int stepNumber) {
-        return new StepResult(partNumber, stepNumber, name(partNumber, stepNumber));
+        String stepName = Lookup.getStepName(partNumber, stepNumber);
+        if (!stepName.equalsIgnoreCase("Unknown")) {
+            return new StepResult(partNumber, stepNumber, stepName);
+        } else {
+            return null;
+        }
     }
 }

@@ -9,8 +9,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
-
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
  *
@@ -20,21 +18,23 @@ public class PartResult implements IResult {
     private final String name;
     private Outcome outcome;
     private final int partNumber;
+    private final StepResultFactory stepResultFactory;
+
     private final Map<Integer, StepResult> stepResults = new HashMap<>();
 
     public PartResult(int partNumber, String name) {
+        stepResultFactory = new StepResultFactory();
         this.partNumber = partNumber;
         this.name = name;
 
         for (int i = 1; i < 30; i++) {
-            String stepName = Lookup.getStepName(partNumber, i);
-            if ("Unknown".equalsIgnoreCase(stepName)) {
+            StepResult stepResult = stepResultFactory.create(partNumber, i);
+            if (stepResult == null) {
                 break;
             } else {
-                stepResults.put(i, new StepResult(partNumber, i, stepName));
+                stepResults.put(i, stepResult);
             }
         }
-
     }
 
     public void addResult(StepResult stepResult) {
