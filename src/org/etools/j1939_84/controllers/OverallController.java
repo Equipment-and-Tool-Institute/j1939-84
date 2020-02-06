@@ -51,19 +51,19 @@ public class OverallController extends Controller {
      *                                 the date and time
      * @param vehicleInformationModule the {@link VehicleInformationModule} used to
      *                                 gather information about the vehicle
-     * @param partResultFactory        the {@link PartResultFactory} for Part1
-     * @param part1Controller          the {@link Part01Controller} for Part1
-     * @param part2Controller          the {@link Part02Controller} for Part1
-     * @param part3Controller          the {@link Part03Controller} for Part1
-     * @param part4Controller          the {@link Part04Controller} for Part1
-     * @param part5Controller          the {@link Part05Controller} for Part1
-     * @param part6Controller          the {@link Part06Controller} for Part1
-     * @param part7Controller          the {@link Part07Controller} for Part1
-     * @param part8Controller          the {@link Part08Controller} for Part1
-     * @param part9Controller          the {@link Part09Controller} for Part1
-     * @param part10Controller         the {@link Part10Controller} for Part1
-     * @param part11Controller         the {@link Part11Controller} for Part1
-     * @param part12Controller         the {@link Part12Controller} for Part1
+     * @param partResultFactory        the {@link PartResultFactory}
+     * @param part1Controller          the {@link Part01Controller}
+     * @param part2Controller          the {@link Part02Controller}
+     * @param part3Controller          the {@link Part03Controller}
+     * @param part4Controller          the {@link Part04Controller}
+     * @param part5Controller          the {@link Part05Controller}
+     * @param part6Controller          the {@link Part06Controller}
+     * @param part7Controller          the {@link Part07Controller}
+     * @param part8Controller          the {@link Part08Controller}
+     * @param part9Controller          the {@link Part09Controller}
+     * @param part10Controller         the {@link Part10Controller}
+     * @param part11Controller         the {@link Part11Controller}
+     * @param part12Controller         the {@link Part12Controller}
      */
     public OverallController(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,

@@ -27,7 +27,7 @@ public class J1939TP implements Bus {
 
     private static final int CM_RTS = 16;
     // Most number of packet that can be sent in one CTS
-    private static final int countMax = 0xFF;
+    private static final int COUNT_MAX = 0xFF;
     public final static int DT = 0xEB00;
     private static final Map<Integer, String> errors = new HashMap<>();
     private static final int T1 = 750;
