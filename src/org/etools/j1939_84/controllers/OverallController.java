@@ -5,10 +5,11 @@ package org.etools.j1939_84.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.etools.j1939_84.controllers.part1.Part01Controller;
+import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -32,16 +33,16 @@ public class OverallController extends Controller {
 
     public OverallController() {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), new Part01Controller(), new Part02Controller(),
-                new Part03Controller(), new Part04Controller(), new Part05Controller(), new Part06Controller(),
-                new Part07Controller(), new Part08Controller(), new Part09Controller(), new Part10Controller(),
-                new Part11Controller(), new Part12Controller());
+                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(), new Part01Controller(),
+                new Part02Controller(), new Part03Controller(), new Part04Controller(), new Part05Controller(),
+                new Part06Controller(), new Part07Controller(), new Part08Controller(), new Part09Controller(),
+                new Part10Controller(), new Part11Controller(), new Part12Controller());
     }
 
     /**
      * Constructor expose for testing
      *
-     * @param executor                 {@link ScheduledExecutorService}
+     * @param executor                 {@link Executor}
      * @param engineSpeedModule        the {@link EngineSpeedModule} used to request
      *                                 engine speed
      * @param bannerModule             the {@link BannerModule} used to display
@@ -50,15 +51,28 @@ public class OverallController extends Controller {
      *                                 the date and time
      * @param vehicleInformationModule the {@link VehicleInformationModule} used to
      *                                 gather information about the vehicle
-     * @param part1Controller          the {@link Controller} for Part1
+     * @param partResultFactory        the {@link PartResultFactory}
+     * @param part1Controller          the {@link Part01Controller}
+     * @param part2Controller          the {@link Part02Controller}
+     * @param part3Controller          the {@link Part03Controller}
+     * @param part4Controller          the {@link Part04Controller}
+     * @param part5Controller          the {@link Part05Controller}
+     * @param part6Controller          the {@link Part06Controller}
+     * @param part7Controller          the {@link Part07Controller}
+     * @param part8Controller          the {@link Part08Controller}
+     * @param part9Controller          the {@link Part09Controller}
+     * @param part10Controller         the {@link Part10Controller}
+     * @param part11Controller         the {@link Part11Controller}
+     * @param part12Controller         the {@link Part12Controller}
      */
-    public OverallController(ScheduledExecutorService executor, EngineSpeedModule engineSpeedModule,
+    public OverallController(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
-            Part01Controller part1Controller, Part02Controller part2Controller, Part03Controller part3Controller,
-            Part04Controller part4Controller, Part05Controller part5Controller, Part06Controller part6Controller,
-            Part07Controller part7Controller, Part08Controller part8Controller, Part09Controller part9Controller,
-            Part10Controller part10Controller, Part11Controller part11Controller, Part12Controller part12Controller) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule);
+            PartResultFactory partResultFactory, Part01Controller part1Controller, Part02Controller part2Controller,
+            Part03Controller part3Controller, Part04Controller part4Controller, Part05Controller part5Controller,
+            Part06Controller part6Controller, Part07Controller part7Controller, Part08Controller part8Controller,
+            Part09Controller part9Controller, Part10Controller part10Controller, Part11Controller part11Controller,
+            Part12Controller part12Controller) {
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
         controllers.add(part1Controller);
         controllers.add(part2Controller);
         controllers.add(part3Controller);

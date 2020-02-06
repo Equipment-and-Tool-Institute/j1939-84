@@ -85,19 +85,21 @@ public class RP1210Bus implements Bus {
     /**
      * Constructor exposed for testing
      *
-     * @param rp1210Library
-     *                      the {@link RP1210Library} that connects to the adapter
-     * @param exec
-     *                      the {@link ScheduledExecutorService} that will execute
+     * @param rp1210Library the {@link RP1210Library} that connects to the adapter
+     * 
+     * @param exec          the {@link ScheduledExecutorService} that will execute
      *                      tasks
-     * @param adapter
-     *                      the {@link Adapter} thats connected to the vehicle
-     * @param address
-     *                      the source address of this branch on the bus
-     * @param logger
-     *                      the {@link Logger} for logging errors
-     * @throws BusException
-     *                      if there is a problem connecting to the adapter
+     * 
+     * @param adapter       the {@link Adapter} thats connected to the vehicle
+     * 
+     * @param address       the source address of this branch on the bus
+     * 
+     * @param logger        the {@link Logger} for logging errors
+     *
+     * @param queue         the {@link Packet} for logging errors
+     * 
+     * @throws BusException if there is a problem connecting to the adapter
+     * 
      */
     public RP1210Bus(RP1210Library rp1210Library, ScheduledExecutorService exec, MultiQueue<Packet> queue,
             Adapter adapter, int address, Logger logger) throws BusException {

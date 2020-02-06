@@ -37,37 +37,42 @@ public interface Bus extends AutoCloseable {
      * Returns the speed of the bus
      *
      * @return the speed of the bus
-     * @throws BusException
-     *                      if the speed cannot be determined
+     *
+     * @throws BusException if the speed cannot be determined
      */
     int getConnectionSpeed() throws BusException;
 
     /**
      * Reads {@link Packet}s from the bus
      *
-     * @param timeout
-     *                the amount of time to read packets
-     * @param unit
-     *                the {@link TimeUnit} for the amount of time
-     * @return a {@link Stream} of {@link Packet}s
-     * @throws BusException
-     *                      if there is a problem reading packets
+     * @param timeout the amount of time to read packets
+     *
+     * @param unit    the {@link TimeUnit} for the amount of time
+     *
+     * @return a {@link Stream} of {@link Packet}
+     *
+     * @throws BusException if there is a problem reading packets
      */
     Stream<Packet> read(long timeout, TimeUnit unit) throws BusException;
 
     /**
      * Reset stream timeout for stream created with bus.read(). To be used in a
      * stream call like peek, map or forEach.
+     *
+     * @param stream for which to reset timeout
+     *
+     * @param time   new timeout value
+     *
+     * @param unit   the {@link TimeUnit} for the amount of time
      */
     void resetTimeout(Stream<Packet> stream, int time, TimeUnit unit);
 
     /**
      * Sends a {@link Packet} to the vehicle communications bus
      *
-     * @param packet
-     *               the {@link Packet} to send
-     * @throws BusException
-     *                      if there is a problem sending the packet
+     * @param packet the {@link Packet} to send
+     * 
+     * @throws BusException if there is a problem sending the packet
      */
     void send(Packet packet) throws BusException;
 }

@@ -4,7 +4,7 @@ import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -13,6 +13,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
@@ -27,15 +28,15 @@ public class Step03Controller extends Controller {
 
     Step03Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), new DiagnosticReadinessModule(),
-                dataRepository);
+                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(),
+                new DiagnosticReadinessModule(), dataRepository);
     }
 
-    Step03Controller(ScheduledExecutorService executor, EngineSpeedModule engineSpeedModule,
+    Step03Controller(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule,
-            VehicleInformationModule vehicleInformationModule,
+            VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory,
             DiagnosticReadinessModule diagnosticReadinessModule, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule);
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dataRepository = dataRepository;
     }

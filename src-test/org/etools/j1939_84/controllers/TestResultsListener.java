@@ -30,6 +30,8 @@ public class TestResultsListener implements ResultsListener {
 
     private final List<String> messages = new ArrayList<>();
 
+    private final List<String> milestones = new ArrayList<>();
+
     private final List<String> results = new ArrayList<>();
 
     private boolean success;
@@ -37,35 +39,35 @@ public class TestResultsListener implements ResultsListener {
     @Override
     public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
         // TODO Auto-generated method stub
-
+        fail("Not Implemented");
     }
 
     @Override
     public void beginPart(PartResult partResult) {
-        // TODO Auto-generated method stub
-
+        milestones.add("Begin Part: " + partResult);
     }
 
     @Override
     public void beginStep(StepResult stepResult) {
-        // TODO Auto-generated method stub
-
+        milestones.add("Begin Step: " + stepResult);
     }
 
     @Override
     public void endPart(PartResult partResult) {
-        // TODO Auto-generated method stub
-
+        milestones.add("End Part: " + partResult);
     }
 
     @Override
     public void endStep(StepResult stepResult) {
-        // TODO Auto-generated method stub
-
+        milestones.add("End Step: " + stepResult);
     }
 
     public String getMessages() {
         return messages.stream().collect(Collectors.joining(NL));
+    }
+
+    public String getMilestones() {
+        return milestones.stream().collect(Collectors.joining(NL));
     }
 
     public String getResults() {
@@ -93,7 +95,8 @@ public class TestResultsListener implements ResultsListener {
 
     @Override
     public void onMessage(String message, String title, MessageType type) {
-        fail("Method not implemented");
+        // TODO Auto-generated method stub
+        fail("Not Implemented");
     }
 
     @Override
@@ -101,7 +104,7 @@ public class TestResultsListener implements ResultsListener {
         if (currentStep < lastStep) {
             fail("Steps went backwards");
         } else if (currentStep != lastStep + 1) {
-            fail("Steps skipped");
+            // fail("Steps skipped from " + lastStep + " to " + currentStep); //FIXME
         } else if (currentStep > totalSteps) {
             fail("Steps exceed maximum");
         }
@@ -127,17 +130,20 @@ public class TestResultsListener implements ResultsListener {
 
     @Override
     public void onUrgentMessage(String message, String title, MessageType type) {
-        fail("Method not implemented");
+        // TODO Auto-generated method stub
+        fail("Not Implemented");
     }
 
     @Override
     public void onVehicleInformationNeeded(VehicleInformationListener listener) {
-        fail("Method not implemented");
+        // TODO Auto-generated method stub
+        fail("Not Implemented");
     }
 
     @Override
     public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
         // TODO Auto-generated method stub
+        fail("Not Implemented");
 
     }
 

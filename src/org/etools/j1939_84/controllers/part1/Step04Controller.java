@@ -3,7 +3,7 @@ package org.etools.j1939_84.controllers.part1;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -11,6 +11,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -27,15 +28,15 @@ public class Step04Controller extends Controller {
 
     Step04Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), new OBDTestsModule(), new SupportedSpnModule(),
-                dataRepository);
+                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(), new OBDTestsModule(),
+                new SupportedSpnModule(), dataRepository);
     }
 
-    Step04Controller(ScheduledExecutorService executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, DateTimeModule dateTimeModule,
-            VehicleInformationModule vehicleInformationModule, OBDTestsModule obdTestsModule,
-            SupportedSpnModule supportedSpnModule, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule);
+    Step04Controller(Executor executor, EngineSpeedModule engineSpeedModule,
+            BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
+            PartResultFactory partResultFactory, OBDTestsModule obdTestsModule, SupportedSpnModule supportedSpnModule,
+            DataRepository dataRepository) {
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
         this.obdTestsModule = obdTestsModule;
         this.supportedSpnModule = supportedSpnModule;
         this.dataRepository = dataRepository;

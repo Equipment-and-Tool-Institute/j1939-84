@@ -9,11 +9,12 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.model.PartResult;
+import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -35,25 +36,48 @@ public class Part01Controller extends Controller {
      */
     public Part01Controller() {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), new DataRepository());
+                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(), new DataRepository());
     }
 
-    private Part01Controller(ScheduledExecutorService executor, EngineSpeedModule engineSpeedModule,
+    private Part01Controller(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
-            DataRepository dataRepository) {
-        this(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule,
+            PartResultFactory partResultFactory, DataRepository dataRepository) {
+        this(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
                 new Step01Controller(dataRepository), new Step02Controller(), new Step03Controller(dataRepository),
                 new Step04Controller(dataRepository), new Step05Controller(dataRepository),
                 new Step06Controller(dataRepository), new Step07Controller());
     }
 
-    /** Constructor exposed for testing */
-    public Part01Controller(ScheduledExecutorService executor, EngineSpeedModule engineSpeedModule,
+    /**
+     * Constructor exposed for testing
+     *
+     * @param executor                 the {@link Executor}
+     * @param engineSpeedModule        the {@link EngineSpeedModule}
+     * @param bannerModule             the {@link BannerModule}
+     * @param dateTimeModule           the {@link DateTimeModule}
+     * @param vehicleInformationModule the {@link VehicleInformationModule}
+     * @param partResultFactory        the {@link PartResultFactory}
+     * @param step01Controller         the {@link Step01Controller} for
+     *                                 Part1Controller
+     * @param step02Controller         the {@link Step02Controller} for
+     *                                 Part1Controller
+     * @param step03Controller         the {@link Step03Controller} for
+     *                                 Part1Controller
+     * @param step04Controller         the {@link Step04Controller} for
+     *                                 Part1Controller
+     * @param step05Controller         the {@link Step05Controller} for
+     *                                 Part1Controller
+     * @param step06Controller         the {@link Step06Controller} for
+     *                                 Part1Controller
+     * @param step07Controller         the {@link Step07Controller} for
+     *                                 Part1Controller
+     */
+    public Part01Controller(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
-            Step01Controller step01Controller,
-            Step02Controller step02Controller, Step03Controller step03Controller, Step04Controller step04Controller,
-            Step05Controller step05Controller, Step06Controller step06Controller, Step07Controller step07Controller) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule);
+            PartResultFactory partResultFactory, Step01Controller step01Controller, Step02Controller step02Controller,
+            Step03Controller step03Controller, Step04Controller step04Controller, Step05Controller step05Controller,
+            Step06Controller step06Controller, Step07Controller step07Controller) {
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
 
         stepControllers.add(step01Controller);
         stepControllers.add(step02Controller);
@@ -79,7 +103,7 @@ public class Part01Controller extends Controller {
     }
 
     private void executeStepTest(int stepNumber) throws InterruptedException {
-        if (stepNumber < stepControllers.size()) {
+        if (stepNumber <= stepControllers.size()) {
             stepControllers.get(stepNumber - 1).run(getListener(), getJ1939());
         }
     }
