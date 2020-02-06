@@ -1,5 +1,5 @@
 /**
- * Copyright 2019 Equipment & Tool Institute
+ * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
 
@@ -38,7 +38,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
- * The {@link Part01Controller} for the class under test
+ * The unit test for {@link Part01Controller}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
