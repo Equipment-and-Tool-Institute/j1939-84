@@ -6,9 +6,11 @@ package org.etools.j1939_84.bus;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.etools.j1939_84.J1939_84;
 
@@ -111,6 +113,19 @@ public class Packet {
             J1939_84.getLogger().log(Level.SEVERE, string + " could not be parsed into a Packet", e);
         }
         return null;
+    }
+
+    public static Collection<Packet> parseCollection(String string) {
+        return Stream.of(string.split("\n")).map(p -> parsePacket(p)).collect(Collectors.toList());
+    }
+
+    public static Packet parsePacket(String p) {
+        String[] a = p.split("[,\\s]+");
+        int id = Integer.parseInt(a[0], 16);
+        return Packet.create(0xFFFFFF & (id >> 8),
+                0xFF & id,
+                Stream.of(Arrays.copyOfRange(a, 1, a.length, String[].class))
+                        .mapToInt(s -> Integer.parseInt(s, 16)).toArray());
     }
 
     private final int[] data;
@@ -245,6 +260,10 @@ public class Packet {
      */
     public long get32Big(int i) {
         return (data[i] << 24) | (data[i + 1] << 16) | (data[i + 2] << 8) | data[i + 3];
+    }
+
+    public long get64() {
+        return ((get32(0)) << 32) | get32(4);
     }
 
     /**

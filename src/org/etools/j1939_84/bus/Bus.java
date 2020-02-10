@@ -42,6 +42,16 @@ public interface Bus extends AutoCloseable {
      */
     int getConnectionSpeed() throws BusException;
 
+    default void log(String prefix) {
+        new Thread(() -> {
+            try {
+                read(999, TimeUnit.DAYS).forEach(p -> System.err.println(prefix + p));
+            } catch (BusException e) {
+                e.printStackTrace();
+            }
+        }).start();
+    }
+
     /**
      * Reads {@link Packet}s from the bus
      *
@@ -71,7 +81,7 @@ public interface Bus extends AutoCloseable {
      * Sends a {@link Packet} to the vehicle communications bus
      *
      * @param packet the {@link Packet} to send
-     * 
+     *
      * @throws BusException if there is a problem sending the packet
      */
     void send(Packet packet) throws BusException;
