@@ -114,9 +114,4 @@ public class Step01Controller extends Controller {
         collectVehicleInformation();
     }
 
-    @Override
-    public void stop() {
-        System.out.println("Stop");
-        super.stop();
-    }
 }

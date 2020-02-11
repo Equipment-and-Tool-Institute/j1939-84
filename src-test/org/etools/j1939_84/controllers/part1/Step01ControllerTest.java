@@ -77,9 +77,6 @@ public class Step01ControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    /**
-     *
-     */
     @Before
     public void setUp() {
         listener = new TestResultsListener(mockListener);
@@ -94,9 +91,6 @@ public class Step01ControllerTest {
                 dataRepository);
     }
 
-    /**
-     *
-     */
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,

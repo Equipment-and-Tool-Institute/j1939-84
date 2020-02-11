@@ -31,13 +31,14 @@ public class TestResultsListener implements ResultsListener {
 
     private final List<String> milestones = new ArrayList<>();
 
-    private ResultsListener mockListener;
+    private final ResultsListener mockListener;
 
     private final List<String> results = new ArrayList<>();
 
     private boolean success;
 
     public TestResultsListener() {
+        this(null);
     }
 
     public TestResultsListener(ResultsListener mockListener) {
