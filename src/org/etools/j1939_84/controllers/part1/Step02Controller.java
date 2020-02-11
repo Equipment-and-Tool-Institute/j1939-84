@@ -1,12 +1,9 @@
-/**
- * Copyright 2020 Equipment & Tool Institute
- */
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 
-import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.model.Outcome;

@@ -94,7 +94,7 @@ public class Step01Controller extends Controller {
 
     @Override
     public String getDisplayName() {
-        return "Part 1 Step 1";
+        return "Part 1 Step 1 Test";
     }
 
     @Override
