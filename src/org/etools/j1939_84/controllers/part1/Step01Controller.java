@@ -3,8 +3,8 @@ package org.etools.j1939_84.controllers.part1;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 
-import java.util.concurrent.Executors;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
@@ -51,7 +51,7 @@ public class Step01Controller extends Controller {
 
         while (dataRepository.getVehicleInformation() == null) {
             Thread.sleep(500);
-            updateProgress("Part 1, Step 1 Collecting Vehicle Information"); // To check for test aborted
+            updateProgress("Part 1, Step 1 e Collecting Vehicle Information"); // To check for test aborted
         }
 
         getListener().onResult("User provided " + dataRepository.getVehicleInformation());
@@ -81,8 +81,7 @@ public class Step01Controller extends Controller {
         try {
             if (!getEngineSpeedModule().isEngineNotRunning()) {
                 getListener().onUrgentMessage("Please turn the Engine OFF with Key ON.", "Adjust Key Switch", WARNING);
-
-                while (!getEngineSpeedModule().isEngineNotRunning() && getEnding() == null) {
+                while (!getEngineSpeedModule().isEngineNotRunning()) {
                     updateProgress("Waiting for Key ON, Engine OFF...");
                     Thread.sleep(500);
                 }
@@ -114,4 +113,5 @@ public class Step01Controller extends Controller {
         incrementProgress("Part 1, Step 1 e Collecting Vehicle Information");
         collectVehicleInformation();
     }
+
 }
