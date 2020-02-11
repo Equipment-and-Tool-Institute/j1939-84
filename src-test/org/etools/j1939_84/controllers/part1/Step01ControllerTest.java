@@ -36,7 +36,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 /**
- * The unit test for {@link Part01Controller}
+ * The unit test for {@link Step01Controller}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
