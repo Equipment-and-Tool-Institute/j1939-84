@@ -107,7 +107,7 @@ public class Step01ControllerTest {
      */
     @Test
     public void testGetDisplayName() {
-        assertEquals("Display Name", "Part 1 Step 1 Test", instance.getDisplayName());
+        assertEquals("Display Name", "Part 1 Step 1", instance.getDisplayName());
     }
 
     /**
