@@ -5,7 +5,6 @@ package org.etools.j1939_84.controllers.part1;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -18,7 +17,6 @@ import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.PartResultFactory;
-import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -91,7 +89,8 @@ public class Step02ControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory);
+                partResultFactory,
+                mockListener);
     }
 
     @Test
@@ -106,8 +105,6 @@ public class Step02ControllerTest {
 
     @Test
     public void testRun() {
-        mock(VehicleInformation.class);
-
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
 
         instance.execute(listener, j1939, reportFileModule);
