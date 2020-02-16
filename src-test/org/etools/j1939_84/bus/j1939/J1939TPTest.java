@@ -3,12 +3,12 @@ package org.etools.j1939_84.bus.j1939;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeUnit;
@@ -52,8 +52,39 @@ public class J1939TPTest {
                 }
                 assertEquals(testPacket.toString(), tpStream.findFirst().map(p -> p.toString()).orElse("FAIL"));
             }
-            // test manual send and tp read
-            // test manual send and tp read missing DT packet
+        }
+    }
+
+    @Test()
+    public void testBamMissingDt() throws BusException, InterruptedException {
+        Collection<Packet> expectedPacket = Collections.singletonList(Packet.parsePacket(
+                "18FFEE00 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09"));
+        List<Packet> testPacket = new ArrayList<>(Packet.parseCollection("18ECFF00 20 00 28 06 FF EE FF 00\n" +
+                "18EBFF00 01 00 01 02 03 04 05 06\n" +
+                "18EBFF00 02 07 08 09 00 01 02 03\n" +
+                "18EBFF00 03 04 05 06 07 08 09 00\n" +
+                "18EBFF00 04 01 02 03 04 05 06 07\n" +
+                "18EBFF00 05 08 09 00 01 02 03 04\n" +
+                "18EBFF00 06 05 06 07 08 09 FF FF"));
+        try (EchoBus bus = new EchoBus(0);
+                J1939TP tp = new J1939TP(bus, 0xF9)) {
+            {
+                Stream<Packet> packetStream = tp.read(1, TimeUnit.SECONDS);
+                for (Packet p : testPacket) {
+                    bus.send(p);
+                    Thread.sleep(50);
+                }
+                assertEquals(expectedPacket.toString(), packetStream.collect(Collectors.toList()).toString());
+            }
+            { // should fail
+                testPacket.remove(3);
+                Stream<Packet> packetStream = tp.read(1, TimeUnit.SECONDS);
+                for (Packet p : testPacket) {
+                    bus.send(p);
+                    Thread.sleep(50);
+                }
+                assertTrue(packetStream.collect(Collectors.toList()).isEmpty());
+            }
         }
     }
 
@@ -73,8 +104,40 @@ public class J1939TPTest {
     }
 
     @Test
-    public void testMultipleCTS() {
-        fail("Not implemented");
+    public void testMissingDT() throws BusException {
+        try (Bus bus = new EchoBus(0xF9);
+                J1939TP tp = new J1939TP(bus, 0);) {
+            bus.log("b:");
+
+            Stream<Packet> s = bus.read(3, TimeUnit.SECONDS).filter(p -> p.getSource() == 0);
+            bus.send(Packet.parse("18EC00F9 10 00 09 02 FF 00 EA 00"));
+            assertEquals("18ECF900 11 02 01 FF FF 00 EA 00", s.findFirst().get().toString());
+
+            s = bus.read(3, TimeUnit.SECONDS).filter(p -> p.getSource() == 0);
+            bus.send(Packet.parse("18EB00F9 02 01 02 03 04 05 06 07"));
+            assertEquals("18ECF900 11 01 01 FF FF 00 EA 00", s.findFirst().get().toString());
+
+            s = bus.read(3, TimeUnit.SECONDS).filter(p -> p.getSource() == 0);
+            bus.send(Packet.parse("18EB00F9 01 01 02 03 04 05 06 07"));
+            assertEquals("18ECF900 13 00 09 02 FF 00 EA 00", s.findFirst().get().toString());
+        }
+    }
+
+    @Test
+    public void testMultipleCTS() throws BusException {
+        try (EchoBus bus = new EchoBus(0);
+                Bus tp = new J1939TP(bus, 0xF9);) {
+            bus.log(":");
+            Stream<Packet> tpStream = tp.read(1, TimeUnit.SECONDS);
+            // send first CTS
+            bus.send(Packet.parse("18ECF900 10 00 0E 03 FF F9 12 00"));
+            // send full TP
+            Packet p = Packet.parse("1812F900 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D");
+            try (J1939TP tpOut = new J1939TP(bus)) {
+                tpOut.send(p);
+            }
+            assertEquals(Collections.singletonList(p), tpStream.collect(Collectors.toList()));
+        }
     }
 
     @Test
@@ -109,8 +172,18 @@ public class J1939TPTest {
     }
 
     @Test
-    public void testOutOfOrderDT() {
-        fail("Not implemented");
+    public void testOutOfOrderDT() throws BusException {
+        try (Bus bus = new EchoBus(0xF9);
+                J1939TP tp = new J1939TP(bus, 0);) {
+            Stream<Packet> s = bus.read(3, TimeUnit.SECONDS).filter(p -> p.getSource() == 0);
+            bus.send(Packet.parse("18EC00F9 10 00 09 02 FF 00 EA 00"));
+            assertEquals("18ECF900 11 02 01 FF FF 00 EA 00", s.findFirst().get().toString());
+
+            s = bus.read(3, TimeUnit.SECONDS).filter(p -> p.getSource() == 0);
+            bus.send(Packet.parse("18EB00F9 02 08 09 00 00 00 00 00"));
+            bus.send(Packet.parse("18EB00F9 01 01 02 03 04 05 06 07"));
+            assertEquals("18ECF900 13 00 09 02 FF 00 EA 00", s.findFirst().get().toString());
+        }
     }
 
     @Test
@@ -127,15 +200,14 @@ public class J1939TPTest {
 
             tpOut.send(Packet.create(0xEA00, 0xF9, 1, 2, 3, 4, 5, 6, 7, 8, 9));
 
-            assertEquals(
-                    Arrays.asList(Packet.create(0xEC00, 0xF9, 0x10, 0x00, 0x09, 0x02, 0xFF, 0x00, 0xEA, 0x00),
-                            Packet.create(0xECF9, 0x00, 0x11, 0x02, 0x01, 0xFF, 0xFF, 0x00, 0xEA, 0x00),
-                            Packet.create(0xEB00, 0xF9, 0x01, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07),
-                            Packet.create(0xEB00, 0xF9, 0x02, 0x08, 0x09, 0x00, 0x00, 0x00, 0x00, 0x00),
-                            Packet.create(0xECF9, 0x00, 0x13, 0x00, 0x09, 0x02, 0xFF, 0x00, 0xEA, 0x00)),
-                    stream.collect(Collectors.toList()));
-            assertEquals(Collections.singletonList(Packet.create(0xEA00, 0xF9, 1, 2, 3, 4, 5, 6, 7, 8, 9)),
-                    tpStream.collect(Collectors.toList()));
+            assertEquals(Packet.parseCollection("18EC00F9 10 00 09 02 FF 00 EA 00\n" +
+                    "18ECF900 11 02 01 FF FF 00 EA 00\n" +
+                    "18EB00F9 01 01 02 03 04 05 06 07\n" +
+                    "18EB00F9 02 08 09 00 00 00 00 00\n" +
+                    "18ECF900 13 00 09 02 FF 00 EA 00").toString(),
+                    stream.collect(Collectors.toList()).toString());
+            assertEquals(Collections.singletonList(Packet.create(0xEA00, 0xF9, 1, 2, 3, 4, 5, 6, 7, 8, 9)).toString(),
+                    tpStream.collect(Collectors.toList()).toString());
         }
     }
 

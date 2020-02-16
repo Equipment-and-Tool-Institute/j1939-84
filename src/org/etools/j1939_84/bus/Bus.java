@@ -43,13 +43,27 @@ public interface Bus extends AutoCloseable {
     int getConnectionSpeed() throws BusException;
 
     default void log(String prefix) {
-        new Thread(() -> {
-            try {
-                read(999, TimeUnit.DAYS).forEach(p -> System.err.println(prefix + p));
-            } catch (BusException e) {
-                e.printStackTrace();
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                synchronized (this) {
+                    notifyAll();
+                }
+                try {
+                    read(999, TimeUnit.DAYS).forEach(p -> System.err.println(prefix + p));
+                } catch (BusException e) {
+                    e.printStackTrace();
+                }
             }
-        }).start();
+        };
+        synchronized (r) {
+            new Thread(r).start();
+            try {
+                r.wait();
+            } catch (InterruptedException e) {
+                // nothing
+            }
+        }
     }
 
     /**

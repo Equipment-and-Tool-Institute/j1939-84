@@ -43,7 +43,7 @@ public class J1939TP implements Bus {
     }
 
     final static public int CM = 0xEC00;
-    private static final int CM_BAM = 32;
+    private static final int CM_BAM = 0x20;
 
     private static final int CM_ConnAbort = 255;
 
@@ -87,7 +87,7 @@ public class J1939TP implements Bus {
 
     private final Bus bus;
 
-    private final Executor exec = Executors.newFixedThreadPool(10);
+    private final Executor exec = Executors.newFixedThreadPool(200);
 
     private final EchoBus inbound;
 
@@ -150,6 +150,7 @@ public class J1939TP implements Bus {
                                 try {
                                     inbound.send(receiveBam(packet));
                                 } catch (BusException e) {
+                                    e.printStackTrace();
                                     warn("Failed to receive BAM TP.", e);
                                 }
                             });
@@ -168,10 +169,12 @@ public class J1939TP implements Bus {
 
         byte[] data = new byte[rts.get16Big(1)];
         BitSet received = new BitSet(numberOfPackets + 1);
+        int id = DT | (rts.getId() & 0xFF);
+        int source = rts.getSource();
 
         Stream<Packet> streamBase = bus.read(T2, TimeUnit.MILLISECONDS);
         Stream<Packet> stream = streamBase
-                .filter(p -> p.getSource() == rts.getSource() && p.getId() == (DT | (rts.getId() & 0xFF)))
+                .filter(p -> p.getSource() == source && (p.getId() & 0xFFFF) == id)
                 .peek(p -> bus.resetTimeout(streamBase, T1, TimeUnit.MILLISECONDS))
                 .limit(numberOfPackets);
         stream.forEach(p -> {
@@ -179,7 +182,7 @@ public class J1939TP implements Bus {
             int offset = (p.get(0) - 1) * 7;
             System.arraycopy(p.getBytes(), 1, data, offset, Math.min(offset + 7, data.length) - offset);
         });
-        if (received.isEmpty()) {
+        if (received.cardinality() != numberOfPackets) {
             warn("Missing DT");
             throw new TpDtBusException();
         }
@@ -197,7 +200,7 @@ public class J1939TP implements Bus {
             if (receivedSome++ > 3) {
                 throw new BusException("Failed to receive DT");
             }
-            int packetCount = received.nextSetBit(1);
+            int packetCount = received.nextSetBit(1) - 1;
             if (packetCount < 0) {
                 packetCount = numberOfPackets;
             }
