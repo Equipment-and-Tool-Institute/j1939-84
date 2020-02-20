@@ -1,5 +1,3 @@
+jre 
 build
-out
-j1939-84.properties
-.DS_Store
-/bin/
+bin
