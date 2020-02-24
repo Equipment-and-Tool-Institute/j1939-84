@@ -16,7 +16,7 @@ public class SupportedSPN {
      * Parses the data to return the SPN
      *
      * @param data
-     *            the data to parse
+     *             the data to parse
      * @return the SPN
      */
     public static int parseSPN(int[] data) {
@@ -38,9 +38,9 @@ public class SupportedSPN {
      * Constructor
      *
      * @param data
-     *            the data that contains the information
+     *             the data that contains the information
      */
-    SupportedSPN(int[] data) {
+    public SupportedSPN(int[] data) {
         support = data[2] & 0x07;
         spn = SupportedSPN.parseSPN(data);
         length = (byte) (data[3] & 0xFF);

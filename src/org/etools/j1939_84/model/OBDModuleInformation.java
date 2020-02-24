@@ -102,8 +102,9 @@ public class OBDModuleInformation {
     @Override
     public String toString() {
         String result = "OBD Module Information:\n";
+        result += "sourceAddress is : " + sourceAddress + "\n";
         result += "obdCompliance is : " + getObdCompliance() + "\n";
-        result += "Supported SPNs: "
+        result += "Supported SPNs: \n"
                 + getSupportedSpns().stream().map(i -> i.toString()).collect(Collectors.joining(",")) + "\n";
         return result;
     }
