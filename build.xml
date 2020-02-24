@@ -77,8 +77,8 @@
             <fileset dir="build">
             </fileset>
             <zipfileset src="lib/ini4j-0.5.4.jar"/>
-            <zipfileset src="lib/jna-4.2.2.jar"/>
-            <zipfileset src="lib/jna-platform-4.2.2.jar"/>
+            <zipfileset src="lib/jna-5.5.0.jar"/>
+            <zipfileset src="lib/jna-platform-5.5.0.jar"/>
             <zipfileset src="lib/opencsv-3.8.jar"/>
         </jar>
 
