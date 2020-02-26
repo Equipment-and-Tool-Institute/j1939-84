@@ -37,13 +37,9 @@ public class OBDModuleInformation {
         }
 
         OBDModuleInformation that = (OBDModuleInformation) obj;
-        getObdCompliance();
-        that.getObdCompliance();
         return Objects.equals(sourceAddress, that.sourceAddress)
-                && Objects.equals(getFreezeFrameSpns(), that.getFreezeFrameSpns())
-                && getObdCompliance() == that.getObdCompliance()
-                && Objects.equals(getTestResultSpns(), that.getTestResultSpns())
-                && Objects.equals(getDataStreamSpns(), that.getDataStreamSpns());
+                && Objects.equals(supportedSpns, that.supportedSpns)
+                && Objects.equals(obdCompliance, that.obdCompliance);
     }
 
     public List<SupportedSPN> getDataStreamSpns() {
@@ -78,11 +74,8 @@ public class OBDModuleInformation {
     @Override
     public int hashCode() {
         return Objects.hash(sourceAddress,
-                getObdCompliance(),
-                getSupportedSpns(),
-                getTestResultSpns(),
-                getDataStreamSpns(),
-                getFreezeFrameSpns());
+                supportedSpns,
+                obdCompliance);
     }
 
     /**
@@ -105,7 +98,7 @@ public class OBDModuleInformation {
         result += "sourceAddress is : " + sourceAddress + "\n";
         result += "obdCompliance is : " + getObdCompliance() + "\n";
         result += "Supported SPNs: \n"
-                + getSupportedSpns().stream().map(i -> i.toString()).collect(Collectors.joining(",")) + "\n";
+                + getSupportedSpns().stream().map(i -> i.toString()).collect(Collectors.joining(","));
         return result;
     }
 

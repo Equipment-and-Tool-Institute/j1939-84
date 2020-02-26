@@ -196,6 +196,7 @@ public class Step03ControllerTest {
         verify(reportFileModule).onResult("FAIL: " + "6.1.3.2.b - The request for DM5 was NACK'ed");
 
         String expectedObd = "OBD Module Information:\n";
+        expectedObd += "sourceAddress is : 0\n";
         expectedObd += "obdCompliance is : 4\n";
         expectedObd += "Supported SPNs: \n";
         assertEquals(expectedObd, obdInfo1.toString());
@@ -216,14 +217,16 @@ public class Step03ControllerTest {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
         packets.add(packet1);
+
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         when(packet2.getResponse()).thenReturn(Response.ACK);
         packets.add(packet2);
+
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
         packets.add(packet3);
         mock(DM5DiagnosticReadinessPacket.class);
-        new OBDModuleInformation(0);
+
         Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
         when(dataRepository.getObdModules()).thenReturn(obdInfoList);
         when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true))).thenReturn(packets);
@@ -233,11 +236,13 @@ public class Step03ControllerTest {
         verify(executor).execute(runnableCaptor.capture());
         runnableCaptor.getValue().run();
 
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(engineSpeedModule).setJ1939(j1939);
-        verify(vehicleInformationModule).setJ1939(j1939);
         verify(dataRepository).getObdModules();
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
         verify(diagnosticReadinessModule).requestDM5Packets(any(), eq(true));
+
+        verify(engineSpeedModule).setJ1939(j1939);
+
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.a - There needs to be at least one OBD Module");
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
 
@@ -247,17 +252,17 @@ public class Step03ControllerTest {
                 3,
                 FAIL,
                 "6.1.3.2.a - There needs to be at least one OBD Module");
-
         verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
         verify(reportFileModule).onResult("FAIL: " + "6.1.3.2.b - The request for DM5 was NACK'ed");
         verify(reportFileModule).addOutcome(1,
                 3,
                 FAIL,
                 "6.1.3.2.b - The request for DM5 was NACK'ed");
-
         verify(reportFileModule).onProgress(0,
                 1,
                 "");
+
+        verify(vehicleInformationModule).setJ1939(j1939);
 
     }
 
@@ -266,24 +271,27 @@ public class Step03ControllerTest {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
         packets.add(packet1);
+
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         when(packet2.getResponse()).thenReturn(Response.ACK);
         packets.add(packet2);
+
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
         packets.add(packet3);
+
         DM5DiagnosticReadinessPacket packet4 = mock(DM5DiagnosticReadinessPacket.class);
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
         Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
         obdInfo.setObdCompliance((byte) 4);
         obdInfoList.add(obdInfo);
         obdInfoList.add(obdInfo);
+
         when(dataRepository.getObdModules()).thenReturn(obdInfoList);
         when(packet4.isObd()).thenReturn(true);
         when(packet4.getSourceAddress()).thenReturn(0);
         when(packet4.getOBDCompliance()).thenReturn((byte) 4);
         packets.add(packet4);
-
         when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true))).thenReturn(packets);
 
         instance.execute(listener, j1939, reportFileModule);
@@ -291,12 +299,14 @@ public class Step03ControllerTest {
         verify(executor).execute(runnableCaptor.capture());
         runnableCaptor.getValue().run();
 
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(engineSpeedModule).setJ1939(j1939);
-        verify(vehicleInformationModule).setJ1939(j1939);
         verify(dataRepository).getObdModules();
-        verify(diagnosticReadinessModule).requestDM5Packets(any(), eq(true));
         verify(dataRepository).putObdModule(0, obdInfo);
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticReadinessModule).requestDM5Packets(any(), eq(true));
+
+        verify(engineSpeedModule).setJ1939(j1939);
+
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
 
         verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
@@ -304,6 +314,8 @@ public class Step03ControllerTest {
                 1,
                 "");
         verify(reportFileModule).onResult("FAIL: " + "6.1.3.2.b - The request for DM5 was NACK'ed");
+
+        verify(vehicleInformationModule).setJ1939(j1939);
     }
 
 }

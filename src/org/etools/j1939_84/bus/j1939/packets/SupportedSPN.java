@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import java.util.Objects;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 
 /**
@@ -46,6 +48,23 @@ public class SupportedSPN {
         length = (byte) (data[3] & 0xFF);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof SupportedSPN)) {
+            return false;
+        }
+
+        SupportedSPN that = (SupportedSPN) obj;
+        return Objects.equals(length, that.length)
+                && Objects.equals(spn, that.spn)
+                && Objects.equals(support, that.support);
+
+    }
+
     /**
      * Returns the length of the support data
      *
@@ -62,6 +81,13 @@ public class SupportedSPN {
      */
     public int getSpn() {
         return spn;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(support,
+                spn,
+                length);
     }
 
     /**
