@@ -21,9 +21,12 @@ public class SupportedSPNTest {
     public void testEquals() {
         SupportedSPN instance = new SupportedSPN(new int[] { 0x01, 0x02, 0x1D, 8 });
         SupportedSPN instance2 = new SupportedSPN(new int[] { 0x01, 0x02, 0x1D, 8 });
+        SupportedSPN instance3 = new SupportedSPN(new int[] { 0xFE, 0xFE, 0xFE, 0xFE });
         assertFalse(instance.equals(new Object()));
         assertTrue(instance.equals(instance));
         assertTrue(instance.equals(instance2));
+        assertFalse(instance.equals(instance3));
+        assertFalse(instance2.equals(instance3));
     }
 
     @Test

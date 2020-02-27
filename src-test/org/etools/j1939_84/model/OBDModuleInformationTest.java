@@ -36,7 +36,6 @@ public class OBDModuleInformationTest {
 
     @Before
     public void setUp() throws Exception {
-
         instance = new OBDModuleInformation(0);
         instance.setObdCompliance((byte) 4);
         instance.setSupportedSpns(makeListOfSupportedSPNs(new int[] { 4, 5, 6, 7, 8 }));
@@ -73,8 +72,8 @@ public class OBDModuleInformationTest {
 
     @Test
     public void testGetSupportedSpns() {
-        instance.setSupportedSpns(null);
         assertEquals("SupportedSpn", makeListOfSupportedSPNs(new int[] { 4, 5, 6, 7, 8 }), instance.getSupportedSpns());
+        instance.setSupportedSpns(null);
         assertNotNull("SupportedSpn", instance.getSupportedSpns());
     }
 
@@ -87,7 +86,11 @@ public class OBDModuleInformationTest {
     public void testHashCode() {
         assertTrue("HashCode", instance.hashCode() == instance.hashCode());
         assertTrue("HashCode", instance2.hashCode() == instance2.hashCode());
-        assertTrue("HashCode", instance2.hashCode() != instance2.hashCode());
+
+        OBDModuleInformation instance3 = new OBDModuleInformation(0);
+        instance3.setObdCompliance((byte) 4);
+        instance3.setSupportedSpns(makeListOfSupportedSPNs(new int[] { 1, 3, 5, 7, 9 }));
+        assertTrue("HashCode", instance2.hashCode() != instance3.hashCode());
     }
 
     @Test
@@ -122,7 +125,6 @@ public class OBDModuleInformationTest {
 
     @Test
     public void testToString() {
-
         String expectedObd = "OBD Module Information:\n";
         expectedObd += "sourceAddress is : " + 0 + "\n";
         expectedObd += "obdCompliance is : " + 4 + "\n";
