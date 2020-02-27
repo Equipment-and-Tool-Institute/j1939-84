@@ -14,8 +14,6 @@ import java.util.List;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.junit.Before;
 import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * Unit Test for the {@link OBDModuleInformation} class
@@ -23,19 +21,18 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
  */
-@RunWith(MockitoJUnitRunner.class)
 public class OBDModuleInformationTest {
 
-    private OBDModuleInformation instance;
-
-    private OBDModuleInformation instance2;
-
-    private List<SupportedSPN> makeListOfSupportedSPNs(int[] data) {
+    private static List<SupportedSPN> makeListOfSupportedSPNs(int[] data) {
         List<SupportedSPN> supportedSpnsList = new ArrayList<>();
         SupportedSPN supportedSpn = new SupportedSPN(data);
         supportedSpnsList.add(supportedSpn);
         return supportedSpnsList;
     }
+
+    private OBDModuleInformation instance;
+
+    private OBDModuleInformation instance2;
 
     @Before
     public void setUp() throws Exception {
@@ -53,6 +50,7 @@ public class OBDModuleInformationTest {
     @Test
     public void testEquals() {
         assertFalse(instance.equals(new Object()));
+        assertFalse(instance.equals(null));
         assertTrue(instance.equals(instance));
         assertTrue(instance.equals(instance2));
     }
@@ -69,13 +67,14 @@ public class OBDModuleInformationTest {
 
     @Test
     public void testGetObdCompliance() {
-        assertNotNull("ObdCompliance", instance.getObdCompliance());
+        assertEquals("ObdCompliance", (byte) 4, instance.getObdCompliance());
         assertEquals("ObdCompliance", instance.getObdCompliance(), instance2.getObdCompliance());
     }
 
     @Test
     public void testGetSupportedSpns() {
         instance.setSupportedSpns(null);
+        assertEquals("SupportedSpn", makeListOfSupportedSPNs(new int[] { 4, 5, 6, 7, 8 }), instance.getSupportedSpns());
         assertNotNull("SupportedSpn", instance.getSupportedSpns());
     }
 
@@ -88,6 +87,7 @@ public class OBDModuleInformationTest {
     public void testHashCode() {
         assertTrue("HashCode", instance.hashCode() == instance.hashCode());
         assertTrue("HashCode", instance2.hashCode() == instance2.hashCode());
+        assertTrue("HashCode", instance2.hashCode() != instance2.hashCode());
     }
 
     @Test
