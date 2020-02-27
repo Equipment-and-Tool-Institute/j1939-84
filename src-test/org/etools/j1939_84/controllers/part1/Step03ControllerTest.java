@@ -174,7 +174,7 @@ public class Step03ControllerTest {
         verify(dataRepository).putObdModule(0, obdInfo1);
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
         verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-        verify(reportFileModule).onResult("FAIL: " + "6.1.3.2.b - The request for DM5 was NACK'ed");
+        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
 
         verify(dataRepository).putObdModule(17, obdInfo2);
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
@@ -187,13 +187,13 @@ public class Step03ControllerTest {
                 3,
                 WARN,
                 "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
-        verify(reportFileModule).onResult("WARN: "
-                + "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
+        verify(reportFileModule).onResult(
+                "WARN: 6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
 
         verify(reportFileModule).onProgress(0,
                 1,
                 "");
-        verify(reportFileModule).onResult("FAIL: " + "6.1.3.2.b - The request for DM5 was NACK'ed");
+        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
 
         String expectedObd = "OBD Module Information:\n";
         expectedObd += "sourceAddress is : 0\n";
@@ -247,13 +247,13 @@ public class Step03ControllerTest {
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
 
         verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.a - There needs to be at least one OBD Module");
-        verify(reportFileModule).onResult("FAIL: " + "6.1.3.2.a - There needs to be at least one OBD Module");
+        verify(reportFileModule).onResult("FAIL: 6.1.3.2.a - There needs to be at least one OBD Module");
         verify(reportFileModule).addOutcome(1,
                 3,
                 FAIL,
                 "6.1.3.2.a - There needs to be at least one OBD Module");
         verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-        verify(reportFileModule).onResult("FAIL: " + "6.1.3.2.b - The request for DM5 was NACK'ed");
+        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
         verify(reportFileModule).addOutcome(1,
                 3,
                 FAIL,
@@ -313,7 +313,7 @@ public class Step03ControllerTest {
         verify(reportFileModule).onProgress(0,
                 1,
                 "");
-        verify(reportFileModule).onResult("FAIL: " + "6.1.3.2.b - The request for DM5 was NACK'ed");
+        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
 
         verify(vehicleInformationModule).setJ1939(j1939);
     }

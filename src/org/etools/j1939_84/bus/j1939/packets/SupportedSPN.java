@@ -62,7 +62,6 @@ public class SupportedSPN {
         return Objects.equals(length, that.length)
                 && Objects.equals(spn, that.spn)
                 && Objects.equals(support, that.support);
-
     }
 
     /**
