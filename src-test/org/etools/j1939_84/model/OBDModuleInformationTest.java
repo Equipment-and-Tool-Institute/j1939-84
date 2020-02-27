@@ -56,18 +56,19 @@ public class OBDModuleInformationTest {
 
     @Test
     public void testGetDataStreamSpns() {
-        assertTrue(instance.getDataStreamSpns().equals(instance2.getDataStreamSpns()));
+        System.out.println(instance.getDataStreamSpns());
+        assertTrue(instance.getDataStreamSpns().equals(new ArrayList<SupportedSPN>()));
     }
 
     @Test
     public void testGetFreezeFrameSpns() {
-        assertTrue(instance.getFreezeFrameSpns().equals(instance2.getFreezeFrameSpns()));
+        List<SupportedSPN> expectedSPNs = makeListOfSupportedSPNs(new int[] { 4, 5, 6, 7, 8 });
+        assertEquals(expectedSPNs, instance.getFreezeFrameSpns());
     }
 
     @Test
     public void testGetObdCompliance() {
         assertEquals("ObdCompliance", (byte) 4, instance.getObdCompliance());
-        assertEquals("ObdCompliance", instance.getObdCompliance(), instance2.getObdCompliance());
     }
 
     @Test
@@ -79,7 +80,7 @@ public class OBDModuleInformationTest {
 
     @Test
     public void testGetTestResultSpns() {
-        assertTrue(instance.getTestResultSpns().equals(instance2.getTestResultSpns()));
+        assertTrue(instance.getTestResultSpns().equals(new ArrayList<SupportedSPN>()));
     }
 
     @Test
