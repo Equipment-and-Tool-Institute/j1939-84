@@ -28,7 +28,7 @@ public class OBDModuleInformationTest {
 
         if (data == null) {
             SupportedSPN supportedSpn = new SupportedSPN(new int[] { 0x01, 0x02, 0x1D, 8 });
-            SupportedSPN supportedSpn2 = new SupportedSPN(new int[] { 0x01, 0x1E, 0x1E, 8 });
+            SupportedSPN supportedSpn2 = new SupportedSPN(new int[] { 0x00, 0x00, 0x00, 0x00 });
             SupportedSPN supportedSpn3 = new SupportedSPN(new int[] { 0xFE, 0xFE, 0xFE, 0xFE });
             supportedSpnsList.add(supportedSpn);
             supportedSpnsList.add(supportedSpn2);
@@ -37,7 +37,6 @@ public class OBDModuleInformationTest {
             SupportedSPN supportedSpn = new SupportedSPN(data);
             supportedSpnsList.add(supportedSpn);
         }
-
         return supportedSpnsList;
     }
 
@@ -54,7 +53,6 @@ public class OBDModuleInformationTest {
         instance2 = new OBDModuleInformation(0);
         instance2.setObdCompliance((byte) 4);
         instance2.setSupportedSpns(makeListOfSupportedSPNs(null));
-
     }
 
     @Test
@@ -69,14 +67,16 @@ public class OBDModuleInformationTest {
     public void testGetDataStreamSpns() {
         List<SupportedSPN> expectedSPNs = new ArrayList<>();
         SupportedSPN supportedSpn = new SupportedSPN(new int[] { 0x01, 0x02, 0x1D, 8 });
+        SupportedSPN supportedSpn2 = new SupportedSPN(new int[] { 0x00, 0x00, 0x00, 0x00 });
         expectedSPNs.add(supportedSpn);
+        expectedSPNs.add(supportedSpn2);
         assertEquals("GetDataStreamSpn", expectedSPNs, instance.getDataStreamSpns());
     }
 
     @Test
     public void testGetFreezeFrameSpns() {
         List<SupportedSPN> expectedSPNs = new ArrayList<>();
-        SupportedSPN supportedSpn = new SupportedSPN(new int[] { 0x01, 0x1E, 0x1E, 8 });
+        SupportedSPN supportedSpn = new SupportedSPN(new int[] { 0x00, 0x00, 0x00, 0x00 });
         SupportedSPN supportedSpn2 = new SupportedSPN(new int[] { 0xFE, 0xFE, 0xFE, 0xFE });
         expectedSPNs.add(supportedSpn);
         expectedSPNs.add(supportedSpn2);
@@ -97,7 +97,8 @@ public class OBDModuleInformationTest {
 
     @Test
     public void testGetTestResultSpns() {
-        assertTrue(instance.getTestResultSpns().equals(new ArrayList<SupportedSPN>()));
+        List<SupportedSPN> expectedSPNs = makeListOfSupportedSPNs(new int[] { 0x00, 0x00, 0x00, 0x00 });
+        assertEquals("", expectedSPNs, instance.getTestResultSpns());
     }
 
     @Test
@@ -140,7 +141,7 @@ public class OBDModuleInformationTest {
         expectedObd += "sourceAddress is : " + 0 + "\n";
         expectedObd += "obdCompliance is : " + 4 + "\n";
         expectedObd += "Supported SPNs: \n";
-        expectedObd += "SPN 513 - Actual Engine - Percent Torque,SPN 7681 - Aftertreatment 2 Intake Oxygen Sensor 2 Preliminary FMI,SPN 524030 - Manufacturer Assignable SPN 524030";
+        expectedObd += "SPN 513 - Actual Engine - Percent Torque,SPN 0 - Unknown,SPN 524030 - Manufacturer Assignable SPN 524030";
         assertEquals(expectedObd, instance.toString());
     }
 
