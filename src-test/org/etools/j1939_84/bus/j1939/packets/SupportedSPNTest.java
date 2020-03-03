@@ -26,7 +26,7 @@ public class SupportedSPNTest {
         assertTrue(instance.equals(instance));
         assertTrue(instance.equals(instance2));
         assertFalse(instance.equals(instance3));
-        assertFalse(instance2.equals(instance3));
+        assertFalse(instance.equals(instance3));
     }
 
     @Test
