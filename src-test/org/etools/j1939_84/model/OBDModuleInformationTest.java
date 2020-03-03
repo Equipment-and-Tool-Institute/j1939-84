@@ -102,13 +102,7 @@ public class OBDModuleInformationTest {
 
     @Test
     public void testHashCode() {
-        assertTrue("HashCode", instance.hashCode() == instance.hashCode());
-        assertTrue("HashCode", instance2.hashCode() == instance2.hashCode());
-
-        OBDModuleInformation instance3 = new OBDModuleInformation(0);
-        instance3.setObdCompliance((byte) 4);
-        instance3.setSupportedSpns(makeListOfSupportedSPNs(new int[] { 1, 3, 5, 7, 9 }));
-        assertTrue("HashCode", instance2.hashCode() != instance3.hashCode());
+        assertTrue("HashCode", instance.hashCode() == instance2.hashCode());
     }
 
     @Test
@@ -132,11 +126,6 @@ public class OBDModuleInformationTest {
         supportedSpns.add(supportedSpn);
         instance2.setSupportedSpns(supportedSpns);
         assertFalse(instance.equals(instance2));
-    }
-
-    @Test
-    public void testSetObdCompliance() {
-        assertEquals("SetObdCompliance", instance.getObdCompliance(), instance2.getObdCompliance());
     }
 
     @Test
