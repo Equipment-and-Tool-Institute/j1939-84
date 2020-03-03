@@ -26,7 +26,6 @@ public class SupportedSPNTest {
         assertTrue(instance.equals(instance));
         assertTrue(instance.equals(instance2));
         assertFalse(instance.equals(instance3));
-        assertFalse(instance.equals(instance3));
     }
 
     @Test
@@ -45,8 +44,7 @@ public class SupportedSPNTest {
     public void testHashCode() {
         SupportedSPN instance = new SupportedSPN(new int[] { 0x01, 0x02, 0x1D, 8 });
         SupportedSPN instance2 = new SupportedSPN(new int[] { 0x01, 0x02, 0x1D, 8 });
-        assertTrue(instance.hashCode() == instance.hashCode());
-        assertTrue(instance2.hashCode() == instance2.hashCode());
+        assertTrue(instance.hashCode() == instance2.hashCode());
     }
 
     @Test
