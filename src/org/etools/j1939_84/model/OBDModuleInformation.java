@@ -5,6 +5,7 @@ package org.etools.j1939_84.model;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
@@ -23,6 +24,22 @@ public class OBDModuleInformation {
 
     public OBDModuleInformation(int sourceAddress) {
         this.sourceAddress = sourceAddress;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof OBDModuleInformation)) {
+            return false;
+        }
+
+        OBDModuleInformation that = (OBDModuleInformation) obj;
+        return Objects.equals(sourceAddress, that.sourceAddress)
+                && Objects.equals(supportedSpns, that.supportedSpns)
+                && Objects.equals(obdCompliance, that.obdCompliance);
     }
 
     public List<SupportedSPN> getDataStreamSpns() {
@@ -54,6 +71,13 @@ public class OBDModuleInformation {
         return getSupportedSpns().stream().filter(s -> s.supportsScaledTestResults()).collect(Collectors.toList());
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(sourceAddress,
+                supportedSpns,
+                obdCompliance);
+    }
+
     /**
      * @param obdCompliance the obdCompliance to set
      */
@@ -66,6 +90,16 @@ public class OBDModuleInformation {
      */
     public void setSupportedSpns(List<SupportedSPN> supportedSpns) {
         this.supportedSpns = supportedSpns;
+    }
+
+    @Override
+    public String toString() {
+        String result = "OBD Module Information:\n";
+        result += "sourceAddress is : " + sourceAddress + "\n";
+        result += "obdCompliance is : " + getObdCompliance() + "\n";
+        result += "Supported SPNs: \n"
+                + getSupportedSpns().stream().map(i -> i.toString()).collect(Collectors.joining(","));
+        return result;
     }
 
 }

@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import java.util.Objects;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 
 /**
@@ -16,7 +18,7 @@ public class SupportedSPN {
      * Parses the data to return the SPN
      *
      * @param data
-     *            the data to parse
+     *             the data to parse
      * @return the SPN
      */
     public static int parseSPN(int[] data) {
@@ -38,12 +40,28 @@ public class SupportedSPN {
      * Constructor
      *
      * @param data
-     *            the data that contains the information
+     *             the data that contains the information
      */
-    SupportedSPN(int[] data) {
+    public SupportedSPN(int[] data) {
         support = data[2] & 0x07;
         spn = SupportedSPN.parseSPN(data);
         length = (byte) (data[3] & 0xFF);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof SupportedSPN)) {
+            return false;
+        }
+
+        SupportedSPN that = (SupportedSPN) obj;
+        return Objects.equals(length, that.length)
+                && Objects.equals(spn, that.spn)
+                && Objects.equals(support, that.support);
     }
 
     /**
@@ -62,6 +80,13 @@ public class SupportedSPN {
      */
     public int getSpn() {
         return spn;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(support,
+                spn,
+                length);
     }
 
     /**

@@ -90,7 +90,8 @@ public class Step02ControllerTest {
                 bannerModule,
                 vehicleInformationModule,
                 partResultFactory,
-                mockListener);
+                mockListener,
+                reportFileModule);
     }
 
     @Test

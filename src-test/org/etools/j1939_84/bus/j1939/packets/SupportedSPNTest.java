@@ -4,6 +4,8 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
@@ -16,6 +18,17 @@ import org.junit.Test;
 public class SupportedSPNTest {
 
     @Test
+    public void testEquals() {
+        SupportedSPN instance = new SupportedSPN(new int[] { 0x01, 0x02, 0x1D, 8 });
+        SupportedSPN instance2 = new SupportedSPN(new int[] { 0x01, 0x02, 0x1D, 8 });
+        SupportedSPN instance3 = new SupportedSPN(new int[] { 0xFE, 0xFE, 0xFE, 0xFE });
+        assertFalse(instance.equals(new Object()));
+        assertTrue(instance.equals(instance));
+        assertTrue(instance.equals(instance2));
+        assertFalse(instance.equals(instance3));
+    }
+
+    @Test
     public void testError() {
         SupportedSPN instance = new SupportedSPN(new int[] { 0xFE, 0xFE, 0xFE, 0xFE });
         assertEquals(524030, instance.getSpn());
@@ -25,6 +38,13 @@ public class SupportedSPNTest {
         assertEquals(false, instance.supportsScaledTestResults());
         String expected = "SPN 524030 - Manufacturer Assignable SPN 524030";
         assertEquals(expected, instance.toString());
+    }
+
+    @Test
+    public void testHashCode() {
+        SupportedSPN instance = new SupportedSPN(new int[] { 0x01, 0x02, 0x1D, 8 });
+        SupportedSPN instance2 = new SupportedSPN(new int[] { 0x01, 0x02, 0x1D, 8 });
+        assertTrue(instance.hashCode() == instance2.hashCode());
     }
 
     @Test
@@ -105,5 +125,4 @@ public class SupportedSPNTest {
         String expected = "SPN 1541 - Reel Speed";
         assertEquals(expected, instance.toString());
     }
-
 }
