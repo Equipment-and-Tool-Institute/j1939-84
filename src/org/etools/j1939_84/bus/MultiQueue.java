@@ -129,7 +129,10 @@ public class MultiQueue<T> implements AutoCloseable {
     }
 
     public void resetTimeout(Stream<T> stream, int time, TimeUnit unit) {
-        sliterators.get(stream).setTimeout(time, unit);
+        MultiQueue<T>.SpliteratorImplementation spliterator = sliterators.get(stream);
+        if (spliterator != null) {
+            spliterator.setTimeout(time, unit);
+        }
     }
 
     /**

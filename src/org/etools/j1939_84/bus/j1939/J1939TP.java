@@ -10,6 +10,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.function.Supplier;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Bus;
@@ -43,26 +44,25 @@ public class J1939TP implements Bus {
     }
 
     final static public int CM = 0xEC00;
-    private static final int CM_BAM = 0x20;
+    final static public int CM_BAM = 0x20;
 
-    private static final int CM_ConnAbort = 255;
+    final static public int CM_ConnAbort = 255;
 
-    static final int CM_CTS = 17;
+    final static public int CM_CTS = 17;
 
-    private static final int CM_EndOfMessageACK = 19;
-    private static final int CM_RTS = 16;
-    // Most number of packet that can be sent in one CTS
-    private static final int COUNT_MAX = 0xFF;
-    public final static int DT = 0xEB00;
-    private static final Map<Integer, String> errors = new HashMap<>();
+    final static public int CM_EndOfMessageACK = 19;
+    final static public int CM_RTS = 16;
 
-    static final int T1 = 750;
-    static final int T2 = 1250;
-    static final int T3 = 1250;
-    static final int T4 = 1050;
+    final static public int DT = 0xEB00;
+    final static public Map<Integer, String> errors = new HashMap<>();
 
-    private static final int Th = 500;
-    private static final int Tr = 200;
+    final static public int T1 = 750;
+    final static public int T2 = 1250;
+    final static public int T3 = 1250;
+    final static public int T4 = 1050;
+
+    final static public int Th = 500;
+    final static public int Tr = 200;
 
     static {
         errors.put(1, "Already in one or more connection managed sessions and cannot support another.");
@@ -78,17 +78,20 @@ public class J1939TP implements Bus {
         errors.put(250, "If a Connection Abort reason is identified that is not listed in the table use code 250");
     }
 
-    static public void sleep(int duration) {
+    static private void sleep(int duration) {
         try {
             Thread.sleep(duration);
         } catch (InterruptedException e) {
         }
     }
 
+    private final Map<Integer, Boolean[]> bamSessions = new HashMap<>();
+
     private final Bus bus;
 
+    private final Map<Integer, Boolean[]> destinationSpecificSessions = new HashMap<>();
+    // support up to 200 concurrent TP sessions
     private final Executor exec = Executors.newFixedThreadPool(200);
-
     private final EchoBus inbound;
 
     J1939TP(Bus bus) {
@@ -134,27 +137,53 @@ public class J1939TP implements Bus {
             switch (packet.getId() & 0xFF00) {
                 case CM:
                     switch (packet.get(0)) {
-                        case CM_RTS:
+                        case CM_RTS: {
                             if ((packet.getId() & 0xFF) == getAddress()) {
+                                Boolean[] canceled = new Boolean[] { false };
+                                Boolean[] existingSession = destinationSpecificSessions.put(getAddress(), canceled);
+                                // there was already a session, cancel it
+                                if (existingSession != null) {
+                                    existingSession[0] = true;
+                                }
                                 exec.execute(() -> {
                                     try {
-                                        inbound.send(receiveDestinationSpecific(packet));
+                                        inbound.send(receiveDestinationSpecific(packet, () -> canceled[0]));
                                     } catch (BusException e) {
                                         warn("Failed to receive destination specific TP.", e);
                                     }
                                 });
                             }
                             return;
-                        case CM_BAM:
+                        }
+                        case CM_BAM: {
+                            Boolean[] canceled = new Boolean[] { false };
+                            Boolean[] existingSession = bamSessions.put(getAddress(), canceled);
+                            // there was already a session, cancel it
+                            if (existingSession != null) {
+                                existingSession[0] = true;
+                            }
                             exec.execute(() -> {
                                 try {
-                                    inbound.send(receiveBam(packet));
+                                    inbound.send(receiveBam(packet, () -> canceled[0]));
                                 } catch (BusException e) {
                                     e.printStackTrace();
                                     warn("Failed to receive BAM TP.", e);
                                 }
                             });
                             return;
+                        }
+                        case CM_ConnAbort: {
+                            Boolean[] existingBamSession = bamSessions.get(getAddress());
+                            // there was already a session, cancel it
+                            if (existingBamSession != null) {
+                                existingBamSession[0] = true;
+                            }
+                            Boolean[] existingDaSession = destinationSpecificSessions.get(getAddress());
+                            // there was already a session, cancel it
+                            if (existingDaSession != null) {
+                                existingDaSession[0] = true;
+                            }
+                        }
                     }
                     break;
                 case DT:
@@ -164,7 +193,7 @@ public class J1939TP implements Bus {
         }
     }
 
-    private Packet receiveBam(Packet rts) throws BusException {
+    private Packet receiveBam(Packet rts, Supplier<Boolean> canceled) throws BusException {
         int numberOfPackets = rts.get(3);
 
         byte[] data = new byte[rts.get16Big(1)];
@@ -175,6 +204,8 @@ public class J1939TP implements Bus {
         Stream<Packet> streamBase = bus.read(T2, TimeUnit.MILLISECONDS);
         Stream<Packet> stream = streamBase
                 .filter(p -> p.getSource() == source && (p.getId() & 0xFFFF) == id)
+                // if canceled, ignore all packets and timeout.
+                .filter(p -> !canceled.get())
                 .peek(p -> bus.resetTimeout(streamBase, T1, TimeUnit.MILLISECONDS))
                 .limit(numberOfPackets);
         stream.forEach(p -> {
@@ -189,7 +220,7 @@ public class J1939TP implements Bus {
         return Packet.create(rts.get24(5), rts.getSource(), data);
     }
 
-    public Packet receiveDestinationSpecific(Packet rts) throws BusException {
+    public Packet receiveDestinationSpecific(Packet rts, Supplier<Boolean> canceled) throws BusException {
         int numberOfPackets = rts.get(3);
         int maxResponsePackets = rts.get(4);
 
@@ -197,12 +228,16 @@ public class J1939TP implements Bus {
         BitSet received = new BitSet(numberOfPackets + 1);
         int receivedSome = 0;
         while (received.cardinality() < numberOfPackets) {
+            if (canceled.get()) {
+                throw new BusException("Canceled");
+            }
             if (receivedSome++ > 3) {
                 throw new BusException("Failed to receive DT");
             }
-            int packetCount = received.nextSetBit(1) - 1;
+            int nextPacket = received.nextClearBit(1);
+            int packetCount = received.nextSetBit(nextPacket) - nextPacket;
             if (packetCount < 0) {
-                packetCount = numberOfPackets;
+                packetCount = numberOfPackets - nextPacket + 1;
             }
             if (packetCount > maxResponsePackets) {
                 packetCount = maxResponsePackets;
@@ -210,20 +245,22 @@ public class J1939TP implements Bus {
             Stream<Packet> stream1 = bus.read(T2, TimeUnit.MILLISECONDS);
             Stream<Packet> stream = stream1
                     .filter(p -> p.getSource() == rts.getSource() && p.getId() == (DT | (rts.getId() & 0xFF)))
+                    // if this is canceled, ignore all the packets and let this timeout
+                    .filter(p -> !canceled.get())
                     .peek(p -> bus.resetTimeout(stream1, T1, TimeUnit.MILLISECONDS))
                     .limit(packetCount);
             bus.send(Packet.create(CM | rts.getSource(),
                     getAddress(),
                     CM_CTS,
                     packetCount,
-                    received.nextClearBit(1),
+                    nextPacket,
                     0xFF,
                     0xFF,
                     rts.get(5),
                     rts.get(6),
                     rts.get(7)));
             Iterator<Packet> it = stream.iterator();
-            while (it.hasNext()) {
+            while (it.hasNext() && !canceled.get()) {
                 Packet p = it.next();
                 receivedSome = 0;
                 received.set(p.get(0));
@@ -267,6 +304,8 @@ public class J1939TP implements Bus {
     public void send(Packet packet) throws BusException {
         if (packet.getLength() <= 8) {
             bus.send(packet);
+        } else if ((0xFF00 & packet.getId()) >= 0xF000) {
+            sendBam(packet);
         } else {
             sendDestinationSpecific(packet);
         }
@@ -332,7 +371,7 @@ public class J1939TP implements Bus {
             int packetsToSend = p2.get(1);
             if (packetsToSend == 0) {
                 if ((p2.get64() & 0x0000FFFFFFFFFFFFL) != 0x0000FFFFFFFFFFFFL) {
-                    warn("tp.CM_CTS \"hold he connection open\" should be: ");
+                    warn("tp.CM_CTS \"hold he connection open\" should be: %04X", 0x0000FFFFFFFFFFFFL);
                 }
                 // wait for CTS
                 cts = bus.read(T4, TimeUnit.MILLISECONDS).filter(controlMessageFilter).findFirst();
