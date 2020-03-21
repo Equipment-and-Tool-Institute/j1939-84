@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 
 /**
@@ -15,6 +16,8 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
  *
  */
 public class OBDModuleInformation {
+
+    private List<CalibrationInformation> calibrationInformation;
 
     private byte obdCompliance;
 
@@ -39,7 +42,12 @@ public class OBDModuleInformation {
         OBDModuleInformation that = (OBDModuleInformation) obj;
         return Objects.equals(sourceAddress, that.sourceAddress)
                 && Objects.equals(supportedSpns, that.supportedSpns)
-                && Objects.equals(obdCompliance, that.obdCompliance);
+                && Objects.equals(obdCompliance, that.obdCompliance)
+                && Objects.equals(calibrationInformation, that.calibrationInformation);
+    }
+
+    public List<CalibrationInformation> getCalibrationInformation() {
+        return calibrationInformation;
     }
 
     public List<SupportedSPN> getDataStreamSpns() {
@@ -75,7 +83,12 @@ public class OBDModuleInformation {
     public int hashCode() {
         return Objects.hash(sourceAddress,
                 supportedSpns,
-                obdCompliance);
+                obdCompliance,
+                calibrationInformation);
+    }
+
+    public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {
+        this.calibrationInformation = calibrationInformation;
     }
 
     /**

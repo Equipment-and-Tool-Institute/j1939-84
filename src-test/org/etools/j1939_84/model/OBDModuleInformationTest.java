@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.junit.Before;
 import org.junit.Test;
@@ -104,6 +105,14 @@ public class OBDModuleInformationTest {
     @Test
     public void testHashCode() {
         assertTrue("HashCode", instance.hashCode() == instance2.hashCode());
+    }
+
+    @Test
+    public void testNotEqualsCalibrationInformation() {
+        List<CalibrationInformation> calibrationInformation = new ArrayList<>();
+        calibrationInformation.add(new CalibrationInformation("id", "cvn", new byte[] {}, new byte[] {}));
+        instance2.setCalibrationInformation(calibrationInformation);
+        assertFalse(instance.equals(instance2));
     }
 
     @Test

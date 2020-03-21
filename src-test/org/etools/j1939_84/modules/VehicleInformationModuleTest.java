@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -338,6 +339,63 @@ public class VehicleInformationModuleTest {
         assertEquals(expected, listener.getResults());
         verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939).requestMultiple(DM19CalibrationInformationPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testReportCalibrationInformationWithAddress() {
+        final int pgn = DM19CalibrationInformationPacket.PGN;
+        final byte[] calBytes1 = "ABCD1234567890123456".getBytes(UTF8);
+
+        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        DM19CalibrationInformationPacket packet1 = new DM19CalibrationInformationPacket(
+                Packet.create(pgn, 0x00, calBytes1));
+        DM19CalibrationInformationPacket packet2 = new DM19CalibrationInformationPacket(
+                Packet.create(pgn, 0x17, new byte[] {}));
+        DM19CalibrationInformationPacket packet3 = new DM19CalibrationInformationPacket(
+                Packet.create(pgn, 0x21, new byte[] {}));
+
+        when(j1939.requestRaw(DM19CalibrationInformationPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.of(packet1, packet2, packet3));
+
+        String expected = "";
+        expected += "10:15:30.000 DS DM19 (Calibration Information) Request to 00" + NL;
+        expected += "10:15:30.000 18EAFFA5 00 D3 00 (TX)" + NL;
+        expected += "10:15:30.000 18D30000 41 42 43 44 31 32 33 34 35 36 37 38 39 30 31 32 33 34 35 36" + NL;
+        expected += "10:15:30.000 18D30017 " + NL;
+        expected += "10:15:30.000 18D30021 " + NL;
+        TestResultsListener listener = new TestResultsListener();
+        instance.reportCalibrationInformation(listener, 0x00);
+        assertEquals(expected, listener.getResults());
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestRaw(DM19CalibrationInformationPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testReportCalibrationInformationWithAddressWithoutResponse() {
+        final int pgn = DM19CalibrationInformationPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        when(j1939.requestRaw(DM19CalibrationInformationPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.empty())
+                .thenReturn(Stream.empty())
+                .thenReturn(Stream.empty());
+
+        String expected = "";
+        expected += "10:15:30.000 DS DM19 (Calibration Information) Request to 00" + NL;
+        expected += "10:15:30.000 18EAFFA5 00 D3 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        instance.reportCalibrationInformation(listener, 0x00);
+
+        assertEquals(expected, listener.getResults());
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939, times(3))
+                .requestRaw(DM19CalibrationInformationPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
     }
 
     @Test

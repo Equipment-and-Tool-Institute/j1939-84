@@ -30,10 +30,14 @@ public class DM19CalibrationInformationPacket extends ParsedPacket {
 
         private final String calibrationIdentification;
         private final String calibrationVerificationNumber;
+        private final byte[] rawCalId;
+        private final byte[] rawCvn;
 
-        public CalibrationInformation(String id, String cvn) {
+        public CalibrationInformation(String id, String cvn, byte[] rawCalId, byte[] rawCvn) {
             calibrationIdentification = id;
             calibrationVerificationNumber = cvn;
+            this.rawCalId = rawCalId;
+            this.rawCvn = rawCvn;
         }
 
         @Override
@@ -48,7 +52,9 @@ public class DM19CalibrationInformationPacket extends ParsedPacket {
             CalibrationInformation that = (CalibrationInformation) obj;
 
             return Objects.equals(getCalibrationIdentification(), that.getCalibrationIdentification())
-                    && Objects.equals(getCalibrationVerificationNumber(), that.getCalibrationVerificationNumber());
+                    && Objects.equals(getCalibrationVerificationNumber(), that.getCalibrationVerificationNumber())
+                    && Arrays.equals(getRawCalId(), that.getRawCalId())
+                    && Arrays.equals(getRawCvn(), that.getRawCvn());
         }
 
         /**
@@ -69,14 +75,26 @@ public class DM19CalibrationInformationPacket extends ParsedPacket {
             return calibrationVerificationNumber;
         }
 
+        public byte[] getRawCalId() {
+            return rawCalId;
+        }
+
+        public byte[] getRawCvn() {
+            return rawCvn;
+        }
+
         @Override
         public int hashCode() {
-            return Objects.hash(getCalibrationIdentification(), getCalibrationVerificationNumber());
+            return Objects.hash(getCalibrationIdentification(),
+                    getCalibrationVerificationNumber(),
+                    Arrays.hashCode(getRawCalId()),
+                    Arrays.hashCode(getRawCvn()));
         }
 
         @Override
         public String toString() {
-            return "CAL ID of " + getCalibrationIdentification() + " and CVN of " + getCalibrationVerificationNumber();
+            return "CAL ID of " + getCalibrationIdentification().trim()
+                    + " and CVN of " + getCalibrationVerificationNumber();
         }
     }
 
@@ -143,15 +161,19 @@ public class DM19CalibrationInformationPacket extends ParsedPacket {
      * Parses one calibration information from the packet
      *
      * @param startingIndex
-     *            the index of the data to start the parsing at
+     *                      the index of the data to start the parsing at
      * @return The parsed {@link CalibrationInformation}
      */
     private CalibrationInformation parseInformation(int startingIndex) {
         String cvn = String.format("%08X", getPacket().get32(startingIndex) & 0xFFFFFFFFL);
         byte[] bytes = getPacket().getBytes();
+        byte[] cvnBytes = Arrays.copyOfRange(bytes, startingIndex, startingIndex + 3);
         byte[] idBytes = Arrays.copyOfRange(bytes, startingIndex + 4, startingIndex + 20);
-        String calId = format(idBytes).trim();
-        return new CalibrationInformation(calId, "0x" + cvn);
+        String calId = format(idBytes);
+        if (!cvn.isEmpty()) {
+            cvn = "0x" + cvn;
+        }
+        return new CalibrationInformation(calId, cvn, idBytes, cvnBytes);
     }
 
     @Override

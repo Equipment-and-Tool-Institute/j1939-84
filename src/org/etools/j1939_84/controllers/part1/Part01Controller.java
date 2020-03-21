@@ -45,7 +45,7 @@ public class Part01Controller extends Controller {
         this(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
                 new Step01Controller(dataRepository), new Step02Controller(), new Step03Controller(dataRepository),
                 new Step04Controller(dataRepository), new Step05Controller(dataRepository),
-                new Step06Controller(dataRepository), new Step07Controller());
+                new Step06Controller(dataRepository), new Step07Controller(dataRepository));
     }
 
     /**

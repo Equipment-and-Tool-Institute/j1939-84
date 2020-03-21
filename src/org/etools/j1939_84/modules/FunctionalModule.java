@@ -5,7 +5,9 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -111,6 +113,46 @@ public abstract class FunctionalModule {
 
     protected Function<ParsedPacket, String> getPacketMapperFunction() {
         return t -> t.getPacket().toString(getDateTimeModule().getTimeFormatter()) + NL + t.toString();
+    }
+
+    protected <T extends ParsedPacket> List<ParsedPacket> getPackets(String title,
+            int pgn,
+            Class<T> clazz,
+            ResultsListener listener,
+            boolean fullString,
+            int address) {
+        Packet request = getJ1939().createRequestPacket(pgn, address);
+        listener.onResult(getTime() + " " + title);
+        listener.onResult(getTime() + " " + request.toString());
+
+        // Try three times to get packets and ensure there's one from the module
+        List<ParsedPacket> packets = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            packets = getJ1939().requestRaw(clazz, request, 5500, TimeUnit.MILLISECONDS).collect(Collectors.toList());
+            if (packets.stream()
+                    .filter(p -> address == p.getSourceAddress())
+                    .findFirst()
+                    .isPresent()) {
+                // The module responded, report the results
+                break;
+            } else {
+                // There was no message from the module. Clear the results to produce a timeout
+                // message/try again
+                packets.clear();
+            }
+        }
+
+        if (packets.isEmpty()) {
+            listener.onResult(TIMEOUT_MESSAGE);
+        } else {
+            for (ParsedPacket packet : packets) {
+                listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+                if (fullString) {
+                    listener.onResult(packet.toString());
+                }
+            }
+        }
+        return packets;
     }
 
     /**

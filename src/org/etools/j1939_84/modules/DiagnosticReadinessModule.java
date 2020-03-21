@@ -737,14 +737,6 @@ public class DiagnosticReadinessModule extends FunctionalModule {
             listener.onResult(systems.stream().map(t -> t.toString()).collect(Collectors.toList()));
         }
         return parsedPackets;
-
-        // return getPackets("Global DM5 Request",
-        // DM5DiagnosticReadinessPacket.PGN,
-        // ParsedPacket.class,
-        // listener,
-        // fullString,
-        // obdModuleAddresses);
-
     }
 
     private String rowForDM20(int sourceLength,

@@ -220,6 +220,15 @@ public class VehicleInformationModule extends FunctionalModule {
                 request);
     }
 
+    public List<ParsedPacket> reportCalibrationInformation(ResultsListener listener, int address) {
+        return getPackets("DS DM19 (Calibration Information) Request to " + String.format("%02X", address),
+                DM19CalibrationInformationPacket.PGN,
+                DM19CalibrationInformationPacket.class,
+                listener,
+                false,
+                address);
+    }
+
     /**
      * Requests the Component Identification from all vehicle modules and
      * generates a {@link String} that's suitable for inclusion in the report
