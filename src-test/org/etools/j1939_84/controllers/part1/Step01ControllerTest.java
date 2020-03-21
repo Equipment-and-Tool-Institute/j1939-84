@@ -101,8 +101,7 @@ public class Step01ControllerTest {
                 vehicleInformationModule,
                 partResultFactory,
                 dataRepository,
-                mockListener,
-                reportFileModule);
+                mockListener);
     }
 
     /**

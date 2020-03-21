@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
@@ -90,8 +91,7 @@ public class Step02ControllerTest {
                 bannerModule,
                 vehicleInformationModule,
                 partResultFactory,
-                mockListener,
-                reportFileModule);
+                mockListener);
     }
 
     @Test
@@ -146,6 +146,7 @@ public class Step02ControllerTest {
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).isEngineNotRunning();
         verify(vehicleInformationModule).setJ1939(j1939);
+        verify(mockListener).onUrgentMessage("Please turn the Engine OFF with Key ON.", "Adjust Key Switch", WARNING);
 
         String expectedMessages = "\n";
         expectedMessages += "Waiting for Key ON, Engine OFF...\n";
