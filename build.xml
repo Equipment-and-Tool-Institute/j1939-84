@@ -187,6 +187,7 @@
             <sourcePath path="${src}"/>
             <class location="${build}"/>
         </findbugs>
+    	<open file="${build}/findBugsReport.html" />
     </target>
 
     <target name="echo.current.build.number">
@@ -244,4 +245,18 @@
             <tag name="wbp.parser.entryPoint" scope="all" enabled="false" description="Entry Point for UI Parsing"/>
         </javadoc>
     </target>
+	
+	<scriptdef name="open" language="javascript">
+	    <attribute name="file" />
+	    <![CDATA[
+	        var location = "file://"+attributes.get("file").toString().replaceAll("\\\\","/");
+	        location = java.net.URLEncoder.encode(location, "UTF-8");
+	        location = location.toString().replaceAll("%3A",":");
+	        location = location.toString().replaceAll("%2F","/");
+	        print("Opening file " + location);
+	        var uriLocation = java.net.URI.create(location);
+	        var desktop = java.awt.Desktop.getDesktop();
+	        desktop.browse(uriLocation);
+	    ]]>
+	</scriptdef>
 </project>
