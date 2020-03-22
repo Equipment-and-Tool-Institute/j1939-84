@@ -60,7 +60,7 @@ public class Step04Controller extends Controller {
                 dataRepository.getObdModuleAddresses());
 
         if (result.isRetryUsed()) {
-            addFailure(1, 4, "6.1.4.2.a - Retry was required to obtain DM24 response.");
+            addFailure(1, 4, "6.1.4.2.a - Retry was required to obtain DM24 response");
         }
 
         result.getPackets().stream().forEach(p -> {
