@@ -1,8 +1,8 @@
 package org.etools.j1939_84.controllers.part1;
 
 import java.util.List;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.Controller;
@@ -34,7 +34,7 @@ public class Step05Controller extends Controller {
 
     @Override
     public String getDisplayName() {
-        return "Part 1 Step 5 Test";
+        return "Part 1 Step 5";
     }
 
     @Override
@@ -47,6 +47,7 @@ public class Step05Controller extends Controller {
         List<VehicleIdentificationPacket> packets = getVehicleInformationModule().reportVin(getListener());
         if (packets.isEmpty()) {
             addFailure(1, 5, "6.1.5.2.a - No VIN was provided");
+            return; // No point in continuing
         }
 
         long obdResponses = packets.stream()
