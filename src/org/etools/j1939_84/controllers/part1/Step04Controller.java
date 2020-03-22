@@ -80,7 +80,7 @@ public class Step04Controller extends Controller {
                         dataStreamSpns,
                         dataRepository.getVehicleInformation().getFuelType());
         if (!dataStreamOk) {
-            addFailure(1, 4, "6.1.4.2.b - One or more SPNs for data stream is not supported.");
+            addFailure(1, 4, "6.1.4.2.b - One or more SPNs for data stream is not supported");
         }
 
         Set<Integer> freezeFrameSpns = dataRepository
@@ -93,7 +93,7 @@ public class Step04Controller extends Controller {
 
         boolean freezeFrameOk = supportedSpnModule.validateFreezeFrameSpns(getListener(), freezeFrameSpns);
         if (!freezeFrameOk) {
-            addFailure(1, 4, "6.1.4.2.c - One or more SPNs for freeze frame are not supported.");
+            addFailure(1, 4, "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
         }
     }
 }

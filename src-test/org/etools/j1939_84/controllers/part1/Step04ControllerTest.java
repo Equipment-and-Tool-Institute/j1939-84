@@ -184,23 +184,23 @@ public class Step04ControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
 
-        verify(mockListener).addOutcome(1, 4, Outcome.FAIL, "6.1.4.2.a - Retry was required to obtain DM24 response.");
+        verify(mockListener).addOutcome(1, 4, Outcome.FAIL, "6.1.4.2.a - Retry was required to obtain DM24 response");
         verify(mockListener)
-                .addOutcome(1, 4, Outcome.FAIL, "6.1.4.2.b - One or more SPNs for data stream is not supported.");
+                .addOutcome(1, 4, Outcome.FAIL, "6.1.4.2.b - One or more SPNs for data stream is not supported");
         verify(mockListener)
-                .addOutcome(1, 4, Outcome.FAIL, "6.1.4.2.c - One or more SPNs for freeze frame are not supported.");
+                .addOutcome(1, 4, Outcome.FAIL, "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
 
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule)
-                .addOutcome(1, 4, Outcome.FAIL, "6.1.4.2.a - Retry was required to obtain DM24 response.");
-        verify(reportFileModule).onResult("FAIL: 6.1.4.2.a - Retry was required to obtain DM24 response.");
+                .addOutcome(1, 4, Outcome.FAIL, "6.1.4.2.a - Retry was required to obtain DM24 response");
+        verify(reportFileModule).onResult("FAIL: 6.1.4.2.a - Retry was required to obtain DM24 response");
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule)
-                .addOutcome(1, 4, Outcome.FAIL, "6.1.4.2.b - One or more SPNs for data stream is not supported.");
-        verify(reportFileModule).onResult("FAIL: 6.1.4.2.b - One or more SPNs for data stream is not supported.");
+                .addOutcome(1, 4, Outcome.FAIL, "6.1.4.2.b - One or more SPNs for data stream is not supported");
+        verify(reportFileModule).onResult("FAIL: 6.1.4.2.b - One or more SPNs for data stream is not supported");
         verify(reportFileModule)
-                .addOutcome(1, 4, Outcome.FAIL, "6.1.4.2.c - One or more SPNs for freeze frame are not supported.");
-        verify(reportFileModule).onResult("FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported.");
+                .addOutcome(1, 4, Outcome.FAIL, "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
+        verify(reportFileModule).onResult("FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported");
 
         verify(supportedSpnModule).validateDataStreamSpns(any(), any(), any());
         verify(supportedSpnModule).validateFreezeFrameSpns(any(), any());
