@@ -371,7 +371,7 @@ public class J1939TP implements Bus {
             int packetsToSend = p2.get(1);
             if (packetsToSend == 0) {
                 if ((p2.get64() & 0x0000FFFFFFFFFFFFL) != 0x0000FFFFFFFFFFFFL) {
-                    warn("tp.CM_CTS \"hold he connection open\" should be: %04X", 0x0000FFFFFFFFFFFFL);
+                    warn("TP.CM_CTS \"hold he connection open\" should be: %04X", 0x0000FFFFFFFFFFFFL);
                 }
                 // wait for CTS
                 cts = bus.read(T4, TimeUnit.MILLISECONDS).filter(controlMessageFilter).findFirst();
