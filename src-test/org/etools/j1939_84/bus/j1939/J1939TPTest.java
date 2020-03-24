@@ -2,6 +2,7 @@ package org.etools.j1939_84.bus.j1939;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
@@ -25,14 +26,18 @@ import org.junit.Test;
 
 public class J1939TPTest {
 
-    static private void assertPacketsEqual(Collection<Packet> expected, Collection<Packet> actual) {
+    static private void assertPacketsEquals(Collection<Packet> expected, Collection<Packet> actual) {
         Assert.assertEquals(expected.toString(), actual.toString());
     }
 
-    static private void assertPacketsEqual(Packet expected, Packet actual) {
+    static private void assertPacketsEquals(Packet expected, Packet actual) {
         Assert.assertEquals(expected.toString(), actual.toString());
     }
 
+    /**
+     * Verify that failing to send data after a RTS generates 3 CTS responses before
+     * giving up.
+     */
     @Test
     public void test3CtsWithoutData() {
         try (EchoBus bus = new EchoBus(0xF9);
@@ -44,6 +49,7 @@ public class J1939TPTest {
         }
     }
 
+    /** Simple BAM test to verify expected packets are sent with some delay. */
     @Test
     public void testBam() throws BusException {
         Packet testPacket = Packet.parsePacket(
@@ -60,8 +66,12 @@ public class J1939TPTest {
             // test tp bam send
             {
                 Stream<Packet> packetStream = bus.read(1, TimeUnit.SECONDS);
+                Stream<Packet> shortPacketStream = bus.read(3 * 50, TimeUnit.MILLISECONDS);
                 tp.sendBam(testPacket);
-                assertEquals(expectedResult.toString(), packetStream.collect(Collectors.toList()).toString());
+                // verify there was a delay between packets
+                assertNotEquals(expectedResult.toString(), shortPacketStream.collect(Collectors.toList()).toString());
+                // verify all packets eventually arrived
+                assertPacketsEquals(expectedResult, packetStream.collect(Collectors.toList()));
             }
 
             // test tp bam send and read
@@ -70,14 +80,15 @@ public class J1939TPTest {
                 {// test raw packets
                     Stream<Packet> packetStream = bus.read(1, TimeUnit.SECONDS);
                     tp.sendBam(testPacket);
-                    assertEquals(expectedResult.toString(), packetStream.collect(Collectors.toList()).toString());
+                    assertPacketsEquals(expectedResult, packetStream.collect(Collectors.toList()));
                 }
                 // test TP
-                assertPacketsEqual(testPacket, tpStream.findFirst().orElse(null));
+                assertPacketsEquals(testPacket, tpStream.findFirst().orElse(null));
             }
         }
     }
 
+    /** Verify that missing BAM data does not result in a packet. */
     @Test()
     public void testBamMissingDt() throws BusException, InterruptedException {
         Collection<Packet> expectedPacket = Collections.singletonList(Packet.parsePacket(
@@ -91,6 +102,7 @@ public class J1939TPTest {
                 "18EBFF00 06 05 06 07 08 09 FF FF"));
         try (EchoBus bus = new EchoBus(0);
                 J1939TP tp = new J1939TP(bus, 0xF9)) {
+            // First verify that test process works.
             {
                 // only wait T1 between packets
                 Stream<Packet> packetStream = tp.read(testPackets.size() * J1939TP.T1, TimeUnit.MILLISECONDS);
@@ -100,9 +112,10 @@ public class J1939TPTest {
                     Thread.sleep((long) (0.8 * J1939TP.T1));
                 }
                 // verify message received
-                assertEquals(expectedPacket.toString(), packetStream.collect(Collectors.toList()).toString());
+                assertPacketsEquals(expectedPacket, packetStream.collect(Collectors.toList()));
             }
-            { // skip packet 3
+            // Do the same test, but skip data packet 3.
+            {
                 testPackets.remove(3);
                 // only wait T1 between packets
                 Stream<Packet> packetStream = tp.read(testPackets.size() * J1939TP.T1, TimeUnit.MILLISECONDS);
@@ -116,6 +129,7 @@ public class J1939TPTest {
         }
     }
 
+    /** Simple test to verify that the bus streams are collecting packets. */
     @Test
     public void testBus() {
         // verify that the bus works as expected
@@ -123,14 +137,17 @@ public class J1939TPTest {
             int count = 10;
             Stream<Packet> streamA = bus.read(1, TimeUnit.SECONDS).limit(count - 1);
             Stream<Packet> streamB = bus.read(1, TimeUnit.SECONDS).limit(count);
+            // send count packets
             for (int i = 0; i < count; i++) {
                 bus.send(Packet.create(0xFF00 | i, 2, 0, 1, 2, 3, 4, 5, 6, 7));
             }
+            // verify that packet counts were received.
             assertEquals(count - 1, streamA.collect(Collectors.toList()).size());
             assertEquals(count, streamB.collect(Collectors.toList()).size());
         }
     }
 
+    /** Simple test to verify that the bus passes any packets. */
     @Test
     public void testEchoBus() throws BusException {
         // baseline test verifying that the bus works.
@@ -138,10 +155,11 @@ public class J1939TPTest {
             Stream<Packet> s = bus.read(1, TimeUnit.SECONDS);
             Packet p = Packet.create(0xFF, 0xF9, 1, 2, 3, 4);
             bus.send(p);
-            assertEquals(Collections.singletonList(p), s.collect(Collectors.toList()));
+            assertPacketsEquals(Collections.singletonList(p), s.collect(Collectors.toList()));
         }
     }
 
+    /** Verify that when a DT packet is missing, that it is rerequested. */
     @Test
     public void testMissingDT() throws BusException {
         try (Bus bus = new EchoBus(0xF9);
@@ -152,39 +170,39 @@ public class J1939TPTest {
             // RTS for 2 packets
             bus.send(Packet.parse("18EC00F9 10 00 09 02 FF 00 EA 00"));
             // verify CTS for 2 packets starting with packet 1
-            assertEquals("18ECF900 11 02 01 FF FF 00 EA 00", s.findFirst().get().toString());
+            assertPacketsEquals(Packet.parsePacket("18ECF900 11 02 01 FF FF 00 EA 00"), s.findFirst().get());
 
             s = bus.read(3, TimeUnit.SECONDS).filter(p -> p.getSource() == 0);
             // send packet 2
             bus.send(Packet.parse("18EB00F9 02 08 09 FF FF FF FF FF"));
             // verify CTR for 1 packet starting with packet 1
-            assertEquals("18ECF900 11 01 01 FF FF 00 EA 00", s.findFirst().get().toString());
+            assertPacketsEquals(Packet.parsePacket("18ECF900 11 01 01 FF FF 00 EA 00"), s.findFirst().get());
 
             s = bus.read(3, TimeUnit.SECONDS).filter(p -> p.getSource() == 0);
             // send packet 1
             bus.send(Packet.parse("18EB00F9 01 01 02 03 04 05 06 07"));
             // verify EOM ACK
-            assertEquals("18ECF900 13 00 09 02 FF 00 EA 00", s.findFirst().get().toString());
+            assertPacketsEquals(Packet.parsePacket("18ECF900 13 00 09 02 FF 00 EA 00"), s.findFirst().get());
 
             // verify packet received
-            assertEquals("18EA00F9 01 02 03 04 05 06 07 08 09",
-                    tpStream.findFirst().orElse(null).toString());
+            assertPacketsEquals(Packet.parsePacket("18EA00F9 01 02 03 04 05 06 07 08 09"),
+                    tpStream.findFirst().orElse(null));
         }
     }
 
     /**
-     * Due to the implementation that creates a new thread for each CTS, this test
-     * verifies that only a single TP packet is reconstructed when two CTSs are
+     * Due to the implementation that creates a new thread for each RTS, this test
+     * verifies that only a single TP packet is reconstructed when two BAM RTSs are
      * received.
      *
      * @throws InterruptedException
      */
     @Test
-    public void testMultipleBamCts() throws BusException, InterruptedException {
+    public void testMultipleBamRts() throws BusException, InterruptedException {
         try (EchoBus bus = new EchoBus(0);
                 Bus tp = new J1939TP(bus, 0xF9);) {
             Stream<Packet> tpStream = tp.read(J1939TP.T1 * 3, TimeUnit.MILLISECONDS);
-            // send first CTS
+            // send first RTS
             bus.send(Packet.parse("18ECFF00 20 00 0E 03 FF F9 12 00"));
             Thread.sleep(50);
             // send full TP
@@ -193,13 +211,13 @@ public class J1939TPTest {
                 tpOut.send(p);
             }
             // verify that exactly one packet is received.
-            assertEquals(Collections.singletonList(p).toString(), tpStream.collect(Collectors.toList()).toString());
+            assertPacketsEquals(Collections.singletonList(p), tpStream.collect(Collectors.toList()));
         }
     }
 
     /**
-     * Due to the implementation that creates a new thread for each CTS, this test
-     * verifies that only a single TP packet is reconstructed when two CTSs are
+     * Due to the implementation that creates a new thread for each RTS, this test
+     * verifies that only a single TP packet is reconstructed when two RTSs are
      * received.
      *
      * @throws InterruptedException
@@ -218,10 +236,11 @@ public class J1939TPTest {
                 tpOut.send(p);
             }
             // verify that exactly one packet is received.
-            assertEquals(Collections.singletonList(p).toString(), tpStream.collect(Collectors.toList()).toString());
+            assertPacketsEquals(Collections.singletonList(p), tpStream.collect(Collectors.toList()));
         }
     }
 
+    /** Verify that non-TP packets are passed through TP layer. */
     @Test
     public void testNonTPOnTPBus() throws BusException {
         // verify that the tp bus will pass non-tp traffic.
@@ -231,17 +250,18 @@ public class J1939TPTest {
                 Packet p = Packet.parse("18FFFFF9 01 02 03 04");
                 Stream<Packet> busStream = bus.read(1, TimeUnit.SECONDS);
                 tp.send(p);
-                assertEquals(Collections.singletonList(p), busStream.collect(Collectors.toList()));
+                assertPacketsEquals(Collections.singletonList(p), busStream.collect(Collectors.toList()));
             }
             { // ECM to tool
                 Packet p = Packet.parse("18FFFF00 01 02 03 04");
                 Stream<Packet> tpStream = tp.read(1, TimeUnit.SECONDS);
                 bus.send(p);
-                assertPacketsEqual(Collections.singletonList(p), tpStream.collect(Collectors.toList()));
+                assertPacketsEquals(Collections.singletonList(p), tpStream.collect(Collectors.toList()));
             }
         }
     }
 
+    /** Verfy that out of order DT packets are accepted. */
     @Test
     public void testOutOfOrderDT() throws BusException {
         try (Bus bus = new EchoBus(0xF9);
@@ -251,7 +271,7 @@ public class J1939TPTest {
             // send RTS
             bus.send(Packet.parse("18EC00F9 10 00 09 02 FF 00 EA 00"));
             // verify CTS
-            assertEquals("18ECF900 11 02 01 FF FF 00 EA 00", s.findFirst().get().toString());
+            assertPacketsEquals(Packet.parse("18ECF900 11 02 01 FF FF 00 EA 00"), s.findFirst().get());
 
             s = bus.read(3, TimeUnit.SECONDS).filter(p -> p.getSource() == 0);
             // send packet 2
@@ -259,13 +279,14 @@ public class J1939TPTest {
             // send packet 1
             bus.send(Packet.parse("18EB00F9 01 01 02 03 04 05 06 07"));
             // verify EOM
-            assertEquals("18ECF900 13 00 09 02 FF 00 EA 00", s.findFirst().get().toString());
+            assertPacketsEquals(Packet.parse("18ECF900 13 00 09 02 FF 00 EA 00"), s.findFirst().get());
 
             // verify packet
-            assertEquals("18EA00F9 01 02 03 04 05 06 07 08 09", tpStream.findFirst().orElse(null).toString());
+            assertPacketsEquals(Packet.parse("18EA00F9 01 02 03 04 05 06 07 08 09"), tpStream.findFirst().orElse(null));
         }
     }
 
+    /** Simple TP verification */
     @Test
     public void testSimpleTP() throws BusException {
         try (EchoBus bus = new EchoBus(0xF9);
@@ -281,20 +302,21 @@ public class J1939TPTest {
             tpOut.send(Packet.parse("18EA00F9 01 02 03 04 05 06 07 08 09"));
 
             // verify that all the packets and only the expected packets were broadcast
-            assertEquals(Packet.parseCollection("18EC00F9 10 00 09 02 FF 00 EA 00\n" +
+            assertPacketsEquals(Packet.parseCollection("18EC00F9 10 00 09 02 FF 00 EA 00\n" +
                     "18ECF900 11 02 01 FF FF 00 EA 00\n" +
                     "18EB00F9 01 01 02 03 04 05 06 07\n" +
                     "18EB00F9 02 08 09 00 00 00 00 00\n" +
-                    "18ECF900 13 00 09 02 FF 00 EA 00").toString(),
-                    stream.collect(Collectors.toList()).toString());
+                    "18ECF900 13 00 09 02 FF 00 EA 00"),
+                    stream.collect(Collectors.toList()));
 
             // verify that the complete packet and only the complete packet is on the TP
             // stream.
-            assertEquals(Collections.singletonList("18EA00F9 01 02 03 04 05 06 07 08 09").toString(),
-                    tpStream.collect(Collectors.toList()).toString());
+            assertPacketsEquals(Collections.singletonList(Packet.parsePacket("18EA00F9 01 02 03 04 05 06 07 08 09")),
+                    tpStream.collect(Collectors.toList()));
         }
     }
 
+    /** Verify that T1 and T2 timeouts are respected. */
     @Test()
     public void testT2T1() throws BusException {
         try (EchoBus bus = new EchoBus(0xF9);
@@ -309,12 +331,12 @@ public class J1939TPTest {
             {
                 Packet cts1 = it.next();
                 System.err.println(cts1);
-                assertEquals("18ECF900 11 02 01 FF FF 00 EA 00", cts1.toString());
+                assertPacketsEquals(Packet.parsePacket("18ECF900 11 02 01 FF FF 00 EA 00"), cts1);
             }
 
             // test T2
             // verify CTS is for packet 1
-            assertEquals("18ECF900 11 02 01 FF FF 00 EA 00", it.next().toString());
+            assertPacketsEquals(Packet.parsePacket("18ECF900 11 02 01 FF FF 00 EA 00"), it.next());
             // verify that there was a T2 long delay
             assertTrue("T2 timing too fast", System.currentTimeMillis() - start > J1939TP.T2);
 
@@ -324,7 +346,7 @@ public class J1939TPTest {
 
             // test T1
             // verify CTS is for packet 2
-            assertEquals("18ECF900 11 01 02 FF FF 00 EA 00", it.next().toString());
+            assertPacketsEquals(Packet.parsePacket("18ECF900 11 01 02 FF FF 00 EA 00"), it.next());
             assertEquals("T1 timing wrong", System.currentTimeMillis() - start, J1939TP.T1, 20);
 
             // verify that no TP packet is decoded
@@ -333,6 +355,7 @@ public class J1939TPTest {
         }
     }
 
+    /** Verify that T3 timeout is respected. */
     @Test()
     public void testT3() throws BusException {
         long start = System.currentTimeMillis();
@@ -344,6 +367,7 @@ public class J1939TPTest {
         }
     }
 
+    /** Verify that T4 timeout is respected. */
     @Test
     public void testT4() throws BusException {
         try (EchoBus bus = new EchoBus(0xF9);
@@ -370,6 +394,7 @@ public class J1939TPTest {
         }
     }
 
+    /** Verify that TP Abort message is respected. */
     @Test
     public void verifyAbort() throws BusException {
         try (EchoBus bus = new EchoBus(0);
@@ -388,7 +413,7 @@ public class J1939TPTest {
             }).start();
 
             // verify RTS
-            assertPacketsEqual(Packet.parse("18EC00F9 10 00 2D 07 FF 00 EA 00"),
+            assertPacketsEquals(Packet.parse("18EC00F9 10 00 2D 07 FF 00 EA 00"),
                     stream.findFirst().orElse(null));
 
             stream = bus.read((long) (1.2 * J1939TP.T1), TimeUnit.MILLISECONDS)
@@ -396,7 +421,7 @@ public class J1939TPTest {
             // send CTS for 2 packets
             bus.send(Packet.parse("18ECF900 11 02 01 FF FF 00 EA 00"));
             // verify that all the packets and only the expected packets were broadcast
-            assertPacketsEqual(Packet.parseCollection("18EB00F9 01 01 02 03 04 05 06 07\n" +
+            assertPacketsEquals(Packet.parseCollection("18EB00F9 01 01 02 03 04 05 06 07\n" +
                     "18EB00F9 02 08 09 0A 0B 0C 0D 0E"),
                     stream.collect(Collectors.toList()));
 
@@ -405,10 +430,11 @@ public class J1939TPTest {
             // send abort
             bus.send(Packet.parse("18ECF900 FF FF FF FF FF 00 EA 00"));
             // verify no more traffic
-            assertEquals("[]", stream.collect(Collectors.toList()).toString());
+            assertPacketsEquals(Collections.emptyList(), stream.collect(Collectors.toList()));
         }
     }
 
+    /** Verify constants are correct. */
     @Test
     public void verifyConstants() {
         assertEquals(750, J1939TP.T1);
@@ -417,6 +443,7 @@ public class J1939TPTest {
         assertEquals(1050, J1939TP.T4);
     }
 
+    /** Verify that count max in RTS is respected. */
     @Test
     public void verifyCountMax() throws BusException {
         try (EchoBus bus = new EchoBus(0);
@@ -434,13 +461,13 @@ public class J1939TPTest {
             }).start();
 
             // verify RTS
-            assertPacketsEqual(Packet.parse("18EC00F9 10 00 2D 07 FF 00 EA 00"), stream.findFirst().orElse(null));
+            assertPacketsEquals(Packet.parse("18EC00F9 10 00 2D 07 FF 00 EA 00"), stream.findFirst().orElse(null));
 
             stream = bus.read((long) (1.2 * J1939TP.T1), TimeUnit.MILLISECONDS).filter(p -> p.getSource() == 0xF9);
             // send CTS for 2 packets
             bus.send(Packet.parse("18ECF900 11 02 01 FF FF 00 EA 00"));
             // verify that all the packets and only the expected packets were broadcast
-            assertPacketsEqual(Packet.parseCollection("18EB00F9 01 01 02 03 04 05 06 07\n" +
+            assertPacketsEquals(Packet.parseCollection("18EB00F9 01 01 02 03 04 05 06 07\n" +
                     "18EB00F9 02 08 09 0A 0B 0C 0D 0E"),
                     stream.collect(Collectors.toList()));
         }
