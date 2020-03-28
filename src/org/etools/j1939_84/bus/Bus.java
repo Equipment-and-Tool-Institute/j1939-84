@@ -4,7 +4,6 @@
 package org.etools.j1939_84.bus;
 
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
@@ -15,10 +14,6 @@ import java.util.stream.Stream;
  *
  */
 public interface Bus extends AutoCloseable {
-
-    static Consumer<Packet> log(Supplier<String> prefix) {
-        return p -> System.err.println(prefix.get() + p);
-    }
 
     /**
      * close() can be used to interrupt all streams using this bus.
@@ -43,6 +38,10 @@ public interface Bus extends AutoCloseable {
     int getConnectionSpeed() throws BusException;
 
     default void log(String prefix) {
+        log(() -> prefix);
+    }
+
+    default void log(Supplier<String> prefix) {
         Runnable r = new Runnable() {
             @Override
             public void run() {
@@ -50,7 +49,7 @@ public interface Bus extends AutoCloseable {
                     notifyAll();
                 }
                 try {
-                    read(999, TimeUnit.DAYS).forEach(p -> System.err.println(prefix + p));
+                    read(999, TimeUnit.DAYS).forEach(p -> System.err.println(prefix.get() + p));
                 } catch (BusException e) {
                     e.printStackTrace();
                 }
