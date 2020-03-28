@@ -56,17 +56,6 @@ public class MultiQueueTest {
     }
 
     @Test
-    public void testInterruption() {
-        try (MultiQueue<Integer> q = new MultiQueue<>()) {
-            Stream<Integer> s = q.stream(5, TimeUnit.SECONDS);
-            for (int i = 0; i < 100; i++) {
-                q.add(i);
-            }
-            assertEquals(50, s.filter(MultiQueue.interruptFilter(v -> v >= 50)).count());
-        }
-    }
-
-    @Test
     public void testTimedInterruption() throws Exception {
         try (MultiQueue<Integer> q = new MultiQueue<>()) {
             Stream<Integer> s1 = q.stream(200, TimeUnit.MILLISECONDS);

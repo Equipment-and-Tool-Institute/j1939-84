@@ -7,7 +7,6 @@ import java.util.Spliterator;
 import java.util.WeakHashMap;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Consumer;
-import java.util.function.Predicate;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
 
@@ -39,29 +38,23 @@ public class MultiQueue<T> implements AutoCloseable {
             return next;
         }
 
-        synchronized MultiQueue.Item<T> next(long end) throws TimeOutException {
-            long now;
-            while ((now = System.currentTimeMillis()) < end) {
-                if (next != null) {
-                    return next;
-                }
-                try {
-                    // We poll here, so that we catch timeouts even without
-                    // traffic.
-                    wait(Math.min(5, end - now));
-                } catch (InterruptedException e) {
-                    throw new TimeOutException();
-                }
+        synchronized MultiQueue.Item<T> next(long delay) {
+            if (next != null) {
+                return next;
+            }
+            try {
+                wait(delay);
+            } catch (InterruptedException e) {
+                // no problem
             }
 
-            throw new TimeOutException();
+            return next;
         }
     }
 
     private final class SpliteratorImplementation implements Spliterator<T> {
         long end;
         Item<T> item = list;
-        long startStep = step;
 
         private SpliteratorImplementation(long timeout, TimeUnit unit) {
             setTimeout(timeout, unit);
@@ -83,12 +76,12 @@ public class MultiQueue<T> implements AutoCloseable {
 
         @Override
         public boolean tryAdvance(Consumer<? super T> action) {
-            while (true) {
-                try {
-                    action.accept((item = item.next(end)).value);
-                    return startStep == step;
-                } catch (TimeOutException e) {
-                    break;
+            while (System.currentTimeMillis() < end && !closed) {
+                Item<T> n = item.next(5);
+                if (n != null) {
+                    item = n;
+                    action.accept(n.value);
+                    return true;
                 }
             }
             return false;
@@ -100,24 +93,11 @@ public class MultiQueue<T> implements AutoCloseable {
         }
     }
 
-    private static class TimeOutException extends RuntimeException {
-        private static final long serialVersionUID = -7120465100481000186L;
-    }
-
-    static public <T> Predicate<T> interruptFilter(Predicate<T> p) {
-        return t -> {
-            if (p.test(t)) {
-                throw new TimeOutException();
-            }
-            return true;
-        };
-    }
+    private boolean closed;
 
     private MultiQueue.Item<T> list = new MultiQueue.Item<>(null);
 
-    private final WeakHashMap<Stream<T>, SpliteratorImplementation> sliterators = new WeakHashMap<>();
-
-    private long step = 0;
+    private final WeakHashMap<Stream<T>, SpliteratorImplementation> spliterators = new WeakHashMap<>();
 
     synchronized public void add(T v) {
         list = list.add(v);
@@ -125,11 +105,11 @@ public class MultiQueue<T> implements AutoCloseable {
 
     @Override
     public void close() {
-        step++;
+        closed = true;
     }
 
     public void resetTimeout(Stream<T> stream, int time, TimeUnit unit) {
-        MultiQueue<T>.SpliteratorImplementation spliterator = sliterators.get(stream);
+        MultiQueue<T>.SpliteratorImplementation spliterator = spliterators.get(stream);
         if (spliterator != null) {
             spliterator.setTimeout(time, unit);
         }
@@ -144,10 +124,11 @@ public class MultiQueue<T> implements AutoCloseable {
      *                the TimeUnit for the timeout
      * @return the stream
      */
-    public Stream<T> stream(long timeout, TimeUnit unit) {
+    synchronized public Stream<T> stream(long timeout, TimeUnit unit) {
         SpliteratorImplementation spliterator = new SpliteratorImplementation(timeout, unit);
         Stream<T> stream = StreamSupport.stream(spliterator, false);
-        sliterators.put(stream, spliterator);
+        spliterators.put(stream, spliterator);
+        stream.onClose(this::close);
         return stream;
     }
 }

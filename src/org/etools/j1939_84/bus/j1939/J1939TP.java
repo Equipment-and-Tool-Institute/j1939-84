@@ -3,11 +3,11 @@ package org.etools.j1939_84.bus.j1939;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.Map;
 import java.util.Optional;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Predicate;
@@ -93,16 +93,24 @@ public class J1939TP implements Bus {
     private final Bus bus;
 
     private final Map<Integer, AtomicBoolean> destinationSpecificSessions = new HashMap<>();
-    // support up to 200 concurrent TP sessions
-    private final Executor exec = Executors.newFixedThreadPool(200);
-    private final EchoBus inbound;
 
-    J1939TP(Bus bus) {
+    // Support up to 255 concurrent TP sessions, but we only expect there to
+    // normally be 5, so shut down idle threads after 5 ms.
+    private final ExecutorService exec = new ThreadPoolExecutor(5,
+            255,
+            5L,
+            TimeUnit.MILLISECONDS,
+            new LinkedBlockingQueue<Runnable>());
+    private final EchoBus inbound;
+    private final Stream<Packet> stream;
+
+    J1939TP(Bus bus) throws BusException {
         this(bus, bus.getAddress());
     }
 
-    J1939TP(Bus bus, int address) {
+    J1939TP(Bus bus, int address) throws BusException {
         this.bus = bus;
+        stream = bus.read(9999, TimeUnit.DAYS);
         inbound = new EchoBus(address);
         synchronized (inbound) {
             exec.execute(this::run);
@@ -117,6 +125,8 @@ public class J1939TP implements Bus {
 
     @Override
     public void close() {
+        exec.shutdownNow();
+        stream.close();
         bus.close();
     }
 
@@ -304,17 +314,10 @@ public class J1939TP implements Bus {
     }
 
     private void run() {
-        try {
-            Iterator<Packet> i = bus.read(9999, TimeUnit.DAYS).iterator();
-            synchronized (inbound) {
-                inbound.notifyAll();
-            }
-            while (i.hasNext()) {
-                receive(i.next());
-            }
-        } catch (BusException e) {
-            warn("Failed to process packet.", e);
+        synchronized (inbound) {
+            inbound.notifyAll();
         }
+        stream.forEach(p -> receive(p));
     }
 
     @Override
@@ -370,35 +373,38 @@ public class J1939TP implements Bus {
                 .filter(controlMessageFilter);
 
         // send RTS
+        int totalPacketsToSend = packet.getLength() / 7 + 1;
         bus.send(Packet.create(CM | (0xFF & packet.getId()),
                 getAddress(),
                 CM_RTS,
                 packet.getLength() >> 8,
                 packet.getLength(),
-                packet.getLength() / 7 + 1,
+                totalPacketsToSend,
                 0xFF,
                 pgn,
                 pgn >> 8,
                 pgn >> 16));
 
         // wait for CTS
-        Optional<Packet> cts = ctsStream.findFirst();
-        while (cts.map(p -> p.get(0) == CM_CTS).orElse(false)) {
-            Packet p2 = cts.get();
-            int packetsToSend = p2.get(1);
+        Optional<Packet> ctsOptional = ctsStream.findFirst();
+        while (ctsOptional.map(p -> p.get(0) == CM_CTS).orElse(false)) {
+            Packet cts = ctsOptional.get();
+            int packetsToSend = Math.min(cts.get(1), totalPacketsToSend);
             if (packetsToSend == 0) {
-                if ((p2.get64() & 0x0000FFFFFFFFFFFFL) != 0x0000FFFFFFFFFFFFL) {
-                    warn("TP.CM_CTS \"hold the connection open\" should be: %04X", 0x0000FFFFFFFFFFFFL);
+                if ((cts.get64() & 0x0000FFFFFFFFFFFFL) != 0x0000FFFFFFFFFFFFL) {
+                    warn("TP.CM_CTS \"hold the connection open\" should be: %04X  %s",
+                            0x0000FFFFFFFFFFFFL,
+                            cts.toString());
                 }
                 // wait for CTS
-                cts = bus.read(T4, TimeUnit.MILLISECONDS).filter(controlMessageFilter).findFirst();
+                ctsOptional = bus.read(T4, TimeUnit.MILLISECONDS).filter(controlMessageFilter).findFirst();
             } else {
-                int offset = p2.get(2);
-                if (p2.get16(3) != 0xFFFF) {
-                    warn("TP.CM_CTS bytes 4-5 should be FFFF: %04X", p2.get16(3));
+                int offset = cts.get(2);
+                if (cts.get16(3) != 0xFFFF) {
+                    warn("TP.CM_CTS bytes 4-5 should be FFFF: %04X  %s", cts.get16(3), cts.toString());
                 }
-                if (p2.get24(5) != pgn) {
-                    warn("TP.CM_CTS bytes 6-8 should be the PGN: %04X", p2.get24(5));
+                if (cts.get24(5) != pgn) {
+                    warn("TP.CM_CTS bytes 6-8 should be the PGN: %04X  %s", cts.get24(5), cts.toString());
                 }
                 // send data
                 for (int i = 0; i < packetsToSend; i++) {
@@ -412,18 +418,18 @@ public class J1939TP implements Bus {
                     bus.send(Packet.create(DT | destinationAddress, getAddress(), buf));
                 }
                 // wait for CTS or EOM
-                cts = bus.read(T3, TimeUnit.MILLISECONDS).filter(controlMessageFilter).findFirst();
+                ctsOptional = bus.read(T3, TimeUnit.MILLISECONDS).filter(controlMessageFilter).findFirst();
             }
         }
-        if (cts.map(p -> p.get(0) == CM_ConnAbort).orElse(false)) {
+        if (ctsOptional.map(p -> p.get(0) == CM_ConnAbort).orElse(false)) {
             // FAIL
-            warn("Abort received: " + cts.map(p -> p.toString()).orElse("ERROR"));
+            warn("Abort received: " + ctsOptional.map(p -> p.toString()).orElse("ERROR"));
         } else
         // verify EOM
-        if (cts.map(p -> p.get(0) != CM_EndOfMessageACK).orElse(true)) {
+        if (ctsOptional.map(p -> p.get(0) != CM_EndOfMessageACK).orElse(true)) {
             // FAIL
-            warn((cts.isPresent() ? "CTS" : "EOM") + " not received.");
-            throw cts.map(p -> (BusException) new EomBusException())
+            warn((ctsOptional.isPresent() ? "CTS" : "EOM") + " not received.");
+            throw ctsOptional.map(p -> (BusException) new EomBusException())
                     .orElse(new CtsBusException());
         }
     }
