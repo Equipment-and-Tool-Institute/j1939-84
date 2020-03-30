@@ -56,6 +56,20 @@ public class MultiQueueTest {
         }
     }
 
+    @Test
+    public void testClose() {
+        try (MultiQueue<Integer> queue = new MultiQueue<>()) {
+            Stream<Integer> stream1 = queue.stream(1, TimeUnit.SECONDS);
+            Stream<Integer> stream2 = queue.stream(1, TimeUnit.SECONDS);
+
+            queue.add(1);
+            queue.add(2);
+            assertEquals(2, stream1.count());
+            queue.close();
+            assertEquals(0, stream2.count());
+        }
+    }
+
     /** Verify that building a stream with a timeout works. */
     @Test
     public void testTimedInterruption() throws Exception {
