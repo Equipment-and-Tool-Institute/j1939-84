@@ -36,8 +36,8 @@ public class DM19CalibrationInformationPacket extends ParsedPacket {
         public CalibrationInformation(String id, String cvn, byte[] rawCalId, byte[] rawCvn) {
             calibrationIdentification = id;
             calibrationVerificationNumber = cvn;
-            this.rawCalId = rawCalId;
-            this.rawCvn = rawCvn;
+            this.rawCalId = Arrays.copyOf(rawCalId, rawCalId.length);
+            this.rawCvn = Arrays.copyOf(rawCvn, rawCvn.length);
         }
 
         @Override
@@ -76,11 +76,11 @@ public class DM19CalibrationInformationPacket extends ParsedPacket {
         }
 
         public byte[] getRawCalId() {
-            return rawCalId;
+            return Arrays.copyOf(rawCalId, rawCalId.length);
         }
 
         public byte[] getRawCvn() {
-            return rawCvn;
+            return Arrays.copyOf(rawCvn, rawCvn.length);
         }
 
         @Override

@@ -15,12 +15,15 @@ import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Helper class used as a {@link ResultsListener} for testing
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
+@SuppressFBWarnings(value = "URF_UNREAD_FIELD", justification = "Matt thinks he knows what I'm doing")
 public class TestResultsListener implements ResultsListener {
 
     private boolean complete = false;
