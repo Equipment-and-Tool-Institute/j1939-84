@@ -5,7 +5,6 @@ package org.etools.j1939_84.bus;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -15,12 +14,14 @@ import java.util.stream.Stream;
 import org.junit.Test;
 
 public class MultiQueueTest {
-    @Test
-    public void bandwidthtest() throws InterruptedException {
+    /** Add 10000 items from 25 different threads in less than 1 s */
+    @Test(timeout = 1000)
+    public void bandwidthTest() throws InterruptedException {
         try (MultiQueue<Integer> queue = new MultiQueue<>()) {
-            Stream<Integer> stream = queue.stream(1000, TimeUnit.MILLISECONDS);
             long COUNT = 10000;
             int THREADS = 25;
+
+            Stream<Integer> stream = queue.stream(10, TimeUnit.SECONDS).limit(COUNT * THREADS);
             ExecutorService e = Executors.newFixedThreadPool(THREADS);
             for (int thread = 0; thread < THREADS; thread++) {
                 e.execute(() -> {
@@ -56,21 +57,26 @@ public class MultiQueueTest {
     }
 
     @Test
-    public void testInterruption() {
-        try (MultiQueue<Integer> q = new MultiQueue<>()) {
-            Stream<Integer> s = q.stream(5, TimeUnit.SECONDS);
-            for (int i = 0; i < 100; i++) {
-                q.add(i);
-            }
-            assertEquals(50, s.filter(MultiQueue.interruptFilter(v -> v >= 50)).count());
+    public void testClose() {
+        try (MultiQueue<Integer> queue = new MultiQueue<>()) {
+            Stream<Integer> stream1 = queue.stream(1, TimeUnit.SECONDS);
+            Stream<Integer> stream2 = queue.stream(1, TimeUnit.SECONDS);
+
+            queue.add(1);
+            queue.add(2);
+            assertEquals(2, stream1.count());
+            queue.close();
+            assertEquals(0, stream2.count());
         }
     }
 
+    /** Verify that building a stream with a timeout works. */
     @Test
     public void testTimedInterruption() throws Exception {
         try (MultiQueue<Integer> q = new MultiQueue<>()) {
             Stream<Integer> s1 = q.stream(200, TimeUnit.MILLISECONDS);
             Stream<Integer> s2 = q.stream(400, TimeUnit.MILLISECONDS);
+            // asynchronously add a packet every 10 ms.
             new Thread(() -> {
                 for (int i = 0; i < 100; i++) {
                     q.add(i);
@@ -80,10 +86,10 @@ public class MultiQueueTest {
                     }
                 }
             }).start();
-            long s1Count = s1.count();
-            assertTrue("s1Count is " + s1Count, s1Count > 15 && s1Count < 21);
-            long s2Count = s2.count();
-            assertTrue("s2Count is " + s2Count, s2Count > 30 && s2Count < 42);
+            // verify that roughly >= 20 packets were processed in 200 ms
+            assertEquals(22, s1.count(), 3);
+            // verify that roughly >= 40 packets were processed in 200 ms
+            assertEquals(42, s2.count(), 3);
         }
     }
 }
