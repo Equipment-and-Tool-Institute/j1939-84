@@ -125,7 +125,7 @@ public class Step05ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
@@ -207,61 +207,36 @@ public class Step05ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
-    public void testNonError() {
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    public void testNoError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
+        Set<Integer> obdModulesAddresses = new HashSet<>();
+        obdModulesAddresses.add(0);
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
-        when(packet.getSourceAddress()).thenReturn(1);
-        when(packet.getVin()).thenReturn("78654321345667889");
+        when(packet.getVin()).thenReturn("vin");
+        when(packet.getManufacturerData()).thenReturn("");
         packets.add(packet);
-        when(packet.getManufacturerData()).thenReturn("NightHawk");
-
-        VehicleIdentificationPacket packet2 = mock(VehicleIdentificationPacket.class);
-        when(packet2.getSourceAddress()).thenReturn(1);
-        packets.add(packet2);
-
-        when(vehicleInformationModule.reportVin(any())).thenReturn(packets);
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getVin()).thenReturn("78654321345667889");
-        when(vehicleInformation.getVehicleModelYear()).thenReturn(2006);
-
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getObdModuleAddresses()).thenReturn(new HashSet<Integer>());
-        when(vinDecoder.getModelYear("78654321345667889")).thenReturn(2006);
-        when(vinDecoder.isVinValid("78654321345667889")).thenReturn(true);
+        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModulesAddresses);
+        when(dataRepository.getVehicleInformation()).thenReturn(mock(VehicleInformation.class));
+        when(dataRepository.getVehicleInformation().getVehicleModelYear()).thenReturn(2006);
+        when(dataRepository.getVehicleInformation().getVin()).thenReturn("vin");
 
         when(vehicleInformationModule.reportVin(any())).thenReturn(packets);
+
+        when(vinDecoder.getModelYear(any())).thenReturn(2006);
+        when(vinDecoder.isVinValid(any())).thenReturn(true);
 
         runTest();
 
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
         verify(dataRepository, atLeastOnce()).getVehicleInformation();
 
-        verify(engineSpeedModule).setJ1939(j1939);
-
-        verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.a - Non-OBD ECU responded with VIN");
-        verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.b - More than one VIN response from an ECU");
-
-        verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.c - VIN provided from more than one non-OBD ECU");
-
-        verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.d - Manufacturer defined data follows the VIN");
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).reportVin(any());
 
-        verify(vinDecoder).getModelYear("78654321345667889");
-        verify(vinDecoder).isVinValid("78654321345667889");
+        verify(vinDecoder).getModelYear("vin");
+        verify(vinDecoder).isVinValid("vin");
+
     }
 
     /**
@@ -269,8 +244,8 @@ public class Step05ControllerTest {
      * restrictions/requirements
      */
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
-    public void testNonObdResponses() {
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    public void testNoObdResponses() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
         when(packet.getSourceAddress()).thenReturn(1);
@@ -336,39 +311,6 @@ public class Step05ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
-    public void testNoObdResponses() {
-        List<VehicleIdentificationPacket> packets = new ArrayList<>();
-        Set<Integer> obdModulesAddresses = new HashSet<>();
-        obdModulesAddresses.add(0);
-        VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
-        when(packet.getVin()).thenReturn("vin");
-        when(packet.getManufacturerData()).thenReturn("");
-        packets.add(packet);
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModulesAddresses);
-        when(dataRepository.getVehicleInformation()).thenReturn(mock(VehicleInformation.class));
-        when(dataRepository.getVehicleInformation().getVehicleModelYear()).thenReturn(2006);
-        when(dataRepository.getVehicleInformation().getVin()).thenReturn("vin");
-
-        when(vehicleInformationModule.reportVin(any())).thenReturn(packets);
-
-        when(vinDecoder.getModelYear(any())).thenReturn(2006);
-        when(vinDecoder.isVinValid(any())).thenReturn(true);
-
-        runTest();
-
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
-        verify(dataRepository, atLeastOnce()).getVehicleInformation();
-
-        verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportVin(any());
-
-        verify(vinDecoder).getModelYear("vin");
-        verify(vinDecoder).isVinValid("vin");
-
-    }
-
-    @Test
     public void testPacketsEmpty() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
 
@@ -380,6 +322,64 @@ public class Step05ControllerTest {
 
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).reportVin(any());
+    }
+
+    @Test
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    public void testWarnError() {
+        List<VehicleIdentificationPacket> packets = new ArrayList<>();
+        VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
+        when(packet.getSourceAddress()).thenReturn(1);
+        when(packet.getVin()).thenReturn("78654321345667889");
+        packets.add(packet);
+        when(packet.getManufacturerData()).thenReturn("NightHawk");
+
+        VehicleIdentificationPacket packet2 = mock(VehicleIdentificationPacket.class);
+        when(packet2.getSourceAddress()).thenReturn(1);
+        packets.add(packet2);
+
+        when(vehicleInformationModule.reportVin(any())).thenReturn(packets);
+        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
+        when(vehicleInformation.getVin()).thenReturn("78654321345667889");
+        when(vehicleInformation.getVehicleModelYear()).thenReturn(2006);
+
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        when(dataRepository.getObdModuleAddresses()).thenReturn(new HashSet<Integer>());
+        when(vinDecoder.getModelYear("78654321345667889")).thenReturn(2006);
+        when(vinDecoder.isVinValid("78654321345667889")).thenReturn(true);
+
+        when(vehicleInformationModule.reportVin(any())).thenReturn(packets);
+
+        runTest();
+
+        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
+        verify(dataRepository, atLeastOnce()).getVehicleInformation();
+
+        verify(engineSpeedModule).setJ1939(j1939);
+
+        verify(mockListener).addOutcome(1,
+                5,
+                Outcome.WARN,
+                "6.1.5.3.a - Non-OBD ECU responded with VIN");
+        verify(mockListener).addOutcome(1,
+                5,
+                Outcome.WARN,
+                "6.1.5.3.b - More than one VIN response from an ECU");
+
+        verify(mockListener).addOutcome(1,
+                5,
+                Outcome.WARN,
+                "6.1.5.3.c - VIN provided from more than one non-OBD ECU");
+
+        verify(mockListener).addOutcome(1,
+                5,
+                Outcome.WARN,
+                "6.1.5.3.d - Manufacturer defined data follows the VIN");
+        verify(vehicleInformationModule).setJ1939(j1939);
+        verify(vehicleInformationModule).reportVin(any());
+
+        verify(vinDecoder).getModelYear("78654321345667889");
+        verify(vinDecoder).isVinValid("78654321345667889");
     }
 
 }

@@ -163,7 +163,7 @@ public class Step07ControllerTest {
      * Test one module responds without issue
      */
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRunHappyPath() throws Throwable {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
@@ -203,7 +203,7 @@ public class Step07ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRunNoModulesRespond() {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
@@ -233,8 +233,8 @@ public class Step07ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = { "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            "RV_RETURN_VALUE_IGNORED" }, justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = {
+            "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT" }, justification = "RV NO SIDE EFFECT - The method is called just to get some exception.  RV VALUE IGNORED - ")
     public void testRunWithWarningsAndFailures() throws UnsupportedEncodingException {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
@@ -267,8 +267,6 @@ public class Step07ControllerTest {
         // Module
         DM19CalibrationInformationPacket dm191D = createDM19(0x1D, "CALID\u0000F", "1234");
         globalDM19s.add(dm191D);
-
-        new String(Character.toChars(0xFFFF));
 
         Packet packet0E = Packet.create(0,
                 0x0E,

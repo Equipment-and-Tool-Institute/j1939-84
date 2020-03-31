@@ -129,7 +129,7 @@ public class Step01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Step01Controller#run()}.
      */
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRun() {
 
         String expectedTitle = "Start Part 1";
@@ -185,7 +185,7 @@ public class Step01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Step01Controller#run()}.
      */
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRunVehicleInfoNull() {
 
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
@@ -241,7 +241,7 @@ public class Step01ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testWaitForKey() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
 
