@@ -37,8 +37,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
  * The unit test for {@link Step01Controller}
  *
@@ -129,7 +127,6 @@ public class Step01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Step01Controller#run()}.
      */
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testRun() {
 
         String expectedTitle = "Start Part 1";
@@ -185,7 +182,6 @@ public class Step01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Step01Controller#run()}.
      */
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testRunVehicleInfoNull() {
 
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
@@ -241,7 +237,6 @@ public class Step01ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testWaitForKey() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
 

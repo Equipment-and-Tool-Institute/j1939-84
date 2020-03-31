@@ -24,8 +24,6 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
  *
@@ -70,7 +68,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testInitialize() throws IOException {
         when(vehicleInformationModule.getVin()).thenReturn("vin");
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -94,7 +91,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testInitializeWithError() throws IOException {
         when(vehicleInformationModule.getVin()).thenThrow(new IOException());
         when(vinDecoder.getModelYear(null)).thenReturn(-1);
@@ -129,7 +125,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testValidateInvalidCertification() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -157,7 +152,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testValidateInvalidEmissionsCount() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -185,7 +179,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testValidateInvalidEngineModelYear() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -213,7 +206,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testValidateInvalidFuelType() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -241,7 +233,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testValidateInvalidVehicleModelYear() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(3);
@@ -269,7 +260,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testValidateInvalidVin() {
         when(vinDecoder.isVinValid("vin")).thenReturn(false);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -296,7 +286,6 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testValidateOkClickedAndDialogClosed() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);

@@ -42,8 +42,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
  * The unit test for {@link Step03Controller}
  *
@@ -123,10 +121,7 @@ public class Step03ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
-    /**
-     * Includes addWarning() verification for distinctCount > 1
-     */
+    // Includes addWarning() verification for distinctCount > 1
     public void testBadECUValue() {
         List<ParsedPacket> packets = new ArrayList<>();
         when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true))).thenReturn(packets);
@@ -218,7 +213,6 @@ public class Step03ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testModulesEmpty() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
@@ -273,7 +267,6 @@ public class Step03ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testRun() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);

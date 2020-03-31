@@ -12,15 +12,18 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.VehicleInformation;
@@ -39,8 +42,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
  * The unit test for {@link Step05Controller}
  *
@@ -49,6 +50,9 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Step05ControllerTest {
+
+    @Mock
+    private AcknowledgmentPacket acknowledgmentPacket;
 
     @Mock
     private BannerModule bannerModule;
@@ -125,7 +129,6 @@ public class Step05ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
@@ -138,6 +141,12 @@ public class Step05ControllerTest {
         VehicleIdentificationPacket packet2 = mock(VehicleIdentificationPacket.class);
         when(packet.getSourceAddress()).thenReturn(3);
         packets.add(packet2);
+
+        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
+        OBDModuleInformation obdModule1 = new OBDModuleInformation(0);
+        OBDModuleInformation obdModule2 = new OBDModuleInformation(0);
+        obdModuleInformations.add(obdModule1);
+        obdModuleInformations.add(obdModule2);
 
         Set<Integer> obdModuleAddresses = new HashSet<>();
         obdModuleAddresses.add(1);
@@ -207,70 +216,9 @@ public class Step05ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    // This test will have an error on the nonObdResponses due to error combination
+    // restrictions/requirements
     public void testNonError() {
-        List<VehicleIdentificationPacket> packets = new ArrayList<>();
-        VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
-        when(packet.getSourceAddress()).thenReturn(1);
-        when(packet.getVin()).thenReturn("78654321345667889");
-        packets.add(packet);
-        when(packet.getManufacturerData()).thenReturn("NightHawk");
-
-        VehicleIdentificationPacket packet2 = mock(VehicleIdentificationPacket.class);
-        when(packet2.getSourceAddress()).thenReturn(1);
-        packets.add(packet2);
-
-        when(vehicleInformationModule.reportVin(any())).thenReturn(packets);
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getVin()).thenReturn("78654321345667889");
-        when(vehicleInformation.getVehicleModelYear()).thenReturn(2006);
-
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getObdModuleAddresses()).thenReturn(new HashSet<Integer>());
-        when(vinDecoder.getModelYear("78654321345667889")).thenReturn(2006);
-        when(vinDecoder.isVinValid("78654321345667889")).thenReturn(true);
-
-        when(vehicleInformationModule.reportVin(any())).thenReturn(packets);
-
-        runTest();
-
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
-        verify(dataRepository, atLeastOnce()).getVehicleInformation();
-
-        verify(engineSpeedModule).setJ1939(j1939);
-
-        verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.a - Non-OBD ECU responded with VIN");
-        verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.b - More than one VIN response from an ECU");
-
-        verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.c - VIN provided from more than one non-OBD ECU");
-
-        verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.d - Manufacturer defined data follows the VIN");
-        verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportVin(any());
-
-        verify(vinDecoder).getModelYear("78654321345667889");
-        verify(vinDecoder).isVinValid("78654321345667889");
-    }
-
-    /**
-     * This test will have an error on the nonObdResponses due to error combination
-     * restrictions/requirements
-     */
-    @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
-    public void testNonObdResponses() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
         when(packet.getSourceAddress()).thenReturn(1);
@@ -283,11 +231,23 @@ public class Step05ControllerTest {
         when(packet.getSourceAddress()).thenReturn(3);
         packets.add(packet2);
 
+        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
+        OBDModuleInformation obdModule1 = new OBDModuleInformation(0);
+        OBDModuleInformation obdModule2 = new OBDModuleInformation(0);
+        obdModuleInformations.add(obdModule1);
+        obdModuleInformations.add(obdModule2);
+
+        Set<Integer> obdModuleAddresses = new HashSet<>();
+        obdModuleAddresses.add(1);
+        obdModuleAddresses.add(2);
+        obdModuleAddresses.add(3);
+
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin("78654321345667889");
         vehicleInformation.setVehicleModelYear(2006);
 
         when(vehicleInformationModule.reportVin(any())).thenReturn(packets);
+        // when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
         runTest();
@@ -336,41 +296,17 @@ public class Step05ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
-    public void testNoObdResponses() {
-        List<VehicleIdentificationPacket> packets = new ArrayList<>();
-        Set<Integer> obdModulesAddresses = new HashSet<>();
-        obdModulesAddresses.add(0);
-        VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
-        when(packet.getVin()).thenReturn("vin");
-        when(packet.getManufacturerData()).thenReturn("");
-        packets.add(packet);
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModulesAddresses);
-        when(dataRepository.getVehicleInformation()).thenReturn(mock(VehicleInformation.class));
-        when(dataRepository.getVehicleInformation().getVehicleModelYear()).thenReturn(2006);
-        when(dataRepository.getVehicleInformation().getVin()).thenReturn("vin");
-
-        when(vehicleInformationModule.reportVin(any())).thenReturn(packets);
-
-        when(vinDecoder.getModelYear(any())).thenReturn(2006);
-        when(vinDecoder.isVinValid(any())).thenReturn(true);
-
-        runTest();
-
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
-        verify(dataRepository, atLeastOnce()).getVehicleInformation();
-
-        verify(vehicleInformationModule).setJ1939(j1939);
-        verify(vehicleInformationModule).reportVin(any());
-
-        verify(vinDecoder).getModelYear("vin");
-        verify(vinDecoder).isVinValid("vin");
-
-    }
-
-    @Test
     public void testPacketsEmpty() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
+        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
+        OBDModuleInformation obdModule1 = new OBDModuleInformation(0);
+        OBDModuleInformation obdModule2 = new OBDModuleInformation(0);
+        obdModuleInformations.add(obdModule1);
+        obdModuleInformations.add(obdModule2);
+
+        Collection<Integer> obdModuleAddresses = new HashSet<>();
+        obdModuleAddresses.add(1);
+        obdModuleAddresses.add(2);
 
         when(vehicleInformationModule.reportVin(any())).thenReturn(packets);
 

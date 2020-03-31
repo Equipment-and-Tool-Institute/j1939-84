@@ -153,8 +153,7 @@ public class Part01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Part01Controller#Part01Controller()}.
      */
     @Test
-    @SuppressFBWarnings(value = { "SBSC_USE_STRINGBUFFER_CONCATENATION",
-            "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT" }, justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "SBSC_USE_STRINGBUFFER_CONCATENATION", justification = "Matt thinks he knows what I'm doing")
     public void testPart01Controller() {
         PartResult partResult = mock(PartResult.class);
         when(partResult.toString()).thenReturn("Part 1");
