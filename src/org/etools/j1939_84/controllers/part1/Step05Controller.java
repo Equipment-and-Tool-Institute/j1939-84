@@ -74,7 +74,6 @@ public class Step05Controller extends Controller {
 
         long nonObdResponses = packets.stream()
                 .filter(p -> !dataRepository.getObdModuleAddresses().contains(p.getSourceAddress())).count();
-        System.out.println("nonObdResponses = " + nonObdResponses);
         if (nonObdResponses > 0) {
             addWarning(1, 5, "6.1.5.3.a - Non-OBD ECU responded with VIN");
         }
