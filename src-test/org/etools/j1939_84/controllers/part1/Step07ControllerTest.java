@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -46,12 +47,39 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Step07ControllerTest {
+
+    private static DM19CalibrationInformationPacket createDM19(int sourceAddress, String calId, String cvn)
+            throws UnsupportedEncodingException {
+        return createDM19(sourceAddress, calId, cvn, 1);
+    }
+
+    private static DM19CalibrationInformationPacket createDM19(int sourceAddress, String calId, String cvn, int count)
+            throws UnsupportedEncodingException {
+        DM19CalibrationInformationPacket packet = mock(DM19CalibrationInformationPacket.class);
+        when(packet.getSourceAddress()).thenReturn(sourceAddress);
+
+        List<CalibrationInformation> calInfo = new ArrayList<>();
+        for (int i = 0; i < count; i++) {
+            calInfo.add(new CalibrationInformation(calId, cvn, calId.getBytes("UTF-8"), cvn.getBytes("UTF-8")));
+        }
+        when(packet.getCalibrationInformation()).thenReturn(calInfo);
+
+        return packet;
+    }
+
+    private static List<ParsedPacket> listOf(ParsedPacket packet) {
+        List<ParsedPacket> result = new ArrayList<>();
+        result.add(packet);
+        return result;
+    }
 
     @Mock
     private BannerModule bannerModule;
@@ -135,6 +163,7 @@ public class Step07ControllerTest {
      * Test one module responds without issue
      */
     @Test
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testRunHappyPath() throws Throwable {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
@@ -174,6 +203,7 @@ public class Step07ControllerTest {
     }
 
     @Test
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
     public void testRunNoModulesRespond() {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
@@ -203,7 +233,9 @@ public class Step07ControllerTest {
     }
 
     @Test
-    public void testRunWithWarningsAndFailures() {
+    @SuppressFBWarnings(value = { "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+            "RV_RETURN_VALUE_IGNORED" }, justification = "Matt thinks he knows what I'm doing")
+    public void testRunWithWarningsAndFailures() throws UnsupportedEncodingException {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
         // Module 0A - Too Many CalInfo's
@@ -418,28 +450,5 @@ public class Step07ControllerTest {
                 7,
                 FAIL,
                 "6.1.7.5.c. NACK not received from OBD ECU that did not respond to global query.");
-    }
-
-    private static DM19CalibrationInformationPacket createDM19(int sourceAddress, String calId, String cvn) {
-        return createDM19(sourceAddress, calId, cvn, 1);
-    }
-
-    private static DM19CalibrationInformationPacket createDM19(int sourceAddress, String calId, String cvn, int count) {
-        DM19CalibrationInformationPacket packet = mock(DM19CalibrationInformationPacket.class);
-        when(packet.getSourceAddress()).thenReturn(sourceAddress);
-
-        List<CalibrationInformation> calInfo = new ArrayList<>();
-        for (int i = 0; i < count; i++) {
-            calInfo.add(new CalibrationInformation(calId, cvn, calId.getBytes(), cvn.getBytes()));
-        }
-        when(packet.getCalibrationInformation()).thenReturn(calInfo);
-
-        return packet;
-    }
-
-    private static List<ParsedPacket> listOf(ParsedPacket packet) {
-        List<ParsedPacket> result = new ArrayList<>();
-        result.add(packet);
-        return result;
     }
 }
