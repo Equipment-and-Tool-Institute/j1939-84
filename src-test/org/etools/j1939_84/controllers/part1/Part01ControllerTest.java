@@ -172,15 +172,15 @@ public class Part01ControllerTest {
 
         StringBuffer expectedMilestones = new StringBuffer("Begin Part: Part 1\n");
         for (int i = 1; i < 27; i++) {
-            expectedMilestones.append("Begin Step: Step ").append("\n");
-            expectedMilestones.append("End Step: Step ").append("\n");
+            expectedMilestones.append("Begin Step: Step ").append(i).append("\n");
+            expectedMilestones.append("End Step: Step ").append(i).append("\n");
         }
         expectedMilestones.append("End Part: Part 1");
 
         StringBuffer expectedResults = new StringBuffer("Start Part 1\n");
         for (int i = 1; i < 27; i++) {
-            expectedResults.append("\n\nStart Step ").append("\n");
-            expectedResults.append("End Step ").append("\n");
+            expectedResults.append("\n\nStart Step ").append(i).append("\n");
+            expectedResults.append("End Step ").append(i).append("\n");
         }
         expectedResults.append("End Part 1\n");
 
