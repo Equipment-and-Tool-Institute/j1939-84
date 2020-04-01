@@ -70,7 +70,7 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testInitialize() throws IOException {
         when(vehicleInformationModule.getVin()).thenReturn("vin");
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -94,7 +94,7 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testInitializeWithError() throws IOException {
         when(vehicleInformationModule.getVin()).thenThrow(new IOException());
         when(vinDecoder.getModelYear(null)).thenReturn(-1);
@@ -129,7 +129,7 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testValidateInvalidCertification() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -157,7 +157,7 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testValidateInvalidEmissionsCount() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -185,7 +185,7 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testValidateInvalidEngineModelYear() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -213,7 +213,7 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testValidateInvalidFuelType() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -241,7 +241,7 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testValidateInvalidVehicleModelYear() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(3);
@@ -269,7 +269,7 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testValidateInvalidVin() {
         when(vinDecoder.isVinValid("vin")).thenReturn(false);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
@@ -296,7 +296,7 @@ public class VehicleInformationPresenterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testValidateOkClickedAndDialogClosed() {
         when(vinDecoder.isVinValid("vin")).thenReturn(true);
         when(vinDecoder.getModelYear("vin")).thenReturn(2);

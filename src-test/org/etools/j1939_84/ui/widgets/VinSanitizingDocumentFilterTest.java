@@ -52,7 +52,7 @@ public class VinSanitizingDocumentFilterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testInsertString() throws BadLocationException {
         when(vinDecoder.sanitize("a")).thenReturn("A");
         when(document.getLength()).thenReturn(10);
@@ -67,7 +67,7 @@ public class VinSanitizingDocumentFilterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testInsertStringTooLong() throws BadLocationException {
         when(vinDecoder.sanitize("a")).thenReturn("A");
         when(document.getLength()).thenReturn(17);
@@ -82,7 +82,7 @@ public class VinSanitizingDocumentFilterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testReplace() throws BadLocationException {
         when(vinDecoder.sanitize("a")).thenReturn("A");
         when(document.getLength()).thenReturn(10);
@@ -97,7 +97,7 @@ public class VinSanitizingDocumentFilterTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testReplaceTooLong() throws BadLocationException {
         when(vinDecoder.sanitize("a")).thenReturn("A");
         when(document.getLength()).thenReturn(17);
