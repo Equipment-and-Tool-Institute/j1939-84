@@ -2,6 +2,7 @@ package org.etools.j1939_84.bus.j1939;
 
 import java.util.Arrays;
 import java.util.BitSet;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
@@ -19,14 +20,16 @@ import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.EchoBus;
 import org.etools.j1939_84.bus.Packet;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 public class J1939TP implements Bus {
-    public class CanceledBusException extends BusException {
+    static public class CanceledBusException extends BusException {
         public CanceledBusException() {
             super("Canceled.");
         }
     }
 
-    public class CtsBusException extends BusException {
+    static public class CtsBusException extends BusException {
         private static final long serialVersionUID = 425016130552597972L;
 
         public CtsBusException() {
@@ -34,13 +37,13 @@ public class J1939TP implements Bus {
         }
     }
 
-    public class EomBusException extends BusException {
+    static public class EomBusException extends BusException {
         public EomBusException() {
             super("EOM not received.");
         }
     }
 
-    public class TpDtBusException extends BusException {
+    static public class TpDtBusException extends BusException {
         public TpDtBusException() {
             super("DT not received.");
         }
@@ -57,7 +60,7 @@ public class J1939TP implements Bus {
     final static public int CM_RTS = 16;
 
     final static public int DT = 0xEB00;
-    final static public Map<Integer, String> errors = new HashMap<>();
+    final static public Map<Integer, String> errors;
 
     final static public int T1 = 750;
     final static public int T2 = 1250;
@@ -68,17 +71,19 @@ public class J1939TP implements Bus {
     final static public int Tr = 200;
 
     static {
-        errors.put(1, "Already in one or more connection managed sessions and cannot support another.");
-        errors.put(2,
+        Map<Integer, String> err = new HashMap<>();
+        err.put(1, "Already in one or more connection managed sessions and cannot support another.");
+        err.put(2,
                 "System resources were needed for another task so this connection managed session was terminated.");
-        errors.put(3, "A timeout occurred and this is the connection abort to close the session.");
-        errors.put(4, "CTS messages received when data transfer is in progress.");
-        errors.put(5, "Maximum retransmit request limit reached");
-        errors.put(6, "Unexpected data transfer packet");
-        errors.put(7, "Bad sequence number (software cannot recover)");
-        errors.put(8, "Duplicate sequence number (software cannot recover)");
-        errors.put(9, "\"Total Message Size\" is greater than 1785 bytes");
-        errors.put(250, "If a Connection Abort reason is identified that is not listed in the table use code 250");
+        err.put(3, "A timeout occurred and this is the connection abort to close the session.");
+        err.put(4, "CTS messages received when data transfer is in progress.");
+        err.put(5, "Maximum retransmit request limit reached");
+        err.put(6, "Unexpected data transfer packet");
+        err.put(7, "Bad sequence number (software cannot recover)");
+        err.put(8, "Duplicate sequence number (software cannot recover)");
+        err.put(9, "\"Total Message Size\" is greater than 1785 bytes");
+        err.put(250, "If a Connection Abort reason is identified that is not listed in the table use code 250");
+        errors = Collections.unmodifiableMap(err);
     }
 
     static private void sleep(int duration) {
@@ -108,12 +113,13 @@ public class J1939TP implements Bus {
         this(bus, bus.getAddress());
     }
 
+    @SuppressFBWarnings(value = { "UW_UNCOND_WAIT", "WA_NOT_IN_LOOP" }, justification = "Wait for stream open.")
     J1939TP(Bus bus, int address) throws BusException {
         this.bus = bus;
         stream = bus.read(9999, TimeUnit.DAYS);
         inbound = new EchoBus(address);
         synchronized (inbound) {
-            exec.execute(this::run);
+            exec.execute(this::processPackets);
             try {
                 // wait for run() to get a reference to bus
                 inbound.wait();
@@ -138,6 +144,14 @@ public class J1939TP implements Bus {
     @Override
     public int getConnectionSpeed() throws BusException {
         return bus.getConnectionSpeed();
+    }
+
+    @SuppressFBWarnings(value = "NN_NAKED_NOTIFY", justification = "Notify of stream open.")
+    private void processPackets() {
+        synchronized (inbound) {
+            inbound.notifyAll();
+        }
+        stream.forEach(p -> receive(p));
     }
 
     @Override
@@ -311,13 +325,6 @@ public class J1939TP implements Bus {
     @Override
     public void resetTimeout(Stream<Packet> stream, int time, TimeUnit unit) {
         bus.resetTimeout(stream, time, unit);
-    }
-
-    private void run() {
-        synchronized (inbound) {
-            inbound.notifyAll();
-        }
-        stream.forEach(p -> receive(p));
     }
 
     @Override

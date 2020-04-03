@@ -7,6 +7,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Supplier;
 import java.util.stream.Stream;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * The Interface for a vehicle communications bus
  *
@@ -41,24 +43,27 @@ public interface Bus extends AutoCloseable {
         log(() -> prefix);
     }
 
+    @SuppressFBWarnings(value = { "UW_UNCOND_WAIT", "WA_NOT_IN_LOOP" }, justification = "Wait for stream open.")
     default void log(Supplier<String> prefix) {
-        Runnable r = new Runnable() {
+        Runnable procesPackets = new Runnable() {
             @Override
+            @SuppressFBWarnings(value = "NN_NAKED_NOTIFY", justification = "Notify of stream open.")
             public void run() {
-                synchronized (this) {
-                    notifyAll();
-                }
                 try {
-                    read(999, TimeUnit.DAYS).forEach(p -> System.err.println(prefix.get() + p));
+                    Stream<Packet> stream = read(999, TimeUnit.DAYS);
+                    synchronized (this) {
+                        notifyAll();
+                    }
+                    stream.forEach(p -> System.err.println(prefix.get() + p));
                 } catch (BusException e) {
                     e.printStackTrace();
                 }
             }
         };
-        synchronized (r) {
-            new Thread(r).start();
+        synchronized (procesPackets) {
+            new Thread(procesPackets).start();
             try {
-                r.wait();
+                procesPackets.wait();
             } catch (InterruptedException e) {
                 // nothing
             }
