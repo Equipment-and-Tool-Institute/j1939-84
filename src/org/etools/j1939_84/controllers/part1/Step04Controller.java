@@ -2,8 +2,8 @@ package org.etools.j1939_84.controllers.part1;
 
 import java.util.List;
 import java.util.Set;
-import java.util.concurrent.Executors;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -60,7 +60,7 @@ public class Step04Controller extends Controller {
                 dataRepository.getObdModuleAddresses());
 
         if (result.isRetryUsed()) {
-            addFailure(1, 4, "6.1.4.2.a - Retry was required to obtain DM24 response.");
+            addFailure(1, 4, "6.1.4.2.a - Retry was required to obtain DM24 response");
         }
 
         result.getPackets().stream().forEach(p -> {
