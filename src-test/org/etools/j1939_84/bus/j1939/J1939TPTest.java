@@ -69,7 +69,7 @@ public class J1939TPTest {
         try (EchoBus bus = new EchoBus(0xF9);
                 J1939TP tp = new J1939TP(bus, 0)) {
             Stream<Packet> s = bus.read(J1939TP.T1 * 5, TimeUnit.MILLISECONDS);
-            bus.send(Packet.parse("18EC00F9 10 00 09 02 FF 00 EA 00"));
+            bus.send(Packet.parse("18EC00F9 10 09 00 02 FF 00 EA 00"));
             // verify exactly 3 CTS
             assertEquals(3, s.filter(p -> p.toString().startsWith("18ECF900 11")).count());
         }
@@ -89,7 +89,7 @@ public class J1939TPTest {
                 Stream<Packet> stream = tpIn.read(2 * J1939TP.T1, TimeUnit.MILLISECONDS);
 
                 // send RTS
-                bus.send(Packet.parse("18ECF900 10 00 15 03 FF 00 EA 00"));
+                bus.send(Packet.parse("18ECF900 10 15 00 03 FF 00 EA 00"));
 
                 // wait for up to 120% o T1 for CTS
                 assertPacketsEquals(Packet.parse("18EC00F9 11 03 01 FF FF 00 EA 00"),
@@ -121,7 +121,7 @@ public class J1939TPTest {
                 Stream<Packet> stream = tpIn.read(2 * J1939TP.T1, TimeUnit.MILLISECONDS);
 
                 // send RTS
-                bus.send(Packet.parse("18ECF900 10 00 15 03 FF 00 EA 00"));
+                bus.send(Packet.parse("18ECF900 10 15 00 03 FF 00 EA 00"));
 
                 // wait for up to 120% o T1 for CTS
                 assertPacketsEquals(Packet.parse("18EC00F9 11 03 01 FF FF 00 EA 00"),
@@ -158,7 +158,7 @@ public class J1939TPTest {
                     "18EA00F9 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F")));
 
             // verify RTS
-            assertPacketsEquals(Packet.parse("18EC00F9 10 00 2D 07 FF 00 EA 00"),
+            assertPacketsEquals(Packet.parse("18EC00F9 10 2D 00 07 FF 00 EA 00"),
                     stream.findFirst().orElse(null));
 
             // wait for up to 120% o T1 for data packets
@@ -183,7 +183,7 @@ public class J1939TPTest {
     public void testBam() throws BusException {
         Packet testPacket = Packet.parsePacket(
                 "18FFEE00 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09");
-        Collection<Packet> expectedResult = Packet.parseCollection("18ECFF00 20 00 28 06 FF EE FF 00\n" +
+        Collection<Packet> expectedResult = Packet.parseCollection("18ECFF00 20 28 00 06 FF EE FF 00\n" +
                 "18EBFF00 01 00 01 02 03 04 05 06\n" +
                 "18EBFF00 02 07 08 09 00 01 02 03\n" +
                 "18EBFF00 03 04 05 06 07 08 09 00\n" +
@@ -236,7 +236,7 @@ public class J1939TPTest {
     public void testBamAbort() throws BusException {
         Packet.parsePacket(
                 "18FFEE00 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09");
-        Collection<Packet> rawPackets = Packet.parseCollection("18ECFF00 20 00 28 06 FF EE FF 00\n" +
+        Collection<Packet> rawPackets = Packet.parseCollection("18ECFF00 20 28 00 06 FF EE FF 00\n" +
                 "18EBFF00 01 00 01 02 03 04 05 06\n" +
                 "18EBFF00 02 07 08 09 00 01 02 03\n" +
                 "18EBFF00 03 04 05 06 07 08 09 00\n" +
@@ -260,7 +260,7 @@ public class J1939TPTest {
     public void testBamMissingDt() throws BusException, InterruptedException {
         Collection<Packet> expectedPacket = Collections.singletonList(Packet.parsePacket(
                 "18FFEE00 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09"));
-        List<Packet> testPackets = new ArrayList<>(Packet.parseCollection("18ECFF00 20 00 28 06 FF EE FF 00\n" +
+        List<Packet> testPackets = new ArrayList<>(Packet.parseCollection("18ECFF00 20 28 00 06 FF EE FF 00\n" +
                 "18EBFF00 01 00 01 02 03 04 05 06\n" +
                 "18EBFF00 02 07 08 09 00 01 02 03\n" +
                 "18EBFF00 03 04 05 06 07 08 09 00\n" +
@@ -326,7 +326,7 @@ public class J1939TPTest {
                     "18EA00F9 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D 0E 0F")));
 
             // verify RTS
-            assertPacketsEquals(Packet.parse("18EC00F9 10 00 2D 07 FF 00 EA 00"), stream.findFirst().orElse(null));
+            assertPacketsEquals(Packet.parse("18EC00F9 10 2D 00 07 FF 00 EA 00"), stream.findFirst().orElse(null));
 
             stream = bus.read(100, TimeUnit.MILLISECONDS).filter(p -> p.getSource() == 0xF9);
             // send CTS for 2 packets
@@ -372,7 +372,7 @@ public class J1939TPTest {
 
             Stream<Packet> s = bus.read(3, TimeUnit.SECONDS).filter(p -> p.getSource() == 0);
             // RTS for 2 packets
-            bus.send(Packet.parse("18EC00F9 10 00 09 02 FF 00 EA 00"));
+            bus.send(Packet.parse("18EC00F9 10 09 00 02 FF 00 EA 00"));
             // verify CTS for 2 packets starting with packet 1
             assertPacketsEquals(Packet.parsePacket("18ECF900 11 02 01 FF FF 00 EA 00"), s.findFirst().get());
 
@@ -386,7 +386,7 @@ public class J1939TPTest {
             // send packet 1
             bus.send(Packet.parse("18EB00F9 01 01 02 03 04 05 06 07"));
             // verify EOM ACK
-            assertPacketsEquals(Packet.parsePacket("18ECF900 13 00 09 02 FF 00 EA 00"), s.findFirst().get());
+            assertPacketsEquals(Packet.parsePacket("18ECF900 13 09 00 02 FF 00 EA 00"), s.findFirst().get());
 
             // verify packet received
             assertPacketsEquals(Packet.parsePacket("18EA00F9 01 02 03 04 05 06 07 08 09"),
@@ -407,7 +407,7 @@ public class J1939TPTest {
                 Bus tp = new J1939TP(bus, 0xF9);) {
             Stream<Packet> tpStream = tp.read(J1939TP.T1 * 3, TimeUnit.MILLISECONDS);
             // send first RTS
-            bus.send(Packet.parse("18ECFF00 20 00 0E 03 FF F9 12 00"));
+            bus.send(Packet.parse("18ECFF00 20 0E 00 03 FF F9 12 00"));
             sleep(50);
             // send full TP
             Packet p = Packet.parse("18FFFF00 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D");
@@ -432,7 +432,7 @@ public class J1939TPTest {
                 Bus tp = new J1939TP(bus, 0xF9);) {
             Stream<Packet> tpStream = tp.read(J1939TP.T1 * 3, TimeUnit.MILLISECONDS);
             // send first CTS
-            bus.send(Packet.parse("18ECF900 10 00 0E 03 FF F9 12 00"));
+            bus.send(Packet.parse("18ECF900 10 0E 00 03 FF F9 12 00"));
             sleep(50);
             // send full TP
             Packet p = Packet.parse("1812F900 00 01 02 03 04 05 06 07 08 09 0A 0B 0C 0D");
@@ -473,7 +473,7 @@ public class J1939TPTest {
             Stream<Packet> stream = bus.read(500, TimeUnit.MILLISECONDS).filter(p -> p.getSource() == 0);
             Stream<Packet> tpStream = tp.read(2, TimeUnit.SECONDS);
             // send RTS
-            bus.send(Packet.parse("18EC00F9 10 00 09 02 FF 00 EA 00"));
+            bus.send(Packet.parse("18EC00F9 10 09 00 02 FF 00 EA 00"));
             // verify CTS
             assertPacketsEquals(Packet.parse("18ECF900 11 02 01 FF FF 00 EA 00"), stream.findFirst().get());
 
@@ -483,7 +483,7 @@ public class J1939TPTest {
             // send packet 1
             bus.send(Packet.parse("18EB00F9 01 01 02 03 04 05 06 07"));
             // verify EOM
-            assertPacketsEquals(Packet.parseCollection("18ECF900 13 00 09 02 FF 00 EA 00"),
+            assertPacketsEquals(Packet.parseCollection("18ECF900 13 09 00 02 FF 00 EA 00"),
                     stream.collect(Collectors.toList()));
 
             // verify packet
@@ -508,11 +508,11 @@ public class J1939TPTest {
             tpOut.send(Packet.parse("18EA00F9 01 02 03 04 05 06 07 08 09"));
 
             // verify that all the packets and only the expected packets were broadcast
-            assertPacketsEquals(Packet.parseCollection("18EC00F9 10 00 09 02 FF 00 EA 00\n" +
+            assertPacketsEquals(Packet.parseCollection("18EC00F9 10 09 00 02 FF 00 EA 00\n" +
                     "18ECF900 11 02 01 FF FF 00 EA 00\n" +
                     "18EB00F9 01 01 02 03 04 05 06 07\n" +
                     "18EB00F9 02 08 09 00 00 00 00 00\n" +
-                    "18ECF900 13 00 09 02 FF 00 EA 00"),
+                    "18ECF900 13 09 00 02 FF 00 EA 00"),
                     stream.collect(Collectors.toList()));
 
             // verify that the complete packet and only the complete packet is on the TP
@@ -530,7 +530,7 @@ public class J1939TPTest {
             Iterator<Packet> it = bus.read(5, TimeUnit.SECONDS).filter(p -> p.getSource() == 0).iterator();
 
             // send RTS
-            bus.send(Packet.parse("18EC00F9 10 00 09 02 FF 00 EA 00"));
+            bus.send(Packet.parse("18EC00F9 10 09 00 02 FF 00 EA 00"));
 
             // verify CTS is for 2 packets starting at packet 1
             {
@@ -612,7 +612,7 @@ public class J1939TPTest {
             Stream<Packet> stream = bus.read(J1939TP.T1, TimeUnit.MILLISECONDS);
             run(() -> {
                 // wait for RTS
-                assertPacketsEquals(Packet.parsePacket("18ECF900 10 00 0A 02 FF F9 EA 00"),
+                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF F9 EA 00"),
                         stream.findFirst().orElse(null));
                 // send invalid CTS
                 bus.send(Packet.parse("18EC00F9 11 FF 01 11 11 F9 EA 00"));
@@ -640,7 +640,7 @@ public class J1939TPTest {
             Stream<Packet> stream = bus.read(J1939TP.T1, TimeUnit.MILLISECONDS);
             run(() -> {
                 // wait for RTS
-                assertPacketsEquals(Packet.parsePacket("18ECF900 10 00 0A 02 FF F9 EA 00"),
+                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF F9 EA 00"),
                         stream.findFirst().orElse(null));
                 // send invalid CTS
                 bus.send(Packet.parse("18EC00F9 11 00 11 11 11 11 11 11"));
@@ -668,7 +668,7 @@ public class J1939TPTest {
             Stream<Packet> stream = bus.read(J1939TP.T1, TimeUnit.MILLISECONDS);
             run(() -> {
                 // wait for RTS
-                assertPacketsEquals(Packet.parsePacket("18ECF900 10 00 0A 02 FF F9 EA 00"),
+                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF F9 EA 00"),
                         stream.findFirst().orElse(null));
                 // send invalid CTS
                 bus.send(Packet.parse("18EC00F9 11 01 02 FF FF 11 11 11"));
