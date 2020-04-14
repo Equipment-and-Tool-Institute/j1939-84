@@ -234,7 +234,7 @@ public class Step07ControllerTest {
 
     @Test
     @SuppressFBWarnings(value = {
-            "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT" }, justification = "RV NO SIDE EFFECT - The method is called just to get some exception.  RV VALUE IGNORED - ")
+            "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT" }, justification = "The method is called just to get some exception.")
     public void testRunWithWarningsAndFailures() throws UnsupportedEncodingException {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
