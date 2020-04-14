@@ -78,9 +78,9 @@ public class Step06Controller extends Controller {
             // Zero based for char count in strings.
             char char13 = familyName.charAt(13);
 
-            int astriskIndex = familyName.indexOf('*');
+            int asteriskIndex = familyName.indexOf('*');
 
-            if ((-1 < astriskIndex && astriskIndex <= 12)
+            if ((-1 < asteriskIndex && asteriskIndex <= 12)
                     || (char13 != Character.MIN_VALUE && char13 != '*' && familyName.contains("*"))) {
                 addFailure(1,
                         6,

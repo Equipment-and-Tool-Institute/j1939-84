@@ -20,9 +20,8 @@ import org.mockito.ArgumentCaptor;
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
- *         This class provide the basic method for running a test on a
- *         class that extends {@link Controller}. It also provides a list
- *         of a type for easy mocking of packets and other lists of objects.
+ *         This class provides the basic method for running a test on a
+ *         class that extends {@link Controller}.
  *
  */
 public abstract class AbstractControllerTest {
@@ -37,6 +36,8 @@ public abstract class AbstractControllerTest {
     private VehicleInformationModule vehicleInformationModule;
 
     /**
+     * This method takes an object, creates a list of the same type of objects, adds
+     * the original object to the newly created list and then returns the list.
      *
      * @param <T>
      * @param item
@@ -49,6 +50,9 @@ public abstract class AbstractControllerTest {
     }
 
     /**
+     * This method will execute a test and capture the results for testing
+     * verification. This method also performs the verification of the j1939 mock
+     * used in this method.
      *
      */
     protected void runTest() {
@@ -64,14 +68,16 @@ public abstract class AbstractControllerTest {
     }
 
     /**
+     * Constructor method of the class.
      *
-     * @param instance
-     * @param listener
-     * @param j1939
-     * @param engineSpeedModule
-     * @param reportFileModule
-     * @param executor
-     * @param vehicleInformationModule
+     * @param instance                 - Controller class object under test
+     * @param listener                 - TestResultsListener with a mocked
+     *                                 ResultsListener
+     * @param j1939                    - must be mock
+     * @param engineSpeedModule        - must be mock
+     * @param reportFileModule         - must be mock
+     * @param executor                 - can't be null
+     * @param vehicleInformationModule - must be mock
      */
     protected void setup(Controller instance,
             TestResultsListener listener,
