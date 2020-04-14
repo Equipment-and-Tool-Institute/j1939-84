@@ -49,7 +49,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
     private static final String familyName = "YCALIF HD OBD*";
 
     /*
-     * All vaLues must be checked prior to mocking so that we are not
+     * All values must be checked prior to mocking so that we are not
      * creating unnecessary mocks.
      */
     private static DM56EngineFamilyPacket createDM56(Integer sourceAddress,
@@ -419,9 +419,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                "DM56 is not supported\n",
-                listener.getResults());
+        assertEquals("DM56 is not supported\n", listener.getResults());
     }
 
     /**
