@@ -2,8 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="src-test"/>
-	<classpathentry kind="lib" path="lib-test/byte-buddy-1.6.3.jar"/>
-	<classpathentry kind="lib" path="lib-test/byte-buddy-agent-1.6.3.jar"/>
 	<classpathentry kind="lib" path="lib-test/detekt-cli-1.0.0-RC16-all.jar"/>
 	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/lib/asm-debug-all-5.0.2.jar"/>
 	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/lib/bcel-6.0-SNAPSHOT.jar"/>
@@ -40,13 +38,15 @@
 	<classpathentry kind="lib" path="lib-test/launch4j/lib/jgoodies-forms.jar"/>
 	<classpathentry kind="lib" path="lib-test/launch4j/lib/jgoodies-looks.jar"/>
 	<classpathentry kind="lib" path="lib-test/launch4j/lib/xstream.jar"/>
-	<classpathentry kind="lib" path="lib-test/mockito-core-2.6.3.jar"/>
 	<classpathentry kind="lib" path="lib-test/objenesis-2.5.jar"/>
 	<classpathentry kind="lib" path="lib/annotations.jar"/>
 	<classpathentry kind="lib" path="lib/ini4j-0.5.4.jar"/>
 	<classpathentry kind="lib" path="lib/opencsv-3.8.jar"/>
-	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-1.8"/>
 	<classpathentry kind="lib" path="lib/jna-5.5.0.jar"/>
 	<classpathentry kind="lib" path="lib/jna-platform-5.5.0.jar"/>
+	<classpathentry kind="lib" path="lib-test/byte-buddy-1.10.9.jar"/>
+	<classpathentry kind="lib" path="lib-test/byte-buddy-agent-1.10.9.jar"/>
+	<classpathentry kind="lib" path="lib-test/mockito-core-3.3.3.jar"/>
+	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
