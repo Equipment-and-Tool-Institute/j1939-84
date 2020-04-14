@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.logging.Level;
 
 import org.etools.j1939_84.J1939_84;
+import org.etools.j1939_84.bus.j1939.J1939TP;
 import org.etools.j1939_84.bus.simulated.Engine;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
@@ -149,7 +150,8 @@ public class RP1210 {
             }
             return bus;
         } else {
-            return new RP1210Bus(adapter, address);
+            // return new RP1210Bus(adapter, address, false);
+            return new J1939TP(new RP1210Bus(adapter, address, true));
         }
     }
 }

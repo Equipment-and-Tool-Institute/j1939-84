@@ -77,39 +77,45 @@ public class RP1210Bus implements Bus {
      * @throws BusException
      *                      if there is a problem connecting to the adapter
      */
-    public RP1210Bus(Adapter adapter, int address) throws BusException {
+    public RP1210Bus(Adapter adapter, int address, boolean appPacketize) throws BusException {
         this(RP1210Library.load(adapter), Executors.newSingleThreadScheduledExecutor(), new MultiQueue<>(), adapter,
-                address, J1939_84.getLogger());
+                address, appPacketize, J1939_84.getLogger());
     }
 
     /**
      * Constructor exposed for testing
      *
      * @param rp1210Library the {@link RP1210Library} that connects to the adapter
-     * 
+     *
      * @param exec          the {@link ScheduledExecutorService} that will execute
      *                      tasks
-     * 
+     *
      * @param adapter       the {@link Adapter} thats connected to the vehicle
-     * 
+     *
      * @param address       the source address of this branch on the bus
-     * 
+     *
      * @param logger        the {@link Logger} for logging errors
      *
      * @param queue         the {@link Packet} for logging errors
-     * 
+     *
      * @throws BusException if there is a problem connecting to the adapter
-     * 
+     *
      */
     public RP1210Bus(RP1210Library rp1210Library, ScheduledExecutorService exec, MultiQueue<Packet> queue,
-            Adapter adapter, int address, Logger logger) throws BusException {
+            Adapter adapter, int address, boolean appPacketize, Logger logger) throws BusException {
         this.rp1210Library = rp1210Library;
         this.exec = exec;
         this.queue = queue;
         this.address = address;
         this.logger = logger;
 
-        clientId = rp1210Library.RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 0);
+        clientId = rp1210Library
+                .RP1210_ClientConnect(0,
+                        adapter.getDeviceId(),
+                        "J1939:Baud=Auto",
+                        0,
+                        0,
+                        (short) (appPacketize ? 1 : 0));
         verify(clientId);
         try {
             sendCommand(CMD_PROTECT_J1939_ADDRESS,
