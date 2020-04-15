@@ -30,6 +30,7 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.testdoc.TestDoc;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -44,6 +45,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
+@TestDoc(verifies = "Part 1", description = "lots of testing")
 public class Step06ControllerTest extends AbstractControllerTest {
 
     private static final String familyName = "YCALIF HD OBD*";
@@ -241,6 +243,8 @@ public class Step06ControllerTest extends AbstractControllerTest {
      * Test engineModelYearField not matching user input
      */
     @Test
+    @TestDoc(verifies = { "6.1.6.2.a",
+            "6.1.6.2.b" }, description = "Verifies that a failure is indicated when DM56 specifies an engine MY 2006, but the user enters 2010.")
     public void testEngineModelYearDoesntMatch() {
         List<DM56EngineFamilyPacket> parsedPackets = listOf(createDM56(null, 2006, "2006E-MY", null, familyName));
         when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
@@ -271,9 +275,10 @@ public class Step06ControllerTest extends AbstractControllerTest {
 
     /**
      * Verify the error handling for 6.1.6.2.e. - Engine family has <> 12 characters
-     * before first “null” character (ASCII 0x00) correct behavior
+     * before first null character (ASCII 0x00) correct behavior
      */
     @Test
+    @TestDoc(verifies = "1.2.3", description = "asdf")
     public void testFamilyNameWithNullTermination() {
         // Remove asterisk from name to test valid null termination
         String famName = familyName.replace('*', Character.MIN_VALUE);
@@ -302,7 +307,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
 
     /**
      * Verify the error handling for 6.1.6.2.e. - Engine family has <> 12 characters
-     * before first “null” character (ASCII 0x00) correct behavior
+     * before first null character (ASCII 0x00) correct behavior
      */
     @Test
     public void testFamilyNameWithNullTerminationGreaterThanTwelve() {
@@ -324,20 +329,20 @@ public class Step06ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                 6,
                 Outcome.FAIL,
-                "6.1.6.2.e. - Engine family has <> 12 characters before first “null” character (ASCII 0x00)");
+                "6.1.6.2.e. - Engine family has <> 12 characters before first null character (ASCII 0x00)");
 
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 6,
                 Outcome.FAIL,
-                "6.1.6.2.e. - Engine family has <> 12 characters before first “null” character (ASCII 0x00)");
+                "6.1.6.2.e. - Engine family has <> 12 characters before first null character (ASCII 0x00)");
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 6,
                 Outcome.FAIL,
-                "6.1.6.2.e. - Engine family has <> 12 characters before first “null” character (ASCII 0x00)");
+                "6.1.6.2.e. - Engine family has <> 12 characters before first null character (ASCII 0x00)");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first “null” character (ASCII 0x00)");
+                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first null character (ASCII 0x00)");
 
         verify(vehicleInformationModule).reportEngineFamily(any());
 
@@ -345,7 +350,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first “null” character (ASCII 0x00)\n",
+                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first null character (ASCII 0x00)\n",
                 listener.getResults());
     }
 
@@ -376,13 +381,14 @@ public class Step06ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository, times(2)).getVehicleInformation();
 
-        verify(mockListener).addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.b - Indicates “V” instead of “E” for cert type");
+        verify(mockListener)
+                .addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.b - Indicates â€œVâ€� instead of â€œEâ€� for cert type");
         verify(mockListener).addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.c - Not formatted correctly");
 
         verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).onResult("FAIL: 6.1.6.2.b - Indicates “V” instead of “E” for cert type");
+        verify(reportFileModule).onResult("FAIL: 6.1.6.2.b - Indicates â€œVâ€� instead of â€œEâ€� for cert type");
         verify(reportFileModule)
-                .addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.b - Indicates “V” instead of “E” for cert type");
+                .addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.b - Indicates â€œVâ€� instead of â€œEâ€� for cert type");
 
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).onResult("FAIL: 6.1.6.2.c - Not formatted correctly");
@@ -393,7 +399,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.6.2.b - Indicates “V” instead of “E” for cert type\nFAIL: 6.1.6.2.c - Not formatted correctly\n",
+                "FAIL: 6.1.6.2.b - Indicates â€œVâ€� instead of â€œEâ€� for cert type\nFAIL: 6.1.6.2.c - Not formatted correctly\n",
                 listener.getResults());
     }
 
