@@ -66,7 +66,7 @@ public class RP1210BusTest {
     private final ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
 
     private void createInstance() throws BusException {
-        instance = new RP1210Bus(rp1210Library, exec, queue, adapter, ADDRESS, logger);
+        instance = new RP1210Bus(rp1210Library, exec, queue, adapter, ADDRESS, true, logger);
     }
 
     @Before

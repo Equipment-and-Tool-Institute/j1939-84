@@ -158,7 +158,7 @@ public class Part01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Part01Controller#Part01Controller()}.
      */
     @Test
-    @SuppressFBWarnings(value = "SBSC_USE_STRINGBUFFER_CONCATENATION", justification = "Matt thinks he knows what I'm doing")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testPart01Controller() {
         PartResult partResult = mock(PartResult.class);
         when(partResult.toString()).thenReturn("Part 1");
@@ -170,25 +170,24 @@ public class Part01ControllerTest {
             when(partResult.getStepResult(i)).thenReturn(stepResult);
         }
 
-        String expectedMessages = "";
+        StringBuffer expectedMessages = new StringBuffer();
         for (int i = 1; i < 27; i++) {
-            expectedMessages += "\nStep " + i;
+            expectedMessages.append("\nStep ").append(i);
         }
 
-        String expectedMilestones = "";
-        expectedMilestones += "Begin Part: Part 1\n";
+        StringBuffer expectedMilestones = new StringBuffer("Begin Part: Part 1\n");
         for (int i = 1; i < 27; i++) {
-            expectedMilestones += "Begin Step: Step " + i + "\n";
-            expectedMilestones += "End Step: Step " + i + "\n";
+            expectedMilestones.append("Begin Step: Step ").append(i).append("\n");
+            expectedMilestones.append("End Step: Step ").append(i).append("\n");
         }
-        expectedMilestones += "End Part: Part 1";
+        expectedMilestones.append("End Part: Part 1");
 
-        String expectedResults = "Start Part 1\n";
+        StringBuffer expectedResults = new StringBuffer("Start Part 1\n");
         for (int i = 1; i < 27; i++) {
-            expectedResults += "\n\nStart Step " + i + "\n";
-            expectedResults += "End Step " + i + "\n";
+            expectedResults.append("\n\nStart Step ").append(i).append("\n");
+            expectedResults.append("End Step ").append(i).append("\n");
         }
-        expectedResults += "End Part 1\n";
+        expectedResults.append("End Part 1\n");
 
         instance.execute(listener, j1939, reportFileModule);
 
@@ -217,9 +216,9 @@ public class Part01ControllerTest {
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(engineSpeedModule).setJ1939(j1939);
 
-        assertEquals(expectedMilestones, listener.getMilestones());
-        assertEquals(expectedMessages, listener.getMessages());
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals(expectedMilestones.toString(), listener.getMilestones());
+        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 
 }
