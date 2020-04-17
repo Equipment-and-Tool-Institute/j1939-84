@@ -62,6 +62,10 @@ public class Step08Controller extends Controller {
         // 6.1.8.1.a. Global DM20 (send Request (PGN 59904) for PGN 49664
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = diagnosticReadinessModule.getDM20Packets(getListener(),
                 true);
+        if (globalDM20s.isEmpty()) {
+            getListener().onResult("DM20 is not supported");
+            return;
+        }
 
         // 6.1.8.1.a.i. Create list of ECU address
         List<Integer> ecuAddresses = new ArrayList<>();
@@ -93,7 +97,7 @@ public class Step08Controller extends Controller {
                 addFailure(1, 8, "6.1.8.2.a - minimum expected SPNs for Diesel fuel type are not supported.");
             } else {
                 // TODO Send message that the proper SPNs were passed
-                System.out.println("All SPNs recieved.");
+                getListener().onResult("All minimum SPNs found for Diesel Fuel Type.");
             }
         } else {
 
@@ -108,7 +112,7 @@ public class Step08Controller extends Controller {
                 addFailure(1, 8, "6.1.8.2.a - minimum expected SPNs for Spark Ignition are not supported.");
             } else {
                 // TODO Send message that the proper SPNs were passed
-                System.out.println("All SPNs recieved.");
+                getListener().onResult("All minimum SPNs found for Spark Ignition.");
             }
         } else {
 
