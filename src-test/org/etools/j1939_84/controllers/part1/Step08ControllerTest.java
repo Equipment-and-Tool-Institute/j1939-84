@@ -6,7 +6,6 @@ package org.etools.j1939_84.controllers.part1;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -19,11 +18,7 @@ import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.FuelType;
-import org.etools.j1939_84.model.IgnitionType;
-import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
-import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
@@ -63,12 +58,6 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
     @Mock
     private Executor executor;
-
-    @Mock
-    private FuelType fuelType;
-
-    @Mock
-    private IgnitionType ignitionType;
 
     private Step08Controller instance;
 
@@ -136,25 +125,19 @@ public class Step08ControllerTest extends AbstractControllerTest {
     public void testHappyRun() {
 
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-        when(diagnosticReadinessModule.getDM20Packets(any(), true)).thenReturn(globalDM20s);
-
-        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
-
-        VehicleInformation vehicleInformation = new VehicleInformation();
-        vehicleInformation.setEmissionUnits(1);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
 
         runTest();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
         verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
-        verify(dataRepository).getObdModule(0);
-        verify(dataRepository).getVehicleInformation();
+
+        verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule).onResult("DM20 is not supported");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
+        assertEquals("DM20 is not supported\n", listener.getResults());
     }
 
     // @Test
