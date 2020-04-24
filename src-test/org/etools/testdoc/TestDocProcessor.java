@@ -47,7 +47,7 @@ public class TestDocProcessor extends AbstractProcessor {
         if (!elements.isEmpty()) {
             try (Writer out = processingEnv.getFiler()
                     .createResource(StandardLocation.SOURCE_OUTPUT,
-                            "testDocs",
+                            "",
                             "testdoc.html")
                     .openWriter()) {
                 out.write("<html><table>");
