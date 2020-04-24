@@ -39,9 +39,6 @@
 
 	<path id="compile.path">
 		<path refid="src.path" />
-                <filelist>
-                        <file name="lib-test/testdoc.jar" />
-                </filelist>
 		<fileset dir="${lib}">
 			<include name="**/*.jar" />
 		</fileset>
@@ -125,9 +122,6 @@
 		<javac destdir="${build}" includeantruntime="false" debug="true">
 			<src path="${src}" />
 			<classpath refid="compile.path" />
-			<compilerarg line="-processorpath lib-test/testdoc.jar" />
-			<compilerarg line="-processor org.etools.testdoc.TestDocProcessor" />
-			<compilerarg line="-s dist" />
 		</javac>
 		<antcall target="increment.revision.build.number" />
 		<!-- Copy files from ${src} into ${build} -->
@@ -139,8 +133,9 @@
 	</target>
 
 	<target name="compile.tests" depends="compile" description="Compiles the code to run unit tests">
-		<javac srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true">
+		<javac srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11">
 			<classpath refid="unit.test.path" />
+			<compilerarg line="-s dist"/>
 		</javac>
 	</target>
 
