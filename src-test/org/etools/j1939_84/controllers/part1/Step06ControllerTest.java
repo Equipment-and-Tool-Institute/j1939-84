@@ -45,7 +45,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-@TestDoc(verifies = "Part 1", description = "lots of testing")
+@TestDoc(verifies = "Part 1, Step 6", description = "DM56: Model year and certification engine family")
 public class Step06ControllerTest extends AbstractControllerTest {
 
     private static final String familyName = "YCALIF HD OBD*";

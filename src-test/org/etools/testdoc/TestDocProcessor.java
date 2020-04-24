@@ -1,6 +1,5 @@
 package org.etools.testdoc;
 
-import java.io.IOException;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
@@ -28,7 +27,7 @@ public class TestDocProcessor extends AbstractProcessor {
 
     @Override
     public SourceVersion getSupportedSourceVersion() {
-        return SourceVersion.RELEASE_11;
+        return SourceVersion.latestSupported();
     }
 
     @Override
@@ -40,7 +39,7 @@ public class TestDocProcessor extends AbstractProcessor {
                         ? e.getSimpleName().toString()
                         // otherwise must be a method, so get the enclosing class name
                         : e.getEnclosingElement().getSimpleName().toString())
-                // if the class names are equalt, then sort by method name
+                // if the class names are equal, then sort by method name
                 .thenComparing(e -> e.getSimpleName().toString());
 
         List<? extends Element> elements = roundEnv.getElementsAnnotatedWith(TestDoc.class).stream()
@@ -48,7 +47,7 @@ public class TestDocProcessor extends AbstractProcessor {
         if (!elements.isEmpty()) {
             try (Writer out = processingEnv.getFiler()
                     .createResource(StandardLocation.SOURCE_OUTPUT,
-                            "",
+                            "testDocs",
                             "testdoc.html")
                     .openWriter()) {
                 out.write("<html><table>");
@@ -85,7 +84,7 @@ public class TestDocProcessor extends AbstractProcessor {
                 }
                 out.write("</table></html>");
                 return true;
-            } catch (IOException e1) {
+            } catch (Throwable e1) {
                 e1.printStackTrace();
             }
         }
