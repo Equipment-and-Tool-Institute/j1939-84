@@ -144,7 +144,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * The asterisk temination at a char location of greater than 12
+     * The asterisk termination at a char location of greater than 12
      */
     @Test
     public void testAsteriskTerminationGreaterThanTwelve() {

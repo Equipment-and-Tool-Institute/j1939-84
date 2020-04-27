@@ -220,6 +220,15 @@ public class VehicleInformationModule extends FunctionalModule {
                 request);
     }
 
+    /**
+     * Requests the Component Identification from address specific vehicle modules
+     * and
+     * generates a {@link String} that's suitable for inclusion in the report
+     *
+     * @param listener
+     *                 the {@link ResultsListener} that will be given the report
+     */
+
     public List<ParsedPacket> reportCalibrationInformation(ResultsListener listener, int address) {
         return getPackets("DS DM19 (Calibration Information) Request to " + String.format("%02X", address),
                 DM19CalibrationInformationPacket.PGN,
@@ -236,12 +245,28 @@ public class VehicleInformationModule extends FunctionalModule {
      * @param listener
      *                 the {@link ResultsListener} that will be given the report
      */
-    public void reportComponentIdentification(ResultsListener listener) {
+    public List<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(ComponentIdentificationPacket.PGN, GLOBAL_ADDR);
-        generateReport(listener,
+        return generateReport(listener,
                 "Global Component Identification Request",
                 ComponentIdentificationPacket.class,
                 request);
+    }
+
+    /**
+     * Requests globally the Component Identification from all vehicle modules and
+     * generates a {@link String} that's suitable for inclusion in the report
+     *
+     * @param listener
+     *                 the {@link ResultsListener} that will be given the report
+     */
+    public List<ParsedPacket> reportComponentIdentification(ResultsListener listener, int address) {
+        return getPackets("DS Component Identification Request to " + String.format("%02X", address),
+                ComponentIdentificationPacket.PGN,
+                ComponentIdentificationPacket.class,
+                listener,
+                false,
+                address);
     }
 
     /**
