@@ -79,7 +79,6 @@ public class Step08Controller extends Controller {
 
         VehicleInformation vehicleInfo = dataRepository.getVehicleInformation();
         DiagnosticReadinessModule.getRatios(globalDM20s);
-        vehicleInfo.getFuelType();
 
         // create set of all SPNs (as integers) from all DM20s
         Set<Integer> dm20Spns = globalDM20s.stream()
@@ -88,22 +87,37 @@ public class Step08Controller extends Controller {
                 .collect(Collectors.toSet());
 
         if (FuelType.DSL == vehicleInfo.getFuelType()) {
+
             // List of SPNs per Fuel type that is checked with the SPNs Stored in stream
             // FIXME Last three SPNs for the NOx Catalyst Bank 1 or NOx Adsorber Don't all
             // have to be in there.
             // It can be any combination of the three.
-            int SPNd[] = { 5322, 5318, 3058, 3064, 5321, 3055 };
-            if (!IntStream.of(SPNd).allMatch(spn -> dm20Spns.contains(spn))) {
+            int SPNa[] = { 5322, 5318, 3058, 3064, 5321, 3055 };
+            int SPNn[] = { 4792, 5308, 4364 };
+            // System.out.println(SPNn);
+            // ArrayList<int[]> result = new ArrayList<>();
+            // for (int i = 0; i < SPNn.length; i++) {
+            // int s[] = { 0 };
+            // for (int j = i; j < SPNn.length; j++) {
+            // s[j] += SPNn[j] + s[j];
+            // result.add(s);
+            // }
+            // System.out.println(result);
+            // }
+
+            if (!IntStream.of(SPNa).allMatch(spn -> dm20Spns.contains(spn))) {
                 addFailure(1, 8, "6.1.8.2.a - minimum expected SPNs for Diesel fuel type are not supported.");
             } else {
-                // TODO Send message that the proper SPNs were passed
-                getListener().onResult("All minimum SPNs found for Diesel Fuel Type.");
+                if (!IntStream.of(SPNn).anyMatch(spn -> dm20Spns.contains(spn))) {
+                    addFailure(1, 8, "6.1.8.2.a - minimum expected SPNs for Diesel fuel type are not supported.");
+                } else {
+                    getListener().onResult("All minimum SPNs found for Diesel Fuel Type.");
+                }
             }
         } else {
-
-            // FIXME add warning Unknown fuel type.
             addFailure(1, 8, "6.1.8.2.a - Fuel Type not supported in Monitor Performance Ratio Evaluation.");
         }
+
         if (IgnitionType.SPARK != null) {
             // TODO Add the Outlet Oxygen Sensor Banks in Table A-3-2 (pg.111) with
             // non-integer variables
@@ -115,8 +129,6 @@ public class Step08Controller extends Controller {
                 getListener().onResult("All minimum SPNs found for Spark Ignition.");
             }
         } else {
-
-            // FIXME add warning Unknown fuel type.
             addFailure(1, 8, "6.1.8.2.a - Ignition Type not supported in Monitor Performance Ratio Evaluation.");
         }
     }
