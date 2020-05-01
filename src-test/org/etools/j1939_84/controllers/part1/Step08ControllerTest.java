@@ -5,7 +5,6 @@ package org.etools.j1939_84.controllers.part1;
 
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -15,9 +14,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
+import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.FuelType;
@@ -36,6 +37,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -56,6 +58,12 @@ public class Step08ControllerTest extends AbstractControllerTest {
         }
         if (ignitionCycles != null) {
             when(packet.getIgnitionCycles()).thenReturn(ignitionCycles);
+        }
+
+        if (ratios != null) {
+            List<PerformanceRatio> perfRatios = ratios.stream()
+                    .map(spn -> new PerformanceRatio(spn, 0, 0, sourceAddress)).collect(Collectors.toList());
+            when(packet.getRatios()).thenReturn(perfRatios);
         }
 
         return packet;
@@ -145,7 +153,6 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
         List<Integer> SPN = new ArrayList<>();
-        // int SPN1[] = instance
         int SPN1[] = { 5322, 5318, 3058, 3064, 5321, 3055 };
         int SPN2[] = { 4792, 5308, 4364 };
         SPN.add(SPN1[0]);
@@ -159,7 +166,8 @@ public class Step08ControllerTest extends AbstractControllerTest {
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPN);
 
         globalDM20s.add(dm20);
-        when(diagnosticReadinessModule.getDM20Packets(listener, true)).thenReturn(globalDM20s);
+        when(diagnosticReadinessModule.getDM20Packets(ArgumentMatchers.any(), true))
+                .thenReturn(globalDM20s);
 
         OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
         when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
@@ -179,11 +187,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
 
-        verify(dataRepository, times(2)).getObdModule(0);
         verify(diagnosticReadinessModule).getDM20Packets(listener, true);
-
-        // verify(reportFileModule).onProgress(0, 1, "");
-        // verify(reportFileModule).onResult("");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
