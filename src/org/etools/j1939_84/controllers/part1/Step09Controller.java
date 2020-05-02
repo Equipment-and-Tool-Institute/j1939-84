@@ -202,9 +202,12 @@ public class Step09Controller extends Controller {
         }
 
         // 6.1.9.6 Warn Criteria2 for OBD ECUs other than function 0:
-
         // a. Warn if Component ID not supported for the global query in 6.1.9.4, when
         // supported by destination specific query
+        // FIXME: this will not work because it depends of .equals method but we did not
+        // and do not want to over ride the .equals method for packets. Thus, this needs
+        // to be updated to do a comparison for using source address. It only works now
+        // because we are using mocks.
         packets.forEach(singlePacket -> {
             if (!globalPackets.contains(singlePacket)) {
                 getListener().addOutcome(1,
