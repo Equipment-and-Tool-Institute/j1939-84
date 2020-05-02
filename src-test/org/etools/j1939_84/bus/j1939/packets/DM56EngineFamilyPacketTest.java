@@ -21,7 +21,7 @@ public class DM56EngineFamilyPacketTest {
         Packet packet = Packet.create(0, 0, bytes.getBytes(StandardCharsets.UTF_8));
         DM56EngineFamilyPacket instance = new DM56EngineFamilyPacket(packet);
         assertEquals("2011E-MY", instance.getModelYearField());
-        assertEquals(new Integer(2011), instance.getEngineModelYear());
+        assertEquals(Integer.valueOf(2011), instance.getEngineModelYear());
         assertEquals(null, instance.getVehicleModelYear());
     }
 
@@ -60,6 +60,6 @@ public class DM56EngineFamilyPacketTest {
         DM56EngineFamilyPacket instance = new DM56EngineFamilyPacket(packet);
         assertEquals("2039V-MY", instance.getModelYearField());
         assertEquals(null, instance.getEngineModelYear());
-        assertEquals(new Integer(2039), instance.getVehicleModelYear());
+        assertEquals(Integer.valueOf(2039), instance.getVehicleModelYear());
     }
 }

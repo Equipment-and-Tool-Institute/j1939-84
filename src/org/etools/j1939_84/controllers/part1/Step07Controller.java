@@ -8,7 +8,6 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -24,10 +23,9 @@ import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.utils.StringUtils;
 
 public class Step07Controller extends Controller {
-
-    private static final Pattern NON_PRINTABLE_PATTERN = Pattern.compile(".*[^\\p{Print}].*");
 
     private final DataRepository dataRepository;
 
@@ -107,7 +105,7 @@ public class Step07Controller extends Controller {
                     }
                 }
 
-                if (NON_PRINTABLE_PATTERN.matcher(calId).matches()) {
+                if (StringUtils.containsNonPrintableAsciiCharacter(calId)) {
                     if (isObdModule) {
                         getListener().addOutcome(1,
                                 7,

@@ -19,6 +19,8 @@ public class OBDModuleInformation {
 
     private List<CalibrationInformation> calibrationInformation;
 
+    private int function;
+
     private byte obdCompliance;
 
     private final int sourceAddress;
@@ -43,19 +45,36 @@ public class OBDModuleInformation {
         return Objects.equals(sourceAddress, that.sourceAddress)
                 && Objects.equals(supportedSpns, that.supportedSpns)
                 && Objects.equals(obdCompliance, that.obdCompliance)
+                && Objects.equals(function, that.function)
                 && Objects.equals(calibrationInformation, that.calibrationInformation);
     }
 
+    /**
+     * @return the calibrationInformation
+     */
     public List<CalibrationInformation> getCalibrationInformation() {
         return calibrationInformation;
     }
 
+    /**
+     * @return the supportedSpns
+     */
     public List<SupportedSPN> getDataStreamSpns() {
         return getSupportedSpns().stream().filter(s -> s.supportsDataStream()).collect(Collectors.toList());
     }
 
+    /**
+     * @return the freezeFrameSpns
+     */
     public List<SupportedSPN> getFreezeFrameSpns() {
         return getSupportedSpns().stream().filter(s -> s.supportsExpandedFreezeFrame()).collect(Collectors.toList());
+    }
+
+    /**
+     * @return the function
+     */
+    public int getFunction() {
+        return function;
     }
 
     /**
@@ -63,6 +82,10 @@ public class OBDModuleInformation {
      */
     public byte getObdCompliance() {
         return obdCompliance;
+    }
+
+    public int getSourceAddress() {
+        return sourceAddress;
     }
 
     /**
@@ -87,8 +110,18 @@ public class OBDModuleInformation {
                 calibrationInformation);
     }
 
+    /**
+     * @param calibrationInformation the calibrationInformation to set
+     */
     public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {
         this.calibrationInformation = calibrationInformation;
+    }
+
+    /**
+     * @param function the function to set
+     */
+    public void setFunction(int function) {
+        this.function = function;
     }
 
     /**
@@ -110,6 +143,7 @@ public class OBDModuleInformation {
         String result = "OBD Module Information:\n";
         result += "sourceAddress is : " + sourceAddress + "\n";
         result += "obdCompliance is : " + getObdCompliance() + "\n";
+        result += "function is : " + getFunction() + "\n";
         result += "Supported SPNs: \n"
                 + getSupportedSpns().stream().map(i -> i.toString()).collect(Collectors.joining(","));
         return result;

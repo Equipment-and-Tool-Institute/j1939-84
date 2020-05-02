@@ -50,6 +50,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
+ * The unit test for {@link Step07Controller}
+ *
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */

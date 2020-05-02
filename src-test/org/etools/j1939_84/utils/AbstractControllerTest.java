@@ -3,15 +3,20 @@
  */
 package org.etools.j1939_84.utils;
 
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -26,13 +31,49 @@ import org.mockito.ArgumentCaptor;
  */
 public abstract class AbstractControllerTest {
 
-    private EngineSpeedModule engineSpeedModule;
+    protected static OBDModuleInformation createOBDModuleInformation(Integer sourceAddress,
+            Integer function,
+            Byte obdCompliance,
+            List<CalibrationInformation> calibrationInfoList,
+            List<SupportedSPN> dataStreamSpns,
+            List<SupportedSPN> freezeFrameSpns,
+            List<SupportedSPN> supportedSpns,
+            List<SupportedSPN> testResultSpns) {
+        OBDModuleInformation module = mock(OBDModuleInformation.class);
+        if (sourceAddress != null) {
+            when(module.getSourceAddress()).thenReturn(sourceAddress);
+        }
+        if (function != null) {
+            when(module.getFunction()).thenReturn(function);
+        }
+        if (obdCompliance != null) {
+            when(module.getObdCompliance()).thenReturn(obdCompliance);
+        }
+        if (calibrationInfoList != null) {
+            when(module.getCalibrationInformation()).thenReturn(calibrationInfoList);
+        }
+        if (dataStreamSpns != null) {
+            when(module.getDataStreamSpns()).thenReturn(dataStreamSpns);
+        }
+        if (freezeFrameSpns != null) {
+            when(module.getFreezeFrameSpns()).thenReturn(freezeFrameSpns);
+        }
+        if (supportedSpns != null) {
+            when(module.getSupportedSpns()).thenReturn(supportedSpns);
+        }
+        if (testResultSpns != null) {
+            when(module.getTestResultSpns()).thenReturn(testResultSpns);
+        }
+        return module;
+    }
 
+    private EngineSpeedModule engineSpeedModule;
     private Executor executor;
     private Controller instance;
     private J1939 j1939;
     private TestResultsListener listener;
     private ReportFileModule reportFileModule;
+
     private VehicleInformationModule vehicleInformationModule;
 
     /**
