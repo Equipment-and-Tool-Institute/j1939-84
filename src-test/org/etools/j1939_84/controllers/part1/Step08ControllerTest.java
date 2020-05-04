@@ -4,15 +4,15 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
@@ -37,7 +37,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -56,9 +55,9 @@ public class Step08ControllerTest extends AbstractControllerTest {
         if (sourceAddress != null) {
             when(packet.getSourceAddress()).thenReturn(sourceAddress);
         }
-        if (ignitionCycles != null) {
-            when(packet.getIgnitionCycles()).thenReturn(ignitionCycles);
-        }
+        // if (ignitionCycles != null) {
+        // when(packet.getIgnitionCycles()).thenReturn(ignitionCycles);
+        // }
 
         if (ratios != null) {
             List<PerformanceRatio> perfRatios = ratios.stream()
@@ -152,22 +151,21 @@ public class Step08ControllerTest extends AbstractControllerTest {
     public void testHappyRun() throws Throwable {
 
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-        List<Integer> SPN = new ArrayList<>();
+        List<Integer> SPNs = new ArrayList<>();
         int SPN1[] = { 5322, 5318, 3058, 3064, 5321, 3055 };
         int SPN2[] = { 4792, 5308, 4364 };
-        SPN.add(SPN1[0]);
-        SPN.add(SPN1[1]);
-        SPN.add(SPN1[2]);
-        SPN.add(SPN1[3]);
-        SPN.add(SPN1[4]);
-        SPN.add(SPN1[5]);
-        SPN.add(SPN2[0]);
+        SPNs.add(SPN1[0]);
+        SPNs.add(SPN1[1]);
+        SPNs.add(SPN1[2]);
+        SPNs.add(SPN1[3]);
+        SPNs.add(SPN1[4]);
+        SPNs.add(SPN1[5]);
+        SPNs.add(SPN2[0]);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPN);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
 
         globalDM20s.add(dm20);
-        when(diagnosticReadinessModule.getDM20Packets(ArgumentMatchers.any(), true))
-                .thenReturn(globalDM20s);
+        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
 
         OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
         when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
@@ -179,19 +177,22 @@ public class Step08ControllerTest extends AbstractControllerTest {
         // when(diagnosticReadinessModule.getDM20Packets(listener,
         // eq(true))).thenReturn(globalDM20s);
 
-        Set<Integer> addresses = new HashSet<>();
-        addresses.add(0);
-        when(dataRepository.getObdModuleAddresses()).thenReturn(addresses);
+        // Set<Integer> addresses = new HashSet<>();
+        // addresses.add(0);
+        // when(dataRepository.getObdModuleAddresses()).thenReturn(addresses);
 
         runTest();
+        verify(dataRepository).getObdModule(0);
+        verify(dataRepository).getVehicleInformation();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
 
-        verify(diagnosticReadinessModule).getDM20Packets(listener, true);
+        verify(reportFileModule).onProgress(0, 1, "");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
+        // assertEquals("", listener.getResults());
     }
 
     // @Test
