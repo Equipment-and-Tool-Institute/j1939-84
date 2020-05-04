@@ -4,7 +4,9 @@
 package org.etools.j1939_84.bus;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -13,6 +15,7 @@ import java.util.logging.Level;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939TP;
 import org.etools.j1939_84.bus.simulated.Engine;
+import org.etools.j1939_84.bus.simulated.ScriptedEngine;
 import org.ini4j.Ini;
 import org.ini4j.Profile.Section;
 
@@ -28,11 +31,15 @@ public class RP1210 {
      * The device Id used to indicate the adapter is not a physical one
      */
     public static final short FAKE_DEV_ID = (short) -1;
-
     /**
      * The {@link Adapter} that can be used for System Testing
      */
     private static final Adapter LOOP_BACK_ADAPTER = new Adapter("Loop Back Adapter", "Simulated", FAKE_DEV_ID);
+
+    /**
+     * The device Id used to indicate the adapter should play a scripted simulation.
+     */
+    public static final short SIM_DEV_ID = (short) -2;
 
     static final String WINDOWS_PATH = System.getenv("WINDIR");
 
@@ -40,7 +47,7 @@ public class RP1210 {
 
     private final File base;
 
-    private Engine engine;
+    private AutoCloseable engine;
 
     /**
      * Default Constructor
@@ -73,6 +80,11 @@ public class RP1210 {
             // if (J1939_84.isTesting() || J1939_84.isDebug())
             {
                 adapters.add(LOOP_BACK_ADAPTER);
+                for (File sim : new File("simulations").listFiles()) {
+                    if (sim.isFile()) {
+                        adapters.add(new Adapter("SIM: " + sim.getName(), sim.getName(), SIM_DEV_ID));
+                    }
+                }
             }
             adapters.addAll(parse());
             Collections.sort(adapters, (o1, o2) -> o1.getName().compareTo(o2.getName()));
@@ -139,7 +151,11 @@ public class RP1210 {
      */
     public Bus setAdapter(Adapter adapter, int address) throws BusException {
         if (engine != null) {
-            engine.close();
+            try {
+                engine.close();
+            } catch (Exception e) {
+                throw new IllegalStateException("Unexpected error closing simulated engine.", e);
+            }
             engine = null;
         }
 
@@ -147,6 +163,16 @@ public class RP1210 {
             EchoBus bus = new EchoBus(address);
             if (J1939_84.isDebug()) {
                 engine = new Engine(bus);
+            }
+            return bus;
+        } else if (adapter.getDeviceId() == SIM_DEV_ID) {
+            EchoBus bus = new EchoBus(address);
+            try (InputStream in = new FileInputStream("simulations/" + adapter.getDLLName())) {
+                engine = new ScriptedEngine(bus, in);
+            } catch (IOException | BusException e) {
+                throw new IllegalStateException(
+                        "Unexpected error opening simulated engine " + adapter.getDLLName() + "S.",
+                        e);
             }
             return bus;
         } else {
