@@ -50,15 +50,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class Step08ControllerTest extends AbstractControllerTest {
 
     private static DM20MonitorPerformanceRatioPacket createDM20(Integer sourceAddress,
-            Integer ignitionCycles,
             List<Integer> ratios) {
         DM20MonitorPerformanceRatioPacket packet = mock(DM20MonitorPerformanceRatioPacket.class);
         if (sourceAddress != null) {
             when(packet.getSourceAddress()).thenReturn(sourceAddress);
         }
-        // if (ignitionCycles != null) {
-        // when(packet.getIgnitionCycles()).thenReturn(ignitionCycles);
-        // }
 
         if (ratios != null) {
             List<PerformanceRatio> perfRatios = ratios.stream()
@@ -119,7 +115,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
         SPNs.add(SPN3[7]);
         SPNs.add(SPN3[8]);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPNs);
 
         globalDM20s.add(dm20);
         when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
@@ -143,7 +139,6 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        // assertEquals("", listener.getResults());
     }
 
     @Test
@@ -152,15 +147,12 @@ public class Step08ControllerTest extends AbstractControllerTest {
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
         List<Integer> SPNs = new ArrayList<>();
         int SPN1[] = { 5322, 5318, 3058, 3064, 5321, 3055 };
-        int SPN2[] = { 4792, 5308, 4364 };
-        SPNs.add(SPN1[1]);
         SPNs.add(SPN1[2]);
         SPNs.add(SPN1[3]);
         SPNs.add(SPN1[4]);
         SPNs.add(SPN1[5]);
-        SPNs.add(SPN2[0]);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPNs);
 
         globalDM20s.add(dm20);
         when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
@@ -189,7 +181,6 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        // assertEquals("", listener.getResults());
 
     }
 
@@ -208,7 +199,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
         SPNs.add(SPN3[7]);
         SPNs.add(SPN3[8]);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPNs);
 
         globalDM20s.add(dm20);
         when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
@@ -237,8 +228,6 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        // assertEquals("", listener.getResults());
-
     }
 
     @Test
@@ -257,13 +246,14 @@ public class Step08ControllerTest extends AbstractControllerTest {
         SPNs.add(SPN2[1]);
         SPNs.add(SPN2[2]);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPNs);
 
         globalDM20s.add(dm20);
         when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
 
-        // OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
-        // when(dataRepository.getObdModule()).thenReturn(moduleInfo);
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(FuelType.DSL);
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
         runTest();
 
@@ -276,7 +266,6 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        // assertEquals("DM20 is not supported\n", listener.getResults());
     }
 
     @Before
@@ -326,7 +315,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
         SPNs.add(SPN2[1]);
         SPNs.add(SPN2[2]);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 0, SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPNs);
 
         globalDM20s.add(dm20);
         when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
@@ -349,7 +338,6 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        // assertEquals("", listener.getResults());
     }
 
     @Test
@@ -378,7 +366,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
         SPNs.add(SPN3[7]);
         SPNs.add(SPN3[8]);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, SPNs);
 
         globalDM20s.add(dm20);
         when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
@@ -401,7 +389,6 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        // assertEquals("", listener.getResults());
     }
 
 }

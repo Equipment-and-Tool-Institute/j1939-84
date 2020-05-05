@@ -22,6 +22,12 @@ import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+/**
+ *
+ * @author Garrison Garland (garrison@soliddesign.net)
+ *
+ */
+
 public class Step08Controller extends Controller {
 
     private final DataRepository dataRepository;
@@ -248,10 +254,6 @@ public class Step08Controller extends Controller {
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = diagnosticReadinessModule.getDM20Packets(getListener(),
                 true);
 
-        /*
-         * TODO Get PerformanceRatios off Packets and Save in OBDModuleInformation by
-         * Source Address (the below loop is wrong)
-         */
         // 6.1.8.1 Actions:
         // 6.1.8.1.a.i. Create list of ECU address
         for (DM20MonitorPerformanceRatioPacket packet : globalDM20s) {
@@ -270,11 +272,6 @@ public class Step08Controller extends Controller {
                 .map(ratio -> ratio.getSpn())
                 .collect(Collectors.toSet());
 
-        // dm20Spns.forEach(dm20Spn -> {
-        // // verifyMinimumExpectedSpnSupported(dm20Spn);
-        // System.out.println(dm20Spn);
-        // });
-
         verifyMinimumExpectedSpnSupported(dm20Spns);
     }
 
@@ -291,14 +288,11 @@ public class Step08Controller extends Controller {
 
         if (fuelType.isCompressionIgnition()) {
 
-            // List of SPNs per Fuel type that is checked with the SPNs Stored in stream
-            // Last three SPNs for the NOx Catalyst Bank 1 or NOx Absorber Don't all have to
-            // be in there. It can be any combination of the three.
             int SPNa[] = { 5322, 5318, 3058, 3064, 5321, 3055 };
             int SPNn[] = { 4792, 5308, 4364 };
 
-            if (!IntStream.of(SPNa).allMatch(spn -> dm20Spns.contains(spn))
-                    || !IntStream.of(SPNn).anyMatch(spn -> dm20Spns.contains(spn))) {
+            if ((!IntStream.of(SPNa).allMatch(spn -> dm20Spns.contains(spn)))
+                    & (!IntStream.of(SPNn).anyMatch(spn -> dm20Spns.contains(spn)))) {
                 addFailure(1, 8, "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
             }
         } else if (fuelType.isSparkIgnition()) {
@@ -309,7 +303,6 @@ public class Step08Controller extends Controller {
                 addFailure(1, 8, "6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.");
             }
         } else {
-            // TODO Check this
             getLogger().info("Ignition Type not supported in Monitor Performance Ratio Evaluation.");
         }
     }
