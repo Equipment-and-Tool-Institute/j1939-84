@@ -13,6 +13,7 @@ import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
+import java.util.stream.StreamSupport;
 
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
@@ -25,6 +26,71 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 public class ScriptedEngine implements AutoCloseable {
+
+    public class DM7Provider implements Supplier<Packet>, Predicate<Packet> {
+
+        final private JsonArray array;
+        private Packet next;
+        final private JsonObject obj;
+        private int sequence = 0;
+
+        final private int spn;
+
+        public DM7Provider(int spn, JsonObject obj) {
+            this.obj = obj;
+            this.spn = spn;
+            // now let's find the right packet
+            array = obj.get("packets").getAsJsonArray();
+            // It's easy to leave a stray "," and get a null, so just remove them for our
+            // users.
+            while (array.remove(JsonNull.INSTANCE)) {
+            }
+        }
+
+        @Override
+        synchronized public Packet get() {
+            return next;
+        }
+
+        @Override
+        public boolean test(Packet packet) {
+            if (packet.getId() != 0xE300) {
+                return false;
+            }
+            // FIXME why?
+            if (packet.get(0) != 247) {
+                return false;
+            }
+            // FIXME why?
+            if ((packet.get(3) & 0x1F) != 31) {
+                return false;
+            }
+            int reqSpn = dm7Spn(packet);
+            if (spn != reqSpn) {
+                return false;
+            }
+
+            for (int i = 0; i < array.size(); i++) {
+                JsonObject descriptor = array.get(sequence).getAsJsonObject();
+                Packet p = Packet.parse(descriptor.get("packet").getAsString());
+                sequence++;
+                if (sequence >= array.size()) {
+                    sequence = 0;
+                }
+                if (dm7Spn(p) != spn) {
+                    continue;
+                }
+                if (envHandler(descriptor)) {
+                    next = p;
+                }
+            }
+            if (next == null) {
+                throw new IllegalStateException(
+                        "env not compatible with DM7 response:" + array + " env: " + env);
+            }
+            return true;
+        }
+    }
 
     public class ResponseProvider implements Supplier<Packet> {
         final private JsonObject obj;
@@ -50,28 +116,9 @@ public class ScriptedEngine implements AutoCloseable {
                         sequence = 0;
                     }
 
-                    if (descriptor.has("isSet")
-                            && !env.contains(descriptor.get("isSet").getAsString())) {
-                        continue;
+                    if (envHandler(descriptor)) {
+                        return p;
                     }
-                    if (descriptor.has("isClear")
-                            && env.contains(descriptor.get("isClear").getAsString())) {
-                        continue;
-                    }
-                    if (descriptor.has("set")) {
-                        String symbol = descriptor.get("set").getAsString();
-                        env.add(symbol);
-                        if (descriptor.has("setFor")) {
-                            executor.schedule(() -> env.remove(symbol),
-                                    descriptor.get("setFor").getAsLong(),
-                                    TimeUnit.MILLISECONDS);
-                        }
-                    }
-                    if (descriptor.has("clear")) {
-                        env.remove(descriptor.get("clear").getAsString());
-                    }
-
-                    return p;
                 }
             } catch (Throwable t) {
                 t.printStackTrace();
@@ -79,6 +126,11 @@ public class ScriptedEngine implements AutoCloseable {
             return null;
         }
 
+    }
+
+    private static int dm7Spn(Packet packet) {
+        return (((packet.get(3) & 0xE0) << 11) & 0xFF0000) | ((packet.get(2) << 8) & 0xFF00)
+                | (packet.get(1) & 0xFF);
     }
 
     public static void main(String... filename) throws Exception {
@@ -101,7 +153,17 @@ public class ScriptedEngine implements AutoCloseable {
         JsonArray a = new Gson().fromJson(new InputStreamReader(in), JsonArray.class);
         a.forEach(e -> {
             JsonObject o = e.getAsJsonObject();
-            if (o.has("onRequest") && o.get("onRequest").getAsBoolean()) {
+            if (o.has("onRequest") && "dm7".equals(o.get("onRequest").getAsString())) {
+                StreamSupport.stream(o.get("packets").getAsJsonArray().spliterator(), false)
+                        .map(element -> element.getAsJsonObject())
+                        .map(packetO -> Packet.parse(packetO.get("packet").getAsString()))
+                        .map(packet -> (((packet.get(3) & 0xE0) << 11) & 0xFF0000) | ((packet.get(2) << 8) & 0xFF00)
+                                | (packet.get(1) & 0xFF))
+                        // we only need one DM17Provider for each SPN
+                        .distinct()
+                        .map(spn -> new DM7Provider(spn, o))
+                        .forEach(provider -> sim.response(provider, provider));
+            } else if (o.has("onRequest") && o.get("onRequest").getAsBoolean()) {
                 JsonObject firstPacket = o.get("packets").getAsJsonArray().get(0).getAsJsonObject();
                 Packet packet = Packet.parse(firstPacket.get("packet").getAsString());
                 sim.response(isRequestForPredicate(packet), new ResponseProvider(o));
@@ -123,6 +185,30 @@ public class ScriptedEngine implements AutoCloseable {
     @Override
     public void close() {
         sim.close();
+    }
+
+    private boolean envHandler(JsonObject descriptor) {
+        if (descriptor.has("isSet")
+                && !env.contains(descriptor.get("isSet").getAsString())) {
+            return false;
+        }
+        if (descriptor.has("isClear")
+                && env.contains(descriptor.get("isClear").getAsString())) {
+            return false;
+        }
+        if (descriptor.has("set")) {
+            String symbol = descriptor.get("set").getAsString();
+            env.add(symbol);
+            if (descriptor.has("setFor")) {
+                executor.schedule(() -> env.remove(symbol),
+                        descriptor.get("setFor").getAsLong(),
+                        TimeUnit.MILLISECONDS);
+            }
+        }
+        if (descriptor.has("clear")) {
+            env.remove(descriptor.get("clear").getAsString());
+        }
+        return true;
     }
 
     private Integer getPgn(Packet p) {

@@ -8,15 +8,12 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListMap;
-import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -46,10 +43,6 @@ public class GenerateSimFile {
         }
     }
 
-    static class ResponseDescriptor {
-        final List<Packet> responses = new ArrayList<>();
-    }
-
     final static private List<Integer> pgns = Arrays.asList(
             61444,
             65248,
@@ -70,7 +63,7 @@ public class GenerateSimFile {
             64950,
             64711,
             58112, // DM7
-            0xA4F9,// DM30
+            0xA400,// DM30
             0xFED0 // DM8
     );
 
@@ -94,7 +87,7 @@ public class GenerateSimFile {
      * @param bus      Bus to send packets on.
      * @param requests Out parameter of all requests in stream.
      */
-    public void load(File file, EchoBus bus, Map<Integer, Set<Integer>> requests) {
+    public void load(File file, EchoBus bus, Map<Integer, String> requests) {
         // 0.000953 1 14F00131x Rx d 8 FF FF FF FF FF FF FF FF Length = 0 BitCount = 0
         // ID = 351273265x
         LocalDateTime start = LocalDateTime.now();
@@ -104,8 +97,7 @@ public class GenerateSimFile {
                     .filter(p -> p != null)
                     .peek(p -> {
                         if (getPgn(p) == 0xEA00) {
-                            requests.computeIfAbsent(p.get24(0), k -> new ConcurrentSkipListSet<>())
-                                    .add(p.getSource());
+                            requests.put(p.get24(0), "true");
                         }
                     })
                     .forEach(p -> bus.send(p));
@@ -133,10 +125,10 @@ public class GenerateSimFile {
             Stream<Packet> out = tp.read(300, TimeUnit.DAYS);
 
             // load raw packets to read from TP layer
-            Map<Integer, Set<Integer>> requests = new ConcurrentSkipListMap<>();
-            requests.put(0xE300, new ConcurrentSkipListSet<>()); // DM7
-            requests.put(0xA4F9, new ConcurrentSkipListSet<>()); // DM30
-            requests.put(0xFED0, new ConcurrentSkipListSet<>()); // DM8
+            Map<Integer, String> requests = new ConcurrentSkipListMap<>();
+            // requests.put(0xE300, new ConcurrentSkipListSet<>()); // DM7
+            requests.put(0xA400, "dm7"); // DM30
+            requests.put(0xFED0, "dm7"); // DM8
 
             new Thread(() -> {
                 load(file, bus, requests);
@@ -174,8 +166,8 @@ public class GenerateSimFile {
                         o.addProperty("SA", String.format("%02X", examplePacket.getSource()));
 
                         // tag as on request or broadcast
-                        if (requests.keySet().contains(pgn)) {
-                            o.addProperty("onRequest", true);
+                        if (requests.containsKey(pgn)) {
+                            o.addProperty("onRequest", requests.get(pgn));
                         } else {
                             o.addProperty("period", 100);
                         }
@@ -208,16 +200,6 @@ public class GenerateSimFile {
             System.out.println("Filtered for PGNS:");
             for (int pgn : pgns) {
                 System.out.format("%8d %04X\n", pgn, pgn);
-            }
-            System.out.println("requests:");
-            for (Entry<Integer, Set<Integer>> pgn : requests.entrySet().stream()
-                    .sorted(Comparator.comparing((Entry<Integer, Set<Integer>> e) -> e.getKey()))
-                    .collect(Collectors.toList())) {
-                System.out.format("%8d %04X from %s\n",
-                        pgn.getKey(),
-                        pgn.getKey(),
-                        pgn.getValue().stream().map(n -> String.format("%02X", n))
-                                .collect(Collectors.joining(", ")));
             }
         }
     }
