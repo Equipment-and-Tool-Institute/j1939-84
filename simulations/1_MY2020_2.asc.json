@@ -18,10 +18,10 @@
     "onRequest": "true",
     "packets": [
       {
-        "packet": "18C2F93D 08 00 01 00 CA 14 F8 00 00 00 00 B8 12 F8 00 00 01 00 C6 14 F8 00 00 01 00 F8 0B F8 00 00 01 00"
+        "packet": "18C2F93D 06 00 01 00 CA 14 F8 00 00 00 00 B8 12 F8 00 00 01 00 C6 14 F8 00 00 01 00 F8 0B F8 00 00 01 00"
       },
       {
-        "packet": "18C2F93D 06 00 01 00 CA 14 F8 00 00 00 00 B8 12 F8 00 00 01 00 C6 14 F8 00 00 01 00 F8 0B F8 00 00 01 00"
+        "packet": "18C2F93D 08 00 01 00 CA 14 F8 00 00 00 00 B8 12 F8 00 00 01 00 C6 14 F8 00 00 01 00 F8 0B F8 00 00 01 00"
       }
     ]
   },
@@ -109,6 +109,16 @@
       {
         isSet: "koer",
         "packet": "1CF00400 09 7D 7D 8D 3D 00 F4 7D"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "47",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA47 00 FF 00 00 00 00 FF FF"
       }
     ]
   },
@@ -273,6 +283,88 @@
     ]
   },
   {
+    "PGN": "FECA",
+    "SA": "00",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA00 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "01",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA01 00 FF 00 00 00 00 FF FF"
+      },
+      {
+        "packet": "18FECA01 43 FF 44 15 01 01 FF FF"
+      },
+      {
+        "packet": "18FECA01 03 FF 44 15 01 01 FF FF"
+      },
+      {
+        "packet": "18FECA01 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "03",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA03 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "0B",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA0B 04 FF 00 00 00 00 FF FF"
+      },
+      {
+        "packet": "18FECA0B 00 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "17",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA17 00 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "3D",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA3D 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "4A",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA4A FF FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
     "PGN": "FECE",
     "SA": "00",
     "onRequest": "true",
@@ -338,7 +430,7 @@
     "onRequest": "true",
     "packets": [
       {
-        "packet": "18FEE500 4D AC 00 00 1C 00 00 00"
+        "packet": "18FEE500 4B AC 00 00 FF FF FF FF"
       },
       {
         "packet": "18FEE500 4C AC 00 00 FF FF FF FF"
@@ -347,7 +439,7 @@
         "packet": "18FEE500 4C AC 00 00 1B 00 00 00"
       },
       {
-        "packet": "18FEE500 4B AC 00 00 FF FF FF FF"
+        "packet": "18FEE500 4D AC 00 00 1C 00 00 00"
       },
       {
         "packet": "18FEE500 4D AC 00 00 FF FF FF FF"

@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -62,9 +63,11 @@ public class GenerateSimFile {
             49408,
             64950,
             64711,
-            58112, // DM7
-            0xA400,// DM30
-            0xFED0 // DM8
+            58112,  // DM7
+            0xA400, // DM30
+            0xFED0, // DM8
+            0xFECA, // DM1
+            0xFECB // DM2
     );
 
     static public Integer getPgn(Packet p) {
@@ -147,12 +150,17 @@ public class GenerateSimFile {
                                                   // destinationAddress == 0xF9);
                     })
                     // group sets of unique packets by PGN/DA/SA
-                    .collect(Collectors.groupingBy(p -> (p.getId() << 8) | p.getSource(), Collectors.toSet()))
+                    .collect(Collectors.groupingBy(p -> (p.getId() << 8) | p.getSource(),
+                            Collectors.toCollection(() -> new LinkedHashSet<>())))
                     // only consider each of those sets
                     .values().stream()
                     // sort by PGN/SA
                     .sorted(Comparator.comparing((Set<Packet> set) -> set.iterator().next().getId())
                             .thenComparing(set -> set.iterator().next().getSource()))
+                    // sort each set of packets to a list to simplify manual updates and merging.
+                    // .map(set -> set.stream().sorted(Comparator.comparing((Packet p) ->
+                    // p.toString()))
+                    // .collect(Collectors.toList()))
                     // for each set, make a JSON entry
                     .map(packets -> {
                         JsonObject o = new JsonObject();
