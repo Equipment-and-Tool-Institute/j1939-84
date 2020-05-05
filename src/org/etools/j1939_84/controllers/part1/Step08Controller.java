@@ -270,10 +270,10 @@ public class Step08Controller extends Controller {
                 .map(ratio -> ratio.getSpn())
                 .collect(Collectors.toSet());
 
-        dm20Spns.forEach(dm20Spn -> {
-            // verifyMinimumExpectedSpnSupported(dm20Spn);
-            System.out.println(dm20Spn);
-        });
+        // dm20Spns.forEach(dm20Spn -> {
+        // // verifyMinimumExpectedSpnSupported(dm20Spn);
+        // System.out.println(dm20Spn);
+        // });
 
         verifyMinimumExpectedSpnSupported(dm20Spns);
     }

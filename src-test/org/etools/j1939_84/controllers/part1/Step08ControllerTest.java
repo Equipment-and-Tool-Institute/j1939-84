@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -104,6 +105,142 @@ public class Step08ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    @Test
+    public void ignitionTypeNotSupported() {
+        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
+        List<Integer> SPNs = new ArrayList<>();
+        int SPN3[] = { 3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057 };
+        SPNs.add(SPN3[1]);
+        SPNs.add(SPN3[2]);
+        SPNs.add(SPN3[3]);
+        SPNs.add(SPN3[4]);
+        SPNs.add(SPN3[5]);
+        SPNs.add(SPN3[6]);
+        SPNs.add(SPN3[7]);
+        SPNs.add(SPN3[8]);
+
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
+
+        globalDM20s.add(dm20);
+        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+
+        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
+        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(FuelType.BATT_ELEC);
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+
+        runTest();
+
+        verify(dataRepository).getObdModule(0);
+        verify(dataRepository).getVehicleInformation();
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+
+        verify(reportFileModule).onProgress(0, 1, "");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        // assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void minimumExpectedSPNsCompressionIgnition() {
+
+        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
+        List<Integer> SPNs = new ArrayList<>();
+        int SPN1[] = { 5322, 5318, 3058, 3064, 5321, 3055 };
+        int SPN2[] = { 4792, 5308, 4364 };
+        SPNs.add(SPN1[1]);
+        SPNs.add(SPN1[2]);
+        SPNs.add(SPN1[3]);
+        SPNs.add(SPN1[4]);
+        SPNs.add(SPN1[5]);
+        SPNs.add(SPN2[0]);
+
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
+
+        globalDM20s.add(dm20);
+        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+
+        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
+        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(FuelType.DSL);
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+
+        runTest();
+
+        verify(dataRepository).getObdModule(0);
+        verify(dataRepository).getVehicleInformation();
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+
+        verify(mockListener).addOutcome(1,
+                8,
+                FAIL,
+                "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
+
+        verify(reportFileModule).onProgress(0, 1, "");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        // assertEquals("", listener.getResults());
+
+    }
+
+    @Test
+    public void minimumExpectedSPNsSparkIgnition() {
+
+        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
+        List<Integer> SPNs = new ArrayList<>();
+        int SPN3[] = { 3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057 };
+        SPNs.add(SPN3[1]);
+        SPNs.add(SPN3[2]);
+        SPNs.add(SPN3[3]);
+        SPNs.add(SPN3[4]);
+        SPNs.add(SPN3[5]);
+        SPNs.add(SPN3[6]);
+        SPNs.add(SPN3[7]);
+        SPNs.add(SPN3[8]);
+
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
+
+        globalDM20s.add(dm20);
+        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+
+        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
+        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(FuelType.BI_CNG);
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+
+        runTest();
+
+        verify(dataRepository).getObdModule(0);
+        verify(dataRepository).getVehicleInformation();
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+
+        verify(mockListener).addOutcome(1,
+                8,
+                FAIL,
+                "6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.");
+
+        verify(reportFileModule).onProgress(0, 1, "");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        // assertEquals("", listener.getResults());
+
+    }
+
     @Before
     public void setUp() throws Exception {
 
@@ -138,17 +275,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testGetDiplayName() {
-        assertEquals("Display Name", "Part 1 Step 8", instance.getDisplayName());
-    }
-
-    @Test
-    public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
-    }
-
-    @Test
-    public void testHappyRun() throws Throwable {
+    public void testCompressionIgnition() throws Throwable {
 
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
         List<Integer> SPNs = new ArrayList<>();
@@ -161,6 +288,8 @@ public class Step08ControllerTest extends AbstractControllerTest {
         SPNs.add(SPN1[4]);
         SPNs.add(SPN1[5]);
         SPNs.add(SPN2[0]);
+        SPNs.add(SPN2[1]);
+        SPNs.add(SPN2[2]);
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
 
@@ -173,13 +302,6 @@ public class Step08ControllerTest extends AbstractControllerTest {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.DSL);
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        //
-        // when(diagnosticReadinessModule.getDM20Packets(listener,
-        // eq(true))).thenReturn(globalDM20s);
-
-        // Set<Integer> addresses = new HashSet<>();
-        // addresses.add(0);
-        // when(dataRepository.getObdModuleAddresses()).thenReturn(addresses);
 
         runTest();
         verify(dataRepository).getObdModule(0);
@@ -195,121 +317,93 @@ public class Step08ControllerTest extends AbstractControllerTest {
         // assertEquals("", listener.getResults());
     }
 
-    // @Test
-    // public void testPacketsEmpty() {
-    // List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-    // when(diagnosticReadinessModule.getDM20Packets(listener,
-    // false)).thenReturn(globalDM20s);
-    //
-    // runTest();
-    //
-    // verify(diagnosticReadinessModule).setJ1939(j1939);
-    //
-    // verify(diagnosticReadinessModule).getDM20Packets(listener, eq(true));
-    //
-    // verify(reportFileModule).onProgress(0, 1, "");
-    // verify(reportFileModule).onResult("DM20 is not supported");
-    //
-    // assertEquals("", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
-    // assertEquals("DM20 is not supported\n", listener.getResults());
-    // }
+    @Test
+    public void testGetDiplayName() {
+        assertEquals("Display Name", "Part 1 Step 8", instance.getDisplayName());
+    }
 
-    // @Test
-    // public void toLittleSPNs() {
-    //
-    // List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-    // when(diagnosticReadinessModule.getDM20Packets(listener,
-    // true)).thenReturn(globalDM20s);
-    //
-    // OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
-    // when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
-    //
-    // VehicleInformation vehicleInformation = new VehicleInformation();
-    // vehicleInformation.setEmissionUnits(1);
-    // when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-    //
-    // runTest();
-    //
-    // assertEquals("", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
-    // assertEquals("", listener.getResults());
-    //
-    // verify(mockListener)
-    // .addOutcome(1, 8, FAIL, "6.1.8.2.a - minimum expected SPNs for Diesel fuel
-    // type are not supported.");
-    //
-    // verify(mockListener)
-    // .addOutcome(1, 8, FAIL, "6.1.8.2.a - minimum expected SPNs for Spark Ignition
-    // are not supported.");
-    //
-    // verify(diagnosticReadinessModule).setJ1939(j1939);
-    // verify(diagnosticReadinessModule).getDM20Packets(listener, eq(true));
-    // verify(dataRepository).getObdModule(0);
-    // verify(dataRepository).getVehicleInformation();
-    //
-    // }
-    //
-    // @Test
-    // public void wrongFuelType() {
-    // List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-    // when(diagnosticReadinessModule.getDM20Packets(listener,
-    // true)).thenReturn(globalDM20s);
-    //
-    // OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
-    // when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
-    //
-    // VehicleInformation vehicleInformation = new VehicleInformation();
-    // vehicleInformation.setEmissionUnits(1);
-    // when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-    //
-    // runTest();
-    //
-    // verify(mockListener).addOutcome(1,
-    // 8,
-    // FAIL,
-    // "6.1.8.2.a - Fuel Type not supported in Monitor Performance Ratio
-    // Evaluation.");
-    //
-    // verify(diagnosticReadinessModule).setJ1939(j1939);
-    // verify(diagnosticReadinessModule).getDM20Packets(listener, eq(true));
-    // verify(dataRepository).getObdModule(0);
-    // verify(dataRepository).getVehicleInformation();
-    //
-    // assertEquals("", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
-    // assertEquals("", listener.getResults());
-    // }
-    //
-    // @Test
-    // public void wrongIgnitionType() {
-    // List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-    // when(diagnosticReadinessModule.getDM20Packets(listener,
-    // true)).thenReturn(globalDM20s);
-    //
-    // OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
-    // when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
-    //
-    // VehicleInformation vehicleInformation = new VehicleInformation();
-    // vehicleInformation.setEmissionUnits(1);
-    // when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-    //
-    // runTest();
-    //
-    // verify(mockListener).addOutcome(1,
-    // 8,
-    // FAIL,
-    // "6.1.8.2.a - Ignition Type not supported in Monitor Performance Ratio
-    // Evaluation.");
-    //
-    // verify(diagnosticReadinessModule).setJ1939(j1939);
-    // verify(diagnosticReadinessModule).getDM20Packets(listener, eq(true));
-    // verify(dataRepository).getObdModule(0);
-    // verify(dataRepository).getVehicleInformation();
-    //
-    // assertEquals("", listener.getMessages());
-    // assertEquals("", listener.getMilestones());
-    // assertEquals("", listener.getResults());
-    // }
+    @Test
+    public void testGetTotalSteps() {
+        assertEquals("Total Steps", 1, instance.getTotalSteps());
+    }
+
+    @Test
+    public void testPacketsEmpty() {
+        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
+        List<Integer> SPNs = new ArrayList<>();
+        int SPN1[] = { 5322, 5318, 3058, 3064, 5321, 3055 };
+        int SPN2[] = { 4792, 5308, 4364 };
+        SPNs.add(SPN1[0]);
+        SPNs.add(SPN1[1]);
+        SPNs.add(SPN1[2]);
+        SPNs.add(SPN1[3]);
+        SPNs.add(SPN1[4]);
+        SPNs.add(SPN1[5]);
+        SPNs.add(SPN2[0]);
+        SPNs.add(SPN2[1]);
+        SPNs.add(SPN2[2]);
+
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
+
+        globalDM20s.add(dm20);
+        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+
+        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
+        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
+
+        runTest();
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
+
+        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+
+        verify(reportFileModule).onProgress(0, 1, "");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        // assertEquals("DM20 is not supported\n", listener.getResults());
+    }
+
+    @Test
+    public void testSparkIgnition() throws Throwable {
+
+        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
+        List<Integer> SPNs = new ArrayList<>();
+        int SPN3[] = { 3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057 };
+        SPNs.add(SPN3[0]);
+        SPNs.add(SPN3[1]);
+        SPNs.add(SPN3[2]);
+        SPNs.add(SPN3[3]);
+        SPNs.add(SPN3[4]);
+        SPNs.add(SPN3[5]);
+        SPNs.add(SPN3[6]);
+        SPNs.add(SPN3[7]);
+        SPNs.add(SPN3[8]);
+
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
+
+        globalDM20s.add(dm20);
+        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+
+        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
+        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(FuelType.BI_CNG);
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+
+        runTest();
+        verify(dataRepository).getObdModule(0);
+        verify(dataRepository).getVehicleInformation();
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+
+        verify(reportFileModule).onProgress(0, 1, "");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        // assertEquals("", listener.getResults());
+    }
 
 }
