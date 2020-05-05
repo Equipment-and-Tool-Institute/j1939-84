@@ -139,6 +139,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -178,10 +179,17 @@ public class Step08ControllerTest extends AbstractControllerTest {
                 "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
 
         verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule)
+                .onResult("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
+        verify(reportFileModule).addOutcome(1,
+                8,
+                FAIL,
+                "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.\n",
+                listener.getResults());
     }
 
     @Test
@@ -225,9 +233,17 @@ public class Step08ControllerTest extends AbstractControllerTest {
                 "6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.");
 
         verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule)
+                .onResult("FAIL: 6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.");
+        verify(reportFileModule).addOutcome(1,
+                8,
+                FAIL,
+                "6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.\n",
+                listener.getResults());
     }
 
     @Test
@@ -266,6 +282,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getResults());
     }
 
     @Before
@@ -338,6 +355,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -389,6 +407,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getResults());
     }
 
 }
