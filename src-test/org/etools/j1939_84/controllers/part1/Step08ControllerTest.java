@@ -43,7 +43,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  *
- * @author Garrison Garland (garrison@test.soliddesign.net)
+ * @author Garrison Garland (garrison@soliddesign.net)
  *
  */
 @RunWith(MockitoJUnitRunner.class)
@@ -241,6 +241,44 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
     }
 
+    @Test
+    public void OBDModuleNull() {
+        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
+        List<Integer> SPNs = new ArrayList<>();
+        int SPN1[] = { 5322, 5318, 3058, 3064, 5321, 3055 };
+        int SPN2[] = { 4792, 5308, 4364 };
+        SPNs.add(SPN1[0]);
+        SPNs.add(SPN1[1]);
+        SPNs.add(SPN1[2]);
+        SPNs.add(SPN1[3]);
+        SPNs.add(SPN1[4]);
+        SPNs.add(SPN1[5]);
+        SPNs.add(SPN2[0]);
+        SPNs.add(SPN2[1]);
+        SPNs.add(SPN2[2]);
+
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
+
+        globalDM20s.add(dm20);
+        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+
+        // OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
+        // when(dataRepository.getObdModule()).thenReturn(moduleInfo);
+
+        runTest();
+
+        verify(dataRepository).getVehicleInformation();
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+
+        verify(reportFileModule).onProgress(0, 1, "");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        // assertEquals("DM20 is not supported\n", listener.getResults());
+    }
+
     @Before
     public void setUp() throws Exception {
 
@@ -268,10 +306,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
                 bannerModule,
                 vehicleInformationModule,
                 partResultFactory,
-                diagnosticReadinessModule,
-                dataRepository,
-                mockListener,
-                reportFileModule);
+                diagnosticReadinessModule);
     }
 
     @Test
@@ -291,7 +326,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
         SPNs.add(SPN2[1]);
         SPNs.add(SPN2[2]);
 
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 0, SPNs);
 
         globalDM20s.add(dm20);
         when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
@@ -325,43 +360,6 @@ public class Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 1, instance.getTotalSteps());
-    }
-
-    @Test
-    public void testPacketsEmpty() {
-        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-        List<Integer> SPNs = new ArrayList<>();
-        int SPN1[] = { 5322, 5318, 3058, 3064, 5321, 3055 };
-        int SPN2[] = { 4792, 5308, 4364 };
-        SPNs.add(SPN1[0]);
-        SPNs.add(SPN1[1]);
-        SPNs.add(SPN1[2]);
-        SPNs.add(SPN1[3]);
-        SPNs.add(SPN1[4]);
-        SPNs.add(SPN1[5]);
-        SPNs.add(SPN2[0]);
-        SPNs.add(SPN2[1]);
-        SPNs.add(SPN2[2]);
-
-        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, 10, SPNs);
-
-        globalDM20s.add(dm20);
-        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
-
-        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
-
-        runTest();
-
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-
-        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
-
-        verify(reportFileModule).onProgress(0, 1, "");
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        // assertEquals("DM20 is not supported\n", listener.getResults());
     }
 
     @Test
