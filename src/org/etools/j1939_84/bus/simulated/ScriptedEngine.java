@@ -32,11 +32,13 @@ public class ScriptedEngine implements AutoCloseable {
         private Packet next;
         final private JsonArray packetDescriptors;
 
+        final private int sa;
         private int sequence = 0;
         final private int spn;
 
-        public DM7Provider(int spn, JsonObject messageDescriptot) {
+        public DM7Provider(int spn, int sa, JsonObject messageDescriptot) {
             this.spn = spn;
+            this.sa = sa;
             // now let's find the right packet
             packetDescriptors = messageDescriptot.get("packets").getAsJsonArray();
             // It's easy to leave a stray "," and get a null, so just remove them for our
@@ -53,7 +55,7 @@ public class ScriptedEngine implements AutoCloseable {
         @Override
         public boolean test(Packet packet) {
             // SPN DM7?
-            if (packet.getId() != 0xE300) {
+            if (packet.getId() != (0xE300 | sa)) {
                 return false;
             }
             // J1939-84 6.1.12.1 TID 247
@@ -169,18 +171,20 @@ public class ScriptedEngine implements AutoCloseable {
         JsonArray a = new Gson().fromJson(new InputStreamReader(in), JsonArray.class);
         a.forEach(e -> {
             JsonObject o = e.getAsJsonObject();
+            JsonArray array = o.get("packets").getAsJsonArray();
             if (o.has("onRequest") && "dm7".equals(o.get("onRequest").getAsString())) {
+                int sa = Packet.parse(array.get(0).getAsJsonObject().get("packet").getAsString()).getSource();
                 // register a response in the simulator for each DM7 SPN request
-                StreamSupport.stream(o.get("packets").getAsJsonArray().spliterator(), false)
+                StreamSupport.stream(array.spliterator(), false)
                         .map(element -> Packet.parse(element.getAsJsonObject().get("packet").getAsString()))
                         .map(ScriptedEngine::dm7Spn)
                         // we only need one DM17Provider for each SPN
                         .distinct()
-                        .map(spn -> new DM7Provider(spn, o))
+                        .map(spn -> new DM7Provider(spn, sa, o))
                         .forEach(provider -> sim.response(provider, provider));
             } else if (o.has("onRequest") && o.get("onRequest").getAsBoolean()) {
                 // register a response in the simulator for each EA00 request
-                JsonObject firstPacket = o.get("packets").getAsJsonArray().get(0).getAsJsonObject();
+                JsonObject firstPacket = array.get(0).getAsJsonObject();
                 Packet packet = Packet.parse(firstPacket.get("packet").getAsString());
                 sim.response(isRequestForPredicate(packet), new ResponseProvider(o));
             } else {
