@@ -510,54 +510,10 @@ public class DM24SPNSupportPacketTest {
         // results
         String expected = "DM24 from Engine #1 (0): (Supporting Scaled Test Results) [" + NL;
         expected += "  SPN 102 - Engine Intake Manifold #1 Pressure" + NL;
-        expected += "  SPN 173 - Engine Exhaust Temperature" + NL;
-        expected += "  SPN 3251 - Aftertreatment 1 Diesel Particulate Filter Differential Pressure" + NL;
-        expected += "  SPN 3483 - Aftertreatment 1 Regeneration Status" + NL;
-        expected += "  SPN 5837 - Fuel Type" + NL;
-        expected += "  SPN 3301 - Time Since Engine Start" + NL;
-        expected += "  SPN 5466 - Aftertreatment 1 Diesel Particulate Filter Soot Load Regeneration Threshold" + NL;
-        expected += "  SPN 5323 - Engine Fuel Control Mode" + NL;
-        expected += "  SPN 3464 - Engine Throttle Actuator 1 Control Command" + NL;
-        expected += "  SPN 1209 - Engine Exhaust Pressure 1" + NL;
-        expected += "  SPN 5541 - Engine Turbocharger 1 Turbine Outlet Pressure" + NL;
         expected += "  SPN 164 - Engine Fuel Injection Control Pressure" + NL;
-        expected += "  SPN 2791 - Engine Exhaust Gas Recirculation 1 Valve 1 Control 1" + NL;
-        expected += "  SPN 1413 - Engine Cylinder 1 Ignition Timing" + NL;
-        expected += "  SPN 1414 - Engine Cylinder 2 Ignition Timing" + NL;
-        expected += "  SPN 1415 - Engine Cylinder 3 Ignition Timing" + NL;
-        expected += "  SPN 1416 - Engine Cylinder 4 Ignition Timing" + NL;
-        expected += "  SPN 1417 - Engine Cylinder 5 Ignition Timing" + NL;
-        expected += "  SPN 1418 - Engine Cylinder 6 Ignition Timing" + NL;
-        expected += "  SPN 3563 - Engine Intake Manifold #1 Absolute Pressure" + NL;
-        expected += "  SPN 27 - Engine Exhaust Gas Recirculation 1 Valve Position" + NL;
-        expected += "  SPN 3242 - Aftertreatment 1 Diesel Particulate Filter Intake Temperature" + NL;
-        expected += "  SPN 3246 - Aftertreatment 1 Diesel Particulate Filter Outlet Temperature" + NL;
         expected += "  SPN 3216 - Aftertreatment 1 SCR Intake NOx 1" + NL;
-        expected += "  SPN 1081 - Engine Wait to Start Lamp" + NL;
-        expected += "  SPN 1189 - Engine Turbocharger Wastegate Actuator 2 Position" + NL;
-        expected += "  SPN 5314 - Commanded Engine Fuel Injection Control Pressure" + NL;
-        expected += "  SPN 3609 - Aftertreatment 1 Diesel Particulate Filter Intake Pressure" + NL;
-        expected += "  SPN 3480 - Aftertreatment 1 Fuel Pressure 1" + NL;
-        expected += "  SPN 3226 - Aftertreatment 1 Outlet NOx 1" + NL;
-        expected += "  SPN 1761 - Aftertreatment 1 Diesel Exhaust Fluid Tank Volume" + NL;
-        expected += "  SPN 3482 - Aftertreatment 1 Fuel Enable Actuator" + NL;
-        expected += "  SPN 3490 - Aftertreatment 1 Purge Air Actuator" + NL;
-        expected += "  SPN 4360 - Aftertreatment 1 SCR Intake Temperature" + NL;
-        expected += "  SPN 4363 - Aftertreatment 1 SCR Outlet Temperature" + NL;
-        expected += "  SPN 3031 - Aftertreatment 1 Diesel Exhaust Fluid Tank Temperature 1" + NL;
-        expected += "  SPN 4421 - Aftertreatment 2 Diesel Exhaust Fluid Concentration" + NL;
         expected += "  SPN 1173 - Engine Turbocharger 2 Compressor Intake Temperature" + NL;
-        expected += "  SPN 237 - Vehicle Identification Number" + NL;
         expected += "  SPN 4257 - Engine Fuel 1 Injector Group 3" + NL;
-        expected += "  SPN 2304 - Aux Valve 12 Extend Port Pressure" + NL;
-        expected += "  SPN 899 - Engine Torque Mode" + NL;
-        expected += "  SPN 2305 - Aux Valve 12 Retract Port Pressure" + NL;
-        expected += "  SPN 3069 - Distance Travelled While MIL is Activated" + NL;
-        expected += "  SPN 3294 - Distance Since Diagnostic Trouble Codes Cleared" + NL;
-        expected += "  SPN 3295 - Minutes Run by Engine While MIL is Activated" + NL;
-        expected += "  SPN 3296 - Time Since Diagnostic Trouble Codes Cleared" + NL;
-        expected += "  SPN 3302 - Number of Warm-Ups Since Diagnostic Trouble Codes Cleared" + NL;
-        expected += "  SPN 3719 - Aftertreatment 1 Diesel Particulate Filter Soot Load Percent" + NL;
         expected += "  SPN 1323 - Engine Misfire Cylinder #1" + NL;
         expected += "  SPN 1324 - Engine Misfire Cylinder #2" + NL;
         expected += "  SPN 1325 - Engine Misfire Cylinder #3" + NL;
@@ -568,8 +524,6 @@ public class DM24SPNSupportPacketTest {
         expected += "  SPN 2659 - Engine Exhaust Gas Recirculation 1 Mass Flow Rate" + NL;
         expected += "  SPN 1322 - Engine Misfire for Multiple Cylinders" + NL;
         expected += "  SPN 4752 - Engine Exhaust Gas Recirculation 1 Cooler Efficiency" + NL;
-        expected += "  SPN 4766 - Aftertreatment 1 Diesel Oxidation Catalyst Outlet Temperature" + NL;
-        expected += "  SPN 5319 - Aftertreatment 1 Diesel Particulate Filter Incomplete Regeneration" + NL;
         expected += "  SPN 651 - Engine Fuel 1 Injector Cylinder 1" + NL;
         expected += "  SPN 652 - Engine Fuel 1 Injector Cylinder 2" + NL;
         expected += "  SPN 653 - Engine Fuel 1 Injector Cylinder 3" + NL;
@@ -641,14 +595,12 @@ public class DM24SPNSupportPacketTest {
         expected += "  SPN 3296 - Time Since Diagnostic Trouble Codes Cleared" + NL;
         expected += "  SPN 3302 - Number of Warm-Ups Since Diagnostic Trouble Codes Cleared" + NL;
         expected += "  SPN 3719 - Aftertreatment 1 Diesel Particulate Filter Soot Load Percent" + NL;
-        expected += "  SPN 2307 - Aux Valve 12 Port Flow Command" + NL;
         expected += "  SPN 4106 - MIL-On DTCs" + NL;
         expected += "  SPN 1216 - Occurrence Count" + NL;
         expected += "  SPN 1220 - OBD Compliance" + NL;
         expected += "  SPN 4127 - NOx NTE Control Area Status" + NL;
         expected += "  SPN 4130 - PM NTE Control Area Status" + NL;
         expected += "  SPN 171 - Ambient Air Temperature" + NL;
-        expected += "  SPN 157 - Engine Fuel 1 Injector Metering Rail 1 Pressure" + NL;
         expected += "  SPN 2623 - Accelerator Pedal #1 Channel 2" + NL;
         expected += "  SPN 247 - Engine Total Hours of Operation" + NL;
         expected += "  SPN 235 - Engine Total Idle Hours" + NL;
@@ -722,9 +674,6 @@ public class DM24SPNSupportPacketTest {
         expected += "  SPN 4363 - Aftertreatment 1 SCR Outlet Temperature" + NL;
         expected += "  SPN 3031 - Aftertreatment 1 Diesel Exhaust Fluid Tank Temperature 1" + NL;
         expected += "  SPN 1173 - Engine Turbocharger 2 Compressor Intake Temperature" + NL;
-        expected += "  SPN 3055 - Engine Fuel System Monitor" + NL;
-        expected += "  SPN 5463 - Aftertreatment SCR Operator Inducement Active Traveled Distance" + NL;
-        expected += "  SPN 248 - Total Power Takeoff Hours" + NL;
         expected += "]";
         assertEquals(expected, instance.toString());
     }
@@ -741,7 +690,7 @@ public class DM24SPNSupportPacketTest {
         assertEquals(false, spn.supportsDataStream());
         assertEquals(false, spn.supportsExpandedFreezeFrame());
         assertEquals(true, spn.supportsScaledTestResults());
-        String expected = "DM24 from Engine #1 (0): (Supporting Test Results) [" + NL;
+        String expected = "DM24 from Engine #1 (0): (Supporting Scaled Test Results) [" + NL;
         expected += "  SPN 92 - Engine Percent Load At Current Speed" + NL;
         expected += "](Supports Data Stream Results) [" + NL;
         expected += "](Supports Freeze Frame Results) [" + NL;
@@ -753,6 +702,7 @@ public class DM24SPNSupportPacketTest {
     public void testPGN() {
         assertEquals(64950, DM24SPNSupportPacket.PGN);
     }
+    // some comment
 
     @Test
     public void testThree() {
@@ -786,7 +736,7 @@ public class DM24SPNSupportPacketTest {
             assertEquals(false, spn.supportsExpandedFreezeFrame());
             assertEquals(true, spn.supportsScaledTestResults());
         }
-        String expected = "DM24 from Engine #1 (0): (Supporting Test Results) [" + NL
+        String expected = "DM24 from Engine #1 (0): (Supporting Scaled Test Results) [" + NL
                 + "  SPN 92 - Engine Percent Load At Current Speed" + NL
                 + "  SPN 512 - Driver's Demand Engine - Percent Torque" + NL
                 + "  SPN 513 - Actual Engine - Percent Torque" + NL
