@@ -106,7 +106,6 @@ public class DM24SPNSupportPacket extends ParsedPacket {
                 .collect(Collectors.toList());
 
         sb.append(createListingOfSpnForReporting(supportsFreezeFrameResults, "Supports Freeze Frame Results"));
-
         return sb.toString();
     }
 

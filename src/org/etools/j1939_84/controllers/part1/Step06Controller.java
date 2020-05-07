@@ -56,7 +56,7 @@ public class Step06Controller extends Controller {
             String modelYearField = packet.getModelYearField();
             String type = modelYearField.substring(4, 5);
             if ("V".equals(type)) {
-                addFailure(1, 6, "6.1.6.2.b - Indicates “V” instead of “E” for cert type");
+                addFailure(1, 6, "6.1.6.2.b - Indicates 'V' instead of 'E' for cert type");
             }
 
             String expected = packet.getEngineModelYear() + "E-MY";
@@ -88,7 +88,7 @@ public class Step06Controller extends Controller {
             } else if (familyName.indexOf("*") == -1 && char13 != Character.MIN_VALUE) {
                 addFailure(1,
                         6,
-                        "6.1.6.2.e. - Engine family has <> 12 characters before first “null” character (ASCII 0x00)");
+                        "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
             }
 
         }
