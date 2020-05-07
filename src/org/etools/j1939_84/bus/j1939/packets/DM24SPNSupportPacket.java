@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.Packet;
 
@@ -24,6 +25,16 @@ public class DM24SPNSupportPacket extends ParsedPacket {
 
     public DM24SPNSupportPacket(Packet packet) {
         super(packet);
+    }
+
+    private String createListingOfSpnForReporting(List<SupportedSPN> supportedSPNs, String reportTitle) {
+
+        StringBuilder sb = new StringBuilder();
+        sb.append("(").append(reportTitle).append(")").append(" [").append(NL);
+        supportedSPNs.forEach(supportedSPN -> sb.append("  ").append(supportedSPN).append(NL));
+        sb.append("]");
+        return sb.toString();
+
     }
 
     @Override
@@ -75,11 +86,26 @@ public class DM24SPNSupportPacket extends ParsedPacket {
     public String toString() {
         StringBuilder sb = new StringBuilder();
         sb.append(getStringPrefix());
-        sb.append("(Supporting Test Results) [" + NL);
-        for (SupportedSPN spn : getSupportedSpns()) {
-            sb.append("  ").append(spn).append(NL);
-        }
-        sb.append("]");
+        List<SupportedSPN> scaledResults = getSupportedSpns()
+                .stream()
+                .filter(spn -> spn.supportsScaledTestResults() == true)
+                .collect(Collectors.toList());
+
+        sb.append(createListingOfSpnForReporting(scaledResults, "Supporting Scaled Test Results"));
+
+        List<SupportedSPN> supportsDataStreamsResults = getSupportedSpns()
+                .stream()
+                .filter(spn -> spn.supportsDataStream() == true)
+                .collect(Collectors.toList());
+
+        sb.append(createListingOfSpnForReporting(supportsDataStreamsResults, "Supports Data Stream Results"));
+
+        List<SupportedSPN> supportsFreezeFrameResults = getSupportedSpns()
+                .stream()
+                .filter(spn -> spn.supportsExpandedFreezeFrame() == true)
+                .collect(Collectors.toList());
+
+        sb.append(createListingOfSpnForReporting(supportsFreezeFrameResults, "Supports Freeze Frame Results"));
         return sb.toString();
     }
 
