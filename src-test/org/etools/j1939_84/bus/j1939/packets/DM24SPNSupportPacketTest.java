@@ -702,7 +702,6 @@ public class DM24SPNSupportPacketTest {
     public void testPGN() {
         assertEquals(64950, DM24SPNSupportPacket.PGN);
     }
-    // some comment
 
     @Test
     public void testThree() {

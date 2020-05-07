@@ -82,7 +82,6 @@ public class DM24SPNSupportPacket extends ParsedPacket {
         return new SupportedSPN(data);
     }
 
-    // some comment
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
