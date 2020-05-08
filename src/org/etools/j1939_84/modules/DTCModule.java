@@ -115,10 +115,11 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests and reports DM2 from all vehicle modules and generates a
-     * {@link String} that's suitable for inclusion in the report
+     * Requests DM2 from all vehicle modules and generates a {@link String}
+     * that's suitable for inclusion in the report
      *
-     * @param listener the {@link ResultsListener} that will be given the report
+     * @param listener
+     *                 the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public boolean reportDM2(ResultsListener listener) {
@@ -179,21 +180,5 @@ public class DTCModule extends FunctionalModule {
                 DM6PendingEmissionDTCPacket.class,
                 request);
         return packets.stream().anyMatch(t -> !t.getDtcs().isEmpty());
-    }
-
-    /**
-     * Requests and return global DM2 from all vehicle modules and generates a
-     * {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public List<? extends DiagnosticTroubleCodePacket> requestDM2(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM2PreviouslyActiveDTC.PGN, GLOBAL_ADDR);
-        List<? extends DiagnosticTroubleCodePacket> packets = generateReport(listener,
-                "Global DM2 Request",
-                DM2PreviouslyActiveDTC.class,
-                request);
-        return packets;
     }
 }
