@@ -80,4 +80,11 @@ public class DateTimeModule {
         return LocalDateTime.now();
     }
 
+    public void pauseFor(long milliseconds) {
+        try {
+            Thread.sleep(milliseconds);
+        } catch (InterruptedException e) {
+        }
+    }
+
 }
