@@ -292,7 +292,7 @@ public class Step08Controller extends Controller {
             int SPNn[] = { 4792, 5308, 4364 };
 
             if ((!IntStream.of(SPNa).allMatch(spn -> dm20Spns.contains(spn)))
-                    & (!IntStream.of(SPNn).anyMatch(spn -> dm20Spns.contains(spn)))) {
+                    && (!IntStream.of(SPNn).anyMatch(spn -> dm20Spns.contains(spn)))) {
                 addFailure(1, 8, "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
             }
         } else if (fuelType.isSparkIgnition()) {

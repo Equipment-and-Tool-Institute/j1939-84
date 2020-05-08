@@ -52,9 +52,8 @@ public class Step08ControllerTest extends AbstractControllerTest {
     private static DM20MonitorPerformanceRatioPacket createDM20(Integer sourceAddress,
             List<Integer> ratios) {
         DM20MonitorPerformanceRatioPacket packet = mock(DM20MonitorPerformanceRatioPacket.class);
-        if (sourceAddress != null) {
-            when(packet.getSourceAddress()).thenReturn(sourceAddress);
-        }
+
+        when(packet.getSourceAddress()).thenReturn(sourceAddress);
 
         if (ratios != null) {
             List<PerformanceRatio> perfRatios = ratios.stream()
@@ -247,7 +246,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void OBDModuleNull() {
+    public void obdModuleNull() {
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
         List<Integer> SPNs = new ArrayList<>();
         int SPN1[] = { 5322, 5318, 3058, 3064, 5321, 3055 };
@@ -356,6 +355,84 @@ public class Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testEmptyPacketsCompressionIgnition() throws Throwable {
+
+        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
+
+        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+
+        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
+        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(FuelType.DSL);
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+
+        runTest();
+        verify(dataRepository).getVehicleInformation();
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+
+        verify(mockListener).addOutcome(1,
+                8,
+                FAIL,
+                "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
+
+        verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule)
+                .onResult("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
+        verify(reportFileModule).addOutcome(1,
+                8,
+                FAIL,
+                "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.",
+                listener.getResults());
+    }
+
+    @Test
+    public void testEmptyPacketsSparkIgnition() throws Throwable {
+
+        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
+
+        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+
+        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
+        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(FuelType.BI_CNG);
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+
+        runTest();
+        verify(dataRepository).getVehicleInformation();
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+
+        verify(mockListener).addOutcome(1,
+                8,
+                FAIL,
+                "6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.");
+
+        verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule)
+                .onResult("FAIL: 6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.");
+        verify(reportFileModule).addOutcome(1,
+                8,
+                FAIL,
+                "6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.",
+                listener.getResults());
     }
 
     @Test
