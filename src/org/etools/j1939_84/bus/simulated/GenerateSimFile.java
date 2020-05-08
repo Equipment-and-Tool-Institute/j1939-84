@@ -7,7 +7,6 @@ import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.Arrays;
 import java.util.Comparator;
 import java.util.LinkedHashSet;
@@ -120,9 +119,6 @@ public class GenerateSimFile {
             return;
         }
         int address = 0xF9;
-        LocalDateTime now = LocalDateTime.now();
-        now.atZone(ZoneId.systemDefault()).toInstant().toEpochMilli();
-
         try (EchoBus bus = new EchoBus(address);
                 J1939TP tp = new J1939TP(bus, bus.getAddress())) {
             Stream<Packet> out = tp.read(300, TimeUnit.DAYS);
@@ -207,7 +203,7 @@ public class GenerateSimFile {
             System.out.println("Response count: " + json.size() + " from " + counter[0] + " CAN packets.");
             System.out.println("Filtered for PGNS:");
             for (int pgn : pgns) {
-                System.out.format("%8d %04X\n", pgn, pgn);
+                System.out.format("%8d %04X%n", pgn, pgn);
             }
         }
     }

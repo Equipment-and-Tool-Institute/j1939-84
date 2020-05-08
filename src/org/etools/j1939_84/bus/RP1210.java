@@ -81,7 +81,7 @@ public class RP1210 {
             {
                 adapters.add(LOOP_BACK_ADAPTER);
                 File simulationDir = new File("simulations");
-                if (simulationDir.exists()) {
+                if (simulationDir.exists() && simulationDir.listFiles() != null) {
                     for (File sim : simulationDir.listFiles()) {
                         if (sim.isFile()) {
                             adapters.add(new Adapter("SIM: " + sim.getName(), sim.getName(), SIM_DEV_ID));
