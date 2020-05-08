@@ -50,6 +50,34 @@ public class Step06ControllerTest extends AbstractControllerTest {
 
     private static final String familyName = "YCALIF HD OBD*";
 
+    /*
+     * All values must be checked prior to mocking so that we are not
+     * creating unnecessary mocks.
+     */
+    private static DM56EngineFamilyPacket createDM56(Integer sourceAddress,
+            Integer engineYear,
+            String modelYear,
+            Integer vehicleYear,
+            String familyName) {
+        DM56EngineFamilyPacket packet = mock(DM56EngineFamilyPacket.class);
+        if (sourceAddress != null) {
+            when(packet.getSourceAddress()).thenReturn(sourceAddress);
+        }
+        if (engineYear != null) {
+            when(packet.getEngineModelYear()).thenReturn(engineYear);
+        }
+        if (modelYear != null) {
+            when(packet.getModelYearField()).thenReturn(modelYear);
+        }
+        if (vehicleYear != null) {
+            when(packet.getVehicleModelYear()).thenReturn(vehicleYear);
+        }
+        if (familyName != null) {
+            when(packet.getFamilyName()).thenReturn(familyName);
+        }
+        return packet;
+    }
+
     @Mock
     private AcknowledgmentPacket acknowledgmentPacket;
 
@@ -250,6 +278,54 @@ public class Step06ControllerTest extends AbstractControllerTest {
     }
 
     /**
+     * The asterisk termination at a char location of greater than 12
+     */
+    @Test
+    @TestDoc(verifies = {
+            "6.1.6.2.e" }, description = "Engine family has > 12 characters before first asterisk character")
+    public void testFamilyNameLessThan13Characters() {
+        String famName = familyName.replace(" OBD*", "");
+
+        List<DM56EngineFamilyPacket> parsedPackets = listOf(createDM56(null, 2006, "2006E-MY", null, famName));
+        when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
+
+        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        when(dataRepository.getVehicleInformation().getEngineModelYear()).thenReturn(2006);
+
+        runTest();
+
+        verify(dataRepository, times(2)).getVehicleInformation();
+
+        verify(mockListener).addOutcome(1,
+                6,
+                Outcome.FAIL,
+                "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+
+        verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule).addOutcome(1,
+                6,
+                Outcome.FAIL,
+                "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+        verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule).addOutcome(1,
+                6,
+                Outcome.FAIL,
+                "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+        verify(reportFileModule).onResult(
+                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+
+        verify(vehicleInformationModule).reportEngineFamily(any());
+
+        // Verify the documentation was recorded correctly
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals(
+                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)\n",
+                listener.getResults());
+    }
+
+    /**
      * Verify the error handling for 6.1.6.2.e. - Engine family has <> 12 characters
      * before first 'null' character (ASCII 0x00) correct behavior
      */
@@ -433,33 +509,5 @@ public class Step06ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
-    }
-
-    /*
-     * All values must be checked prior to mocking so that we are not
-     * creating unnecessary mocks.
-     */
-    private static DM56EngineFamilyPacket createDM56(Integer sourceAddress,
-            Integer engineYear,
-            String modelYear,
-            Integer vehicleYear,
-            String familyName) {
-        DM56EngineFamilyPacket packet = mock(DM56EngineFamilyPacket.class);
-        if (sourceAddress != null) {
-            when(packet.getSourceAddress()).thenReturn(sourceAddress);
-        }
-        if (engineYear != null) {
-            when(packet.getEngineModelYear()).thenReturn(engineYear);
-        }
-        if (modelYear != null) {
-            when(packet.getModelYearField()).thenReturn(modelYear);
-        }
-        if (vehicleYear != null) {
-            when(packet.getVehicleModelYear()).thenReturn(vehicleYear);
-        }
-        if (familyName != null) {
-            when(packet.getFamilyName()).thenReturn(familyName);
-        }
-        return packet;
     }
 }
