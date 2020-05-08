@@ -80,9 +80,12 @@ public class RP1210 {
             // if (J1939_84.isTesting() || J1939_84.isDebug())
             {
                 adapters.add(LOOP_BACK_ADAPTER);
-                for (File sim : new File("simulations").listFiles()) {
-                    if (sim.isFile()) {
-                        adapters.add(new Adapter("SIM: " + sim.getName(), sim.getName(), SIM_DEV_ID));
+                File simulationDir = new File("simulations");
+                if (simulationDir.exists()) {
+                    for (File sim : simulationDir.listFiles()) {
+                        if (sim.isFile()) {
+                            adapters.add(new Adapter("SIM: " + sim.getName(), sim.getName(), SIM_DEV_ID));
+                        }
                     }
                 }
             }

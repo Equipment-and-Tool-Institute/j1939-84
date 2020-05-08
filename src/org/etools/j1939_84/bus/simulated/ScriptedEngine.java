@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.bus.simulated;
 
-import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.util.HashSet;
@@ -17,7 +16,6 @@ import java.util.stream.StreamSupport;
 
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
-import org.etools.j1939_84.bus.EchoBus;
 import org.etools.j1939_84.bus.Packet;
 
 import com.google.gson.Gson;
@@ -27,16 +25,25 @@ import com.google.gson.JsonObject;
 
 public class ScriptedEngine implements AutoCloseable {
     /** Handle responding to DM7 requests. */
-    public class DM7Provider implements Supplier<Packet>, Predicate<Packet> {
-
+    private class DM7Provider implements Supplier<Packet>, Predicate<Packet> {
+        /**
+         * Packet identified in last positive test. This avoids testing twice, but makes
+         * assumptions about the process. It is fragile.
+         */
         private Packet next;
+
+        /** Possible responses for this request. */
         final private JsonArray packetDescriptors;
 
+        /** source address */
         final private int sa;
+
+        /** Next sequence to use in possible responses. */
         private int sequence = 0;
+
         final private int spn;
 
-        public DM7Provider(int spn, int sa, JsonObject messageDescriptot) {
+        DM7Provider(int spn, int sa, JsonObject messageDescriptot) {
             this.spn = spn;
             this.sa = sa;
             // now let's find the right packet
@@ -48,12 +55,12 @@ public class ScriptedEngine implements AutoCloseable {
         }
 
         @Override
-        synchronized public Packet get() {
+        public Packet get() {
             return next;
         }
 
         @Override
-        public boolean test(Packet packet) {
+        synchronized public boolean test(Packet packet) {
             // SPN DM7?
             if (packet.getId() != (0xE300 | sa)) {
                 return false;
@@ -94,12 +101,12 @@ public class ScriptedEngine implements AutoCloseable {
     }
 
     /** Handle EA00 requests. */
-    public class ResponseProvider implements Supplier<Packet> {
+    class ResponseProvider implements Supplier<Packet> {
         final private JsonObject messageDescriptor;
         /** Current sequence in the array of packet descriptors. */
         private int sequence = 0;
 
-        public ResponseProvider(JsonObject messageDescriptor) {
+        private ResponseProvider(JsonObject messageDescriptor) {
             this.messageDescriptor = messageDescriptor;
         }
 
@@ -136,7 +143,7 @@ public class ScriptedEngine implements AutoCloseable {
                 | (packet.get(1) & 0xFF);
     }
 
-    static private Integer getPgn(Packet p) {
+    private static int getPgn(Packet p) {
         int id = p.getId() & 0xFFFF;
         if (id < 0xF000) {
             id &= 0xFF00;
@@ -144,20 +151,11 @@ public class ScriptedEngine implements AutoCloseable {
         return id;
     }
 
-    static private Predicate<Packet> isRequestForPredicate(Packet responsePacket) {
+    private static Predicate<Packet> isRequestForPredicate(Packet responsePacket) {
         int pgn = getPgn(responsePacket);
         int address = responsePacket.getSource();
         return packet -> (packet.getId() == (0xEA00 | address) || packet.getId() == 0xEAFF)
                 && packet.get24(0) == pgn;
-    }
-
-    public static void main(String... filename) throws Exception {
-        try (Bus bus = new EchoBus(0xF9);
-                FileInputStream in = new FileInputStream(filename[0]);
-                ScriptedEngine e = new ScriptedEngine(bus, in);
-                AutoCloseable log = bus.log(p -> p.getTimestamp().toString() + " : ");) {
-            Thread.sleep(10 * 30 * 1000);
-        }
     }
 
     private final Set<String> env = new HashSet<>();
@@ -208,6 +206,14 @@ public class ScriptedEngine implements AutoCloseable {
         sim.close();
     }
 
+    /**
+     * Handle checking and updating the environment.
+     *
+     * @param descriptor The possible response to be checked. If it passes, then the
+     *                   environment will be updated based on the set, setFor and
+     *                   clear commands.
+     * @return Should this descriptor be used?
+     */
     private boolean envHandler(JsonObject descriptor) {
         if (descriptor.has("isSet")
                 && !env.contains(descriptor.get("isSet").getAsString())) {
@@ -231,5 +237,4 @@ public class ScriptedEngine implements AutoCloseable {
         }
         return true;
     }
-
 }

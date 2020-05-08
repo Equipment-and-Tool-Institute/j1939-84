@@ -44,10 +44,10 @@ public class Sim implements AutoCloseable {
 
     public Sim(Bus bus) throws BusException {
         this.bus = bus;
+        // stream is collected in the current thread to avoid missing any packets during
+        // the Thread startup.
         Stream<Packet> stream = bus.read(365, TimeUnit.DAYS);
-        exec.submit(() -> {
-            stream.forEach(packet -> responses.stream().forEach(c -> c.accept(packet)));
-        });
+        exec.submit(() -> stream.forEach(packet -> responses.stream().forEach(c -> c.accept(packet))));
     }
 
     @Override
@@ -60,8 +60,7 @@ public class Sim implements AutoCloseable {
      *
      * @param predicate
      *                  the {@link Predicate} used to determine if the
-     *                  {@link Packet}
-     *                  should be sent
+     *                  {@link Packet} should be sent
      * @param supplier
      *                  the {@link Supplier} of the {@link Packet}
      * @return this
@@ -112,7 +111,7 @@ public class Sim implements AutoCloseable {
 
     /**
      * Sends a {@link Packet} from the given {@link Supplier} catching any
-     * exceptions
+     * exceptions. Should only be called from the exec.
      *
      * @param supplier
      *                 the {@link Supplier} for the {@link Packet}

@@ -22,6 +22,10 @@ import org.etools.j1939_84.bus.Packet;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 public class J1939TP implements Bus {
+    /**
+     * Used to jump out of internal predicaments that should not be exposed to
+     * callers.
+     */
     static private class BusControlException extends RuntimeException {
         public final BusException busException;
 
@@ -56,6 +60,7 @@ public class J1939TP implements Bus {
         }
     }
 
+    /** Constants from J1939-21 */
     final static public int CM = 0xEC00;
 
     final static public int CM_BAM = 0x20;
@@ -68,6 +73,7 @@ public class J1939TP implements Bus {
     final static public int CM_RTS = 16;
     final static public int DT = 0xEB00;
 
+    // FIXME - how should we utilize these errors?
     final static public Map<Integer, String> errors;
 
     static private final Logger logger = Logger.getLogger(J1939TP.class.getName());
@@ -97,6 +103,7 @@ public class J1939TP implements Bus {
         errors = Collections.unmodifiableMap(err);
     }
 
+    /** We do not care about interruptions. */
     static private void sleep(int duration) {
         try {
             Thread.sleep(duration);
@@ -120,15 +127,23 @@ public class J1939TP implements Bus {
         this(bus, bus.getAddress());
     }
 
-    @SuppressFBWarnings(value = { "UW_UNCOND_WAIT", "WA_NOT_IN_LOOP" }, justification = "Wait for stream open.")
+    @SuppressFBWarnings(value = { "NN_NAKED_NOTIFY", "UW_UNCOND_WAIT",
+            "WA_NOT_IN_LOOP" }, justification = "Wait for stream open.")
     public J1939TP(Bus bus, int address) throws BusException {
         this.bus = bus;
         stream = bus.read(9999, TimeUnit.DAYS);
         inbound = new EchoBus(address);
         synchronized (inbound) {
-            exec.execute(this::processPackets);
+            exec.execute(() -> {
+                // once thread is started, notify
+                synchronized (inbound) {
+                    inbound.notifyAll();
+                }
+                // there is a small gap right here where packets may be missed.
+                stream.forEach(p -> receive(p));
+            });
             try {
-                // wait for run() to get a reference to bus
+                // wait for executor to be started
                 inbound.wait();
             } catch (InterruptedException e) {
                 throw new RuntimeException(e);
@@ -143,6 +158,9 @@ public class J1939TP implements Bus {
         bus.close();
     }
 
+    /**
+     * @param stream base stream originally returned from bus.read().
+     */
     @Override
     public Stream<Packet> duplicate(Stream<Packet> stream) {
         return inbound.duplicate(stream);
@@ -158,28 +176,23 @@ public class J1939TP implements Bus {
         return bus.getConnectionSpeed();
     }
 
-    @SuppressFBWarnings(value = "NN_NAKED_NOTIFY", justification = "Notify of stream open.")
-    private void processPackets() {
-        synchronized (inbound) {
-            inbound.notifyAll();
-        }
-        stream.forEach(p -> receive(p));
-    }
-
     @Override
     public Stream<Packet> read(long timeout, TimeUnit unit) throws BusException {
         return inbound.read(timeout, unit);
     }
 
     private void receive(Packet packet) {
+        // ignore the packet if it is from this
         if (packet.getSource() != getAddress()) {
             switch (packet.getId() & 0xFF00) {
-                case CM:
+                case CM: // TP connection management
                     switch (packet.get(0)) {
-                        case CM_RTS: {
+                        case CM_RTS: { // Request to send
                             if ((packet.getId() & 0xFF) == getAddress()) {
-                                // timeout is reset inside receiveBam. This is just enough time to get to the
-                                // thread. Without this, we could time out just waiting for thread startup.
+                                // Duplicate the current stream. Opening a new stream starts from "now" a may
+                                // miss packets already queued up in stream.
+                                // Timeout is reset inside receiveDestinationSpecific to account for time spent
+                                // starting this thread.
                                 Stream<Packet> dsStream = bus.duplicate(stream);
                                 exec.execute(() -> {
                                     try {
@@ -196,8 +209,10 @@ public class J1939TP implements Bus {
                             return;
                         }
                         case CM_BAM: {
-                            // timeout is reset inside receiveBam. This is just enough time to get to the
-                            // thread. Without this, we could time out just waiting for thread startup.
+                            // Duplicate the current stream. Opening a new stream starts from "now" a may
+                            // miss packets already queued up in stream.
+                            // Timeout is reset inside receiveBam to account for time spent
+                            // starting this thread.
                             Stream<Packet> bamStream = bus.duplicate(stream);
                             exec.execute(() -> {
                                 try {
@@ -215,12 +230,12 @@ public class J1939TP implements Bus {
                         case CM_ConnAbort:
                             // handled in receive calls
                             return;
-
                     }
                     break;
-                case DT:
+                case DT: // data
                     return;
             }
+            // everything else, pass through
             inbound.send(packet);
         }
     }
@@ -261,7 +276,7 @@ public class J1939TP implements Bus {
             warn("BAM missing DT %d != %d", received.cardinality(), numberOfPackets);
             throw new TpDtBusException();
         }
-        return o.orElse(null);
+        return o.get();
     }
 
     public Packet receiveDestinationSpecific(Packet rts, Stream<Packet> streamBase) throws BusException {
@@ -483,6 +498,7 @@ public class J1939TP implements Bus {
     }
 
     public void warn(String msg, Throwable e) {
+        // FIXME where do we want warning messages to go?
         System.err.println(msg);
         e.printStackTrace();
     }
