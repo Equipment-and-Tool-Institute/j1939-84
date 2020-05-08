@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <classpath>
-	<classpathentry kind="lib" path="lib-test/testdoc.jar"/>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="src-test"/>
 	<classpathentry kind="src" path="testdoc">
@@ -13,24 +12,8 @@
 			<attribute name="module" value="true"/>
 		</attributes>
 	</classpathentry>
+	<classpathentry kind="lib" path="lib-test/testdoc.jar"/>
 	<classpathentry kind="lib" path="lib-test/detekt-cli-1.0.0-RC16-all.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/lib/asm-debug-all-5.0.2.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/lib/bcel-6.0-SNAPSHOT.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/lib/commons-lang-2.6.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/lib/dom4j-1.6.1.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/lib/findbugs-ant.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/lib/findbugs.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/lib/jaxen-1.1.6.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/lib/jcip-annotations.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/lib/jdepend-2.9.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/lib/jFormatString.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/lib/jsr305.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/lib/yjp-controller-api-redist.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/optionalPlugin/bugCollectionCloud.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/optionalPlugin/noUpdateChecks.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/optionalPlugin/poweruser.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/plugin/findbugsCommunalCloud.jar"/>
-	<classpathentry kind="lib" path="lib-test/findbugs-3.0.1/plugin/webCloudClient.jar"/>
 	<classpathentry kind="lib" path="lib-test/hamcrest-core-1.3.jar"/>
 	<classpathentry kind="lib" path="lib-test/jacoco-0.7.9/lib/jacocoagent.jar"/>
 	<classpathentry kind="lib" path="lib-test/jacoco-0.7.9/lib/jacocoant.jar"/>
@@ -58,5 +41,22 @@
 	<classpathentry kind="lib" path="lib-test/byte-buddy-1.10.9.jar"/>
 	<classpathentry kind="lib" path="lib-test/byte-buddy-agent-1.10.9.jar"/>
 	<classpathentry kind="lib" path="lib-test/mockito-core-3.3.3.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/asm-8.0.1.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/asm-analysis-8.0.1.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/asm-commons-8.0.1.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/asm-tree-8.0.1.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/asm-util-8.0.1.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/bcel-6.4.1.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/commons-lang3-3.10.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/commons-text-1.8.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/dom4j-2.1.1.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/icu4j-63.1.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/jaxen-1.1.6.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/jcip-annotations-1.0.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/jsr305-3.0.2.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/log4j-slf4j18-impl-2.13.1.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/Saxon-HE-9.9.1-2.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/slf4j-api-1.8.0-beta4.jar"/>
+	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/spotbugs-annotations.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
