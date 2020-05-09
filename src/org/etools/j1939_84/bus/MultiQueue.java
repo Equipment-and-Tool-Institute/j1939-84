@@ -64,6 +64,11 @@ public class MultiQueue<T> implements AutoCloseable {
             setTimeout(timeout, unit);
         }
 
+        public SpliteratorImplementation(MultiQueue<T>.SpliteratorImplementation that) {
+            this.item = that.item;
+            this.end = that.end;
+        }
+
         @Override
         public int characteristics() {
             return IMMUTABLE | ORDERED;
@@ -116,6 +121,13 @@ public class MultiQueue<T> implements AutoCloseable {
     public void close() {
         // close all of the spliterators.
         spliterators.values().forEach(s -> s.end = 0);
+    }
+
+    public Stream<T> duplicate(Stream<T> stream) {
+        SpliteratorImplementation spliterator = new SpliteratorImplementation(spliterators.get(stream));
+        Stream<T> newStream = StreamSupport.stream(spliterator, false);
+        spliterators.put(newStream, spliterator);
+        return newStream;
     }
 
     /**

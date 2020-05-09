@@ -160,6 +160,11 @@ public class RP1210Bus implements Bus {
         return Packet.create(priority, pgn, source, echoed != 0, Arrays.copyOfRange(data, 11, length));
     }
 
+    @Override
+    public Stream<Packet> duplicate(Stream<Packet> stream) {
+        return queue.duplicate(stream);
+    }
+
     /**
      * Transforms the given {@link Packet} into a byte array so it can be sent
      * to the vehicle bus
