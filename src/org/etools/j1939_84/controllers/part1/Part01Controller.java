@@ -45,7 +45,8 @@ public class Part01Controller extends Controller {
         this(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
                 new Step01Controller(dataRepository), new Step02Controller(), new Step03Controller(dataRepository),
                 new Step04Controller(dataRepository), new Step05Controller(dataRepository),
-                new Step06Controller(dataRepository), new Step07Controller(dataRepository));
+                new Step06Controller(dataRepository), new Step07Controller(dataRepository),
+                new Step08Controller(dataRepository));
     }
 
     /**
@@ -76,7 +77,7 @@ public class Part01Controller extends Controller {
             BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
             PartResultFactory partResultFactory, Step01Controller step01Controller, Step02Controller step02Controller,
             Step03Controller step03Controller, Step04Controller step04Controller, Step05Controller step05Controller,
-            Step06Controller step06Controller, Step07Controller step07Controller) {
+            Step06Controller step06Controller, Step07Controller step07Controller, Step08Controller step08Controller) {
         super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
 
         stepControllers.add(step01Controller);
@@ -86,6 +87,7 @@ public class Part01Controller extends Controller {
         stepControllers.add(step05Controller);
         stepControllers.add(step06Controller);
         stepControllers.add(step07Controller);
+        stepControllers.add(step08Controller);
     }
 
     private void executeStep(int stepNumber) throws InterruptedException {
