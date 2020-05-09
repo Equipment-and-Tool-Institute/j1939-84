@@ -20,9 +20,9 @@
 		<classpath path="${launch4j.dir}/launch4j.jar:${launch4j.dir}/lib/xstream.jar" />
 	</taskdef>
 
-	<property name="findbugs.home" value="${lib-test}/findbugs-3.0.1" />
-	<taskdef name="findbugs" classname="edu.umd.cs.findbugs.anttask.FindBugsTask">
-		<classpath path="${lib-test}/findbugs-3.0.1/lib/findbugs-ant.jar" />
+	<property name="spotbugs.home" value="${lib-test}/spotbugs-4.0.2" />
+	<taskdef resource="edu/umd/cs/findbugs/anttask/tasks.properties">
+		<classpath path="${lib-test}/spotbugs-4.0.2/lib/spotbugs-ant.jar" />
 	</taskdef>
 
 	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
@@ -135,7 +135,7 @@
 	<target name="compile.tests" depends="compile" description="Compiles the code to run unit tests">
 		<javac srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11">
 			<classpath refid="unit.test.path" />
-			<compilerarg line="-s dist"/>
+			<compilerarg line="-s dist" />
 		</javac>
 	</target>
 
@@ -182,13 +182,13 @@
 		</junitreport>
 	</target>
 
-	<target name="findBugs" depends="clean, compile.tests" description="Generate the FindBugs Report">
-		<findbugs home="${findbugs.home}" output="html" outputFile="${build}/findBugsReport.html">
+	<target name="spotbugs" depends="clean, compile.tests" description="Generate the spotbugs Report">
+		<spotbugs  home="${spotbugs.home}" output="html" outputFile="${build}/spotbugsReport.html">
 			<auxclasspath refid="unit.test.path" />
 			<sourcePath path="${src}" />
 			<class location="${build}" />
-		</findbugs>
-		<open file="${build}/findBugsReport.html" />
+		</spotbugs>
+		<open file="${build}/spotbugsReport.html" />
 	</target>
 
 	<target name="echo.current.build.number">
