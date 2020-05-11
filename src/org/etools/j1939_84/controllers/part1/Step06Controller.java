@@ -74,9 +74,7 @@ public class Step06Controller extends Controller {
             // input.11
 
             String familyName = packet.getFamilyName();
-
-            // Zero based for char count in strings.
-            char char13 = familyName.charAt(13);
+            char char13 = familyName.length() >= 13 ? familyName.charAt(13) : Character.MIN_VALUE;
 
             int asteriskIndex = familyName.indexOf('*');
 
@@ -85,14 +83,12 @@ public class Step06Controller extends Controller {
                 addFailure(1,
                         6,
                         "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
-            } else if (familyName.indexOf("*") == -1 && char13 != Character.MIN_VALUE) {
+            } else if ((familyName.length() < 13 && char13 == Character.MIN_VALUE)
+                    || (familyName.indexOf("*") == -1 && char13 != Character.MIN_VALUE)) {
                 addFailure(1,
                         6,
                         "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
             }
-
         }
-
     }
-
 }

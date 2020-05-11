@@ -28,7 +28,7 @@ public class Packet {
     public static final String TX = " (TX)";
 
     public static Packet create(int id, int source, boolean transmitted, int... data) {
-        return new Packet(6, id, source, transmitted, data);
+        return new Packet(LocalDateTime.now(), 6, id, source, transmitted, data);
     }
 
     /**
@@ -81,7 +81,7 @@ public class Packet {
         for (int i = 0; i < bytes.length; i++) {
             data[i] = bytes[i];
         }
-        return new Packet(priority, id, source, transmitted, data);
+        return new Packet(LocalDateTime.now(), priority, id, source, transmitted, data);
     }
 
     /**
@@ -128,6 +128,22 @@ public class Packet {
                         .mapToInt(s -> Integer.parseInt(s, 16)).toArray());
     }
 
+    public static Packet parseVector(LocalDateTime start, String line) {
+        String[] a = line.trim().split("\\s+");
+        if (a.length > 5 && a[1].equals("1") && a[3].equals("Rx")) {
+            int id = Integer.parseInt(a[2].substring(0, a[2].length() - 1), 16);
+
+            return new Packet(start.plusNanos((long) (Double.parseDouble(a[0]) * 1000000000)),
+                    6,
+                    0xFFFFFF & (id >> 8),
+                    0xFF & id,
+                    false,
+                    Stream.of(Arrays.copyOfRange(a, 6, 6 + Integer.parseInt(a[5]), String[].class))
+                            .mapToInt(s -> Integer.parseInt(s, 16)).toArray());
+        }
+        return null;
+    }
+
     private final int[] data;
 
     private final int id;
@@ -154,8 +170,8 @@ public class Packet {
      * @param data
      *                    the data of the packet
      */
-    private Packet(int priority, int id, int source, boolean transmitted, int... data) {
-        timestamp = LocalDateTime.now();
+    private Packet(LocalDateTime timestamp, int priority, int id, int source, boolean transmitted, int... data) {
+        this.timestamp = timestamp;
         this.priority = priority;
         this.id = id;
         this.source = source;

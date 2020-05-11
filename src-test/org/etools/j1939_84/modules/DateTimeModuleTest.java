@@ -57,6 +57,35 @@ public class DateTimeModuleTest {
     }
 
     @Test
+    public void testGetTimeAsLong() {
+
+        DateTimeModule instance = new DateTimeModule() {
+            @Override
+            protected LocalDateTime now() {
+                return LocalDateTime.parse("2019-01-01T10:15:30.000");
+            }
+        };
+        long expected = 36930000;
+        long actual = instance.getTimeAsLong();
+        assertEquals(expected, actual);
+
+    }
+
+    @Test
+    public void testGetYear() {
+        DateTimeModule instance = new DateTimeModule() {
+            @Override
+            protected LocalDateTime now() {
+                return LocalDateTime.parse("2019-01-01T10:15:30.000");
+            }
+        };
+        int expected = 2019;
+        long actual = instance.getYear();
+        assertEquals(expected, actual);
+
+    }
+
+    @Test
     public void testNow() {
         LocalDateTime before = LocalDateTime.now();
         LocalDateTime actual = instance.now();
@@ -64,6 +93,22 @@ public class DateTimeModuleTest {
 
         assertTrue(before.isBefore(actual) || before.isEqual(actual));
         assertTrue(after.isAfter(actual) || after.isEqual(actual));
+    }
+
+    @Test
+    public void testPauseFor() {
+        DateTimeModule instance = new DateTimeModule();
+
+        long pauseForMillis = 5L;
+
+        long before = System.currentTimeMillis();
+        instance.pauseFor(pauseForMillis);
+
+        long after = System.currentTimeMillis();
+        long difference = after - before;
+
+        assertTrue("difference is: " + difference + " which is below the minimum", 5L <= difference);
+        assertTrue("difference is: " + difference + " which is above the maximum", difference <= 6L);
     }
 
 }

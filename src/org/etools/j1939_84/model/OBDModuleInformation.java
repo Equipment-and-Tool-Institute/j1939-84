@@ -4,11 +4,15 @@
 package org.etools.j1939_84.model;
 
 import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 
 /**
@@ -22,6 +26,8 @@ public class OBDModuleInformation {
     private int function;
 
     private byte obdCompliance;
+
+    private final Set<PerformanceRatio> performanceRatios = new HashSet<>();
 
     private final int sourceAddress;
 
@@ -84,6 +90,13 @@ public class OBDModuleInformation {
         return obdCompliance;
     }
 
+    /**
+     * @return the performanceRatios
+     */
+    public Set<PerformanceRatio> getPerformanceRatios() {
+        return performanceRatios;
+    }
+
     public int getSourceAddress() {
         return sourceAddress;
     }
@@ -129,6 +142,14 @@ public class OBDModuleInformation {
      */
     public void setObdCompliance(byte obdCompliance) {
         this.obdCompliance = obdCompliance;
+    }
+
+    /**
+     * @param performanceRatios the performanceRatios to set
+     */
+    public void setPerformanceRatios(Collection<PerformanceRatio> performanceRatios) {
+        this.performanceRatios.clear();
+        this.performanceRatios.addAll(performanceRatios);
     }
 
     /**

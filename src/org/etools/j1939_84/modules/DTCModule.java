@@ -5,6 +5,7 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -52,6 +53,43 @@ public class DTCModule extends FunctionalModule {
      */
     public DTCModule(DateTimeModule dateTimeModule) {
         super(dateTimeModule);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends DiagnosticTroubleCodePacket> List<T> filterPackets(List<ParsedPacket> packets,
+            Class<T> clazz) {
+        List<T> resultPackets = new ArrayList<>();
+        for (ParsedPacket packet : packets) {
+            if (packet.getClass() == clazz) {
+                resultPackets.add((T) packet);
+            }
+        }
+        return resultPackets;
+    }
+
+    /**
+     * Sends an address specific request for DM2 Packets. The request and results
+     * will be returned to the {@link ResultsListener}
+     *
+     * @param listener
+     *                   the {@link ResultsListener} for the results
+     * @param fullString
+     *                   true to include the full string of the results in the
+     *                   report;
+     *                   false to only include the returned raw packet in the report
+     * @return the {@link List} of {@link DM2PreviouslyActiveDTC}s
+     */
+    public List<DM2PreviouslyActiveDTC> getDM2Packets(ResultsListener listener,
+            boolean fullString,
+            Integer obdModuleAddress) {
+        List<ParsedPacket> parsedPackets = getPackets("Global DM2 Request",
+                DM2PreviouslyActiveDTC.PGN,
+                DM2PreviouslyActiveDTC.class,
+                listener,
+                fullString,
+                obdModuleAddress);
+
+        return filterPackets(parsedPackets, DM2PreviouslyActiveDTC.class);
     }
 
     /**
@@ -115,11 +153,10 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests DM2 from all vehicle modules and generates a {@link String}
-     * that's suitable for inclusion in the report
+     * Requests and reports DM2 from all vehicle modules and generates a
+     * {@link String} that's suitable for inclusion in the report
      *
-     * @param listener
-     *                 the {@link ResultsListener} that will be given the report
+     * @param listener the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public boolean reportDM2(ResultsListener listener) {
@@ -180,5 +217,21 @@ public class DTCModule extends FunctionalModule {
                 DM6PendingEmissionDTCPacket.class,
                 request);
         return packets.stream().anyMatch(t -> !t.getDtcs().isEmpty());
+    }
+
+    /**
+     * Requests and return global DM2 from all vehicle modules and generates a
+     * {@link String} that's suitable for inclusion in the report
+     *
+     * @param listener the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public List<? extends DiagnosticTroubleCodePacket> requestDM2(ResultsListener listener) {
+        Packet request = getJ1939().createRequestPacket(DM2PreviouslyActiveDTC.PGN, GLOBAL_ADDR);
+        List<? extends DiagnosticTroubleCodePacket> packets = generateReport(listener,
+                "Global DM2 Request",
+                DM2PreviouslyActiveDTC.class,
+                request);
+        return packets;
     }
 }

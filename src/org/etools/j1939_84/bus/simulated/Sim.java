@@ -8,7 +8,7 @@ import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Function;
+import java.util.function.Consumer;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -40,16 +40,14 @@ public class Sim implements AutoCloseable {
     /**
      * The collection of responses
      */
-    private final Collection<Function<Packet, Boolean>> responses = new ConcurrentLinkedQueue<>();
+    private final Collection<Consumer<Packet>> responses = new ConcurrentLinkedQueue<>();
 
     public Sim(Bus bus) throws BusException {
         this.bus = bus;
+        // stream is collected in the current thread to avoid missing any packets during
+        // the Thread startup.
         Stream<Packet> stream = bus.read(365, TimeUnit.DAYS);
-        exec.submit(() -> {
-            stream.forEach(packet -> {
-                responses.stream().forEach(c -> c.apply(packet));
-            });
-        });
+        exec.submit(() -> stream.forEach(packet -> responses.stream().forEach(c -> c.accept(packet))));
     }
 
     @Override
@@ -62,8 +60,7 @@ public class Sim implements AutoCloseable {
      *
      * @param predicate
      *                  the {@link Predicate} used to determine if the
-     *                  {@link Packet}
-     *                  should be sent
+     *                  {@link Packet} should be sent
      * @param supplier
      *                  the {@link Supplier} of the {@link Packet}
      * @return this
@@ -73,8 +70,25 @@ public class Sim implements AutoCloseable {
             if (predicate.test(packet)) {
                 send(supplier);
             }
-            return false;
         });
+        return this;
+    }
+
+    /**
+     * Schedules a {@link Runnable} periodically
+     *
+     * @param period
+     *               how often the {@link Runnable} should be run
+     * @param delay
+     *               how long to wait until running the first {@link Runnable}
+     * @param unit
+     *               the {@link TimeUnit} for the delay and period
+     * @param run
+     *               the {@link Runnable} to run
+     * @return this
+     */
+    public Sim schedule(int period, int delay, TimeUnit unit, Runnable run) {
+        exec.scheduleAtFixedRate(run, delay, period, unit);
         return this;
     }
 
@@ -92,15 +106,12 @@ public class Sim implements AutoCloseable {
      * @return this
      */
     public Sim schedule(int period, int delay, TimeUnit unit, Supplier<Packet> supplier) {
-        exec.scheduleAtFixedRate(() -> {
-            send(supplier);
-        }, delay, period, unit);
-        return this;
+        return schedule(period, delay, unit, () -> send(supplier));
     }
 
     /**
      * Sends a {@link Packet} from the given {@link Supplier} catching any
-     * exceptions
+     * exceptions. Should only be called from the exec.
      *
      * @param supplier
      *                 the {@link Supplier} for the {@link Packet}
@@ -111,6 +122,16 @@ public class Sim implements AutoCloseable {
         } catch (BusException e) {
             J1939_84.getLogger().log(Level.SEVERE, "Error sending", e);
         }
+    }
+
+    /**
+     * Sends a {@link Packet} now.
+     *
+     * @param packet
+     *               the {@link Packet}
+     */
+    public void sendNow(Packet packet) {
+        exec.execute(() -> send(() -> packet));
     }
 
 }

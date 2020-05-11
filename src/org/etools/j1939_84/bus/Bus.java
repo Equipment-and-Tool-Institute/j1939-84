@@ -4,7 +4,7 @@
 package org.etools.j1939_84.bus;
 
 import java.util.concurrent.TimeUnit;
-import java.util.function.Supplier;
+import java.util.function.Function;
 import java.util.stream.Stream;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
@@ -23,6 +23,8 @@ public interface Bus extends AutoCloseable {
     @Override
     void close();
 
+    Stream<Packet> duplicate(Stream<Packet> stream);
+
     /**
      * Returns the source address used by the tool for communications
      *
@@ -39,35 +41,15 @@ public interface Bus extends AutoCloseable {
      */
     int getConnectionSpeed() throws BusException;
 
-    default void log(String prefix) {
-        log(() -> prefix);
+    @SuppressFBWarnings(value = { "UW_UNCOND_WAIT", "WA_NOT_IN_LOOP" }, justification = "Wait for stream open.")
+    default AutoCloseable log(Function<Packet, String> prefix) throws BusException {
+        Stream<Packet> stream = read(999, TimeUnit.DAYS);
+        new Thread(() -> stream.forEach(p -> System.err.println(prefix.apply(p) + p))).start();
+        return () -> stream.close();
     }
 
-    @SuppressFBWarnings(value = { "UW_UNCOND_WAIT", "WA_NOT_IN_LOOP" }, justification = "Wait for stream open.")
-    default void log(Supplier<String> prefix) {
-        Runnable procesPackets = new Runnable() {
-            @Override
-            @SuppressFBWarnings(value = "NN_NAKED_NOTIFY", justification = "Notify of stream open.")
-            public void run() {
-                try {
-                    Stream<Packet> stream = read(999, TimeUnit.DAYS);
-                    synchronized (this) {
-                        notifyAll();
-                    }
-                    stream.forEach(p -> System.err.println(prefix.get() + p));
-                } catch (BusException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-        synchronized (procesPackets) {
-            new Thread(procesPackets).start();
-            try {
-                procesPackets.wait();
-            } catch (InterruptedException e) {
-                // nothing
-            }
-        }
+    default AutoCloseable log(String prefix) throws BusException {
+        return log(p -> prefix);
     }
 
     /**

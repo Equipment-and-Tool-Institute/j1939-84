@@ -85,7 +85,7 @@ public class Engine implements AutoCloseable {
     }
 
     private static boolean isDM7For(int spn, Packet packet) {
-        boolean isId = packet.getId() == 58112;
+        boolean isId = packet.getId() == 0xE300;
         if (!isId) {
             return false;
         }

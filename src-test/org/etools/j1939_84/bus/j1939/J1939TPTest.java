@@ -552,7 +552,7 @@ public class J1939TPTest {
             // test T1
             // verify CTS is for packet 2
             assertPacketsEquals(Packet.parsePacket("18ECF900 11 01 02 FF FF 00 EA 00"), it.next());
-            assertEquals("T1 timing wrong", System.currentTimeMillis() - start2, J1939TP.T1, 20);
+            assertEquals("T1 timing wrong", J1939TP.T1, System.currentTimeMillis() - start2, 20);
 
             // verify that no TP packet is decoded
             Optional<Packet> result = tp.read(5, TimeUnit.SECONDS).findAny();

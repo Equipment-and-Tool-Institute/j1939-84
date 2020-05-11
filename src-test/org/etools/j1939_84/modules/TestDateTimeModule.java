@@ -16,32 +16,53 @@ import java.time.temporal.ChronoField;
  */
 public class TestDateTimeModule extends DateTimeModule {
 
-	/**
-	 * The {@link DateTimeFormatter} used for testing that will return a static
-	 * value.
-	 */
-	private final DateTimeFormatter timeFormatter = new DateTimeFormatterBuilder().appendLiteral("10:15:30.000")
-			.parseDefaulting(ChronoField.HOUR_OF_DAY, 10).parseDefaulting(ChronoField.MINUTE_OF_HOUR, 15)
-			.parseDefaulting(ChronoField.SECOND_OF_MINUTE, 30).parseDefaulting(ChronoField.YEAR_OF_ERA, 2016)
-			.parseDefaulting(ChronoField.DAY_OF_YEAR, 1).toFormatter();
+    private long[] timesAsLong = {0};
+    private int timeIndex = 0;
+    
+    public long pauseFor =-1;
 
-	/**
-	 * Method returns the actual {@link DateTimeFormatter} used in production
-	 * code, not the test one.
-	 *
-	 * @return {@link DateTimeFormatter}
-	 */
-	public DateTimeFormatter getSuperTimeFormatter() {
-		return super.getTimeFormatter();
-	}
+    /**
+     * The {@link DateTimeFormatter} used for testing that will return a static
+     * value.
+     */
+    private final DateTimeFormatter timeFormatter = new DateTimeFormatterBuilder().appendLiteral("10:15:30.000")
+            .parseDefaulting(ChronoField.HOUR_OF_DAY, 10).parseDefaulting(ChronoField.MINUTE_OF_HOUR, 15)
+            .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 30).parseDefaulting(ChronoField.YEAR_OF_ERA, 2016)
+            .parseDefaulting(ChronoField.DAY_OF_YEAR, 1).toFormatter();
 
-	@Override
-	public DateTimeFormatter getTimeFormatter() {
-		return timeFormatter;
-	}
+    /**
+     * Method returns the actual {@link DateTimeFormatter} used in production
+     * code, not the test one.
+     *
+     * @return {@link DateTimeFormatter}
+     */
+    public DateTimeFormatter getSuperTimeFormatter() {
+        return super.getTimeFormatter();
+    }
 
-	@Override
-	protected LocalDateTime now() {
-		return LocalDateTime.parse("2007-12-03T10:15:30.000");
-	}
+    @Override
+    public long getTimeAsLong() {
+        return timesAsLong[timeIndex++];
+    }
+
+    @Override
+    public DateTimeFormatter getTimeFormatter() {
+        return timeFormatter;
+    }
+
+    @Override
+    protected LocalDateTime now() {
+        return LocalDateTime.parse("2007-12-03T10:15:30.000");
+    }
+
+    public void setTimesAsLong(long... timesAsLong) {
+        this.timesAsLong = timesAsLong;
+        this.timeIndex = 0;
+    }
+    
+    @Override
+    public void pauseFor(long milliseconds) {
+        pauseFor = milliseconds;
+    }
+   
 }

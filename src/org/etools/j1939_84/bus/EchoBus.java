@@ -47,6 +47,11 @@ public class EchoBus implements Bus {
     }
 
     @Override
+    public Stream<Packet> duplicate(Stream<Packet> stream) {
+        return queue.duplicate(stream);
+    }
+
+    @Override
     public int getAddress() {
         return address;
     }

@@ -92,6 +92,9 @@ public class Part01ControllerTest {
     private Step07Controller step07Controller;
 
     @Mock
+    private Step08Controller step08Controller;
+
+    @Mock
     private VehicleInformationModule vehicleInformationModule;
 
     @Before
@@ -111,7 +114,8 @@ public class Part01ControllerTest {
                 step04Controller,
                 step05Controller,
                 step06Controller,
-                step07Controller);
+                step07Controller,
+                step08Controller);
     }
 
     @After
@@ -127,7 +131,8 @@ public class Part01ControllerTest {
                 step04Controller,
                 step05Controller,
                 step06Controller,
-                step07Controller);
+                step07Controller,
+                step08Controller);
     }
 
     /**
@@ -196,7 +201,8 @@ public class Part01ControllerTest {
                 step04Controller,
                 step05Controller,
                 step06Controller,
-                step07Controller);
+                step07Controller,
+                step08Controller);
         inOrder.verify(step01Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step02Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step03Controller).run(any(ResultsListener.class), eq(j1939));
@@ -204,6 +210,7 @@ public class Part01ControllerTest {
         inOrder.verify(step05Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step06Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step07Controller).run(any(ResultsListener.class), eq(j1939));
+        inOrder.verify(step08Controller).run(any(ResultsListener.class), eq(j1939));
 
         verify(partResultFactory).create(1);
         verify(vehicleInformationModule).setJ1939(j1939);

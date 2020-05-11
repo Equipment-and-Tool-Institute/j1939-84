@@ -1,0 +1,1139 @@
+[
+  {
+    "PGN": "A400",
+    "SA": "01",
+    "onRequest": "dm7",
+    "packets": [
+      {
+        "packet": "18A4F901 F7 9D 00 12 89 01 00 FB FF FF FF FF F7 9D 00 10 89 01 00 FB FF FF FF FF F7 9D 00 0A 5E 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 64 06 10 A0 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 EB 0D 12 3E 01 00 FB FF FF FF FF F7 EB 0D 10 3E 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 90 12 0F 44 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 ED 14 10 3E 01 00 FB FF FF FF FF F7 ED 14 12 3E 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 8B 02 04 39 00 00 FB FF FF FF FF F7 8B 02 03 39 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 8C 02 04 39 00 00 FB FF FF FF FF F7 8C 02 03 39 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 8D 02 04 39 00 00 FB FF FF FF FF F7 8D 02 03 39 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 8E 02 04 39 00 00 FB FF FF FF FF F7 8E 02 03 39 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 8F 02 04 39 00 00 FB FF FF FF FF F7 8F 02 03 39 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 90 02 04 39 00 00 FB FF FF FF FF F7 90 02 03 39 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 EE 14 10 3E 01 00 FB FF FF FF FF F7 EE 14 12 3E 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 EF 14 10 3E 01 00 FB FF FF FF FF F7 EF 14 12 3E 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 F0 14 10 3E 01 00 FB FF FF FF FF F7 F0 14 12 3E 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 F1 14 10 3E 01 00 FB FF FF FF FF F7 F1 14 12 3E 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 F2 14 10 3E 01 00 FB FF FF FF FF F7 F2 14 12 3E 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 F3 14 10 3E 01 00 FB FF FF FF FF F7 F3 14 12 3E 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 2B 05 1F 39 00 00 FB FF FF FF FF F7 2B 05 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 2C 05 1F 39 00 00 FB FF FF FF FF F7 2C 05 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 2D 05 1F 39 00 00 FB FF FF FF FF F7 2D 05 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 2E 05 1F 39 00 00 FB FF FF FF FF F7 2E 05 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 2F 05 1F 39 00 00 FB FF FF FF FF F7 2F 05 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 30 05 1F 39 00 00 FB FF FF FF FF F7 30 05 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 F2 0B 0A 3E 01 00 FB FF FF FF FF F7 F2 0B 09 34 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 7C 02 0F 6D 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 4B 0E 04 39 00 00 FB FF FF FF FF F7 4B 0E 03 39 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 4C 0E 04 39 00 00 FB FF FF FF FF F7 4C 0E 03 39 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 4D 0E 04 39 00 00 FB FF FF FF FF F7 4D 0E 03 39 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 4E 0E 04 39 00 00 FB FF FF FF FF F7 4E 0E 03 39 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 4F 0E 04 39 00 00 FB FF FF FF FF F7 4F 0E 03 39 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 A4 00 02 5E 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 50 0E 04 39 00 00 FB FF FF FF FF F7 50 0E 03 39 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 63 0A 12 3E 01 00 FB FF FF FF FF F7 63 0A 00 3E 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 90 0C 15 EC 00 00 FB FF FF FF FF F7 90 0C 14 EC 00 00 FB FF FF FF FF F7 90 0C 10 20 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 2A 05 0A 0C 00 00 FB FF FF FF FF F7 2A 05 0B 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 9D 00 12 89 01 27 71 78 87 0E 5B F7 9D 00 10 89 01 27 71 78 87 0E 5B F7 9D 00 0A 5E 01 53 7E A4 88 5C 71"
+      },
+      {
+        "packet": "18A4F901 F7 8B 02 04 39 00 0B 00 14 00 06 00 F7 8B 02 03 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 F7 8C 02 04 39 00 0B 00 14 00 06 00 F7 8C 02 03 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 F7 8D 02 04 39 00 0B 00 14 00 06 00 F7 8D 02 03 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 F7 8E 02 04 39 00 0C 00 14 00 06 00 F7 8E 02 03 39 00 0C 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 F7 8F 02 04 39 00 0B 00 14 00 06 00 F7 8F 02 03 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 F7 90 02 04 39 00 0B 00 14 00 06 00 F7 90 02 03 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 F7 2B 05 1F 39 00 00 00 23 00 00 00 F7 2B 05 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 2C 05 1F 39 00 00 00 23 00 00 00 F7 2C 05 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 2D 05 1F 39 00 00 00 23 00 00 00 F7 2D 05 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 2E 05 1F 39 00 00 00 23 00 00 00 F7 2E 05 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 2F 05 1F 39 00 00 00 23 00 00 00 F7 2F 05 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 30 05 1F 39 00 00 00 23 00 00 00 F7 30 05 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 F7 7C 02 0F 6D 01 A6 7C 80 7F 00 7B"
+      },
+      {
+        "packet": "18A4F901 F7 A4 00 02 5E 01 54 7E A4 88 5C 71"
+      },
+      {
+        "packet": "18A4F901 F6 90 12 0F 44 00 00 FB FF FF FF FF F6 63 0A 12 3E 01 00 FB FF FF FF FF F6 63 0A 00 3E 01 00 FB FF FF FF FF F6 90 0C 15 EC 00 00 FB FF FF FF FF F6 90 0C 14 EC 00 00 FB FF FF FF FF F6 ED 14 10 3E 01 00 FB FF FF FF FF F6 ED 14 12 3E 01 00 FB FF FF FF FF F6 2B 05 1F 39 00 00 00 23 00 00 00 F6 2C 05 1F 39 00 00 00 23 00 00 00 F6 2D 05 1F 39 00 00 00 23 00 00 00 F6 2E 05 1F 39 00 00 00 23 00 00 00 F6 2F 05 1F 39 00 00 00 23 00 00 00 F6 30 05 1F 39 00 00 00 23 00 00 00 F6 EE 14 10 3E 01 00 FB FF FF FF FF F6 EF 14 10 3E 01 00 FB FF FF FF FF F6 F0 14 10 3E 01 00 FB FF FF FF FF F6 F1 14 10 3E 01 00 FB FF FF FF FF F6 F2 14 10 3E 01 00 FB FF FF FF FF F6 F3 14 10 3E 01 00 FB FF FF FF FF F6 90 0C 10 20 00 00 FB FF FF FF FF F6 F2 0B 0A 3E 01 00 FB FF FF FF FF F6 8B 02 04 39 00 0B 00 14 00 06 00 F6 8B 02 03 39 00 0B 00 14 00 06 00 F6 8C 02 04 39 00 0B 00 14 00 06 00 F6 8C 02 03 39 00 0B 00 14 00 06 00 F6 8D 02 04 39 00 0B 00 14 00 06 00 F6 8D 02 03 39 00 0B 00 14 00 06 00 F6 8E 02 04 39 00 0C 00 14 00 06 00 F6 8E 02 03 39 00 0C 00 14 00 06 00 F6 8F 02 04 39 00 0B 00 14 00 06 00 F6 8F 02 03 39 00 0B 00 14 00 06 00 F6 90 02 04 39 00 0B 00 14 00 06 00 F6 90 02 03 39 00 0B 00 14 00 06 00 F6 9D 00 12 89 01 58 71 78 87 0E 5B F6 9D 00 10 89 01 58 71 78 87 0E 5B F6 A4 00 02 5E 01 54 7E A4 88 5C 71 F6 9D 00 0A 5E 01 54 7E A4 88 5C 71 F6 EE 14 12 3E 01 00 FB FF FF FF FF F6 EF 14 12 3E 01 00 FB FF FF FF FF F6 F0 14 12 3E 01 00 FB FF FF FF FF F6 F1 14 12 3E 01 00 FB FF FF FF FF F6 F2 14 12 3E 01 00 FB FF FF FF FF F6 F3 14 12 3E 01 00 FB FF FF FF FF F6 F2 0B 09 34 00 00 FB FF FF FF FF F6 7C 02 0F 6D 01 B3 7C 80 7F 00 7B F6 EB 0D 12 3E 01 00 FB FF FF FF FF F6 EB 0D 10 3E 01 00 FB FF FF FF FF F6 4B 0E 04 39 00 17 00 32 00 0C 00 F6 4C 0E 04 39 00 17 00 32 00 0C 00 F6 4D 0E 04 39 00 17 00 32 00 0C 00 F6 4E 0E 04 39 00 18 00 32 00 0C 00 F6 4F 0E 04 39 00 18 00 32 00 0C 00 F6 50 0E 04 39 00 18 00 32 00 0C 00 F6 4B 0E 03 39 00 17 00 32 00 0C 00 F6 4C 0E 03 39 00 17 00 32 00 0C 00 F6 4D 0E 03 39 00 17 00 32 00 0C 00 F6 4E 0E 03 39 00 18 00 32 00 0C 00 F6 4F 0E 03 39 00 18 00 32 00 0C 00 F6 50 0E 03 39 00 18 00 32 00 0C 00 F6 2A 05 0A 0C 00 00 FB FF FF FF FF F6 2A 05 0B 0C 00 00 FB FF FF FF FF F6 64 06 10 A0 01 00 FB FF FF FF FF F6 2B 05 0A 0C 00 00 FB FF FF FF FF F6 2C 05 0A 0C 00 00 FB FF FF FF FF F6 2D 05 0A 0C 00 00 FB FF FF FF FF F6 2E 05 0A 0C 00 00 FB FF FF FF FF F6 2F 05 0A 0C 00 00 FB FF FF FF FF F6 30 05 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F901 FA 2B 05 1F 39 00 00 00 23 00 00 00"
+      },
+      {
+        "packet": "18A4F901 FA 2C 05 1F 39 00 00 00 23 00 00 00"
+      },
+      {
+        "packet": "18A4F901 FA 2D 05 1F 39 00 00 00 23 00 00 00"
+      },
+      {
+        "packet": "18A4F901 FA 2E 05 1F 39 00 00 00 23 00 00 00"
+      },
+      {
+        "packet": "18A4F901 FA 2F 05 1F 39 00 00 00 23 00 00 00"
+      },
+      {
+        "packet": "18A4F901 FA 30 05 1F 39 00 00 00 23 00 00 00"
+      },
+      {
+        "packet": "18A4F901 FA 8B 02 04 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 FA 8B 02 03 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 FA 8C 02 04 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 FA 8C 02 03 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 FA 8D 02 04 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 FA 8D 02 03 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 FA 8E 02 04 39 00 0C 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 FA 8E 02 03 39 00 0C 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 FA 8F 02 04 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 FA 8F 02 03 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 FA 90 02 04 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 FA 90 02 03 39 00 0B 00 14 00 06 00"
+      },
+      {
+        "packet": "18A4F901 FA 9D 00 12 89 01 27 71 78 87 0E 5B"
+      },
+      {
+        "packet": "18A4F901 FA 9D 00 10 89 01 58 71 78 87 0E 5B"
+      },
+      {
+        "packet": "18A4F901 FA A4 00 02 5E 01 5C 7E A4 88 5C 71"
+      },
+      {
+        "packet": "18A4F901 FA 9D 00 0A 5E 01 5C 7E A4 88 5C 71"
+      },
+      {
+        "packet": "18A4F901 FA 7C 02 0F 6D 01 CC 7D 80 7F 00 7B"
+      },
+      {
+        "packet": "18A4F901 FA 4C 0E 04 39 00 17 00 32 00 0C 00"
+      },
+      {
+        "packet": "18A4F901 FA 4B 0E 04 39 00 17 00 32 00 0C 00"
+      },
+      {
+        "packet": "18A4F901 FA 4D 0E 04 39 00 17 00 32 00 0C 00"
+      },
+      {
+        "packet": "18A4F901 FA 4E 0E 04 39 00 18 00 32 00 0C 00"
+      },
+      {
+        "packet": "18A4F901 FA 4F 0E 04 39 00 18 00 32 00 0C 00"
+      },
+      {
+        "packet": "18A4F901 FA 50 0E 04 39 00 18 00 32 00 0C 00"
+      },
+      {
+        "packet": "18A4F901 FA 4B 0E 03 39 00 17 00 32 00 0C 00"
+      },
+      {
+        "packet": "18A4F901 FA 4C 0E 03 39 00 17 00 32 00 0C 00"
+      },
+      {
+        "packet": "18A4F901 FA 4D 0E 03 39 00 17 00 32 00 0C 00"
+      },
+      {
+        "packet": "18A4F901 FA 4E 0E 03 39 00 18 00 32 00 0C 00"
+      },
+      {
+        "packet": "18A4F901 FA 4F 0E 03 39 00 18 00 32 00 0C 00"
+      },
+      {
+        "packet": "18A4F901 FA 50 0E 03 39 00 18 00 32 00 0C 00"
+      },
+      {
+        "packet": "18A4F901 FA 7C 02 0F 6D 01 A6 7C 80 7F 00 7B"
+      }
+    ]
+  },
+  {
+    "PGN": "A400",
+    "SA": "3D",
+    "onRequest": "dm7",
+    "packets": [
+      {
+        "packet": "18A4F93D F7 E1 06 12 1E 00 90 47 FF FF B8 0B"
+      },
+      {
+        "packet": "18A4F93D F7 90 0C 15 27 01 00 FB FF FF FF FF F7 90 0C 14 27 01 00 FB FF FF FF FF F7 90 0C 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 91 0C 02 20 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 9A 0C 14 EC 00 00 FB FF FF FF FF F7 9A 0C 15 EC 00 00 FB FF FF FF FF F7 9A 0C 0A 0C 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 9B 0C 02 20 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 7F 0E 1F 44 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 81 0E 1F 44 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 F0 0B 02 EC 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 F1 0B 02 EC 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 97 0C 07 D0 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 E4 0D 00 44 00 00 FB FF FF FF FF F7 E4 0D 01 44 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 60 0F 12 20 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 0C 11 11 20 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 9A 13 12 FB 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 15 15 1F EE 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 A6 0C 02 D0 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 A3 F0 F5 27 01 00 FB FF FF FF FF F7 A3 F0 F4 27 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 B4 F0 F0 3E 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 73 16 0C 22 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 9D F0 EE 3E 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 6D 16 0C 93 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 A1 F0 F1 44 00 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 9C F0 EE 27 01 00 FB FF FF FF FF"
+      },
+      {
+        "packet": "18A4F93D F7 E1 06 12 1E 00 98 47 FF FF B8 0B"
+      }
+    ]
+  },
+  {
+    "PGN": "C200",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18C20001 04 00 03 00 C6 14 F8 00 00 01 00 F2 0B F8 00 00 01 00 C9 14 F8 00 00 01 00 EF 0B F8 00 00 01 00"
+      },
+      {
+        "packet": "18C20001 05 00 03 00 C6 14 F8 00 00 01 00 F2 0B F8 00 00 01 00 C9 14 F8 00 00 01 00 EF 0B F8 00 00 01 00"
+      }
+    ]
+  },
+  {
+    "PGN": "C200",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18C2003D 02 00 01 00 CA 14 F8 00 00 00 00 B8 12 F8 00 00 01 00 C6 14 F8 00 00 01 00 F8 0B F8 00 00 01 00"
+      },
+      {
+        "packet": "18C2003D 03 00 01 00 CA 14 F8 00 00 00 00 B8 12 F8 00 00 01 00 C6 14 F8 00 00 01 00 F8 0B F8 00 00 01 00"
+      }
+    ]
+  },
+  {
+    "PGN": "C200",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18C2F901 04 00 03 00 C6 14 F8 00 00 01 00 F2 0B F8 00 00 01 00 C9 14 F8 00 00 01 00 EF 0B F8 00 00 01 00"
+      },
+      {
+        "packet": "18C2F901 05 00 03 00 C6 14 F8 00 00 01 00 F2 0B F8 00 00 01 00 C9 14 F8 00 00 01 00 EF 0B F8 00 00 01 00"
+      },
+      {
+        "packet": "18C2F901 06 00 03 00 C6 14 F8 00 00 01 00 F2 0B F8 00 00 01 00 C9 14 F8 00 00 01 00 EF 0B F8 00 00 01 00"
+      },
+      {
+        "packet": "18C2F901 07 00 03 00 C6 14 F8 00 00 01 00 F2 0B F8 00 00 01 00 C9 14 F8 00 00 01 00 EF 0B F8 00 00 01 00"
+      }
+    ]
+  },
+  {
+    "PGN": "C200",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18C2F93D 02 00 01 00 CA 14 F8 00 00 00 00 B8 12 F8 00 00 01 00 C6 14 F8 00 00 01 00 F8 0B F8 00 00 01 00"
+      },
+      {
+        "packet": "18C2F93D 03 00 01 00 CA 14 F8 00 00 00 00 B8 12 F8 00 00 01 00 C6 14 F8 00 00 01 00 F8 0B F8 00 00 01 00"
+      },
+      {
+        "packet": "18C2F93D 04 00 01 00 CA 14 F8 00 00 00 00 B8 12 F8 00 00 01 00 C6 14 F8 00 00 01 00 F8 0B F8 00 00 01 00"
+      },
+      {
+        "packet": "18C2F93D 05 00 01 00 CA 14 F8 00 00 00 00 B8 12 F8 00 00 01 00 C6 14 F8 00 00 01 00 F8 0B F8 00 00 01 00"
+      }
+    ]
+  },
+  {
+    "PGN": "D300",
+    "SA": "00",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18D30000 59 4E 2C 84 30 54 34 34 30 30 30 33 41 76 6F 69 64 20 20 20"
+      }
+    ]
+  },
+  {
+    "PGN": "D300",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18D30001 95 F8 8B 32 31 36 38 30 31 31 39 43 30 00 00 00 00 00 00 03"
+      }
+    ]
+  },
+  {
+    "PGN": "D300",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18D3003D 4E BA 40 D4 32 37 79 32 30 78 78 78 78 00 00 00 00 00 00 00 B4 6D A2 E7 4E 4F 78 2D 53 57 37 30 31 31 20 41 54 49 31 00 AD 4E B7 E8 4E 4F 78 2D 53 57 37 30 31 31 20 41 54 4F 31 00 3C D4 F9 EE 50 4D 53 2A 31 32 2A 33 33 30 2A 41 31 30 30 00"
+      }
+    ]
+  },
+  {
+    "PGN": "D300",
+    "SA": "00",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18D3F900 59 4E 2C 84 30 54 34 34 30 30 30 33 41 76 6F 69 64 20 20 20"
+      }
+    ]
+  },
+  {
+    "PGN": "D300",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18D3F901 95 F8 8B 32 31 36 38 30 31 31 39 43 30 00 00 00 00 00 00 03"
+      }
+    ]
+  },
+  {
+    "PGN": "D300",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18D3F93D 4E BA 40 D4 32 37 79 32 30 78 78 78 78 00 00 00 00 00 00 00 B4 6D A2 E7 4E 4F 78 2D 53 57 37 30 31 31 20 41 54 49 31 00 AD 4E B7 E8 4E 4F 78 2D 53 57 37 30 31 31 20 41 54 4F 31 00 3C D4 F9 EE 50 4D 53 2A 31 32 2A 33 33 30 2A 41 31 30 30 00"
+      }
+    ]
+  },
+  {
+    "PGN": "FCC7",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FCC701 32 30 32 30 45 2D 4D 59 4C 44 44 58 48 31 34 2E 38 45 41 44 00"
+      }
+    ]
+  },
+  {
+    "PGN": "FDB6",
+    "SA": "00",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FDB600 54 00 1C 02 5B 00 1C 01 5C 00 1C 01 5E 00 1D 01 60 00 1C 01 65 00 1D 02 66 00 1D 01 69 00 1D 01 6A 00 1D 01 6C 00 1D 01 6E 00 1D 01 A8 00 1C 02 AB 00 1C 02 AE 00 1D 01 AF 00 1D 02 B7 00 1D 02 BC 00 1C 02 BE 00 1D 02 EB 00 1D 04 ED 00 1D 00 F7 00 1D 04 F8 00 1D 04 00 02 1C 01 01 02 1C 01 02 02 1D 01 10 02 1C 02 11 02 1C 02 12 02 1C 02 13 02 1C 02 1B 02 1C 01 1C 02 1C 01 1D 02 1C 01 1E 02 1C 01 1F 02 1C 01 20 02 1C 02 4C 02 1D 00 D0 03 1C 01 E1 06 1D 01 3F 0A 1C 01 40 0A 1C 01 A2 0B 1D 01 D7 0B 1D 01 A4 0C 1D 02 AE 0C 1D 02 73 0E 1D 01 74 0E 1D 01 75 0E 1D 01 76 0E 1D 01 7F 0E 1D 01 81 0E 1D 01 3A 10 1D 01 4F 10 1D 01 0B 11 1D 02 7D 14 1D 01 4E 15 1D 04 57 15 1D 02 C3 16 1D 04 C5 16 1D 02 CD 16 1D 01 DF 1F 1D 01"
+      }
+    ]
+  },
+  {
+    "PGN": "FDB6",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FDB601 1B 00 1C 02 54 00 1E 02 5B 00 1E 01 5C 00 1E 01 5E 00 1E 01 60 00 1E 01 66 00 1E 01 67 00 1C 02 69 00 1E 01 6A 00 1E 01 6C 00 1E 01 6E 00 1E 01 9D 00 18 02 A8 00 1E 02 AB 00 1E 02 AF 00 1E 02 B7 00 1E 02 BC 00 1E 02 BE 00 1E 02 00 02 1E 01 01 02 1E 01 10 02 1E 02 11 02 1E 02 12 02 1E 02 13 02 1E 02 1B 02 1E 01 1C 02 1E 01 1D 02 1E 01 1E 02 1E 01 1F 02 1E 01 20 02 1E 02 D0 03 1E 01 5F 04 1D 02 A4 04 1C 01 85 05 1C 02 86 05 1C 02 87 05 1C 02 88 05 1C 02 89 05 1C 02 8A 05 1C 02 9C 05 1C 02 64 06 18 02 65 06 1D 02 E1 06 1E 01 3F 0A 1E 01 40 0A 1E 01 45 0A 1D 02 46 0A 1C 02 47 0A 1C 01 E7 0A 1C 02 D7 0B 1E 01 AA 0C 1E 02 AE 0C 1E 02 B2 0C 1E 02 E5 0C 1E 02 E5 0C 1C 02 98 0D 1C 02 9A 0D 1D 01 EB 0D 18 01 19 0E 1E 02 73 0E 1E 01 74 0E 1E 01 75 0E 1E 01 76 0E 1E 01 87 0E 1E 01 ED 0F 1C 02 4F 10 1E 01 EE 10 1E 01 0B 11 1E 02 16 11 1E 02 9D 12 1E 02 9E 12 1E 02 C0 14 1C 02 C1 14 1C 02 C2 14 1C 02 CB 14 1C 01 59 15 1C 01 5A 15 1E 02 C5 16 1E 02 CD 16 1E 01 ED 1A 1D 02 EE 1A 1D 02 EF 1A 1D 02 A5 1C 1D 02 E0 1F 1E 02 D9 23 1D 02 90 12 1B 00 ED 14 1B 00 8B 02 1B 00 8C 02 1B 00 8D 02 1B 00 8E 02 1B 00 8F 02 1B 00 90 02 1B 00 EE 14 1B 00 EF 14 1B 00 F0 14 1B 00 F1 14 1B 00 F2 14 1B 00 F3 14 1B 00 2B 05 1B 00 2C 05 1B 00 2D 05 1B 00 2E 05 1B 00 2F 05 1B 00 30 05 1B 00 F2 0B 1B 00 7C 02 1B 00 4B 0E 1B 00 4C 0E 1B 00 4D 0E 1B 00 4E 0E 1B 00 4F 0E 1B 00 A4 00 1B 00 50 0E 1B 00 63 0A 1B 00 90 0C 1B 00 2A 05 1B 00"
+      }
+    ]
+  },
+  {
+    "PGN": "FDB6",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FDB63D 1B 00 1E 02 5E 00 1E 01 66 00 1E 01 67 00 1E 02 69 00 1E 01 6A 00 1E 01 6C 00 1E 01 6E 00 1E 01 9D 00 1E 02 AF 00 1E 02 B7 00 1E 02 BE 00 1E 02 01 02 1E 01 10 02 1E 02 11 02 1E 02 12 02 1E 02 13 02 1E 02 1B 02 1E 01 1C 02 1E 01 1D 02 1E 01 1E 02 1E 01 1F 02 1E 01 20 02 1E 02 D0 03 1E 01 A4 04 1E 01 85 05 1E 02 86 05 1E 02 87 05 1E 02 88 05 1E 02 89 05 1E 02 8A 05 1E 02 9C 05 1E 02 64 06 1E 02 E1 06 1A 01 3F 0A 1E 01 40 0A 1E 01 46 0A 1E 02 47 0A 1E 01 E7 0A 1E 02 D7 0B 1E 01 90 0C 19 02 91 0C 19 02 9A 0C 19 02 9B 0C 19 02 AA 0C 1C 02 AE 0C 1E 02 B2 0C 1C 02 E5 0C 1C 02 E5 0C 1E 02 98 0D 1E 02 EB 0D 1E 01 19 0E 1C 02 73 0E 1E 01 74 0E 1E 01 75 0E 1E 01 76 0E 1E 01 7F 0E 1B 01 81 0E 1B 01 87 0E 1C 01 ED 0F 1E 02 4F 10 1E 01 EB 10 1D 02 EE 10 1C 01 0B 11 1E 02 16 11 1C 02 9D 12 1C 02 9E 12 1C 02 C0 14 1E 02 C1 14 1E 02 C2 14 1E 02 CB 14 1E 01 59 15 1E 01 5A 15 1C 02 C5 16 1E 02 CD 16 1E 01 B7 1C 1D 02 B9 1C 1D 02 E1 1C 1D 02 E0 1F 1C 02 F0 0B 1B 00 F1 0B 1B 00 97 0C 1B 00 E4 0D 1B 00 60 0F 1B 00 0C 11 1B 00 9A 13 1B 00 15 15 1B 00 A6 0C 1B 00 A3 F0 FB 00 B4 F0 FB 00 73 16 1B 00 9D F0 FB 00 6D 16 1B 00 A1 F0 FB 00 9C F0 FB 00"
+      }
+    ]
+  },
+  {
+    "PGN": "FECB",
+    "SA": "0B",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FECB0B 00 FF 7F 02 03 02 7F 02 09 02 7F 02 05 01"
+      }
+    ]
+  },
+  {
+    "PGN": "FEEB",
+    "SA": "00",
+    "onRequest": "true",
+    "packets": [
+      { 
+        set: "koer",
+        setFor: 10000,
+        "packet": "18FEEB00 44 54 44 53 43 2A 34 37 32 4E 31 36 2A 00 00 00 00 00 00 00 00 00 00 00 00 00 00 2A 20 20 20 20 20 20 20 20 20 20 2A"
+      }
+    ]
+  },
+  {
+    "PGN": "FEEB",
+    "SA": "03",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FEEB03 44 54 44 53 43 2A 47 32 38 31 2D 31 32 2A 2A 2A"
+      }
+    ]
+  },
+  {
+    "PGN": "FEEB",
+    "SA": "0B",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FEEB0B 4D 45 52 57 42 2A 41 42 53 20 38 38 34 34 39 31 31 34 37 30 2A 30 30 30 30 30 30 30 30 30 30 2A 2A"
+      }
+    ]
+  },
+  {
+    "PGN": "FEEB",
+    "SA": "17",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FEEB17 44 54 4E 41 2A 49 43 55 34 4D 65 2D 50 33 2A 2A 2A"
+      }
+    ]
+  },
+  {
+    "PGN": "FEEB",
+    "SA": "19",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FEEB19 46 52 47 48 54 2A 2A 46 4C 2D 50 33 53 2D 31 34 30 32 30 34 31 31 2D 30 30 36 33 2A"
+      }
+    ]
+  },
+  {
+    "PGN": "FEEB",
+    "SA": "25",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FEEB25 44 54 4E 41 20 2A 43 65 6E 74 72 61 6C 20 47 61 74 65 57 61 79 2A 30 30 30 30 30 30 32 31 32 39 2A"
+      }
+    ]
+  },
+  {
+    "PGN": "FEEB",
+    "SA": "3A",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FEEB3A 46 52 47 48 54 2A 2A 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 30 2A"
+      }
+    ]
+  },
+  {
+    "PGN": "FEEB",
+    "SA": "4A",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FEEB4A 5A 4F 4E 41 52 2A 44 54 4E 41 20 54 50 2C 20 44 54 4E 41 20 54 65 6C 65 6D 61 74 69 63 73 20 50 6C 61 74 66 6F 72 6D 2A 30 30 31 31 39 31 32 34 30 32 2A 2A"
+      }
+    ]
+  },
+  {
+    "PGN": "FEEC",
+    "SA": "00",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FEEC00 31 46 55 4A 47 4C 44 52 37 42 4C 5A 5A 32 30 37 35 2A"
+      }
+    ]
+  },
+  {
+    "PGN": "F004",
+    "SA": "00",
+    "period": 100,
+    "packets": [
+      {
+        isClear: "koer",
+        "packet": "1CF00400 01 7D E1 00 00 00 FF E1"
+      },
+      {
+        isSet: "koer",
+        "packet": "1CF00400 09 7D 7D 8D 3D 00 F4 7D"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "25",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA25 00 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "31",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA31 00 00 0A FD FF 01 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "47",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA47 00 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "C100",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18C1F901 00 00 00 00 00 00 00 00"
+      },
+      {
+        "packet": "18C1F901 00 00 00 00 00 00 01 00"
+      },
+      {
+        "packet": "18C1F901 00 00 00 00 00 00 05 00"
+      }
+    ]
+  },
+  {
+    "PGN": "C100",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18C1F93D 00 00 00 00 00 00 00 00"
+      },
+      {
+        "packet": "18C1F93D 00 00 00 00 00 00 01 00"
+      },
+      {
+        "packet": "18C1F93D 00 00 00 00 00 00 05 00"
+      }
+    ]
+  },
+  {
+    "PGN": "C100",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18C1FF01 00 00 00 00 00 00 00 00"
+      },
+      {
+        "packet": "18C1FF01 00 00 00 00 00 00 01 00"
+      }
+    ]
+  },
+  {
+    "PGN": "C100",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18C1FF3D 00 00 00 00 00 00 00 00"
+      },
+      {
+        "packet": "18C1FF3D 00 00 00 00 00 00 01 00"
+      }
+    ]
+  },
+  {
+    "PGN": "EE00",
+    "SA": "00",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18EEFF00 01 41 D3 01 00 00 00 00"
+      }
+    ]
+  },
+  {
+    "PGN": "EE00",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18EEFF01 00 00 C0 01 09 00 00 00"
+      }
+    ]
+  },
+  {
+    "PGN": "EE00",
+    "SA": "03",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18EEFF03 00 00 C0 01 00 03 00 00"
+      }
+    ]
+  },
+  {
+    "PGN": "EE00",
+    "SA": "0F",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18EEFF0F 01 41 D3 01 00 0C 00 00"
+      }
+    ]
+  },
+  {
+    "PGN": "EE00",
+    "SA": "17",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18EEFF17 14 D5 8D 00 00 13 02 10"
+      }
+    ]
+  },
+  {
+    "PGN": "EE00",
+    "SA": "19",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18EEFF19 FC 00 20 03 00 15 02 00"
+      }
+    ]
+  },
+  {
+    "PGN": "EE00",
+    "SA": "25",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18EEFF25 51 08 20 03 00 1C 02 10"
+      }
+    ]
+  },
+  {
+    "PGN": "EE00",
+    "SA": "3A",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18EEFF3A AC 00 20 03 01 15 02 00"
+      }
+    ]
+  },
+  {
+    "PGN": "EE00",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18EEFF3D 00 00 C0 01 00 2C 00 00"
+      }
+    ]
+  },
+  {
+    "PGN": "EE00",
+    "SA": "4A",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18EEFF4A D2 C4 35 25 00 36 02 90"
+      }
+    ]
+  },
+  {
+    "PGN": "FD80",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FD8001 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FD80",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FD803D 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FDB5",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FDB501 03 FF 00 00 00 00 FF FF"
+      },
+      {
+        "packet": "18FDB501 43 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FDB5",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FDB53D 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FDB8",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FDB801 00 00 00 37 A0 02 A0 02"
+      },
+      {
+        "packet": "18FDB801 5B 00 00 37 A0 02 A0 02"
+      }
+    ]
+  },
+  {
+    "PGN": "FDB8",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FDB83D 00 00 00 04 60 1C 60 1C"
+      },
+      {
+        "packet": "18FDB83D 5A 00 00 04 60 1C 60 1C"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "00",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA00 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "01",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA01 03 FF 00 00 00 00 FF FF"
+      },
+      {
+        "packet": "18FECA01 00 FF 00 00 00 00 FF FF"
+      },
+      {
+        "packet": "18FECA01 43 FF 44 15 01 01 FF FF"
+      },
+      {
+        "packet": "18FECA01 03 FF 44 15 01 01 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "03",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA03 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "0B",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA0B 00 FF 00 00 00 00 FF FF"
+      },
+      {
+        "packet": "18FECA0B 04 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "17",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA17 00 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "3D",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA3D 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECA",
+    "SA": "4A",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FECA4A FF FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECB",
+    "SA": "00",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FECB00 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECB",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FECB01 03 FF 00 00 00 00 FF FF"
+      },
+      {
+        "packet": "18FECB01 43 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECB",
+    "SA": "19",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FECB19 00 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECB",
+    "SA": "3A",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FECB3A 00 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECB",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FECB3D 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECE",
+    "SA": "00",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FECE00 00 00 14 04 00 00 00 00"
+      }
+    ]
+  },
+  {
+    "PGN": "FECE",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FECE01 00 00 14 37 A0 02 A0 02"
+      },
+      {
+        "packet": "18FECE01 01 00 14 37 A0 02 A0 02"
+      }
+    ]
+  },
+  {
+    "PGN": "FECE",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FECE3D 00 00 14 04 60 1C 60 1C"
+      }
+    ]
+  },
+  {
+    "PGN": "FECF",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FECF01 03 FF 00 00 00 00 FF FF"
+      },
+      {
+        "packet": "18FECF01 03 FF 44 15 01 01 FF FF"
+      },
+      {
+        "packet": "18FECF01 43 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FECF",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FECF3D 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FED4",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FED401 03 FF 00 00 00 00 FF FF"
+      },
+      {
+        "packet": "18FED401 43 FF 44 15 01 01 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FED4",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FED43D 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FEE0",
+    "SA": "00",
+    "period": 100,
+    "packets": [
+      {
+        "packet": "18FEE000 00 00 00 00 00 00 00 00"
+      }
+    ]
+  },
+  {
+    "PGN": "FEE5",
+    "SA": "00",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FEE500 48 AC 00 00 FF FF FF FF"
+      },
+      {
+        "packet": "18FEE500 49 AC 00 00 16 00 00 00"
+      },
+      {
+        "packet": "18FEE500 49 AC 00 00 FF FF FF FF"
+      },
+      {
+        "packet": "18FEE500 4A AC 00 00 18 00 00 00"
+      },
+      {
+        "packet": "18FEE500 4A AC 00 00 FF FF FF FF"
+      },
+      {
+        "packet": "18FEE500 4B AC 00 00 FF FF FF FF"
+      }
+    ]
+  }
+]
