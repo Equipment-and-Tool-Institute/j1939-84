@@ -4,11 +4,15 @@
 package org.etools.j1939_84.controllers.part1;
 
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
@@ -90,25 +94,27 @@ public class Step16Controller extends Controller {
                 .map(p -> (DM2PreviouslyActiveDTC) p)
                 .collect(Collectors.toList());
         globalDM2s.get(0).getDtcs();
-        if (globalDM2s.isEmpty()) {
-
-        }
-
-        globalDM2s.get(0).getMalfunctionIndicatorLampStatus();
-        globalDM2s.get(0).getProtectLampStatus();
-
         // for (int i = 0; i < 10; i++) {
         // globalDM2s.get(i).getDtcs();
         // }
-        // for (DM2PreviouslyActiveDTC packet : globalDM2s) {
-        // int sourceAddress = packet.getSourceAddress();
-        // // Save performance ratio on the obdModule for each ECU
-        // OBDModuleInformation obdModule = dataRepository.getObdModule(sourceAddress);
-        // if (obdModule == null) {
-        // obdModule = new OBDModuleInformation(sourceAddress);
-        // }
-        // }
+
+        // Check to make sure packets aren't empty
+        if (globalDM2s.isEmpty()) {
+
+        }
+        // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC
+
+        // 6.1.16.2.b Fail if any OBD ECU does not report MIL (Malfunction Indicator
+        // Lamp) off
+        globalDM2s.get(0).getMalfunctionIndicatorLampStatus();
+        globalDM2s.get(0).getProtectLampStatus();
+
+        // 6.1.16.2.c Fail if any non-OBD ECU does not report MIL off or not supported
+
+        // 6.1.16.3.a DS DM2 to each OBD ECU
         List<DM2PreviouslyActiveDTC> dsDM2s = dtcModule.getDM2Packets(getListener(), true, 0);
+
+        // 6.1.16.4.a Fail if any responses differ from global responses
         if (dsDM2s != globalDM2s) {
             getListener().addOutcome(1,
                     16,
@@ -116,10 +122,28 @@ public class Step16Controller extends Controller {
                     "6.1.16.4.a - The DS DM2 responses differ from the global responses.");
         }
 
-        // boolean nacked = dsDM2s.stream().anyMatch(packet -> packet instanceof
-        // AcknowledgmentPacket
-        // && ((AcknowledgmentPacket) packet).getResponse() == Response.NACK);
+        // 6.1.16.4.b Fail if NACK not received from OBD ECUs that did not respond to
+        // global query
+        Set<Integer> globalAddresses = globalDM2s.stream().map(p -> p.getSourceAddress()).collect(Collectors.toSet());
+        Set<Integer> obdAddresses = dataRepository.getObdModuleAddresses();
+        obdAddresses.removeAll(globalAddresses);
 
+        for (int address : obdAddresses) {
+            // TODO report.CalibrationInformation is not the right method. Setup to use
+            // dsDM2s above
+            List<ParsedPacket> packets = getVehicleInformationModule().reportCalibrationInformation(getListener(),
+                    address);
+            long nackCount = packets.stream()
+                    .filter(p -> p instanceof AcknowledgmentPacket)
+                    .map(p -> (AcknowledgmentPacket) p)
+                    .filter(p -> p.getResponse() != Response.NACK)
+                    .count();
+            if (nackCount != 1) {
+                getListener().addOutcome(1,
+                        7,
+                        Outcome.FAIL,
+                        "6.1.16.4.a - NACK not received from OBD ECU that did not respond to global query.");
+            }
+        }
     }
-
 }
