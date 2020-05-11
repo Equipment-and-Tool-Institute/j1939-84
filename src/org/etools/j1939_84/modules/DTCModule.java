@@ -5,6 +5,7 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -52,6 +53,43 @@ public class DTCModule extends FunctionalModule {
      */
     public DTCModule(DateTimeModule dateTimeModule) {
         super(dateTimeModule);
+    }
+
+    @SuppressWarnings("unchecked")
+    private <T extends DiagnosticTroubleCodePacket> List<T> filterPackets(List<ParsedPacket> packets,
+            Class<T> clazz) {
+        List<T> resultPackets = new ArrayList<>();
+        for (ParsedPacket packet : packets) {
+            if (packet.getClass() == clazz) {
+                resultPackets.add((T) packet);
+            }
+        }
+        return resultPackets;
+    }
+
+    /**
+     * Sends an address specific request for DM2 Packets. The request and results
+     * will be returned to the {@link ResultsListener}
+     *
+     * @param listener
+     *                   the {@link ResultsListener} for the results
+     * @param fullString
+     *                   true to include the full string of the results in the
+     *                   report;
+     *                   false to only include the returned raw packet in the report
+     * @return the {@link List} of {@link DM2PreviouslyActiveDTC}s
+     */
+    public List<DM2PreviouslyActiveDTC> getDM2Packets(ResultsListener listener,
+            boolean fullString,
+            Integer obdModuleAddress) {
+        List<ParsedPacket> parsedPackets = getPackets("Global DM2 Request",
+                DM2PreviouslyActiveDTC.PGN,
+                DM2PreviouslyActiveDTC.class,
+                listener,
+                fullString,
+                obdModuleAddress);
+
+        return filterPackets(parsedPackets, DM2PreviouslyActiveDTC.class);
     }
 
     /**
