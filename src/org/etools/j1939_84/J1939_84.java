@@ -60,21 +60,12 @@ public class J1939_84 {
     }
 
     /**
-     * Returns true if the application is being debugged
-     *
-     * @return true if it's being debugged
-     */
-    public static final boolean isDebug() {
-        return true;
-    }
-
-    /**
      * Returns true if the application is under test
      *
      * @return true if it's being tested
      */
     public static final boolean isTesting() {
-        return System.getProperty(TESTING_PROPERTY_NAME, "false").equals("true");
+        return Boolean.getBoolean(TESTING_PROPERTY_NAME);
     }
 
     /**
@@ -110,6 +101,6 @@ public class J1939_84 {
      *                - true to indicate the system is under test
      */
     public static final void setTesting(boolean testing) {
-        System.setProperty(TESTING_PROPERTY_NAME, Boolean.valueOf(testing).toString());
+        System.setProperty(TESTING_PROPERTY_NAME, Boolean.toString(testing));
     }
 }

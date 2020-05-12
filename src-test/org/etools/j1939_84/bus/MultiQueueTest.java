@@ -89,7 +89,7 @@ public class MultiQueueTest {
             // verify that roughly >= 20 packets were processed in 200 ms
             assertEquals(22, s1.count(), 3);
             // verify that roughly >= 40 packets were processed in 200 ms
-            assertEquals(42, s2.count(), 3);
+            assertEquals(40, s2.count(), 3);
         }
     }
 }

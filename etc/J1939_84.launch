@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<launchConfiguration type="org.eclipse.jdt.launching.localJavaApplication">
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_PATHS">
+        <listEntry value="/j1939-84/src/org/etools/j1939_84/J1939_84.java"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.core.MAPPED_RESOURCE_TYPES">
+        <listEntry value="1"/>
+    </listAttribute>
+    <listAttribute key="org.eclipse.debug.ui.favoriteGroups">
+        <listEntry value="org.eclipse.debug.ui.launchGroup.debug"/>
+        <listEntry value="org.eclipse.eclemma.ui.launchGroup.coverage"/>
+        <listEntry value="org.eclipse.debug.ui.launchGroup.run"/>
+    </listAttribute>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_EXCLUDE_TEST_CODE" value="true"/>
+    <booleanAttribute key="org.eclipse.jdt.launching.ATTR_USE_CLASSPATH_ONLY_JAR" value="false"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MAIN_TYPE" value="org.etools.j1939_84.J1939_84"/>
+    <stringAttribute key="org.eclipse.jdt.launching.MODULE_NAME" value="j1939-84"/>
+    <stringAttribute key="org.eclipse.jdt.launching.PROJECT_ATTR" value="j1939-84"/>
+    <stringAttribute key="org.eclipse.jdt.launching.VM_ARGUMENTS" value="-DTESTING=true"/>
+</launchConfiguration>
