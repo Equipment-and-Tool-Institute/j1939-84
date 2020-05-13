@@ -50,7 +50,9 @@ public class TestDocProcessor extends AbstractProcessor {
                             "",
                             "testdoc.html")
                     .openWriter()) {
-                out.write("<html><table>");
+                out.write("<html>\n");
+                out.write("<link rel=\"stylesheet\" href=\"testdoc.css\">\n");
+                out.write("<table class=\"testdoctable\">\n");
                 for (Element e : elements) {
                     TestDoc a = e.getAnnotation(TestDoc.class);
                     switch (e.getKind()) {
@@ -58,21 +60,21 @@ public class TestDocProcessor extends AbstractProcessor {
                             out.write("<tr><th>" + e.getSimpleName().toString() + "</th><th>"
                                     + Arrays.asList(a.verifies()).stream().collect(Collectors.joining("<br/>"))
                                     + "</th><th>"
-                                    + a.description() + "</th></tr>");
+                                    + a.description() + "</th></tr>\n");
                             break;
                         case METHOD:
                             out.write(
                                     "<tr><td>" + e.getSimpleName().toString() + "</td><td>"
                                             + Arrays.asList(a.verifies()).stream().collect(Collectors.joining("<br/>"))
                                             + "</td><td>"
-                                            + a.description() + "</td></tr>");
+                                            + a.description() + "</td></tr>\n");
                             break;
                         default:
                             out.write(
                                     "<tr><td>" + e.getKind() + " " + e.getSimpleName().toString() + "</td><td>"
                                             + Arrays.asList(a.verifies()).stream().collect(Collectors.joining("<br/>"))
                                             + "</td><td>"
-                                            + a.description() + "</td></tr>");
+                                            + a.description() + "</td></tr>\n");
                             break;
 
                     }
@@ -82,7 +84,7 @@ public class TestDocProcessor extends AbstractProcessor {
                     // " + a.description();
                     // processingEnv.getMessager().printMessage(Kind.NOTE, "TestDoc: " + str);
                 }
-                out.write("</table></html>");
+                out.write("</table></html>\n");
                 return true;
             } catch (Throwable e1) {
                 e1.printStackTrace();

@@ -1,0 +1,14 @@
+<html>
+<link rel="stylesheet" href="testdoc.css">
+<table class="testdoctable">
+<tr><th>Step06ControllerTest</th><th>Part 1, Step 6</th><th>DM56: Model year and certification engine family</th></tr>
+<tr><td>testAsteriskTerminationGreaterThanTwelve</td><td>6.1.6.2.e</td><td>Engine family has > 12 characters before first asterisk character</td></tr>
+<tr><td>testAstriskPositionLessThanTwelve</td><td>6.1.6.2.e</td><td>Engine family has < 12 characters before first asterisk character</td></tr>
+<tr><td>testEngineModelYearDoesntMatch</td><td>6.1.6.2.a</td><td>Verifies that a failure is indicated when DM56 specifies an engine MY 2006, but the user enters 2010.</td></tr>
+<tr><td>testFamilyNameLessThan13Characters</td><td>6.1.6.2.e</td><td>Engine family has > 12 characters before first asterisk character</td></tr>
+<tr><td>testFamilyNameWithNullTermination</td><td>6.1.6.2.e.</td><td>Engine family has 12 characters before first 'null' character</td></tr>
+<tr><td>testFamilyNameWithNullTerminationGreaterThanTwelve</td><td>6.1.6.2.e.</td><td>Engine family has <> 12 characters before first 'null' character</td></tr>
+<tr><td>testModelYearField</td><td>6.1.6.2.b<br/>6.1.6.2.c</td><td>Indicates 'V' instead of 'E' for cert type & Not formatted correctly</td></tr>
+<tr><td>testPacketsEmpty</td><td>6.1.6</td><td>No packets are returned</td></tr>
+<tr><td>testRunHappyPath</td><td>6.1.6</td><td>Happy Path with no errors and one packet</td></tr>
+</table></html>
