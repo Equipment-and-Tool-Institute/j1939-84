@@ -255,7 +255,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      */
     public List<DM21DiagnosticReadinessPacket> getDM21Packets(ResultsListener listener,
             boolean fullString,
-            Integer obdModuleAddress) {
+            int obdModuleAddress) {
         List<ParsedPacket> parsedPackets = getPackets("Destination Specific DM21 Request",
                 DM21DiagnosticReadinessPacket.PGN,
                 DM21DiagnosticReadinessPacket.class,
@@ -751,8 +751,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
         if (!parsedPackets.isEmpty()) {
             listener.onResult("");
             listener.onResult("Vehicle Composite of DM5:");
-            List<CompositeMonitoredSystem> systems = getCompositeSystems(dm5Packets,
-                    true);
+            List<CompositeMonitoredSystem> systems = getCompositeSystems(dm5Packets, true);
             listener.onResult(systems.stream().map(t -> t.toString()).collect(Collectors.toList()));
         }
         return parsedPackets;

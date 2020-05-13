@@ -291,66 +291,32 @@ public class DiagnosticReadinessModuleTest {
     public void testGetDM21PacketsFalse() {
         final int pgn = DM21DiagnosticReadinessPacket.PGN;
 
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
+        Packet requestPacket = Packet.create(0xEA00 | 0x21, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x21)).thenReturn(requestPacket);
 
-        DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
-        DM21DiagnosticReadinessPacket packet2 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2, packet3)).thenReturn(Stream.of(packet1, packet2, packet3))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet3));
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM21 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 C1 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.000 18EA21A5 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.000 18C10021 10 20 30 40 50 60 70 80" + NL;
 
-        instance.getDM21Packets(listener, false, 0xFF);
+        instance.getDM21Packets(listener, false, 0x21);
         assertEquals(expected, listener.getResults());
 
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(3))
-                .requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
-    }
-
-    @Test
-    public void testGetDM21PacketsNoEngineResponse() {
-        final int pgn = DM21DiagnosticReadinessPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-
-        DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
-        DM21DiagnosticReadinessPacket packet2 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2)).thenReturn(Stream.of(packet1, packet2))
-                .thenReturn(Stream.of(packet1, packet2));
-
-        String expected = "";
-        expected += "10:15:30.000 Destination Specific DM21 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 C1 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        instance.getDM21Packets(listener, false, 0xFF);
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(3))
-                .requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+        verify(j1939).createRequestPacket(pgn, 0x21);
+        verify(j1939).requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
     }
 
     @Test
     public void testGetDM21PacketsNoResponse() {
         final int pgn = DM21DiagnosticReadinessPacket.PGN;
 
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
+        Packet requestPacket = Packet.create(0xEA00 | 0x17, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x17)).thenReturn(requestPacket);
 
         when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
                 .thenReturn(Stream.empty())
@@ -358,12 +324,12 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM21 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.000 18EA17A5 00 C1 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        instance.getDM21Packets(listener, true, 0xFF);
+        instance.getDM21Packets(listener, true, 0x17);
         assertEquals(expected, listener.getResults());
 
-        verify(j1939).createRequestPacket(pgn, 0xFF);
+        verify(j1939).createRequestPacket(pgn, 0x17);
         verify(j1939, times(3))
                 .requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
     }
@@ -372,60 +338,30 @@ public class DiagnosticReadinessModuleTest {
     public void testGetDM21PacketsTrue() {
         final int pgn = DM21DiagnosticReadinessPacket.PGN;
 
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
+        Packet requestPacket = Packet.create(0xEA00 | 0x21, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x21)).thenReturn(requestPacket);
 
-        DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
-        DM21DiagnosticReadinessPacket packet2 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2, packet3)).thenReturn(Stream.of(packet1, packet2, packet3))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet3));
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM21 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 C1 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.000 18EA21A5 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.000 18C10021 10 20 30 40 50 60 70 80" + NL;
+        expected += "DM21 from Body Controller (33): [" + NL;
+        expected += "  Distance Traveled While MIL is Activated:     8,208 km (5,100.215 mi)" + NL;
+        expected += "  Time Run by Engine While MIL is Activated:    24,656 minutes" + NL;
+        expected += "  Distance Since DTCs Cleared:                  16,432 km (10,210.371 mi)" + NL;
+        expected += "  Time Since DTCs Cleared:                      32,880 minutes" + NL;
+        expected += "]" + NL;
 
-        instance.getDM21Packets(listener, true, 0xFF);
+        instance.getDM21Packets(listener, true, 0x21);
         assertEquals(expected, listener.getResults());
 
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(3))
-                .requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
-    }
-
-    @Test
-    public void testGetDM21PacketsWithEngine1Response() {
-        final int pgn = DM21DiagnosticReadinessPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-
-        DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
-        DM21DiagnosticReadinessPacket packet2 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
-        DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2, packet3)).thenReturn(Stream.of(packet1, packet2, packet3))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
-
-        String expected = "";
-        expected += "10:15:30.000 Destination Specific DM21 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 C1 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        instance.getDM21Packets(listener, true, 0xFF);
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(3))
-                .requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+        verify(j1939).createRequestPacket(pgn, 0x21);
+        verify(j1939).requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
     }
 
     @Test
