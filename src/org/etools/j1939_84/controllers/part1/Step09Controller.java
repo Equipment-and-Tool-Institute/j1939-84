@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part1;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 
@@ -20,8 +21,6 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.StringUtils;
 
 /**
- * @date ${date}
- *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
  *         The controller for 6.1.9 Component ID: Make, Model, Serial Number
@@ -30,6 +29,12 @@ import org.etools.j1939_84.utils.StringUtils;
 public class Step09Controller extends Controller {
 
     private final DataRepository dataRepository;
+
+    Step09Controller(DataRepository dataRepository) {
+        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
+                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(),
+                dataRepository);
+    }
 
     protected Step09Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
             DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
