@@ -148,8 +148,8 @@ public class J1939TP implements Bus {
      * @param stream base stream originally returned from bus.read().
      */
     @Override
-    public Stream<Packet> duplicate(Stream<Packet> stream) {
-        return inbound.duplicate(stream);
+    public Stream<Packet> duplicate(Stream<Packet> stream, int time, TimeUnit unit) {
+        return inbound.duplicate(stream, time, unit);
     }
 
     public void error(String msg, Throwable e) {
@@ -199,7 +199,7 @@ public class J1939TP implements Bus {
                             // DA has a CTS.
                             // Timeout is reset inside receiveBam to account for time spent
                             // starting this thread.
-                            Stream<Packet> bamStream = bus.duplicate(stream);
+                            Stream<Packet> bamStream = bus.duplicate(stream, T2, TimeUnit.MILLISECONDS);
                             exec.execute(() -> {
                                 try {
                                     inbound.send(receiveBam(packet, bamStream));

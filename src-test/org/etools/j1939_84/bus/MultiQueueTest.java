@@ -70,26 +70,80 @@ public class MultiQueueTest {
         }
     }
 
+    @Test
+    public void testDuplicate() throws Exception {
+        try (MultiQueue<Integer> queue = new MultiQueue<>()) {
+            Stream<Integer> stream1 = queue.stream(10, TimeUnit.MILLISECONDS);
+            queue.add(1);
+            Stream<Integer> stream2 = queue.duplicate(stream1, 20, TimeUnit.MILLISECONDS);
+            queue.add(2);
+            Stream<Integer> stream3 = queue.duplicate(stream1, 30, TimeUnit.MILLISECONDS);
+
+            queue.add(3);
+            assertEquals(3, stream1.count());
+            assertEquals(3, stream2.count());
+            assertEquals(3, stream3.count());
+        }
+    }
+
+    @Test(expected = IllegalStateException.class)
+    public void testDuplicateOnClosedStream() throws Exception {
+        try (MultiQueue<Integer> queue = new MultiQueue<>()) {
+            Stream<Integer> stream1 = queue.stream(10, TimeUnit.MILLISECONDS);
+            queue.add(1);
+            queue.add(2);
+            queue.add(3);
+            assertEquals(3, stream1.count());
+            Stream<Integer> stream4 = queue.duplicate(stream1, 10, TimeUnit.MILLISECONDS);
+            assertEquals(0, stream4.count());
+        }
+    }
+
+    @Test
+    public void testDuplicateOpen() throws Exception {
+        try (MultiQueue<Integer> queue = new MultiQueue<>()) {
+            Stream<Integer> stream1 = queue.stream(50, TimeUnit.MILLISECONDS);
+            queue.add(3);
+            queue.add(2);
+            queue.add(1);
+            assertEquals(3,
+                    stream1.peek(n -> {
+                        System.err.println("Verify test:" + n);
+                        assertEquals(n - 1, queue.duplicate(stream1, 10, TimeUnit.MILLISECONDS).count());
+                    })
+                            .count());
+        }
+    }
+
     /** Verify that building a stream with a timeout works. */
     @Test
     public void testTimedInterruption() throws Exception {
+        // sync on q, because thread startup is unpredictably slow
         try (MultiQueue<Integer> q = new MultiQueue<>()) {
-            Stream<Integer> s1 = q.stream(200, TimeUnit.MILLISECONDS);
-            Stream<Integer> s2 = q.stream(400, TimeUnit.MILLISECONDS);
-            // asynchronously add a packet every 10 ms.
-            new Thread(() -> {
-                for (int i = 0; i < 100; i++) {
-                    q.add(i);
-                    try {
-                        Thread.sleep(10);
-                    } catch (InterruptedException e) {
+            synchronized (q) {
+                // asynchronously add a packet every 10 ms.
+                new Thread(() -> {
+                    synchronized (q) {
+                        // notify main thread that we are starting.
+                        q.notifyAll();
                     }
-                }
-            }).start();
-            // verify that roughly >= 20 packets were processed in 200 ms
-            assertEquals(22, s1.count(), 3);
-            // verify that roughly >= 40 packets were processed in 200 ms
-            assertEquals(40, s2.count(), 3);
+                    for (int i = 0; i < 100; i++) {
+                        try {
+                            Thread.sleep(10);
+                        } catch (InterruptedException e) {
+                        }
+                        q.add(i);
+                    }
+                }).start();
+                // wait on notify
+                q.wait();
+            }
+            Stream<Integer> s1 = q.stream(205, TimeUnit.MILLISECONDS);
+            Stream<Integer> s2 = q.stream(405, TimeUnit.MILLISECONDS);
+            // verify that roughly 20 packets were processed in 200 ms
+            assertEquals(20, s1.count(), 2);
+            // verify that roughly 40 packets were processed in 200 ms
+            assertEquals(40, s2.count(), 2);
         }
     }
 }

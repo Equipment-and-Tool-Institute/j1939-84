@@ -51,6 +51,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class J1939Test {
 
     final private static class TestPacket extends ParsedPacket {
+        // used by tests in getPgn(Packet)
         public static int PGN = -1;
 
         public TestPacket(Packet packet) {
