@@ -6,7 +6,6 @@ package org.etools.j1939_84.utils;
 import java.util.regex.Pattern;
 
 /**
- * @date ${date}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
@@ -20,18 +19,18 @@ public class StringUtils {
     private static final Pattern NON_PRINTABLE_PATTERN = Pattern.compile(".*[^\\p{Print}].*");
 
     /*
+     * @param string String to be checked for non-printable Ascii characteres
+     */
+    public static boolean containsNonPrintableAsciiCharacter(String string) {
+        return NON_PRINTABLE_PATTERN.matcher(string).matches();
+    }
+
+    /*
      * @param string String to be checked for non-numeric Ascii characteres
      */
     public static boolean containsOnlyNumericAsciiCharacters(String string) {
         return NON_NUMERIC_PATTERN.matcher(string).matches();
 
-    }
-
-    /*
-     * @param string String to be checked for non-printable Ascii characteres
-     */
-    public static boolean containsNonPrintableAsciiCharacter(String string) {
-        return NON_PRINTABLE_PATTERN.matcher(string).matches();
     }
 
 }

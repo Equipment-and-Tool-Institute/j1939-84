@@ -68,20 +68,22 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Sends an address specific request for DM2 Packets. The request and results
+     * Sends an destination specific request for DM2 Packets. The request and
+     * results
      * will be returned to the {@link ResultsListener}
      *
-     * @param listener
-     *                   the {@link ResultsListener} for the results
-     * @param fullString
-     *                   true to include the full string of the results in the
-     *                   report;
-     *                   false to only include the returned raw packet in the report
+     * @param listener         the {@link ResultsListener} for the results
+     * @param fullString       true to include the full string of the results in the
+     *                         report;
+     *                         false to only include the returned raw packet in the
+     *                         report
+     * @param obdModuleAddress the address to which the destination specific request
+     *                         will be sent
      * @return the {@link List} of {@link DM2PreviouslyActiveDTC}s
      */
     public List<DM2PreviouslyActiveDTC> getDM2Packets(ResultsListener listener,
             boolean fullString,
-            Integer obdModuleAddress) {
+            int obdModuleAddress) {
         List<ParsedPacket> parsedPackets = getPackets("Global DM2 Request",
                 DM2PreviouslyActiveDTC.PGN,
                 DM2PreviouslyActiveDTC.class,
