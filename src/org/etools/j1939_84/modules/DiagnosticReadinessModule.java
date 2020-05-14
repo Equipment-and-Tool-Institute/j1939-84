@@ -245,12 +245,13 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * Sends an address specific request for DM21 Packets. The request and results
      * will be returned to the {@link ResultsListener}
      *
-     * @param listener
-     *                   the {@link ResultsListener} for the results
-     * @param fullString
-     *                   true to include the full string of the results in the
-     *                   report;
-     *                   false to only include the returned raw packet in the report
+     * @param listener         the {@link ResultsListener} for the results
+     * @param fullString       true to include the full string of the results in the
+     *                         report;
+     *                         false to only include the returned raw packet in the
+     *                         report
+     * @param obdModuleAddress the address to which the destination specific request
+     *                         will be sent
      * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
      */
     public List<DM21DiagnosticReadinessPacket> getDM21Packets(ResultsListener listener,
@@ -465,10 +466,9 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * Requests all DM21s from all vehicle modules. The results are reported
      * back to the supplied listener
      *
-     * @param listener
-     *                 the {@link ResultsListener} that will be notified of results
-     * @param lastTscc
-     *                 the last reported Time Since Code Cleared
+     * @param listener the {@link ResultsListener} that will be notified of results
+     *
+     * @return true if packets were received
      */
     public boolean reportDM21(ResultsListener listener) {
         List<? extends ParsedPacket> packets = requestDM21Packets(listener, true);

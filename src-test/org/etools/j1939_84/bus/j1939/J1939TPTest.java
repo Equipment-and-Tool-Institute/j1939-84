@@ -380,6 +380,8 @@ public class J1939TPTest {
     public void testMissingDT() throws BusException {
         try (Bus bus = new EchoBus(0xF9);
                 J1939TP tp = new J1939TP(bus, 0);) {
+            long start = System.currentTimeMillis();
+            bus.log(p -> (System.currentTimeMillis() - start) + "  ");
             Stream<Packet> tpStream = tp.read(1, TimeUnit.SECONDS);
 
             Stream<Packet> s = bus.read(3, TimeUnit.SECONDS).filter(p -> p.getSource() == 0);
@@ -558,7 +560,7 @@ public class J1939TPTest {
             // verify CTS is for packet 1
             assertPacketsEquals(Packet.parsePacket("18ECF900 11 02 01 FF FF 00 EA 00"), it.next());
             // verify that there was a T2 long delay
-            assertTrue("T2 timing too fast", System.currentTimeMillis() - start > J1939TP.T2);
+            assertEquals("T2 timing too fast", J1939TP.T2, System.currentTimeMillis() - start, 50);
 
             // send packet 1
             long start2 = System.currentTimeMillis();
@@ -567,7 +569,7 @@ public class J1939TPTest {
             // test T1
             // verify CTS is for packet 2
             assertPacketsEquals(Packet.parsePacket("18ECF900 11 01 02 FF FF 00 EA 00"), it.next());
-            assertEquals("T1 timing wrong", J1939TP.T1, System.currentTimeMillis() - start2, 20);
+            assertEquals("T1 timing wrong", J1939TP.T1, System.currentTimeMillis() - start2, 50);
 
             // verify that no TP packet is decoded
             Optional<Packet> result = tp.read(5, TimeUnit.SECONDS).findAny();

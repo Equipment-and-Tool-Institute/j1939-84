@@ -222,13 +222,13 @@ public class VehicleInformationModule extends FunctionalModule {
 
     /**
      * Requests the Component Identification from address specific vehicle modules
-     * and
-     * generates a {@link String} that's suitable for inclusion in the report
+     * and generates a {@link String} that's suitable for inclusion in the report
      *
-     * @param listener
-     *                 the {@link ResultsListener} that will be given the report
+     * @param listener the {@link ResultsListener} that will be given the report
+     * @param address  the address of vehicle module to which the message will be
+     *                 addressed
+     * @return {@link List} of {@link DM19CalibrationInformationPacket}
      */
-
     public List<ParsedPacket> reportCalibrationInformation(ResultsListener listener, int address) {
         return getPackets("DS DM19 (Calibration Information) Request to " + String.format("%02X", address),
                 DM19CalibrationInformationPacket.PGN,
@@ -242,8 +242,8 @@ public class VehicleInformationModule extends FunctionalModule {
      * Requests the Component Identification from all vehicle modules and
      * generates a {@link String} that's suitable for inclusion in the report
      *
-     * @param listener
-     *                 the {@link ResultsListener} that will be given the report
+     * @param listener the {@link ResultsListener} that will be given the report
+     * @return {@link List} of {@link DM19CalibrationInformationPacket}
      */
     public List<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(ComponentIdentificationPacket.PGN, GLOBAL_ADDR);
@@ -259,6 +259,9 @@ public class VehicleInformationModule extends FunctionalModule {
      *
      * @param listener
      *                 the {@link ResultsListener} that will be given the report
+     * @param address  the address of vehicle module to which the message will be
+     *                 addressed
+     * @return {@link List} of {@link ComponentIdentificationPacket}
      */
     public List<ParsedPacket> reportComponentIdentification(ResultsListener listener, int address) {
         return getPackets("DS Component Identification Request to " + String.format("%02X", address),
