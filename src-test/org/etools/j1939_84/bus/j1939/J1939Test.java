@@ -50,7 +50,9 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class J1939Test {
 
-    private static class TestPacket extends ParsedPacket {
+    final private static class TestPacket extends ParsedPacket {
+        // used by tests in getPgn(Packet)
+        public static int PGN = -1;
 
         public TestPacket(Packet packet) {
             super(packet);

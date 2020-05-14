@@ -23,7 +23,7 @@ public interface Bus extends AutoCloseable {
     @Override
     void close();
 
-    Stream<Packet> duplicate(Stream<Packet> stream);
+    Stream<Packet> duplicate(Stream<Packet> stream, int time, TimeUnit unit);
 
     /**
      * Returns the source address used by the tool for communications
@@ -85,4 +85,5 @@ public interface Bus extends AutoCloseable {
      * @throws BusException if there is a problem sending the packet
      */
     void send(Packet packet) throws BusException;
+
 }
