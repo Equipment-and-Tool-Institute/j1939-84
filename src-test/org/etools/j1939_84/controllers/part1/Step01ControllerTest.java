@@ -29,6 +29,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.testdoc.TestDoc;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -46,6 +47,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
+@TestDoc(verifies = "Part 1 Step 1", description = "KOEO Data Collection")
 public class Step01ControllerTest {
 
     @Mock
@@ -129,6 +131,38 @@ public class Step01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Step01Controller#run()}.
      */
     @Test
+    @TestDoc(verifies = {
+            "6.1.1.1.a",
+            "6.1.1.1.b",
+            "6.1.1.1.c",
+            "6.1.1.1.d",
+            "6.1.1.1.e",
+            "6.1.1.1.e.i",
+            "6.1.1.1.e.ii",
+            "6.1.1.1.2.a",
+            "6.1.1.1.2.b",
+            "6.1.1.1.2.c",
+            "6.1.1.1.2.d" }, description = "Confirm the vehicle is in a safe location and condition for the test"
+                    + "<br>"
+                    + "Confirm that the vehicle battery is well charged. [Battery voltage >> 12 volts"
+                    + "<br>"
+                    + "Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
+                    + "<br>"
+                    + "Turn the ignition key to on"
+                    + "<br>"
+                    + "Record vehicle data base entries including: VIN of vehicle"
+                    + "<br>"
+                    + "Record vehicle data base entries including: MY of vehicle"
+                    + "<br>"
+                    + "Warn the user if the MY character of the VIN does not match the data entered by the user for the vehicle model year"
+                    + "<br>"
+                    + "MY of engine"
+                    + "<br>"
+                    + "Fuel type"
+                    + "<br>"
+                    + "Number of emission or diagnostic-critical control units on vehicle (i.e., number that are required to support CAL ID and CVN), 3 and"
+                    + "<br>"
+                    + "Certification intent (US, Euro, etc.)")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRun() {
 
@@ -185,6 +219,38 @@ public class Step01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Step01Controller#run()}.
      */
     @Test
+    @TestDoc(verifies = {
+            "6.1.1.1.a",
+            "6.1.1.1.b",
+            "6.1.1.1.c",
+            "6.1.1.1.d",
+            "6.1.1.1.e",
+            "6.1.1.1.e.i",
+            "6.1.1.1.e.ii",
+            "6.1.1.1.2.a",
+            "6.1.1.1.2.b",
+            "6.1.1.1.2.c",
+            "6.1.1.1.2.d" }, description = "Confirm the vehicle is in a safe location and condition for the test"
+                    + "<br>"
+                    + "Confirm that the vehicle battery is well charged. [Battery voltage >> 12 volts"
+                    + "<br>"
+                    + "Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
+                    + "<br>"
+                    + "Turn the ignition key to on"
+                    + "<br>"
+                    + "Record vehicle data base entries including: VIN of vehicle"
+                    + "<br>"
+                    + "Record vehicle data base entries including: MY of vehicle"
+                    + "<br>"
+                    + "Warn the user if the MY character of the VIN does not match the data entered by the user for the vehicle model year"
+                    + "<br>"
+                    + "MY of engine"
+                    + "<br>"
+                    + "Fuel type"
+                    + "<br>"
+                    + "Number of emission or diagnostic-critical control units on vehicle (i.e., number that are required to support CAL ID and CVN), 3 and"
+                    + "<br>"
+                    + "Certification intent (US, Euro, etc.)")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRunVehicleInfoNull() {
 
@@ -241,6 +307,38 @@ public class Step01ControllerTest {
     }
 
     @Test
+    @TestDoc(verifies = {
+            "6.1.1.1.a",
+            "6.1.1.1.b",
+            "6.1.1.1.c",
+            "6.1.1.1.d",
+            "6.1.1.1.e",
+            "6.1.1.1.e.i",
+            "6.1.1.1.e.ii",
+            "6.1.1.1.2.a",
+            "6.1.1.1.2.b",
+            "6.1.1.1.2.c",
+            "6.1.1.1.2.d" }, description = "Confirm the vehicle is in a safe location and condition for the test"
+                    + "<br>"
+                    + "Confirm that the vehicle battery is well charged. [Battery voltage >> 12 volts"
+                    + "<br>"
+                    + "Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
+                    + "<br>"
+                    + "Turn the ignition key to on but engine off"
+                    + "<br>"
+                    + "Record vehicle data base entries including: VIN of vehicle"
+                    + "<br>"
+                    + "Record vehicle data base entries including: MY of vehicle"
+                    + "<br>"
+                    + "Warn the user if the MY character of the VIN does not match the data entered by the user for the vehicle model year"
+                    + "<br>"
+                    + "MY of engine"
+                    + "<br>"
+                    + "Fuel type"
+                    + "<br>"
+                    + "Number of emission or diagnostic-critical control units on vehicle (i.e., number that are required to support CAL ID and CVN), 3 and"
+                    + "<br>"
+                    + "Certification intent (US, Euro, etc.)")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testWaitForKey() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);

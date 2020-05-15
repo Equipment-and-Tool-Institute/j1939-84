@@ -20,6 +20,11 @@ import org.etools.j1939_84.modules.OBDTestsModule;
 import org.etools.j1939_84.modules.SupportedSpnModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+/**
+ * @author Matt Gumbel (matt@soliddesign.net)
+ *
+ *         The controller for DM24: SPN support
+ */
 public class Step04Controller extends Controller {
 
     private final DataRepository dataRepository;

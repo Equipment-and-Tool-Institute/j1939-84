@@ -24,6 +24,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.testdoc.TestDoc;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -39,6 +40,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
+@TestDoc(verifies = "Part 1 Step 2", description = "Verify engine operation")
 public class Step02ControllerTest {
 
     @Mock
@@ -105,6 +107,14 @@ public class Step02ControllerTest {
     }
 
     @Test
+    @TestDoc(verifies = {
+            "6.1.2",
+            "6.1.2.1",
+            "6.1.2.1.a" }, description = "Gather broadcast data for engine speed (e.g., SPN 190)"
+                    + "<br>"
+                    + "Actions:"
+                    + "<br>"
+                    + "Gather broadcast data for engine speed (e.g., SPN 190)")
     public void testRun() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
 
@@ -128,6 +138,21 @@ public class Step02ControllerTest {
     }
 
     @Test
+    @TestDoc(verifies = {
+            "6.1.2",
+            "6.1.2.1",
+            "6.1.2.1.a",
+            "6.1.2.2",
+            "6.1.2.2.a" }, description = "Gather broadcast data for engine speed (e.g., SPN 190)"
+                    + "<br>"
+                    + "Actions:"
+                    + "<br>"
+                    + "Gather broadcast data for engine speed (e.g., SPN 190)"
+                    + "<br>"
+                    + "Warn criteria:"
+                    + "<br>"
+                    + "If engine speed is > 0 rpm, prompt/warn operator to confirm engine is not running")
+
     public void testWaitForKey() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
 

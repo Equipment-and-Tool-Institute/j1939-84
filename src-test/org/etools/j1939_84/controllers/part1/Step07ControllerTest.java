@@ -39,6 +39,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.testdoc.TestDoc;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -56,6 +57,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
+@TestDoc(verifies = "Part 1 Step 7", description = "DM19: Calibration information")
 public class Step07ControllerTest {
 
     private static DM19CalibrationInformationPacket createDM19(int sourceAddress, String calId, String cvn)
@@ -165,6 +167,15 @@ public class Step07ControllerTest {
      * Test one module responds without issue
      */
     @Test
+    @TestDoc(verifies = {
+            "6.1.7",
+            "6.1.7.1.a",
+            "6.1.7.1.b",
+            "6.1.7.1.c" }, description = "Global DM19 (send Request (PGN 59904) for PGN 54016 (SPNs 1634 and 1635))"
+                    + "<br>"
+                    + "Create list of ECU address + CAL ID + CVN. [An ECU address may report more than one CAL ID and CVN]"
+                    + "<br>"
+                    + "Display this list in the log. [Note display the CVNs using big endian format and not little endian format as given in the response]")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRunHappyPath() throws Throwable {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
@@ -205,6 +216,8 @@ public class Step07ControllerTest {
     }
 
     @Test
+    @TestDoc(verifies = {
+            "6.1.7.2.a" }, description = "Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRunNoModulesRespond() {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
@@ -235,6 +248,38 @@ public class Step07ControllerTest {
     }
 
     @Test
+    @TestDoc(verifies = {
+            "6.1.7.2.b.i",
+            "6.1.7.2.b.ii",
+            "6.1.7.2.b.iii",
+            "6.1.7.3.a",
+            "6.1.7.3.b",
+            "6.1.7.3.c.ii",
+            "6.1.7.3.c.iii",
+            "6.1.7.3.c.iv",
+            "6.1.7.5.a",
+            "6.1.7.5.b",
+            "6.1.7.5.c " }, description = "<> 1 CVN for every CAL ID"
+                    + "<br>"
+                    + "CAL ID not formatted correctly (contains non-printable ASCII)"
+                    + "<br>"
+                    + "Received CAL ID is all 0xFF"
+                    + "<br>"
+                    + "6.1.7.3.a. Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units"
+                    + "<br>"
+                    + "More than one CAL ID and CVN pair is provided in a single DM19 message"
+                    + "<br>"
+                    + "CAL ID not formatted correctly (padded incorrectly)"
+                    + "<br>"
+                    + "Manufacturer defined data follows the VIN"
+                    + "<br>"
+                    + "Received CVN is all 0x00"
+                    + "<br>"
+                    + "Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference"
+                    + "<br>"
+                    + "NACK (PGN 59392) with mode/control byte = 3 (busy) received"
+                    + "<br>"
+                    + "Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference")
     @SuppressFBWarnings(value = {
             "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT" }, justification = "The method is called just to get some exception.")
     public void testRunWithWarningsAndFailures() throws UnsupportedEncodingException {

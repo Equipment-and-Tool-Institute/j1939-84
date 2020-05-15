@@ -45,7 +45,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-@TestDoc(verifies = "Part 1, Step 6", description = "DM56: Model year and certification engine family")
+@TestDoc(verifies = "Part 1 Step 6", description = "DM56: Model year and certification engine family")
 public class Step06ControllerTest extends AbstractControllerTest {
 
     private static final String familyName = "YCALIF HD OBD*";
@@ -200,7 +200,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
      */
     @Test
     @TestDoc(verifies = {
-            "6.1.6.2.e" }, description = "Engine family has < 12 characters before first asterisk character")
+            "6.1.6.2.e" }, description = "Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)")
     public void testAstriskPositionLessThanTwelve() {
         String famName = familyName.replace("A", "*");
 
@@ -248,7 +248,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
      */
     @Test
     @TestDoc(verifies = {
-            "6.1.6.2.a" }, description = "Verifies that a failure is indicated when DM56 specifies an engine MY 2006, but the user enters 2010.")
+            "6.1.6.2.a" }, description = "Engine model year does not match user input")
     public void testEngineModelYearDoesntMatch() {
         List<DM56EngineFamilyPacket> parsedPackets = listOf(createDM56(null, 2006, "2006E-MY", null, familyName));
         when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
@@ -422,8 +422,11 @@ public class Step06ControllerTest extends AbstractControllerTest {
      * certification type
      */
     @Test
-    @TestDoc(verifies = { "6.1.6.2.b",
-            "6.1.6.2.c" }, description = "Indicates 'V' instead of 'E' for cert type & Not formatted correctly")
+    @TestDoc(verifies = {
+            "6.1.6.2.b",
+            "6.1.6.2.c" }, description = "Indicates 'V' instead of 'E' for cert type" + "<br/>" + "&nbsp"
+                    + "Not formatted correctly")
+
     public void testModelYearField() {
         List<DM56EngineFamilyPacket> parsedPackets = listOf(createDM56(null, 2006, "2006V-MY", null, familyName));
         when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
