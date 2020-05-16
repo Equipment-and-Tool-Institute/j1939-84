@@ -77,8 +77,7 @@ public class RP1210 {
     public List<Adapter> getAdapters() throws BusException {
         if (adapters == null) {
             adapters = new ArrayList<>();
-            // if (J1939_84.isTesting() || J1939_84.isDebug())
-            {
+            if (J1939_84.isTesting()) {
                 adapters.add(LOOP_BACK_ADAPTER);
                 File simulationDir = new File("simulations");
                 if (simulationDir.exists() && simulationDir.listFiles() != null) {
@@ -164,9 +163,7 @@ public class RP1210 {
 
         if (adapter.getDeviceId() == FAKE_DEV_ID) {
             EchoBus bus = new EchoBus(address);
-            if (J1939_84.isDebug()) {
-                engine = new Engine(bus);
-            }
+            engine = new Engine(bus);
             return bus;
         } else if (adapter.getDeviceId() == SIM_DEV_ID) {
             EchoBus bus = new EchoBus(address);

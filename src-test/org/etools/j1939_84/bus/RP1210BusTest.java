@@ -75,7 +75,7 @@ public class RP1210BusTest {
     }
 
     private void startInstance() throws Exception {
-        when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 0))
+        when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
                 .thenReturn((short) 1);
         when(rp1210Library.RP1210_SendCommand(eq((short) 19),
                 eq((short) 1),
@@ -95,7 +95,7 @@ public class RP1210BusTest {
 
         createInstance();
 
-        verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 0);
+        verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 1);
         verify(rp1210Library).RP1210_SendCommand(eq((short) 19),
                 eq((short) 1),
                 aryEq(ADDRESS_CLAIM_PARAMS),
@@ -118,7 +118,7 @@ public class RP1210BusTest {
 
     @Test
     public void testConstructorAddressClaimFails() throws Exception {
-        when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 0))
+        when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
                 .thenReturn((short) 1);
 
         when(rp1210Library.RP1210_SendCommand(eq((short) 19),
@@ -145,7 +145,7 @@ public class RP1210BusTest {
             assertEquals("Error (99): Testing Failure", e.getCause().getMessage());
         }
 
-        verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 0);
+        verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 1);
         verify(rp1210Library).RP1210_SendCommand(eq((short) 19),
                 eq((short) 1),
                 aryEq(ADDRESS_CLAIM_PARAMS),
@@ -157,7 +157,7 @@ public class RP1210BusTest {
 
     @Test
     public void testConstructorConnectFails() throws Exception {
-        when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 0))
+        when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
                 .thenReturn((short) 134);
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 134), any())).thenAnswer(arg0 -> {
             byte[] dest = (byte[]) arg0.getArgument(1);
@@ -173,13 +173,13 @@ public class RP1210BusTest {
             assertEquals("Error (134): Device Not Connected", e.getMessage());
         }
 
-        verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 0);
+        verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 1);
         verify(rp1210Library).RP1210_GetErrorMsg(eq((short) 134), any());
     }
 
     @Test
     public void testConstructorEchoFails() throws Exception {
-        when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 0))
+        when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
                 .thenReturn((short) 1);
 
         when(rp1210Library.RP1210_SendCommand(eq((short) 19),
@@ -210,7 +210,7 @@ public class RP1210BusTest {
             assertEquals("Error (99): Testing Failure", e.getCause().getMessage());
         }
 
-        verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 0);
+        verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 1);
         verify(rp1210Library).RP1210_SendCommand(eq((short) 19),
                 eq((short) 1),
                 aryEq(ADDRESS_CLAIM_PARAMS),
@@ -226,7 +226,7 @@ public class RP1210BusTest {
 
     @Test
     public void testConstructorFilterFails() throws Exception {
-        when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 0))
+        when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
                 .thenReturn((short) 1);
 
         when(rp1210Library.RP1210_SendCommand(eq((short) 19),
@@ -262,7 +262,7 @@ public class RP1210BusTest {
             assertEquals("Error (99): Testing Failure", e.getCause().getMessage());
         }
 
-        verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 0);
+        verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 1);
         verify(rp1210Library).RP1210_SendCommand(eq((short) 19),
                 eq((short) 1),
                 aryEq(ADDRESS_CLAIM_PARAMS),
@@ -282,7 +282,7 @@ public class RP1210BusTest {
 
     @Test
     public void testConstructorStopFails() throws Exception {
-        when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 0))
+        when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
                 .thenReturn((short) 1);
 
         when(rp1210Library.RP1210_SendCommand(eq((short) 19),
@@ -317,7 +317,7 @@ public class RP1210BusTest {
             assertEquals(expectedCause, e.getCause());
         }
 
-        verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 0);
+        verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 1);
         verify(rp1210Library).RP1210_SendCommand(eq((short) 19),
                 eq((short) 1),
                 aryEq(ADDRESS_CLAIM_PARAMS),

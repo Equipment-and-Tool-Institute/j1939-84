@@ -242,24 +242,27 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     }
 
     /**
-     * Sends a global request for DM21 Packets. The request and results will be
-     * returned to the {@link ResultsListener}
+     * Sends an address specific request for DM21 Packets. The request and results
+     * will be returned to the {@link ResultsListener}
      *
-     * @param listener
-     *                   the {@link ResultsListener} for the results
-     * @param fullString
-     *                   true to include the full string of the results in the
-     *                   report;
-     *                   false to only include the returned raw packet in the report
+     * @param listener         the {@link ResultsListener} for the results
+     * @param fullString       true to include the full string of the results in the
+     *                         report;
+     *                         false to only include the returned raw packet in the
+     *                         report
+     * @param obdModuleAddress the address to which the destination specific request
+     *                         will be sent
      * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
      */
-    public List<DM21DiagnosticReadinessPacket> getDM21Packets(ResultsListener listener, boolean fullString) {
-        List<ParsedPacket> parsedPackets = getPackets("Global DM21 Request",
+    public List<DM21DiagnosticReadinessPacket> getDM21Packets(ResultsListener listener,
+            boolean fullString,
+            int obdModuleAddress) {
+        List<ParsedPacket> parsedPackets = getPackets("Destination Specific DM21 Request",
                 DM21DiagnosticReadinessPacket.PGN,
                 DM21DiagnosticReadinessPacket.class,
                 listener,
                 fullString,
-                obdModuleAddresses);
+                obdModuleAddress);
 
         return filterPackets(parsedPackets, DM21DiagnosticReadinessPacket.class);
     }
@@ -463,24 +466,13 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * Requests all DM21s from all vehicle modules. The results are reported
      * back to the supplied listener
      *
-     * @param listener
-     *                 the {@link ResultsListener} that will be notified of results
-     * @param lastTscc
-     *                 the last reported Time Since Code Cleared
+     * @param listener the {@link ResultsListener} that will be notified of results
+     *
+     * @return true if packets were received
      */
-    public void reportDM21(ResultsListener listener, double lastTscc) {
-        List<DM21DiagnosticReadinessPacket> packets = getDM21Packets(listener, true);
-        double tscc = packets.stream().mapToDouble(p -> (p.getMinutesSinceDTCsCleared())).max().orElse(-1);
-        if (tscc >= 0 && lastTscc >= 0) {
-            int delta = (int) (tscc - lastTscc);
-            if (delta < 0) {
-                listener.onResult("ERROR Time Since Code Cleared Reset / Rollover");
-            } else if (delta > TSCC_GAP_LIMIT) {
-                listener.onResult("ERROR Excess Time Since Code Cleared Gap of " + delta + " minutes");
-            } else {
-                listener.onResult("Time Since Code Cleared Gap of " + delta + " minutes");
-            }
-        }
+    public boolean reportDM21(ResultsListener listener) {
+        List<? extends ParsedPacket> packets = requestDM21Packets(listener, true);
+        return !packets.isEmpty();
     }
 
     /**
@@ -705,6 +697,32 @@ public class DiagnosticReadinessModule extends FunctionalModule {
         }
 
         listener.onResult(separator2);
+    }
+
+    /**
+     * Sends a global request for DM21 Packets. The request and results will be
+     * returned to the {@link ResultsListener}
+     *
+     * @param listener
+     *                   the {@link ResultsListener} for the results
+     * @param fullString
+     *                   true to include the full string of the results in the
+     *                   report;
+     *                   false to only include the returned raw packet in the report
+     * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
+     */
+    public List<ParsedPacket> requestDM21Packets(ResultsListener listener, boolean fullString) {
+        List<ParsedPacket> parsedPackets = getPackets("Global DM21 Request",
+                DM21DiagnosticReadinessPacket.PGN,
+                DM21DiagnosticReadinessPacket.class,
+                listener,
+                fullString,
+                obdModuleAddresses);
+
+        filterPackets(parsedPackets,
+                DM21DiagnosticReadinessPacket.class);
+
+        return parsedPackets;
     }
 
     /**

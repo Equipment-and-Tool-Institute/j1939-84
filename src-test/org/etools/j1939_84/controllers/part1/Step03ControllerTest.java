@@ -34,6 +34,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.testdoc.TestDoc;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,6 +51,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
  */
+@TestDoc(verifies = "Part 1, Step 3", description = "DM5: Diagnostic readiness 1")
 @RunWith(MockitoJUnitRunner.class)
 public class Step03ControllerTest {
 
@@ -219,6 +221,8 @@ public class Step03ControllerTest {
 
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @TestDoc(verifies = { "6.1.3.2.a",
+            "6.1.3.2.b" }, description = "There needs to be at least one OBD Module & The request for DM5 was NACK'ed")
     public void testModulesEmpty() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
@@ -274,6 +278,7 @@ public class Step03ControllerTest {
 
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @TestDoc(verifies = { "6.1.3.2.b" }, description = "The request for DM5 was NACK'ed")
     public void testRun() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);

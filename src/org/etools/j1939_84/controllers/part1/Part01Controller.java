@@ -46,7 +46,11 @@ public class Part01Controller extends Controller {
                 new Step01Controller(dataRepository), new Step02Controller(), new Step03Controller(dataRepository),
                 new Step04Controller(dataRepository), new Step05Controller(dataRepository),
                 new Step06Controller(dataRepository), new Step07Controller(dataRepository),
+<<<<<<< HEAD
                 new Step08Controller(dataRepository), new Step16Controller(dataRepository));
+=======
+                new Step08Controller(dataRepository), new Step09Controller(dataRepository));
+>>>>>>> master
     }
 
     /**
@@ -72,9 +76,19 @@ public class Part01Controller extends Controller {
      *                                 Part1Controller
      * @param step07Controller         the {@link Step07Controller} for
      *                                 Part1Controller
+<<<<<<< HEAD
      * @param step07Controller         the {@link Step08Controller} for
      *                                 Part1Controller
      * @param step07Controller         the {@link Step16Controller} for
+=======
+     * @param step08Controller         the {@link Step08Controller} for
+     *                                 Part1Controller
+     * @param step09Controller         the {@link Step09Controller} for
+     *                                 Part1Controller
+     * @param step10Controller         the {@link Step10Controller} for
+     *                                 Part1Controller
+     * @param step11Controller         the {@link Step11Controller} for
+>>>>>>> master
      *                                 Part1Controller
      */
     public Part01Controller(Executor executor, EngineSpeedModule engineSpeedModule,
@@ -82,7 +96,11 @@ public class Part01Controller extends Controller {
             PartResultFactory partResultFactory, Step01Controller step01Controller, Step02Controller step02Controller,
             Step03Controller step03Controller, Step04Controller step04Controller, Step05Controller step05Controller,
             Step06Controller step06Controller, Step07Controller step07Controller, Step08Controller step08Controller,
+<<<<<<< HEAD
             Step16Controller step16Controller) {
+=======
+            Step09Controller step09Controller) {
+>>>>>>> master
         super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
 
         stepControllers.add(step01Controller);
@@ -93,7 +111,12 @@ public class Part01Controller extends Controller {
         stepControllers.add(step06Controller);
         stepControllers.add(step07Controller);
         stepControllers.add(step08Controller);
+<<<<<<< HEAD
         stepControllers.add(step16Controller);
+=======
+        stepControllers.add(step09Controller);
+
+>>>>>>> master
     }
 
     private void executeStep(int stepNumber) throws InterruptedException {
