@@ -6,12 +6,11 @@ import static java.lang.annotation.ElementType.TYPE;
 import java.lang.annotation.Target;
 
 @Target({ TYPE, METHOD })
-public @interface TestDoc {
+public @interface TestItem {
     String[] dependsOn() default {};
 
     String description() default "";
 
-    TestItem[] items() default {};
+    String value() default "";
 
-    String[] verifies() default {};
 }

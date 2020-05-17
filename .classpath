@@ -2,11 +2,6 @@
 <classpath>
 	<classpathentry kind="src" path="src"/>
 	<classpathentry kind="src" path="src-test"/>
-	<classpathentry kind="src" path="testdoc">
-		<attributes>
-			<attribute name="optional" value="true"/>
-		</attributes>
-	</classpathentry>
 	<classpathentry kind="con" path="org.eclipse.jdt.launching.JRE_CONTAINER/org.eclipse.jdt.internal.debug.ui.launcher.StandardVMType/JavaSE-11">
 		<attributes>
 			<attribute name="module" value="true"/>
@@ -59,5 +54,10 @@
 	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/Saxon-HE-9.9.1-2.jar"/>
 	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/slf4j-api-1.8.0-beta4.jar"/>
 	<classpathentry kind="lib" path="lib-test/spotbugs-4.0.2/lib/spotbugs-annotations.jar"/>
+	<classpathentry kind="src" path="testdoc">
+		<attributes>
+			<attribute name="optional" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

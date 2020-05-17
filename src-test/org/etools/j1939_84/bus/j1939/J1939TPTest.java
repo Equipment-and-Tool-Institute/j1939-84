@@ -29,14 +29,20 @@ import org.junit.Test;
 @TestDoc(verifies = "J199-21", description = "Tests J1939-21 Transport Protocol Implementation")
 public class J1939TPTest {
 
+    /**
+     * Used instead of Runnable to avoid having to put exception handlers in the
+     * tests.
+     */
     interface PacketTask {
         void run() throws BusException;
     }
 
+    /** Compares content and not timestamps. */
     static private void assertPacketsEquals(Collection<Packet> expected, Collection<Packet> actual) {
         Assert.assertEquals(expected.toString(), actual.toString());
     }
 
+    /** Compares content and not timestamps. */
     static private void assertPacketsEquals(Packet expected, Packet actual) {
         Assert.assertEquals(expected.toString(), actual.toString());
     }

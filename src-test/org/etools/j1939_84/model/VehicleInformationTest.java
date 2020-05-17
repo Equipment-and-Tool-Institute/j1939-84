@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.etools.testdoc.TestDoc;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,6 +17,7 @@ import org.junit.Test;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
+@TestDoc(description = "Verifies that all elelments of Vehicle Information are accounted for when comparing.")
 public class VehicleInformationTest {
 
     private VehicleInformation instance;
@@ -42,55 +44,65 @@ public class VehicleInformationTest {
     }
 
     @Test
+    @TestDoc(description = "Verify equals on null, an Object that is not a VehicleInformation, this and an object that is the same as this.")
     public void testEquals() {
+        assertFalse(instance.equals(null));
         assertFalse(instance.equals(new Object()));
         assertTrue(instance.equals(instance));
         assertTrue(instance.equals(instance2));
     }
 
     @Test
+    @TestDoc(description = "Verify hashcodes are repeatable and equal for this and an object the same as this.")
     public void testHashCode() {
-        assertTrue(instance.hashCode() == instance2.hashCode());
+        assertTrue(instance.hashCode() == instance.hashCode());
         assertTrue(instance.hashCode() == instance2.hashCode());
     }
 
     @Test
+    @TestDoc(description = "Verify a certification is detected in comparison.")
     public void testNotEqualsCertificationIntent() {
         instance2.setCertificationIntent(null);
         assertFalse(instance.equals(instance2));
     }
 
     @Test
+    @TestDoc(description = "Verify a emission units is detected in comparison.")
     public void testNotEqualsEmissionUnits() {
         instance2.setEmissionUnits(0);
         assertFalse(instance.equals(instance2));
     }
 
     @Test
+    @TestDoc(description = "Verify a engine model year is detected in comparison.")
     public void testNotEqualsEngineModelYear() {
         instance2.setEngineModelYear(0);
         assertFalse(instance.equals(instance2));
     }
 
     @Test
+    @TestDoc(description = "Verify a fuel type is detected in comparison.")
     public void testNotEqualsFuelType() {
         instance2.setFuelType(null);
         assertFalse(instance.equals(instance2));
     }
 
     @Test
+    @TestDoc(description = "Verify a vehicle module year is detected in comparison.")
     public void testNotEqualsVehicleModelYear() {
         instance2.setVehicleModelYear(0);
         assertFalse(instance.equals(instance2));
     }
 
     @Test
+    @TestDoc(description = "Verify a vin is detected in comparison.")
     public void testNotEqualsVin() {
         instance2.setVin(null);
         assertFalse(instance.equals(instance2));
     }
 
     @Test
+    @TestDoc(description = "Detect regressions in the display of VehicleInformation.")
     public void testToString() {
         String actual = instance.toString();
         String expected = "Vehicle Information:\n" +
