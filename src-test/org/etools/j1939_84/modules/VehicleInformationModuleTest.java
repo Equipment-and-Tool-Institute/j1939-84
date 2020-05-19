@@ -134,6 +134,7 @@ public class VehicleInformationModuleTest {
 	}
 
 	@Test
+	@TestDoc(description = "Verify that a failure is generated when there is no response to the request for DM56.")
 	public void testGetEngineModelYearNoResponse() throws Exception {
 		when(j1939.requestMultiple(DM56EngineFamilyPacket.class)).thenReturn(Stream.empty());
 

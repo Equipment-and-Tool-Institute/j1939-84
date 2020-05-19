@@ -258,6 +258,9 @@
 	    ]]>
 	</scriptdef>
 
+	<target name="testdoc regenerate" description="Regenerate the dist/testdoc.html" depends="clean,compile.tests">
+	</target>
+	
 	<target name="testdoc.jar" depends="init">
 		<javac srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11" classpath="${src-test}" includes="**/TestDoc*.java,**/TestItem*.java">
 		</javac>
