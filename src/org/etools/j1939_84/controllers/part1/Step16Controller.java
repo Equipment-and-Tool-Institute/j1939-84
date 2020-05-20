@@ -13,7 +13,6 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.Controller;
@@ -95,13 +94,10 @@ public class Step16Controller extends Controller {
         List<DM2PreviouslyActiveDTC> globalDM2s = dtcModule.requestDM2(getListener()).stream()
                 .filter(p -> p instanceof DM2PreviouslyActiveDTC).map(p -> (DM2PreviouslyActiveDTC) p)
                 .collect(Collectors.toList());
+        // FIXME Not sure if this is the right statement. I'm not sure if it's
+        // retrieving the DTCs properly.
+        List<DiagnosticTroubleCode> dtcs = globalDM2s.get(0).getDtcs();
 
-        List<DiagnosticTroubleCode> dtcs = ((DiagnosticTroubleCodePacket) globalDM2s).getDtcs();
-
-        // // Check to make sure packets aren't empty
-        // if (globalDM2s.isEmpty()) {
-        //
-        // }
         // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC
         if (dtcs.isEmpty()) {
         } else {
@@ -121,10 +117,16 @@ public class Step16Controller extends Controller {
                     "6.1.16.2.b - OBD ECU does not report MIL off.");
         }
         // 6.1.16.2.c Fail if any non-OBD ECU does not report MIL off or not supported
+
+        // FIXME Need to check to see if these Addresses report a off or not supported
+        // MIL. Remove .count() in stream
         long nonObdResponses = globalDM2s.stream()
                 .filter(p -> !dataRepository.getObdModuleAddresses().contains(p.getSourceAddress())).count();
         if (nonObdResponses > 0) {
-            addWarning(1, 5, "6.1.5.3.a - Non-OBD ECU responded with VIN");
+            getListener().addOutcome(1,
+                    16,
+                    Outcome.FAIL,
+                    "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported.");
         }
 
         // 6.1.16.3.a DS DM2 to each OBD ECU
