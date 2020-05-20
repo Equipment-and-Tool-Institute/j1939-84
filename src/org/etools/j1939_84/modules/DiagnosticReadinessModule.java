@@ -254,17 +254,16 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      *                         will be sent
      * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
      */
-    public List<DM21DiagnosticReadinessPacket> getDM21Packets(ResultsListener listener,
+    public List<ParsedPacket> getDM21Packets(ResultsListener listener,
             boolean fullString,
             int obdModuleAddress) {
-        List<ParsedPacket> parsedPackets = getPackets("Destination Specific DM21 Request",
+
+        return getPackets("Destination Specific DM21 Request",
                 DM21DiagnosticReadinessPacket.PGN,
                 DM21DiagnosticReadinessPacket.class,
                 listener,
                 fullString,
                 obdModuleAddress);
-
-        return filterPackets(parsedPackets, DM21DiagnosticReadinessPacket.class);
     }
 
     /**
