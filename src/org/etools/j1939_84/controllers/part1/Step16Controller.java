@@ -12,6 +12,9 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.model.Outcome;
@@ -90,29 +93,42 @@ public class Step16Controller extends Controller {
         dtcModule.setJ1939(getJ1939());
         // 6.1.16.1.a. Global DM2 (send Request (PGN 59904) for PGN 65227
         List<DM2PreviouslyActiveDTC> globalDM2s = dtcModule.requestDM2(getListener()).stream()
-                .filter(p -> p instanceof DM2PreviouslyActiveDTC)
-                .map(p -> (DM2PreviouslyActiveDTC) p)
+                .filter(p -> p instanceof DM2PreviouslyActiveDTC).map(p -> (DM2PreviouslyActiveDTC) p)
                 .collect(Collectors.toList());
-        globalDM2s.get(0).getDtcs();
-        // for (int i = 0; i < 10; i++) {
-        // globalDM2s.get(i).getDtcs();
+
+        List<DiagnosticTroubleCode> dtcs = ((DiagnosticTroubleCodePacket) globalDM2s).getDtcs();
+
+        // // Check to make sure packets aren't empty
+        // if (globalDM2s.isEmpty()) {
+        //
         // }
-
-        // Check to make sure packets aren't empty
-        if (globalDM2s.isEmpty()) {
-
-        }
         // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC
+        if (dtcs.isEmpty()) {
+        } else {
+            getListener().addOutcome(1,
+                    16,
+                    Outcome.FAIL,
+                    "6.1.16.2.a - OBD ECU reported a previously active DTC.");
+        }
 
         // 6.1.16.2.b Fail if any OBD ECU does not report MIL (Malfunction Indicator
         // Lamp) off
-        globalDM2s.get(0).getMalfunctionIndicatorLampStatus();
-        globalDM2s.get(0).getProtectLampStatus();
-
+        LampStatus milLamp = globalDM2s.get(0).getMalfunctionIndicatorLampStatus();
+        if (milLamp != LampStatus.OFF) {
+            getListener().addOutcome(1,
+                    16,
+                    Outcome.FAIL,
+                    "6.1.16.2.b - OBD ECU does not report MIL off.");
+        }
         // 6.1.16.2.c Fail if any non-OBD ECU does not report MIL off or not supported
+        long nonObdResponses = globalDM2s.stream()
+                .filter(p -> !dataRepository.getObdModuleAddresses().contains(p.getSourceAddress())).count();
+        if (nonObdResponses > 0) {
+            addWarning(1, 5, "6.1.5.3.a - Non-OBD ECU responded with VIN");
+        }
 
         // 6.1.16.3.a DS DM2 to each OBD ECU
-        List<DM2PreviouslyActiveDTC> dsDM2s = dtcModule.getDM2Packets(getListener(), true, 0);
+        List<? extends DM2PreviouslyActiveDTC> dsDM2s = dtcModule.getDM2Packets(getListener(), true, 0);
 
         // 6.1.16.4.a Fail if any responses differ from global responses
         if (dsDM2s != globalDM2s) {

@@ -10,14 +10,16 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.PartResultFactory;
@@ -44,24 +46,26 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class Step16ControllerTest extends AbstractControllerTest {
 
-    private static DM2PreviouslyActiveDTC createDM20(List<Integer> data) {
-        DM20MonitorPerformanceRatioPacket packet = mock(DM20MonitorPerformanceRatioPacket.class);
+    // private static DM2PreviouslyActiveDTC createData() {
+    //
+    // return data;
+    // }
 
-        DM2PreviouslyActiveDTC packet = mock(DM2PreviouslyActiveDTC.class);
+    private static DM2PreviouslyActiveDTC createDM20(int[] data) {
+
+        DM2PreviouslyActiveDTC packets = mock(DM2PreviouslyActiveDTC.class);
 
         if (data != null) {
 
-            List<DiagnosticTroubleCode> diagData = data.stream()
-                    .map(spn -> new DiagnosticTroubleCode(data)).collect(Collectors.toList());
-            when(packet.getDtcs()).thenReturn(diagData);
-
-            // List<PerformanceRatio> perfRatios = ratios.stream()
-            // .map(spn -> new PerformanceRatio(spn, 0, 0,
-            // sourceAddress)).collect(Collectors.toList());
-            // when(packet.getRatios()).thenReturn(perfRatios);
+            List<DiagnosticTroubleCode> diagData = new ArrayList<>(data.length);
+            for (int i : data) {
+                diagData.add(i, null);
+            }
+            diagData.stream().map(spn -> new DiagnosticTroubleCode(data)).collect(Collectors.toList());
+            when(packets.getDtcs()).thenReturn(diagData);
         }
 
-        return packet;
+        return packets;
     }
 
     @Mock
@@ -71,6 +75,9 @@ public class Step16ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     private DateTimeModule dateTimeModule;
+
+    @Mock
+    private DiagnosticTroubleCodePacket diagnosticTroubleCodePacket;
 
     @Mock
     private DTCModule dtcModule;
@@ -102,10 +109,21 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
     @Test
     public void runHappyPath() {
-
         List<DM2PreviouslyActiveDTC> globalDM2s = new ArrayList<>();
+        Set<Integer> obdModulesAddresses = new HashSet<>();
+        obdModulesAddresses.add(0);
+        DM2PreviouslyActiveDTC dm2s = mock(DM2PreviouslyActiveDTC.class);
+        globalDM2s.add(dm2s);
 
-        when(dtcModule.requestDM2(listener)).thenReturn(globalDM2s);
+        List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
+
+        when(diagnosticTroubleCodePacket.getDtcs()).thenReturn(dtcs);
+        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModulesAddresses);
+
+        // List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
+        //
+
+        // when(dtcModule.requestDM2(listener)).thenReturn(globalDM2s);
 
         runTest();
 
