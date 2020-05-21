@@ -23,6 +23,42 @@ import org.junit.Test;
  */
 public class ParsedPacketTest {
 
+    private static class TestParsedPacket extends ParsedPacket {
+        public TestParsedPacket(Packet packet) {
+            super(packet);
+        }
+    }
+
+    @Test
+    public void testEqualsAndHashCode() {
+        Packet packet1 = Packet.create(0, 0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88);
+        TestParsedPacket instance1 = new TestParsedPacket(packet1);
+
+        Packet packet2 = Packet.create(0, 0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88);
+        TestParsedPacket instance2 = new TestParsedPacket(packet2);
+
+        assertTrue(instance1.equals(instance1));
+        assertTrue(instance1.equals(instance2));
+        assertTrue(instance1.hashCode() == instance2.hashCode());
+    }
+
+    @Test
+    public void testEqualsFalse() {
+        Packet packet1 = Packet.create(0, 0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88);
+        TestParsedPacket instance1 = new TestParsedPacket(packet1);
+
+        Packet packet2 = Packet.create(0, 0, 0x00, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88);
+        TestParsedPacket instance2 = new TestParsedPacket(packet2);
+
+        Packet packet3 = Packet.create(0, 0, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88);
+        ParsedPacket instance3 = new ParsedPacket(packet3);
+
+        assertFalse(instance1.equals(instance2));
+        assertFalse(instance1.equals(instance3));
+        assertFalse(instance1.equals(null));
+        assertFalse(instance1.equals(new Object()));
+    }
+
     @Test
     public void testFormat() {
         byte bytes[] = new byte[255];

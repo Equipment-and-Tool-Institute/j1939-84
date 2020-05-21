@@ -91,11 +91,18 @@ public class Part01ControllerTest {
     @Mock
     private Step07Controller step07Controller;
 
-    @Mock
-    private Step08Controller step08Controller;
+    // @Mock
+    // private Step08Controller step08Controller;
+    // @Mock
+    // private Step09Controller step09Controller;
+    // @Mock
+    // private Step10Controller step10Controller;
 
     @Mock
     private Step09Controller step09Controller;
+
+    @Mock
+    private Step11Controller step11Controller;
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
@@ -118,8 +125,10 @@ public class Part01ControllerTest {
                 step05Controller,
                 step06Controller,
                 step07Controller,
-                step08Controller,
-                step09Controller);
+                // step08Controller,
+                // step09Controller,
+                // step10Controller,
+                step11Controller);
     }
 
     @After
@@ -136,8 +145,10 @@ public class Part01ControllerTest {
                 step05Controller,
                 step06Controller,
                 step07Controller,
-                step08Controller,
-                step09Controller);
+                // step08Controller,
+                // step09Controller,
+                // step10Controller,
+                step11Controller);
     }
 
     /**
@@ -163,7 +174,8 @@ public class Part01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Part01Controller#Part01Controller()}.
      */
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+            justification = "The method is called just to get some exception.")
     public void testPart01Controller() {
         PartResult partResult = mock(PartResult.class);
         when(partResult.toString()).thenReturn("Part 1");
@@ -207,8 +219,10 @@ public class Part01ControllerTest {
                 step05Controller,
                 step06Controller,
                 step07Controller,
-                step08Controller,
-                step09Controller);
+                // step08Controller,
+                // step09Controller,
+                // step10Controller,
+                step11Controller);
         inOrder.verify(step01Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step02Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step03Controller).run(any(ResultsListener.class), eq(j1939));
@@ -216,8 +230,10 @@ public class Part01ControllerTest {
         inOrder.verify(step05Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step06Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step07Controller).run(any(ResultsListener.class), eq(j1939));
-        inOrder.verify(step08Controller).run(any(ResultsListener.class), eq(j1939));
-        inOrder.verify(step09Controller).run(any(ResultsListener.class), eq(j1939));
+        // inOrder.verify(step08Controller).run(any(ResultsListener.class), eq(j1939));
+        // inOrder.verify(step09Controller).run(any(ResultsListener.class), eq(j1939));
+        // inOrder.verify(step10Controller).run(any(ResultsListener.class), eq(j1939));
+        inOrder.verify(step11Controller).run(any(ResultsListener.class), eq(j1939));
 
         verify(partResultFactory).create(1);
         verify(vehicleInformationModule).setJ1939(j1939);

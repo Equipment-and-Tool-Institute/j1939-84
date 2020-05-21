@@ -188,6 +188,22 @@ public class ParsedPacket {
         this.packet = packet;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof ParsedPacket)) {
+            return false;
+        }
+
+        ParsedPacket that = (ParsedPacket) obj;
+
+        return this.getClass() == that.getClass() && packet.equals(that.packet);
+    }
+
     /**
      * Helper method to get one byte at the given index
      *
@@ -317,6 +333,11 @@ public class ParsedPacket {
      */
     protected String getStringPrefix() {
         return getName() + " from " + Lookup.getAddressName(getSourceAddress()) + ": ";
+    }
+
+    @Override
+    public int hashCode() {
+        return packet.hashCode();
     }
 
     @Override
