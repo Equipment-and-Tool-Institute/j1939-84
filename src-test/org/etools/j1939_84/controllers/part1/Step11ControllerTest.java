@@ -235,74 +235,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
         assertEquals("Part 1 Step 11", instance.getDisplayName());
     }
 
-    @Test
-    public void testgetMinutesWhileMILIsActivated() {
-        Set<Integer> obdAddressSet = new HashSet<>() {
-            {
-                add(0);
-                add(17);
-                add(21);
-            }
-        };
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
-
-        List<ParsedPacket> packets = new ArrayList<>();
-        // return packets when Global DM21 request (PGN 59904) for PGN 49408 (SPNs 3069,
-        // 3294-3296)).
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true))).thenReturn(packets);
-        // return the set of OBD module addresses when requested
-
-        DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 25.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0))).thenReturn(listOf(packet4));
-        packets.add(packet4);
-
-        DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17))).thenReturn(listOf(packet5));
-        packets.add(packet5);
-
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21))).thenReturn(null);
-
-        runTest();
-
-        verify(dataRepository).getObdModuleAddresses();
-
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(0));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
-        verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
-
-        verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
-        verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
-
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
-        verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)\n"
-                + "FAIL: 6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)\n";
-        assertEquals(expectedResult, listener.getResults());
-
-    }
-
     /**
      * Test method for
      * {@link org.etools.j1939_84.controllers.part1.Step11Controller#getTotalSteps()}.
@@ -904,8 +836,74 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "6.1.11.1.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)\n"
+        String expectedResult = "FAIL: 6.1.11.1.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)\n"
                 + "FAIL: 6.1.11.4.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)\n";
+        assertEquals(expectedResult, listener.getResults());
+
+    }
+
+    @Test
+    public void testMinutesWhileMILIsActivated() {
+        Set<Integer> obdAddressSet = new HashSet<>() {
+            {
+                add(0);
+                add(17);
+                add(21);
+            }
+        };
+        when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
+
+        List<ParsedPacket> packets = new ArrayList<>();
+        // return packets when Global DM21 request (PGN 59904) for PGN 49408 (SPNs 3069,
+        // 3294-3296)).
+        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true))).thenReturn(packets);
+        // return the set of OBD module addresses when requested
+
+        DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 25.0);
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0))).thenReturn(listOf(packet4));
+        packets.add(packet4);
+
+        DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17))).thenReturn(listOf(packet5));
+        packets.add(packet5);
+
+        runTest();
+
+        verify(dataRepository).getObdModuleAddresses();
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(0));
+        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
+        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
+        verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
+
+        verify(mockListener).addOutcome(1,
+                11,
+                Outcome.FAIL,
+                "6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
+        verify(mockListener).addOutcome(1,
+                11,
+                Outcome.FAIL,
+                "6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
+
+        verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule).addOutcome(1,
+                11,
+                Outcome.FAIL,
+                "6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
+        verify(reportFileModule).addOutcome(1,
+                11,
+                Outcome.FAIL,
+                "6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
+        verify(reportFileModule).onResult(
+                "FAIL: 6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
+        verify(reportFileModule).onResult(
+                "FAIL: 6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        String expectedResult = "FAIL: 6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)\n"
+                + "FAIL: 6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)\n";
         assertEquals(expectedResult, listener.getResults());
 
     }

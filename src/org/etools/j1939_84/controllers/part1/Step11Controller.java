@@ -5,7 +5,6 @@ package org.etools.j1939_84.controllers.part1;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -65,9 +64,9 @@ public class Step11Controller extends Controller {
         // 6.1.11.1 Actions:
         // a. Global DM21 (send Request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
-        List<ParsedPacket> parsedPackets = diagnosticReadinessModule.requestDM21Packets(getListener(), true);
-
-        List<DM21DiagnosticReadinessPacket> globalDm21Packets = parsedPackets.stream()
+        List<DM21DiagnosticReadinessPacket> globalDm21Packets = diagnosticReadinessModule
+                .requestDM21Packets(getListener(), true)
+                .stream()
                 .filter(p -> p instanceof DM21DiagnosticReadinessPacket)
                 .map(p -> (DM21DiagnosticReadinessPacket) p)
                 .collect(Collectors.toList());
@@ -106,24 +105,18 @@ public class Step11Controller extends Controller {
         }
 
         // 6.1.11.3 Actions2:
-        Set<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
-
-        List<ParsedPacket> addressSpecificDM21packets = new ArrayList<>();
-
         // a. DS DM21 to each OBD ECU
-        obdModuleAddresses.forEach(address -> {
-            List<ParsedPacket> dm21packets = diagnosticReadinessModule
-                    .getDM21Packets(getListener(), true, address);
-            if (dm21packets != null) {
-                addressSpecificDM21packets.addAll(dm21packets);
-            }
-
+        List<ParsedPacket> addressSpecificDM21Results = new ArrayList<>();
+        dataRepository.getObdModuleAddresses().forEach(address -> {
+            addressSpecificDM21Results.addAll(diagnosticReadinessModule.getDM21Packets(getListener(), true, address));
         });
-
-        // 6.1.11.4 Fail criteria2:
-        addressSpecificDM21packets.stream()
+        List<DM21DiagnosticReadinessPacket> addressSpecificDm21Packets = addressSpecificDM21Results.stream()
                 .filter(p -> p instanceof DM21DiagnosticReadinessPacket)
                 .map(p -> (DM21DiagnosticReadinessPacket) p)
+                .collect(Collectors.toList());
+
+        // 6.1.11.4 Fail criteria2:
+        addressSpecificDm21Packets
                 .forEach(packet -> {
                     // a. Fail if any ECU reports distance with MIL on (SPN 3069) is not zero.
                     if (packet.getKmSinceDTCsCleared() != 0 || packet.getMilesSinceDTCsCleared() != 0) {
@@ -155,24 +148,14 @@ public class Step11Controller extends Controller {
         // e. Fail if any responses differ from global responses.
         List<DM21DiagnosticReadinessPacket> results = new ArrayList<>();
 
-        if (addressSpecificDM21packets.size() > globalDm21Packets.size()) {
-            results.addAll(addressSpecificDM21packets.stream()
-                    .filter(packet -> packet instanceof DM21DiagnosticReadinessPacket)
-                    .map(p -> (DM21DiagnosticReadinessPacket) p).collect(Collectors.toList()));
-            results.removeAll(
-                    globalDm21Packets.stream().filter(packet -> packet instanceof DM21DiagnosticReadinessPacket)
-                            .map(p -> p).collect(Collectors.toList()));
-
+        if (addressSpecificDm21Packets.size() > globalDm21Packets.size()) {
+            results.addAll(addressSpecificDm21Packets);
+            results.removeAll(globalDm21Packets);
         } else {
-            results.addAll(globalDm21Packets.stream()
-                    .filter(packet -> packet instanceof DM21DiagnosticReadinessPacket)
-                    .map(p -> p).collect(Collectors.toList()));
-            results.removeAll(
-                    addressSpecificDM21packets.stream()
-                            .filter(packet -> packet instanceof DM21DiagnosticReadinessPacket)
-                            .map(p -> p).collect(Collectors.toList()));
-
+            results.addAll(globalDm21Packets);
+            results.removeAll(addressSpecificDm21Packets);
         }
+
         if (!results.isEmpty()) {
             addFailure(1,
                     11,
@@ -181,40 +164,18 @@ public class Step11Controller extends Controller {
 
         // f. Fail if NACK not received from OBD ECUs that did not respond to global
         // query.
-        // Basically, sent global request. Did all the modules respond that responded to
-        // the global request
-        // If not, did the module(s) that didn't respond send a NACK? If not, add
-        // failure
-
-        // First get the list of modules from the global request
-        List<DM21DiagnosticReadinessPacket> globalPackets = parsedPackets.stream()
-                .filter(p -> p instanceof DM21DiagnosticReadinessPacket)
-                .map(packet -> (DM21DiagnosticReadinessPacket) packet)
-                .collect(Collectors.toList());
-
-        // Get the list of address specific DM21 module responses
-        List<ParsedPacket> addressSpecifiPackets = addressSpecificDM21packets.stream()
-                .filter(packet -> packet instanceof DM21DiagnosticReadinessPacket)
-                .map(p -> p)
-                .collect(Collectors.toList());
-
-        // filter from the global requests any that we got a response from when asking
-        // individually
-        addressSpecifiPackets.forEach(addressPacket -> globalPackets
+        addressSpecificDm21Packets.forEach(addressPacket -> globalDm21Packets
                 .removeIf(globalPacket -> globalPacket.getSourceAddress() == addressPacket.getSourceAddress()));
 
-        // Now get a list of the NACKs
-        List<ParsedPacket> nackPackets = addressSpecificDM21packets.stream()
-                .filter(packet -> packet instanceof AcknowledgmentPacket
-                        && ((AcknowledgmentPacket) packet).getResponse() == Response.NACK)
-                .map(p -> p)
-                .collect(Collectors.toList());
+        addressSpecificDM21Results
+                .stream()
+                .filter(packet -> packet instanceof AcknowledgmentPacket)
+                .map(p -> (AcknowledgmentPacket) p)
+                .filter(p -> p.getResponse() == Response.NACK)
+                .forEach(nackPacket -> globalDm21Packets
+                        .removeIf(globalPacket -> globalPacket.getSourceAddress() == nackPacket.getSourceAddress()));
 
-        // filter any that returned a NACK
-        nackPackets.forEach(nackPacket -> globalPackets
-                .removeIf(globalPacket -> globalPacket.getSourceAddress() == nackPacket.getSourceAddress()));
-
-        if (!globalPackets.isEmpty()) {
+        if (!globalDm21Packets.isEmpty()) {
             addFailure(1,
                     11,
                     "6.1.11.4.f - Fail if NACK not received from OBD ECUs that did not respond to global query");
