@@ -35,6 +35,7 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.testdoc.TestDoc;
+import org.etools.testdoc.TestItem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -51,7 +52,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
  */
-@TestDoc(verifies = "Part 1 Step 3", description = "DM5: Diagnostic readiness 1")
+@TestDoc(items = @TestItem(value = "Part 1 Step 3", description = "DM5: Diagnostic readiness 1"))
 @RunWith(MockitoJUnitRunner.class)
 public class Step03ControllerTest {
 
@@ -125,15 +126,16 @@ public class Step03ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+            justification = "The method is called just to get some exception.")
     /**
      * Includes addWarning() verification for distinctCount > 1
      */
-    @TestDoc(verifies = {
-            "6.1.3.2.b",
-            "6.1.3.3.a" }, description = "The request for DM5 was NACK'ed"
-                    + "<br/>"
-                    + "An ECU responded with a value for OBD Compliance that was not identical to other ECUs")
+    @TestDoc(items = {
+            @TestItem("6.1.3.2.b"),
+            @TestItem("6.1.3.3.a") },
+            description = "Verify messages both for request for DM5 was NACK'ed and for a value for OBD Compliance that was not identical to other ECUs.",
+            dependsOn = { "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
     public void testBadECUValue() {
         List<ParsedPacket> packets = new ArrayList<>();
         when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true))).thenReturn(packets);
@@ -217,22 +219,83 @@ public class Step03ControllerTest {
     }
 
     @Test
+    @TestDoc(items = @TestItem(value = "6.1.3", description = "Verifies part and step name for report."))
     public void testGetDisplayName() {
         assertEquals("Display Name", "Part 1 Step 3", instance.getDisplayName());
     }
 
     @Test
+    @TestDoc(items = @TestItem(value = "6.1.", description = "Verifies that there is a single 6.1.3 step."))
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 1, instance.getTotalSteps());
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
-    @TestDoc(verifies = {
-            "6.1.3.2.a",
-            "6.1.3.2.b" }, description = "There needs to be at least one OBD Module"
-                    + "<br/>"
-                    + "The request for DM5 was NACK'ed")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+            justification = "The method is called just to get some exception.")
+    @TestDoc(items = @TestItem(value = "6.1.3.2.b",
+            description = "Verify fail message for the request for DM5 was NACK'ed",
+            dependsOn = { "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" }))
+    public void testJustNack() {
+        List<ParsedPacket> packets = new ArrayList<>();
+        ParsedPacket packet1 = mock(ParsedPacket.class);
+        packets.add(packet1);
+
+        AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
+        when(packet2.getResponse()).thenReturn(Response.ACK);
+        packets.add(packet2);
+
+        AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
+        when(packet3.getResponse()).thenReturn(Response.NACK);
+        packets.add(packet3);
+
+        DM5DiagnosticReadinessPacket packet4 = mock(DM5DiagnosticReadinessPacket.class);
+        OBDModuleInformation obdInfo = new OBDModuleInformation(0);
+        Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
+        obdInfo.setObdCompliance((byte) 4);
+        obdInfoList.add(obdInfo);
+        obdInfoList.add(obdInfo);
+
+        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
+        when(packet4.isObd()).thenReturn(true);
+        when(packet4.getSourceAddress()).thenReturn(0);
+        when(packet4.getOBDCompliance()).thenReturn((byte) 4);
+        packets.add(packet4);
+        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true))).thenReturn(packets);
+
+        instance.execute(listener, j1939, reportFileModule);
+        ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+        verify(executor).execute(runnableCaptor.capture());
+        runnableCaptor.getValue().run();
+
+        verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(0, obdInfo);
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticReadinessModule).requestDM5Packets(any(), eq(true));
+
+        verify(engineSpeedModule).setJ1939(j1939);
+
+        verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
+
+        verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
+        verify(reportFileModule).onProgress(0,
+                1,
+                "");
+        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
+
+        verify(vehicleInformationModule).setJ1939(j1939);
+    }
+
+    @Test
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+            justification = "The method is called just to get some exception.")
+    @TestDoc(items = {
+            @TestItem("6.1.3.2.a"),
+            @TestItem("6.1.3.2.b") },
+            description = "Verify there are fail messages for: <ul><li>There needs to be at least one OBD Module</li>"
+                    + "<li>The request for DM5 was NACK'ed</li></ul>",
+            dependsOn = { "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
     public void testModulesEmpty() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
@@ -287,9 +350,12 @@ public class Step03ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
-    @TestDoc(verifies = { "6.1.3.2.b" }, description = "The request for DM5 was NACK'ed")
-    public void testRun() {
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+            justification = "The method is called just to get some exception.")
+    @TestDoc(items = @TestItem(value = "6.1.3",
+            description = "Verify no messages for the success.",
+            dependsOn = { "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" }))
+    public void testSuccessRun() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
         packets.add(packet1);
@@ -299,7 +365,7 @@ public class Step03ControllerTest {
         packets.add(packet2);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
-        when(packet3.getResponse()).thenReturn(Response.NACK);
+        when(packet3.getResponse()).thenReturn(Response.ACK);
         packets.add(packet3);
 
         DM5DiagnosticReadinessPacket packet4 = mock(DM5DiagnosticReadinessPacket.class);
@@ -329,15 +395,15 @@ public class Step03ControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
 
-        verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-
-        verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-        verify(reportFileModule).onProgress(0,
-                1,
-                "");
-        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
-
         verify(vehicleInformationModule).setJ1939(j1939);
-    }
 
+        String expectedMessages = "";
+        assertEquals(expectedMessages, listener.getMessages());
+
+        String expectedMilestones = "";
+        assertEquals(expectedMilestones, listener.getMilestones());
+
+        String expectedResults = "";
+        assertEquals(expectedResults, listener.getResults());
+    }
 }

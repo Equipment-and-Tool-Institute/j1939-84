@@ -25,6 +25,7 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.testdoc.TestDoc;
+import org.etools.testdoc.TestItem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -40,7 +41,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-@TestDoc(verifies = "Part 1 Step 2", description = "Verify engine operation")
+@TestDoc(items = @TestItem(value = "Part 1 Step 2", description = "Verify engine operation"))
 public class Step02ControllerTest {
 
     @Mock
@@ -97,24 +98,20 @@ public class Step02ControllerTest {
     }
 
     @Test
+    @TestDoc(items = @TestItem(value = "6.1.2", description = "Verifies part and step name for report."))
     public void testGetDisplayName() {
         assertEquals("Display Name", "Part 1 Step 2", instance.getDisplayName());
     }
 
     @Test
+    @TestDoc(items = @TestItem(value = "6.1.2", description = "Verifies that there is a single 6.1.2 step."))
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 1, instance.getTotalSteps());
     }
 
     @Test
-    @TestDoc(verifies = {
-            "6.1.2",
-            "6.1.2.1",
-            "6.1.2.1.a" }, description = "Gather broadcast data for engine speed (e.g., SPN 190)"
-                    + "<br>"
-                    + "Actions:"
-                    + "<br>"
-                    + "Gather broadcast data for engine speed (e.g., SPN 190)")
+    @TestDoc(items = @TestItem(value = "6.1.2.1.a",
+            description = "Verify if the engine is running that there are no messages when already KOEO."))
     public void testRun() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
 
@@ -138,22 +135,10 @@ public class Step02ControllerTest {
     }
 
     @Test
-    @TestDoc(verifies = {
-            "6.1.2",
-            "6.1.2.1",
-            "6.1.2.1.a",
-            "6.1.2.2",
-            "6.1.2.2.a" }, description = "Gather broadcast data for engine speed (e.g., SPN 190)"
-                    + "<br>"
-                    + "Actions:"
-                    + "<br>"
-                    + "Gather broadcast data for engine speed (e.g., SPN 190)"
-                    + "<br>"
-                    + "Warn criteria:"
-                    + "<br>"
-                    + "If engine speed is > 0 rpm, prompt/warn operator to confirm engine is not running")
-
-    public void testWaitForKey() {
+    @TestDoc(items = @TestItem(value = "6.1.2.1.a",
+            description = "Verify user is requested to turn KOEO when engine is not KOEO.",
+            dependsOn = { "EngineSpeedModuleTest" }))
+    public void testWaitForKeyOn() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
 
         new Timer().schedule(new TimerTask() {
