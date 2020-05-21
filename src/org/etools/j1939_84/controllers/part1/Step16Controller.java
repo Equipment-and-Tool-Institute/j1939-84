@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -143,18 +144,18 @@ public class Step16Controller extends Controller {
                     Outcome.FAIL,
                     "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported.");
         }
-
+        
         // 6.1.16.3.a DS DM2 to each OBD ECU
-        // List<? extends DM2PreviouslyActiveDTC> dsDM2s =
-        // dtcModule.getDM2Packets(getListener(), true, 0);
+        List<ParsedPacket> dsDM2s = new ArrayList<>();
+        dataRepository.getObdModuleAddresses().stream().forEach(address -> {dsDM2s.addAll(dtcModule.getDM2Packets(getListener(), true, address));});
 
         // 6.1.16.4.a Fail if any responses differ from global responses
-        // if (dsDM2s != globalDM2s) {
-        // getListener().addOutcome(1,
-        // 16,
-        // Outcome.FAIL,
-        // "6.1.16.4.a - The DS DM2 responses differ from the global responses.");
-        // }
+         if (dsDM2s != globalDM2s) {
+             getListener().addOutcome(1,
+                         16,
+                         Outcome.FAIL,
+                         "6.1.16.4.a - The DS DM2 responses differ from the global responses.");
+         }
 
         // 6.1.16.4.b Fail if NACK not received from OBD ECUs that did not respond to
         // global query
@@ -167,7 +168,7 @@ public class Step16Controller extends Controller {
             // dsDM2s above
             List<ParsedPacket> packets = getVehicleInformationModule().reportCalibrationInformation(getListener(),
                     address);
-            long nackCount = packets.stream()
+            long nackCount = dsDM2s.stream()
                     .filter(p -> p instanceof AcknowledgmentPacket)
                     .map(p -> (AcknowledgmentPacket) p)
                     .filter(p -> p.getResponse() != Response.NACK)
