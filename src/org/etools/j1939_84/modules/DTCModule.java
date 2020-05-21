@@ -81,17 +81,15 @@ public class DTCModule extends FunctionalModule {
      *                         will be sent
      * @return the {@link List} of {@link DM2PreviouslyActiveDTC}s
      */
-    public List<DM2PreviouslyActiveDTC> getDM2Packets(ResultsListener listener,
+    public List<ParsedPacket> getDM2Packets(ResultsListener listener,
             boolean fullString,
             int obdModuleAddress) {
-        List<ParsedPacket> parsedPackets = getPackets("Global DM2 Request",
+        return getPackets("Destination Specific DM2 Request",
                 DM2PreviouslyActiveDTC.PGN,
                 DM2PreviouslyActiveDTC.class,
                 listener,
                 fullString,
                 obdModuleAddress);
-
-        return filterPackets(parsedPackets, DM2PreviouslyActiveDTC.class);
     }
 
     /**

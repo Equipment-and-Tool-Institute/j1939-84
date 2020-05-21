@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -13,6 +14,7 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.Controller;
@@ -45,7 +47,6 @@ public class Step16Controller extends Controller {
         super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
         dtcModule = dtcmodule;
         this.dataRepository = dataRepository;
-        // TODO Auto-generated constructor stub
     }
 
     @Override
@@ -91,13 +92,25 @@ public class Step16Controller extends Controller {
 
         dtcModule.setJ1939(getJ1939());
         // 6.1.16.1.a. Global DM2 (send Request (PGN 59904) for PGN 65227
+        List<? extends DiagnosticTroubleCodePacket> globalDiagnosticTroubleCodePackets = dtcModule
+                .requestDM2(getListener());
         List<DM2PreviouslyActiveDTC> globalDM2s = dtcModule.requestDM2(getListener()).stream()
                 .filter(p -> p instanceof DM2PreviouslyActiveDTC).map(p -> (DM2PreviouslyActiveDTC) p)
                 .collect(Collectors.toList());
         // FIXME Not sure if this is the right statement. I'm not sure if it's
         // retrieving the DTCs properly.
-        List<DiagnosticTroubleCode> dtcs = globalDM2s.get(0).getDtcs();
+        // List<DiagnosticTroubleCode> dtcs = globalDM2s.get(0).getDtcs();
+        // source.stream()
+        // .map(String::length)
+        // .forEachOrdered(target::add);
+        List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
 
+        globalDiagnosticTroubleCodePackets.forEach(packet -> {
+            if (packet.getDtcs() != null) {
+                dtcs.addAll(packet.getDtcs());
+            }
+        });
+        System.out.println("dtcs.size() is: " + dtcs.size());
         // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC
         if (dtcs.isEmpty()) {
         } else {
@@ -109,13 +122,15 @@ public class Step16Controller extends Controller {
 
         // 6.1.16.2.b Fail if any OBD ECU does not report MIL (Malfunction Indicator
         // Lamp) off
-        LampStatus milLamp = globalDM2s.get(0).getMalfunctionIndicatorLampStatus();
-        if (milLamp != LampStatus.OFF) {
-            getListener().addOutcome(1,
-                    16,
-                    Outcome.FAIL,
-                    "6.1.16.2.b - OBD ECU does not report MIL off.");
-        }
+        globalDM2s.stream().forEach(packet -> {
+            if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF) {
+                getListener().addOutcome(1,
+                        16,
+                        Outcome.FAIL,
+                        "6.1.16.2.b - OBD ECU does not report MIL off.");
+            }
+        });
+
         // 6.1.16.2.c Fail if any non-OBD ECU does not report MIL off or not supported
 
         // FIXME Need to check to see if these Addresses report a off or not supported
@@ -130,15 +145,16 @@ public class Step16Controller extends Controller {
         }
 
         // 6.1.16.3.a DS DM2 to each OBD ECU
-        List<? extends DM2PreviouslyActiveDTC> dsDM2s = dtcModule.getDM2Packets(getListener(), true, 0);
+        // List<? extends DM2PreviouslyActiveDTC> dsDM2s =
+        // dtcModule.getDM2Packets(getListener(), true, 0);
 
         // 6.1.16.4.a Fail if any responses differ from global responses
-        if (dsDM2s != globalDM2s) {
-            getListener().addOutcome(1,
-                    16,
-                    Outcome.FAIL,
-                    "6.1.16.4.a - The DS DM2 responses differ from the global responses.");
-        }
+        // if (dsDM2s != globalDM2s) {
+        // getListener().addOutcome(1,
+        // 16,
+        // Outcome.FAIL,
+        // "6.1.16.4.a - The DS DM2 responses differ from the global responses.");
+        // }
 
         // 6.1.16.4.b Fail if NACK not received from OBD ECUs that did not respond to
         // global query

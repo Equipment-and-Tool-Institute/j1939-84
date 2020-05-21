@@ -4,6 +4,8 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -118,6 +120,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
         globalDM2s.add(dm2s);
 
         List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
+        DiagnosticTroubleCode dtc1 = mock(DiagnosticTroubleCode.class);
+        dtcs.add(dtc1);
         LampStatus milStatus = LampStatus.OFF;
 
         when(diagnosticTroubleCodePacket.getDtcs()).thenReturn(dtcs);
@@ -133,12 +137,14 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModuleAddresses();
 
-        verify(diagnosticTroubleCodePacket).getDtcs();
-        verify(diagnosticTroubleCodePacket).getMalfunctionIndicatorLampStatus();
+        // verify(diagnosticTroubleCodePacket).getDtcs();
+        // verify(diagnosticTroubleCodePacket).getMalfunctionIndicatorLampStatus();
 
         verify(dtcModule).setJ1939(j1939);
 
         verify(reportFileModule).onProgress(0, 1, "");
+
+        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
