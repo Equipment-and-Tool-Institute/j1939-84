@@ -95,11 +95,10 @@ public class Part01ControllerTest {
     private Step08Controller step08Controller;
 
     @Mock
-<<<<<<< HEAD
-    private Step16Controller step16Controller;
-=======
     private Step09Controller step09Controller;
->>>>>>> master
+
+    @Mock
+    private Step16Controller step16Controller;
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
@@ -123,11 +122,9 @@ public class Part01ControllerTest {
                 step06Controller,
                 step07Controller,
                 step08Controller,
-<<<<<<< HEAD
+                step09Controller,
                 step16Controller);
-=======
-                step09Controller);
->>>>>>> master
+
     }
 
     @After
@@ -145,11 +142,8 @@ public class Part01ControllerTest {
                 step06Controller,
                 step07Controller,
                 step08Controller,
-<<<<<<< HEAD
+                step09Controller,
                 step16Controller);
-=======
-                step09Controller);
->>>>>>> master
     }
 
     /**
@@ -220,11 +214,9 @@ public class Part01ControllerTest {
                 step06Controller,
                 step07Controller,
                 step08Controller,
-<<<<<<< HEAD
+                step09Controller,
                 step16Controller);
-=======
-                step09Controller);
->>>>>>> master
+
         inOrder.verify(step01Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step02Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step03Controller).run(any(ResultsListener.class), eq(j1939));
@@ -233,11 +225,8 @@ public class Part01ControllerTest {
         inOrder.verify(step06Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step07Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step08Controller).run(any(ResultsListener.class), eq(j1939));
-<<<<<<< HEAD
-        inOrder.verify(step16Controller).run(any(ResultsListener.class), eq(j1939));
-=======
         inOrder.verify(step09Controller).run(any(ResultsListener.class), eq(j1939));
->>>>>>> master
+        inOrder.verify(step16Controller).run(any(ResultsListener.class), eq(j1939));
 
         verify(partResultFactory).create(1);
         verify(vehicleInformationModule).setJ1939(j1939);
