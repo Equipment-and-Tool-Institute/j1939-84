@@ -16,7 +16,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
@@ -54,21 +53,17 @@ public class Step16ControllerTest extends AbstractControllerTest {
     // return data;
     // }
 
-    private static DM2PreviouslyActiveDTC createDM20(int[] data) {
-
-        DM2PreviouslyActiveDTC packets = mock(DM2PreviouslyActiveDTC.class);
-
-        if (data != null) {
-
-            List<DiagnosticTroubleCode> diagData = new ArrayList<>(data.length);
-            for (int i : data) {
-                diagData.add(i, null);
-            }
-            diagData.stream().map(spn -> new DiagnosticTroubleCode(data)).collect(Collectors.toList());
-            when(packets.getDtcs()).thenReturn(diagData);
+    private static DM2PreviouslyActiveDTC createDM2s(List<DiagnosticTroubleCode> dtcs,
+            LampStatus mil) {
+        DM2PreviouslyActiveDTC packet = mock(DM2PreviouslyActiveDTC.class);
+        if (dtcs != null) {
+            when(packet.getDtcs()).thenReturn(dtcs);
+        }
+        if (mil != null) {
+            when(packet.getMalfunctionIndicatorLampStatus()).thenReturn(mil);
         }
 
-        return packets;
+        return packet;
     }
 
     @Mock
@@ -111,27 +106,45 @@ public class Step16ControllerTest extends AbstractControllerTest {
     private VehicleInformationModule vehicleInformationModule;
 
     @Test
+    public void dtcsIsNotEmpty() {
+
+    }
+
+    @Test
+    public void milStatusIsNotOFF() {
+
+    }
+
+    @Test
+    public void responsesDoNotMatch() {
+
+    }
+
+    @Test
     public void runHappyPath() {
-        List<DM2PreviouslyActiveDTC> globalDM2s = new ArrayList<>();
+        // List<DM2PreviouslyActiveDTC> globalDM2s = new ArrayList<>();
         Set<Integer> obdModulesAddresses = new HashSet<>();
         obdModulesAddresses.add(0);
-        DM2PreviouslyActiveDTC dm2s = mock(DM2PreviouslyActiveDTC.class);
-        dm2s.getDtcs();
-        globalDM2s.add(dm2s);
+        // dm2s.getDtcs();
+        // globalDM2s.add(dm2s);
+
+        DM2PreviouslyActiveDTCs packt1 = createDM2s(0, LampStatus.OFF);
+
+        List<? extends DiagnosticTroubleCodePacket> packets = new ArrayList<>();
+        when(dtcModule.requestDM2(any())).thenReturn(packets);
 
         List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
         DiagnosticTroubleCodePacket dtc1 = mock(DiagnosticTroubleCodePacket.class);
-
         dtcs.addAll(dtc1.getDtcs());
-        LampStatus milStatus = LampStatus.OFF;
 
         when(diagnosticTroubleCodePacket.getDtcs()).thenReturn(dtcs);
+
+        LampStatus milStatus = LampStatus.OFF;
         when(diagnosticTroubleCodePacket.getMalfunctionIndicatorLampStatus()).thenReturn(milStatus);
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModulesAddresses);
+        // when(dtcModule.getDM2Packets(any(), eq(true), 0).thenReturn(dtcs);
 
-        // List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
-        // when(dtcModule.requestDM2(listener)).thenReturn(globalDM2s);
+        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModulesAddresses);
 
         runTest();
 
