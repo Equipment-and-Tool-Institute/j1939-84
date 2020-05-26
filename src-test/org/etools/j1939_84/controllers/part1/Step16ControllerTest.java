@@ -120,8 +120,9 @@ public class Step16ControllerTest extends AbstractControllerTest {
         globalDM2s.add(dm2s);
 
         List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
-        DiagnosticTroubleCode dtc1 = mock(DiagnosticTroubleCode.class);
-        dtcs.add(dtc1);
+        DiagnosticTroubleCodePacket dtc1 = mock(DiagnosticTroubleCodePacket.class);
+
+        dtcs.addAll(dtc1.getDtcs());
         LampStatus milStatus = LampStatus.OFF;
 
         when(diagnosticTroubleCodePacket.getDtcs()).thenReturn(dtcs);
@@ -130,15 +131,14 @@ public class Step16ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModulesAddresses);
 
         // List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
-        //
         // when(dtcModule.requestDM2(listener)).thenReturn(globalDM2s);
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(diagnosticTroubleCodePacket).getDtcs();
+        verify(diagnosticTroubleCodePacket).getMalfunctionIndicatorLampStatus();
 
-        // verify(diagnosticTroubleCodePacket).getDtcs();
-        // verify(diagnosticTroubleCodePacket).getMalfunctionIndicatorLampStatus();
+        verify(dataRepository).getObdModuleAddresses();
 
         verify(dtcModule).setJ1939(j1939);
 

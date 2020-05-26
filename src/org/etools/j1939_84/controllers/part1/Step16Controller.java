@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -104,6 +103,8 @@ public class Step16Controller extends Controller {
         // source.stream()
         // .map(String::length)
         // .forEachOrdered(target::add);
+
+        // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC
         List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
 
         globalDiagnosticTroubleCodePackets.forEach(packet -> {
@@ -112,7 +113,7 @@ public class Step16Controller extends Controller {
             }
         });
         System.out.println("dtcs.size() is: " + dtcs.size());
-        // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC
+
         if (dtcs.isEmpty()) {
         } else {
             getListener().addOutcome(1,
@@ -133,29 +134,38 @@ public class Step16Controller extends Controller {
         });
 
         // 6.1.16.2.c Fail if any non-OBD ECU does not report MIL off or not supported
+        globalDM2s.stream().filter(p -> !dataRepository.getObdModuleAddresses().contains(p.getSourceAddress()))
+                .forEach(packet -> {
+                    if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF) {
+                        getListener().addOutcome(1,
+                                16,
+                                Outcome.FAIL,
+                                "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported.");
+                    } else if (packet.getMalfunctionIndicatorLampStatus() != null) {
+                        getListener().addOutcome(1,
+                                16,
+                                Outcome.FAIL,
+                                "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported.");
+                    }
+                });
 
-        // FIXME Need to check to see if these Addresses report a off or not supported
-        // MIL. Remove .count() in stream
-        long nonObdResponses = globalDM2s.stream()
-                .filter(p -> !dataRepository.getObdModuleAddresses().contains(p.getSourceAddress())).count();
-        if (nonObdResponses > 0) {
-            getListener().addOutcome(1,
-                    16,
-                    Outcome.FAIL,
-                    "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported.");
-        }
-        
         // 6.1.16.3.a DS DM2 to each OBD ECU
         List<ParsedPacket> dsDM2s = new ArrayList<>();
-        dataRepository.getObdModuleAddresses().stream().forEach(address -> {dsDM2s.addAll(dtcModule.getDM2Packets(getListener(), true, address));});
+        dataRepository.getObdModuleAddresses().stream().forEach(address -> {
+            dsDM2s.addAll(dtcModule.getDM2Packets(getListener(), true, address));
+        });
 
         // 6.1.16.4.a Fail if any responses differ from global responses
-         if (dsDM2s != globalDM2s) {
-             getListener().addOutcome(1,
-                         16,
-                         Outcome.FAIL,
-                         "6.1.16.4.a - The DS DM2 responses differ from the global responses.");
-         }
+        long dsDM2response = dsDM2s.stream().count();
+        for (int i = 0; i < dsDM2response; i++) {
+            if (dsDM2s.get(i).getPacket().equals(globalDM2s)) {
+            } else {
+                getListener().addOutcome(1,
+                        16,
+                        Outcome.FAIL,
+                        "6.1.16.4.a DS DM2 responses differ from global responses");
+            }
+        }
 
         // 6.1.16.4.b Fail if NACK not received from OBD ECUs that did not respond to
         // global query
@@ -164,9 +174,7 @@ public class Step16Controller extends Controller {
         obdAddresses.removeAll(globalAddresses);
 
         for (int address : obdAddresses) {
-            // TODO report.CalibrationInformation is not the right method. Setup to use
-            // dsDM2s above
-            List<ParsedPacket> packets = getVehicleInformationModule().reportCalibrationInformation(getListener(),
+            getVehicleInformationModule().reportCalibrationInformation(getListener(),
                     address);
             long nackCount = dsDM2s.stream()
                     .filter(p -> p instanceof AcknowledgmentPacket)
