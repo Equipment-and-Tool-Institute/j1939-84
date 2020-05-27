@@ -20,6 +20,8 @@ import javax.lang.model.element.ElementKind;
 import javax.lang.model.element.TypeElement;
 import javax.tools.StandardLocation;
 
+import org.junit.Test;
+
 public class TestDocProcessor extends AbstractProcessor {
     private static <T> T[] concat(T[] a, T[] b) {
         T[] result = Arrays.copyOf(a, a.length + b.length);
@@ -74,28 +76,50 @@ public class TestDocProcessor extends AbstractProcessor {
         List<ItemDescriptor> list = elements.stream()
                 .flatMap(e -> {
                     TestDoc testDoc = e.getAnnotation(TestDoc.class);
+                    // TestDoc may not be on every org.junit.Test
+                    String tdDescription = testDoc == null ? "" : testDoc.description();
+                    TestItem[] tdItems = testDoc == null ? new TestItem[0] : testDoc.items();
+                    String[] tdDependOn = testDoc == null ? new String[0] : testDoc.dependsOn();
+
                     String name;
                     String[] dependsOn;
+                    Stream<ItemDescriptor> thisRecord;
                     if (e.getKind() == ElementKind.METHOD) {
-                        String className = e.getEnclosingElement().getSimpleName().toString();
+                        Element cls = e.getEnclosingElement();
+                        String className = cls.getSimpleName().toString();
                         name = className + "." + e.getSimpleName().toString();
-                        dependsOn = Stream.concat(Stream.of(testDoc.dependsOn()),
+                        dependsOn = Stream.concat(Stream.of(tdDependOn),
                                 Stream.of(classDeps.getOrDefault(className, new String[0])))
                                 .toArray(x -> new String[x]);
+
+                        // add record for class (will be redundant, but removed
+                        // in a later distinct
+                        TestDoc clsDoc = cls.getAnnotation(TestDoc.class);
+                        ItemDescriptor clsDescriptor;
+                        if (clsDoc == null) {
+                            clsDescriptor = new ItemDescriptor("", className, "", new String[0]);
+                        } else {
+                            clsDescriptor = new ItemDescriptor("", className, clsDoc.description(), clsDoc.dependsOn());
+                        }
+                        thisRecord = Stream.of(clsDescriptor,
+                                new ItemDescriptor("", name, tdDescription, tdDependOn));
                     } else {
-                        dependsOn = testDoc.dependsOn();
+                        // must be a class
+                        dependsOn = tdDependOn;
                         name = e.getSimpleName().toString();
                         classDeps.put(name, dependsOn);
+                        thisRecord = Stream.of(new ItemDescriptor("", name, tdDescription, dependsOn));
                     }
                     return Stream.concat(
-                            Stream.of(new ItemDescriptor("", name, testDoc.description(), dependsOn)),
-                            Stream.of(testDoc.items())
+                            thisRecord,
+                            Stream.of(tdItems)
                                     .map(v -> new ItemDescriptor(v.value(),
                                             name,
-                                            v.description().isEmpty() ? testDoc.description() : v.description(),
+                                            v.description().isEmpty() ? tdDescription : v.description(),
                                             concat(dependsOn, v.dependsOn()))));
                 })
                 .sorted()
+                .distinct()
                 .collect(Collectors.toList());
 
         try (
@@ -103,7 +127,7 @@ public class TestDocProcessor extends AbstractProcessor {
                 Writer out = processingEnv.getFiler()
                         .createResource(StandardLocation.SOURCE_OUTPUT,
                                 "",
-                                "testMap.html")
+                                "testdoc.html")
                         .openWriter()) {
             // index by requirement
             out.write("<html>\n");
@@ -150,10 +174,8 @@ public class TestDocProcessor extends AbstractProcessor {
 
     @Override
     public boolean process(Set<? extends TypeElement> annotations, RoundEnvironment roundEnv) {
-
-        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(TestDoc.class);
+        Set<? extends Element> elements = roundEnv.getElementsAnnotatedWith(Test.class);
         if (!elements.isEmpty()) {
-            // generateTestDoc(elements);
             generateMapDoc(elements);
             return true;
         }

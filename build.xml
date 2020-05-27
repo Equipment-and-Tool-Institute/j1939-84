@@ -260,9 +260,14 @@
 
 	<target name="testdoc regenerate" description="Regenerate the dist/testdoc.html" depends="clean,compile.tests">
 	</target>
-	
+
 	<target name="testdoc.jar" depends="init">
 		<javac srcdir="${src-test}" destdir="${build}" includeantruntime="false" debug="true" target="11" classpath="${src-test}" includes="**/TestDoc*.java,**/TestItem*.java">
+			<classpath>
+				<fileset dir="${lib-test}">
+					<include name="junit-4.12.jar" />
+				</fileset>
+			</classpath>
 		</javac>
 
 		<jar file="lib-test/testdoc.jar">

@@ -142,14 +142,14 @@ public class Step01ControllerTest {
             @TestItem(value = "6.1.1.1.e.i", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.ii", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.ii.1",
-                    dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
+                      dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.iv", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.v", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.vi",
-                    dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }) },
-            description = "Verify vehicle data collection and that the correct instructions to the user are transmistted to the UI presenter.")
+                      dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }) },
+             description = "Verify vehicle data collection and that the correct instructions to the user are transmistted to the UI presenter.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     public void testRun() {
 
         String expectedTitle = "Start Part 1";
@@ -212,14 +212,14 @@ public class Step01ControllerTest {
             @TestItem(value = "6.1.1.1.e.i", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.ii", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.ii.1",
-                    dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
+                      dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.iv", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.v", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.vi",
-                    dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }) },
-            description = "Verify vehicle data collection is empty when the engine is not running and no data is collected.")
+                      dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }) },
+             description = "Verify vehicle data collection is empty when the engine is not running and no data is collected.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     public void testRunVehicleInfoNull() {
 
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
@@ -282,14 +282,14 @@ public class Step01ControllerTest {
             @TestItem(value = "6.1.1.1.e.i", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.ii", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.ii.1",
-                    dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
+                      dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.iv", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.v", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(value = "6.1.1.1.e.vi",
-                    dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }) },
-            description = "After the key was detected off, notify user to 'Please turn the Engine OFF with Key ON.', then continue with data collection.")
+                      dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }) },
+             description = "After the key was detected off, notify user to 'Please turn the Engine OFF with Key ON.', then continue with data collection.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     public void testWaitForKey() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
 

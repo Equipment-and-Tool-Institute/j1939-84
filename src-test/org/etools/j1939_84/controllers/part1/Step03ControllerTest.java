@@ -127,15 +127,17 @@ public class Step03ControllerTest {
 
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     /**
      * Includes addWarning() verification for distinctCount > 1
      */
     @TestDoc(items = {
             @TestItem("6.1.3.2.b"),
             @TestItem("6.1.3.3.a") },
-            description = "Verify messages both for request for DM5 was NACK'ed and for a value for OBD Compliance that was not identical to other ECUs.",
-            dependsOn = { "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
+             description = "Verify there are fail messages for: <ul><li>Not all responses are identical.</li>" +
+                     "<li>The request for DM5 was NACK'ed</li></ul>",
+             dependsOn = {
+                     "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
     public void testBadECUValue() {
         List<ParsedPacket> packets = new ArrayList<>();
         when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true))).thenReturn(packets);
@@ -225,17 +227,17 @@ public class Step03ControllerTest {
     }
 
     @Test
-    @TestDoc(items = @TestItem(value = "6.1.", description = "Verifies that there is a single 6.1.3 step."))
+    @TestDoc(items = @TestItem(value = "6.1.3", description = "Verifies that there is a single 6.1.3 step."))
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 1, instance.getTotalSteps());
     }
 
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     @TestDoc(items = @TestItem(value = "6.1.3.2.b",
-            description = "Verify fail message for the request for DM5 was NACK'ed",
-            dependsOn = { "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" }))
+                               description = "Verify fail message for the request for DM5 was NACK'ed",
+                               dependsOn = { "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" }))
     public void testJustNack() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
@@ -289,13 +291,14 @@ public class Step03ControllerTest {
 
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     @TestDoc(items = {
             @TestItem("6.1.3.2.a"),
             @TestItem("6.1.3.2.b") },
-            description = "Verify there are fail messages for: <ul><li>There needs to be at least one OBD Module</li>"
-                    + "<li>The request for DM5 was NACK'ed</li></ul>",
-            dependsOn = { "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
+             description = "Verify there are fail messages for: <ul><li>There needs to be at least one OBD Module</li>"
+                     + "<li>The request for DM5 was NACK'ed</li></ul>",
+             dependsOn = { "DM5DiagnosticReadinessPacketTest",
+                     "DiagnosticReadinessPacketTest" })
     public void testModulesEmpty() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
@@ -351,10 +354,9 @@ public class Step03ControllerTest {
 
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
-    @TestDoc(items = @TestItem(value = "6.1.3",
-            description = "Verify no messages for the success.",
-            dependsOn = { "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" }))
+                        justification = "The method is called just to get some exception.")
+    @TestDoc(items = @TestItem(value = "6.1.3.1", description = "Verify no messages for the success.", dependsOn = {
+            "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" }))
     public void testSuccessRun() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
