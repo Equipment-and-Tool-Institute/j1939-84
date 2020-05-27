@@ -25,6 +25,7 @@ import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.PartResultFactory;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -128,10 +129,10 @@ public class Step16ControllerTest extends AbstractControllerTest {
         // dm2s.getDtcs();
         // globalDM2s.add(dm2s);
 
-        DM2PreviouslyActiveDTCs packt1 = createDM2s(0, LampStatus.OFF);
+        // DM2PreviouslyActiveDTCs packt1 = createDM2s(0, LampStatus.OFF);
 
         List<? extends DiagnosticTroubleCodePacket> packets = new ArrayList<>();
-        when(dtcModule.requestDM2(any())).thenReturn(packets);
+        when(dtcModule.requestDM2(any(), any())).thenReturn(new RequestResult(false, packets));
 
         List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
         DiagnosticTroubleCodePacket dtc1 = mock(DiagnosticTroubleCodePacket.class);
