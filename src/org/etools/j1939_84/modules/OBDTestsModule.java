@@ -20,6 +20,7 @@ import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult.TestResult;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -137,6 +138,68 @@ public class OBDTestsModule extends FunctionalModule {
         List<DM24SPNSupportPacket> requestedPackets = requestSupportedSpnPackets(listener, obdModules).getPackets();
 
         reportObdTests(listener, requestedPackets);
+    }
+
+    private void reportResults(ResultsListener listener, List<DM24SPNSupportPacket> requestedPackets) {
+        Map<Integer, List<ScaledTestResult>> allTestResults = new HashMap<>();
+        for (DM24SPNSupportPacket packet : requestedPackets) {
+            int destination = packet.getSourceAddress();
+            String moduleName = Lookup.getAddressName(destination);
+            // Find tests that support scaled results, remove duplicates and use
+            // a predictable order for testing.
+            List<Integer> spns = packet.getSupportedSpns().stream().filter(t -> t.supportsScaledTestResults())
+                    .map(s -> s.getSpn()).sorted().distinct().collect(Collectors.toList());
+            if (spns.isEmpty()) {
+                listener.onResult(moduleName + " does not have any tests that support scaled tests results");
+                listener.onResult("");
+            } else {
+                listener.onResult("No Scaled Tests Results from " + moduleName);
+            }
+        }
+
+        boolean hasTests = false;
+        List<String> incompleteTests = new ArrayList<>();
+        for (Entry<Integer, List<ScaledTestResult>> entry : allTestResults.entrySet()) {
+            int key = entry.getKey();
+            String module = Lookup.getAddressName(key);
+            List<ScaledTestResult> results = entry.getValue();
+            hasTests |= !results.isEmpty();
+            // Find the tests that are incomplete and add them as string to the
+            // list of incomplete tests
+            incompleteTests.addAll(results.stream().filter(t -> t.getTestResult() == TestResult.NOT_COMPLETE)
+                    .map(t -> "  " + module + ": " + t.toString()).collect(Collectors.toList()));
+        }
+        Collections.sort(incompleteTests);
+
+        if (!hasTests) {
+            listener.onResult("ERROR No tests results returned");
+        } else if (incompleteTests.isEmpty()) {
+            listener.onResult("All Tests Complete");
+        } else {
+            listener.onResult("Incomplete Tests: [");
+            listener.onResult(incompleteTests);
+            listener.onResult("]");
+            listener.onResult(incompleteTests.size() + " Incomplete Test" + (incompleteTests.size() == 1 ? "" : "s"));
+        }
+    }
+
+    /**
+     * Sends a global request to the vehicle for {@link DM24SPNSupportPacket}s
+     *
+     * @param listener the {@link ResultsListener}
+     * @return {@link List} of {@link DM24SPNSupportPacket}s
+     */
+    public RequestResult<ParsedPacket> requestDM24Packets(ResultsListener listener) {
+        return getPackets("Global DM24 Request", DM24SPNSupportPacket.PGN, DM24SPNSupportPacket.class, listener, true);
+    }
+
+    public RequestResult<ParsedPacket> requestDM24Packets(ResultsListener listener, int address) {
+        return getPackets("Destination Specific DM24 Request",
+                DM24SPNSupportPacket.PGN,
+                DM24SPNSupportPacket.class,
+                listener,
+                true,
+                address);
     }
 
     public RequestResult<DM24SPNSupportPacket> requestObdTests(ResultsListener listener,

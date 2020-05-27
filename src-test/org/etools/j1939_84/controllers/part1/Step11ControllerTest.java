@@ -26,6 +26,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
@@ -173,17 +174,21 @@ public class Step11ControllerTest extends AbstractControllerTest {
         List<ParsedPacket> emptyPackets = new ArrayList<>();
         // return packets when Global DM21 request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true))).thenReturn(emptyPackets);
+        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+                .thenReturn(new RequestResult<>(false, emptyPackets));
         // return the set of OBD module addresses when requested
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0))).thenReturn(listOf(packet4));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+                .thenReturn(new RequestResult<>(false, listOf(packet4)));
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17))).thenReturn(listOf(packet5));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+                .thenReturn(new RequestResult<>(false, listOf(packet5)));
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21))).thenReturn(listOf(packet3));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+                .thenReturn(new RequestResult<>(false, listOf(packet3)));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -258,22 +263,26 @@ public class Step11ControllerTest extends AbstractControllerTest {
         List<ParsedPacket> globalPackets = new ArrayList<>();
         // return packets when Global DM21 request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true))).thenReturn(globalPackets);
+        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+                .thenReturn(new RequestResult<>(false, globalPackets));
         // return the set of OBD module addresses when requested
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0))).thenReturn(listOf(packet4));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+                .thenReturn(new RequestResult<>(false, listOf(packet4)));
         globalPackets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17))).thenReturn(listOf(packet5));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+                .thenReturn(new RequestResult<>(false, listOf(packet5)));
         globalPackets.add(packet5);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         globalPackets.add(packet2);
 
         DM21DiagnosticReadinessPacket packet3 = createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21))).thenReturn(listOf(packet3));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+                .thenReturn(new RequestResult<>(false, listOf(packet3)));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -316,29 +325,34 @@ public class Step11ControllerTest extends AbstractControllerTest {
         };
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
-        List<ParsedPacket> globalPackets = new ArrayList<>();
+        List<DM21DiagnosticReadinessPacket> globalPackets = new ArrayList<>();
         // return packets when Global DM21 request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true))).thenReturn(globalPackets);
+        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+                .thenReturn(new RequestResult(false, globalPackets));
         // return the set of OBD module addresses when requested
         DM21DiagnosticReadinessPacket packet1 = createDM21Packet(9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         globalPackets.add(packet1);
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0))).thenReturn(listOf(packet4));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+                .thenReturn(new RequestResult<>(false, listOf(packet4)));
         globalPackets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17))).thenReturn(listOf(packet5));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+                .thenReturn(new RequestResult<>(false, listOf(packet5)));
         globalPackets.add(packet5);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(9))).thenReturn(listOf(packet2));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(9)))
+                .thenReturn(new RequestResult<>(false, listOf(packet2)));
         when(packet2.getResponse()).thenReturn(Response.NACK);
         when(packet2.getSourceAddress()).thenReturn(9);
 
         DM21DiagnosticReadinessPacket packet3 = createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21))).thenReturn(listOf(packet3));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+                .thenReturn(new RequestResult<>(false, listOf(packet3)));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -385,26 +399,31 @@ public class Step11ControllerTest extends AbstractControllerTest {
         List<ParsedPacket> globalPackets = new ArrayList<>();
         // return packets when Global DM21 request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true))).thenReturn(globalPackets);
+        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+                .thenReturn(new RequestResult<>(false, globalPackets));
         // return the set of OBD module addresses when requested
         DM21DiagnosticReadinessPacket packet1 = createDM21Packet(9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         globalPackets.add(packet1);
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0))).thenReturn(listOf(packet4));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+                .thenReturn(new RequestResult<>(false, listOf(packet4)));
         globalPackets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17))).thenReturn(listOf(packet5));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+                .thenReturn(new RequestResult<>(false, listOf(packet5)));
         globalPackets.add(packet5);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(9))).thenReturn(listOf(packet2));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(9)))
+                .thenReturn(new RequestResult<>(false, listOf(packet2)));
         when(packet2.getResponse()).thenReturn(Response.NACK);
         when(packet2.getSourceAddress()).thenReturn(16);
 
         DM21DiagnosticReadinessPacket packet3 = createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21))).thenReturn(listOf(packet3));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+                .thenReturn(new RequestResult<>(false, listOf(packet3)));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -465,19 +484,23 @@ public class Step11ControllerTest extends AbstractControllerTest {
         List<ParsedPacket> packets = new ArrayList<>();
         // return packets when Global DM21 request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true))).thenReturn(packets);
+        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+                .thenReturn(new RequestResult<>(false, packets));
         // return the set of OBD module addresses when requested
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0))).thenReturn(listOf(packet4));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+                .thenReturn(new RequestResult<>(false, listOf(packet4)));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17))).thenReturn(listOf(packet5));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+                .thenReturn(new RequestResult<>(false, listOf(packet5)));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21))).thenReturn(listOf(packet3));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+                .thenReturn(new RequestResult<>(false, listOf(packet3)));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -509,23 +532,29 @@ public class Step11ControllerTest extends AbstractControllerTest {
             }
         };
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
-
         List<ParsedPacket> packets = new ArrayList<>();
+
         // return packets when Global DM21 request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true))).thenReturn(packets);
+
+        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+                .thenReturn(new RequestResult<>(false, packets));
         // return the set of OBD module addresses when requested
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0))).thenReturn(listOf(packet4));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+                .thenReturn(new RequestResult<>(false, listOf(packet4)));
+
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17))).thenReturn(listOf(packet5));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+                .thenReturn(new RequestResult<>(false, listOf(packet5)));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21))).thenReturn(listOf(packet3));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+                .thenReturn(new RequestResult<>(false, listOf(packet3)));
 
         runTest();
 
@@ -582,19 +611,23 @@ public class Step11ControllerTest extends AbstractControllerTest {
         List<ParsedPacket> packets = new ArrayList<>();
         // return packets when Global DM21 request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true))).thenReturn(packets);
+        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+                .thenReturn(new RequestResult<>(false, packets));
         // return the set of OBD module addresses when requested
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0))).thenReturn(listOf(packet4));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+                .thenReturn(new RequestResult<>(false, listOf(packet4)));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17))).thenReturn(listOf(packet5));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+                .thenReturn(new RequestResult<>(false, listOf(packet5)));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21))).thenReturn(listOf(packet3));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+                .thenReturn(new RequestResult<>(false, listOf(packet3)));
 
         runTest();
 
@@ -645,24 +678,28 @@ public class Step11ControllerTest extends AbstractControllerTest {
                 add(21);
             }
         };
+        // return the set of OBD module addresses when requested
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<ParsedPacket> packets = new ArrayList<>();
         // return packets when Global DM21 request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true))).thenReturn(packets);
-        // return the set of OBD module addresses when requested
+        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+                .thenReturn(new RequestResult<>(false, packets));
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0))).thenReturn(listOf(packet4));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+                .thenReturn(new RequestResult<>(false, listOf(packet4)));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 15.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17))).thenReturn(listOf(packet5));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+                .thenReturn(new RequestResult<>(false, listOf(packet5)));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21))).thenReturn(listOf(packet3));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+                .thenReturn(new RequestResult<>(false, listOf(packet3)));
 
         runTest();
 
@@ -719,19 +756,22 @@ public class Step11ControllerTest extends AbstractControllerTest {
         List<ParsedPacket> packets = new ArrayList<>();
         // return packets when Global DM21 request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true))).thenReturn(packets);
-        // return the set of OBD module addresses when requested
+        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+                .thenReturn(new RequestResult<>(false, packets));
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0))).thenReturn(listOf(packet4));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+                .thenReturn(new RequestResult<>(false, listOf(packet4)));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 10.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17))).thenReturn(listOf(packet5));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+                .thenReturn(new RequestResult<>(false, listOf(packet5)));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21))).thenReturn(listOf(packet3));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+                .thenReturn(new RequestResult<>(false, listOf(packet3)));
 
         runTest();
 
@@ -788,18 +828,22 @@ public class Step11ControllerTest extends AbstractControllerTest {
         List<ParsedPacket> packets = new ArrayList<>();
         // return packets when Global DM21 request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true))).thenReturn(packets);
+        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+                .thenReturn(new RequestResult<>(false, packets));
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0))).thenReturn(listOf(packet4));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+                .thenReturn(new RequestResult<>(false, listOf(packet4)));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 20.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17))).thenReturn(listOf(packet5));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+                .thenReturn(new RequestResult<>(false, listOf(packet5)));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21))).thenReturn(listOf(packet3));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+                .thenReturn(new RequestResult<>(false, listOf(packet3)));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -856,15 +900,23 @@ public class Step11ControllerTest extends AbstractControllerTest {
         List<ParsedPacket> packets = new ArrayList<>();
         // return packets when Global DM21 request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true))).thenReturn(packets);
+        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+                .thenReturn(new RequestResult<>(false, packets));
         // return the set of OBD module addresses when requested
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 25.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0))).thenReturn(listOf(packet4));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+                .thenReturn(new RequestResult<>(false, listOf(packet4)));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17))).thenReturn(listOf(packet5));
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+                .thenReturn(new RequestResult<>(false, listOf(packet5)));
+        packets.add(packet5);
+
+        createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+                .thenReturn(new RequestResult<>(false, listOf(packet5)));
         packets.add(packet5);
 
         runTest();
