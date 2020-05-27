@@ -14,12 +14,12 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -92,9 +92,8 @@ public class Step16Controller extends Controller {
 
         dtcModule.setJ1939(getJ1939());
         // 6.1.16.1.a. Global DM2 (send Request (PGN 59904) for PGN 65227
-        List<? extends DiagnosticTroubleCodePacket> globalDiagnosticTroubleCodePackets = dtcModule
-                .requestDM2(getListener());
-        List<DM2PreviouslyActiveDTC> globalDM2s = dtcModule.requestDM2(getListener()).stream()
+        RequestResult<ParsedPacket> globalDiagnosticTroubleCodePackets = dtcModule.requestDM2(getListener(), true);
+        List<DM2PreviouslyActiveDTC> globalDM2s = globalDiagnosticTroubleCodePackets.getPackets().stream()
                 .filter(p -> p instanceof DM2PreviouslyActiveDTC).map(p -> (DM2PreviouslyActiveDTC) p)
                 .collect(Collectors.toList());
         // FIXME Not sure if this is the right statement. I'm not sure if it's
@@ -107,7 +106,7 @@ public class Step16Controller extends Controller {
         // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC
         List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
 
-        globalDiagnosticTroubleCodePackets.forEach(packet -> {
+        globalDM2s.forEach(packet -> {
             if (packet.getDtcs() != null) {
                 dtcs.addAll(packet.getDtcs());
             }
