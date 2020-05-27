@@ -390,7 +390,6 @@ public class DTCModuleTest {
 
         AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
                 Packet.create(0xE800, 0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
-
         when(j1939.requestRaw(DM11ClearActiveDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
                 .thenReturn(Stream.of(packet1));
 

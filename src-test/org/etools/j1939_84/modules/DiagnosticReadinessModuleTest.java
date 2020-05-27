@@ -124,33 +124,6 @@ public class DiagnosticReadinessModuleTest {
     }
 
     @Test
-    public void testGetDM20PacketsNoEngineResponse() {
-        final int pgn = DM20MonitorPerformanceRatioPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-
-        DM20MonitorPerformanceRatioPacket packet1 = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
-        DM20MonitorPerformanceRatioPacket packet2 = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2)).thenReturn(Stream.of(packet1, packet2))
-                .thenReturn(Stream.of(packet1, packet2));
-
-        String expected = "";
-        expected += "10:15:30.000 Global DM20 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 C2 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-        instance.getDM20Packets(listener, false);
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(3))
-                .requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
-    }
-
-    @Test
     public void testGetDM20PacketsNoResponse() {
         final int pgn = DM20MonitorPerformanceRatioPacket.PGN;
 
@@ -394,34 +367,6 @@ public class DiagnosticReadinessModuleTest {
     }
 
     @Test
-    public void testGetDM26PacketsNoEngineResponse() {
-        final int pgn = DM26TripDiagnosticReadinessPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-
-        DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
-        DM26TripDiagnosticReadinessPacket packet2 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2)).thenReturn(Stream.of(packet1, packet2))
-                .thenReturn(Stream.of(packet1, packet2));
-
-        String expected = "";
-        expected += "10:15:30.000 Global DM26 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 B8 FD 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        instance.getDM26Packets(listener, false);
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(3))
-                .requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
-    }
-
-    @Test
     public void testGetDM26PacketsNoResponse() {
         final int pgn = DM26TripDiagnosticReadinessPacket.PGN;
 
@@ -596,34 +541,6 @@ public class DiagnosticReadinessModuleTest {
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939).requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
-    }
-
-    @Test
-    public void testGetDM5PacketsNoEngineResponse() {
-        final int pgn = DM5DiagnosticReadinessPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-
-        DM5DiagnosticReadinessPacket packet1 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
-        DM5DiagnosticReadinessPacket packet2 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2)).thenReturn(Stream.of(packet1, packet2))
-                .thenReturn(Stream.of(packet1, packet2));
-
-        String expected = "";
-        expected += "10:15:30.000 Global DM5 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 CE FE 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        instance.getDM5Packets(listener, false);
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(3))
-                .requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
     }
 
     @Test
@@ -1479,34 +1396,6 @@ public class DiagnosticReadinessModuleTest {
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939).requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
-    }
-
-    @Test
-    public void testRequestDM21PacketsNoEngineResponse() {
-        final int pgn = DM21DiagnosticReadinessPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-
-        DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
-        DM21DiagnosticReadinessPacket packet2 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2)).thenReturn(Stream.of(packet1, packet2))
-                .thenReturn(Stream.of(packet1, packet2));
-
-        String expected = "";
-        expected += "10:15:30.000 Global DM21 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 C1 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        instance.requestDM21Packets(listener, false);
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(3))
-                .requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
     }
 
     @Test

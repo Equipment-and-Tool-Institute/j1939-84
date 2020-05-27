@@ -149,6 +149,7 @@ public class OBDModuleInformationTest {
         String expectedObd = "OBD Module Information:\n";
         expectedObd += "sourceAddress is : " + 0 + "\n";
         expectedObd += "obdCompliance is : " + 4 + "\n";
+        expectedObd += "function is : " + 0 + "\n";
         expectedObd += "Supported SPNs: \n";
         expectedObd += "SPN 513 - Actual Engine - Percent Torque,SPN 0 - Unknown,SPN 524030 - Manufacturer Assignable SPN 524030";
         assertEquals(expectedObd, instance.toString());

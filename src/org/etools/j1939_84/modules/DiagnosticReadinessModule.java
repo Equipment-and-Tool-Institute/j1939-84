@@ -11,11 +11,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.NumberFormatter;
-import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
@@ -28,6 +26,7 @@ import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.model.RequestResult;
 
 /**
  * {@link FunctionalModule} that requests DM5, DM20, DM21, and DM26 messages
@@ -230,15 +229,14 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      *                   false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM20MonitorPerformanceRatioPacket}s
      */
-    public List<DM20MonitorPerformanceRatioPacket> getDM20Packets(ResultsListener listener, boolean fullString) {
-        List<ParsedPacket> parsedPackets = getPackets("Global DM20 Request",
+    public List<DM20MonitorPerformanceRatioPacket> getDM20Packets(ResultsListener listener,
+            boolean fullString) {
+        List<ParsedPacket> packets = getPackets("Global DM20 Request",
                 DM20MonitorPerformanceRatioPacket.PGN,
                 DM20MonitorPerformanceRatioPacket.class,
                 listener,
-                fullString,
-                obdModuleAddresses);
-
-        return filterPackets(parsedPackets, DM20MonitorPerformanceRatioPacket.class);
+                fullString).getPackets();
+        return filterPackets(packets, DM20MonitorPerformanceRatioPacket.class);
     }
 
     /**
@@ -254,7 +252,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      *                         will be sent
      * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
      */
-    public List<ParsedPacket> getDM21Packets(ResultsListener listener,
+    public RequestResult getDM21Packets(ResultsListener listener,
             boolean fullString,
             int obdModuleAddress) {
 
@@ -278,15 +276,17 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      *                   false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM26TripDiagnosticReadinessPacket}s
      */
-    public List<DM26TripDiagnosticReadinessPacket> getDM26Packets(ResultsListener listener, boolean fullString) {
-        List<ParsedPacket> parsedPackets = getPackets("Global DM26 Request",
+    public List<DM26TripDiagnosticReadinessPacket> getDM26Packets(ResultsListener listener,
+            boolean fullString) {
+
+        List<ParsedPacket> packets = getPackets("Global DM26 Request",
                 DM26TripDiagnosticReadinessPacket.PGN,
                 DM26TripDiagnosticReadinessPacket.class,
                 listener,
-                fullString,
-                obdModuleAddresses);
+                fullString).getPackets();
 
-        return filterPackets(parsedPackets, DM26TripDiagnosticReadinessPacket.class);
+        return filterPackets(packets, DM26TripDiagnosticReadinessPacket.class);
+
     }
 
     /**
@@ -302,13 +302,14 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return the {@link List} of {@link DM5DiagnosticReadinessPacket}s
      */
     public List<DM5DiagnosticReadinessPacket> getDM5Packets(ResultsListener listener, boolean fullString) {
-        List<ParsedPacket> parsedPackets = getPackets("Global DM5 Request",
+
+        List<ParsedPacket> packets = getPackets("Global DM5 Request",
                 DM5DiagnosticReadinessPacket.PGN,
                 DM5DiagnosticReadinessPacket.class,
                 listener,
-                fullString,
-                obdModuleAddresses);
-        return filterPackets(parsedPackets, DM5DiagnosticReadinessPacket.class);
+                fullString).getPackets();
+
+        return filterPackets(packets, DM5DiagnosticReadinessPacket.class);
     }
 
     /**
@@ -334,74 +335,6 @@ public class DiagnosticReadinessModule extends FunctionalModule {
             }
         }
         return addresses;
-    }
-
-    /**
-     * Helper method to request packets from the vehicle
-     *
-     * @param <T>
-     *                          The class of packets that will be returned
-     * @param title
-     *                          the section title for inclusion in report
-     * @param pgn
-     *                          the PGN that's being requested
-     * @param clazz
-     *                          the {@link Class} of packet that will be returned
-     * @param listener
-     *                          the {@link ResultsListener} that will be notified of
-     *                          the
-     *                          traffic
-     * @param fullString
-     *                          true to include the full string of the results in
-     *                          the report;
-     *                          false to only include the returned raw packet in the
-     *                          report
-     * @param dmModuleAddresses
-     *                          the addresses that must respond to the request
-     * @return the List of packets returned
-     */
-    private <T extends ParsedPacket> List<ParsedPacket> getPackets(String title,
-            int pgn,
-            Class<T> clazz,
-            ResultsListener listener,
-            boolean fullString,
-            Collection<Integer> dmModuleAddresses) {
-        Packet request = getJ1939().createRequestPacket(pgn, J1939.GLOBAL_ADDR);
-        if (listener != null) {
-            listener.onResult(getTime() + " " + title);
-            listener.onResult(getTime() + " " + request.toString());
-        }
-
-        // Try three times to get packets and ensure there's one from the engine
-        List<ParsedPacket> packets = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            packets = getJ1939().requestRaw(clazz, request, 5500, TimeUnit.MILLISECONDS).collect(Collectors.toList());
-            if (packets.stream()
-                    .filter(p -> dmModuleAddresses.contains(p.getSourceAddress()))
-                    .findFirst()
-                    .isPresent()) {
-                // The engine responded, report the results
-                break;
-            } else {
-                // There was no message from the engine. Clear the results to
-                // produce a timeout message/try again
-                packets.clear();
-            }
-        }
-
-        if (listener != null) {
-            if (packets.isEmpty()) {
-                listener.onResult(TIMEOUT_MESSAGE);
-            } else {
-                for (ParsedPacket packet : packets) {
-                    listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
-                    if (fullString) {
-                        listener.onResult(packet.toString());
-                    }
-                }
-            }
-        }
-        return packets;
     }
 
     /**
@@ -470,8 +403,8 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return true if packets were received
      */
     public boolean reportDM21(ResultsListener listener) {
-        List<? extends ParsedPacket> packets = requestDM21Packets(listener, true);
-        return !packets.isEmpty();
+        RequestResult<? extends ParsedPacket> packets = requestDM21Packets(listener, true);
+        return !packets.getPackets().isEmpty();
     }
 
     /**
@@ -710,13 +643,13 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      *                   false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
      */
-    public List<ParsedPacket> requestDM21Packets(ResultsListener listener, boolean fullString) {
+    public RequestResult<ParsedPacket> requestDM21Packets(ResultsListener listener,
+            boolean fullString) {
         return getPackets("Global DM21 Request",
                 DM21DiagnosticReadinessPacket.PGN,
                 DM21DiagnosticReadinessPacket.class,
                 listener,
-                fullString,
-                obdModuleAddresses);
+                fullString);
     }
 
     /**
@@ -731,24 +664,26 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      *                   false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM5DiagnosticReadinessPacket}s
      */
-    public List<ParsedPacket> requestDM5Packets(ResultsListener listener, boolean fullString) {
+    public RequestResult<ParsedPacket> requestDM5Packets(ResultsListener listener, boolean fullString) {
         List<ParsedPacket> parsedPackets = getPackets("Global DM5 Request",
                 DM5DiagnosticReadinessPacket.PGN,
                 DM5DiagnosticReadinessPacket.class,
                 listener,
-                fullString,
-                obdModuleAddresses);
-
-        List<DM5DiagnosticReadinessPacket> dm5Packets = filterPackets(parsedPackets,
-                DM5DiagnosticReadinessPacket.class);
+                fullString).getPackets().stream()
+                        .filter(packet -> packet instanceof DM5DiagnosticReadinessPacket)
+                        .map(p -> (DM5DiagnosticReadinessPacket) p)
+                        .collect(Collectors.toList());
 
         if (!parsedPackets.isEmpty()) {
             listener.onResult("");
             listener.onResult("Vehicle Composite of DM5:");
-            List<CompositeMonitoredSystem> systems = getCompositeSystems(dm5Packets, true);
+            List<CompositeMonitoredSystem> systems = getCompositeSystems(parsedPackets.stream()
+                    .filter(packet -> packet instanceof DM5DiagnosticReadinessPacket)
+                    .map(p -> (DM5DiagnosticReadinessPacket) p).collect(Collectors.toList()),
+                    true);
             listener.onResult(systems.stream().map(t -> t.toString()).collect(Collectors.toList()));
         }
-        return parsedPackets;
+        return new RequestResult(false, parsedPackets);
     }
 
     private String rowForDM20(int sourceLength,

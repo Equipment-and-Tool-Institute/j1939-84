@@ -46,9 +46,9 @@ public abstract class AbstractControllerTest {
         if (function != null) {
             when(module.getFunction()).thenReturn(function);
         }
-        if (obdCompliance != null) {
-            when(module.getObdCompliance()).thenReturn(obdCompliance);
-        }
+        // if (obdCompliance != null) {
+        // when(module.getObdCompliance()).thenReturn(obdCompliance);
+        // }
         if (calibrationInfoList != null) {
             when(module.getCalibrationInformation()).thenReturn(calibrationInfoList);
         }
