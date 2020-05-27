@@ -1,5 +1,6 @@
 package org.etools.testdoc;
 
+import java.io.InputStreamReader;
 import java.io.Writer;
 import java.util.Arrays;
 import java.util.Collections;
@@ -131,7 +132,9 @@ public class TestDocProcessor extends AbstractProcessor {
                         .openWriter()) {
             // index by requirement
             out.write("<html>\n");
-            out.write("<link rel=\"stylesheet\" href=\"testdoc.css\">\n");
+            // out.write("<link rel=\"stylesheet\" href=\"testdoc.css\">\n");
+            // embed style for a single file solution
+            new InputStreamReader(TestDocProcessor.class.getResourceAsStream("style.html")).transferTo(out);
             out.write("<h1>Test Plan</h1>\n");
             out.write("Generated: " + new Date() + "\n");
             out.write("<table class=\"testdoctable\">\n");
