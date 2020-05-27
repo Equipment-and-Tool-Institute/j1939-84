@@ -55,7 +55,7 @@ public class Step03Controller extends Controller {
     protected void run() throws Throwable {
         diagnosticReadinessModule.setJ1939(getJ1939());
 
-        List<ParsedPacket> packets = diagnosticReadinessModule.requestDM5Packets(getListener(), true);
+        List<ParsedPacket> packets = diagnosticReadinessModule.requestDM5Packets(getListener(), true).getPackets();
 
         boolean nacked = packets.stream().anyMatch(packet -> packet instanceof AcknowledgmentPacket
                 && ((AcknowledgmentPacket) packet).getResponse() == Response.NACK);

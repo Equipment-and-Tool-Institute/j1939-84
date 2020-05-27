@@ -16,6 +16,7 @@ import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.model.RequestResult;
 
 /**
  * Super class for all Functional Modules
@@ -115,7 +116,74 @@ public abstract class FunctionalModule {
         return t -> t.getPacket().toString(getDateTimeModule().getTimeFormatter()) + NL + t.toString();
     }
 
-    protected <T extends ParsedPacket> List<ParsedPacket> getPackets(String title,
+    /**
+     * Helper method to request packets from the vehicle
+     *
+     * @param <T>
+     *                          The class of packets that will be returned
+     * @param title
+     *                          the section title for inclusion in report
+     * @param pgn
+     *                          the PGN that's being requested
+     * @param clazz
+     *                          the {@link Class} of packet that will be returned
+     * @param listener
+     *                          the {@link ResultsListener} that will be notified of
+     *                          the
+     *                          traffic
+     * @param fullString
+     *                          true to include the full string of the results in
+     *                          the report;
+     *                          false to only include the returned raw packet in the
+     *                          report
+     * @param dmModuleAddresses
+     *                          the addresses that must respond to the request
+     * @return the List of packets returned
+     */
+    protected <T extends ParsedPacket> RequestResult<ParsedPacket> getPackets(String title,
+            int pgn,
+            Class<T> clazz,
+            ResultsListener listener,
+            boolean fullString) {
+        Packet request = getJ1939().createRequestPacket(pgn, J1939.GLOBAL_ADDR);
+        if (listener != null) {
+            listener.onResult(getTime() + " " + title);
+            listener.onResult(getTime() + " " + request.toString());
+        }
+
+        boolean retryUsed = false;
+
+        // Try three times to get packets and ensure there's one from the engine
+        List<ParsedPacket> packets = new ArrayList<>();
+        for (int i = 0; i < 3; i++) {
+            packets = getJ1939().requestRaw(clazz, request, 5500, TimeUnit.MILLISECONDS).collect(Collectors.toList());
+            if (packets.stream().findFirst().isPresent()) {
+                // The something responded, report the results
+                break;
+            } else {
+                // There was no messages. Clear the results to produce a timeout message/try
+                // again
+                packets.clear();
+                retryUsed = true;
+            }
+        }
+
+        if (listener != null) {
+            if (packets.isEmpty()) {
+                listener.onResult(TIMEOUT_MESSAGE);
+            } else {
+                for (ParsedPacket packet : packets) {
+                    listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+                    if (fullString) {
+                        listener.onResult(packet.toString());
+                    }
+                }
+            }
+        }
+        return new RequestResult<>(retryUsed, packets);
+    }
+
+    protected <T extends ParsedPacket> RequestResult<ParsedPacket> getPackets(String title,
             int pgn,
             Class<T> clazz,
             ResultsListener listener,
@@ -125,6 +193,7 @@ public abstract class FunctionalModule {
         listener.onResult(getTime() + " " + title);
         listener.onResult(getTime() + " " + request.toString());
 
+        boolean retryUsed = false;
         // Try three times to get packets and ensure there's one from the module
         List<ParsedPacket> packets = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
@@ -136,6 +205,7 @@ public abstract class FunctionalModule {
                 // The module responded, report the results
                 break;
             } else {
+                retryUsed = true;
                 // There was no message from the module. Clear the results to produce a timeout
                 // message/try again
                 packets.clear();
@@ -152,7 +222,7 @@ public abstract class FunctionalModule {
                 }
             }
         }
-        return packets;
+        return new RequestResult<>(retryUsed, packets);
     }
 
     /**
