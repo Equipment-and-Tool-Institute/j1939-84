@@ -23,6 +23,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.model.RequestResult;
 
 /**
  * The Diagnostic Trouble Code Module that is responsible for Requesting or
@@ -84,13 +85,8 @@ public class DTCModule extends FunctionalModule {
     public List<DM2PreviouslyActiveDTC> getDM2Packets(ResultsListener listener,
             boolean fullString,
             int obdModuleAddress) {
-        List<ParsedPacket> packets = getPackets("Global DM2 Request",
-                DM2PreviouslyActiveDTC.PGN,
-                DM2PreviouslyActiveDTC.class,
-                listener,
-                fullString,
-                obdModuleAddress).getPackets();
-        return filterPackets(packets, DM2PreviouslyActiveDTC.class);
+        return filterPackets(requestDM2(listener, fullString, obdModuleAddress).getPackets(),
+                DM2PreviouslyActiveDTC.class);
     }
 
     /**
@@ -227,12 +223,32 @@ public class DTCModule extends FunctionalModule {
      * @param listener the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public List<? extends DiagnosticTroubleCodePacket> requestDM2(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM2PreviouslyActiveDTC.PGN, GLOBAL_ADDR);
-        List<? extends DiagnosticTroubleCodePacket> packets = generateReport(listener,
-                "Global DM2 Request",
+    public RequestResult<ParsedPacket> requestDM2(ResultsListener listener, boolean fullString) {
+
+        return getPackets("Global DM2 Request",
+                DM2PreviouslyActiveDTC.PGN,
                 DM2PreviouslyActiveDTC.class,
-                request);
-        return packets;
+                listener,
+                fullString);
+
+    }
+
+    /**
+     * Requests and return destination specific DM2 from all vehicle modules and
+     * generates a
+     * {@link String} that's suitable for inclusion in the report
+     *
+     * @param listener the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<ParsedPacket> requestDM2(ResultsListener listener, boolean fullString, int obdAddress) {
+
+        return getPackets("Destination Specific DM2 Request",
+                DM2PreviouslyActiveDTC.PGN,
+                DM2PreviouslyActiveDTC.class,
+                listener,
+                fullString,
+                obdAddress);
+
     }
 }
