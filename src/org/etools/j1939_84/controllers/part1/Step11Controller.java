@@ -65,9 +65,8 @@ public class Step11Controller extends Controller {
         // a. Global DM21 (send Request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
         List<DM21DiagnosticReadinessPacket> globalDm21Packets = diagnosticReadinessModule
-                .requestDM21Packets(getListener(), true)
-                .stream()
-                .filter(p -> p instanceof DM21DiagnosticReadinessPacket)
+                .requestDM21Packets(getListener(), true).getPackets().stream()
+                .filter(packet -> packet instanceof DM21DiagnosticReadinessPacket)
                 .map(p -> (DM21DiagnosticReadinessPacket) p)
                 .collect(Collectors.toList());
 
@@ -108,7 +107,8 @@ public class Step11Controller extends Controller {
         // a. DS DM21 to each OBD ECU
         List<ParsedPacket> addressSpecificDM21Results = new ArrayList<>();
         dataRepository.getObdModuleAddresses().forEach(address -> {
-            addressSpecificDM21Results.addAll(diagnosticReadinessModule.getDM21Packets(getListener(), true, address));
+            addressSpecificDM21Results
+                    .addAll(diagnosticReadinessModule.getDM21Packets(getListener(), true, address).getPackets());
         });
         List<DM21DiagnosticReadinessPacket> addressSpecificDm21Packets = addressSpecificDM21Results.stream()
                 .filter(p -> p instanceof DM21DiagnosticReadinessPacket)

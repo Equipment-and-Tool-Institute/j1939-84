@@ -235,7 +235,7 @@ public class VehicleInformationModule extends FunctionalModule {
                 DM19CalibrationInformationPacket.class,
                 listener,
                 false,
-                address);
+                address).getPackets().stream().map(p -> (ParsedPacket) p).collect(Collectors.toList());
     }
 
     /**
@@ -264,12 +264,13 @@ public class VehicleInformationModule extends FunctionalModule {
      * @return {@link List} of {@link ComponentIdentificationPacket}
      */
     public List<ParsedPacket> reportComponentIdentification(ResultsListener listener, int address) {
-        return getPackets("DS Component Identification Request to " + String.format("%02X", address),
+        return getPackets(
+                "DS Component Identification Request to " + String.format("%02X", address),
                 ComponentIdentificationPacket.PGN,
                 ComponentIdentificationPacket.class,
                 listener,
                 false,
-                address);
+                address).getPackets().stream().map(p -> (ParsedPacket) p).collect(Collectors.toList());
     }
 
     /**

@@ -27,6 +27,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
@@ -140,7 +141,8 @@ public class Step03ControllerTest {
                      "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
     public void testBadECUValue() {
         List<ParsedPacket> packets = new ArrayList<>();
-        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true))).thenReturn(packets);
+        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
+                .thenReturn(new RequestResult<>(true, packets));
 
         ParsedPacket packet1 = mock(ParsedPacket.class);
         packets.add(packet1);
@@ -216,6 +218,7 @@ public class Step03ControllerTest {
         String expectedObd = "OBD Module Information:\n";
         expectedObd += "sourceAddress is : 0\n";
         expectedObd += "obdCompliance is : 4\n";
+        expectedObd += "function is : " + "0" + "\n";
         expectedObd += "Supported SPNs: \n";
         assertEquals(expectedObd, obdInfo1.toString());
     }
@@ -305,17 +308,12 @@ public class Step03ControllerTest {
         packets.add(packet1);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
-        when(packet2.getResponse()).thenReturn(Response.ACK);
+        when(packet2.getResponse()).thenReturn(Response.DENIED);
         packets.add(packet2);
-
-        AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
-        when(packet3.getResponse()).thenReturn(Response.NACK);
-        packets.add(packet3);
-        mock(DM5DiagnosticReadinessPacket.class);
 
         Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
         when(dataRepository.getObdModules()).thenReturn(obdInfoList);
-        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true))).thenReturn(packets);
+        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true))).thenReturn(new RequestResult(true, packets));
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -330,7 +328,6 @@ public class Step03ControllerTest {
         verify(engineSpeedModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.a - There needs to be at least one OBD Module");
-        verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
 
         verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.a - There needs to be at least one OBD Module");
         verify(reportFileModule).onResult("FAIL: 6.1.3.2.a - There needs to be at least one OBD Module");
@@ -338,12 +335,6 @@ public class Step03ControllerTest {
                 3,
                 FAIL,
                 "6.1.3.2.a - There needs to be at least one OBD Module");
-        verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
-        verify(reportFileModule).addOutcome(1,
-                3,
-                FAIL,
-                "6.1.3.2.b - The request for DM5 was NACK'ed");
         verify(reportFileModule).onProgress(0,
                 1,
                 "");
@@ -382,7 +373,8 @@ public class Step03ControllerTest {
         when(packet4.getSourceAddress()).thenReturn(0);
         when(packet4.getOBDCompliance()).thenReturn((byte) 4);
         packets.add(packet4);
-        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true))).thenReturn(packets);
+        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
+                .thenReturn(new RequestResult(false, packets));
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);

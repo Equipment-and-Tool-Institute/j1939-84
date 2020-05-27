@@ -18,6 +18,7 @@ import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -144,7 +145,7 @@ public class Step04ControllerTest {
                     + "Fail if one or more minimum expected SPNs for freeze frame not supported per section A.2, Criteria for Freeze Frame Evaluation, from the OBD ECU(s).")
 
     public void testErroredObject() {
-        List<DM24SPNSupportPacket> packets = new ArrayList<>();
+        List<ParsedPacket> packets = new ArrayList<>();
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
         when(packet1.getSourceAddress()).thenReturn(0);
         packets.add(packet1);
@@ -167,8 +168,7 @@ public class Step04ControllerTest {
         when(packet4.getSupportedSpns()).thenReturn(supportedSpns);
         packets.add(packet4);
 
-        RequestResult<DM24SPNSupportPacket> result = new RequestResult<>(true, packets);
-        when(obdTestsModule.requestObdTests(any(), any())).thenReturn(result);
+        when(obdTestsModule.requestDM24Packets(any())).thenReturn(new RequestResult(true, packets));
 
         List<SupportedSPN> expectedSPNs = new ArrayList<>();
         SupportedSPN supportedSpn = new SupportedSPN(new int[] { 0x00, 0x00, 0x00, 0x00 });
@@ -187,11 +187,10 @@ public class Step04ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(obdTestsModule).setJ1939(j1939);
-        verify(obdTestsModule).requestObdTests(any(), any());
+        verify(obdTestsModule).requestDM24Packets(any());
 
         verify(dataRepository).getObdModule(0);
         verify(dataRepository).getObdModule(1);
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
         verify(dataRepository).putObdModule(0, obdInfo);
         verify(dataRepository).putObdModule(1, obdInfo);
         verify(dataRepository, atLeastOnce()).getObdModules();
@@ -276,8 +275,8 @@ public class Step04ControllerTest {
         when(packet4.getSupportedSpns()).thenReturn(supportedSpns);
         packets.add(packet4);
 
-        RequestResult<DM24SPNSupportPacket> result = new RequestResult<>(false, packets);
-        when(obdTestsModule.requestObdTests(any(), any())).thenReturn(result);
+        RequestResult<ParsedPacket> result = new RequestResult(false, packets);
+        when(obdTestsModule.requestDM24Packets(any())).thenReturn(result);
 
         List<SupportedSPN> expectedSPNs = new ArrayList<>();
         SupportedSPN supportedSpn = new SupportedSPN(new int[] { 0x00, 0x00, 0x00, 0x00 });
@@ -299,11 +298,10 @@ public class Step04ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(obdTestsModule).setJ1939(j1939);
-        verify(obdTestsModule).requestObdTests(any(), any());
+        verify(obdTestsModule).requestDM24Packets(any());
 
         verify(dataRepository).getObdModule(0);
         verify(dataRepository).getObdModule(1);
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
         verify(dataRepository).putObdModule(0, obdInfo);
         verify(dataRepository).putObdModule(1, obdInfo);
         verify(dataRepository, atLeastOnce()).getObdModules();

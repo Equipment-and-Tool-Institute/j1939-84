@@ -8,6 +8,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -61,14 +62,16 @@ public class Step04Controller extends Controller {
     protected void run() throws Throwable {
         obdTestsModule.setJ1939(getJ1939());
 
-        RequestResult<DM24SPNSupportPacket> result = obdTestsModule.requestObdTests(getListener(),
-                dataRepository.getObdModuleAddresses());
+        RequestResult<ParsedPacket> result = obdTestsModule.requestDM24Packets(getListener());
+        List<DM24SPNSupportPacket> globalPackets = result.getPackets().stream()
+                .filter(packet -> packet instanceof DM24SPNSupportPacket).map(p -> (DM24SPNSupportPacket) p)
+                .collect(Collectors.toList());
 
         if (result.isRetryUsed()) {
             addFailure(1, 4, "6.1.4.2.a - Retry was required to obtain DM24 response");
         }
 
-        result.getPackets().stream().forEach(p -> {
+        globalPackets.stream().forEach(p -> {
             OBDModuleInformation info = dataRepository.getObdModule(p.getSourceAddress());
             info.setSupportedSpns(p.getSupportedSpns());
             dataRepository.putObdModule(p.getSourceAddress(), info);

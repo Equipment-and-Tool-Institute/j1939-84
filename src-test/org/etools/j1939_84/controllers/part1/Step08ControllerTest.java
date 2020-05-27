@@ -364,9 +364,6 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
 
-        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
-
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.DSL);
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
@@ -392,7 +389,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.",
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.\n",
                 listener.getResults());
     }
 
@@ -402,9 +399,6 @@ public class Step08ControllerTest extends AbstractControllerTest {
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
 
         when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
-
-        OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
-        when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.BI_CNG);
@@ -431,7 +425,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.",
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.\n",
                 listener.getResults());
     }
 
@@ -443,6 +437,55 @@ public class Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 1, instance.getTotalSteps());
+    }
+
+    @Test
+    public void testNoSpnNPacketsMatch() throws Throwable {
+
+        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
+        List<Integer> spns = new ArrayList<>() {
+            {
+                add(5322);
+                add(5318);
+                add(3058);
+                add(3064);
+                add(5321);
+                add(3055);
+            }
+        };
+
+        DM20MonitorPerformanceRatioPacket dm20 = createDM20(0, spns);
+
+        globalDM20s.add(dm20);
+        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(FuelType.BI_DSL);
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+
+        runTest();
+        verify(dataRepository).getVehicleInformation();
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+
+        verify(mockListener).addOutcome(1,
+                8,
+                FAIL,
+                "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
+
+        verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule)
+                .onResult("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
+        verify(reportFileModule).addOutcome(1,
+                8,
+                FAIL,
+                "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.\n",
+                listener.getResults());
     }
 
     @Test
