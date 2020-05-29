@@ -37,6 +37,8 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.SupportedSpnModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.testdoc.TestDoc;
+import org.etools.testdoc.TestItem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,6 +54,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
+@TestDoc(items = @TestItem(value = "Part 1 Step 4", description = "DM24: SPN support"))
 public class Step04ControllerTest {
 
     @Mock
@@ -80,6 +83,8 @@ public class Step04ControllerTest {
 
     @Mock
     private ResultsListener mockListener;
+
+    private final String NL = System.lineSeparator();
 
     @Mock
     private OBDTestsModule obdTestsModule;
@@ -129,6 +134,16 @@ public class Step04ControllerTest {
 
     @Test
     // Testing the object will all possible errors
+    @TestDoc(items = {
+            @TestItem("6.1.4.2.a"),
+            @TestItem("6.1.4.2.b"),
+            @TestItem("6.1.4.2.c") },
+            description = "Fail if retry was required to obtain DM24 response."
+                    + "<br>"
+                    + "Fail if one or more minimum expected SPNs for data stream not supported per section A.1, Minimum Support Table, from the OBD ECU(s)."
+                    + "<br>"
+                    + "Fail if one or more minimum expected SPNs for freeze frame not supported per section A.2, Criteria for Freeze Frame Evaluation, from the OBD ECU(s).")
+
     public void testErroredObject() {
         List<ParsedPacket> packets = new ArrayList<>();
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
@@ -219,6 +234,23 @@ public class Step04ControllerTest {
 
     @Test
     // Testing object without any errors.
+    @TestDoc(items = {
+            @TestItem("6.1.4.1.a"),
+            @TestItem("6.1.4.1.b"),
+            @TestItem("6.1.4.1.c"),
+            @TestItem("6.1.4.1.d"),
+            @TestItem("6.1.4.1.e") },
+            description = "Destination Specific (DS) DM24 (send Request (PGN 59904) for PGN 64950 (SPNs 3297, 4100-4103)) to each OBD ECU.6"
+                    + "<br>"
+                    + "If no response (transport protocol RTS or NACK(Busy) in 220 ms), then retry DS DM24 request to the OBD ECU."
+                    + "<br>"
+                    + "[Do not attempt retry for NACKs that indicate not supported]."
+                    + "<br>"
+                    + "Create vehicle list of supported SPNs for data stream."
+                    + "<br>"
+                    + "Create ECU specific list of supported SPNs for test results."
+                    + "<br>"
+                    + "Create ECU specific list of supported freeze frame SPNs.")
     public void testGoodObjects() {
         List<DM24SPNSupportPacket> packets = new ArrayList<>();
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);

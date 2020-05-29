@@ -284,27 +284,6 @@ public abstract class Controller {
     }
 
     /**
-     * Checks the Engine Speed
-     *
-     * @throws InterruptedException
-     *                              if the controller was stopped
-     */
-    private void checkEngineSpeed() throws InterruptedException {
-        incrementProgress("Reading Engine Speed");
-        if (!getEngineSpeedModule().isEngineCommunicating()) {
-            getListener().onMessage(
-                    "The engine is not communicating.  Please check the adapter connection with the vehicle and/or turn the key on/start the vehicle.",
-                    "Engine Not Communicating",
-                    MessageType.WARNING);
-            updateProgress("Engine Not Communicating.  Please start vehicle or push Stop");
-            while (!getEngineSpeedModule().isEngineCommunicating()) {
-                Thread.sleep(100);
-                checkEnding();
-            }
-        }
-    }
-
-    /**
      * Executes the Controller. The results are passed to the
      * {@link ResultsListener}
      *
@@ -358,18 +337,18 @@ public abstract class Controller {
         }
 
         switch (ending) {
-            case ABORTED:
-                getBannerModule().reportAborted(getListener());
-                break;
-            case COMPLETED:
-                getBannerModule().reportFooter(getListener());
-                break;
-            case STOPPED:
-                getBannerModule().reportStopped(getListener());
-                break;
-            case FAILED:
-                getBannerModule().reportFailed(getListener());
-                break;
+        case ABORTED:
+            getBannerModule().reportAborted(getListener());
+            break;
+        case COMPLETED:
+            getBannerModule().reportFooter(getListener());
+            break;
+        case STOPPED:
+            getBannerModule().reportStopped(getListener());
+            break;
+        case FAILED:
+            getBannerModule().reportFailed(getListener());
+            break;
         }
 
         addBlankLineToReport();

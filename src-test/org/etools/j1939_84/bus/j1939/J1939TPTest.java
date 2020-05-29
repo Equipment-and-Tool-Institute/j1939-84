@@ -22,19 +22,28 @@ import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.EchoBus;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939TP.CtsBusException;
+import org.etools.testdoc.TestDoc;
+import org.etools.testdoc.TestItem;
 import org.junit.Assert;
 import org.junit.Test;
 
+@TestDoc(items = @TestItem(value = "J199-21", description = "Tests J1939-21 Transport Protocol Implementation"))
 public class J1939TPTest {
 
+    /**
+     * Used instead of Runnable to avoid having to put exception handlers in the
+     * tests.
+     */
     interface PacketTask {
         void run() throws BusException;
     }
 
+    /** Compares content and not timestamps. */
     static private void assertPacketsEquals(Collection<Packet> expected, Collection<Packet> actual) {
         Assert.assertEquals(expected.toString(), actual.toString());
     }
 
+    /** Compares content and not timestamps. */
     static private void assertPacketsEquals(Packet expected, Packet actual) {
         Assert.assertEquals(expected.toString(), actual.toString());
     }
@@ -59,12 +68,16 @@ public class J1939TPTest {
     private final long start = System.currentTimeMillis();
 
     /**
-     * Verify that failing to send data after a RTS generates 3 CTS responses before
-     * giving up.
+     * Verify that failing to send data after a RTS generates 3 CTS responses
+     * before giving up.
      *
      * @throws BusException
      */
     @Test
+    @TestDoc(items = @TestItem(value = "J1939-21 5.4.2",
+                               description = "The number of retries for a specific Request should be limited to two (2) retries, i.e. the\n"
+                                       +
+                                       "Request is issued a total of three (3) times."))
     public void test3CtsWithoutData() throws BusException {
         try (EchoBus bus = new EchoBus(0xF9);
                 J1939TP tp = new J1939TP(bus, 0)) {
@@ -80,6 +93,8 @@ public class J1939TPTest {
      *
      */
     @Test
+    @TestDoc(items = @TestItem(value = "J1939-21 5.10.2.4",
+                               description = "Verify that TP Abort message is respected when receiving."))
     public void testAbortOnReceive() throws BusException, InterruptedException {
         try (EchoBus bus = new EchoBus(0);
                 J1939TP tpIn = new J1939TP(bus, 0xF9);) {
@@ -147,6 +162,8 @@ public class J1939TPTest {
 
     /** Verify that TP Abort message is respected. */
     @Test
+    @TestDoc(items = @TestItem(value = "J1939-21 5.10.2.4",
+                               description = "Verify that no more packets CM.DT packets are sent after receiving an abort while sending."))
     public void testAbortOnSend() throws BusException {
         try (EchoBus bus = new EchoBus(0);
                 J1939TP tpOut = new J1939TP(bus, 0xF9);) {
@@ -166,7 +183,8 @@ public class J1939TPTest {
                     .filter(p -> p.getSource() == 0xF9);
             // send CTS for 2 packets
             bus.send(Packet.parse("18ECF900 11 02 01 FF FF 00 EA 00"));
-            // verify that all the packets and only the expected packets were broadcast
+            // verify that all the packets and only the expected packets were
+            // broadcast
             assertPacketsEquals(Packet.parseCollection("18EB00F9 01 01 02 03 04 05 06 07\n" +
                     "18EB00F9 02 08 09 0A 0B 0C 0D 0E"),
                     stream.collect(Collectors.toList()));
@@ -180,6 +198,8 @@ public class J1939TPTest {
     }
 
     @Test
+    @TestDoc(items = @TestItem(value = "J1939-21 5.10.3.5",
+                               description = "Verify simple send and receive Broadcast Announce Message (BAM)"))
     public void testBam() throws BusException {
         Packet testPacket = Packet.parsePacket(
                 "18FFEE00 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09");
@@ -192,17 +212,21 @@ public class J1939TPTest {
                 "18EBFF00 06 05 06 07 08 09 FF FF");
         try (EchoBus bus = new EchoBus(0xF9);
                 J1939TP tp = new J1939TP(bus, 0)) {
-            // bus.log(() -> String.format("BAM %6d:", (System.currentTimeMillis() -
+            // bus.log(() -> String.format("BAM %6d:",
+            // (System.currentTimeMillis() -
             // start)));
 
             // test tp bam send
             {
                 Stream<Packet> packetStream = bus.read(1, TimeUnit.SECONDS);
-                /* this stream has a timeout that is too short to collect all of the packets. */
+                /*
+                 * this stream has a timeout that is too short to collect all of
+                 * the packets.
+                 */
                 Stream<Packet> shortPacketStream = bus.read(500, TimeUnit.MILLISECONDS).limit(6);
                 /*
-                 * It takes time to fire up the thread and send the first BAM packet, so set
-                 * timing with first packet.
+                 * It takes time to fire up the thread and send the first BAM
+                 * packet, so set timing with first packet.
                  */
                 Stream<Packet> firstPacketStream = bus.read(500, TimeUnit.MILLISECONDS).limit(1);
                 run(() -> tp.sendBam(testPacket));
@@ -231,8 +255,10 @@ public class J1939TPTest {
         }
     }
 
-    /** Verify that abort in BAM stream actually abors the receive. */
+    /** Verify that abort in BAM stream actually aborts the receive. */
     @Test
+    @TestDoc(items = @TestItem(value = "J1939-21 5.10.2.4",
+                               description = "Verify that abort in BAM stream actually abors the receive."))
     public void testBamAbort() throws BusException {
         Packet.parsePacket(
                 "18FFEE00 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09");
@@ -257,6 +283,7 @@ public class J1939TPTest {
 
     /** Verify that missing BAM data does not result in a packet. */
     @Test()
+    @TestDoc(items = @TestItem(value = "", description = "Verify that missing BAM data does not result in a packet."))
     public void testBamMissingDt() throws BusException, InterruptedException {
         Collection<Packet> expectedPacket = Collections.singletonList(Packet.parsePacket(
                 "18FFEE00 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09 00 01 02 03 04 05 06 07 08 09"));
@@ -316,6 +343,7 @@ public class J1939TPTest {
 
     /** Verify that count max in RTS is respected. */
     @Test
+    @TestDoc(items = @TestItem(value = "", description = "Verify that count max in RTS is respected."))
     public void testCountMax() throws BusException {
         try (EchoBus bus = new EchoBus(0);
                 J1939TP tpOut = new J1939TP(bus, 0xF9);) {
@@ -331,7 +359,8 @@ public class J1939TPTest {
             stream = bus.read(100, TimeUnit.MILLISECONDS).filter(p -> p.getSource() == 0xF9);
             // send CTS for 2 packets
             bus.send(Packet.parse("18ECF900 11 02 01 FF FF 00 EA 00"));
-            // verify that all the packets and only the expected packets were broadcast
+            // verify that all the packets and only the expected packets were
+            // broadcast
             assertPacketsEquals(Packet.parseCollection("18EB00F9 01 01 02 03 04 05 06 07\n" +
                     "18EB00F9 02 08 09 0A 0B 0C 0D 0E"),
                     stream.collect(Collectors.toList()));
@@ -365,6 +394,8 @@ public class J1939TPTest {
 
     /** Verify that when a DT packet is missing, that it is rerequested. */
     @Test
+    @TestDoc(items = @TestItem(value = "",
+                               description = "Verify that when a DT packet is missing, that it is rerequested."))
     public void testMissingDT() throws BusException {
         try (Bus bus = new EchoBus(0xF9);
                 J1939TP tp = new J1939TP(bus, 0);) {
@@ -397,9 +428,9 @@ public class J1939TPTest {
     }
 
     /**
-     * Due to the implementation that creates a new thread for each RTS, this test
-     * verifies that only a single TP packet is reconstructed when two BAM RTSs are
-     * received.
+     * Due to the implementation that creates a new thread for each RTS, this
+     * test verifies that only a single TP packet is reconstructed when two BAM
+     * RTSs are received.
      *
      * @throws InterruptedException
      */
@@ -422,9 +453,9 @@ public class J1939TPTest {
     }
 
     /**
-     * Due to the implementation that creates a new thread for each RTS, this test
-     * verifies that only a single TP packet is reconstructed when two RTSs are
-     * received.
+     * Due to the implementation that creates a new thread for each RTS, this
+     * test verifies that only a single TP packet is reconstructed when two RTSs
+     * are received.
      *
      * @throws InterruptedException
      */
@@ -448,6 +479,7 @@ public class J1939TPTest {
 
     /** Verify that non-TP packets are passed through TP layer. */
     @Test
+    @TestDoc(items = @TestItem(value = "", description = "Verify that non-TP packets are passed through TP layer."))
     public void testNonTPOnTPBus() throws BusException {
         // verify that the tp bus will pass non-tp traffic.
         try (EchoBus bus = new EchoBus(0);
@@ -467,8 +499,9 @@ public class J1939TPTest {
         }
     }
 
-    /** Verfy that out of order DT packets are accepted. */
+    /** Verify that out of order DT packets are accepted. */
     @Test
+    @TestDoc(items = @TestItem(value = "", description = "Verify that out of order DT packets are accepted."))
     public void testOutOfOrderDT() throws BusException {
         try (Bus bus = new EchoBus(0xF9);
                 J1939TP tp = new J1939TP(bus, 0);) {
@@ -509,7 +542,8 @@ public class J1939TPTest {
 
             tpOut.send(Packet.parse("18EA00F9 01 02 03 04 05 06 07 08 09"));
 
-            // verify that all the packets and only the expected packets were broadcast
+            // verify that all the packets and only the expected packets were
+            // broadcast
             assertPacketsEquals(Packet.parseCollection("18EC00F9 10 09 00 02 FF 00 EA 00\n" +
                     "18ECF900 11 02 01 FF FF 00 EA 00\n" +
                     "18EB00F9 01 01 02 03 04 05 06 07\n" +
@@ -517,7 +551,8 @@ public class J1939TPTest {
                     "18ECF900 13 09 00 02 FF 00 EA 00"),
                     stream.collect(Collectors.toList()));
 
-            // verify that the complete packet and only the complete packet is on the TP
+            // verify that the complete packet and only the complete packet is
+            // on the TP
             // stream.
             assertPacketsEquals(Collections.singletonList(Packet.parsePacket("18EA00F9 01 02 03 04 05 06 07 08 09")),
                     tpStream.collect(Collectors.toList()));
@@ -526,6 +561,7 @@ public class J1939TPTest {
 
     /** Verify that T1 and T2 timeouts are respected. */
     @Test()
+    @TestDoc(items = @TestItem(value = "J199-21 C1", description = "Verify that T1 and T2 timeouts are respected."))
     public void testT2T1() throws BusException {
         try (EchoBus bus = new EchoBus(0xF9);
                 J1939TP tp = new J1939TP(bus, 0)) {
@@ -564,6 +600,7 @@ public class J1939TPTest {
 
     /** Verify that T3 timeout is respected. */
     @Test()
+    @TestDoc(items = @TestItem(value = "J199-21 C1", description = "Verify that T3 timeout is respected."))
     public void testT3() throws BusException {
         try (EchoBus bus = new EchoBus(0xF9);
                 J1939TP tp = new J1939TP(bus, 0)) {
@@ -575,6 +612,7 @@ public class J1939TPTest {
 
     /** Verify that T4 timeout is respected. */
     @Test
+    @TestDoc(items = @TestItem(value = "J199-21 C1", description = "Verify that T4 timeout is respected."))
     public void testT4() throws BusException {
         try (EchoBus bus = new EchoBus(0xF9);
                 J1939TP tp = new J1939TP(bus, 0)) {
@@ -600,6 +638,8 @@ public class J1939TPTest {
     }
 
     @Test
+    @TestDoc(items = @TestItem(value = "J199-21 5.10.3",
+                               description = "Verify that warning is generated for TP.CM_CTS bytes 4-5 should be FFFF."))
     public void testWaringsCts45() throws Exception {
         RuntimeException success = new RuntimeException();
         try (EchoBus bus = new EchoBus(0xF9);
@@ -628,6 +668,8 @@ public class J1939TPTest {
     }
 
     @Test
+    @TestDoc(items = @TestItem(value = "J199-21 5.10.3",
+                               description = "Verify that warning is generated for TP.CM_CTS bytes 4-5 should be FFFF."))
     public void testWaringsCtsHoldTheConnectionOpen() throws Exception {
         RuntimeException success = new RuntimeException();
         try (EchoBus bus = new EchoBus(0xF9);
@@ -656,6 +698,7 @@ public class J1939TPTest {
     }
 
     @Test
+    @TestDoc(items = @TestItem(value = "J199-21 5.10.3", description = "Verify that PGN in CTS matches PGN in RTS."))
     public void testWaringsCtsPgn() throws Exception {
         RuntimeException success = new RuntimeException();
         try (EchoBus bus = new EchoBus(0xF9);
@@ -685,6 +728,8 @@ public class J1939TPTest {
 
     /** Verify constants are correct. */
     @Test
+    @TestDoc(items = @TestItem(value = "J1939-21 5.10.2.4",
+                               description = "Verify constants T1, T2, T3, T3 match specification."))
     public void verifyConstants() {
         assertEquals(750, J1939TP.T1);
         assertEquals(1250, J1939TP.T2);

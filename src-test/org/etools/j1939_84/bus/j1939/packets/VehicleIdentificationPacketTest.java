@@ -8,6 +8,8 @@ import static org.junit.Assert.assertEquals;
 import java.nio.charset.StandardCharsets;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.testdoc.TestDoc;
+import org.etools.testdoc.TestItem;
 import org.junit.Test;
 
 /**
@@ -19,6 +21,8 @@ import org.junit.Test;
 public class VehicleIdentificationPacketTest {
 
     @Test
+    @TestDoc(description = "Verify packet is parsed and the report string is generated correctly.", items = {
+            @TestItem("6.1.1.1.e.i") })
     public void testGetVinAndToString() {
         Packet packet = Packet.create(0,
                 0,
@@ -47,6 +51,7 @@ public class VehicleIdentificationPacketTest {
     }
 
     @Test
+    @TestDoc(description = "Verify packet with manufacturer data is parsed out.")
     public void testGetVinWithManufacturerData() {
         String bytes = "Lorem ipsum*dolor sit amet";
         Packet packet = Packet.create(0, 0, bytes.getBytes(StandardCharsets.UTF_8));
@@ -56,6 +61,7 @@ public class VehicleIdentificationPacketTest {
     }
 
     @Test
+    @TestDoc(description = "Verify packet with no * is parsed.")
     public void testGetVinWithoutAsterisk() {
         Packet packet = Packet.create(0,
                 0,
@@ -82,6 +88,7 @@ public class VehicleIdentificationPacketTest {
     }
 
     @Test
+    @TestDoc(description = "Verify packet with manufacturer data is parsed out.")
     public void testGetVinWithoutAsteriskWith200Characters() {
         String expected = "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Phasellus ultrices vehicula elit, id pharetra lacus. Suspendisse justo nulla, egestas vel volutpat vel, convallis at nisl. Nulla facilisi amet";
         Packet packet = Packet.create(0, 0, (expected + "*").getBytes(StandardCharsets.UTF_8));
