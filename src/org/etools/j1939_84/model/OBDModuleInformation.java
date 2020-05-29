@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
+import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 
 /**
@@ -28,6 +29,8 @@ public class OBDModuleInformation {
     private byte obdCompliance;
 
     private final Set<PerformanceRatio> performanceRatios = new HashSet<>();
+
+    private List<ScaledTestResult> scaledTestResults;
 
     private final int sourceAddress;
 
@@ -50,6 +53,7 @@ public class OBDModuleInformation {
         OBDModuleInformation that = (OBDModuleInformation) obj;
         return Objects.equals(sourceAddress, that.sourceAddress)
                 && Objects.equals(supportedSpns, that.supportedSpns)
+                && Objects.equals(scaledTestResults, that.scaledTestResults)
                 && Objects.equals(obdCompliance, that.obdCompliance)
                 && Objects.equals(function, that.function)
                 && Objects.equals(calibrationInformation, that.calibrationInformation);
@@ -97,6 +101,10 @@ public class OBDModuleInformation {
         return performanceRatios;
     }
 
+    public List<ScaledTestResult> getScaledTestResults() {
+        return scaledTestResults;
+    }
+
     public int getSourceAddress() {
         return sourceAddress;
     }
@@ -118,6 +126,7 @@ public class OBDModuleInformation {
     @Override
     public int hashCode() {
         return Objects.hash(sourceAddress,
+                scaledTestResults,
                 supportedSpns,
                 obdCompliance,
                 calibrationInformation);
@@ -150,6 +159,10 @@ public class OBDModuleInformation {
     public void setPerformanceRatios(Collection<PerformanceRatio> performanceRatios) {
         this.performanceRatios.clear();
         this.performanceRatios.addAll(performanceRatios);
+    }
+
+    public void setScaledTestResults(List<ScaledTestResult> scaledTestResults) {
+        this.scaledTestResults = scaledTestResults;
     }
 
     /**

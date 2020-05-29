@@ -5,7 +5,6 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -54,18 +53,6 @@ public class DTCModule extends FunctionalModule {
      */
     public DTCModule(DateTimeModule dateTimeModule) {
         super(dateTimeModule);
-    }
-
-    @SuppressWarnings("unchecked")
-    private <T extends DiagnosticTroubleCodePacket> List<T> filterPackets(List<ParsedPacket> packets,
-            Class<T> clazz) {
-        List<T> resultPackets = new ArrayList<>();
-        for (ParsedPacket packet : packets) {
-            if (packet.getClass() == clazz) {
-                resultPackets.add((T) packet);
-            }
-        }
-        return resultPackets;
     }
 
     /**

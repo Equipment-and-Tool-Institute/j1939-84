@@ -13,6 +13,7 @@ import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -38,7 +39,8 @@ public abstract class AbstractControllerTest {
             List<SupportedSPN> dataStreamSpns,
             List<SupportedSPN> freezeFrameSpns,
             List<SupportedSPN> supportedSpns,
-            List<SupportedSPN> testResultSpns) {
+            List<SupportedSPN> testResultSpns,
+            List<ScaledTestResult> scaledTestResult) {
         OBDModuleInformation module = mock(OBDModuleInformation.class);
         if (sourceAddress != null) {
             when(module.getSourceAddress()).thenReturn(sourceAddress);
@@ -63,6 +65,9 @@ public abstract class AbstractControllerTest {
         }
         if (testResultSpns != null) {
             when(module.getTestResultSpns()).thenReturn(testResultSpns);
+        }
+        if (scaledTestResult != null) {
+            when(module.getScaledTestResults()).thenReturn(scaledTestResult);
         }
         return module;
     }

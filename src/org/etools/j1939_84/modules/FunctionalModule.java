@@ -65,6 +65,18 @@ public abstract class FunctionalModule {
         return packets;
     }
 
+    @SuppressWarnings("unchecked")
+    protected <T extends ParsedPacket> List<T> filterPackets(List<ParsedPacket> packets,
+            Class<T> clazz) {
+        List<T> resultPackets = new ArrayList<>();
+        for (ParsedPacket packet : packets) {
+            if (packet.getClass() == clazz) {
+                resultPackets.add((T) packet);
+            }
+        }
+        return resultPackets;
+    }
+
     /**
      * Helper method to generate a report
      *

@@ -46,7 +46,7 @@ public class Part01Controller extends Controller {
                 new Step01Controller(dataRepository), new Step02Controller(), new Step03Controller(dataRepository),
                 new Step04Controller(dataRepository), new Step05Controller(dataRepository),
                 new Step06Controller(dataRepository), new Step07Controller(dataRepository),
-                // new Step08Controller(dataRepository), new Step09Controller(dataRepository),
+                new Step08Controller(dataRepository), new Step09Controller(dataRepository),
                 // new Step10Controller(dataRepository),
                 new Step11Controller(dataRepository));
     }
@@ -88,8 +88,8 @@ public class Part01Controller extends Controller {
             PartResultFactory partResultFactory, Step01Controller step01Controller, Step02Controller step02Controller,
             Step03Controller step03Controller, Step04Controller step04Controller, Step05Controller step05Controller,
             Step06Controller step06Controller, Step07Controller step07Controller,
-            // Step08Controller step08Controller,
-            // Step09Controller step09Controller, Step10Controller step10Controller,
+            Step08Controller step08Controller, Step09Controller step09Controller,
+            // Step10Controller step10Controller,
             Step11Controller step11Controller) {
         super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
 
@@ -100,8 +100,8 @@ public class Part01Controller extends Controller {
         stepControllers.add(step05Controller);
         stepControllers.add(step06Controller);
         stepControllers.add(step07Controller);
-        // stepControllers.add(step08Controller);
-        // stepControllers.add(step09Controller);
+        stepControllers.add(step08Controller);
+        stepControllers.add(step09Controller);
         // stepControllers.add(step10Controller);
         stepControllers.add(step11Controller);
     }
@@ -142,6 +142,8 @@ public class Part01Controller extends Controller {
         getListener().beginPart(partResult);
         getListener().onResult("Start " + partResult);
 
+        // FIXME this needs to report the actual steps being
+        // executed not the next number in the linear integer scale
         for (int i = 1; i < 27; i++) {
             executeStep(i);
         }

@@ -23,6 +23,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult.TestResult;
+import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 
@@ -59,7 +60,7 @@ public class OBDTestsModule extends FunctionalModule {
      * @param spn         the SPN
      * @return Packet
      */
-    private Packet createDM7Packet(int destination, int spn) {
+    public Packet createDM7Packet(int destination, int spn) {
         return Packet.create(DM7CommandTestsPacket.PGN | destination,
                 getJ1939().getBusAddress(),
                 true,
@@ -71,6 +72,18 @@ public class OBDTestsModule extends FunctionalModule {
                 0xFF,
                 0xFF,
                 0xFF);
+    }
+
+    /**
+     * Sends a destination specific request to the vehicle for
+     * {@link DM7CommandTestsPacket}s
+     *
+     * @param listener the {@link ResultsListener}
+     * @return {@link List} of {@link DM30ScaledTestResultsPacket}s
+     */
+    public List<DM30ScaledTestResultsPacket> getDM30Packets(ResultsListener listener, int address, SupportedSPN spn) {
+        return filterPackets(requestDM30Packets(listener, address, spn.getSpn()).getPackets(),
+                DM30ScaledTestResultsPacket.class);
     }
 
     private void reportObdTests(ResultsListener listener, List<DM24SPNSupportPacket> requestedPackets) {
@@ -193,6 +206,13 @@ public class OBDTestsModule extends FunctionalModule {
         return getPackets("Global DM24 Request", DM24SPNSupportPacket.PGN, DM24SPNSupportPacket.class, listener, true);
     }
 
+    /**
+     * Sends a destination specific request to the vehicle for
+     * {@link DM24SPNSupportPacket}s
+     *
+     * @param listener the {@link ResultsListener}
+     * @return {@link List} of {@link DM24SPNSupportPacket}s
+     */
     public RequestResult<ParsedPacket> requestDM24Packets(ResultsListener listener, int address) {
         return getPackets("Destination Specific DM24 Request",
                 DM24SPNSupportPacket.PGN,
@@ -200,6 +220,31 @@ public class OBDTestsModule extends FunctionalModule {
                 listener,
                 true,
                 address);
+    }
+
+    /**
+     * Sends a destination specific request to the vehicle for
+     * {@link DM7CommandTestsPacket}s
+     *
+     * @param listener the {@link ResultsListener}
+     * @return {@link List} of {@link DM30ScaledTestResultsPacket}s
+     */
+    public RequestResult<ParsedPacket> requestDM30Packets(ResultsListener listener, int address, int spn) {
+        Packet request = createDM7Packet(address, spn);
+        listener.onResult(getTime() + " " + request.toString());
+
+        DM30ScaledTestResultsPacket packet = getJ1939()
+                .requestPacket(request, DM30ScaledTestResultsPacket.class, address, 3).orElse(null);
+        if (packet == null) {
+            listener.onResult(TIMEOUT_MESSAGE);
+            listener.onResult("");
+            return new RequestResult<>(true, Collections.emptyList());
+        } else {
+            listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+            listener.onResult(packet.toString());
+            listener.onResult("");
+            return new RequestResult<>(false, Collections.singletonList(packet));
+        }
     }
 
     public RequestResult<DM24SPNSupportPacket> requestObdTests(ResultsListener listener,
