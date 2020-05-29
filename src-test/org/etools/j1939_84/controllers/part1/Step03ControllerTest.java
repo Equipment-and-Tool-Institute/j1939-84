@@ -133,11 +133,10 @@ public class Step03ControllerTest {
      */
     @TestDoc(items = {
             @TestItem("6.1.3.2.b"),
-            @TestItem("6.1.3.3.a") },
-             description = "Verify there are fail messages for: <ul><li>Not all responses are identical.</li>" +
-                     "<li>The request for DM5 was NACK'ed</li></ul>",
-             dependsOn = {
-                     "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
+            @TestItem("6.1.3.3.a") }, description = "Verify there are fail messages for: <ul><li>Not all responses are identical.</li>"
+                    +
+                    "<li>The request for DM5 was NACK'ed</li></ul>", dependsOn = {
+                            "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
     public void testBadECUValue() {
         List<ParsedPacket> packets = new ArrayList<>();
         when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
@@ -234,8 +233,8 @@ public class Step03ControllerTest {
 
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
-    @TestDoc(verifies = { "6.1.3.2.a",
-            "6.1.3.2.b" }, description = "There needs to be at least one OBD Module & The request for DM5 was NACK'ed")
+    @TestDoc(items = { @TestItem("6.1.3.2.a"),
+            @TestItem("6.1.3.2.b") }, description = "There needs to be at least one OBD Module & The request for DM5 was NACK'ed")
     public void testModulesEmpty() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
@@ -279,7 +278,7 @@ public class Step03ControllerTest {
 
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
-    @TestDoc(verifies = { "6.1.3.2.b" }, description = "The request for DM5 was NACK'ed")
+    @TestDoc(items = @TestItem("6.1.3.2.b"), description = "The request for DM5 was NACK'ed")
     public void testRun() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
