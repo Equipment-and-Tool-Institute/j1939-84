@@ -127,8 +127,7 @@ public class Step03ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-                        justification = "The method is called just to get some exception.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     /**
      * Includes addWarning() verification for distinctCount > 1
      */
@@ -184,36 +183,34 @@ public class Step03ControllerTest {
         verify(executor).execute(runnableCaptor.capture());
         runnableCaptor.getValue().run();
 
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(0, obdInfo1);
-        verify(dataRepository).putObdModule(17, obdInfo2);
-
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5Packets(any(), eq(true));
-
         verify(engineSpeedModule).setJ1939(j1939);
-
+        verify(vehicleInformationModule).setJ1939(j1939);
+        verify(dataRepository).getObdModules();
+        verify(diagnosticReadinessModule).requestDM5Packets(any(), eq(true));
+        verify(dataRepository).putObdModule(0, obdInfo1);
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
+        verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
+        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
+
+        verify(dataRepository).putObdModule(17, obdInfo2);
+        verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
+
         verify(mockListener).addOutcome(1,
                 3,
                 WARN,
                 "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
-        verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-
-        verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
         verify(reportFileModule).addOutcome(1,
                 3,
                 WARN,
                 "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
         verify(reportFileModule).onResult(
                 "WARN: 6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
+
         verify(reportFileModule).onProgress(0,
                 1,
                 "");
         verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
-
-        verify(vehicleInformationModule).setJ1939(j1939);
 
         String expectedObd = "OBD Module Information:\n";
         expectedObd += "sourceAddress is : 0\n";
@@ -236,72 +233,9 @@ public class Step03ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-                        justification = "The method is called just to get some exception.")
-    @TestDoc(items = @TestItem(value = "6.1.3.2.b",
-                               description = "Verify fail message for the request for DM5 was NACK'ed",
-                               dependsOn = { "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" }))
-    public void testJustNack() {
-        List<ParsedPacket> packets = new ArrayList<>();
-        ParsedPacket packet1 = mock(ParsedPacket.class);
-        packets.add(packet1);
-
-        AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
-        when(packet2.getResponse()).thenReturn(Response.ACK);
-        packets.add(packet2);
-
-        AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
-        when(packet3.getResponse()).thenReturn(Response.NACK);
-        packets.add(packet3);
-
-        DM5DiagnosticReadinessPacket packet4 = mock(DM5DiagnosticReadinessPacket.class);
-        OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
-        obdInfo.setObdCompliance((byte) 4);
-        obdInfoList.add(obdInfo);
-        obdInfoList.add(obdInfo);
-
-        when(dataRepository.getObdModules()).thenReturn(obdInfoList);
-        when(packet4.isObd()).thenReturn(true);
-        when(packet4.getSourceAddress()).thenReturn(0);
-        when(packet4.getOBDCompliance()).thenReturn((byte) 4);
-        packets.add(packet4);
-        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true))).thenReturn(packets);
-
-        instance.execute(listener, j1939, reportFileModule);
-        ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
-        verify(executor).execute(runnableCaptor.capture());
-        runnableCaptor.getValue().run();
-
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(0, obdInfo);
-
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5Packets(any(), eq(true));
-
-        verify(engineSpeedModule).setJ1939(j1939);
-
-        verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-
-        verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-        verify(reportFileModule).onProgress(0,
-                1,
-                "");
-        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
-
-        verify(vehicleInformationModule).setJ1939(j1939);
-    }
-
-    @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-                        justification = "The method is called just to get some exception.")
-    @TestDoc(items = {
-            @TestItem("6.1.3.2.a"),
-            @TestItem("6.1.3.2.b") },
-             description = "Verify there are fail messages for: <ul><li>There needs to be at least one OBD Module</li>"
-                     + "<li>The request for DM5 was NACK'ed</li></ul>",
-             dependsOn = { "DM5DiagnosticReadinessPacketTest",
-                     "DiagnosticReadinessPacketTest" })
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @TestDoc(verifies = { "6.1.3.2.a",
+            "6.1.3.2.b" }, description = "There needs to be at least one OBD Module & The request for DM5 was NACK'ed")
     public void testModulesEmpty() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
@@ -344,11 +278,9 @@ public class Step03ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-                        justification = "The method is called just to get some exception.")
-    @TestDoc(items = @TestItem(value = "6.1.3.1", description = "Verify no messages for the success.", dependsOn = {
-            "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" }))
-    public void testSuccessRun() {
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @TestDoc(verifies = { "6.1.3.2.b" }, description = "The request for DM5 was NACK'ed")
+    public void testRun() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
         packets.add(packet1);
@@ -358,7 +290,7 @@ public class Step03ControllerTest {
         packets.add(packet2);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
-        when(packet3.getResponse()).thenReturn(Response.ACK);
+        when(packet3.getResponse()).thenReturn(Response.NACK);
         packets.add(packet3);
 
         DM5DiagnosticReadinessPacket packet4 = mock(DM5DiagnosticReadinessPacket.class);
@@ -389,15 +321,15 @@ public class Step03ControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
 
+        verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
+
+        verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
+        verify(reportFileModule).onProgress(0,
+                1,
+                "");
+        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
+
         verify(vehicleInformationModule).setJ1939(j1939);
-
-        String expectedMessages = "";
-        assertEquals(expectedMessages, listener.getMessages());
-
-        String expectedMilestones = "";
-        assertEquals(expectedMilestones, listener.getMilestones());
-
-        String expectedResults = "";
-        assertEquals(expectedResults, listener.getResults());
     }
+
 }
