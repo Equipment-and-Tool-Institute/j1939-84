@@ -6,6 +6,11 @@ package org.etools.j1939_84.controllers.part1;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -30,7 +35,7 @@ public class TableA7Validator {
             this.expectedTestResults = Arrays.asList(expectedTestResults);
         }
 
-        public void validate(Collection<ScaledTestResult> actualTestResults) {
+        public void validate(Collection<ScaledTestResult> actualTestResults, ResultsListener listener) {
             boolean isValid = rowValidator.isValid(actualTestResults, expectedTestResults, minimumContains);
             if (!isValid) {
                 listener.addOutcome(1, 12, Outcome.FAIL, monitorName + " is missing required Test Result");
@@ -38,17 +43,18 @@ public class TableA7Validator {
         }
     }
 
-    private final ResultsListener listener;
+    private static ExpectedTestResult etr(int spn, int fmi) {
+        return new ExpectedTestResult(spn, fmi);
+    }
 
     private final TableA7RowValidator rowValidator;
 
-    public TableA7Validator(ResultsListener listener) {
-        this(new TableA7RowValidator(), listener);
+    public TableA7Validator() {
+        this(new TableA7RowValidator());
     }
 
-    TableA7Validator(TableA7RowValidator rowValidator, ResultsListener listener) {
+    TableA7Validator(TableA7RowValidator rowValidator) {
         this.rowValidator = rowValidator;
-        this.listener = listener;
     }
 
     private Collection<Row> getCompressionIgnitionRows() {
@@ -126,28 +132,32 @@ public class TableA7Validator {
         return rows;
     }
 
-    public boolean hasDuplicates(Collection<ScaledTestResult> testResults) {
-        int[] matchCount = { 0 };
-        testResults.forEach(a -> {
-            testResults.forEach(b -> {
-                if (a.getSpn() == b.getSpn() && a.getFmi() == b.getFmi()) {
-                    matchCount[0]++;
+    public Collection<ScaledTestResult> hasDuplicates(Collection<ScaledTestResult> testResults) {
+
+        List<ExpectedTestResult> expectedTestResults = testResults.stream()
+                .map(r -> new ExpectedTestResult(r.getSpn(), r.getFmi())).collect(Collectors.toList());
+
+        Set<ExpectedTestResult> duplicates = expectedTestResults.stream()
+                .filter(r -> Collections.frequency(expectedTestResults, r) > 1).collect(Collectors.toSet());
+
+        Set<ScaledTestResult> results = new HashSet<>();
+        for (ExpectedTestResult etr : duplicates) {
+            for (ScaledTestResult str : testResults) {
+                if (str.getSpn() == etr.getSpn() && str.getFmi() == etr.getFmi()) {
+                    results.add(str);
+                    break;
                 }
-            });
+            }
+        }
 
-        });
-        return matchCount[0] > testResults.size();
+        return results;
     }
 
-    public void validateForCompressionIgnition(Collection<ScaledTestResult> testResults) {
-        getCompressionIgnitionRows().forEach(r -> r.validate(testResults));
+    public void validateForCompressionIgnition(Collection<ScaledTestResult> testResults, ResultsListener listener) {
+        getCompressionIgnitionRows().forEach(r -> r.validate(testResults, listener));
     }
 
-    public void validateForSparkIgnition(Collection<ScaledTestResult> testResults) {
-        getSparkIgnitionRows().forEach(r -> r.validate(testResults));
-    }
-
-    private static ExpectedTestResult etr(int spn, int fmi) {
-        return new ExpectedTestResult(spn, fmi);
+    public void validateForSparkIgnition(Collection<ScaledTestResult> testResults, ResultsListener listener) {
+        getSparkIgnitionRows().forEach(r -> r.validate(testResults, listener));
     }
 }

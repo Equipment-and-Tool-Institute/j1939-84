@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -31,59 +32,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class TableA7ValidatorTest {
-
-    private TableA7Validator instance;
-
-    @Mock
-    private ResultsListener listener;
-
-    @Before
-    public void setUp() {
-        instance = new TableA7Validator(new TestResultsListener(listener));
-    }
-
-    @After
-    public void tearDown() {
-        verifyNoMoreInteractions(listener);
-    }
-
-    @Test
-    public void testCompressionIgnitionMissingFuelSystemPressureControlLow() {
-        Collection<ScaledTestResult> testResults = getCompressionIgnitionTestResults();
-        remove(testResults, 157, 18);
-        remove(testResults, 164, 18);
-        remove(testResults, 3055, 18);
-        instance.validateForCompressionIgnition(testResults);
-        verify(listener)
-                .addOutcome(1, 12, Outcome.FAIL, "Fuel system pressure control low is missing required Test Result");
-    }
-
-    @Test
-    public void testCompressionIgnitionValid() {
-        instance.validateForCompressionIgnition(getCompressionIgnitionTestResults());
-        // Nothing (bad) happens
-    }
-
-    @Test
-    public void testHasDuplicatesFalse() {
-        Collection<ScaledTestResult> results = new ArrayList<>();
-        results.add(scaledTestResult(123, 14));
-        results.add(scaledTestResult(124, 14));
-        results.add(scaledTestResult(345, 18));
-        results.add(scaledTestResult(345, 17));
-        results.add(scaledTestResult(678, 1));
-        assertEquals(false, instance.hasDuplicates(results));
-
-    }
-
-    @Test
-    public void testHasDuplicatesTrue() {
-        Collection<ScaledTestResult> results = new ArrayList<>();
-        results.add(scaledTestResult(123, 14));
-        results.add(scaledTestResult(345, 18));
-        results.add(scaledTestResult(345, 18));
-        assertEquals(true, instance.hasDuplicates(results));
-    }
 
     private static Collection<ScaledTestResult> getCompressionIgnitionTestResults() {
         List<ScaledTestResult> testResults = new ArrayList<>();
@@ -165,6 +113,66 @@ public class TableA7ValidatorTest {
         when(mock.getSpn()).thenReturn(spn);
         when(mock.getFmi()).thenReturn(fmi);
         return mock;
+    }
+
+    private TableA7Validator instance;
+
+    @Mock
+    private ResultsListener listener;
+
+    @Before
+    public void setUp() {
+        instance = new TableA7Validator();
+    }
+
+    @After
+    public void tearDown() {
+        verifyNoMoreInteractions(listener);
+    }
+
+    @Test
+    public void testCompressionIgnitionMissingFuelSystemPressureControlLow() {
+        Collection<ScaledTestResult> testResults = getCompressionIgnitionTestResults();
+        remove(testResults, 157, 18);
+        remove(testResults, 164, 18);
+        remove(testResults, 3055, 18);
+        instance.validateForCompressionIgnition(testResults, new TestResultsListener(listener));
+        verify(listener)
+                .addOutcome(1, 12, Outcome.FAIL, "Fuel system pressure control low is missing required Test Result");
+    }
+
+    @Test
+    public void testCompressionIgnitionValid() {
+        instance.validateForCompressionIgnition(getCompressionIgnitionTestResults(), new TestResultsListener(listener));
+        // Nothing (bad) happens
+    }
+
+    @Test
+    public void testHasDuplicates() {
+        Collection<ScaledTestResult> results = new ArrayList<>();
+        results.add(scaledTestResult(123, 14));
+        results.add(scaledTestResult(345, 18));
+        results.add(scaledTestResult(345, 18));
+
+        Collection<ScaledTestResult> duplicates = instance.hasDuplicates(results);
+        assertEquals(1, duplicates.size());
+
+        ScaledTestResult duplicate = duplicates.iterator().next();
+        assertEquals(18, duplicate.getFmi());
+        assertEquals(345, duplicate.getSpn());
+    }
+
+    @Test
+    public void testHasNoDuplicates() {
+        Collection<ScaledTestResult> results = new ArrayList<>();
+        results.add(scaledTestResult(123, 14));
+        results.add(scaledTestResult(124, 14));
+        results.add(scaledTestResult(345, 18));
+        results.add(scaledTestResult(345, 17));
+        results.add(scaledTestResult(678, 1));
+        Collection<ScaledTestResult> duplicates = instance.hasDuplicates(results);
+        assertTrue(duplicates.isEmpty());
+
     }
 
 }
