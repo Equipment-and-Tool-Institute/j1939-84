@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers.part1;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -24,6 +25,7 @@ import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
@@ -109,56 +111,201 @@ public class Step16ControllerTest extends AbstractControllerTest {
     @Test
     public void dtcsIsNotEmpty() {
 
+        Set<Integer> obdModuleAddresses = new HashSet<>();
+        obdModuleAddresses.add(0);
+        obdModuleAddresses.add(1);
+        obdModuleAddresses.add(2);
+        obdModuleAddresses.add(3);
+
+        List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
+        DiagnosticTroubleCode code = mock(DiagnosticTroubleCode.class);
+        dtcs.add(code);
+        dtcs.add(code);
+        DM2PreviouslyActiveDTC packet1 = createDM2s(dtcs, LampStatus.OFF);
+
+        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, listOf(packet1)));
+        when(diagnosticTroubleCodePacket.getDtcs()).thenReturn(dtcs);
+
+        LampStatus milStatus = packet1.getMalfunctionIndicatorLampStatus();
+        when(diagnosticTroubleCodePacket.getMalfunctionIndicatorLampStatus()).thenReturn(milStatus);
+
+        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
+
+        runTest();
+
+        verify(dtcModule).setJ1939(j1939);
+        verify(dtcModule).requestDM2(any(), eq(true));
+
+        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
+
+        verify(reportFileModule).onProgress(0, 1, "");
+        verify(mockListener).addOutcome(1,
+                16,
+                Outcome.FAIL,
+                "6.1.16.2.a - OBD ECU reported a previously active DTC.");
+
+        verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule).addOutcome(1,
+                16,
+                Outcome.FAIL,
+                "6.1.16.2.a - OBD ECU reported a previously active DTC.");
+        verify(reportFileModule).onResult(
+                "FAIL: 6.1.16.2.a - OBD ECU reported a previously active DTC.");
+
+        // verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        String expectedResult = "FAIL: 6.1.16.2.a - OBD ECU reported a previously active DTC.\n";
+        assertEquals(expectedResult, listener.getResults());
     }
 
     @Test
     public void milStatusIsNotOFF() {
 
-    }
-
-    @Test
-    public void responsesDoNotMatch() {
-
-    }
-
-    @Test
-    public void runHappyPath() {
-        // List<DM2PreviouslyActiveDTC> globalDM2s = new ArrayList<>();
-        Set<Integer> obdModulesAddresses = new HashSet<>();
-        obdModulesAddresses.add(0);
-        // dm2s.getDtcs();
-        // globalDM2s.add(dm2s);
-
-        // DM2PreviouslyActiveDTCs packt1 = createDM2s(0, LampStatus.OFF);
-
-        List<? extends DiagnosticTroubleCodePacket> packets = new ArrayList<>();
-        when(dtcModule.requestDM2(any(), any())).thenReturn(new RequestResult(false, packets));
+        Set<Integer> obdModuleAddresses = new HashSet<>();
 
         List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
-        DiagnosticTroubleCodePacket dtc1 = mock(DiagnosticTroubleCodePacket.class);
-        dtcs.addAll(dtc1.getDtcs());
+        DM2PreviouslyActiveDTC packet1 = createDM2s(dtcs, LampStatus.ON);
 
-        when(diagnosticTroubleCodePacket.getDtcs()).thenReturn(dtcs);
+        new ArrayList<>();
+        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, listOf(packet1)));
 
-        LampStatus milStatus = LampStatus.OFF;
+        when(diagnosticTroubleCodePacket.getDtcs()).thenReturn(null);
+
+        // when()
+
+        LampStatus milStatus = packet1.getMalfunctionIndicatorLampStatus();
         when(diagnosticTroubleCodePacket.getMalfunctionIndicatorLampStatus()).thenReturn(milStatus);
 
         // when(dtcModule.getDM2Packets(any(), eq(true), 0).thenReturn(dtcs);
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModulesAddresses);
+        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
+
+        // DiagnosticTroubleCodePacket dtc1 = mock(DiagnosticTroubleCodePacket.class);
+        // dtcs.addAll(dtc1.getDtcs());
+        // List<DM2PreviouslyActiveDTC> DTC = new ArrayList<>();
 
         runTest();
 
-        verify(diagnosticTroubleCodePacket).getDtcs();
-        verify(diagnosticTroubleCodePacket).getMalfunctionIndicatorLampStatus();
-
-        verify(dataRepository).getObdModuleAddresses();
-
         verify(dtcModule).setJ1939(j1939);
+        verify(dtcModule).requestDM2(any(), eq(true));
+
+        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
+
+        verify(mockListener).addOutcome(1,
+                16,
+                Outcome.FAIL,
+                "6.1.16.2.b - OBD ECU does not report MIL off.");
 
         verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule).addOutcome(1,
+                16,
+                Outcome.FAIL,
+                "6.1.16.2.b - OBD ECU does not report MIL off.");
+        verify(reportFileModule).onResult(
+                "FAIL: 6.1.16.2.b - OBD ECU does not report MIL off.");
 
-        verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0));
+        // verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        String expectedResult = "FAIL: 6.1.16.2.b - OBD ECU does not report MIL off.\n";
+        assertEquals(expectedResult, listener.getResults());
+    }
+
+    @Test
+    public void nonOBDECUisOFF() {
+
+    }
+
+    @Test
+    public void responsesDoNotMatch() {
+        Set<Integer> obdModuleAddresses = new HashSet<>();
+        obdModuleAddresses.add(0);
+        obdModuleAddresses.add(1);
+        obdModuleAddresses.add(2);
+        obdModuleAddresses.add(3);
+
+        List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
+        DM2PreviouslyActiveDTC packet1 = createDM2s(dtcs, LampStatus.OFF);
+
+        // List<ParsedPacket> DM2s = new ArrayList<>();
+        // ParsedPacket dsDM2s = mock(ParsedPacket.class);
+        // DM2s.add(dsDM2s);
+        // DM2s.add(dsDM2s);
+        //
+        // AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
+        // when(packet2.getResponse()).thenReturn(Response.NACK);
+        // DM2s.add(packet2);
+
+        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, listOf(packet1)));
+        when(diagnosticTroubleCodePacket.getDtcs()).thenReturn(dtcs);
+
+        LampStatus milStatus = packet1.getMalfunctionIndicatorLampStatus();
+        when(diagnosticTroubleCodePacket.getMalfunctionIndicatorLampStatus()).thenReturn(milStatus);
+
+        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
+
+        runTest();
+
+        verify(dtcModule).setJ1939(j1939);
+        verify(dtcModule).requestDM2(any(), eq(true));
+
+        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
+
+        verify(mockListener).addOutcome(1,
+                16,
+                Outcome.FAIL,
+                "6.1.16.4.a DS DM2 responses differ from global responses");
+
+        verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule).addOutcome(1,
+                16,
+                Outcome.FAIL,
+                "6.1.16.4.a DS DM2 responses differ from global responses");
+        verify(reportFileModule).onResult(
+                "FAIL: 6.1.16.4.a DS DM2 responses differ from global responses");
+
+        // verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        String expectedResult = "FAIL: 6.1.16.4.a DS DM2 responses differ from global responses\n";
+        assertEquals(expectedResult, listener.getResults());
+    }
+
+    @Test
+    public void runHappyPath() {
+
+        Set<Integer> obdModuleAddresses = new HashSet<>();
+
+        List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
+        DM2PreviouslyActiveDTC packet1 = createDM2s(dtcs, LampStatus.OFF);
+
+        // DM2PreviouslyActiveDTC packet2 = createDM2s(dtcs, null);
+
+        new ArrayList<>();
+        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, listOf(packet1)));
+
+        when(diagnosticTroubleCodePacket.getDtcs()).thenReturn(null);
+
+        LampStatus milStatusOff = packet1.getMalfunctionIndicatorLampStatus();
+        when(diagnosticTroubleCodePacket.getMalfunctionIndicatorLampStatus()).thenReturn(milStatusOff);
+
+        LampStatus milStatusNull = null;
+        when(diagnosticTroubleCodePacket.getMalfunctionIndicatorLampStatus()).thenReturn(milStatusNull);
+
+        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
+
+        runTest();
+
+        verify(dtcModule).setJ1939(j1939);
+        verify(dtcModule).requestDM2(any(), eq(true));
+
+        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
+
+        verify(reportFileModule).onProgress(0, 1, "");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -192,6 +339,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
                 bannerModule,
                 vehicleInformationModule,
                 partResultFactory,
+                mockListener,
+                reportFileModule,
                 dtcModule);
     }
 

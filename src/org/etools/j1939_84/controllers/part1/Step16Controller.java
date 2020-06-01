@@ -19,7 +19,6 @@ import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -68,7 +67,7 @@ public class Step16Controller extends Controller {
          *
          * a. Global DM2 (send Request (PGN 59904) for PGN 65227 (SPNs 1213-1215, 3038,
          * 1706)).
-         * globalDM 2 =
+         * globalDM2 =
          *
          * 6.1.16.2 Fail criteria (if supported):
          *
@@ -92,8 +91,9 @@ public class Step16Controller extends Controller {
 
         dtcModule.setJ1939(getJ1939());
         // 6.1.16.1.a. Global DM2 (send Request (PGN 59904) for PGN 65227
-        RequestResult<ParsedPacket> globalDiagnosticTroubleCodePackets = dtcModule.requestDM2(getListener(), true);
-        List<DM2PreviouslyActiveDTC> globalDM2s = globalDiagnosticTroubleCodePackets.getPackets().stream()
+        // RequestResult<ParsedPacket> globalDiagnosticTroubleCodePackets =
+        // dtcModule.requestDM2(getListener(), true);
+        List<DM2PreviouslyActiveDTC> globalDM2s = dtcModule.requestDM2(getListener(), true).getPackets().stream()
                 .filter(p -> p instanceof DM2PreviouslyActiveDTC).map(p -> (DM2PreviouslyActiveDTC) p)
                 .collect(Collectors.toList());
         // FIXME Not sure if this is the right statement. I'm not sure if it's
@@ -135,6 +135,13 @@ public class Step16Controller extends Controller {
         // 6.1.16.2.c Fail if any non-OBD ECU does not report MIL off or not supported
         globalDM2s.stream().filter(p -> !dataRepository.getObdModuleAddresses().contains(p.getSourceAddress()))
                 .forEach(packet -> {
+                    // if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF
+                    // || packet.getMalfunctionIndicatorLampStatus() != null) {
+                    // getListener().addOutcome(1,
+                    // 16,
+                    // Outcome.FAIL,
+                    // "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported.");
+                    // }
                     if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF) {
                         getListener().addOutcome(1,
                                 16,
@@ -155,16 +162,25 @@ public class Step16Controller extends Controller {
         });
 
         // 6.1.16.4.a Fail if any responses differ from global responses
-        long dsDM2response = dsDM2s.stream().count();
-        for (int i = 0; i < dsDM2response; i++) {
-            if (dsDM2s.get(i).getPacket().equals(globalDM2s)) {
-            } else {
-                getListener().addOutcome(1,
-                        16,
-                        Outcome.FAIL,
-                        "6.1.16.4.a DS DM2 responses differ from global responses");
-            }
+        dsDM2s.removeAll(globalDM2s);
+        if (dsDM2s.isEmpty()) {
+        } else {
+            getListener().addOutcome(1,
+                    16,
+                    Outcome.FAIL,
+                    "6.1.16.4.a DS DM2 responses differ from global responses");
         }
+        // long dsDM2response = dsDM2s.stream().count();
+        // long globalResponse = globalDM2s.stream().count();
+        // for (int i = 0; i < dsDM2response; i++) {
+        // if (dsDM2s.get(i).getPacket().equals(globalResponse)) {
+        // } else {
+        // getListener().addOutcome(1,
+        // 16,
+        // Outcome.FAIL,
+        // "6.1.16.4.a DS DM2 responses differ from global responses");
+        // }
+        // }
 
         // 6.1.16.4.b Fail if NACK not received from OBD ECUs that did not respond to
         // global query
