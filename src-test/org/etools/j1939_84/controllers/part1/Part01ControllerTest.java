@@ -99,6 +99,9 @@ public class Part01ControllerTest {
     // private Step10Controller step10Controller;
 
     @Mock
+    private Step09Controller step09Controller;
+
+    @Mock
     private Step11Controller step11Controller;
 
     @Mock
@@ -171,7 +174,8 @@ public class Part01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Part01Controller#Part01Controller()}.
      */
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+            justification = "The method is called just to get some exception.")
     public void testPart01Controller() {
         PartResult partResult = mock(PartResult.class);
         when(partResult.toString()).thenReturn("Part 1");

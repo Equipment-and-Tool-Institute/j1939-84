@@ -12,9 +12,9 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import org.junit.Test;
-
 import org.etools.j1939_84.bus.Packet;
+import org.etools.testdoc.TestDoc;
+import org.junit.Test;
 
 /**
  * Unit tests the {@link DM5DiagnosticReadinessPacket} class
@@ -22,6 +22,7 @@ import org.etools.j1939_84.bus.Packet;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
+@TestDoc()
 public class DM5DiagnosticReadinessPacketTest extends DiagnosticReadinessPacketTest {
 
     @Override
@@ -36,6 +37,7 @@ public class DM5DiagnosticReadinessPacketTest extends DiagnosticReadinessPacketT
 
     @Test
     @Override
+    @TestDoc()
     public void test0x00() {
         super.test0x00();
     }
