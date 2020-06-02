@@ -49,7 +49,8 @@ public class Part01Controller extends Controller {
                 new Step06Controller(dataRepository), new Step07Controller(dataRepository),
                 new Step08Controller(dataRepository), new Step09Controller(dataRepository),
                 new Step10Controller(dataRepository),
-                new Step11Controller(dataRepository), new Step12Controller(dataRepository, new OBDTestsModule()));
+                new Step11Controller(dataRepository), new Step12Controller(dataRepository, new OBDTestsModule()),
+                new Step16Controller(dataRepository));
     }
 
     /**
@@ -85,8 +86,8 @@ public class Part01Controller extends Controller {
      * Part1Controller
      * @param step12Controller the {@link Step11Controller} for
      * Part1Controller
-     * @param step16Controller         the {@link step16Controller} for
-     *                                 Part1Controller
+     * @param step16Controller the {@link step16Controller} for
+     * Part1Controller
      */
     public Part01Controller(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
