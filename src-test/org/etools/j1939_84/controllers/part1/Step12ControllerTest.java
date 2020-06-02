@@ -17,6 +17,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.Slot;
@@ -92,6 +93,38 @@ public class Step12ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    private OBDModuleInformation createOBDModuleInformation(Integer sourceAddress,
+            Integer function,
+            Byte obdCompliance,
+            List<CalibrationInformation> calibrationInfoList,
+            List<SupportedSPN> dataStreamSpns,
+            List<SupportedSPN> freezeFrameSpns,
+            List<SupportedSPN> supportedSpns,
+            List<SupportedSPN> testResultSpns,
+            List<ScaledTestResult> scaledTestResult) {
+        OBDModuleInformation module = mock(OBDModuleInformation.class);
+        if (sourceAddress != null) {
+            when(module.getSourceAddress()).thenReturn(sourceAddress);
+        }
+        if (calibrationInfoList != null) {
+            when(module.getCalibrationInformation()).thenReturn(calibrationInfoList);
+        }
+        if (dataStreamSpns != null) {
+            when(module.getDataStreamSpns()).thenReturn(dataStreamSpns);
+        }
+        if (freezeFrameSpns != null) {
+            when(module.getFreezeFrameSpns()).thenReturn(freezeFrameSpns);
+        }
+        if (supportedSpns != null) {
+            when(module.getSupportedSpns()).thenReturn(supportedSpns);
+        }
+        if (testResultSpns != null) {
+            when(module.getTestResultSpns()).thenReturn(testResultSpns);
+        }
+
+        return module;
+    }
+
     /**
      * @throws java.lang.Exception
      */
@@ -137,7 +170,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         List<SupportedSPN> supportedSPNs = new ArrayList<>();
         SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        when(supportedSPN.getSpn()).thenReturn(157);
         supportedSPNs.add(supportedSPN);
 
         obdModuleInformations.add(createOBDModuleInformation(0,
@@ -231,7 +263,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
         scaledTestsResults.add(scaledTestResult);
         when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getFmi()).thenReturn(18);
         when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
         when(scaledTestResult.getScaledTestMaximum()).thenReturn((double) 0xFB00);
         when(scaledTestResult.getScaledTestMinimum()).thenReturn((double) 0x0000);
@@ -291,7 +322,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
         scaledTestsResults.add(scaledTestResult);
         when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getFmi()).thenReturn(18);
         when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
         when(scaledTestResult.getScaledTestMaximum()).thenReturn((double) 0x0000);
         when(scaledTestResult.getScaledTestMinimum()).thenReturn((double) 0x0000);
@@ -352,7 +382,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
         scaledTestsResults.add(scaledTestResult);
         when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getFmi()).thenReturn(18);
         when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
         when(scaledTestResult.getScaledTestMaximum()).thenReturn((double) 0xFB00);
         when(scaledTestResult.getScaledTestMinimum()).thenReturn((double) 0xFFFF);
@@ -417,7 +446,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
         scaledTestsResults.add(scaledTestResult);
         when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getFmi()).thenReturn(18);
         int slotNumber = 1;
         when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(slotNumber));
         when(scaledTestResult.getScaledTestMaximum()).thenReturn((double) 0xFFFF);
@@ -481,16 +509,10 @@ public class Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
         scaledTestsResults.add(scaledTestResult);
         when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getFmi()).thenReturn(18);
-        int slotNumber = 5;
-        when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(slotNumber));
-        when(scaledTestResult.getScaledTestMaximum()).thenReturn((double) 0xFFFF);
-        when(scaledTestResult.getScaledTestMinimum()).thenReturn((double) 0x0000);
 
         ScaledTestResult scaledTestResult2 = mock(ScaledTestResult.class);
         scaledTestsResults.add(scaledTestResult2);
         when(scaledTestResult2.getSpn()).thenReturn(159);
-        when(scaledTestResult2.getFmi()).thenReturn(18);
         int slotNumber2 = 8;
         when(scaledTestResult2.getSlot()).thenReturn(Slot.findSlot(slotNumber2));
         when(scaledTestResult2.getScaledTestMaximum()).thenReturn((double) 0xFFFF);
@@ -577,7 +599,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
         scaledTestsResults.add(scaledTestResult);
         when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getFmi()).thenReturn(18);
         when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
         when(scaledTestResult.getScaledTestMaximum()).thenReturn((double) 0xFB00);
         when(scaledTestResult.getScaledTestMinimum()).thenReturn((double) 0x0000);
@@ -639,7 +660,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult2 = mock(ScaledTestResult.class);
         scaledTestsResults.add(scaledTestResult2);
         when(scaledTestResult2.getSpn()).thenReturn(157);
-        when(scaledTestResult2.getFmi()).thenReturn(18);
         when(scaledTestResult2.getSlot()).thenReturn(Slot.findSlot(242));
         when(scaledTestResult2.getScaledTestMaximum()).thenReturn((double) 0xFB00);
         when(scaledTestResult2.getScaledTestMinimum()).thenReturn((double) 0x0000);

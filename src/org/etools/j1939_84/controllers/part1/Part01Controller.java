@@ -19,6 +19,7 @@ import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.OBDTestsModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
@@ -47,41 +48,43 @@ public class Part01Controller extends Controller {
                 new Step04Controller(dataRepository), new Step05Controller(dataRepository),
                 new Step06Controller(dataRepository), new Step07Controller(dataRepository),
                 new Step08Controller(dataRepository), new Step09Controller(dataRepository),
-                // new Step10Controller(dataRepository),
-                new Step11Controller(dataRepository));
+                new Step10Controller(dataRepository),
+                new Step11Controller(dataRepository), new Step12Controller(dataRepository, new OBDTestsModule()));
     }
 
     /**
      * Constructor exposed for testing
      *
-     * @param executor                 the {@link Executor}
-     * @param engineSpeedModule        the {@link EngineSpeedModule}
-     * @param bannerModule             the {@link BannerModule}
-     * @param dateTimeModule           the {@link DateTimeModule}
+     * @param executor the {@link Executor}
+     * @param engineSpeedModule the {@link EngineSpeedModule}
+     * @param bannerModule the {@link BannerModule}
+     * @param dateTimeModule the {@link DateTimeModule}
      * @param vehicleInformationModule the {@link VehicleInformationModule}
-     * @param partResultFactory        the {@link PartResultFactory}
-     * @param step01Controller         the {@link Step01Controller} for
-     *                                 Part1Controller
-     * @param step02Controller         the {@link Step02Controller} for
-     *                                 Part1Controller
-     * @param step03Controller         the {@link Step03Controller} for
-     *                                 Part1Controller
-     * @param step04Controller         the {@link Step04Controller} for
-     *                                 Part1Controller
-     * @param step05Controller         the {@link Step05Controller} for
-     *                                 Part1Controller
-     * @param step06Controller         the {@link Step06Controller} for
-     *                                 Part1Controller
-     * @param step07Controller         the {@link Step07Controller} for
-     *                                 Part1Controller
-     * @param step08Controller         the {@link Step08Controller} for
-     *                                 Part1Controller
-     * @param step09Controller         the {@link Step09Controller} for
-     *                                 Part1Controller
-     * @param step10Controller         the {@link Step10Controller} for
-     *                                 Part1Controller
-     * @param step11Controller         the {@link Step11Controller} for
-     *                                 Part1Controller
+     * @param partResultFactory the {@link PartResultFactory}
+     * @param step01Controller the {@link Step01Controller} for
+     * Part1Controller
+     * @param step02Controller the {@link Step02Controller} for
+     * Part1Controller
+     * @param step03Controller the {@link Step03Controller} for
+     * Part1Controller
+     * @param step04Controller the {@link Step04Controller} for
+     * Part1Controller
+     * @param step05Controller the {@link Step05Controller} for
+     * Part1Controller
+     * @param step06Controller the {@link Step06Controller} for
+     * Part1Controller
+     * @param step07Controller the {@link Step07Controller} for
+     * Part1Controller
+     * @param step08Controller the {@link Step08Controller} for
+     * Part1Controller
+     * @param step09Controller the {@link Step09Controller} for
+     * Part1Controller
+     * @param step10Controller the {@link Step10Controller} for
+     * Part1Controller
+     * @param step11Controller the {@link Step11Controller} for
+     * Part1Controller
+     * @param step12Controller the {@link Step11Controller} for
+     * Part1Controller
      */
     public Part01Controller(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
@@ -89,8 +92,8 @@ public class Part01Controller extends Controller {
             Step03Controller step03Controller, Step04Controller step04Controller, Step05Controller step05Controller,
             Step06Controller step06Controller, Step07Controller step07Controller,
             Step08Controller step08Controller, Step09Controller step09Controller,
-            // Step10Controller step10Controller,
-            Step11Controller step11Controller) {
+            Step10Controller step10Controller,
+            Step11Controller step11Controller, Step12Controller step12Controller) {
         super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
 
         stepControllers.add(step01Controller);
@@ -102,8 +105,9 @@ public class Part01Controller extends Controller {
         stepControllers.add(step07Controller);
         stepControllers.add(step08Controller);
         stepControllers.add(step09Controller);
-        // stepControllers.add(step10Controller);
+        stepControllers.add(step10Controller);
         stepControllers.add(step11Controller);
+        stepControllers.add(step12Controller);
     }
 
     private void executeStep(int stepNumber) throws InterruptedException {

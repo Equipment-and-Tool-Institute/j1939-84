@@ -82,7 +82,7 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1, packet2, packet3));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM2 Request" + NL;
+        expected += "10:15:30.000 Destination Specific DM2 Request" + NL;
         expected += "10:15:30.000 18EA17A5 CB FE 00 (TX)" + NL;
         expected += "10:15:30.000 18FECB00 11 22 33 44 55 66 77 88" + NL;
         expected += "10:15:30.000 18FECB17 01 02 03 04 05 06 07 08" + NL;
@@ -112,7 +112,7 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1, packet2));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM2 Request" + NL;
+        expected += "10:15:30.000 Destination Specific DM2 Request" + NL;
         expected += "10:15:30.000 18EA17A5 CB FE 00 (TX)" + NL;
         expected += "10:15:30.000 18FECB17 01 02 03 04 05 06 07 08" + NL;
         expected += "10:15:30.000 18FECB21 10 20 30 40 50 60 70 80" + NL;
@@ -139,7 +139,7 @@ public class DTCModuleTest {
                 .thenReturn(Stream.empty());
 
         String expected = "";
-        expected += "10:15:30.000 Global DM2 Request" + NL;
+        expected += "10:15:30.000 Destination Specific DM2 Request" + NL;
         expected += "10:15:30.000 18EA17A5 CB FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
@@ -169,7 +169,7 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1, packet2, packet3));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM2 Request" + NL;
+        expected += "10:15:30.000 Destination Specific DM2 Request" + NL;
         expected += "10:15:30.000 18EA17A5 CB FE 00 (TX)" + NL;
         expected += "10:15:30.000 18FECB00 11 22 33 44 55 66 77 88" + NL;
         expected += "DM2 from Engine #1 (0): MIL: Off, RSL: Other, AWL: Off, PL: Other" + NL;
@@ -207,7 +207,7 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1, packet2, packet3));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM2 Request" + NL;
+        expected += "10:15:30.000 Destination Specific DM2 Request" + NL;
         expected += "10:15:30.000 18EA17A5 CB FE 00 (TX)" + NL;
         expected += "10:15:30.000 18FECB01 11 22 33 44 55 66 77 88" + NL;
         expected += "DM2 from Engine #2 (1): MIL: Off, RSL: Other, AWL: Off, PL: Other" + NL;
