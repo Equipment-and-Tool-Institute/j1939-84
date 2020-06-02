@@ -31,6 +31,8 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
+import org.etools.testdoc.TestDoc;
+import org.etools.testdoc.TestItem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -48,6 +50,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
+@TestDoc(items = @TestItem(value = "Part 1 Step 5", description = "PGN 65260 VIN verification"))
 public class Step05ControllerTest {
 
     @Mock
@@ -125,7 +128,17 @@ public class Step05ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @TestDoc(
+            items = { @TestItem("6.1.5.2.b"), @TestItem("6.1.5.2.c"), @TestItem("6.1.5.2.d"), @TestItem("6.1.5.2.e"),
+                    @TestItem("6.1.5.3.a"), @TestItem("6.1.5.3.b"), @TestItem("6.1.5.3.d") },
+            description = "More than one OBD ECU responded with VIN" + "<br>" + "VIN does not match user entered VIN."
+                    + "<br>" + "VIN Model Year does not match user entered Vehicle Model Year" + "<br>"
+                    + "VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence" + "<br>"
+                    + "Non-OBD ECU responded with VIN" + "<br>" + "More than one VIN response from an ECU" + "<br>"
+                    + "Manufacturer defined data follows the VIN")
+
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+            justification = "The method is called just to get some exception.")
     public void testError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
@@ -207,7 +220,10 @@ public class Step05ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @TestDoc(items = @TestItem(value = "6.1.5.1.a",
+            description = "Global Request (PGN 59904) for PGN 65260 Vehicle Id (SPN 237) VIN"))
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+            justification = "The method is called just to get some exception.")
     public void testNoError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         Set<Integer> obdModulesAddresses = new HashSet<>();
@@ -244,7 +260,29 @@ public class Step05ControllerTest {
      * restrictions/requirements
      */
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @TestDoc(items = {
+            @TestItem("6.1.5.2.c"),
+            @TestItem("6.1.5.2.d"),
+            @TestItem("6.1.5.2.e"),
+            @TestItem("6.1.5.3.a"),
+            @TestItem("6.1.5.3.b"),
+            @TestItem("6.1.5.3.c"),
+            @TestItem("6.1.5.3.d") },
+            description = "VIN does not match user entered VIN"
+                    + "<br/>"
+                    + "VIN Model Year does not match user entered Vehicle Model Year"
+                    + "<br/>"
+                    + "VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence"
+                    + "<br/>"
+                    + "Non-OBD ECU responded with VIN"
+                    + "<br/>"
+                    + "More than one VIN response from an ECU"
+                    + "<br/>"
+                    + "VIN provided from more than one non-OBD ECU"
+                    + "<br/>"
+                    + "Manufacturer defined data follows the VIN")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+            justification = "The method is called just to get some exception.")
     public void testNoObdResponses() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
@@ -292,12 +330,10 @@ public class Step05ControllerTest {
                 5,
                 Outcome.WARN,
                 "6.1.5.3.b - More than one VIN response from an ECU");
-
         verify(mockListener).addOutcome(1,
                 5,
                 Outcome.WARN,
                 "6.1.5.3.c - VIN provided from more than one non-OBD ECU");
-
         verify(mockListener).addOutcome(1,
                 5,
                 Outcome.WARN,
@@ -325,7 +361,8 @@ public class Step05ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+            justification = "The method is called just to get some exception.")
     public void testWarnError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);

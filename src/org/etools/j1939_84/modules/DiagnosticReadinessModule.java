@@ -176,30 +176,6 @@ public class DiagnosticReadinessModule extends FunctionalModule {
         obdModuleAddresses.add(J1939.ENGINE_ADDR_1);
     }
 
-    // private List<ParsedPacket> fun() {
-    // boolean nacked = packets.stream().anyMatch(packet -> packet instanceof
-    // AcknowledgmentPacket
-    // && ((AcknowledgmentPacket) packet).getResponse() == Response.NACK);
-    // if (nacked) {
-    // addFailure(1, 3, "6.1.3.2.b - The request for DM5 was NACK'ed");
-    // }
-    //
-    // Stream<DM5DiagnosticReadinessPacket> dm5Packets = packets.stream()
-    // .filter(p -> p instanceof DM5DiagnosticReadinessPacket)
-    // .map(p -> (DM5DiagnosticReadinessPacket) p);
-    // }
-
-    @SuppressWarnings("unchecked")
-    private <T extends ParsedPacket> List<T> filterPackets(List<ParsedPacket> packets, Class<T> clazz) {
-        List<T> resultPackets = new ArrayList<>();
-        for (ParsedPacket packet : packets) {
-            if (packet.getClass() == clazz) {
-                resultPackets.add((T) packet);
-            }
-        }
-        return resultPackets;
-    }
-
     /**
      * Helper method to extract all the {@link MonitoredSystem}s given a
      * {@link List} of {@link DiagnosticReadinessPacket}s

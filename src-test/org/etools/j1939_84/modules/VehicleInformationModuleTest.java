@@ -32,6 +32,8 @@ import org.etools.j1939_84.bus.j1939.packets.HighResVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.TotalVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.testdoc.TestDoc;
+import org.etools.testdoc.TestItem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +49,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The values returned are properly ignored on verify statements.")
+@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+        justification = "The values returned are properly ignored on verify statements.")
 @RunWith(MockitoJUnitRunner.class)
 public class VehicleInformationModuleTest {
 
@@ -132,6 +135,7 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
+    @TestDoc(description = "Verify that a failure is generated when there is no response to the request for DM56.")
     public void testGetEngineModelYearNoResponse() throws Exception {
         when(j1939.requestMultiple(DM56EngineFamilyPacket.class)).thenReturn(Stream.empty());
 
@@ -146,6 +150,8 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
+    @TestDoc(items = @TestItem(value = "6.1.1.1.e.ii.1",
+            description = "Verify that a failure is generated when the engine model year does not match that specified in the VIN."))
     public void testGetEngineModelYearWithDifferentResponses() throws Exception {
         DM56EngineFamilyPacket response1 = mock(DM56EngineFamilyPacket.class);
         when(response1.getEngineModelYear()).thenReturn(123);
@@ -164,6 +170,8 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
+    @TestDoc(description = "Verify that VIN is requested and the correct value is passed.",
+            dependsOn = "VehicleIdentificationPacketTest")
     public void testGetVin() throws Exception {
         VehicleIdentificationPacket response = mock(VehicleIdentificationPacket.class);
         when(response.getVin()).thenReturn("vin");
@@ -177,6 +185,8 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
+    @TestDoc(description = "Verify if a VIN request is not answered, error is thrown.",
+            dependsOn = "VehicleIdentificationPacketTest")
     public void testGetVinNoResponse() throws Exception {
         when(j1939.requestMultiple(VehicleIdentificationPacket.class)).thenReturn(Stream.empty());
 
@@ -191,6 +201,8 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
+    @TestDoc(description = "Verify if a VIN request generates two different responses, error is thrown.",
+            dependsOn = "VehicleIdentificationPacketTest")
     public void testGetVinWithDifferentResponses() throws Exception {
         VehicleIdentificationPacket response1 = mock(VehicleIdentificationPacket.class);
         when(response1.getVin()).thenReturn("vin1");

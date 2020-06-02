@@ -23,6 +23,9 @@ import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
+import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -84,8 +87,8 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
     @Mock
     private DataRepository dataRepository;
-    private DateTimeModule dateTimeModule;
 
+    private DateTimeModule dateTimeModule;
     @Mock
     private EngineSpeedModule engineSpeedModule;
 
@@ -113,6 +116,41 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
+
+    private OBDModuleInformation createOBDModuleInformation(Integer sourceAddress,
+            Integer function,
+            Byte obdCompliance,
+            List<CalibrationInformation> calibrationInfoList,
+            List<SupportedSPN> dataStreamSpns,
+            List<SupportedSPN> freezeFrameSpns,
+            List<SupportedSPN> supportedSpns,
+            List<SupportedSPN> testResultSpns,
+            List<ScaledTestResult> scaledTestResult) {
+        OBDModuleInformation module = mock(OBDModuleInformation.class);
+        if (sourceAddress != null) {
+            when(module.getSourceAddress()).thenReturn(sourceAddress);
+        }
+        if (function != null) {
+            when(module.getFunction()).thenReturn(function);
+        }
+        if (calibrationInfoList != null) {
+            when(module.getCalibrationInformation()).thenReturn(calibrationInfoList);
+        }
+        if (dataStreamSpns != null) {
+            when(module.getDataStreamSpns()).thenReturn(dataStreamSpns);
+        }
+        if (freezeFrameSpns != null) {
+            when(module.getFreezeFrameSpns()).thenReturn(freezeFrameSpns);
+        }
+        if (supportedSpns != null) {
+            when(module.getSupportedSpns()).thenReturn(supportedSpns);
+        }
+        if (testResultSpns != null) {
+            when(module.getTestResultSpns()).thenReturn(testResultSpns);
+        }
+
+        return module;
+    }
 
     /*
      * 6.1.9.1 ACTIONS:
@@ -188,11 +226,10 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(listOf(packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null));
+                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -252,7 +289,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null));
+                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -308,17 +345,15 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(listOf(packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null));
+                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         runTest();
 
-        // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
         verify(dataRepository, times(2)).getObdModules();
 
@@ -363,7 +398,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null));
+                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -423,7 +458,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null));
+                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -483,7 +518,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null));
+                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -544,7 +579,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null));
+                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -604,7 +639,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null));
+                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -675,7 +710,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null));
+                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -796,7 +831,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null));
+                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -864,7 +899,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null));
+                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -923,7 +958,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null));
+                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -981,7 +1016,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null));
+                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 

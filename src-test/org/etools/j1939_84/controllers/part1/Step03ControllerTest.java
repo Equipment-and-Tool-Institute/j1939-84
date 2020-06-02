@@ -36,6 +36,7 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.testdoc.TestDoc;
+import org.etools.testdoc.TestItem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -52,7 +53,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
  */
-@TestDoc(verifies = "Part 1, Step 3", description = "DM5: Diagnostic readiness 1")
+@TestDoc(items = @TestItem(value = "Part 1 Step 3", description = "DM5: Diagnostic readiness 1"))
 @RunWith(MockitoJUnitRunner.class)
 public class Step03ControllerTest {
 
@@ -130,6 +131,12 @@ public class Step03ControllerTest {
     /**
      * Includes addWarning() verification for distinctCount > 1
      */
+    @TestDoc(items = {
+            @TestItem("6.1.3.2.b"),
+            @TestItem("6.1.3.3.a") }, description = "Verify there are fail messages for: <ul><li>Not all responses are identical.</li>"
+                    +
+                    "<li>The request for DM5 was NACK'ed</li></ul>", dependsOn = {
+                            "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
     public void testBadECUValue() {
         List<ParsedPacket> packets = new ArrayList<>();
         when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
@@ -213,19 +220,21 @@ public class Step03ControllerTest {
     }
 
     @Test
+    @TestDoc(items = @TestItem(value = "6.1.3", description = "Verifies part and step name for report."))
     public void testGetDisplayName() {
         assertEquals("Display Name", "Part 1 Step 3", instance.getDisplayName());
     }
 
     @Test
+    @TestDoc(items = @TestItem(value = "6.1.3", description = "Verifies that there is a single 6.1.3 step."))
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 1, instance.getTotalSteps());
     }
 
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
-    @TestDoc(verifies = { "6.1.3.2.a",
-            "6.1.3.2.b" }, description = "There needs to be at least one OBD Module & The request for DM5 was NACK'ed")
+    @TestDoc(items = { @TestItem("6.1.3.2.a"),
+            @TestItem("6.1.3.2.b") }, description = "There needs to be at least one OBD Module & The request for DM5 was NACK'ed")
     public void testModulesEmpty() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
@@ -269,7 +278,7 @@ public class Step03ControllerTest {
 
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
-    @TestDoc(verifies = { "6.1.3.2.b" }, description = "The request for DM5 was NACK'ed")
+    @TestDoc(items = @TestItem("6.1.3.2.b"), description = "The request for DM5 was NACK'ed")
     public void testRun() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);

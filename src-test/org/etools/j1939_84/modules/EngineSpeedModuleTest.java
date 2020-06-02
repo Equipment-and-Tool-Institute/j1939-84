@@ -12,16 +12,17 @@ import static org.mockito.Mockito.when;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 
+import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
+import org.etools.testdoc.TestDoc;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
+import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
 
 /**
  * The Unit tests for the {@link EngineSpeedModule} class
@@ -30,6 +31,7 @@ import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
+@TestDoc(description = "Verify correct interpretation of PGN 61444.", dependsOn = { "EngineSpeedPacketTest" })
 public class EngineSpeedModuleTest {
 
     private static final int PGN = EngineSpeedPacket.PGN;
@@ -43,7 +45,7 @@ public class EngineSpeedModuleTest {
      * Creates an {@link EngineSpeedPacket} with the given engine speed
      *
      * @param speed
-     *            the engine speed in 1/8 RPMs
+     * the engine speed in 1/8 RPMs
      * @return an {@link EngineSpeedPacket}
      */
     private EngineSpeedPacket getEngineSpeedPacket(int speed) {
@@ -58,54 +60,75 @@ public class EngineSpeedModuleTest {
 
     @After
     public void tearDown() {
-        verify(j1939).read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS);
+        // verify that isEngineCommunicating() and isEngineNotRunning() are both called
+        verify(j1939, VerificationModeFactory.times(2)).read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS);
         verifyNoMoreInteractions(j1939);
     }
 
     @Test
-    public void testEngineCommunicating() {
+    @TestDoc(description = "Verify KOEO is identified when PGN 61444 speed 0 is on the bus.", dependsOn = {
+            "EngineSpeedPacketTest.testGetEngineSpeedAtZero" })
+    public void testEngineKOEO_0() {
         EngineSpeedPacket packet = getEngineSpeedPacket(0);
         when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS)).thenReturn(Optional.of(packet));
         assertTrue(instance.isEngineCommunicating());
-    }
-
-    @Test
-    public void testEngineNotCommunicating() {
-        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS)).thenReturn(Optional.empty());
-        assertFalse(instance.isEngineCommunicating());
-    }
-
-    @Test
-    public void testIsEngineNotRunningEngineOff() {
-        EngineSpeedPacket packet = getEngineSpeedPacket(0);
-        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS)).thenReturn(Optional.of(packet));
         assertTrue(instance.isEngineNotRunning());
     }
 
     @Test
-    public void testIsEngineNotRunningEngineOn() {
-        EngineSpeedPacket packet = getEngineSpeedPacket(2500);
+    @TestDoc(description = "Verify KOEO is identified when PGN 61444 speed 300 is on the bus.", dependsOn = {
+            "EngineSpeedPacketTest.testGetEngineSpeedAndToStringAt300" })
+    public void testEngineKOEO_300() {
+        EngineSpeedPacket packet = getEngineSpeedPacket(300 * 8);
         when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS)).thenReturn(Optional.of(packet));
+        assertTrue(instance.isEngineCommunicating());
+        assertTrue(instance.isEngineNotRunning());
+    }
+
+    @Test
+    @TestDoc(description = "Verify KOER is identified when PGN 61444 speed 301 is on the bus.")
+    public void testEngineKOER_301() {
+        EngineSpeedPacket packet = getEngineSpeedPacket(301 * 8);
+        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS)).thenReturn(Optional.of(packet));
+        assertTrue(instance.isEngineCommunicating());
         assertFalse(instance.isEngineNotRunning());
     }
 
     @Test
-    public void testIsEngineNotRunningError() {
+    @TestDoc(description = "Verify key off (no communication, but engine may be running) identified when there is no traffic on the bus.")
+    public void testEngineNotCommunicating() {
+        // should we send non F004 traffic?
+        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS)).thenReturn(Optional.empty());
+        assertFalse(instance.isEngineCommunicating());
+        assertFalse(instance.isEngineNotRunning());
+    }
+
+    @Test
+    @TestDoc(description = "Verify KOER is identified when PGN 61444 speed (0xFE00-1)/8 RPM is on the bus.")
+    public void testKOER_2500() {
+        EngineSpeedPacket packet = getEngineSpeedPacket(0xFE00 - 1);
+        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS)).thenReturn(Optional.of(packet));
+        assertTrue(instance.isEngineCommunicating());
+        assertFalse(instance.isEngineNotRunning());
+    }
+
+    @Test
+    @TestDoc(description = "Verify KOER is identified when PGN 61444 speed error is on the bus.", dependsOn = {
+            "EngineSpeedPacketTest.testGetEngineSpeedAndToStringAtError" })
+    public void testKOER_error() {
         EngineSpeedPacket packet = getEngineSpeedPacket(0xFE00);
         when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS)).thenReturn(Optional.of(packet));
+        assertTrue(instance.isEngineCommunicating());
         assertFalse(instance.isEngineNotRunning());
     }
 
     @Test
-    public void testIsEngineNotRunningNoCommunication() {
-        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS)).thenReturn(Optional.empty());
-        assertFalse(instance.isEngineNotRunning());
-    }
-
-    @Test
-    public void testIsEngineNotRunningNotAvailable() {
+    @TestDoc(description = "Verify KOER is identified when PGN 61444 speed 'not available' is on the bus.", dependsOn = {
+            "EngineSpeedPacketTest.testGetEngineSpeedAndToStringAtNotAvailable" })
+    public void testKOER_not_available() {
         EngineSpeedPacket packet = getEngineSpeedPacket(0xFFFF);
         when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS)).thenReturn(Optional.of(packet));
+        assertTrue(instance.isEngineCommunicating());
         assertFalse(instance.isEngineNotRunning());
     }
 
