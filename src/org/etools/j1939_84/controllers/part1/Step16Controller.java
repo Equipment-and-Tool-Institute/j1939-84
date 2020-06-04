@@ -153,13 +153,13 @@ public class Step16Controller extends Controller {
             dsDM2s.addAll(dtcModule.requestDM2(getListener(), true, address).getPackets());
         });
 
-        System.out.println("Global is : " + globalDiagnosticTroubleCodePackets.getPackets().size);
+        System.out.println("Global is : " + globalDiagnosticTroubleCodePackets.getPackets().size());
         System.out.println("Global is : " + globalDiagnosticTroubleCodePackets.getPackets());
         System.out.println("Local is : " + dsDM2s.size());
         System.out.println("Local is : " + dsDM2s);
         List<ParsedPacket> unmatchedPackets = globalDiagnosticTroubleCodePackets.getPackets().stream()
                 .filter(aObject -> {
-                    return dsDM2s.(aObject);
+                    return dsDM2s.contains(aObject);
                 }).collect(Collectors.toList());
 
         // or more reduced without curly braces and return
