@@ -157,23 +157,45 @@ public class Step16Controller extends Controller {
         System.out.println("Global is : " + globalDiagnosticTroubleCodePackets.getPackets());
         System.out.println("Local is : " + dsDM2s.size());
         System.out.println("Local is : " + dsDM2s);
-        List<ParsedPacket> unmatchedPackets = globalDiagnosticTroubleCodePackets.getPackets().stream()
-                .filter(aObject -> {
-                    return dsDM2s.contains(aObject);
-                }).collect(Collectors.toList());
 
-        // or more reduced without curly braces and return
-        // List<String> result2 = aList.stream().filter(aObject ->
-        // !bList.contains(aObject)).collect(Collectors.toList());
+        List<ParsedPacket> results = new ArrayList<>();
 
-        System.out.println("unmatchedPackets.size() is : " + unmatchedPackets.size());
+        if (dsDM2s.size() > globalDiagnosticTroubleCodePackets.getPackets().size()) {
+            results.addAll(dsDM2s);
+            results.removeAll(globalDM2s);
+        } else {
+            results.addAll(globalDM2s);
+            results.removeAll(dsDM2s);
+        }
 
-        if (!unmatchedPackets.isEmpty()) {
+        System.out.println("Results is : " + results);
+
+        if (!results.isEmpty()) {
             getListener().addOutcome(1,
                     16,
                     Outcome.FAIL,
                     "6.1.16.4.a DS DM2 responses differ from global responses");
         }
+
+        // List<ParsedPacket> unmatchedPackets =
+        // globalDiagnosticTroubleCodePackets.getPackets().stream()
+        // .filter(aObject -> {
+        // return dsDM2s.contains(aObject);
+        // }).collect(Collectors.toList());
+        //
+        // // or more reduced without curly braces and return
+        // // List<String> result2 = aList.stream().filter(aObject ->
+        // // !bList.contains(aObject)).collect(Collectors.toList());
+        //
+        // System.out.println("unmatchedPackets.size() is : " +
+        // unmatchedPackets.size());
+        //
+        // if (!unmatchedPackets.isEmpty()) {
+        // getListener().addOutcome(1,
+        // 16,
+        // Outcome.FAIL,
+        // "6.1.16.4.a DS DM2 responses differ from global responses");
+        // }
 
         // global DM2 only
         // List<DM2PreviouslyActiveDTC> globalDM2PreActiveDTC = new ArrayList<>();
