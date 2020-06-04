@@ -23,8 +23,8 @@ import org.etools.j1939_84.utils.StringUtils;
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
- *         The controller for 6.1.9 Component ID: Make, Model, Serial Number
- *         Support
+ * The controller for 6.1.9 Component ID: Make, Model, Serial Number
+ * Support
  */
 public class Step09Controller extends Controller {
 
@@ -189,6 +189,8 @@ public class Step09Controller extends Controller {
         // b. Fail if the global response does not match the destination specific
         // response from function 0.
 
+        // FIXME This needs to check the packets to have source addresses from the
+        // function=0 Module.
         List<OBDModuleInformation> globalObdModuleInformations = dataRepository.getObdModules().stream()
                 .filter(module -> module.getFunction() == 0).collect(Collectors.toList());
         if (globalObdModuleInformations.size() == 0) {

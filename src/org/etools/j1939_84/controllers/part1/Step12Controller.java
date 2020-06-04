@@ -29,8 +29,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
- *         The controller for 6.1.12 DM7/DM30: Command Non-continuously
- *         Monitored Test/Scaled Test Results
+ * The controller for 6.1.12 DM7/DM30: Command Non-continuously
+ * Monitored Test/Scaled Test Results
  */
 public class Step12Controller extends Controller {
 
@@ -38,13 +38,13 @@ public class Step12Controller extends Controller {
     private final OBDTestsModule obdTestsModule;
     private final TableA7Validator tableA7Validator;
 
-    Step12Controller(DataRepository dataRepository, OBDTestsModule obdTestsModule) {
+    Step12Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), dataRepository, new VehicleInformationModule(), obdTestsModule,
+                new DateTimeModule(), dataRepository, new VehicleInformationModule(), new OBDTestsModule(),
                 new PartResultFactory(), new TableA7Validator());
     }
 
-    protected Step12Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
+    Step12Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
             DateTimeModule dateTimeModule, DataRepository dataRepository,
             VehicleInformationModule vehicleInformationModule,
             OBDTestsModule obdTestsModule, PartResultFactory partResultFactory, TableA7Validator tableA7Validator) {
@@ -146,19 +146,32 @@ public class Step12Controller extends Controller {
         // test limit as initialized (after code clear) values (either
         // 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000).
         for (ScaledTestResult result : testResults) {
-            if (result.getScaledTestMaximum() != 0xFB00 &&
-                    result.getScaledTestMaximum() != 0xFFFF) {
+            if (result.getTestValue() != 0xFFFF) {
+                System.out.println("Hapopy Days!");
+            }
+            if (result.getTestValue() != 0xFB00) {
+                System.out.println("Hapopy Days 2!");
+            }
+            if (result.getTestValue() != 0x0000) {
+                System.out.println("Hapopy Days 3!");
+            }
+            if (!((result.getTestValue() == 0xFB00 &&
+                    result.getTestMinimum() == 0xFFFF && result.getTestMaximum() == 0xFFFF) ||
+                    (result.getTestValue() == 0x0000 &&
+                            result.getTestMinimum() == 0x0000 && result.getTestMaximum() == 0x0000))) {
                 addFailure(1,
                         12,
-                        "Fail if any test result does not report the test result max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF");
+                        "Fail if any test result does not report the test result max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
 
             }
-            if (result.getScaledTestMinimum() != 0x0000) {
-                addFailure(1,
-                        12,
-                        "Fail if any test result does not report the test result min test limit initialized one of the following values 0x0000/0x0000/0x0000");
-
-            }
+            // else if (result.getTestValue() != 0x0000 &&
+            // result.getTestMinimum() != 0x0000 && result.getTestMaximum() != 0x0000) {
+            // addFailure(1,
+            // 12,
+            // "Fail if any test result does not report the test result min test limit
+            // initialized one of the following values 0x0000/0x0000/0x0000");
+            //
+            // }
             // c. Fail if the SLOT identifier for any test results is an undefined or a not
             // valid SLOT in Appendix A of J1939-71. See Table A-7-2 3 for a list of the
             // valid, SLOTs known to be appropriate for use in test results.
