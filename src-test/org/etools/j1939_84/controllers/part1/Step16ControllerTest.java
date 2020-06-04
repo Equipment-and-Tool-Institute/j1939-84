@@ -483,8 +483,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
         DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
         globalPackets.add(packet1);
         globalPackets.add(packet1);
-        DiagnosticTroubleCode packet1Dtc = mock(DiagnosticTroubleCode.class);
-        when(packet1.getDtcs()).thenReturn(listOf(packet1Dtc));
+        // DiagnosticTroubleCode packet1Dtc = mock(DiagnosticTroubleCode.class);
+        // when(packet1.getDtcs()).thenReturn(listOf(packet1Dtc));
         when(packet1.getSourceAddress()).thenReturn(0);
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, globalPackets));
@@ -497,15 +497,16 @@ public class Step16ControllerTest extends AbstractControllerTest {
         List<ParsedPacket> destinationSpecificPackets = new ArrayList<>();
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         destinationSpecificPackets.add(packet2);
-        DiagnosticTroubleCode packet2Dtc = mock(DiagnosticTroubleCode.class);
-        when(packet2.getDtcs()).thenReturn(listOf(packet2Dtc));
+        // DiagnosticTroubleCode packet2Dtc = mock(DiagnosticTroubleCode.class);
+        // when(packet2.getDtcs()).thenReturn(listOf(packet2Dtc));
         when(packet2.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
         when(packet2.getSourceAddress()).thenReturn(0);
         when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new RequestResult<>(false, listOf(packet2)));
 
         // add ACK/NACK packets to the listing for complete reality testing
-        AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
+        DM2PreviouslyActiveDTC packet4 = mock(DM2PreviouslyActiveDTC.class);
         destinationSpecificPackets.add(packet4);
+        when(packet4.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
         when(packet4.getSourceAddress()).thenReturn(3);
         when(dtcModule.requestDM2(any(), eq(true), eq(3))).thenReturn(new RequestResult<>(false, listOf(packet4)));
 
