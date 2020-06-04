@@ -58,18 +58,19 @@ public class Step16ControllerTest extends AbstractControllerTest {
     // return data;
     // }
 
-    private static DM2PreviouslyActiveDTC createDM2s(List<DiagnosticTroubleCode> dtcs,
-            LampStatus mil) {
-        DM2PreviouslyActiveDTC packet = mock(DM2PreviouslyActiveDTC.class);
-        if (dtcs != null) {
-            when(packet.getDtcs()).thenReturn(dtcs);
-        }
-        if (mil != null) {
-            when(packet.getMalfunctionIndicatorLampStatus()).thenReturn(mil);
-        }
-
-        return packet;
-    }
+    // private static DM2PreviouslyActiveDTC createDM2s(List<DiagnosticTroubleCode>
+    // dtcs,
+    // LampStatus mil) {
+    // DM2PreviouslyActiveDTC packet = mock(DM2PreviouslyActiveDTC.class);
+    // if (dtcs != null) {
+    // when(packet.getDtcs()).thenReturn(dtcs);
+    // }
+    // if (mil != null) {
+    // when(packet.getMalfunctionIndicatorLampStatus()).thenReturn(mil);
+    // }
+    //
+    // return packet;
+    // }
 
     @Mock
     private BannerModule bannerModule;
@@ -328,8 +329,11 @@ public class Step16ControllerTest extends AbstractControllerTest {
         List<ParsedPacket> globalPackets = new ArrayList<>();
         DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
         globalPackets.add(packet1);
-        DiagnosticTroubleCode packet1Dtc = mock(DiagnosticTroubleCode.class);
-        when(packet1.getDtcs()).thenReturn(listOf(packet1Dtc));
+        List<DiagnosticTroubleCode> packet1Dtc = new ArrayList<>();
+        DiagnosticTroubleCode Dtc = mock(DiagnosticTroubleCode.class);
+        packet1Dtc.add(Dtc);
+        packet1Dtc.add(Dtc);
+        when(packet1.getDtcs()).thenReturn(packet1Dtc);
         when(packet1.getSourceAddress()).thenReturn(0);
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, globalPackets));
@@ -438,6 +442,133 @@ public class Step16ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testMILNotSupported() {
+
+        List<ParsedPacket> globalPackets = new ArrayList<>();
+        DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
+        globalPackets.add(packet1);
+        // DiagnosticTroubleCode packet1Dtc = mock(DiagnosticTroubleCode.class);
+        // when(packet1.getDtcs()).thenReturn(listOf(packet1Dtc));
+        when(packet1.getSourceAddress()).thenReturn(0);
+        when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OTHER);
+        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, globalPackets));
+
+        mock(AcknowledgmentPacket.class);
+        // when(packet3.getSourceAddress()).thenReturn(3);
+        globalPackets.add(packet1);
+
+        // Set up the destination specific packets we will be returning when requested
+        List<ParsedPacket> destinationSpecificPackets = new ArrayList<>();
+        DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
+        destinationSpecificPackets.add(packet2);
+        // DiagnosticTroubleCode packet2Dtc = mock(DiagnosticTroubleCode.class);
+        // when(packet2.getDtcs()).thenReturn(listOf(packet2Dtc));
+        // when(packet2.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
+        // when(packet2.getSourceAddress()).thenReturn(0);
+        when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new RequestResult<>(false, listOf(packet2)));
+
+        // add ACK/NACK packets to the listing for complete reality testing
+        AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
+        destinationSpecificPackets.add(packet4);
+        // when(packet4.getSourceAddress()).thenReturn(3);
+        when(dtcModule.requestDM2(any(), eq(true), eq(3))).thenReturn(new RequestResult<>(false, listOf(packet4)));
+
+        // Return the modules address so that we can do the destination specific calls
+        Set<Integer> obdAddressSet = new HashSet<>() {
+            {
+                add(0);
+                add(3);
+            }
+        };
+        when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
+
+        runTest();
+
+        verify(dtcModule).setJ1939(j1939);
+        verify(dtcModule).requestDM2(any(), eq(true));
+        verify(dtcModule).requestDM2(any(), eq(true), eq(0));
+        verify(dtcModule).requestDM2(any(), eq(true), eq(3));
+
+        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
+
+        // verify(mockListener).addOutcome(1,
+        // 16,
+        // Outcome.FAIL,
+        // "");
+
+        verify(reportFileModule).onProgress(0, 1, "");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testMILStatusNotOFF() {
+        List<ParsedPacket> globalPackets = new ArrayList<>();
+        DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
+        globalPackets.add(packet1);
+        DiagnosticTroubleCode packet1Dtc = mock(DiagnosticTroubleCode.class);
+        when(packet1.getDtcs()).thenReturn(listOf(packet1Dtc));
+        when(packet1.getSourceAddress()).thenReturn(0);
+        when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.ON);
+        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, globalPackets));
+
+        AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
+        // when(packet3.getSourceAddress()).thenReturn(3);
+        globalPackets.add(packet3);
+
+        // Set up the destination specific packets we will be returning when requested
+        List<ParsedPacket> destinationSpecificPackets = new ArrayList<>();
+        DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
+        destinationSpecificPackets.add(packet2);
+        mock(DiagnosticTroubleCode.class);
+        // when(packet2.getDtcs()).thenReturn(listOf(packet2Dtc));
+        // when(packet2.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
+        // when(packet2.getSourceAddress()).thenReturn(0);
+        when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new RequestResult<>(false, listOf(packet2)));
+
+        // add ACK/NACK packets to the listing for complete reality testing
+        AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
+        destinationSpecificPackets.add(packet4);
+        // when(packet4.getSourceAddress()).thenReturn(3);
+        when(dtcModule.requestDM2(any(), eq(true), eq(3))).thenReturn(new RequestResult<>(false, listOf(packet4)));
+
+        // Return the modules address so that we can do the destination specific calls
+        Set<Integer> obdAddressSet = new HashSet<>() {
+            {
+                add(0);
+                add(3);
+            }
+        };
+        when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
+
+        runTest();
+
+        verify(dtcModule).setJ1939(j1939);
+        verify(dtcModule).requestDM2(any(), eq(true));
+        verify(dtcModule).requestDM2(any(), eq(true), eq(0));
+        verify(dtcModule).requestDM2(any(), eq(true), eq(3));
+
+        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
+
+        verify(mockListener).addOutcome(1,
+                16,
+                Outcome.FAIL,
+                "6.1.16.2.b - OBD ECU does not report MIL off.");
+
+        verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule).addOutcome(1,
+                16,
+                Outcome.FAIL,
+                "6.1.16.2.b - OBD ECU does not report MIL off.");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
     public void testNoErrors() {
 
         List<ParsedPacket> globalPackets = new ArrayList<>();
@@ -498,5 +629,206 @@ public class Step16ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
+
+    @Test
+    public void testNonOBDMilOn() {
+        List<ParsedPacket> globalPackets = new ArrayList<>();
+        DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
+        globalPackets.add(packet1);
+        DiagnosticTroubleCode packet1Dtc = mock(DiagnosticTroubleCode.class);
+        when(packet1.getDtcs()).thenReturn(listOf(packet1Dtc));
+        when(packet1.getSourceAddress()).thenReturn(0);
+        when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.ON);
+        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, globalPackets));
+
+        AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
+        // when(packet3.getSourceAddress()).thenReturn(3);
+        globalPackets.add(packet3);
+
+        // Set up the destination specific packets we will be returning when requested
+        List<ParsedPacket> destinationSpecificPackets = new ArrayList<>();
+        DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
+        destinationSpecificPackets.add(packet2);
+        mock(DiagnosticTroubleCode.class);
+        // when(packet2.getDtcs()).thenReturn(listOf(packet2Dtc));
+        // when(packet2.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
+        // when(packet2.getSourceAddress()).thenReturn(0);
+        // when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new
+        // RequestResult<>(false, listOf(packet2)));
+
+        // add ACK/NACK packets to the listing for complete reality testing
+        AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
+        destinationSpecificPackets.add(packet4);
+        // when(packet4.getSourceAddress()).thenReturn(3);
+        // when(dtcModule.requestDM2(any(), eq(true), eq(3))).thenReturn(new
+        // RequestResult<>(false, listOf(packet4)));
+
+        // Return the modules address so that we can do the destination specific calls
+        Set<Integer> obdAddressSet = new HashSet<>() {
+            {
+            }
+        };
+        when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
+
+        runTest();
+
+        verify(dtcModule).setJ1939(j1939);
+        verify(dtcModule).requestDM2(any(), eq(true));
+        // verify(dtcModule).requestDM2(any(), eq(true), eq(0));
+        // verify(dtcModule).requestDM2(any(), eq(true), eq(3));
+
+        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
+
+        verify(mockListener).addOutcome(1,
+                16,
+                Outcome.FAIL,
+                "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported.");
+
+        verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule).addOutcome(1,
+                16,
+                Outcome.FAIL,
+                "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported.");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testResponsesAreDifferent() {
+
+        List<ParsedPacket> globalPackets = new ArrayList<>();
+        DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
+        globalPackets.add(packet1);
+        DiagnosticTroubleCode packet1Dtc = mock(DiagnosticTroubleCode.class);
+        when(packet1.getDtcs()).thenReturn(listOf(packet1Dtc));
+        when(packet1.getSourceAddress()).thenReturn(0);
+        when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
+        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, globalPackets));
+
+        AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
+        when(packet3.getSourceAddress()).thenReturn(3);
+        globalPackets.add(packet1);
+
+        // Set up the destination specific packets we will be returning when requested
+        List<ParsedPacket> destinationSpecificPackets = new ArrayList<>();
+        DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
+        destinationSpecificPackets.add(packet2);
+        destinationSpecificPackets.add(packet2);
+        DiagnosticTroubleCode packet2Dtc = mock(DiagnosticTroubleCode.class);
+        when(packet2.getDtcs()).thenReturn(listOf(packet2Dtc));
+        when(packet2.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
+        when(packet2.getSourceAddress()).thenReturn(0);
+        when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new RequestResult<>(false, listOf(packet2)));
+
+        // add ACK/NACK packets to the listing for complete reality testing
+        AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
+        destinationSpecificPackets.add(packet4);
+        when(packet4.getSourceAddress()).thenReturn(3);
+        when(dtcModule.requestDM2(any(), eq(true), eq(3))).thenReturn(new RequestResult<>(false, listOf(packet4)));
+
+        // Return the modules address so that we can do the destination specific calls
+        Set<Integer> obdAddressSet = new HashSet<>() {
+            {
+                add(0);
+                add(3);
+            }
+        };
+        when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
+
+        runTest();
+
+        verify(dtcModule).setJ1939(j1939);
+        verify(dtcModule).requestDM2(any(), eq(true));
+        verify(dtcModule).requestDM2(any(), eq(true), eq(0));
+        verify(dtcModule).requestDM2(any(), eq(true), eq(3));
+
+        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
+
+        verify(mockListener).addOutcome(1,
+                16,
+                Outcome.FAIL,
+                "6.1.16.4.a DS DM2 responses differ from global responses");
+
+        verify(reportFileModule).onProgress(0, 1, "");
+        verify(reportFileModule).addOutcome(1,
+                16,
+                Outcome.FAIL,
+                "6.1.16.4.a DS DM2 responses differ from global responses");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getResults());
+    }
+
+    // @Test
+    // public void testNonOBDMilOther() {
+    // List<ParsedPacket> globalPackets = new ArrayList<>();
+    // DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
+    // globalPackets.add(packet1);
+    // DiagnosticTroubleCode packet1Dtc = mock(DiagnosticTroubleCode.class);
+    // when(packet1.getDtcs()).thenReturn(listOf(packet1Dtc));
+    // when(packet1.getSourceAddress()).thenReturn(0);
+    // when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OTHER);
+    // when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new
+    // RequestResult<>(false, globalPackets));
+    //
+    // AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
+    // // when(packet3.getSourceAddress()).thenReturn(3);
+    // globalPackets.add(packet3);
+    //
+    // // Set up the destination specific packets we will be returning when
+    // requested
+    // List<ParsedPacket> destinationSpecificPackets = new ArrayList<>();
+    // DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
+    // destinationSpecificPackets.add(packet2);
+    // mock(DiagnosticTroubleCode.class);
+    // // when(packet2.getDtcs()).thenReturn(listOf(packet2Dtc));
+    // //
+    // when(packet2.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
+    // // when(packet2.getSourceAddress()).thenReturn(0);
+    // // when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new
+    // // RequestResult<>(false, listOf(packet2)));
+    //
+    // // add ACK/NACK packets to the listing for complete reality testing
+    // AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
+    // destinationSpecificPackets.add(packet4);
+    // // when(packet4.getSourceAddress()).thenReturn(3);
+    // // when(dtcModule.requestDM2(any(), eq(true), eq(3))).thenReturn(new
+    // // RequestResult<>(false, listOf(packet4)));
+    //
+    // // Return the modules address so that we can do the destination specific
+    // calls
+    // Set<Integer> obdAddressSet = new HashSet<>() {
+    // {
+    // }
+    // };
+    // when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
+    //
+    // runTest();
+    //
+    // verify(dtcModule).setJ1939(j1939);
+    // verify(dtcModule).requestDM2(any(), eq(true));
+    // // verify(dtcModule).requestDM2(any(), eq(true), eq(0));
+    // // verify(dtcModule).requestDM2(any(), eq(true), eq(3));
+    //
+    // verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
+    //
+    // verify(mockListener).addOutcome(1,
+    // 16,
+    // Outcome.FAIL,
+    // "6.1.16.2.c - non-OBD ECU does not report MIL not supported.");
+    //
+    // verify(reportFileModule).onProgress(0, 1, "");
+    // verify(reportFileModule).addOutcome(1,
+    // 16,
+    // Outcome.FAIL,
+    // "6.1.16.2.c - non-OBD ECU does not report MIL not supported.");
+    //
+    // assertEquals("", listener.getMessages());
+    // assertEquals("", listener.getMilestones());
+    // assertEquals("", listener.getResults());
+    // }
 
 }

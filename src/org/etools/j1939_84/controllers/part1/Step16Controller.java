@@ -131,19 +131,8 @@ public class Step16Controller extends Controller {
         // LampStatus of OTHER
         globalDM2s.stream().filter(p -> !dataRepository.getObdModuleAddresses().contains(p.getSourceAddress()))
                 .forEach(packet -> {
-                    // if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF
-                    // || packet.getMalfunctionIndicatorLampStatus() != null) {
-                    // getListener().addOutcome(1,
-                    // 16,
-                    // Outcome.FAIL,
-                    // "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported.");
-                    // }
-                    if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF) {
-                        getListener().addOutcome(1,
-                                16,
-                                Outcome.FAIL,
-                                "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported.");
-                    } else if (packet.getMalfunctionIndicatorLampStatus() != null) {
+                    if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF
+                            || packet.getMalfunctionIndicatorLampStatus() != LampStatus.OTHER) {
                         getListener().addOutcome(1,
                                 16,
                                 Outcome.FAIL,
@@ -164,9 +153,13 @@ public class Step16Controller extends Controller {
             dsDM2s.addAll(dtcModule.requestDM2(getListener(), true, address).getPackets());
         });
 
+        System.out.println("Global is : " + globalDiagnosticTroubleCodePackets.getPackets().size);
+        System.out.println("Global is : " + globalDiagnosticTroubleCodePackets.getPackets());
+        System.out.println("Local is : " + dsDM2s.size());
+        System.out.println("Local is : " + dsDM2s);
         List<ParsedPacket> unmatchedPackets = globalDiagnosticTroubleCodePackets.getPackets().stream()
                 .filter(aObject -> {
-                    return dsDM2s.contains(aObject);
+                    return dsDM2s.(aObject);
                 }).collect(Collectors.toList());
 
         // or more reduced without curly braces and return
