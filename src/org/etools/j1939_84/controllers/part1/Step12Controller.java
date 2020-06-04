@@ -146,15 +146,6 @@ public class Step12Controller extends Controller {
         // test limit as initialized (after code clear) values (either
         // 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000).
         for (ScaledTestResult result : testResults) {
-            if (result.getTestValue() != 0xFFFF) {
-                System.out.println("Hapopy Days!");
-            }
-            if (result.getTestValue() != 0xFB00) {
-                System.out.println("Hapopy Days 2!");
-            }
-            if (result.getTestValue() != 0x0000) {
-                System.out.println("Hapopy Days 3!");
-            }
             if (!((result.getTestValue() == 0xFB00 &&
                     result.getTestMinimum() == 0xFFFF && result.getTestMaximum() == 0xFFFF) ||
                     (result.getTestValue() == 0x0000 &&
