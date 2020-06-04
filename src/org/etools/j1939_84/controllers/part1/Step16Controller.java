@@ -131,19 +131,8 @@ public class Step16Controller extends Controller {
         // LampStatus of OTHER
         globalDM2s.stream().filter(p -> !dataRepository.getObdModuleAddresses().contains(p.getSourceAddress()))
                 .forEach(packet -> {
-                    // if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF
-                    // || packet.getMalfunctionIndicatorLampStatus() != null) {
-                    // getListener().addOutcome(1,
-                    // 16,
-                    // Outcome.FAIL,
-                    // "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported.");
-                    // }
-                    if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF) {
-                        getListener().addOutcome(1,
-                                16,
-                                Outcome.FAIL,
-                                "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported.");
-                    } else if (packet.getMalfunctionIndicatorLampStatus() != null) {
+                    if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF
+                            || packet.getMalfunctionIndicatorLampStatus() != LampStatus.OTHER) {
                         getListener().addOutcome(1,
                                 16,
                                 Outcome.FAIL,
@@ -198,6 +187,26 @@ public class Step16Controller extends Controller {
                     Outcome.FAIL,
                     "6.1.16.4.a DS DM2 responses differ from global responses");
         }
+
+        // List<ParsedPacket> unmatchedPackets =
+        // globalDiagnosticTroubleCodePackets.getPackets().stream()
+        // .filter(aObject -> {
+        // return dsDM2s.contains(aObject);
+        // }).collect(Collectors.toList());
+        //
+        // // or more reduced without curly braces and return
+        // // List<String> result2 = aList.stream().filter(aObject ->
+        // // !bList.contains(aObject)).collect(Collectors.toList());
+        //
+        // System.out.println("unmatchedPackets.size() is : " +
+        // unmatchedPackets.size());
+        //
+        // if (!unmatchedPackets.isEmpty()) {
+        // getListener().addOutcome(1,
+        // 16,
+        // Outcome.FAIL,
+        // "6.1.16.4.a DS DM2 responses differ from global responses");
+        // }
 
         // global DM2 only
         // List<DM2PreviouslyActiveDTC> globalDM2PreActiveDTC = new ArrayList<>();
