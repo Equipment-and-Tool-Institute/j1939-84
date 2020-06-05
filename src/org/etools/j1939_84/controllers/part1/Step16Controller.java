@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part1;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -129,7 +130,8 @@ public class Step16Controller extends Controller {
 
         // 6.1.16.2.c Fail if any non-OBD ECU does not report MIL off or not supported -
         // LampStatus of OTHER
-        globalDM2s.stream().filter(p -> !dataRepository.getObdModuleAddresses().contains(p.getSourceAddress()))
+        Set<Integer> obdModuleAddress = dataRepository.getObdModuleAddresses();
+        globalDM2s.stream().filter(p -> !obdModuleAddress.contains(p.getSourceAddress()))
                 .forEach(packet -> {
                     if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF
                             || packet.getMalfunctionIndicatorLampStatus() != LampStatus.OTHER) {
@@ -149,9 +151,23 @@ public class Step16Controller extends Controller {
         // true,
         // 0).getPackets().size());
         // System.out.println("dsDM2s is null ? : " + (dsDM2s == null));
-        dataRepository.getObdModuleAddresses().stream().forEach(address -> {
+        obdModuleAddress.stream().forEach(address -> {
             dsDM2s.addAll(dtcModule.requestDM2(getListener(), true, address).getPackets());
         });
+
+        List<ParsedPacket> unmatchedPackets = globalDiagnosticTroubleCodePackets.getPackets().stream()
+                .filter(aObject -> {
+                    System.out.println(aObject.getSourceAddress());
+                    return (!verifyPacketsEquality(dsDM2s, aObject));
+                }).collect(Collectors.toList());
+
+        // List<ParsedPacket> unmatchedPackets =
+        // globalDiagnosticTroubleCodePackets.getPackets().stream()
+        // .filter(aObject -> !dsDM2s.contains(aObject)).collect(Collectors.toList());
+        // // (dsDM2s.forEach(packet ->
+        // verifyPacketsEquality(aObject,
+        // packet)))
+        // }).collect(Collectors.toList());
 
         // List<ParsedPacket> unmatchedPackets =
         // globalDiagnosticTroubleCodePackets.getPackets().stream()
@@ -160,10 +176,11 @@ public class Step16Controller extends Controller {
         // boolean found = dsDM2s.forEach(p -> {
         // if (p.getSourceAddress() == aObject.getSourceAddress() &&
         // p.getClass() == aObject.getClass()) {
-        // return true;
+        // //return true;
         // }
+        // //return true;
         // });
-        // return found;
+        // //return false;
         // }).collect(Collectors.toList());
 
         // or more reduced without curly braces and return
@@ -178,10 +195,18 @@ public class Step16Controller extends Controller {
         // src = stream.filter(s - > containsAll(s, substrings, searchString))
         // .collect(Collectors.toList());
 
-        List<ParsedPacket> unmatchedPackets = globalDiagnosticTroubleCodePackets.getPackets().stream()
-                .filter(packet -> !dsDM2s.contains(packet)).collect(Collectors.toList());
+        // List<ParsedPacket> unmatchedPackets =
+        // globalDiagnosticTroubleCodePackets.getPackets().stream()
+        // .filter(packet ->
+        // dsDM2s.forEach(action);.contains(packet)).collect(Collectors.toList());
 
-        if (!unmatchedPackets.isEmpty()) {
+        if (!unmatchedPackets.isEmpty())
+
+        {
+            System.out.println("unmatchedPackets.size() is: " + unmatchedPackets.size());
+            unmatchedPackets.forEach(packet -> {
+                System.out.println(packet.getSourceAddress());
+            });
             getListener().addOutcome(1,
                     16,
                     Outcome.FAIL,
@@ -264,5 +289,20 @@ public class Step16Controller extends Controller {
         // Outcome.FAIL,
         // "6.1.16.4.a - NACK not received from OBD ECU that did not respond to global
         // query.");
+    }
+
+    private boolean verifyPacketsEquality(List<ParsedPacket> packets, ParsedPacket packet) {
+        boolean found = false;
+        for (ParsedPacket p : packets) {
+            if (p.getSourceAddress() == packet.getSourceAddress() &&
+                    p.getClass() == packet.getClass()) {
+                System.out.println("p.getSourceAddress().toString()" + p.getSourceAddress());
+                System.out.println("packet.getClass().toString()" + packet.getSourceAddress());
+                System.out.println("p.getClass().toString()" + p.getClass().toString());
+                System.out.println("packet.getClass().toString()" + packet.getClass().toString());
+                found = true;
+            }
+        }
+        return found;
     }
 }

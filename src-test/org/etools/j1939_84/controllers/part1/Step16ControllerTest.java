@@ -361,24 +361,24 @@ public class Step16ControllerTest extends AbstractControllerTest {
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, globalPackets));
 
-        mock(AcknowledgmentPacket.class);
-        // when(packet3.getSourceAddress()).thenReturn(3);
-        globalPackets.add(packet1);
+        AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
+        when(packet3.getSourceAddress()).thenReturn(3);
+        globalPackets.add(packet3);
 
         // Set up the destination specific packets we will be returning when requested
         List<ParsedPacket> destinationSpecificPackets = new ArrayList<>();
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         destinationSpecificPackets.add(packet2);
-        // DiagnosticTroubleCode packet2Dtc = mock(DiagnosticTroubleCode.class);
+        mock(DiagnosticTroubleCode.class);
         // when(packet2.getDtcs()).thenReturn(listOf(packet2Dtc));
         // when(packet2.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
-        // when(packet2.getSourceAddress()).thenReturn(0);
+        when(packet2.getSourceAddress()).thenReturn(0);
         when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new RequestResult<>(false, listOf(packet2)));
 
         // add ACK/NACK packets to the listing for complete reality testing
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
         destinationSpecificPackets.add(packet4);
-        // when(packet4.getSourceAddress()).thenReturn(3);
+        when(packet4.getSourceAddress()).thenReturn(3);
         when(dtcModule.requestDM2(any(), eq(true), eq(3))).thenReturn(new RequestResult<>(false, listOf(packet4)));
 
         // Return the modules address so that we can do the destination specific calls
@@ -491,7 +491,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getSourceAddress()).thenReturn(3);
-        globalPackets.add(packet1);
+        globalPackets.add(packet3);
 
         // Set up the destination specific packets we will be returning when requested
         List<ParsedPacket> destinationSpecificPackets = new ArrayList<>();
