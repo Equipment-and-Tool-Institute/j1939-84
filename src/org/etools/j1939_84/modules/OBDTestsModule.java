@@ -57,7 +57,7 @@ public class OBDTestsModule extends FunctionalModule {
      * given SPN. The request will be sent to the specific destination
      *
      * @param destination the destination address for the packet
-     * @param spn         the SPN
+     * @param spn the SPN
      * @return Packet
      */
     public Packet createDM7Packet(int destination, int spn) {
@@ -82,8 +82,19 @@ public class OBDTestsModule extends FunctionalModule {
      * @return {@link List} of {@link DM30ScaledTestResultsPacket}s
      */
     public List<DM30ScaledTestResultsPacket> getDM30Packets(ResultsListener listener, int address, SupportedSPN spn) {
-        return filterPackets(requestDM30Packets(listener, address, spn.getSpn()).getPackets(),
+        List<DM30ScaledTestResultsPacket> dm30Packets = filterPackets(
+                requestDM30Packets(listener, address, spn.getSpn()).getPackets(),
                 DM30ScaledTestResultsPacket.class);
+        reportDM30Results(listener, dm30Packets);
+        return dm30Packets;
+    }
+
+    private void reportDM30Results(ResultsListener listener, List<DM30ScaledTestResultsPacket> requestedPackets) {
+
+        requestedPackets.stream().forEach(packet -> {
+            listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+        });
+
     }
 
     private void reportObdTests(ResultsListener listener, List<DM24SPNSupportPacket> requestedPackets) {
@@ -142,9 +153,9 @@ public class OBDTestsModule extends FunctionalModule {
      * to the listener
      *
      * @param listener
-     *                   the {@link ResultsListener}
+     * the {@link ResultsListener}
      * @param obdModules
-     *                   the {@link List} of addresses for ODB Modules
+     * the {@link List} of addresses for ODB Modules
      */
     public void reportOBDTests(ResultsListener listener, List<Integer> obdModules) {
 
@@ -153,6 +164,7 @@ public class OBDTestsModule extends FunctionalModule {
         reportObdTests(listener, requestedPackets);
     }
 
+    @SuppressWarnings("unused")
     private void reportResults(ResultsListener listener, List<DM24SPNSupportPacket> requestedPackets) {
         Map<Integer, List<ScaledTestResult>> allTestResults = new HashMap<>();
         for (DM24SPNSupportPacket packet : requestedPackets) {
@@ -260,12 +272,12 @@ public class OBDTestsModule extends FunctionalModule {
      * Results for the specified SPN
      *
      * @param listener
-     *                    the {@link ResultsListener}
+     * the {@link ResultsListener}
      * @param destination
-     *                    the destination address to send the request to
+     * the destination address to send the request to
      * @param spn
-     *                    the SPN for which the Scaled Test Results are being
-     *                    requested
+     * the SPN for which the Scaled Test Results are being
+     * requested
      * @return the {@link List} of {@link DM30ScaledTestResultsPacket} returned.
      */
     private List<ScaledTestResult> requestScaledTestResultsForSpn(ResultsListener listener, int destination, int spn) {
@@ -290,13 +302,13 @@ public class OBDTestsModule extends FunctionalModule {
      * Results for all the Supported SPNs
      *
      * @param listener
-     *                    the {@link ResultsListener}
+     * the {@link ResultsListener}
      * @param destination
-     *                    the destination address to send the request to
+     * the destination address to send the request to
      * @param moduleName
-     *                    the name of the vehicle module for the report
+     * the name of the vehicle module for the report
      * @param spns
-     *                    the {@link List} of SPNs that will be requested
+     * the {@link List} of SPNs that will be requested
      * @return List of {@link ScaledTestResult}s
      */
     private List<ScaledTestResult> requestScaledTestResultsFromModule(ResultsListener listener,
@@ -315,7 +327,7 @@ public class OBDTestsModule extends FunctionalModule {
     /**
      * Sends a request to the vehicle for {@link DM24SPNSupportPacket}s
      *
-     * @param listener           the {@link ResultsListener}
+     * @param listener the {@link ResultsListener}
      * @param obdModuleAddresses {@link Collection} of Integers}
      * @return {@link List} of {@link DM24SPNSupportPacket}s
      */

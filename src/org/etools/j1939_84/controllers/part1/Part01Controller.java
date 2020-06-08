@@ -19,7 +19,6 @@ import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.OBDTestsModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
@@ -49,7 +48,7 @@ public class Part01Controller extends Controller {
                 new Step06Controller(dataRepository), new Step07Controller(dataRepository),
                 new Step08Controller(dataRepository), new Step09Controller(dataRepository),
                 new Step10Controller(dataRepository),
-                new Step11Controller(dataRepository), new Step12Controller(dataRepository, new OBDTestsModule()));
+                new Step11Controller(dataRepository), new Step12Controller(dataRepository));
     }
 
     /**

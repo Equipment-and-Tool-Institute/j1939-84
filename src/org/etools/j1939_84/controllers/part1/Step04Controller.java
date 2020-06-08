@@ -5,11 +5,9 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
@@ -24,7 +22,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
  *
- *         The controller for DM24: SPN support
+ * The controller for DM24: SPN support
  */
 public class Step04Controller extends Controller {
 
@@ -73,12 +71,14 @@ public class Step04Controller extends Controller {
 
         globalPackets.stream().forEach(p -> {
             OBDModuleInformation info = dataRepository.getObdModule(p.getSourceAddress());
-            info.setSupportedSpns(p.getSupportedSpns());
-            dataRepository.putObdModule(p.getSourceAddress(), info);
+            if (info != null) {
+                info.setSupportedSpns(p.getSupportedSpns());
+            }
         });
 
-        Stream<List<SupportedSPN>> map = dataRepository.getObdModules().stream().map(info -> info.getDataStreamSpns());
-        Set<Integer> dataStreamSpns = map
+        Set<Integer> dataStreamSpns = dataRepository.getObdModules()
+                .stream()
+                .map(info -> info.getDataStreamSpns())
                 .flatMap(spns -> spns.stream())
                 .map(s -> s.getSpn())
                 .collect(Collectors.toSet());

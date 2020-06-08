@@ -22,7 +22,7 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
  */
 public class OBDModuleInformation {
 
-    private List<CalibrationInformation> calibrationInformation;
+    private final List<CalibrationInformation> calibrationInformation = new ArrayList<>();
 
     private int function;
 
@@ -30,11 +30,11 @@ public class OBDModuleInformation {
 
     private final Set<PerformanceRatio> performanceRatios = new HashSet<>();
 
-    private List<ScaledTestResult> scaledTestResults;
+    private final List<ScaledTestResult> scaledTestResults = new ArrayList<>();
 
     private final int sourceAddress;
 
-    private List<SupportedSPN> supportedSpns;
+    private final List<SupportedSPN> supportedSpns = new ArrayList<>();
 
     public OBDModuleInformation(int sourceAddress) {
         this.sourceAddress = sourceAddress;
@@ -113,9 +113,6 @@ public class OBDModuleInformation {
      * @return the supportedSpns
      */
     public List<SupportedSPN> getSupportedSpns() {
-        if (supportedSpns == null) {
-            supportedSpns = new ArrayList<>();
-        }
         return supportedSpns;
     }
 
@@ -136,7 +133,8 @@ public class OBDModuleInformation {
      * @param calibrationInformation the calibrationInformation to set
      */
     public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {
-        this.calibrationInformation = calibrationInformation;
+        this.calibrationInformation.clear();
+        this.calibrationInformation.addAll(calibrationInformation);
     }
 
     /**
@@ -162,14 +160,16 @@ public class OBDModuleInformation {
     }
 
     public void setScaledTestResults(List<ScaledTestResult> scaledTestResults) {
-        this.scaledTestResults = scaledTestResults;
+        this.scaledTestResults.clear();
+        this.scaledTestResults.addAll(scaledTestResults);
     }
 
     /**
      * @param supportedSpns the supportedSpns to set
      */
     public void setSupportedSpns(List<SupportedSPN> supportedSpns) {
-        this.supportedSpns = supportedSpns;
+        this.supportedSpns.clear();
+        this.supportedSpns.addAll(supportedSpns);
     }
 
     @Override
