@@ -42,10 +42,10 @@ public class Step16Controller extends Controller {
     }
 
     protected Step16Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-            DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule, DTCModule dtcmodule,
+            DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule, DTCModule dtcModule,
             PartResultFactory partResultFactory, DataRepository dataRepository) {
         super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
-        dtcModule = dtcmodule;
+        this.dtcModule = dtcModule;
         this.dataRepository = dataRepository;
     }
 
@@ -169,6 +169,8 @@ public class Step16Controller extends Controller {
                     return (!verifyPacketsEquality(dsDM2s, aObject));
                 }).collect(Collectors.toList());
 
+        System.out.println("unmatchedPackets.size() is: " + unmatchedPackets.size());
+
         // List<ParsedPacket> unmatchedPackets =
         // globalDiagnosticTroubleCodePackets.getPackets().stream()
         // .filter(aObject -> !dsDM2s.contains(aObject)).collect(Collectors.toList());
@@ -209,9 +211,7 @@ public class Step16Controller extends Controller {
         // dsDM2s.forEach(action);.contains(packet)).collect(Collectors.toList());
 
         // 6.1.16.4.a Fail if any responses differ from global responses
-        if (!unmatchedPackets.isEmpty())
-
-        {
+        if (!unmatchedPackets.isEmpty()) {
             System.out.println("unmatchedPackets.size() is: " + unmatchedPackets.size());
             System.out.println("unmatchedPackets is: " + unmatchedPackets);
             unmatchedPackets.forEach(packet -> {
@@ -227,8 +227,8 @@ public class Step16Controller extends Controller {
         // global query
         boolean nacked = unmatchedPackets.stream()
                 .anyMatch(packet -> packet instanceof AcknowledgmentPacket
-                        && ((AcknowledgmentPacket) packet).getResponse() == Response.NACK);
-        if (!nacked) {
+                        && ((AcknowledgmentPacket) packet).getResponse() != Response.NACK);
+        if (nacked) {
             getListener().addOutcome(1,
                     16,
                     Outcome.FAIL,
@@ -317,10 +317,6 @@ public class Step16Controller extends Controller {
         for (ParsedPacket p : packets) {
             if (p.getSourceAddress() == packet.getSourceAddress() &&
                     p.getClass() == packet.getClass()) {
-                System.out.println("p.getSourceAddress().toString()" + p.getSourceAddress());
-                System.out.println("packet.getClass().toString()" + packet.getSourceAddress());
-                System.out.println("p.getClass().toString()" + p.getClass().toString());
-                System.out.println("packet.getClass().toString()" + packet.getClass().toString());
                 found = true;
             }
         }
