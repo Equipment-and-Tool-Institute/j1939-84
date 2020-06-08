@@ -10,6 +10,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
@@ -124,7 +126,7 @@ public class Step16Controller extends Controller {
                 getListener().addOutcome(1,
                         16,
                         Outcome.FAIL,
-                        "6.1.16.2.b - OBD ECU does not report MIL off.");
+                        "6.1.16.2.b - OBD ECU does not report MIL off");
             }
         });
 
@@ -133,13 +135,19 @@ public class Step16Controller extends Controller {
         Set<Integer> obdModuleAddress = dataRepository.getObdModuleAddresses();
         globalDM2s.stream().filter(p -> !obdModuleAddress.contains(p.getSourceAddress()))
                 .forEach(packet -> {
-                    if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF
-                            || packet.getMalfunctionIndicatorLampStatus() != LampStatus.OTHER) {
+
+                    if (packet.getMalfunctionIndicatorLampStatus() == LampStatus.OFF) {
+                        System.out.println("LampStatus is: " + packet.getMalfunctionIndicatorLampStatus());
+                    }
+                    if (packet.getMalfunctionIndicatorLampStatus() == LampStatus.OTHER) {
+                        System.out.println("LampStatus is: " + packet.getMalfunctionIndicatorLampStatus());
+                    } else {
                         getListener().addOutcome(1,
                                 16,
                                 Outcome.FAIL,
-                                "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported.");
+                                "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported");
                     }
+
                 });
 
         // 6.1.16.3.a DS DM2 to each OBD ECU
@@ -200,10 +208,12 @@ public class Step16Controller extends Controller {
         // .filter(packet ->
         // dsDM2s.forEach(action);.contains(packet)).collect(Collectors.toList());
 
+        // 6.1.16.4.a Fail if any responses differ from global responses
         if (!unmatchedPackets.isEmpty())
 
         {
             System.out.println("unmatchedPackets.size() is: " + unmatchedPackets.size());
+            System.out.println("unmatchedPackets is: " + unmatchedPackets);
             unmatchedPackets.forEach(packet -> {
                 System.out.println(packet.getSourceAddress());
             });
@@ -212,6 +222,19 @@ public class Step16Controller extends Controller {
                     Outcome.FAIL,
                     "6.1.16.4.a DS DM2 responses differ from global responses");
         }
+
+        // 6.1.16.4.b Fail if NACK not received from OBD ECUs that did not respond to
+        // global query
+        boolean nacked = unmatchedPackets.stream()
+                .anyMatch(packet -> packet instanceof AcknowledgmentPacket
+                        && ((AcknowledgmentPacket) packet).getResponse() == Response.NACK);
+        if (!nacked) {
+            getListener().addOutcome(1,
+                    16,
+                    Outcome.FAIL,
+                    "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
+        }
+        System.out.println("NACKed? " + nacked);
 
         // List<ParsedPacket> unmatchedPackets =
         // globalDiagnosticTroubleCodePackets.getPackets().stream()
@@ -247,7 +270,7 @@ public class Step16Controller extends Controller {
         // dsDM2PreActiveDTC.add((DM2PreviouslyActiveDTC) p);
         // });
         //
-        // // 6.1.16.4.a Fail if any responses differ from global responses
+        //
         // dsDM2s.removeAll(globalDM2s);
         // if (dsDM2s.isEmpty()) {
         // } else {
@@ -268,8 +291,6 @@ public class Step16Controller extends Controller {
         // }
         // }
 
-        // 6.1.16.4.b Fail if NACK not received from OBD ECUs that did not respond to
-        // global query
         // Set<Integer> globalAddresses = globalDM2s.stream().map(p ->
         // p.getSourceAddress()).collect(Collectors.toSet());
         // Set<Integer> obdAddresses = dataRepository.getObdModuleAddresses();
