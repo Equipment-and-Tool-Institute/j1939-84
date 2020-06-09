@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -262,7 +263,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
-        when(packet3.getSourceAddress()).thenReturn(3);
+        // because this is a NACK, the SA will not be requested.
+        // when(packet3.getSourceAddress()).thenReturn(3);
         globalPackets.add(packet3);
 
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, globalPackets));
@@ -311,7 +313,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
         List<ParsedPacket> globalPackets = new ArrayList<>();
         DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
         globalPackets.add(packet1);
-        when(packet1.getDtcs()).thenReturn(null);
+        when(packet1.getDtcs()).thenReturn(Collections.emptyList());
         when(packet1.getSourceAddress()).thenReturn(0);
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.ON);
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, globalPackets));
@@ -380,7 +382,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
         List<ParsedPacket> globalPackets = new ArrayList<>();
         DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
         globalPackets.add(packet1);
-        when(packet1.getDtcs()).thenReturn(null);
+        when(packet1.getDtcs()).thenReturn(Collections.emptyList());
         when(packet1.getSourceAddress()).thenReturn(0);
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, globalPackets));
@@ -430,7 +432,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
         List<ParsedPacket> globalPackets = new ArrayList<>();
         DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
         globalPackets.add(packet1);
-        when(packet1.getDtcs()).thenReturn(null);
+        when(packet1.getDtcs()).thenReturn(Collections.emptyList());
         when(packet1.getSourceAddress()).thenReturn(0);
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.ON);
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, globalPackets));

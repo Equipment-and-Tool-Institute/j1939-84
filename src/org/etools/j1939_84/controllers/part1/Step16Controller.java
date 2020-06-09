@@ -13,7 +13,6 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.Controller;
@@ -51,13 +50,11 @@ public class Step16Controller extends Controller {
 
     @Override
     public String getDisplayName() {
-        // TODO Auto-generated method stub
         return "Part 1 Step 16";
     }
 
     @Override
     protected int getTotalSteps() {
-        // TODO Auto-generated method stub
         return 1;
     }
 
@@ -98,20 +95,12 @@ public class Step16Controller extends Controller {
 
         // Get DM2PrevisoulyActiveDTC so we can get DTCs and report accordingly
         List<DM2PreviouslyActiveDTC> globalDM2s = globalDiagnosticTroubleCodePackets.getPackets().stream()
-                .filter(p -> p instanceof DM2PreviouslyActiveDTC).map(p -> (DM2PreviouslyActiveDTC) p)
+                .filter(p -> p instanceof DM2PreviouslyActiveDTC)
+                .map(p -> (DM2PreviouslyActiveDTC) p)
                 .collect(Collectors.toList());
 
-        // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC
-        List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
-
-        globalDM2s.forEach(packet -> {
-            if (packet.getDtcs() != null) {
-                dtcs.addAll(packet.getDtcs());
-            }
-        });
-
         // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC.
-        if (!dtcs.isEmpty()) {
+        if (globalDM2s.stream().flatMap(packet -> packet.getDtcs().stream()).findAny().isPresent()) {
             getListener().addOutcome(1,
                     16,
                     Outcome.FAIL,
@@ -120,55 +109,37 @@ public class Step16Controller extends Controller {
 
         // 6.1.16.2.b Fail if any OBD ECU does not report MIL (Malfunction Indicator
         // Lamp) off
-        globalDM2s.stream().forEach(packet -> {
-            if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF) {
-                getListener().addOutcome(1,
-                        16,
-                        Outcome.FAIL,
-                        "6.1.16.2.b - OBD ECU does not report MIL off");
-            }
-        });
+        if (globalDM2s.stream().filter(packet -> packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF).findAny()
+                .isPresent()) {
+            getListener().addOutcome(1,
+                    16,
+                    Outcome.FAIL,
+                    "6.1.16.2.b - OBD ECU does not report MIL off");
+        }
 
         // 6.1.16.2.c Fail if any non-OBD ECU does not report MIL off or not supported -
         // LampStatus of OTHER
-        Set<Integer> obdModuleAddress = dataRepository.getObdModuleAddresses();
-        globalDM2s.stream().filter(p -> !obdModuleAddress.contains(p.getSourceAddress()))
-                .forEach(packet -> {
-
-                    if (packet.getMalfunctionIndicatorLampStatus() == LampStatus.OFF) {
-                        System.out.println("LampStatus is: " + packet.getMalfunctionIndicatorLampStatus());
-                    } else if (packet.getMalfunctionIndicatorLampStatus() == LampStatus.OTHER) {
-                        System.out.println("LampStatus is: " + packet.getMalfunctionIndicatorLampStatus());
-                    } else {
-                        getListener().addOutcome(1,
-                                16,
-                                Outcome.FAIL,
-                                "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported");
-                    }
-
-                });
+        Set<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
+        if (globalDM2s.stream().filter(p -> !obdModuleAddresses.contains(p.getSourceAddress())
+                && (p.getMalfunctionIndicatorLampStatus() != LampStatus.OFF
+                        && p.getMalfunctionIndicatorLampStatus() != LampStatus.OTHER))
+                .findAny().isPresent()) {
+            getListener().addOutcome(1,
+                    16,
+                    Outcome.FAIL,
+                    "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported");
+        }
 
         // 6.1.16.3.a DS DM2 to each OBD ECU
         List<ParsedPacket> dsDM2s = new ArrayList<>();
-        obdModuleAddress.stream().forEach(address -> {
-            dsDM2s.addAll(dtcModule.requestDM2(getListener(), true, address).getPackets());
-        });
+        obdModuleAddresses.stream()
+                .forEach(address -> dsDM2s.addAll(dtcModule.requestDM2(getListener(), true, address).getPackets()));
 
         List<ParsedPacket> unmatchedPackets = globalDiagnosticTroubleCodePackets.getPackets().stream()
-                .filter(aObject -> {
-                    System.out.println(aObject.getSourceAddress());
-                    return (!verifyPacketsEquality(dsDM2s, aObject));
-                }).collect(Collectors.toList());
+                .filter(aObject -> (!verifyPacketsEquality(dsDM2s, aObject))).collect(Collectors.toList());
 
         // 6.1.16.4.a Fail if any responses differ from global responses
         if (!unmatchedPackets.isEmpty()) {
-            System.out.println("Global is: " + globalDiagnosticTroubleCodePackets.getPackets());
-            System.out.println("Local is: " + dsDM2s);
-            System.out.println("unmatchedPackets.size() is: " + unmatchedPackets.size());
-            System.out.println("unmatchedPackets is: " + unmatchedPackets);
-            unmatchedPackets.forEach(packet -> {
-                System.out.println(packet.getSourceAddress());
-            });
             getListener().addOutcome(1,
                     16,
                     Outcome.FAIL,
@@ -177,22 +148,22 @@ public class Step16Controller extends Controller {
 
         // 6.1.16.4.b Fail if NACK not received from OBD ECUs that did not respond to
         // global query
-        boolean nacked = unmatchedPackets.stream()
+        boolean missingNack = unmatchedPackets.stream()
                 .anyMatch(packet -> packet instanceof AcknowledgmentPacket
                         && ((AcknowledgmentPacket) packet).getResponse() != Response.NACK);
-        if (nacked) {
+        if (missingNack) {
             getListener().addOutcome(1,
                     16,
                     Outcome.FAIL,
                     "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
         }
-        System.out.println("NACKed? " + nacked);
     }
 
     private boolean verifyPacketsEquality(List<ParsedPacket> packets, ParsedPacket packet) {
         boolean found = false;
         for (ParsedPacket p : packets) {
             if (p.getSourceAddress() == packet.getSourceAddress() &&
+            // This is equivalent to comparing PGN
                     p.getClass() == packet.getClass()) {
                 found = true;
             }
