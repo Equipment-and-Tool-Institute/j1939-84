@@ -93,10 +93,9 @@ public class Step08Controller extends Controller {
             int sourceAddress = packet.getSourceAddress();
             // Save performance ratio on the obdModule for each ECU
             OBDModuleInformation obdModule = dataRepository.getObdModule(sourceAddress);
-            if (obdModule == null) {
-                obdModule = new OBDModuleInformation(sourceAddress);
+            if (obdModule != null) {
+                obdModule.setPerformanceRatios(packet.getRatios());
             }
-            obdModule.setPerformanceRatios(packet.getRatios());
         }
 
         // Gather all the spn of performance ratio from the vehicle

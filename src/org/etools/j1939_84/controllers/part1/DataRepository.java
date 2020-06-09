@@ -2,6 +2,7 @@ package org.etools.j1939_84.controllers.part1;
 
 import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
 import java.util.Set;
 
@@ -22,11 +23,11 @@ public class DataRepository {
     }
 
     public Set<Integer> getObdModuleAddresses() {
-        return obdModules.keySet();
+        return new HashSet<>(obdModules.keySet());
     }
 
     public Collection<OBDModuleInformation> getObdModules() {
-        return obdModules.values();
+        return new HashSet<>(obdModules.values());
     }
 
     public VehicleInformation getVehicleInformation() {
