@@ -104,19 +104,18 @@ public class Step16Controller extends Controller {
         // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC
         List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
 
-        // pull out the globalDM2 packets and get their DTC
         globalDM2s.forEach(packet -> {
             if (packet.getDtcs() != null) {
                 dtcs.addAll(packet.getDtcs());
             }
         });
 
-        // we got some DTC so fail 6.1.16.2.a
+        // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC.
         if (!dtcs.isEmpty()) {
             getListener().addOutcome(1,
                     16,
                     Outcome.FAIL,
-                    "6.1.16.2.a - OBD ECU reported a previously active DTC.");
+                    "6.1.16.2.a - OBD ECU reported a previously active DTC");
         }
 
         // 6.1.16.2.b Fail if any OBD ECU does not report MIL (Malfunction Indicator
@@ -138,8 +137,7 @@ public class Step16Controller extends Controller {
 
                     if (packet.getMalfunctionIndicatorLampStatus() == LampStatus.OFF) {
                         System.out.println("LampStatus is: " + packet.getMalfunctionIndicatorLampStatus());
-                    }
-                    if (packet.getMalfunctionIndicatorLampStatus() == LampStatus.OTHER) {
+                    } else if (packet.getMalfunctionIndicatorLampStatus() == LampStatus.OTHER) {
                         System.out.println("LampStatus is: " + packet.getMalfunctionIndicatorLampStatus());
                     } else {
                         getListener().addOutcome(1,
@@ -152,13 +150,6 @@ public class Step16Controller extends Controller {
 
         // 6.1.16.3.a DS DM2 to each OBD ECU
         List<ParsedPacket> dsDM2s = new ArrayList<>();
-        // dataRepository.getObdModuleAddresses().stream().forEach(address -> {
-        // System.out.println("address is: " + address);
-        // });
-        // System.out.println(dtcModule.requestDM2(getListener(),
-        // true,
-        // 0).getPackets().size());
-        // System.out.println("dsDM2s is null ? : " + (dsDM2s == null));
         obdModuleAddress.stream().forEach(address -> {
             dsDM2s.addAll(dtcModule.requestDM2(getListener(), true, address).getPackets());
         });
@@ -169,49 +160,10 @@ public class Step16Controller extends Controller {
                     return (!verifyPacketsEquality(dsDM2s, aObject));
                 }).collect(Collectors.toList());
 
-        System.out.println("unmatchedPackets.size() is: " + unmatchedPackets.size());
-
-        // List<ParsedPacket> unmatchedPackets =
-        // globalDiagnosticTroubleCodePackets.getPackets().stream()
-        // .filter(aObject -> !dsDM2s.contains(aObject)).collect(Collectors.toList());
-        // // (dsDM2s.forEach(packet ->
-        // verifyPacketsEquality(aObject,
-        // packet)))
-        // }).collect(Collectors.toList());
-
-        // List<ParsedPacket> unmatchedPackets =
-        // globalDiagnosticTroubleCodePackets.getPackets().stream()
-        // .filter(aObject -> {
-        // System.out.println(aObject.getSourceAddress());
-        // boolean found = dsDM2s.forEach(p -> {
-        // if (p.getSourceAddress() == aObject.getSourceAddress() &&
-        // p.getClass() == aObject.getClass()) {
-        // //return true;
-        // }
-        // //return true;
-        // });
-        // //return false;
-        // }).collect(Collectors.toList());
-
-        // or more reduced without curly braces and return
-        // List<String> result2 = aList.stream().filter(aObject ->
-        // !bList.contains(aObject)).collect(Collectors.toList());
-
-        // Stream<ParsedPacket> stream = sourceMeta.getAllSources.parallelStream().map(x
-        // -> (Source) x);
-        // if (isAccessDisplayEnabled) {
-        // stream = stream.filter(s -> isAccessDisplayEnabled(s));
-        // }
-        // src = stream.filter(s - > containsAll(s, substrings, searchString))
-        // .collect(Collectors.toList());
-
-        // List<ParsedPacket> unmatchedPackets =
-        // globalDiagnosticTroubleCodePackets.getPackets().stream()
-        // .filter(packet ->
-        // dsDM2s.forEach(action);.contains(packet)).collect(Collectors.toList());
-
         // 6.1.16.4.a Fail if any responses differ from global responses
         if (!unmatchedPackets.isEmpty()) {
+            System.out.println("Global is: " + globalDiagnosticTroubleCodePackets.getPackets());
+            System.out.println("Local is: " + dsDM2s);
             System.out.println("unmatchedPackets.size() is: " + unmatchedPackets.size());
             System.out.println("unmatchedPackets is: " + unmatchedPackets);
             unmatchedPackets.forEach(packet -> {
@@ -235,81 +187,6 @@ public class Step16Controller extends Controller {
                     "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
         }
         System.out.println("NACKed? " + nacked);
-
-        // List<ParsedPacket> unmatchedPackets =
-        // globalDiagnosticTroubleCodePackets.getPackets().stream()
-        // .filter(aObject -> {
-        // return dsDM2s.contains(aObject);
-        // }).collect(Collectors.toList());
-        //
-        // // or more reduced without curly braces and return
-        // // List<String> result2 = aList.stream().filter(aObject ->
-        // // !bList.contains(aObject)).collect(Collectors.toList());
-        //
-        // System.out.println("unmatchedPackets.size() is : " +
-        // unmatchedPackets.size());
-        //
-        // if (!unmatchedPackets.isEmpty()) {
-        // getListener().addOutcome(1,
-        // 16,
-        // Outcome.FAIL,
-        // "6.1.16.4.a DS DM2 responses differ from global responses");
-        // }
-
-        // global DM2 only
-        // List<DM2PreviouslyActiveDTC> globalDM2PreActiveDTC = new ArrayList<>();
-        // globalDiagnosticTroubleCodePackets.getPackets().stream()
-        // .filter(packet -> packet instanceof DM2PreviouslyActiveDTC).forEach(p -> {
-        // globalDM2PreActiveDTC.add((DM2PreviouslyActiveDTC) p);
-        // });
-        //
-        // // local DM2 only
-        // List<DM2PreviouslyActiveDTC> dsDM2PreActiveDTC = new ArrayList<>();
-        // dsDM2s.stream()
-        // .filter(packet -> packet instanceof DM2PreviouslyActiveDTC).forEach(p -> {
-        // dsDM2PreActiveDTC.add((DM2PreviouslyActiveDTC) p);
-        // });
-        //
-        //
-        // dsDM2s.removeAll(globalDM2s);
-        // if (dsDM2s.isEmpty()) {
-        // } else {
-        // getListener().addOutcome(1,
-        // 16,
-        // Outcome.FAIL,
-        // "6.1.16.4.a DS DM2 responses differ from global responses");
-        // }
-        // long dsDM2response = dsDM2s.stream().count();
-        // long globalResponse = globalDM2s.stream().count();
-        // for (int i = 0; i < dsDM2response; i++) {
-        // if (dsDM2s.get(i).getPacket().equals(globalResponse)) {
-        // } else {
-        // getListener().addOutcome(1,
-        // 16,
-        // Outcome.FAIL,
-        // "6.1.16.4.a DS DM2 responses differ from global responses");
-        // }
-        // }
-
-        // Set<Integer> globalAddresses = globalDM2s.stream().map(p ->
-        // p.getSourceAddress()).collect(Collectors.toSet());
-        // Set<Integer> obdAddresses = dataRepository.getObdModuleAddresses();
-        // obdAddresses.removeAll(globalAddresses);
-        //
-        // for (int address : obdAddresses) {
-        // getVehicleInformationModule().reportCalibrationInformation(getListener(),
-        // address);
-        // long nackCount = dsDM2s.stream()
-        // .filter(p -> p instanceof AcknowledgmentPacket)
-        // .map(p -> (AcknowledgmentPacket) p)
-        // .filter(p -> p.getResponse() != Response.NACK)
-        // .count();
-        // if (nackCount != 1) {
-        // getListener().addOutcome(1,
-        // 7,
-        // Outcome.FAIL,
-        // "6.1.16.4.a - NACK not received from OBD ECU that did not respond to global
-        // query.");
     }
 
     private boolean verifyPacketsEquality(List<ParsedPacket> packets, ParsedPacket packet) {
