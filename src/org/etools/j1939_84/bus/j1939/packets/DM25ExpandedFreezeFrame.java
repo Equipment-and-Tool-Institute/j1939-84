@@ -28,17 +28,6 @@ public class DM25ExpandedFreezeFrame extends ParsedPacket {
         super(packet);
     }
 
-    private String createListingOfFreezeFramesForReporting(List<FreezeFrame> freezeFrames, String reportTitle) {
-
-        StringBuilder sb = new StringBuilder();
-        sb.append("(").append(reportTitle).append(")").append(" [").append(NL);
-        freezeFrames.forEach(freezeFrame -> sb.append("  ").append(freezeFrame.getDtc()).append("  ")
-                .append(freezeFrame.getSpnData()).append(NL));
-        sb.append("]");
-        return sb.toString();
-
-    }
-
     /**
      * Returns the {@link List} of {@link SupportedSPN}
      *
@@ -46,7 +35,6 @@ public class DM25ExpandedFreezeFrame extends ParsedPacket {
      */
     public List<FreezeFrame> getFreezeFrames() {
         if (freezeFrames == null) {
-            freezeFrames = new ArrayList<>();
             parsePacket();
         }
         return freezeFrames;
@@ -81,9 +69,9 @@ public class DM25ExpandedFreezeFrame extends ParsedPacket {
      * Parses the packet to populate all the {@link FreezeFrame}s
      */
     private void parsePacket() {
+        freezeFrames = new ArrayList<>();
         int chunkLength = getPacket().get(0);
         if (chunkLength == 0) {
-            freezeFrames.clear();
             int[] spnBytes = getPacket().getData(0, 5);
             int[] dataBytes = getPacket().getData(5, 8);
             if (Arrays.equals(spnBytes, new int[] { 0, 0, 0, 0, 0 })
