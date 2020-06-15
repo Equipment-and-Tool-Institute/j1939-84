@@ -629,15 +629,37 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     }
 
     /**
+     * Sends a global request for DM21 Packets. The request and results will be
+     * returned to the {@link ResultsListener}
+     *
+     * @param listener
+     * the {@link ResultsListener} for the results
+     * @param fullString
+     * true to include the full string of the results in the
+     * report;
+     * false to only include the returned raw packet in the report
+     * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
+     */
+    public RequestResult<ParsedPacket> requestDM5(ResultsListener listener,
+            boolean fullString) {
+
+        return getPackets("Global DM5 Request",
+                DM5DiagnosticReadinessPacket.PGN,
+                DM5DiagnosticReadinessPacket.class,
+                listener,
+                fullString);
+    }
+
+    /**
      * Sends a global request for DM5 Packets. The request and results will be
      * returned to the {@link ResultsListener}
      *
      * @param listener
-     *                   the {@link ResultsListener} for the results
+     * the {@link ResultsListener} for the results
      * @param fullString
-     *                   true to include the full string of the results in the
-     *                   report;
-     *                   false to only include the returned raw packet in the report
+     * true to include the full string of the results in the
+     * report;
+     * false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM5DiagnosticReadinessPacket}s
      */
     public RequestResult<ParsedPacket> requestDM5Packets(ResultsListener listener, boolean fullString) {
