@@ -48,7 +48,8 @@ public class Part01Controller extends Controller {
                 new Step06Controller(dataRepository), new Step07Controller(dataRepository),
                 new Step08Controller(dataRepository), new Step09Controller(dataRepository),
                 new Step10Controller(dataRepository),
-                new Step11Controller(dataRepository), new Step12Controller(dataRepository));
+                new Step11Controller(dataRepository), new Step12Controller(dataRepository),
+                new Step16Controller(dataRepository));
     }
 
     /**
@@ -84,6 +85,8 @@ public class Part01Controller extends Controller {
      * Part1Controller
      * @param step12Controller the {@link Step11Controller} for
      * Part1Controller
+     * @param step16Controller the {@link step16Controller} for
+     * Part1Controller
      */
     public Part01Controller(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
@@ -92,7 +95,8 @@ public class Part01Controller extends Controller {
             Step06Controller step06Controller, Step07Controller step07Controller,
             Step08Controller step08Controller, Step09Controller step09Controller,
             Step10Controller step10Controller,
-            Step11Controller step11Controller, Step12Controller step12Controller) {
+            Step11Controller step11Controller, Step12Controller step12Controller,
+            Step16Controller step16Controller) {
         super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
 
         stepControllers.add(step01Controller);
@@ -107,6 +111,7 @@ public class Part01Controller extends Controller {
         stepControllers.add(step10Controller);
         stepControllers.add(step11Controller);
         stepControllers.add(step12Controller);
+        stepControllers.add(step16Controller);
     }
 
     private void executeStep(int stepNumber) throws InterruptedException {
