@@ -208,9 +208,7 @@ public class J1939Test {
 
     @Test
     public void testRequestMultipleByClassHandlesException() throws Exception {
-        Stream<TestPacket> response = instance.requestMultiple(TestPacket.class)
-                .filter(pkt -> pkt instanceof TestPacket)
-                .map(p -> (TestPacket) p);
+        Stream<TestPacket> response = instance.requestMultiple(TestPacket.class);
         assertEquals(0, response.count());
     }
 
@@ -224,9 +222,7 @@ public class J1939Test {
 
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
 
-        Stream<VehicleIdentificationPacket> response = instance.requestMultiple(VehicleIdentificationPacket.class)
-                .filter(pkt -> pkt instanceof VehicleIdentificationPacket)
-                .map(p -> (VehicleIdentificationPacket) p);
+        Stream<VehicleIdentificationPacket> response = instance.requestMultiple(VehicleIdentificationPacket.class);
         List<VehicleIdentificationPacket> packets = response.collect(Collectors.toList());
         assertEquals(3, packets.size());
         assertEquals("EngineVIN", packets.get(0).getVin());
@@ -242,8 +238,7 @@ public class J1939Test {
                 .thenThrow(new BusException("Testing"));
         Packet request = instance.createRequestPacket(DM5DiagnosticReadinessPacket.PGN, 0x00);
         Stream<DM5DiagnosticReadinessPacket> response = instance.requestMultiple(DM5DiagnosticReadinessPacket.class,
-                request).filter(pkt -> pkt instanceof DM5DiagnosticReadinessPacket)
-                .map(p -> (DM5DiagnosticReadinessPacket) p);
+                request);
         assertEquals(0, response.count());
     }
 
@@ -254,9 +249,7 @@ public class J1939Test {
 
         Packet requestPacket = instance.createRequestPacket(EngineHoursPacket.PGN, ENGINE_ADDR);
 
-        Stream<EngineHoursPacket> response = instance.requestMultiple(EngineHoursPacket.class, requestPacket)
-                .filter(pkt -> pkt instanceof EngineHoursPacket)
-                .map(p -> (EngineHoursPacket) p);
+        Stream<EngineHoursPacket> response = instance.requestMultiple(EngineHoursPacket.class, requestPacket);
         List<EngineHoursPacket> packets = response.collect(Collectors.toList());
         assertEquals(1, packets.size());
         assertEquals(3365299.25, packets.get(0).getEngineHours(), 0.0001);
@@ -267,8 +260,7 @@ public class J1939Test {
     @Test
     public void testRequestMultipleHandlesException() throws Exception {
         Stream<TestPacket> response = instance.requestMultiple(TestPacket.class,
-                Packet.create(0xEA00 | 0, 0, 0, 0 >> 8, 0 >> 16)).filter(packet -> packet instanceof TestPacket)
-                .map(p -> (TestPacket) p);
+                Packet.create(0xEA00 | 0, 0, 0, 0 >> 8, 0 >> 16));
         assertEquals(0, response.count());
     }
 
@@ -278,8 +270,7 @@ public class J1939Test {
                 .thenReturn(Stream.empty()).thenReturn(Stream.empty());
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
         Stream<VehicleIdentificationPacket> response = instance.requestMultiple(VehicleIdentificationPacket.class,
-                request).filter(packet -> packet instanceof VehicleIdentificationPacket)
-                .map(p -> (VehicleIdentificationPacket) p);
+                request);
         assertEquals(0, response.count());
         verify(bus, times(3)).send(request);
     }
@@ -298,8 +289,7 @@ public class J1939Test {
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
 
         Stream<VehicleIdentificationPacket> response = instance.requestMultiple(VehicleIdentificationPacket.class,
-                request).filter(packet -> packet instanceof VehicleIdentificationPacket)
-                .map(p -> (VehicleIdentificationPacket) p);
+                request);
         List<VehicleIdentificationPacket> packets = response.collect(Collectors.toList());
         assertEquals(1, packets.size());
         assertEquals(expected, packets.get(0).getVin());
@@ -319,8 +309,6 @@ public class J1939Test {
         Packet requestPacket = instance.createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
 
         List<AcknowledgmentPacket> responses = instance.requestMultiple(AcknowledgmentPacket.class, requestPacket)
-                .filter(packet -> packet instanceof AcknowledgmentPacket)
-                .map(p -> (AcknowledgmentPacket) p)
                 .collect(Collectors.toList());
         assertEquals(3, responses.size());
 
@@ -347,8 +335,7 @@ public class J1939Test {
 
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
         Stream<VehicleIdentificationPacket> response = instance.requestMultiple(VehicleIdentificationPacket.class,
-                request).filter(packet -> packet instanceof VehicleIdentificationPacket)
-                .map(p -> (VehicleIdentificationPacket) p);
+                request);
         List<VehicleIdentificationPacket> packets = response.collect(Collectors.toList());
         assertEquals(3, packets.size());
         assertEquals("EngineVIN", packets.get(0).getVin());
@@ -364,8 +351,7 @@ public class J1939Test {
                 .thenReturn(Stream.of(Packet.create(VehicleIdentificationPacket.PGN, 0x00, "*".getBytes(UTF8))));
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
         Stream<VehicleIdentificationPacket> response = instance.requestMultiple(VehicleIdentificationPacket.class,
-                request).filter(packet -> packet instanceof VehicleIdentificationPacket)
-                .map(p -> (VehicleIdentificationPacket) p);
+                request);
         assertEquals(1, response.count());
         verify(bus, times(2)).send(request);
     }
@@ -377,8 +363,7 @@ public class J1939Test {
                 .thenReturn(Stream.of(Packet.create(VehicleIdentificationPacket.PGN, 0x00, "*".getBytes(UTF8))));
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
         Stream<VehicleIdentificationPacket> response = instance.requestMultiple(VehicleIdentificationPacket.class,
-                request).filter(packet -> packet instanceof VehicleIdentificationPacket)
-                .map(p -> (VehicleIdentificationPacket) p);
+                request);
         assertEquals(1, response.count());
         verify(bus, times(3)).send(request);
     }

@@ -61,9 +61,7 @@ public class RP1210Test {
         RP1210Bus bus = new RP1210Bus(adapter.get(), 0xF9, true);
         long start = System.currentTimeMillis();
         Stream<Packet> read = bus.read(365, TimeUnit.DAYS);
-        new J1939(bus).requestMultiple(VehicleIdentificationPacket.class)
-                .filter(packet -> packet instanceof VehicleIdentificationPacket)
-                .map(p -> (VehicleIdentificationPacket) p).map(pa -> pa.getVin()).findAny()
+        new J1939(bus).requestMultiple(VehicleIdentificationPacket.class).map(pa -> pa.getVin()).findAny()
                 .ifPresent(vin -> System.err.format(NL + NL + "VIN:%s" + NL + NL, vin));
         read// .filter(p -> p.getId() == 0xFECA || p.getId() == 0xFEEC ||
             // (p.getId() & 0xFF00) == 0xEB00

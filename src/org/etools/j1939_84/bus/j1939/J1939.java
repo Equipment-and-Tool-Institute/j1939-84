@@ -412,14 +412,14 @@ public class J1939 {
      * provide the PGN for the Packet that is requested. This will request the
      * packet globally. The request will wait for up to the timeout period.
      *
-     * @param <T>
-     * the Type of Packet to request
+     * @param   <T>
+     *          the Type of Packet to request
      * @param T
-     * the class that extends {@link ParsedPacket} that provides the
-     * PGN for the packet to be requested
+     *          the class that extends {@link ParsedPacket} that provides the
+     *          PGN for the packet to be requested
      * @return a {@link Stream} containing {@link ParsedPacket}
      */
-    public <T extends ParsedPacket> Stream<ParsedPacket> requestMultiple(Class<T> T) {
+    public <T extends ParsedPacket> Stream<T> requestMultiple(Class<T> T) {
         Packet requestPacket = createRequestPacket(getPgn(T), GLOBAL_ADDR);
         return requestMultiple(T, requestPacket, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS);
     }
@@ -429,18 +429,18 @@ public class J1939 {
      * provide the PGN for the Packet that is requested. This will request the
      * packet globally. The request will wait for up to 1.25 seconds
      *
-     * @param <T>
-     * the Type of Packet to request
+     * @param               <T>
+     *                      the Type of Packet to request
      * @param T
-     * the class that extends {@link ParsedPacket} that
-     * provides the
-     * PGN for the packet to be requested
+     *                      the class that extends {@link ParsedPacket} that
+     *                      provides the
+     *                      PGN for the packet to be requested
      * @param requestPacket
-     * the {@link Packet} to send that will generate the
-     * responses
+     *                      the {@link Packet} to send that will generate the
+     *                      responses
      * @return a {@link Stream} containing {@link ParsedPacket}
      */
-    public <T extends ParsedPacket> Stream<ParsedPacket> requestMultiple(Class<T> T, Packet requestPacket) {
+    public <T extends ParsedPacket> Stream<T> requestMultiple(Class<T> T, Packet requestPacket) {
         return requestMultiple(T, requestPacket, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS);
     }
 
@@ -449,26 +449,26 @@ public class J1939 {
      * provide the PGN for the Packet that is requested. This will request the
      * packet globally. NACKs will be ignored.
      *
-     * @param <T>
-     * the Type of Packet to request
+     * @param               <T>
+     *                      the Type of Packet to request
      * @param T
-     * the class that extends {@link ParsedPacket} that
-     * provides the
-     * PGN for the packet to be requested
+     *                      the class that extends {@link ParsedPacket} that
+     *                      provides the
+     *                      PGN for the packet to be requested
      * @param requestPacket
-     * the {@link Packet} to send that will generate the
-     * responses
+     *                      the {@link Packet} to send that will generate the
+     *                      responses
      * @param timeout
-     * the maximum time to wait for responses
+     *                      the maximum time to wait for responses
      * @param unit
-     * the {@link TimeUnit} of the timeout
+     *                      the {@link TimeUnit} of the timeout
      * @return a {@link Stream} containing {@link ParsedPacket}
      */
-    private <T extends ParsedPacket> Stream<ParsedPacket> requestMultiple(Class<T> T,
+    private <T extends ParsedPacket> Stream<T> requestMultiple(Class<T> T,
             Packet requestPacket,
             long timeout,
             TimeUnit unit) {
-        List<ParsedPacket> results = Collections.emptyList();
+        List<T> results = Collections.emptyList();
         for (int i = 0; i < 3; i++) {
             results = requestMultipleOnce(T, requestPacket, timeout, unit).collect(Collectors.toList());
             if (!results.isEmpty()) {
@@ -478,11 +478,11 @@ public class J1939 {
         return results.stream();
     }
 
-    private <T extends ParsedPacket> Stream<ParsedPacket> requestMultipleOnce(Class<T> T,
+    private <T extends ParsedPacket> Stream<T> requestMultipleOnce(Class<T> T,
             Packet requestPacket,
             long timeout,
             TimeUnit unit) {
-        Stream<ParsedPacket> result = Stream.of();
+        Stream<T> result = Stream.of();
         try {
             int pgn = getPgn(T);
             Stream<Packet> stream = read(timeout, unit);
