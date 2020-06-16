@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static org.etools.j1939_84.J1939_84.NL;
+
 import java.util.Arrays;
 
 import org.etools.j1939_84.bus.Packet;
@@ -91,11 +93,33 @@ public class DM29DtcCounts extends ParsedPacket {
     private void parsePacket() {
         final int length = getPacket().getLength();
         byte[] data = Arrays.copyOf(getPacket().getBytes(), length);
-        System.out.println("length is " + length + "  " + getPacket().getBytes()[0]);
         emissionRelatedPendingDTCCount = data[0];
         allPendingDTCCount = data[1];
         emissionRelatedMILOnDTCCount = data[2];
         emissionRelatedPreviouslyMILOnDTCCount = data[3];
         emissionRelatedPermanentDTCCount = data[4];
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getStringPrefix() + NL);
+        sb.append(String
+                .format("%1$-65s %2$20d", "Emission-Related Pending DTC Count", getEmissionRelatedPendingDTCCount()))
+                .append(NL);
+        sb.append(String.format("%1$-65s %2$20d", "All Pending DTC Count", getAllPendingDTCCount()))
+                .append(NL);
+        sb.append(String
+                .format("%1$-65s %2$20d", "Emission-Related MIL-On DTC Count", getEmissionRelatedMILOnDTCCount()))
+                .append(NL);
+        sb.append(String.format("%1$-65s %2$20d",
+                "Emission-Related Previously MIL-On DTC Count",
+                getEmissionRelatedPreviouslyMILOnDTCCount()))
+                .append(NL);
+        sb.append(String.format("%1$-65s %2$20d",
+                "Emission-Related Permanent DTC Count",
+                getEmissionRelatedPermanentDTCCount()))
+                .append(NL);
+        return sb.toString();
     }
 }

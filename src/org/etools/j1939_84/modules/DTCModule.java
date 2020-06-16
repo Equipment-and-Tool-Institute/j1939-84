@@ -122,7 +122,6 @@ public class DTCModule extends FunctionalModule {
         } else {
             listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
         }
-
         return result[0];
     }
 
@@ -272,8 +271,7 @@ public class DTCModule extends FunctionalModule {
                 "Global DM12 Request",
                 DM12MILOnEmissionDTCPacket.class,
                 request);
-        return new RequestResult<>(false, packets);// packets.stream().anyMatch(t ->
-                                                   // !t.getDtcs().isEmpty());
+        return new RequestResult<>(false, packets);
     }
 
     /**
@@ -328,7 +326,6 @@ public class DTCModule extends FunctionalModule {
                 request).stream().filter(p -> p instanceof DM23PreviouslyMILOnEmissionDTCPacket)
                         .map(p -> (DM23PreviouslyMILOnEmissionDTCPacket) p).collect(Collectors.toList());
         return new RequestResult<>(false, packets);
-        // packets.stream().anyMatch(t -> !t.getDtcs().isEmpty());
     }
 
     /**
@@ -378,7 +375,6 @@ public class DTCModule extends FunctionalModule {
                 request).stream().filter(p -> p instanceof DM29DtcCounts)
                         .map(p -> (DM29DtcCounts) p).collect(Collectors.toList());
         return new RequestResult<>(false, packets);
-        // packets.stream().anyMatch(t -> !t.getDtcs().isEmpty());
     }
 
     /**

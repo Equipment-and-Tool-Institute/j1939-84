@@ -3,10 +3,10 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 
 import org.etools.j1939_84.bus.Packet;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -36,13 +36,6 @@ public class DM29DtcCountsTest {
                 0xFF);
 
         instance = new DM29DtcCounts(packet);
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception {
     }
 
     /**
@@ -118,6 +111,21 @@ public class DM29DtcCountsTest {
     @Test
     public void testPGN() {
         assertEquals(40448, DM29DtcCounts.PGN);
+    }
+
+    /**
+     * Test method for
+     * {@link org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts#toString()}.
+     */
+    @Test
+    public void testToString() {
+        String expected = "DM29 from Engine #1 (0): " + NL;
+        expected += "Emission-Related Pending DTC Count                                                   9" + NL;
+        expected += "All Pending DTC Count                                                               32" + NL;
+        expected += "Emission-Related MIL-On DTC Count                                                   71" + NL;
+        expected += "Emission-Related Previously MIL-On DTC Count                                        49" + NL;
+        expected += "Emission-Related Permanent DTC Count                                                 1" + NL;
+        assertEquals(expected, instance.toString());
     }
 
 }
