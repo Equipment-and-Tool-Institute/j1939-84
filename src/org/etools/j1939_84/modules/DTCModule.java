@@ -25,7 +25,6 @@ import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
-import org.etools.j1939_84.bus.j1939.packets.DM31ScaledTestResults;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
@@ -361,39 +360,6 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Sends a request to the vehicle for {@link DM25ExpandedFreezeFrame}s
-     *
-     * @param listener the {@link ResultsListener}
-     * @param obdModuleAddresses {@link Collection} of Integers}
-     * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
-     */
-    public RequestResult<ParsedPacket> requestDM25(ResultsListener listener,
-            int obdModuleAddress) {
-        List<ParsedPacket> packets = new ArrayList<>();
-        boolean retryUsed = false;
-
-        Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, obdModuleAddress);
-        listener.onResult(getTime() + " Direct DM25 Request to " + Lookup.getAddressName(obdModuleAddress));
-        listener.onResult(getTime() + " " + request.toString());
-        Optional<BusResult<DM25ExpandedFreezeFrame>> results = getJ1939()
-                .requestPacket(request,
-                        DM25ExpandedFreezeFrame.class,
-                        obdModuleAddress,
-                        3,
-                        TimeUnit.SECONDS.toMillis(15));
-        if (!results.isPresent()) {
-            listener.onResult(TIMEOUT_MESSAGE);
-        } else {
-            DM25ExpandedFreezeFrame packet = results.get().getPacket();
-            listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
-            listener.onResult(packet.toString());
-            packets.add(packet);
-        }
-        listener.onResult("");
-        return new RequestResult<>(retryUsed, packets);
-    }
-
-    /**
      * Requests DM29 from all vehicle modules and generates a {@link String}
      * that's suitable for inclusion in the report
      *
@@ -408,43 +374,6 @@ public class DTCModule extends FunctionalModule {
                 DM29DtcCounts.class,
                 request).stream().filter(p -> p instanceof DM29DtcCounts)
                         .map(p -> (DM29DtcCounts) p).collect(Collectors.toList());
-        return new RequestResult<>(false, packets);
-    }
-
-    /**
-     * Requests DM31 from all vehicle module and generates a {@link String}
-     * that's suitable for inclusion in the report
-     *
-     * @param listener
-     * the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public RequestResult<ParsedPacket> requestDM31(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM31ScaledTestResults.PGN, GLOBAL_ADDR);
-        List<ParsedPacket> packets = generateReport(listener,
-                "Global DM31 Request",
-                DM31ScaledTestResults.class,
-                request).stream().filter(p -> p instanceof DM31ScaledTestResults)
-                        .map(p -> (DM31ScaledTestResults) p).collect(Collectors.toList());
-        return new RequestResult<>(false, packets);
-    }
-
-    /**
-     * Requests DM31 from the address specific vehicle module and generates a
-     * {@link String}
-     * that's suitable for inclusion in the report
-     *
-     * @param listener
-     * the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public RequestResult<ParsedPacket> requestDM31(ResultsListener listener, int address) {
-        Packet request = getJ1939().createRequestPacket(DM31ScaledTestResults.PGN, address);
-        List<ParsedPacket> packets = generateReport(listener,
-                "Global DM31 Request",
-                DM31ScaledTestResults.class,
-                request).stream().filter(p -> p instanceof DM31ScaledTestResults)
-                        .map(p -> (DM31ScaledTestResults) p).collect(Collectors.toList());
         return new RequestResult<>(false, packets);
     }
 
