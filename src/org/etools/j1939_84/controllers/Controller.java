@@ -373,7 +373,7 @@ public abstract class Controller {
      *
      * @return {@link DateTimeModule}
      */
-    private DateTimeModule getDateTimeModule() {
+    protected DateTimeModule getDateTimeModule() {
         return dateTimeModule;
     }
 

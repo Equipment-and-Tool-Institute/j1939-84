@@ -47,15 +47,15 @@ public abstract class FunctionalModule {
      * {@link ResultsListener}
      *
      * @param <T>
-     *                 the class of the Packets
+     * the class of the Packets
      * @param listener
-     *                 the {@link ResultsListener} to add the results to
+     * the {@link ResultsListener} to add the results to
      * @param results
-     *                 the response packets to parse
+     * the response packets to parse
      * @return a List of the Packets
      */
-    protected <T extends ParsedPacket> List<T> addToReport(ResultsListener listener, Stream<T> results) {
-        List<T> packets = results.collect(Collectors.toList());
+    protected <T extends ParsedPacket> List<ParsedPacket> addToReport(ResultsListener listener, Stream<T> results) {
+        List<ParsedPacket> packets = results.collect(Collectors.toList());
         if (packets.isEmpty()) {
             listener.onResult(TIMEOUT_MESSAGE);
         } else {
@@ -81,28 +81,28 @@ public abstract class FunctionalModule {
      * Helper method to generate a report
      *
      * @param <T>
-     *                 the class of the Packet that will received
+     * the class of the Packet that will received
      * @param listener
-     *                 the {@link ResultsListener} that will be given the results
+     * the {@link ResultsListener} that will be given the results
      * @param title
-     *                 the Title of the report section
+     * the Title of the report section
      * @param clazz
-     *                 the Class of a ParsedPacket that's expected to be returned
-     *                 from the vehicle
+     * the Class of a ParsedPacket that's expected to be returned
+     * from the vehicle
      * @param request
-     *                 the {@link Packet} that will be sent to solicit responses
-     *                 from
-     *                 the vehicle modules
+     * the {@link Packet} that will be sent to solicit responses
+     * from
+     * the vehicle modules
      *
      * @return the List of Packets that were received
      */
-    protected <T extends ParsedPacket> List<T> generateReport(ResultsListener listener,
+    protected <T extends ParsedPacket> List<ParsedPacket> generateReport(ResultsListener listener,
             String title,
             Class<T> clazz,
             Packet request) {
         listener.onResult(getTime() + " " + title);
         listener.onResult(getTime() + " " + request.toString());
-        Stream<T> packets = getJ1939().requestMultiple(clazz, request);
+        Stream<ParsedPacket> packets = getJ1939().requestMultiple(clazz, request);
         return addToReport(listener, packets);
     }
 
