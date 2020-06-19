@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -44,6 +45,12 @@ public class DM31ScaledTestResultTest {
                 data);
         DM31ScaledTestResults instance = new DM31ScaledTestResults(packet);
         assertEquals(1, instance.getDtcLampStatuses().size());
+        String expected = "DM31 from Engine #1 (0): " + NL;
+        expected += "DTC Lamp Statuses: [" + NL;
+        expected += "MIL: Slow Flash, RSL: Other, AWL: Off, PL: Other" + NL;
+        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 1 times" + NL;
+        expected += "]";
+        assertEquals(expected, instance.toString());
 
         DTCLampStatus dtcLampStatus0 = instance.getDtcLampStatuses().get(0);
         DiagnosticTroubleCode actualDTC = dtcLampStatus0.getDtc();
@@ -90,6 +97,17 @@ public class DM31ScaledTestResultTest {
         assertEquals("DM31", instance.getName());
         List<DTCLampStatus> lampStatuses = instance.getDtcLampStatuses();
         assertEquals(0x03, lampStatuses.size());
+        String expected = "DM31 from Engine #1 (0): " + NL;
+        expected += "DTC Lamp Statuses: [" + NL;
+        expected += "MIL: Slow Flash, RSL: Other, AWL: Off, PL: Other" + NL;
+        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 1 times" + NL;
+        expected += "MIL: Off, RSL: Other, AWL: Off, PL: Other" + NL;
+        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 35 times" + NL;
+        expected += "MIL: Other, RSL: Other, AWL: Other, PL: Other" + NL;
+        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+        expected += "]";
+        assertEquals(expected, instance.toString());
 
         DTCLampStatus lampStatus0 = lampStatuses.get(0);
         DiagnosticTroubleCode dtc0 = lampStatus0.getDtc();

@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static org.etools.j1939_84.J1939_84.NL;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +51,19 @@ public class DM31ScaledTestResults extends ParsedPacket {
         for (int i = 0; i + 6 <= length; i = i + 6) {
             dtcLampStatuses.add(new DTCLampStatus(getPacket().getData(i, i + 6)));
         }
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getStringPrefix() + NL);
+        sb.append("DTC Lamp Statuses: [" + NL);
+        for (DTCLampStatus dtcLampStatus : getDtcLampStatuses()) {
+            sb.append(dtcLampStatus + NL);
+        }
+        sb.append("]");
+
+        return sb.toString();
     }
 
 }
