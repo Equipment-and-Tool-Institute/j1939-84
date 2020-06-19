@@ -6,7 +6,6 @@ package org.etools.j1939_84.bus.j1939.packets;
 import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.Arrays;
-import java.util.List;
 
 import org.etools.j1939_84.bus.Packet;
 
@@ -64,10 +63,10 @@ public class DTCLampStatus {
     }
 
     /**
-     * Returns the {@link List} of {@link DiagnosticTroubleCode}. If the only
+     * Returns the a link to a {@link DiagnosticTroubleCode}. If the only
      * "DTC" has an SPN of 0 or 524287, the list will be empty, but never null
      *
-     * @return List of DTCs
+     * @return DTC
      */
     public DiagnosticTroubleCode getDtc() {
         if (dtc == null) {
