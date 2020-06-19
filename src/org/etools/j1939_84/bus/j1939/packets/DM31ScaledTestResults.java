@@ -26,7 +26,7 @@ public class DM31ScaledTestResults extends ParsedPacket {
     }
 
     /**
-     * @return the dtcPackets
+     * @return the dtcLampStatuses
      */
     public List<DTCLampStatus> getDtcLampStatuses() {
         if (dtcLampStatuses == null) {
