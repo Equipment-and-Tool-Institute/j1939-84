@@ -13,7 +13,7 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.controllers.Controller;
+import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -25,10 +25,10 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
- *         The controller for 6.1.11 DM21: Diagnostic readiness 2
+ * The controller for 6.1.11 DM21: Diagnostic readiness 2
  */
 
-public class Step11Controller extends Controller {
+public class Step11Controller extends StepController {
 
     private final DataRepository dataRepository;
     private final DiagnosticReadinessModule diagnosticReadinessModule;
@@ -51,6 +51,11 @@ public class Step11Controller extends Controller {
     @Override
     public String getDisplayName() {
         return "Part 1 Step 11";
+    }
+
+    @Override
+    public int getStepNumber() {
+        return 11;
     }
 
     @Override

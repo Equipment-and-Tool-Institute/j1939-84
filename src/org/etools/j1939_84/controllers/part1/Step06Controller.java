@@ -5,14 +5,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
-import org.etools.j1939_84.controllers.Controller;
+import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
-public class Step06Controller extends Controller {
+public class Step06Controller extends StepController {
 
     private final DataRepository dataRepository;
 
@@ -31,6 +31,11 @@ public class Step06Controller extends Controller {
     @Override
     public String getDisplayName() {
         return "Part 1 Step 6";
+    }
+
+    @Override
+    public int getStepNumber() {
+        return 6;
     }
 
     @Override
@@ -74,7 +79,7 @@ public class Step06Controller extends Controller {
             // input.11
 
             String familyName = packet.getFamilyName();
-            char char13 = familyName.length() >= 13 ? familyName.charAt(13) : Character.MIN_VALUE;
+            char char13 = familyName.length() >= 14 ? familyName.charAt(13) : Character.MIN_VALUE;
 
             int asteriskIndex = familyName.indexOf('*');
 

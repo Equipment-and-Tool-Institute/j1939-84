@@ -219,16 +219,16 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * Sends an address specific request for DM21 Packets. The request and results
      * will be returned to the {@link ResultsListener}
      *
-     * @param listener         the {@link ResultsListener} for the results
-     * @param fullString       true to include the full string of the results in the
-     *                         report;
-     *                         false to only include the returned raw packet in the
-     *                         report
+     * @param listener the {@link ResultsListener} for the results
+     * @param fullString true to include the full string of the results in the
+     * report;
+     * false to only include the returned raw packet in the
+     * report
      * @param obdModuleAddress the address to which the destination specific request
-     *                         will be sent
+     * will be sent
      * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
      */
-    public RequestResult getDM21Packets(ResultsListener listener,
+    public RequestResult<ParsedPacket> getDM21Packets(ResultsListener listener,
             boolean fullString,
             int obdModuleAddress) {
 
@@ -608,22 +608,22 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     }
 
     /**
-     * Sends a global request for DM21 Packets. The request and results will be
+     * Sends a global request for DM20 Packets. The request and results will be
      * returned to the {@link ResultsListener}
      *
      * @param listener
-     *                   the {@link ResultsListener} for the results
+     * the {@link ResultsListener} for the results
      * @param fullString
-     *                   true to include the full string of the results in the
-     *                   report;
-     *                   false to only include the returned raw packet in the report
-     * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
+     * true to include the full string of the results in the
+     * report;
+     * false to only include the returned raw packet in the report
+     * @return the {@link List} of {@link DM20MonitorPerformanceRatioPacket}s
      */
-    public RequestResult<ParsedPacket> requestDM21Packets(ResultsListener listener,
+    public RequestResult<ParsedPacket> requestDM20(ResultsListener listener,
             boolean fullString) {
-        return getPackets("Global DM21 Request",
-                DM21DiagnosticReadinessPacket.PGN,
-                DM21DiagnosticReadinessPacket.class,
+        return getPackets("Global DM20 Request",
+                DM20MonitorPerformanceRatioPacket.PGN,
+                DM20MonitorPerformanceRatioPacket.class,
                 listener,
                 fullString);
     }
@@ -639,6 +639,27 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * report;
      * false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
+     */
+    public RequestResult<ParsedPacket> requestDM21Packets(ResultsListener listener,
+            boolean fullString) {
+        return getPackets("Global DM21 Request",
+                DM21DiagnosticReadinessPacket.PGN,
+                DM21DiagnosticReadinessPacket.class,
+                listener,
+                fullString);
+    }
+
+    /**
+     * Sends a global request for DM5 Packets. The request and results will be
+     * returned to the {@link ResultsListener}
+     *
+     * @param listener
+     * the {@link ResultsListener} for the results
+     * @param fullString
+     * true to include the full string of the results in the
+     * report;
+     * false to only include the returned raw packet in the report
+     * @return the {@link List} of {@link DM5DiagnosticReadinessPacket}s
      */
     public RequestResult<ParsedPacket> requestDM5(ResultsListener listener,
             boolean fullString) {
@@ -681,7 +702,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
                     true);
             listener.onResult(systems.stream().map(t -> t.toString()).collect(Collectors.toList()));
         }
-        return new RequestResult(false, parsedPackets);
+        return new RequestResult<>(false, parsedPackets);
     }
 
     private String rowForDM20(int sourceLength,

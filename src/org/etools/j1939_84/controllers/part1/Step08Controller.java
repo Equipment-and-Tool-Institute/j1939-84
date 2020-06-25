@@ -11,7 +11,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
-import org.etools.j1939_84.controllers.Controller;
+import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
@@ -28,7 +28,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  *
  */
 
-public class Step08Controller extends Controller {
+public class Step08Controller extends StepController {
 
     private final DataRepository dataRepository;
 
@@ -52,6 +52,11 @@ public class Step08Controller extends Controller {
     @Override
     public String getDisplayName() {
         return "Part 1 Step 8";
+    }
+
+    @Override
+    public int getStepNumber() {
+        return 8;
     }
 
     @Override

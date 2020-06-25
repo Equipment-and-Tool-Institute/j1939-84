@@ -15,7 +15,7 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.controllers.Controller;
+import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
@@ -29,7 +29,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  * @author Garrison Garland {garrison@soliddesign.net)
  *
  */
-public class Step16Controller extends Controller {
+public class Step16Controller extends StepController {
 
     private final DataRepository dataRepository;
     private final DTCModule dtcModule;
@@ -51,6 +51,12 @@ public class Step16Controller extends Controller {
     @Override
     public String getDisplayName() {
         return "Part 1 Step 16";
+    }
+
+    @Override
+    public int getStepNumber() {
+        // TODO Auto-generated method stub
+        return 16;
     }
 
     @Override

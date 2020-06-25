@@ -246,7 +246,8 @@ public class Step03ControllerTest {
 
         Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
         when(dataRepository.getObdModules()).thenReturn(obdInfoList);
-        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true))).thenReturn(new RequestResult(true, packets));
+        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
+                .thenReturn(new RequestResult<>(true, packets));
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -305,7 +306,7 @@ public class Step03ControllerTest {
         when(packet4.getOBDCompliance()).thenReturn((byte) 4);
         packets.add(packet4);
         when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
-                .thenReturn(new RequestResult(false, packets));
+                .thenReturn(new RequestResult<>(false, packets));
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);

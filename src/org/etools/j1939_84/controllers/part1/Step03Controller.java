@@ -11,7 +11,7 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.controllers.Controller;
+import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
@@ -20,7 +20,7 @@ import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
-public class Step03Controller extends Controller {
+public class Step03Controller extends StepController {
 
     private final DataRepository dataRepository;
 
@@ -44,6 +44,11 @@ public class Step03Controller extends Controller {
     @Override
     public String getDisplayName() {
         return "Part 1 Step 3";
+    }
+
+    @Override
+    public int getStepNumber() {
+        return 3;
     }
 
     @Override

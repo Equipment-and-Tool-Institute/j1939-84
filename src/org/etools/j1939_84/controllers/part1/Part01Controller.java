@@ -13,6 +13,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.etools.j1939_84.controllers.Controller;
+import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.StepResult;
@@ -29,7 +30,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  */
 public class Part01Controller extends Controller {
 
-    private final List<Controller> stepControllers = new ArrayList<>();
+    private final List<StepController> stepControllers = new ArrayList<>();
 
     /**
      * Constructor
@@ -83,7 +84,7 @@ public class Part01Controller extends Controller {
      * Part1Controller
      * @param step11Controller the {@link Step11Controller} for
      * Part1Controller
-     * @param step12Controller the {@link Step11Controller} for
+     * @param step12Controller the {@link Step12Controller} for
      * Part1Controller
      * @param step16Controller the {@link step16Controller} for
      * Part1Controller
@@ -114,24 +115,18 @@ public class Part01Controller extends Controller {
         stepControllers.add(step16Controller);
     }
 
-    private void executeStep(int stepNumber) throws InterruptedException {
-        StepResult stepResult = getPartResult(1).getStepResult(stepNumber);
+    private void executeStep(StepController controller) throws InterruptedException {
+        StepResult stepResult = getPartResult(1).getStepResult(controller.getStepNumber());
 
         getListener().beginStep(stepResult);
         getListener().onResult(NL);
         getListener().onResult("Start " + stepResult);
 
         incrementProgress(stepResult.toString());
-        executeStepTest(stepNumber);
+        controller.run(getListener(), getJ1939());
 
         getListener().endStep(stepResult);
         getListener().onResult("End " + stepResult);
-    }
-
-    private void executeStepTest(int stepNumber) throws InterruptedException {
-        if (stepNumber <= stepControllers.size()) {
-            stepControllers.get(stepNumber - 1).run(getListener(), getJ1939());
-        }
     }
 
     @Override
@@ -150,10 +145,8 @@ public class Part01Controller extends Controller {
         getListener().beginPart(partResult);
         getListener().onResult("Start " + partResult);
 
-        // FIXME this needs to report the actual steps being
-        // executed not the next number in the linear integer scale
-        for (int i = 1; i < 27; i++) {
-            executeStep(i);
+        for (StepController controller : stepControllers) {
+            executeStep(controller);
         }
 
         getListener().onResult("End " + partResult);
