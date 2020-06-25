@@ -325,11 +325,11 @@ public class Step11ControllerTest extends AbstractControllerTest {
         };
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
-        List<DM21DiagnosticReadinessPacket> globalPackets = new ArrayList<>();
+        List<ParsedPacket> globalPackets = new ArrayList<>();
         // return packets when Global DM21 request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
-                .thenReturn(new RequestResult(false, globalPackets));
+                .thenReturn(new RequestResult<>(false, globalPackets));
         // return the set of OBD module addresses when requested
         DM21DiagnosticReadinessPacket packet1 = createDM21Packet(9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         globalPackets.add(packet1);

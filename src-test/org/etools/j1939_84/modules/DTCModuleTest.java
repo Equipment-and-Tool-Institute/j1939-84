@@ -843,7 +843,7 @@ public class DTCModuleTest {
         expected += "No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        assertEquals(false, instance.reportDM6(listener));
+        assertEquals(false, instance.requestDM6(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
@@ -886,7 +886,7 @@ public class DTCModuleTest {
                 + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        assertEquals(true, instance.reportDM6(listener));
+        assertEquals(true, instance.requestDM6(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
@@ -906,7 +906,7 @@ public class DTCModuleTest {
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        assertEquals(false, instance.reportDM6(listener));
+        assertEquals(false, instance.requestDM6(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);

@@ -10,7 +10,7 @@ import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
-import org.etools.j1939_84.controllers.Controller;
+import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
@@ -26,7 +26,7 @@ import org.etools.j1939_84.utils.StringUtils;
  * The controller for 6.1.9 Component ID: Make, Model, Serial Number
  * Support
  */
-public class Step09Controller extends Controller {
+public class Step09Controller extends StepController {
 
     private final DataRepository dataRepository;
 
@@ -46,6 +46,11 @@ public class Step09Controller extends Controller {
     @Override
     public String getDisplayName() {
         return "Part 1 Step 9";
+    }
+
+    @Override
+    public int getStepNumber() {
+        return 9;
     }
 
     @Override

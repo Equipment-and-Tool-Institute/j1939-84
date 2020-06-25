@@ -20,12 +20,15 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
+import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM31ScaledTestResults;
+import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
@@ -198,24 +201,6 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests DM6 from all vehicle modules and generates a {@link String}
-     * that's suitable for inclusion in the report
-     *
-     * @param listener
-     *                 the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public boolean reportDM6(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM6PendingEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        List<? extends DiagnosticTroubleCodePacket> packets = generateReport(listener,
-                "Global DM6 Request",
-                DM6PendingEmissionDTCPacket.class,
-                request).stream().filter(p -> p instanceof DM6PendingEmissionDTCPacket)
-                        .map(p -> (DM6PendingEmissionDTCPacket) p).collect(Collectors.toList());
-        return packets.stream().anyMatch(t -> !t.getDtcs().isEmpty());
-    }
-
-    /**
      * Requests DM11 from OBD modules and generates a {@link String} that's
      * suitable for inclusion in the report
      *
@@ -227,35 +212,17 @@ public class DTCModule extends FunctionalModule {
      * Module NACK'd the request or didn't respond
      */
     public RequestResult<ParsedPacket> requestDM11(ResultsListener listener, List<Integer> obdModules) {
-        boolean[] result = new boolean[] { true };
-        listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
 
         Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
-        listener.onResult(getTime() + " Global DM11 Request");
-        listener.onResult(getTime() + " " + requestPacket);
 
-        Stream<ParsedPacket> results = getJ1939()
+        List<ParsedPacket> packets = getJ1939()
                 .requestRaw(DM11ClearActiveDTCsPacket.class,
                         requestPacket,
                         5500,
-                        TimeUnit.MILLISECONDS);
+                        TimeUnit.MILLISECONDS)
+                .collect(Collectors.toList());
 
-        List<String> responses = results.peek(t -> {
-            if (obdModules.contains(t.getSourceAddress())
-                    && t instanceof AcknowledgmentPacket
-                    && ((AcknowledgmentPacket) t).getResponse() != Response.ACK) {
-                result[0] = false;
-            }
-        }).map(getPacketMapperFunction()).collect(Collectors.toList());
-        listener.onResult(responses);
-
-        if (result[0]) {
-            listener.onResult(DTCS_CLEARED);
-        } else {
-            listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
-        }
-        return new RequestResult<>(false, results.collect(Collectors.toList()));
-
+        return new RequestResult<>(false, packets);
     }
 
     /**
@@ -312,6 +279,41 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
+     * Requests global DM21 and generates a {@link String}
+     * that's suitable for inclusion in the report
+     *
+     * @param listener
+     * the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<ParsedPacket> requestDM21(ResultsListener listener) {
+        Packet request = getJ1939().createRequestPacket(DM21DiagnosticReadinessPacket.PGN, GLOBAL_ADDR);
+        List<ParsedPacket> packets = generateReport(listener,
+                "Global DM21 Request",
+                DM21DiagnosticReadinessPacket.class,
+                request);
+        return new RequestResult<>(false, packets);
+    }
+
+    /**
+     * Requests DM21 from the address specific vehicle module and generates a
+     * {@link String}
+     * that's suitable for inclusion in the report
+     *
+     * @param listener
+     * the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<ParsedPacket> requestDM21(ResultsListener listener, int address) {
+        Packet request = getJ1939().createRequestPacket(DM21DiagnosticReadinessPacket.PGN, address);
+        List<ParsedPacket> packets = generateReport(listener,
+                "Global DM21 Request",
+                DM21DiagnosticReadinessPacket.class,
+                request);
+        return new RequestResult<>(false, packets);
+    }
+
+    /**
      * Requests DM23 from all vehicle modules and generates a {@link String}
      * that's suitable for inclusion in the report
      *
@@ -324,8 +326,7 @@ public class DTCModule extends FunctionalModule {
         List<ParsedPacket> packets = generateReport(listener,
                 "Global DM23 Request",
                 DM23PreviouslyMILOnEmissionDTCPacket.class,
-                request).stream().filter(p -> p instanceof DM23PreviouslyMILOnEmissionDTCPacket)
-                        .map(p -> (DM23PreviouslyMILOnEmissionDTCPacket) p).collect(Collectors.toList());
+                request);
         return new RequestResult<>(false, packets);
     }
 
@@ -394,20 +395,72 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests DM29 from all vehicle modules and generates a {@link String}
+     * Requests global DM21 and generates a {@link String}
      * that's suitable for inclusion in the report
      *
      * @param listener
      * the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
+    public RequestResult<ParsedPacket> requestDM26(ResultsListener listener) {
+        Packet request = getJ1939().createRequestPacket(DM26TripDiagnosticReadinessPacket.PGN, GLOBAL_ADDR);
+        List<ParsedPacket> packets = generateReport(listener,
+                "Global DM26 Request",
+                DM26TripDiagnosticReadinessPacket.class,
+                request);
+        return new RequestResult<>(false, packets);
+    }
+
+    /**
+     * Requests global DM28 and generates a {@link String}
+     * that's suitable for inclusion in the report
+     *
+     * @param listener
+     * the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<ParsedPacket> requestDM28(ResultsListener listener) {
+        Packet request = getJ1939().createRequestPacket(DM28PermanentEmissionDTCPacket.PGN, GLOBAL_ADDR);
+        List<ParsedPacket> packets = generateReport(listener,
+                "Global DM28 Request",
+                DM28PermanentEmissionDTCPacket.class,
+                request);
+        return new RequestResult<>(false, packets);
+    }
+
+    /**
+     * Requests DM29 from vehicle modules with the address provided and generates a
+     * {@link String} that's suitable for inclusion in the report
+     *
+     * @param listener the {@link ResultsListener} that will be given the report
+     * @param obdAddress the address of the module from which the DM29 is to be
+     * requested
+     * @return true if there were any DTCs returned
+     */
     public RequestResult<ParsedPacket> requestDM29(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM29DtcCounts.PGN, GLOBAL_ADDR);
         List<ParsedPacket> packets = generateReport(listener,
-                "Global DM29 Request",
+                "Desination Specific DM29 Request",
                 DM29DtcCounts.class,
-                request).stream().filter(p -> p instanceof DM29DtcCounts)
-                        .map(p -> (DM29DtcCounts) p).collect(Collectors.toList());
+                request);
+        return new RequestResult<>(false, packets);
+    }
+
+    /**
+     * Requests DM29 from vehicle modules with the address provided and generates a
+     * {@link String} that's suitable for inclusion in the report
+     *
+     * @param listener the {@link ResultsListener} that will be given the report
+     * @param obdAddress the address of the module from which the DM29 is to be
+     * requested
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<ParsedPacket> requestDM29(ResultsListener listener, int obdAddress) {
+        Packet request = getJ1939().createRequestPacket(DM29DtcCounts.PGN, obdAddress);
+        List<ParsedPacket> packets = generateReport(listener,
+                "Desination Specific DM29 Request",
+                DM29DtcCounts.class,
+                request);
         return new RequestResult<>(false, packets);
     }
 
@@ -443,17 +496,53 @@ public class DTCModule extends FunctionalModule {
         List<ParsedPacket> packets = generateReport(listener,
                 "Global DM31 Request",
                 DM31ScaledTestResults.class,
-                request).stream().filter(p -> p instanceof DM31ScaledTestResults)
-                        .map(p -> (DM31ScaledTestResults) p).collect(Collectors.toList());
+                request);
         return new RequestResult<>(false, packets);
     }
 
     /**
-     * Requests DM6 from all vehicle modules and generates a {@link String}
+     * Requests destination specific DM33 and generates a {@link String}
      * that's suitable for inclusion in the report
      *
      * @param listener
      * the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<ParsedPacket> requestDM33(ResultsListener listener, int address) {
+        Packet request = getJ1939()
+                .createRequestPacket(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, address);
+        List<ParsedPacket> packets = generateReport(listener,
+                "Desination Specific DM33 Request",
+                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
+                request);
+        return new RequestResult<>(false, packets);
+    }
+
+    /**
+     * Requests a global DM6 and generates a {@link String}
+     * that's suitable for inclusion in the report
+     *
+     * @param listener
+     * the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<ParsedPacket> requestDM6(ResultsListener listener) {
+        Packet request = getJ1939().createRequestPacket(DM6PendingEmissionDTCPacket.PGN, GLOBAL_ADDR);
+        List<ParsedPacket> packets = getJ1939()
+                .requestRaw(DM6PendingEmissionDTCPacket.class,
+                        request,
+                        5500,
+                        TimeUnit.MILLISECONDS)
+                .collect(Collectors.toList());
+
+        return new RequestResult<>(false, packets);
+    }
+
+    /**
+     * Requests a global DM6 and generates a {@link String} that's suitable for
+     * inclusion in the report
+     *
+     * @param listener the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM6(ResultsListener listener, List<Integer> obdModules) {
@@ -464,13 +553,14 @@ public class DTCModule extends FunctionalModule {
         listener.onResult(getTime() + " Global DM6 Request");
         listener.onResult(getTime() + " " + requestPacket);
 
-        Stream<ParsedPacket> results = getJ1939()
+        List<ParsedPacket> results = getJ1939()
                 .requestRaw(DM6PendingEmissionDTCPacket.class,
                         requestPacket,
                         5500,
-                        TimeUnit.MILLISECONDS);
+                        TimeUnit.MILLISECONDS)
+                .collect(Collectors.toList());
 
-        List<String> responses = results.peek(t -> {
+        List<String> responses = results.stream().peek(t -> {
             if (obdModules.contains(t.getSourceAddress())
                     && t instanceof AcknowledgmentPacket
                     && ((AcknowledgmentPacket) t).getResponse() != Response.ACK) {
@@ -484,7 +574,7 @@ public class DTCModule extends FunctionalModule {
         } else {
             listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
         }
-        return new RequestResult<>(false, results.collect(Collectors.toList()));
+        return new RequestResult<>(false, results);
 
     }
 }

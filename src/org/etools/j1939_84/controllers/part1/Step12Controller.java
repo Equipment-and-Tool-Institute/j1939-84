@@ -16,7 +16,7 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
-import org.etools.j1939_84.controllers.Controller;
+import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
@@ -32,7 +32,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  * The controller for 6.1.12 DM7/DM30: Command Non-continuously
  * Monitored Test/Scaled Test Results
  */
-public class Step12Controller extends Controller {
+public class Step12Controller extends StepController {
 
     private final DataRepository dataRepository;
     private final OBDTestsModule obdTestsModule;
@@ -60,14 +60,19 @@ public class Step12Controller extends Controller {
     }
 
     @Override
-    protected int getTotalSteps() {
-        return 1;
+    public int getStepNumber() {
+        return 12;
     }
 
     // So we need to go back to step 4
     // get from repository all the supported spns by module address
     // then send DM7 to each module address asking each supported spn
     // then we need to save to dataRepository the spn and fmi by address
+
+    @Override
+    protected int getTotalSteps() {
+        return 1;
+    }
 
     @Override
     protected void run() throws Throwable {

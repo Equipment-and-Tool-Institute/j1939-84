@@ -84,8 +84,6 @@ public class Step04ControllerTest {
     @Mock
     private ResultsListener mockListener;
 
-    private final String NL = System.lineSeparator();
-
     @Mock
     private OBDTestsModule obdTestsModule;
 
@@ -137,8 +135,7 @@ public class Step04ControllerTest {
     @TestDoc(items = {
             @TestItem("6.1.4.2.a"),
             @TestItem("6.1.4.2.b"),
-            @TestItem("6.1.4.2.c") },
-            description = "Fail if retry was required to obtain DM24 response."
+            @TestItem("6.1.4.2.c") }, description = "Fail if retry was required to obtain DM24 response."
                     + "<br>"
                     + "Fail if one or more minimum expected SPNs for data stream not supported per section A.1, Minimum Support Table, from the OBD ECU(s)."
                     + "<br>"
@@ -168,7 +165,7 @@ public class Step04ControllerTest {
         when(packet4.getSupportedSpns()).thenReturn(supportedSpns);
         packets.add(packet4);
 
-        when(obdTestsModule.requestDM24Packets(any())).thenReturn(new RequestResult(true, packets));
+        when(obdTestsModule.requestDM24Packets(any())).thenReturn(new RequestResult<>(true, packets));
 
         List<SupportedSPN> expectedSPNs = new ArrayList<>();
         SupportedSPN supportedSpn = new SupportedSPN(new int[] { 0x00, 0x00, 0x00, 0x00 });
@@ -239,8 +236,7 @@ public class Step04ControllerTest {
             @TestItem("6.1.4.1.b"),
             @TestItem("6.1.4.1.c"),
             @TestItem("6.1.4.1.d"),
-            @TestItem("6.1.4.1.e") },
-            description = "Destination Specific (DS) DM24 (send Request (PGN 59904) for PGN 64950 (SPNs 3297, 4100-4103)) to each OBD ECU.6"
+            @TestItem("6.1.4.1.e") }, description = "Destination Specific (DS) DM24 (send Request (PGN 59904) for PGN 64950 (SPNs 3297, 4100-4103)) to each OBD ECU.6"
                     + "<br>"
                     + "If no response (transport protocol RTS or NACK(Busy) in 220 ms), then retry DS DM24 request to the OBD ECU."
                     + "<br>"
@@ -252,7 +248,7 @@ public class Step04ControllerTest {
                     + "<br>"
                     + "Create ECU specific list of supported freeze frame SPNs.")
     public void testGoodObjects() {
-        List<DM24SPNSupportPacket> packets = new ArrayList<>();
+        List<ParsedPacket> packets = new ArrayList<>();
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
         when(packet1.getSourceAddress()).thenReturn(0);
         packets.add(packet1);
@@ -275,7 +271,7 @@ public class Step04ControllerTest {
         when(packet4.getSupportedSpns()).thenReturn(supportedSpns);
         packets.add(packet4);
 
-        RequestResult<ParsedPacket> result = new RequestResult(false, packets);
+        RequestResult<ParsedPacket> result = new RequestResult<>(false, packets);
         when(obdTestsModule.requestDM24Packets(any())).thenReturn(result);
 
         List<SupportedSPN> expectedSPNs = new ArrayList<>();

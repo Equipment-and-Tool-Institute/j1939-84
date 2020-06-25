@@ -6,8 +6,8 @@ import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNIN
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
+import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
@@ -15,7 +15,7 @@ import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
-public class Step01Controller extends Controller {
+public class Step01Controller extends StepController {
 
     private final DataRepository dataRepository;
 
@@ -95,6 +95,11 @@ public class Step01Controller extends Controller {
     @Override
     public String getDisplayName() {
         return "Part 1 Step 1";
+    }
+
+    @Override
+    public int getStepNumber() {
+        return 1;
     }
 
     @Override
