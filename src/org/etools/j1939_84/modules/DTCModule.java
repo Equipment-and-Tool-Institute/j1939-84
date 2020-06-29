@@ -60,7 +60,7 @@ public class DTCModule extends FunctionalModule {
      * Constructor exposed for testing
      *
      * @param dateTimeModule
-     *                       the {@link DateTimeModule}
+     * the {@link DateTimeModule}
      */
     public DTCModule(DateTimeModule dateTimeModule) {
         super(dateTimeModule);
@@ -71,13 +71,13 @@ public class DTCModule extends FunctionalModule {
      * results
      * will be returned to the {@link ResultsListener}
      *
-     * @param listener         the {@link ResultsListener} for the results
-     * @param fullString       true to include the full string of the results in the
-     *                         report;
-     *                         false to only include the returned raw packet in the
-     *                         report
+     * @param listener the {@link ResultsListener} for the results
+     * @param fullString true to include the full string of the results in the
+     * report;
+     * false to only include the returned raw packet in the
+     * report
      * @param obdModuleAddress the address to which the destination specific request
-     *                         will be sent
+     * will be sent
      * @return the {@link List} of {@link DM2PreviouslyActiveDTC}s
      */
     public List<DM2PreviouslyActiveDTC> getDM2Packets(ResultsListener listener,
@@ -92,11 +92,11 @@ public class DTCModule extends FunctionalModule {
      * suitable for inclusion in the report
      *
      * @param listener
-     *                   the {@link ResultsListener} that will be given the report
+     * the {@link ResultsListener} that will be given the report
      * @param obdModules
-     *                   the source address for the OBD Modules
+     * the source address for the OBD Modules
      * @return true if there are no NACKs from the OBD Modules; false if an OBD
-     *         Module NACK'd the request or didn't respond
+     * Module NACK'd the request or didn't respond
      */
     public boolean reportDM11(ResultsListener listener, List<Integer> obdModules) {
         boolean[] result = new boolean[] { true };
@@ -134,7 +134,7 @@ public class DTCModule extends FunctionalModule {
      * that's suitable for inclusion in the report
      *
      * @param listener
-     *                 the {@link ResultsListener} that will be given the report
+     * the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public boolean reportDM12(ResultsListener listener) {
@@ -169,7 +169,7 @@ public class DTCModule extends FunctionalModule {
      * that's suitable for inclusion in the report
      *
      * @param listener
-     *                 the {@link ResultsListener} that will be given the report
+     * the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public boolean reportDM23(ResultsListener listener) {
@@ -187,7 +187,7 @@ public class DTCModule extends FunctionalModule {
      * that's suitable for inclusion in the report
      *
      * @param listener
-     *                 the {@link ResultsListener} that will be given the report
+     * the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public boolean reportDM28(ResultsListener listener) {
@@ -496,6 +496,24 @@ public class DTCModule extends FunctionalModule {
         List<ParsedPacket> packets = generateReport(listener,
                 "Global DM31 Request",
                 DM31ScaledTestResults.class,
+                request);
+        return new RequestResult<>(false, packets);
+    }
+
+    /**
+     * Requests global DM33 and generates a {@link String}
+     * that's suitable for inclusion in the report
+     *
+     * @param listener
+     * the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<ParsedPacket> requestDM33(ResultsListener listener) {
+        Packet request = getJ1939()
+                .createRequestPacket(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, GLOBAL_ADDR);
+        List<ParsedPacket> packets = generateReport(listener,
+                "Global DM33 Request",
+                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
                 request);
         return new RequestResult<>(false, packets);
     }

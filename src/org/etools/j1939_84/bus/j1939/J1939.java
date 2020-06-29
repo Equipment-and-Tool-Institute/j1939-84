@@ -27,9 +27,12 @@ import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
@@ -96,9 +99,9 @@ public class J1939 {
      * Returns a Subclass of {@link ParsedPacket} that corresponds to the id
      *
      * @param id
-     *               the id to match
+     * the id to match
      * @param packet
-     *               the {@link Packet} to process
+     * the {@link Packet} to process
      * @return a subclass of {@link ParsedPacket}
      */
     private static ParsedPacket process(int id, Packet packet) {
@@ -134,14 +137,23 @@ public class J1939 {
             case DM24SPNSupportPacket.PGN:
                 return new DM24SPNSupportPacket(packet);
 
+            case DM25ExpandedFreezeFrame.PGN:
+                return new DM25ExpandedFreezeFrame(packet);
+
             case DM26TripDiagnosticReadinessPacket.PGN:
                 return new DM26TripDiagnosticReadinessPacket(packet);
 
             case DM28PermanentEmissionDTCPacket.PGN:
                 return new DM28PermanentEmissionDTCPacket(packet);
 
+            case DM29DtcCounts.PGN:
+                return new DM29DtcCounts(packet);
+
             case DM30ScaledTestResultsPacket.PGN:
                 return new DM30ScaledTestResultsPacket(packet);
+
+            case DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN:
+                return new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(packet);
 
             case ComponentIdentificationPacket.PGN:
                 return new ComponentIdentificationPacket(packet);
@@ -199,7 +211,7 @@ public class J1939 {
      * {@link Packet}
      *
      * @param packet
-     *               the {@link Packet} to process
+     * the {@link Packet} to process
      * @return a subclass of {@link ParsedPacket}
      */
     @SuppressWarnings("unchecked")
@@ -220,7 +232,7 @@ public class J1939 {
      * Constructor
      *
      * @param bus
-     *            the {@link Bus} used to communicate with the vehicle
+     * the {@link Bus} used to communicate with the vehicle
      */
     public J1939(Bus bus) {
         this.bus = bus;
@@ -230,7 +242,7 @@ public class J1939 {
      * Filter to find acknowledgement packets
      *
      * @param pgn
-     *            the pgn that's being requested
+     * the pgn that's being requested
      * @return true if the message is an Acknowledgement for the given pgn
      */
     private Predicate<Packet> ackFilter(int pgn) {
@@ -253,7 +265,7 @@ public class J1939 {
      * Filter to find acknowledgement/nack packets
      *
      * @param pgn
-     *            the pgn that's being requested
+     * the pgn that's being requested
      * @return true if the message is an Acknowledgement/Nack for the given pgn
      */
     private Predicate<Packet> ackNackFilter(int pgn) {
@@ -279,9 +291,9 @@ public class J1939 {
      * by modules on the bus that support it
      *
      * @param pgn
-     *             the PGN of the packet that's being request
+     * the PGN of the packet that's being request
      * @param addr
-     *             the address the request is being directed at
+     * the address the request is being directed at
      * @return a {@link Packet}
      */
     public Packet createRequestPacket(int pgn, int addr) {
@@ -292,7 +304,7 @@ public class J1939 {
      * Destination Specific PGN Filter
      *
      * @param pgn
-     *            the PGN to filter
+     * the PGN to filter
      * @return {@link Predicate}
      */
     private Predicate<Packet> dsPgnFilter(int pgn) {
@@ -323,7 +335,7 @@ public class J1939 {
      * Returns the destination based upon the request
      *
      * @param requestPacket
-     *                      the request
+     * the request
      * @return the destination specific address or GLOBAL_ADDR
      */
     private int getDestination(Packet requestPacket) {
@@ -339,7 +351,7 @@ public class J1939 {
      *
      * @return {@link Stream} of {@link ParsedPacket} s
      * @throws BusException
-     *                      if there is a problem reading the bus
+     * if there is a problem reading the bus
      */
     public Stream<ParsedPacket> read() throws BusException {
         return getBus().read(365, TimeUnit.DAYS).map(t -> process(t));
@@ -349,18 +361,18 @@ public class J1939 {
      * Watches the bus for up to the timeout for the first packet that matches
      * the PGN in the given class
      *
-     * @param         <T>
-     *                the Type of Packet to expect back
+     * @param <T>
+     * the Type of Packet to expect back
      *
      * @param T
-     *                the class of interest
+     * the class of interest
      * @param addr
-     *                the source address the packet should come from. NOTE do not
-     *                use the Global Address (0xFF) here
+     * the source address the packet should come from. NOTE do not
+     * use the Global Address (0xFF) here
      * @param timeout
-     *                the maximum time to wait for a message
+     * the maximum time to wait for a message
      * @param unit
-     *                the {@link TimeUnit} for the timeout
+     * the {@link TimeUnit} for the timeout
      * @return the resulting packet
      */
     public <T extends ParsedPacket> Optional<T> read(Class<T> T, int addr, long timeout, TimeUnit unit) {
@@ -380,14 +392,14 @@ public class J1939 {
      * Watches the bus for up to the timeout for all the packets that match the
      * PGN in the given class
      *
-     * @param         <T>
-     *                the Type of Packet to expect back
+     * @param <T>
+     * the Type of Packet to expect back
      * @param T
-     *                the class of interest
+     * the class of interest
      * @param timeout
-     *                the maximum time to wait for a message
+     * the maximum time to wait for a message
      * @param unit
-     *                the {@link TimeUnit} for the timeout
+     * the {@link TimeUnit} for the timeout
      * @return the resulting packets in a Stream
      */
     public <T extends ParsedPacket> Stream<T> read(Class<T> T, long timeout, TimeUnit unit) {
@@ -502,18 +514,18 @@ public class J1939 {
      * Sends a Request for the given packet. The request will repeat the given
      * number of tries.
      *
-     * @param              <T>
-     *                     the Type of Packet that will be returned
+     * @param <T>
+     * the Type of Packet that will be returned
      * @param packetToSend
-     *                     the packet that will be sent
+     * the packet that will be sent
      * @param T
-     *                     the Class of packet that's expected to be returned
+     * the Class of packet that's expected to be returned
      * @param destination
-     *                     the address response should come from
+     * the address response should come from
      * @param tries
-     *                     the number of times to try the request
+     * the number of times to try the request
      * @return {@link Optional} {@link Packet} This may not contain a value if
-     *         there was an exception
+     * there was an exception
      */
     public <T extends ParsedPacket> Optional<T> requestPacket(Packet packetToSend,
             Class<T> T,
@@ -534,20 +546,20 @@ public class J1939 {
      * Sends a Request for the given packet. The request will repeat the given
      * number of tries.
      *
-     * @param              <T>
-     *                     the Type of Packet that will be returned
+     * @param <T>
+     * the Type of Packet that will be returned
      * @param packetToSend
-     *                     the packet that will be sent
+     * the packet that will be sent
      * @param T
-     *                     the Class of packet that's expected to be returned
+     * the Class of packet that's expected to be returned
      * @param destination
-     *                     the address response should come from
+     * the address response should come from
      * @param tries
-     *                     the number of times to try the request
+     * the number of times to try the request
      * @param timeout
-     *                     the maximum time, in milliseconds, to wait for a response
+     * the maximum time, in milliseconds, to wait for a response
      * @return {@link Optional} {@link Packet} This may not contain a value if
-     *         there was an exception
+     * there was an exception
      */
     public <T extends ParsedPacket> Optional<BusResult<T>> requestPacket(Packet packetToSend,
             Class<T> T,
@@ -591,19 +603,19 @@ public class J1939 {
      * provide the PGN for the Packet that is requested. This will request the
      * packet globally. NACKs will NOT be ignored.
      *
-     * @param               <T>
-     *                      the Type of Packet to request
+     * @param <T>
+     * the Type of Packet to request
      * @param T
-     *                      the class that extends {@link ParsedPacket} that
-     *                      provides the
-     *                      PGN for the packet to be requested
+     * the class that extends {@link ParsedPacket} that
+     * provides the
+     * PGN for the packet to be requested
      * @param requestPacket
-     *                      the {@link Packet} to send that will generate the
-     *                      responses
+     * the {@link Packet} to send that will generate the
+     * responses
      * @param timeout
-     *                      the maximum time to wait for responses
+     * the maximum time to wait for responses
      * @param unit
-     *                      the {@link TimeUnit} of the timeout
+     * the {@link TimeUnit} of the timeout
      * @return a {@link Stream} containing {@link ParsedPacket}
      */
     public <T extends ParsedPacket> Stream<ParsedPacket> requestRaw(Class<T> T,

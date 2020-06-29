@@ -13,6 +13,7 @@ import org.etools.j1939_84.bus.Packet;
  *
  */
 public class DM28PermanentEmissionDTCPacket extends DiagnosticTroubleCodePacket {
+    // Hex value of PGN = 00FD80
     public static final int PGN = 64896;
 
     public DM28PermanentEmissionDTCPacket(Packet packet) {

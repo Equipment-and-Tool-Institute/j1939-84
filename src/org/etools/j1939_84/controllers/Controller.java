@@ -256,6 +256,12 @@ public abstract class Controller {
 
     }
 
+    protected void addPass(int partNumber, int stepNumber, String message) {
+        getListener().addOutcome(partNumber, stepNumber, Outcome.PASS, message);
+        getListener().onResult("PASS: " + message);
+
+    }
+
     /**
      * Adds a warning to the report
      *
