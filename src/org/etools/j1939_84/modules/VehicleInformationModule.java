@@ -44,7 +44,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * to a {@link String}
      *
      * @param cals
-     *             the {@link Set} of {@link CalibrationInformation}
+     * the {@link Set} of {@link CalibrationInformation}
      * @return {@link String}
      */
     private static String calibrationAsString(Set<CalibrationInformation> cals) {
@@ -82,7 +82,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * Constructor exposed for testing
      *
      * @param dateTimeModule
-     *                       the {@link DateTimeModule} to use
+     * the {@link DateTimeModule} to use
      */
     public VehicleInformationModule(DateTimeModule dateTimeModule) {
         super(dateTimeModule);
@@ -116,7 +116,7 @@ public class VehicleInformationModule extends FunctionalModule {
      *
      * @return {@link String}
      * @throws IOException
-     *                     if there are no {@link CalibrationInformation} returned
+     * if there are no {@link CalibrationInformation} returned
      */
     public String getCalibrationsAsString() throws IOException {
         return calibrationAsString(getCalibrations());
@@ -236,8 +236,8 @@ public class VehicleInformationModule extends FunctionalModule {
      * and generates a {@link String} that's suitable for inclusion in the report
      *
      * @param listener the {@link ResultsListener} that will be given the report
-     * @param address  the address of vehicle module to which the message will be
-     *                 addressed
+     * @param address the address of vehicle module to which the message will be
+     * addressed
      * @return {@link List} of {@link DM19CalibrationInformationPacket}
      */
     public List<ParsedPacket> reportCalibrationInformation(ResultsListener listener, int address) {
@@ -270,9 +270,9 @@ public class VehicleInformationModule extends FunctionalModule {
      * generates a {@link String} that's suitable for inclusion in the report
      *
      * @param listener
-     *                 the {@link ResultsListener} that will be given the report
-     * @param address  the address of vehicle module to which the message will be
-     *                 addressed
+     * the {@link ResultsListener} that will be given the report
+     * @param address the address of vehicle module to which the message will be
+     * addressed
      * @return {@link List} of {@link ComponentIdentificationPacket}
      */
     public List<ParsedPacket> reportComponentIdentification(ResultsListener listener, int address) {
@@ -314,7 +314,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * that's suitable for inclusion in the report
      *
      * @param listener
-     *                 the {@link ResultsListener} that will be given the report
+     * the {@link ResultsListener} that will be given the report
      */
     public void reportEngineHours(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(EngineHoursPacket.PGN, GLOBAL_ADDR);
@@ -326,7 +326,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * generates a {@link String} that's suitable for inclusion in the report
      *
      * @param listener
-     *                 the {@link ResultsListener} that will be given the report
+     * the {@link ResultsListener} that will be given the report
      */
     public void reportVehicleDistance(ResultsListener listener) {
         listener.onResult(getTime() + " Vehicle Distance");
@@ -366,8 +366,8 @@ public class VehicleInformationModule extends FunctionalModule {
     }
 
     /**
-     * Requests the Engine Hours from the engine and generates a {@link String}
-     * that's suitable for inclusion in the report
+     * Sends a global request for the Engine Hours from the engine and generates a
+     * {@link String} that's suitable for inclusion in the report
      *
      * @param listener
      * the {@link ResultsListener} that will be given the report
@@ -375,7 +375,7 @@ public class VehicleInformationModule extends FunctionalModule {
     public RequestResult<ParsedPacket> requestEngineHours(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(EngineHoursPacket.PGN, GLOBAL_ADDR);
         return new RequestResult<>(false,
-                generateReport(listener, "Engine Hours Request", EngineHoursPacket.class, request));
+                generateReport(listener, "Global Engine Hours Request", EngineHoursPacket.class, request));
     }
 
     /**
