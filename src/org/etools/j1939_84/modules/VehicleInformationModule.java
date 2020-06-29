@@ -28,6 +28,7 @@ import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.TotalVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.model.RequestResult;
 
 /**
  * The {@link FunctionalModule} that is used to gather general information about
@@ -362,6 +363,19 @@ public class VehicleInformationModule extends FunctionalModule {
         return generateReport(listener, "Global VIN Request", VehicleIdentificationPacket.class, request).stream()
                 .filter(p -> p instanceof VehicleIdentificationPacket).map(p -> (VehicleIdentificationPacket) p)
                 .collect(Collectors.toList());
+    }
+
+    /**
+     * Requests the Engine Hours from the engine and generates a {@link String}
+     * that's suitable for inclusion in the report
+     *
+     * @param listener
+     * the {@link ResultsListener} that will be given the report
+     */
+    public RequestResult<ParsedPacket> requestEngineHours(ResultsListener listener) {
+        Packet request = getJ1939().createRequestPacket(EngineHoursPacket.PGN, GLOBAL_ADDR);
+        return new RequestResult<>(false,
+                generateReport(listener, "Engine Hours Request", EngineHoursPacket.class, request));
     }
 
     /**

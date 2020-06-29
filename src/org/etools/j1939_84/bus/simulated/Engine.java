@@ -13,6 +13,10 @@ import java.util.concurrent.TimeUnit;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
+import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
+import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
 
 /**
  * Simulated Engine used for System Testing
@@ -128,12 +132,13 @@ public class Engine implements AutoCloseable {
             executor.schedule(() -> engineOn[0] = false, 10, TimeUnit.SECONDS);
             return Packet.create(65259, ADDR, COMPONENT_ID);
         });
-        sim.response(p -> isRequestFor(65253, p), () -> {
-            // Start a timer that will increment the numerators and denominators
-            // for UI demo purposes
-            startTimer();
-            return Packet.create(65253, ADDR, combine(ENGINE_HOURS, NA4));
-        });
+        sim.response(p -> isRequestFor(65253, p),
+                () -> {
+                    // Start a timer that will increment the numerators and denominators
+                    // for UI demo purposes
+                    // startTimer();
+                    return Packet.create(65253, ADDR, combine(ENGINE_HOURS, NA4));
+                });
         // Address Claim
         sim.response(p -> isRequestFor(0xEE00, p),
                 () -> Packet.create(0xEEFF, ADDR, 0x00, 0x00, 0x40, 0x05, 0x00, 0x00, 0x65, 0x14));
@@ -163,7 +168,17 @@ public class Engine implements AutoCloseable {
         // DM23
         sim.response(p -> isRequestFor(64949, p), () -> Packet.create(64949, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
         // DM28
-        sim.response(p -> isRequestFor(64896, p), () -> Packet.create(64896, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
+        sim.response(p -> isRequestFor(DM28PermanentEmissionDTCPacket.PGN, p),
+                () -> Packet.create(DM28PermanentEmissionDTCPacket.PGN,
+                        ADDR,
+                        0x03,
+                        0xFF,
+                        0x00,
+                        0x00,
+                        0x00,
+                        0x00,
+                        0xFF,
+                        0xFF));
         // DM11
         sim.response(p -> isRequestFor(65235, p), () -> {
             dtcsCleared = true;
@@ -176,6 +191,98 @@ public class Engine implements AutoCloseable {
                 () -> Packet.create(65230, 0x17, 0x00, 0x00, 0x13, 0x37, 0xE0, 0x1E, 0xE0, 0x1E));
         sim.response(p -> isRequestFor(65230, p),
                 () -> Packet.create(0xE8FF, 0x21, 0x01, 0xFF, 0xFF, 0xFF, 0xF9, 0xCE, 0xFE, 0x00));
+        // DM25
+        sim.response(p -> isRequestFor(DM25ExpandedFreezeFrame.PGN, p),
+                () -> Packet.create(DM25ExpandedFreezeFrame.PGN,
+                        ADDR,
+                        0x56,
+                        0x9D,
+                        0x00,
+                        0x07,
+                        0x7F,
+                        0x00,
+                        0x01,
+                        0x7B,
+                        0x00,
+                        0x00,
+                        0x39,
+                        0x3A,
+                        0x5C,
+                        0x0F,
+                        0xC4,
+                        0xFB,
+                        0x00,
+                        0x00,
+                        0x00,
+                        0xF1,
+                        0x26,
+                        0x00,
+                        0x00,
+                        0x00,
+                        0x12,
+                        0x7A,
+                        0x7D,
+                        0x80,
+                        0x65,
+                        0x00,
+                        0x00,
+                        0x32,
+                        0x00,
+                        0x00,
+                        0x00,
+                        0x00,
+                        0x84,
+                        0xAD,
+                        0x00,
+                        0x39,
+                        0x2C,
+                        0x30,
+                        0x39,
+                        0xFC,
+                        0x38,
+                        0xC6,
+                        0x35,
+                        0xE0,
+                        0x34,
+                        0x2C,
+                        0x2F,
+                        0x00,
+                        0x00,
+                        0x7D,
+                        0x7D,
+                        0x8A,
+                        0x28,
+                        0xA0,
+                        0x0F,
+                        0xA0,
+                        0x0F,
+                        0xD1,
+                        0x37,
+                        0x00,
+                        0xCA,
+                        0x28,
+                        0x01,
+                        0xA4,
+                        0x0D,
+                        0x00,
+                        0xA8,
+                        0xC3,
+                        0xB2,
+                        0xC2,
+                        0xC3,
+                        0x00,
+                        0x00,
+                        0x00,
+                        0x00,
+                        0x7E,
+                        0xD0,
+                        0x07,
+                        0x00,
+                        0x7D,
+                        0x04,
+                        0xFF,
+                        0xFA));
+
         // DM26
         sim.response(p -> isRequestFor(0xFDB8, p),
                 () -> Packet.create(0xFDB8, ADDR, 0x00, 0x00, 0x00, 0x37, 0xC0, 0x1E, 0xC0, 0x1E));
@@ -288,6 +395,9 @@ public class Engine implements AutoCloseable {
         // DM24 supported SPNs
         sim.response(p -> isRequestFor(64950, p),
                 () -> Packet.create(64950, ADDR, 0x66, 0x00, 0x1B, 0x01, 0x95, 0x04, 0x1B, 0x02));
+        // DM29 response
+        sim.response(p -> isRequestFor(DM29DtcCounts.PGN, p),
+                () -> Packet.create(DM29DtcCounts.PGN, ADDR, 0x00, 0x00, 0x01, 0x00, 0x01, 0xFF, 0xFF, 0xFF));
         // DM30 response for DM7 Request for SPN 102
         sim.response(p -> isDM7For(102, p),
                 () -> Packet.create(0xA4F9,
@@ -332,7 +442,163 @@ public class Engine implements AutoCloseable {
         sim.response(p -> isDM7For(1173, p),
                 () -> Packet
                         .create(0xA4F9, ADDR, 0xF7, 0x95, 0x04, 0x10, 0x66, 0x01, 0x00, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF));
-        // DM 56 Engine Model Year
+
+        // DM33 response for DM33 Global Request for PGN 41216
+        sim.response(p -> isRequestFor(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, p),
+                () -> Packet
+                        .create(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN,
+                                ADDR,
+                                0x01,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0x04,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0x06,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0x0B,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0x0C,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0x0D,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0x31,
+                                0x01,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0x38,
+                                0x0D,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF));
+
+        sim.response(p -> isRequestFor(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, p),
+                () -> Packet
+                        .create(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN,
+                                0x17,
+                                0x01,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0x04,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0x06,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0x0B,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0x0C,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0x0D,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0x31,
+                                0x01,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0x38,
+                                0x0D,
+                                0x00,
+                                0x00,
+                                0x00,
+                                0xFF,
+                                0xFF,
+                                0xFF,
+                                0xFF));
+
+        // DM56 Engine Model Year
         sim.response(p -> isRequestFor(64711, p),
                 () -> Packet.create(64711, ADDR, ENGINE_MODEL_YEAR));
     }
