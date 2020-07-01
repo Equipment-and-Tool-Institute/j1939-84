@@ -44,7 +44,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * to a {@link String}
      *
      * @param cals
-     * the {@link Set} of {@link CalibrationInformation}
+     *            the {@link Set} of {@link CalibrationInformation}
      * @return {@link String}
      */
     private static String calibrationAsString(Set<CalibrationInformation> cals) {
@@ -82,7 +82,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * Constructor exposed for testing
      *
      * @param dateTimeModule
-     * the {@link DateTimeModule} to use
+     *            the {@link DateTimeModule} to use
      */
     public VehicleInformationModule(DateTimeModule dateTimeModule) {
         super(dateTimeModule);
@@ -94,13 +94,11 @@ public class VehicleInformationModule extends FunctionalModule {
      *
      * @return a {@link Set} of {@link CalibrationInformation}
      * @throws IOException
-     * if there are no {@link CalibrationInformation} returned
+     *             if there are no {@link CalibrationInformation} returned
      */
     private Set<CalibrationInformation> getCalibrations() throws IOException {
         if (calibrations == null) {
             calibrations = getJ1939().requestMultiple(DM19CalibrationInformationPacket.class)
-                    .filter(packet -> packet instanceof DM19CalibrationInformationPacket)
-                    .map(p -> (DM19CalibrationInformationPacket) p)
                     .flatMap(t -> t.getCalibrationInformation().stream()).collect(Collectors.toSet());
             if (calibrations.isEmpty()) {
                 throw new IOException("Timeout Error Reading Calibrations");
@@ -116,7 +114,7 @@ public class VehicleInformationModule extends FunctionalModule {
      *
      * @return {@link String}
      * @throws IOException
-     * if there are no {@link CalibrationInformation} returned
+     *             if there are no {@link CalibrationInformation} returned
      */
     public String getCalibrationsAsString() throws IOException {
         return calibrationAsString(getCalibrations());
@@ -126,15 +124,14 @@ public class VehicleInformationModule extends FunctionalModule {
      * Queries the vehicle for the Engine Family Name
      *
      * @return The Engine Family Name
-     * @throws IOException if no values are returned from the vehicle or multiple
-     * differing values are returned from the vehicle
+     * @throws IOException
+     *             if no values are returned from the vehicle or multiple
+     *             differing values are returned from the vehicle
      */
     public String getEngineFamilyName() throws IOException {
         if (engineFamilyName == null) {
             Set<String> results = getJ1939()
                     .requestMultiple(DM56EngineFamilyPacket.class)
-                    .filter(packet -> packet instanceof DM56EngineFamilyPacket)
-                    .map(p -> (DM56EngineFamilyPacket) p)
                     .map(t -> t.getFamilyName())
                     .collect(Collectors.toSet());
             if (results.size() == 0) {
@@ -151,15 +148,14 @@ public class VehicleInformationModule extends FunctionalModule {
      * Queries the vehicle for the Engine Model Year
      *
      * @return The Engine Model Year as an integer
-     * @throws IOException if no values are returned from the vehicle or multiple
-     * differing values are returned from the vehicle
+     * @throws IOException
+     *             if no values are returned from the vehicle or multiple
+     *             differing values are returned from the vehicle
      */
     public int getEngineModelYear() throws IOException {
         if (engineModelYear == null) {
             Set<Integer> results = getJ1939()
                     .requestMultiple(DM56EngineFamilyPacket.class)
-                    .filter(packet -> packet instanceof DM56EngineFamilyPacket)
-                    .map(packet -> (DM56EngineFamilyPacket) packet)
                     .map(t -> t.getEngineModelYear())
                     .collect(Collectors.toSet());
             if (results.size() == 0) {
@@ -177,14 +173,13 @@ public class VehicleInformationModule extends FunctionalModule {
      *
      * @return the Vehicle Identification Number as a {@link String}
      * @throws IOException
-     * if no value is returned from the vehicle or different
-     * VINs are returned
+     *             if no value is returned from the vehicle or different VINs
+     *             are returned
      */
     public String getVin() throws IOException {
         if (vin == null) {
             Set<String> vins = getJ1939().requestMultiple(VehicleIdentificationPacket.class)
-                    .filter(packet -> packet instanceof VehicleIdentificationPacket)
-                    .map(packet -> (VehicleIdentificationPacket) packet).map(t -> t.getVin())
+                    .map(t -> t.getVin())
                     .collect(Collectors.toSet());
             if (vins.size() == 0) {
                 throw new IOException("Timeout Error Reading VIN");
@@ -201,15 +196,14 @@ public class VehicleInformationModule extends FunctionalModule {
      * Sends the Request for Address Claim and reports the results
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      */
     public void reportAddressClaim(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(AddressClaimPacket.PGN, GLOBAL_ADDR);
         List<AddressClaimPacket> responses = generateReport(listener,
                 "Global Request for Address Claim",
                 AddressClaimPacket.class,
-                request).stream().filter(p -> p instanceof AddressClaimPacket)
-                        .map(p -> (AddressClaimPacket) p).collect(Collectors.toList());
+                request);
         if (!responses.isEmpty() && !responses.stream().filter(p -> p.getFunctionId() == 0).findAny().isPresent()) {
             listener.onResult("Error: No module reported Function 0");
         }
@@ -219,7 +213,8 @@ public class VehicleInformationModule extends FunctionalModule {
      * Requests the Calibration Information from all vehicle modules and
      * generates a {@link String} that's suitable for inclusion in the report
      *
-     * @param listener the {@link ResultsListener} that will be given the report
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
      * @return {@link List} of {@link DM19CalibrationInformationPacket}
      */
     public List<DM19CalibrationInformationPacket> reportCalibrationInformation(ResultsListener listener) {
@@ -227,17 +222,19 @@ public class VehicleInformationModule extends FunctionalModule {
         return generateReport(listener,
                 "Global DM19 (Calibration Information) Request",
                 DM19CalibrationInformationPacket.class,
-                request).stream().filter(p -> p instanceof DM19CalibrationInformationPacket)
-                        .map(p -> (DM19CalibrationInformationPacket) p).collect(Collectors.toList());
+                request);
     }
 
     /**
-     * Requests the Component Identification from address specific vehicle modules
-     * and generates a {@link String} that's suitable for inclusion in the report
+     * Requests the Component Identification from address specific vehicle
+     * modules and generates a {@link String} that's suitable for inclusion in
+     * the report
      *
-     * @param listener the {@link ResultsListener} that will be given the report
-     * @param address the address of vehicle module to which the message will be
-     * addressed
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
+     * @param address
+     *            the address of vehicle module to which the message will be
+     *            addressed
      * @return {@link List} of {@link DM19CalibrationInformationPacket}
      */
     public List<ParsedPacket> reportCalibrationInformation(ResultsListener listener, int address) {
@@ -253,7 +250,8 @@ public class VehicleInformationModule extends FunctionalModule {
      * Requests the Component Identification from all vehicle modules and
      * generates a {@link String} that's suitable for inclusion in the report
      *
-     * @param listener the {@link ResultsListener} that will be given the report
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
      * @return {@link List} of {@link DM19CalibrationInformationPacket}
      */
     public List<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener) {
@@ -261,18 +259,19 @@ public class VehicleInformationModule extends FunctionalModule {
         return generateReport(listener,
                 "Global Component Identification Request",
                 ComponentIdentificationPacket.class,
-                request).stream().filter(p -> p instanceof ComponentIdentificationPacket)
-                        .map(p -> (ComponentIdentificationPacket) p).collect(Collectors.toList());
+                request);
     }
 
     /**
-     * Requests globally the Component Identification from all vehicle modules and
-     * generates a {@link String} that's suitable for inclusion in the report
+     * Requests globally the Component Identification from all vehicle modules
+     * and generates a {@link String} that's suitable for inclusion in the
+     * report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
-     * @param address the address of vehicle module to which the message will be
-     * addressed
+     *            the {@link ResultsListener} that will be given the report
+     * @param address
+     *            the address of vehicle module to which the message will be
+     *            addressed
      * @return {@link List} of {@link ComponentIdentificationPacket}
      */
     public List<ParsedPacket> reportComponentIdentification(ResultsListener listener, int address) {
@@ -289,7 +288,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * Queries the bus and reports the speed of the vehicle bus
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      */
     public void reportConnectionSpeed(ResultsListener listener) {
         String result = getTime() + " Baud Rate: ";
@@ -304,9 +303,7 @@ public class VehicleInformationModule extends FunctionalModule {
 
     public List<DM56EngineFamilyPacket> reportEngineFamily(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM56EngineFamilyPacket.PGN, GLOBAL_ADDR);
-        return generateReport(listener, "Global DM56 Request", DM56EngineFamilyPacket.class, request).stream()
-                .filter(p -> p instanceof DM56EngineFamilyPacket)
-                .map(p -> (DM56EngineFamilyPacket) p).collect(Collectors.toList());
+        return generateReport(listener, "Global DM56 Request", DM56EngineFamilyPacket.class, request);
     }
 
     /**
@@ -314,7 +311,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * that's suitable for inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      */
     public void reportEngineHours(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(EngineHoursPacket.PGN, GLOBAL_ADDR);
@@ -326,7 +323,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * generates a {@link String} that's suitable for inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      */
     public void reportVehicleDistance(ResultsListener listener) {
         listener.onResult(getTime() + " Vehicle Distance");
@@ -351,28 +348,26 @@ public class VehicleInformationModule extends FunctionalModule {
 
     /**
      * Requests the Vehicle Identification from all vehicle modules and
-     * generates adds the information gathered to the report returning the Packets
-     * returned by the query.
+     * generates adds the information gathered to the report returning the
+     * Packets returned by the query.
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return List of {@link VehicleIdentificationPacket}
      */
     public List<VehicleIdentificationPacket> reportVin(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(VehicleIdentificationPacket.PGN, GLOBAL_ADDR);
-        return generateReport(listener, "Global VIN Request", VehicleIdentificationPacket.class, request).stream()
-                .filter(p -> p instanceof VehicleIdentificationPacket).map(p -> (VehicleIdentificationPacket) p)
-                .collect(Collectors.toList());
+        return generateReport(listener, "Global VIN Request", VehicleIdentificationPacket.class, request);
     }
 
     /**
-     * Sends a global request for the Engine Hours from the engine and generates a
-     * {@link String} that's suitable for inclusion in the report
+     * Sends a global request for the Engine Hours from the engine and generates
+     * a {@link String} that's suitable for inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      */
-    public RequestResult<ParsedPacket> requestEngineHours(ResultsListener listener) {
+    public RequestResult<EngineHoursPacket> requestEngineHours(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(EngineHoursPacket.PGN, GLOBAL_ADDR);
         return new RequestResult<>(false,
                 generateReport(listener, "Global Engine Hours Request", EngineHoursPacket.class, request));

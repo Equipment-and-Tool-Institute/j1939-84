@@ -143,8 +143,7 @@ public class DTCModule extends FunctionalModule {
         List<? extends DiagnosticTroubleCodePacket> packets = generateReport(listener,
                 "Global DM12 Request",
                 DM12MILOnEmissionDTCPacket.class,
-                request).stream().filter(p -> p instanceof DM12MILOnEmissionDTCPacket)
-                        .map(p -> (DM12MILOnEmissionDTCPacket) p).collect(Collectors.toList());
+                request);
         return packets.stream().anyMatch(t -> !t.getDtcs().isEmpty());
     }
 
@@ -161,8 +160,7 @@ public class DTCModule extends FunctionalModule {
         List<? extends DiagnosticTroubleCodePacket> packets = generateReport(listener,
                 "Global DM2 Request",
                 DM2PreviouslyActiveDTC.class,
-                request).stream().filter(p -> p instanceof DM2PreviouslyActiveDTC)
-                        .map(p -> (DM2PreviouslyActiveDTC) p).collect(Collectors.toList());
+                request);
         return packets.stream().anyMatch(t -> !t.getDtcs().isEmpty());
     }
 
@@ -179,8 +177,7 @@ public class DTCModule extends FunctionalModule {
         List<? extends DiagnosticTroubleCodePacket> packets = generateReport(listener,
                 "Global DM23 Request",
                 DM23PreviouslyMILOnEmissionDTCPacket.class,
-                request).stream().filter(p -> p instanceof DM23PreviouslyMILOnEmissionDTCPacket)
-                        .map(p -> (DM23PreviouslyMILOnEmissionDTCPacket) p).collect(Collectors.toList());
+                request);
         return packets.stream().anyMatch(t -> !t.getDtcs().isEmpty());
     }
 
@@ -197,8 +194,7 @@ public class DTCModule extends FunctionalModule {
         List<? extends DiagnosticTroubleCodePacket> packets = generateReport(listener,
                 "Global DM28 Request",
                 DM28PermanentEmissionDTCPacket.class,
-                request).stream().filter(p -> p instanceof DM28PermanentEmissionDTCPacket)
-                        .map(p -> (DM28PermanentEmissionDTCPacket) p).collect(Collectors.toList());
+                request);
         return packets.stream().anyMatch(t -> !t.getDtcs().isEmpty());
     }
 
@@ -235,9 +231,9 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM12(ResultsListener listener) {
+    public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM12MILOnEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        List<ParsedPacket> packets = generateReport(listener,
+        List<DM12MILOnEmissionDTCPacket> packets = generateReport(listener,
                 "Global DM12 Request",
                 DM12MILOnEmissionDTCPacket.class,
                 request);
@@ -289,9 +285,9 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM21(ResultsListener listener) {
+    public RequestResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM21DiagnosticReadinessPacket.PGN, GLOBAL_ADDR);
-        List<ParsedPacket> packets = generateReport(listener,
+        List<DM21DiagnosticReadinessPacket> packets = generateReport(listener,
                 "Global DM21 Request",
                 DM21DiagnosticReadinessPacket.class,
                 request);
@@ -306,9 +302,9 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM21(ResultsListener listener, int address) {
+    public RequestResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener, int address) {
         Packet request = getJ1939().createRequestPacket(DM21DiagnosticReadinessPacket.PGN, address);
-        List<ParsedPacket> packets = generateReport(listener,
+        List<DM21DiagnosticReadinessPacket> packets = generateReport(listener,
                 "Global DM21 Request",
                 DM21DiagnosticReadinessPacket.class,
                 request);
@@ -323,9 +319,9 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM23(ResultsListener listener) {
+    public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM23PreviouslyMILOnEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        List<ParsedPacket> packets = generateReport(listener,
+        List<DM23PreviouslyMILOnEmissionDTCPacket> packets = generateReport(listener,
                 "Global DM23 Request",
                 DM23PreviouslyMILOnEmissionDTCPacket.class,
                 request);
@@ -408,9 +404,9 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM26(ResultsListener listener) {
+    public RequestResult<DM26TripDiagnosticReadinessPacket> requestDM26(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM26TripDiagnosticReadinessPacket.PGN, GLOBAL_ADDR);
-        List<ParsedPacket> packets = generateReport(listener,
+        List<DM26TripDiagnosticReadinessPacket> packets = generateReport(listener,
                 "Global DM26 Request",
                 DM26TripDiagnosticReadinessPacket.class,
                 request);
@@ -425,9 +421,9 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM28(ResultsListener listener) {
+    public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM28PermanentEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        List<ParsedPacket> packets = generateReport(listener,
+        List<DM28PermanentEmissionDTCPacket> packets = generateReport(listener,
                 "Global DM28 Request",
                 DM28PermanentEmissionDTCPacket.class,
                 request);
@@ -445,9 +441,9 @@ public class DTCModule extends FunctionalModule {
      *            requested
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM29(ResultsListener listener) {
+    public RequestResult<DM29DtcCounts> requestDM29(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM29DtcCounts.PGN, GLOBAL_ADDR);
-        List<ParsedPacket> packets = generateReport(listener,
+        List<DM29DtcCounts> packets = generateReport(listener,
                 "Desination Specific DM29 Request",
                 DM29DtcCounts.class,
                 request);
@@ -465,9 +461,9 @@ public class DTCModule extends FunctionalModule {
      *            requested
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM29(ResultsListener listener, int obdAddress) {
+    public RequestResult<DM29DtcCounts> requestDM29(ResultsListener listener, int obdAddress) {
         Packet request = getJ1939().createRequestPacket(DM29DtcCounts.PGN, obdAddress);
-        List<ParsedPacket> packets = generateReport(listener,
+        List<DM29DtcCounts> packets = generateReport(listener,
                 "Desination Specific DM29 Request",
                 DM29DtcCounts.class,
                 request);
@@ -482,13 +478,12 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM31(ResultsListener listener) {
+    public RequestResult<DM31ScaledTestResults> requestDM31(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM31ScaledTestResults.PGN, GLOBAL_ADDR);
-        List<ParsedPacket> packets = generateReport(listener,
+        List<DM31ScaledTestResults> packets = generateReport(listener,
                 "Global DM31 Request",
                 DM31ScaledTestResults.class,
-                request).stream().filter(p -> p instanceof DM31ScaledTestResults)
-                        .map(p -> (DM31ScaledTestResults) p).collect(Collectors.toList());
+                request);
         return new RequestResult<>(false, packets);
     }
 
@@ -500,9 +495,9 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM31(ResultsListener listener, int address) {
+    public RequestResult<DM31ScaledTestResults> requestDM31(ResultsListener listener, int address) {
         Packet request = getJ1939().createRequestPacket(DM31ScaledTestResults.PGN, address);
-        List<ParsedPacket> packets = generateReport(listener,
+        List<DM31ScaledTestResults> packets = generateReport(listener,
                 "Global DM31 Request",
                 DM31ScaledTestResults.class,
                 request);
@@ -517,10 +512,11 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM33(ResultsListener listener) {
+    public RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> requestDM33(
+            ResultsListener listener) {
         Packet request = getJ1939()
                 .createRequestPacket(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, GLOBAL_ADDR);
-        List<ParsedPacket> packets = generateReport(listener,
+        List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> packets = generateReport(listener,
                 "Global DM33 Request",
                 DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
                 request);
@@ -535,10 +531,11 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM33(ResultsListener listener, int address) {
+    public RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> requestDM33(
+            ResultsListener listener, int address) {
         Packet request = getJ1939()
                 .createRequestPacket(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, address);
-        List<ParsedPacket> packets = generateReport(listener,
+        List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> packets = generateReport(listener,
                 "Desination Specific DM33 Request",
                 DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
                 request);

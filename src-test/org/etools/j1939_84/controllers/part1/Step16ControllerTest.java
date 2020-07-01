@@ -206,7 +206,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @TestDoc({ @TestItem(verifies = "6.1.16.2.a"), @TestItem(verifies = "6.1.16.2.b") })
+    @TestDoc({ @TestItem(verifies = "6.1.16.2.a,b") })
     public void testMILNotSupported() {
 
         List<ParsedPacket> globalPackets = new ArrayList<>();
@@ -319,7 +319,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @TestDoc({ @TestItem(verifies = "6.1.16.2.a"), @TestItem(verifies = "6.1.16.2.b") })
+    @TestDoc({ @TestItem(verifies = "6.1.16.2.a,b") })
     public void testMILStatusNotOFF() {
         List<ParsedPacket> globalPackets = new ArrayList<>();
         DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
@@ -443,8 +443,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @TestDoc({ @TestItem(verifies = "6.1.16.4.a"), @TestItem(verifies = "6.1.16.2.b"),
-            @TestItem(verifies = "6.1.16.2.c") })
+    @TestDoc({ @TestItem(verifies = "6.1.16.4.a,b,c") })
     public void testNonOBDMilOn() {
         List<ParsedPacket> globalPackets = new ArrayList<>();
         DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
@@ -513,7 +512,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @TestDoc({ @TestItem(verifies = "6.1.16.4.a"), @TestItem(verifies = "6.1.16.4.b") })
+    @TestDoc({ @TestItem(verifies = "6.1.16.4.a,b") })
     public void testResponseNotNACK() {
 
         List<ParsedPacket> globalPackets = new ArrayList<>();
