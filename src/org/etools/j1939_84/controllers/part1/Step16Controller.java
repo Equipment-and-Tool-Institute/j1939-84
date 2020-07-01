@@ -29,6 +29,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  * @author Garrison Garland {garrison@soliddesign.net)
  *
  */
+
 public class Step16Controller extends StepController {
 
     private final DataRepository dataRepository;
@@ -69,9 +70,8 @@ public class Step16Controller extends StepController {
         /**
          * 6.1.16.1 Actions:
          *
-         * a. Global DM2 (send Request (PGN 59904) for PGN 65227 (SPNs 1213-1215, 3038,
-         * 1706)).
-         * globalDM2 =
+         * a. Global DM2 (send Request (PGN 59904) for PGN 65227 (SPNs
+         * 1213-1215, 3038, 1706)). globalDM2 =
          *
          * 6.1.16.2 Fail criteria (if supported):
          *
@@ -89,13 +89,14 @@ public class Step16Controller extends StepController {
          *
          * a. Fail if any responses differ from global responses.
          *
-         * a. Fail if NACK not received from OBD ECUs that did not respond to global
-         * query.
+         * a. Fail if NACK not received from OBD ECUs that did not respond to
+         * global query.
          */
 
         dtcModule.setJ1939(getJ1939());
         // 6.1.16.1 Actions:
-        // a. Global DM2 (send Request (PGN 59904) for PGN 65227 (SPNs 1213-1215, 3038,
+        // a. Global DM2 (send Request (PGN 59904) for PGN 65227 (SPNs
+        // 1213-1215, 3038,
         // 1706)).
         RequestResult<ParsedPacket> globalDiagnosticTroubleCodePackets = dtcModule.requestDM2(getListener(), true);
 
@@ -113,7 +114,8 @@ public class Step16Controller extends StepController {
                     "6.1.16.2.a - OBD ECU reported a previously active DTC");
         }
 
-        // 6.1.16.2.b Fail if any OBD ECU does not report MIL (Malfunction Indicator
+        // 6.1.16.2.b Fail if any OBD ECU does not report MIL (Malfunction
+        // Indicator
         // Lamp) off
         if (globalDM2s.stream().filter(packet -> packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF).findAny()
                 .isPresent()) {
@@ -123,7 +125,8 @@ public class Step16Controller extends StepController {
                     "6.1.16.2.b - OBD ECU does not report MIL off");
         }
 
-        // 6.1.16.2.c Fail if any non-OBD ECU does not report MIL off or not supported -
+        // 6.1.16.2.c Fail if any non-OBD ECU does not report MIL off or not
+        // supported -
         // LampStatus of OTHER
         Set<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
         if (globalDM2s.stream().filter(p -> !obdModuleAddresses.contains(p.getSourceAddress())
@@ -152,7 +155,8 @@ public class Step16Controller extends StepController {
                     "6.1.16.4.a DS DM2 responses differ from global responses");
         }
 
-        // 6.1.16.4.b Fail if NACK not received from OBD ECUs that did not respond to
+        // 6.1.16.4.b Fail if NACK not received from OBD ECUs that did not
+        // respond to
         // global query
         boolean missingNack = unmatchedPackets.stream()
                 .anyMatch(packet -> packet instanceof AcknowledgmentPacket

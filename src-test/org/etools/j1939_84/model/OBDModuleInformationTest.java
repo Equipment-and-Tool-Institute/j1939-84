@@ -9,6 +9,7 @@ import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
@@ -92,7 +93,7 @@ public class OBDModuleInformationTest {
     @Test
     public void testGetSupportedSpns() {
         assertEquals("SupportedSpn", makeListOfSupportedSPNs(null), instance.getSupportedSpns());
-        instance.setSupportedSpns(null);
+        instance.setSupportedSpns(Collections.emptyList());
         assertNotNull("SupportedSpn", instance.getSupportedSpns());
     }
 

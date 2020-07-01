@@ -6,6 +6,8 @@ package org.etools.j1939_84.ui;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
+import javax.swing.JFrame;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -29,7 +31,7 @@ public class VehicleInformationDialogTest {
 
     @Before
     public void setUp() {
-        instance = new VehicleInformationDialog(presenter);
+        instance = new VehicleInformationDialog(new JFrame(), presenter);
     }
 
     @After

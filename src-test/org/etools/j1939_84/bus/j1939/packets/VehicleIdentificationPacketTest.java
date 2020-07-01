@@ -21,8 +21,8 @@ import org.junit.Test;
 public class VehicleIdentificationPacketTest {
 
     @Test
-    @TestDoc(description = "Verify packet is parsed and the report string is generated correctly.", items = {
-            @TestItem("6.1.1.1.e.i") })
+    @TestDoc(description = "Verify packet is parsed and the report string is generated correctly.", value = {
+            @TestItem(verifies = "6.1.1.1.e.i") })
     public void testGetVinAndToString() {
         Packet packet = Packet.create(0,
                 0,

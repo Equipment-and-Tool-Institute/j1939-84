@@ -84,10 +84,10 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     /**
      * Constructor
      *
-     * @param view     the View to be controlled
+     * @param view the View to be controlled
      * @param listener the {@link VehicleInformationListener} that will be given the
-     *                 {@link VehicleInformation}
-     * @param j1939    the vehicle bus
+     * {@link VehicleInformation}
+     * @param j1939 the vehicle bus
      */
     public VehicleInformationPresenter(VehicleInformationContract.View view, VehicleInformationListener listener,
             J1939 j1939) {
@@ -97,13 +97,13 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     /**
      * Constructor exposed for testing
      *
-     * @param view                     the View to be controlled
-     * @param listener                 the {@link VehicleInformationListener} that
-     *                                 will be given the {@link VehicleInformation}
-     * @param dateTimeModule           the {@link DateTimeModule}
+     * @param view the View to be controlled
+     * @param listener the {@link VehicleInformationListener} that
+     * will be given the {@link VehicleInformation}
+     * @param dateTimeModule the {@link DateTimeModule}
      * @param vehicleInformationModule the {@link VehicleInformationModule}
-     * @param vinDecoder               the {@link VinDecoder}
-     * @param j1939                    the vehicle interface
+     * @param vinDecoder the {@link VinDecoder}
+     * @param j1939 the vehicle interface
      */
     public VehicleInformationPresenter(VehicleInformationContract.View view, VehicleInformationListener listener,
             J1939 j1939, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
@@ -151,6 +151,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
 
     @Override
     public void onCancelButtonClicked() {
+        vehicleInformation = null;
         view.setVisible(false);
     }
 

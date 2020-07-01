@@ -7,6 +7,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.etools.testdoc.TestDoc;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -20,6 +21,7 @@ public class VinDecoderTest {
     }
 
     @Test
+    @TestDoc(description = "Verify that years 2010-2039 are correctly decoded.")
     public void testGetModelYear() {
         assertEquals(2010, instance.getModelYear("726PLAGW0A01D2339"));
         assertEquals(2011, instance.getModelYear("BPW309DY4BRML7951"));
@@ -54,6 +56,15 @@ public class VinDecoderTest {
     }
 
     @Test
+    @TestDoc(description = "Verify invalid values are correctly detected."
+            + "<ul>"
+            + "<li>empty</li>"
+            + "<li>null</li>"
+            + "<li>not 17 character</li>"
+            + "<li>invalid characters</li>"
+            + "<li>invalid sequece</li>"
+            + "<li>confirm test works with a valid VIN is detected as valid</li>"
+            + "</ul>")
     public void testIsVinValid() {
         assertFalse("Empty not allowed", instance.isVinValid(""));
         assertFalse("Null not allowed", instance.isVinValid(null));

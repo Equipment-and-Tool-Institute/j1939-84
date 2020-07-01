@@ -15,9 +15,9 @@ import org.junit.Test;
  */
 public class ResourcesTest {
 
-	@Test
-	public void testGetLogoImage() {
-		assertNotNull(Resources.getLogoImage());
-	}
+    @Test
+    public void testGetLogoImage() {
+        assertNotNull(Resources.getLogoImages());
+    }
 
 }

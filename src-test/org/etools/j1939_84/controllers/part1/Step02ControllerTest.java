@@ -41,7 +41,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-@TestDoc(items = @TestItem(value = "Part 1 Step 2", description = "Verify engine operation"))
+@TestDoc(value = @TestItem(verifies = "Part 1 Step 2", description = "Verify engine operation"))
 public class Step02ControllerTest {
 
     @Mock
@@ -98,20 +98,21 @@ public class Step02ControllerTest {
     }
 
     @Test
-    @TestDoc(items = @TestItem(value = "6.1.2", description = "Verifies part and step name for report."))
+    @TestDoc(value = @TestItem(verifies = "6.1.2", description = "Verifies part and step name for report."))
     public void testGetDisplayName() {
         assertEquals("Display Name", "Part 1 Step 2", instance.getDisplayName());
     }
 
     @Test
-    @TestDoc(items = @TestItem(value = "6.1.2", description = "Verifies that there is a single 6.1.2 step."))
+    @TestDoc(value = @TestItem(verifies = "6.1.2", description = "Verifies that there is a single 6.1.2 step."))
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 1, instance.getTotalSteps());
     }
 
     @Test
-    @TestDoc(items = @TestItem(value = "6.1.2.1.a",
-            description = "Verify if the engine is running that there are no messages when already KOEO."))
+    @TestDoc(value = @TestItem(verifies = "6.1.2.1.a",
+                               description = "Verify if the engine is running that there are no messages when already KOEO.",
+                               dependsOn = { "EngineSpeedModuleTest" }))
     public void testRun() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
 
@@ -135,9 +136,9 @@ public class Step02ControllerTest {
     }
 
     @Test
-    @TestDoc(items = @TestItem(value = "6.1.2.1.a",
-            description = "Verify user is requested to turn KOEO when engine is not KOEO.",
-            dependsOn = { "EngineSpeedModuleTest" }))
+    @TestDoc(value = @TestItem(verifies = "6.1.2.1.a",
+                               description = "Verify user is requested to turn KOEO when engine is not KOEO.",
+                               dependsOn = { "EngineSpeedModuleTest" }))
     public void testWaitForKeyOn() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
 

@@ -11,9 +11,11 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.OBDTestsModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -39,6 +41,9 @@ public class Step10ControllerTest {
     private DiagnosticReadinessModule diagnosticReadinessModule;
 
     @Mock
+    private DTCModule dtcModule;
+
+    @Mock
     private EngineSpeedModule engineSpeedModule;
 
     @Mock
@@ -53,6 +58,9 @@ public class Step10ControllerTest {
 
     @Mock
     private ResultsListener mockListener;
+
+    @Mock
+    private OBDTestsModule obdTestsModule;
 
     @Mock
     private PartResultFactory partResultFactory;
@@ -73,7 +81,10 @@ public class Step10ControllerTest {
                 bannerModule,
                 dateTimeModule,
                 vehicleInformationModule,
+                dtcModule,
                 partResultFactory,
+                diagnosticReadinessModule,
+                obdTestsModule,
                 dataRepository);
     }
 

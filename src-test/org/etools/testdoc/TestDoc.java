@@ -11,5 +11,5 @@ public @interface TestDoc {
 
 	String description() default "";
 
-	TestItem[] items() default {};
+	TestItem[] value() default {};
 }

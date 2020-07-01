@@ -35,11 +35,11 @@ public class Packet {
      * Creates an instance of Packet
      *
      * @param id
-     *               the ID of the packet
+     *            the ID of the packet
      * @param source
-     *               the source address of the packet
+     *            the source address of the packet
      * @param bytes
-     *               the data bytes of the packet
+     *            the data bytes of the packet
      * @return Packet
      */
     public static Packet create(int id, int source, byte... bytes) {
@@ -50,11 +50,11 @@ public class Packet {
      * Creates an instance of Packet
      *
      * @param id
-     *               the ID of the packet
+     *            the ID of the packet
      * @param source
-     *               the source address of the packet
+     *            the source address of the packet
      * @param data
-     *               the data of the packet
+     *            the data of the packet
      * @return Packet
      */
     public static Packet create(int id, int source, int... data) {
@@ -65,15 +65,15 @@ public class Packet {
      * Creates an instance of Packet
      *
      * @param priority
-     *                    the priority of the packet
+     *            the priority of the packet
      * @param id
-     *                    the ID of the packet
+     *            the ID of the packet
      * @param source
-     *                    the source address of the packet
+     *            the source address of the packet
      * @param transmitted
-     *                    indicates the packet was sent by the application
+     *            indicates the packet was sent by the application
      * @param bytes
-     *                    the data bytes of the packet
+     *            the data bytes of the packet
      * @return Packet
      */
     public static Packet create(int priority, int id, int source, boolean transmitted, byte... bytes) {
@@ -88,7 +88,7 @@ public class Packet {
      * Converts the value produced by Packet.toString() back into a Packet
      *
      * @param string
-     *               the {@link String} to parse
+     *            the {@link String} to parse
      * @return a Packet or null if the string could not be parsed
      */
     public static Packet parse(String string) {
@@ -160,15 +160,15 @@ public class Packet {
      * Creates a Packet
      *
      * @param priority
-     *                    the priority of the packet
+     *            the priority of the packet
      * @param id
-     *                    the ID of the packet
+     *            the ID of the packet
      * @param source
-     *                    the source address of the packet
+     *            the source address of the packet
      * @param transmitted
-     *                    indicates the packet was sent by the application
+     *            indicates the packet was sent by the application
      * @param data
-     *                    the data of the packet
+     *            the data of the packet
      */
     private Packet(LocalDateTime timestamp, int priority, int id, int source, boolean transmitted, int... data) {
         this.timestamp = timestamp;
@@ -200,7 +200,7 @@ public class Packet {
      * Returns one byte (8-bits) from the data at the given index
      *
      * @param i
-     *          the index
+     *            the index
      * @return int
      */
     public int get(int i) {
@@ -211,7 +211,7 @@ public class Packet {
      * Returns two bytes (16-bits) from the data at the given index and index+1
      *
      * @param i
-     *          the index
+     *            the index
      * @return int
      */
     public int get16(int i) {
@@ -223,7 +223,7 @@ public class Packet {
      * given index and index+1
      *
      * @param i
-     *          the index
+     *            the index
      * @return int
      */
     public int get16Big(int i) {
@@ -235,7 +235,7 @@ public class Packet {
      * and index+2
      *
      * @param i
-     *          the index
+     *            the index
      * @return int
      */
     public int get24(int i) {
@@ -247,7 +247,7 @@ public class Packet {
      * given index, index+1, and index+2
      *
      * @param i
-     *          the index
+     *            the index
      * @return int
      */
     public int get24Big(int i) {
@@ -259,7 +259,7 @@ public class Packet {
      * index+2, and index+3
      *
      * @param i
-     *          the index
+     *            the index
      * @return int
      */
     public long get32(int i) {
@@ -271,7 +271,7 @@ public class Packet {
      * given index, index+1, index+2, and index+3
      *
      * @param i
-     *          the index
+     *            the index
      * @return int
      */
     public long get32Big(int i) {
@@ -299,9 +299,9 @@ public class Packet {
      * Returns the data from the beginIndex to the endIndex (inclusive).
      *
      * @param beginIndex
-     *                   the first data value to return
+     *            the first data value to return
      * @param endIndex
-     *                   the last data value to return
+     *            the last data value to return
      * @return int[]
      */
     public int[] getData(int beginIndex, int endIndex) {
@@ -367,6 +367,10 @@ public class Packet {
         return transmitted;
     }
 
+    public boolean matchesPgn(int pgn) {
+        return (id < 0xF000 ? (id & 0xFF00) : id) == pgn;
+    }
+
     @Override
     public String toString() {
         return toString(null);
@@ -378,7 +382,7 @@ public class Packet {
      * time is not included
      *
      * @param formatter
-     *                  the {@link DateTimeFormatter} to format the time received
+     *            the {@link DateTimeFormatter} to format the time received
      * @return a {@link String}
      */
     public String toString(DateTimeFormatter formatter) {

@@ -54,7 +54,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-@TestDoc(items = @TestItem(value = "Part 1 Step 4", description = "DM24: SPN support"))
+@TestDoc(value = @TestItem(verifies = "Part 1 Step 4", description = "DM24: SPN support"))
 public class Step04ControllerTest {
 
     @Mock
@@ -132,15 +132,12 @@ public class Step04ControllerTest {
 
     @Test
     // Testing the object will all possible errors
-    @TestDoc(items = {
-            @TestItem("6.1.4.2.a"),
-            @TestItem("6.1.4.2.b"),
-            @TestItem("6.1.4.2.c") }, description = "Fail if retry was required to obtain DM24 response."
-                    + "<br>"
-                    + "Fail if one or more minimum expected SPNs for data stream not supported per section A.1, Minimum Support Table, from the OBD ECU(s)."
-                    + "<br>"
-                    + "Fail if one or more minimum expected SPNs for freeze frame not supported per section A.2, Criteria for Freeze Frame Evaluation, from the OBD ECU(s).")
-
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.4", dependsOn = "DM24SPNSupportPacketTest"),
+            @TestItem(verifies = "6.1.4.1.b", dependsOn = "J1939TPTest.testRequestTimeout"),
+            @TestItem(verifies = "6.1.4.2.a,b,c")
+    },
+             description = "Using a response that indicates that 6.1.4.2.a, 6.1.4.2.b, 6.1.4.2.c all failed, verify that the failures are in the report.")
     public void testErroredObject() {
         List<ParsedPacket> packets = new ArrayList<>();
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
@@ -165,7 +162,7 @@ public class Step04ControllerTest {
         when(packet4.getSupportedSpns()).thenReturn(supportedSpns);
         packets.add(packet4);
 
-        when(obdTestsModule.requestDM24Packets(any())).thenReturn(new RequestResult<>(true, packets));
+        when(obdTestsModule.requestDM24Packets(any(), any())).thenReturn(new RequestResult<>(true, packets));
 
         List<SupportedSPN> expectedSPNs = new ArrayList<>();
         SupportedSPN supportedSpn = new SupportedSPN(new int[] { 0x00, 0x00, 0x00, 0x00 });
@@ -184,13 +181,14 @@ public class Step04ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(obdTestsModule).setJ1939(j1939);
-        verify(obdTestsModule).requestDM24Packets(any());
+        verify(obdTestsModule).requestDM24Packets(any(), any());
 
         verify(dataRepository).getObdModule(0);
         verify(dataRepository).getObdModule(1);
         verify(dataRepository).putObdModule(0, obdInfo);
         verify(dataRepository).putObdModule(1, obdInfo);
         verify(dataRepository, atLeastOnce()).getObdModules();
+        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
         verify(dataRepository, atLeastOnce()).getVehicleInformation();
 
         verify(engineSpeedModule).setJ1939(j1939);
@@ -220,33 +218,21 @@ public class Step04ControllerTest {
     }
 
     @Test
+    @TestDoc(description = "Verify step name is correct.")
     public void testGetDisplayName() {
         assertEquals("Display Name", "Part 1 Step 4", instance.getDisplayName());
     }
 
     @Test
+    @TestDoc(description = "Verify that there is only one step in 6.1.4.")
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 1, instance.getTotalSteps());
     }
 
     @Test
     // Testing object without any errors.
-    @TestDoc(items = {
-            @TestItem("6.1.4.1.a"),
-            @TestItem("6.1.4.1.b"),
-            @TestItem("6.1.4.1.c"),
-            @TestItem("6.1.4.1.d"),
-            @TestItem("6.1.4.1.e") }, description = "Destination Specific (DS) DM24 (send Request (PGN 59904) for PGN 64950 (SPNs 3297, 4100-4103)) to each OBD ECU.6"
-                    + "<br>"
-                    + "If no response (transport protocol RTS or NACK(Busy) in 220 ms), then retry DS DM24 request to the OBD ECU."
-                    + "<br>"
-                    + "[Do not attempt retry for NACKs that indicate not supported]."
-                    + "<br>"
-                    + "Create vehicle list of supported SPNs for data stream."
-                    + "<br>"
-                    + "Create ECU specific list of supported SPNs for test results."
-                    + "<br>"
-                    + "Create ECU specific list of supported freeze frame SPNs.")
+    @TestDoc(value = @TestItem(verifies = "6.1.4.2.a,b,c"),
+             description = "Verify that step completes without errors when none of the fail criteria are met.")
     public void testGoodObjects() {
         List<ParsedPacket> packets = new ArrayList<>();
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
@@ -272,7 +258,7 @@ public class Step04ControllerTest {
         packets.add(packet4);
 
         RequestResult<ParsedPacket> result = new RequestResult<>(false, packets);
-        when(obdTestsModule.requestDM24Packets(any())).thenReturn(result);
+        when(obdTestsModule.requestDM24Packets(any(), any())).thenReturn(result);
 
         List<SupportedSPN> expectedSPNs = new ArrayList<>();
         SupportedSPN supportedSpn = new SupportedSPN(new int[] { 0x00, 0x00, 0x00, 0x00 });
@@ -294,14 +280,17 @@ public class Step04ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(obdTestsModule).setJ1939(j1939);
-        verify(obdTestsModule).requestDM24Packets(any());
+        verify(obdTestsModule).requestDM24Packets(any(), any());
 
         verify(dataRepository).getObdModule(0);
         verify(dataRepository).getObdModule(1);
         verify(dataRepository).putObdModule(0, obdInfo);
         verify(dataRepository).putObdModule(1, obdInfo);
         verify(dataRepository, atLeastOnce()).getObdModules();
+        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
         verify(dataRepository, atLeastOnce()).getVehicleInformation();
+
+        // FIXME verify 6.1.4.1.c,d,e
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -313,5 +302,4 @@ public class Step04ControllerTest {
 
         verify(vehicleInformationModule).setJ1939(j1939);
     }
-
 }

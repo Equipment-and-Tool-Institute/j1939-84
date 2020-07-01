@@ -40,6 +40,8 @@ import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.etools.testdoc.TestDoc;
+import org.etools.testdoc.TestItem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -127,6 +129,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @TestDoc(@TestItem(verifies = "6.1.16.2.a"))
     public void testDTCsNotEmpty() {
         List<ParsedPacket> globalPackets = new ArrayList<>();
         DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
@@ -142,7 +145,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, globalPackets));
 
-        // Set up the destination specific packets we will be returning when requested
+        // Set up the destination specific packets we will be returning when
+        // requested
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         List<DiagnosticTroubleCode> packet2Dtc = new ArrayList<>();
         DiagnosticTroubleCode Dtc2 = mock(DiagnosticTroubleCode.class);
@@ -155,7 +159,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
         when(packet4.getSourceAddress()).thenReturn(3);
         when(dtcModule.requestDM2(any(), eq(true), eq(3))).thenReturn(new RequestResult<>(false, listOf(packet4)));
 
-        // Return the modules address so that we can do the destination specific calls
+        // Return the modules address so that we can do the destination specific
+        // calls
         Set<Integer> obdAddressSet = new HashSet<>() {
             {
                 add(0);
@@ -201,6 +206,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @TestDoc({ @TestItem(verifies = "6.1.16.2.a"), @TestItem(verifies = "6.1.16.2.b") })
     public void testMILNotSupported() {
 
         List<ParsedPacket> globalPackets = new ArrayList<>();
@@ -214,7 +220,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
         when(packet3.getResponse()).thenReturn(Response.NACK);
         globalPackets.add(packet3);
 
-        // Return the modules address so that we can do the destination specific calls
+        // Return the modules address so that we can do the destination specific
+        // calls
         Set<Integer> obdAddressSet = new HashSet<>() {
             {
             }
@@ -253,6 +260,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @TestDoc(@TestItem(verifies = "6.1.16.2.a"))
     public void testMILOff() {
 
         List<ParsedPacket> globalPackets = new ArrayList<>();
@@ -269,7 +277,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, globalPackets));
 
-        // Set up the destination specific packets we will be returning when requested
+        // Set up the destination specific packets we will be returning when
+        // requested
         List<ParsedPacket> destinationSpecificPackets = new ArrayList<>();
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         destinationSpecificPackets.add(packet2);
@@ -278,7 +287,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
         destinationSpecificPackets.add(packet4);
 
-        // Return the modules address so that we can do the destination specific calls
+        // Return the modules address so that we can do the destination specific
+        // calls
         Set<Integer> obdAddressSet = new HashSet<>() {
             {
             }
@@ -309,6 +319,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @TestDoc({ @TestItem(verifies = "6.1.16.2.a"), @TestItem(verifies = "6.1.16.2.b") })
     public void testMILStatusNotOFF() {
         List<ParsedPacket> globalPackets = new ArrayList<>();
         DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
@@ -322,7 +333,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
         when(packet3.getResponse()).thenReturn(Response.NACK);
         globalPackets.add(packet3);
 
-        // Set up the destination specific packets we will be returning when requested
+        // Set up the destination specific packets we will be returning when
+        // requested
         List<ParsedPacket> destinationSpecificPackets = new ArrayList<>();
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         destinationSpecificPackets.add(packet2);
@@ -334,7 +346,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
         when(packet4.getSourceAddress()).thenReturn(3);
         when(dtcModule.requestDM2(any(), eq(true), eq(3))).thenReturn(new RequestResult<>(false, listOf(packet4)));
 
-        // Return the modules address so that we can do the destination specific calls
+        // Return the modules address so that we can do the destination specific
+        // calls
         Set<Integer> obdAddressSet = new HashSet<>() {
             {
                 add(0);
@@ -391,7 +404,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
         when(packet3.getSourceAddress()).thenReturn(3);
         globalPackets.add(packet3);
 
-        // Set up the destination specific packets we will be returning when requested
+        // Set up the destination specific packets we will be returning when
+        // requested
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         when(packet2.getSourceAddress()).thenReturn(0);
         when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new RequestResult<>(false, listOf(packet2)));
@@ -402,7 +416,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
         when(dtcModule.requestDM2(any(), eq(true), eq(3))).thenReturn(new RequestResult<>(false, listOf(packet4)));
 
-        // Return the modules address so that we can do the destination specific calls
+        // Return the modules address so that we can do the destination specific
+        // calls
         Set<Integer> obdAddressSet = new HashSet<>() {
             {
                 add(0);
@@ -428,6 +443,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @TestDoc({ @TestItem(verifies = "6.1.16.4.a"), @TestItem(verifies = "6.1.16.2.b"),
+            @TestItem(verifies = "6.1.16.2.c") })
     public void testNonOBDMilOn() {
         List<ParsedPacket> globalPackets = new ArrayList<>();
         DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
@@ -441,13 +458,15 @@ public class Step16ControllerTest extends AbstractControllerTest {
         when(packet3.getResponse()).thenReturn(Response.NACK);
         globalPackets.add(packet3);
 
-        // Set up the destination specific packets we will be returning when requested
+        // Set up the destination specific packets we will be returning when
+        // requested
         List<ParsedPacket> destinationSpecificPackets = new ArrayList<>();
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         destinationSpecificPackets.add(packet2);
         mock(DiagnosticTroubleCode.class);
 
-        // Return the modules address so that we can do the destination specific calls
+        // Return the modules address so that we can do the destination specific
+        // calls
         Set<Integer> obdAddressSet = new HashSet<>() {
             {
             }
@@ -494,6 +513,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @TestDoc({ @TestItem(verifies = "6.1.16.4.a"), @TestItem(verifies = "6.1.16.4.b") })
     public void testResponseNotNACK() {
 
         List<ParsedPacket> globalPackets = new ArrayList<>();
@@ -509,7 +529,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, globalPackets));
 
-        // Set up the destination specific packets we will be returning when requested
+        // Set up the destination specific packets we will be returning when
+        // requested
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         when(packet2.getSourceAddress()).thenReturn(0);
         when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new RequestResult<>(false, listOf(packet2)));
@@ -519,7 +540,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
         when(packet4.getSourceAddress()).thenReturn(3);
         when(dtcModule.requestDM2(any(), eq(true), eq(3))).thenReturn(new RequestResult<>(false, listOf(packet4)));
 
-        // Return the modules address so that we can do the destination specific calls
+        // Return the modules address so that we can do the destination specific
+        // calls
         Set<Integer> obdAddressSet = new HashSet<>() {
             {
                 add(0);
@@ -562,6 +584,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @TestDoc({ @TestItem(verifies = "6.1.16.4.a") })
     public void testResponsesAreDifferent() {
 
         List<ParsedPacket> globalPackets = new ArrayList<>();
@@ -576,7 +599,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
         when(packet3.getSourceAddress()).thenReturn(3);
         globalPackets.add(packet3);
 
-        // Set up the destination specific packets we will be returning when requested
+        // Set up the destination specific packets we will be returning when
+        // requested
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         when(packet2.getSourceAddress()).thenReturn(0);
         when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new RequestResult<>(false, listOf(packet2)));
@@ -586,7 +610,8 @@ public class Step16ControllerTest extends AbstractControllerTest {
         when(packet4.getSourceAddress()).thenReturn(3);
         when(dtcModule.requestDM2(any(), eq(true), eq(3))).thenReturn(new RequestResult<>(false, listOf(packet4)));
 
-        // Return the modules address so that we can do the destination specific calls
+        // Return the modules address so that we can do the destination specific
+        // calls
         Set<Integer> obdAddressSet = new HashSet<>() {
             {
                 add(0);

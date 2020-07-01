@@ -55,15 +55,43 @@ public class TestDocProcessor extends AbstractProcessor {
             @Override
             public int compareTo(ItemDescriptor that) {
                 return Comparator.comparing((ItemDescriptor i) -> i.verifies.isEmpty())
-                        .thenComparing(i -> i.verifies)
+                        .thenComparing(i -> i.verifies, this::compareVersion)
                         .thenComparing(i -> i.name).compare(this, that);
+            }
+
+            private int compareVersion(int i, String[] a, String[] b) {
+                if (i == a.length) {
+                    return i == b.length ? 0 : -1;
+                }
+                if (i == b.length) {
+                    return 1;
+                }
+                int ai = Integer.MAX_VALUE;
+                int bi = Integer.MAX_VALUE;
+                try {
+                    ai = Integer.parseInt(a[i]);
+                } catch (NumberFormatException e) {
+                }
+                try {
+                    bi = Integer.parseInt(b[i]);
+                } catch (NumberFormatException e) {
+                }
+                int c = ai - bi;
+                if (c == 0) {
+                    c = a[i].compareTo(b[i]);
+                }
+                return c == 0 ? compareVersion(i + 1, a, b) : c;
+            }
+
+            int compareVersion(String a, String b) {
+                return compareVersion(0, a.split("[ \\.]"), b.split("[ \\.]"));
             }
 
             @Override
             public boolean equals(Object o) {
                 if (o instanceof ItemDescriptor) {
                     ItemDescriptor that = (ItemDescriptor) o;
-                    return name.equals(that.name);
+                    return name.equals(that.name) && verifies.equals(that.verifies);
                 }
                 return false;
             }
@@ -79,7 +107,7 @@ public class TestDocProcessor extends AbstractProcessor {
                     TestDoc testDoc = e.getAnnotation(TestDoc.class);
                     // TestDoc may not be on every org.junit.Test
                     String tdDescription = testDoc == null ? "" : testDoc.description();
-                    TestItem[] tdItems = testDoc == null ? new TestItem[0] : testDoc.items();
+                    TestItem[] tdItems = testDoc == null ? new TestItem[0] : testDoc.value();
                     String[] tdDependOn = testDoc == null ? new String[0] : testDoc.dependsOn();
 
                     String name;
@@ -114,8 +142,9 @@ public class TestDocProcessor extends AbstractProcessor {
                     return Stream.concat(
                             thisRecord,
                             Stream.of(tdItems)
-                                    .map(v -> new ItemDescriptor(v.value(),
+                                    .map(v -> new ItemDescriptor(v.verifies(),
                                             name,
+                                            // I don't like this, but I'm lazy
                                             v.description().isEmpty() ? tdDescription : v.description(),
                                             concat(dependsOn, v.dependsOn()))));
                 })
@@ -134,7 +163,10 @@ public class TestDocProcessor extends AbstractProcessor {
             out.write("<html>\n");
             // out.write("<link rel=\"stylesheet\" href=\"testdoc.css\">\n");
             // embed style for a single file solution
-            new InputStreamReader(TestDocProcessor.class.getResourceAsStream("style.html")).transferTo(out);
+            try (InputStreamReader in = new InputStreamReader(
+                    TestDocProcessor.class.getResourceAsStream("style.html"))) {
+                in.transferTo(out);
+            }
             out.write("<h1>Test Plan</h1>\n");
             out.write("Generated: " + new Date() + "\n");
             out.write("<table class=\"testdoctable\">\n");
@@ -143,9 +175,9 @@ public class TestDocProcessor extends AbstractProcessor {
             for (ItemDescriptor i : list) {
                 out.write("<tr id=\"" + i.id + "\" class=\"" + i.clas + "\">"
                         + "<td>" + i.verifies + "</td>"
-                        + "<td><a href=\"#" + i.name + "\">" + i.name + "</a></td>"
+                        + "<td class='wrap'><a href='#" + i.name + "'>" + i.name.replaceAll("\\.", " ") + "</a></td>"
                         + "<td>" + i.description + "</td>"
-                        + "<td>" + Stream.of(i.dependsOn)
+                        + "<td class='wrap'>" + Stream.of(i.dependsOn)
                                 .map(d -> "<a href=\"#" + d + "\">" + d + "</a>")
                                 .collect(Collectors.joining("<br/>"))
                         + "</td>"

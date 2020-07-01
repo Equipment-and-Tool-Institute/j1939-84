@@ -17,6 +17,7 @@ import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
+import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -41,7 +42,7 @@ import org.etools.j1939_84.ui.widgets.VinSanitizingDocumentFilter;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class VehicleInformationDialog extends JFrame implements VehicleInformationContract.View {
+public class VehicleInformationDialog extends JDialog implements VehicleInformationContract.View {
 
     private static final long serialVersionUID = -8012950984235933273L;
 
@@ -84,7 +85,7 @@ public class VehicleInformationDialog extends JFrame implements VehicleInformati
      * Creates and returns {@link GridBagConstraints} for the Value Column
      *
      * @param gridy the y coordinate in the grid
-     * @param fill  true to completely fill the cel
+     * @param fill true to completely fill the cel
      * @return {@link GridBagConstraints}
      */
     private static GridBagConstraints getValueGbc(int gridy, boolean fill) {
@@ -145,8 +146,10 @@ public class VehicleInformationDialog extends JFrame implements VehicleInformati
      * Constructor exposed for testing
      *
      * @param presenter the {@link VehicleInformationContract.Presenter}
+     * @param frame main application frame
      */
-    /* package */ VehicleInformationDialog(VehicleInformationContract.Presenter presenter) {
+    /* package */ VehicleInformationDialog(JFrame frame, VehicleInformationContract.Presenter presenter) {
+        super(frame);
         this.presenter = presenter;
         initialize();
     }
@@ -154,11 +157,13 @@ public class VehicleInformationDialog extends JFrame implements VehicleInformati
     /**
      * Creates a new instance of the Dialog
      *
+     * @param frame main application frame
      * @param listener the {@link VehicleInformationListener} that will be returned
-     *                 the information entered by the user
-     * @param j1939    the vehicle bus
+     * the information entered by the user
+     * @param j1939 the vehicle bus
      */
-    /* package */ VehicleInformationDialog(VehicleInformationListener listener, J1939 j1939) {
+    /* package */ VehicleInformationDialog(JFrame frame, VehicleInformationListener listener, J1939 j1939) {
+        super(frame);
         presenter = new VehicleInformationPresenter(this, listener, j1939);
         initialize();
     }
@@ -424,7 +429,7 @@ public class VehicleInformationDialog extends JFrame implements VehicleInformati
     private void initialize() {
         getContentPane().add(getMainPanel());
         pack();
-        setLocationRelativeTo(null);
+        setLocationRelativeTo(getOwner());
         setResizable(false);
         setTitle("J1939-84 Tool Vehicle Information Form");
         addWindowListener(new WindowAdapter() {

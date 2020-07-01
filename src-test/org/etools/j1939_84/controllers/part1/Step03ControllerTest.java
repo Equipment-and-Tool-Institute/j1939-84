@@ -53,7 +53,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
  */
-@TestDoc(items = @TestItem(value = "Part 1 Step 3", description = "DM5: Diagnostic readiness 1"))
+@TestDoc(value = @TestItem(verifies = "Part 1 Step 3", description = "DM5: Diagnostic readiness 1"))
 @RunWith(MockitoJUnitRunner.class)
 public class Step03ControllerTest {
 
@@ -127,16 +127,19 @@ public class Step03ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+                        justification = "The method is called just to get some exception.")
     /**
      * Includes addWarning() verification for distinctCount > 1
      */
-    @TestDoc(items = {
-            @TestItem("6.1.3.2.b"),
-            @TestItem("6.1.3.3.a") }, description = "Verify there are fail messages for: <ul><li>Not all responses are identical.</li>"
-                    +
-                    "<li>The request for DM5 was NACK'ed</li></ul>", dependsOn = {
-                            "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.3.2.b"),
+            @TestItem(verifies = "6.1.3.3.a") },
+             description = "Verify there are fail messages for: <ul><li>Not all responses are identical.</li>"
+                     +
+                     "<li>The request for DM5 was NACK'ed</li></ul>",
+             dependsOn = {
+                     "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
     public void testBadECUValue() {
         List<ParsedPacket> packets = new ArrayList<>();
         when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
@@ -220,21 +223,22 @@ public class Step03ControllerTest {
     }
 
     @Test
-    @TestDoc(items = @TestItem(value = "6.1.3", description = "Verifies part and step name for report."))
+    @TestDoc(value = @TestItem(verifies = "6.1.3", description = "Verifies part and step name for report."))
     public void testGetDisplayName() {
         assertEquals("Display Name", "Part 1 Step 3", instance.getDisplayName());
     }
 
     @Test
-    @TestDoc(items = @TestItem(value = "6.1.3", description = "Verifies that there is a single 6.1.3 step."))
+    @TestDoc(value = @TestItem(verifies = "6.1.3", description = "Verifies that there is a single 6.1.3 step."))
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 1, instance.getTotalSteps());
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
-    @TestDoc(items = { @TestItem("6.1.3.2.a"),
-            @TestItem("6.1.3.2.b") }, description = "There needs to be at least one OBD Module & The request for DM5 was NACK'ed")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+                        justification = "The method is called just to get some exception.")
+    @TestDoc(value = @TestItem(verifies = "6.1.3.2.a"),
+             description = "There needs to be at least one OBD Module.")
     public void testModulesEmpty() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);
@@ -278,8 +282,9 @@ public class Step03ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
-    @TestDoc(items = @TestItem("6.1.3.2.b"), description = "The request for DM5 was NACK'ed")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+                        justification = "The method is called just to get some exception.")
+    @TestDoc(value = @TestItem(verifies = "6.1.3.2.b"), description = "The request for DM5 was NACK'ed")
     public void testRun() {
         List<ParsedPacket> packets = new ArrayList<>();
         ParsedPacket packet1 = mock(ParsedPacket.class);

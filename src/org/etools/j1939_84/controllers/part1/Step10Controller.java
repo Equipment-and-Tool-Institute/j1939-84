@@ -43,7 +43,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
- * 6.1.10 DM11: Diagnostic Data Clear/Reset for Active DTCs
+ *         6.1.10 DM11: Diagnostic Data Clear/Reset for Active DTCs
  *
  */
 public class Step10Controller extends StepController {
@@ -87,7 +87,6 @@ public class Step10Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-
         dtcModule.setJ1939(getJ1939());
         diagnosticReadinessModule.setJ1939(getJ1939());
         obdTestsModule.setJ1939(getJ1939());
@@ -95,7 +94,8 @@ public class Step10Controller extends StepController {
         // Collect all OBD module address
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses().stream().collect(Collectors.toList());
 
-        // Collect our values for comparison after Diagnostic Data Clear/Reset message
+        // Collect our values for comparison after Diagnostic Data Clear/Reset
+        // message
         // is sent
         List<DM28PermanentEmissionDTCPacket> previousDM28Packets = dtcModule.requestDM28(getListener()).getPackets()
                 .stream()
@@ -136,8 +136,10 @@ public class Step10Controller extends StepController {
             addWarning(1, 10, "6.1.10.3.a - The request for DM11 was ACK'ed");
         }
 
-        // b. Fail if any diagnostic information in any ECU is not reset or starts out
-        // with unexpected values. Diagnostic information is defined in section A.5,
+        // b. Fail if any diagnostic information in any ECU is not reset or
+        // starts out
+        // with unexpected values. Diagnostic information is defined in section
+        // A.5,
         // Diagnostic
         // Information Definition.
         if (!verifyDiagnosticInformation(obdModuleAddresses,
@@ -215,7 +217,8 @@ public class Step10Controller extends StepController {
             passed = false;
         }
 
-        // c. DM23 previously active shall report no DTCs and MIL off and not flashing
+        // c. DM23 previously active shall report no DTCs and MIL off and not
+        // flashing
         List<DM23PreviouslyMILOnEmissionDTCPacket> dm23Packets = dtcModule.requestDM23(getListener()).getPackets()
                 .stream()
                 .filter(packet -> packet instanceof DM23PreviouslyMILOnEmissionDTCPacket)
@@ -237,7 +240,8 @@ public class Step10Controller extends StepController {
             passed = false;
         }
 
-        // d. DM29 shall report zero for number of pending, active, and previously
+        // d. DM29 shall report zero for number of pending, active, and
+        // previously
         // active DTCs
         List<DM29DtcCounts> dm29Packets = dtcModule.requestDM29(getListener()).getPackets().stream()
                 .filter(packet -> packet instanceof DM29DtcCounts)
@@ -261,7 +265,8 @@ public class Step10Controller extends StepController {
 
         }
 
-        // e. DM5 shall report zero for number of active and previously active DTCs
+        // e. DM5 shall report zero for number of active and previously active
+        // DTCs
         List<DM5DiagnosticReadinessPacket> dm5Packets = diagnosticReadinessModule.requestDM5(getListener(), true)
                 .getPackets()
                 .stream()
@@ -286,7 +291,8 @@ public class Step10Controller extends StepController {
         }
 
         // 2. Freeze Frame information
-        // a. DM25 expanded freeze frame shall report no data and DTC causing freeze
+        // a. DM25 expanded freeze frame shall report no data and DTC causing
+        // freeze
         // frame with bytes 1-5 = 0 and bytes 6-8 = 255
         List<ParsedPacket> dm25Packets = dtcModule.requestDM25(getListener(), obdModuleAddresses).getPackets();
         List<DM25ExpandedFreezeFrame> dm25PacketsWithData = dm25Packets.stream()
@@ -308,7 +314,8 @@ public class Step10Controller extends StepController {
         }
 
         // 3. MIL information
-        // a. DM31 lamp status shall report no DTCs causing MIL on (if supported. See
+        // a. DM31 lamp status shall report no DTCs causing MIL on (if
+        // supported. See
         // section 6 provisions before section 6.1).
         List<DM31ScaledTestResults> dm31Packets = dtcModule.requestDM31(getListener()).getPackets().stream()
                 .filter(packet -> packet instanceof DM31ScaledTestResults).map(p -> (DM31ScaledTestResults) p)
@@ -326,9 +333,11 @@ public class Step10Controller extends StepController {
 
         }
 
-        // b. DM21 diagnostic readiness 2 shall report 0 for distance with MIL on and
+        // b. DM21 diagnostic readiness 2 shall report 0 for distance with MIL
+        // on and
         // minutes run with MIL on
-        // 5.b. DM21 diagnostic readiness 2 shall report 0 for distance since code clear
+        // 5.b. DM21 diagnostic readiness 2 shall report 0 for distance since
+        // code clear
         // and minutes run since code clear
         List<DM21DiagnosticReadinessPacket> dm21Packets = dtcModule.requestDM21(getListener()).getPackets()
                 .stream()
@@ -364,7 +373,8 @@ public class Step10Controller extends StepController {
         }
 
         // 4. Readiness status
-        // a. DM5 shall report test not complete (1) for all supported monitors except
+        // a. DM5 shall report test not complete (1) for all supported monitors
+        // except
         // comprehensive components.
         // 54 See 1971.1 section (h)(5.1.2)(A)(ii). 55 See 1971.1 section
         // (h)(4.4.2)(F)(iii). 56 See 1971.1 section (h)(5.2.2)(B).
@@ -372,7 +382,8 @@ public class Step10Controller extends StepController {
         // SAE INTERNATIONAL J1939TM-84 Proposed Draft June 2019 Page 113 of 129
 
         // 5. Activity since code clear
-        // a. DM26 diagnostic readiness 3 shall report 0 for number of warm-ups since
+        // a. DM26 diagnostic readiness 3 shall report 0 for number of warm-ups
+        // since
         // code clear
         List<DM26TripDiagnosticReadinessPacket> dm26Packets = dtcModule.requestDM26(getListener()).getPackets()
                 .stream()
@@ -394,8 +405,10 @@ public class Step10Controller extends StepController {
         }
 
         // 6. Test results
-        // a. DM7/DM30 Test Results shall report all test results with initialized
-        // results and limits (all 0x00 or 0xFB00 for results and 0xFFFF for limits)
+        // a. DM7/DM30 Test Results shall report all test results with
+        // initialized
+        // results and limits (all 0x00 or 0xFB00 for results and 0xFFFF for
+        // limits)
         List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
         obdModuleAddresses.forEach(address -> {
             for (SupportedSPN supportedSPN : dataRepository.getObdModule(address).getSupportedSpns()) {
@@ -427,9 +440,12 @@ public class Step10Controller extends StepController {
         });
 
         // 7. Monitor Performance data
-        // a. DM20 Monitor Performance Ratio data shall not be reset/shall stay the same
-        // as it was before code clear for all values including the number of ignition
-        // cycles, general denominators, monitor specific numerators, and monitor
+        // a. DM20 Monitor Performance Ratio data shall not be reset/shall stay
+        // the same
+        // as it was before code clear for all values including the number of
+        // ignition
+        // cycles, general denominators, monitor specific numerators, and
+        // monitor
         // specific denominators.
         List<DM20MonitorPerformanceRatioPacket> dm20Packets = diagnosticReadinessModule.requestDM20(getListener(), true)
                 .getPackets()
@@ -448,7 +464,7 @@ public class Step10Controller extends StepController {
                 addFailure(1, 10, failureMessage.toString());
                 passedHere[0] = false;
             }
-            passed = passedHere[0];
+            // passed = passedHere[0];
         });
 
         // if (!previousDM20Packets.retainAll(dm20Packets)) {
@@ -459,7 +475,8 @@ public class Step10Controller extends StepController {
         // failureMessage.append(packet.toString());
         // });
         // failureMessage.append(NL);
-        // failureMessage.append("Post DTC all clear code sent retrieved the DM20 packet
+        // failureMessage.append("Post DTC all clear code sent retrieved the
+        // DM20 packet
         // : ");
         // failureMessage.append(NL);
         // dm20Packets.forEach(packet -> {
@@ -471,7 +488,8 @@ public class Step10Controller extends StepController {
         // }
 
         // 8. Permanent DTCs
-        // a. DM28 Permanent DTCs shall not be erased/still report any permanent DTC
+        // a. DM28 Permanent DTCs shall not be erased/still report any permanent
+        // DTC
         // that was present before code clear.
         List<DM28PermanentEmissionDTCPacket> dm28Packets = dtcModule.requestDM28(getListener()).getPackets()
                 .stream()
@@ -499,7 +517,8 @@ public class Step10Controller extends StepController {
         }
 
         // 9. Engine runtime information
-        // a. DM33 EI-AECD information shall not be reset/cleared for any non-zero
+        // a. DM33 EI-AECD information shall not be reset/cleared for any
+        // non-zero
         // values present before code clear.
         List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> dm33Packets = new ArrayList<>();
         obdModuleAddresses
@@ -527,8 +546,10 @@ public class Step10Controller extends StepController {
 
         }
 
-        // b. Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle time (PGN
-        // 65244 (SPN 235)) shall not be reset/cleared for any non-zero values present
+        // b. Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle
+        // time (PGN
+        // 65244 (SPN 235)) shall not be reset/cleared for any non-zero values
+        // present
         // before code clear
         // getVehicleInformationModule().
 

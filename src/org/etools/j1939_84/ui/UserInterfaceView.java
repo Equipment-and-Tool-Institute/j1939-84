@@ -14,6 +14,7 @@ import java.awt.event.ItemEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
+import java.util.concurrent.Executor;
 import java.util.logging.Level;
 
 import javax.swing.BorderFactory;
@@ -45,7 +46,6 @@ import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.resources.Resources;
 import org.etools.j1939_84.ui.UserInterfaceContract.Presenter;
 import org.etools.j1939_84.ui.widgets.SmartScroller;
-import org.etools.j1939_84.ui.widgets.SwingExecutor;
 
 /**
  * The View for the User Interface.
@@ -104,7 +104,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 
     private JButton startButton;
 
-    private final SwingExecutor swingExecutor;
+    private final Executor swingExecutor;
 
     private JPanel topPanel;
 
@@ -120,7 +120,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      * @wbp.parser.entryPoint
      */
     public UserInterfaceView() {
-        swingExecutor = new SwingExecutor();
+        swingExecutor = SwingUtilities::invokeLater;
         controller = new UserInterfacePresenter(this);
         buildNumber = new BuildNumber();
         initialize();
@@ -130,14 +130,14 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      * Constructor exposed for testing
      *
      * @param controller
-     *            The {@link UserInterfacePresenter} that will control the UI
+     * The {@link UserInterfacePresenter} that will control the UI
      * @param buildNumber
-     *            The {@link BuildNumber} that will return the build number
+     * The {@link BuildNumber} that will return the build number
      * @param swingExecutor
-     *            The {@link SwingExecutor} used to make updates to the UI on
-     *            the Swing Thread
+     * The {@link SwingExecutor} used to make updates to the UI on
+     * the Swing Thread
      */
-    UserInterfaceView(Presenter controller, BuildNumber buildNumber, SwingExecutor swingExecutor) {
+    UserInterfaceView(Presenter controller, BuildNumber buildNumber, Executor swingExecutor) {
         this.controller = controller;
         this.buildNumber = buildNumber;
         this.swingExecutor = swingExecutor;
@@ -194,7 +194,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 
     @Override
     public void displayForm(VehicleInformationListener listener, J1939 j1939) {
-        new VehicleInformationDialog(listener, j1939).setVisible(true);
+        new VehicleInformationDialog(getFrame(), listener, j1939).setVisible(true);
     }
 
     /**
@@ -323,9 +323,9 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             frame = new JFrame();
             frame.setTitle("J1939-84 Tool v" + getBuildNumber().getVersionNumber());
             int hundred = (int) (100 * Toolkit.getDefaultToolkit().getScreenResolution() / 72.0);
-            frame.setBounds(1 * hundred, 1 * hundred, 6 * hundred, 6 * hundred);
+            frame.setBounds(1 * hundred, 1 * hundred, 5 * hundred, 5 * hundred);
             frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
-            frame.setIconImage(Resources.getLogoImage());
+            frame.setIconImages(Resources.getLogoImages());
         }
         return frame;
     }
@@ -367,9 +367,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             readVehicleInfoButton.setEnabled(false);
             readVehicleInfoButton.setHorizontalAlignment(SwingConstants.CENTER);
             readVehicleInfoButton.setHorizontalTextPosition(SwingConstants.CENTER);
-            readVehicleInfoButton.addActionListener(e -> {
-                getController().onReadVehicleInfoButtonClicked();
-            });
+            readVehicleInfoButton.addActionListener(e -> getController().onReadVehicleInfoButtonClicked());
         }
         return readVehicleInfoButton;
     }
@@ -735,7 +733,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      * update the UI
      *
      * @param runnable
-     *            the {@link Runnable} to execute
+     * the {@link Runnable} to execute
      */
     private void refreshUI(Runnable runnable) {
         swingExecutor.execute(runnable);

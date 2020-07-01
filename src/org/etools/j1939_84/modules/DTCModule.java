@@ -60,7 +60,7 @@ public class DTCModule extends FunctionalModule {
      * Constructor exposed for testing
      *
      * @param dateTimeModule
-     * the {@link DateTimeModule}
+     *            the {@link DateTimeModule}
      */
     public DTCModule(DateTimeModule dateTimeModule) {
         super(dateTimeModule);
@@ -68,16 +68,16 @@ public class DTCModule extends FunctionalModule {
 
     /**
      * Sends an destination specific request for DM2 Packets. The request and
-     * results
-     * will be returned to the {@link ResultsListener}
+     * results will be returned to the {@link ResultsListener}
      *
-     * @param listener the {@link ResultsListener} for the results
-     * @param fullString true to include the full string of the results in the
-     * report;
-     * false to only include the returned raw packet in the
-     * report
-     * @param obdModuleAddress the address to which the destination specific request
-     * will be sent
+     * @param listener
+     *            the {@link ResultsListener} for the results
+     * @param fullString
+     *            true to include the full string of the results in the report;
+     *            false to only include the returned raw packet in the report
+     * @param obdModuleAddress
+     *            the address to which the destination specific request will be
+     *            sent
      * @return the {@link List} of {@link DM2PreviouslyActiveDTC}s
      */
     public List<DM2PreviouslyActiveDTC> getDM2Packets(ResultsListener listener,
@@ -92,11 +92,11 @@ public class DTCModule extends FunctionalModule {
      * suitable for inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @param obdModules
-     * the source address for the OBD Modules
+     *            the source address for the OBD Modules
      * @return true if there are no NACKs from the OBD Modules; false if an OBD
-     * Module NACK'd the request or didn't respond
+     *         Module NACK'd the request or didn't respond
      */
     public boolean reportDM11(ResultsListener listener, List<Integer> obdModules) {
         boolean[] result = new boolean[] { true };
@@ -106,6 +106,7 @@ public class DTCModule extends FunctionalModule {
         listener.onResult(getTime() + " Global DM11 Request");
         listener.onResult(getTime() + " " + requestPacket);
 
+        // FIXME, where did 5.5 s come from?
         Stream<ParsedPacket> results = getJ1939()
                 .requestRaw(DM11ClearActiveDTCsPacket.class,
                         requestPacket,
@@ -134,7 +135,7 @@ public class DTCModule extends FunctionalModule {
      * that's suitable for inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public boolean reportDM12(ResultsListener listener) {
@@ -151,7 +152,8 @@ public class DTCModule extends FunctionalModule {
      * Requests and reports DM2 from all vehicle modules and generates a
      * {@link String} that's suitable for inclusion in the report
      *
-     * @param listener the {@link ResultsListener} that will be given the report
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public boolean reportDM2(ResultsListener listener) {
@@ -169,7 +171,7 @@ public class DTCModule extends FunctionalModule {
      * that's suitable for inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public boolean reportDM23(ResultsListener listener) {
@@ -187,7 +189,7 @@ public class DTCModule extends FunctionalModule {
      * that's suitable for inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public boolean reportDM28(ResultsListener listener) {
@@ -205,11 +207,11 @@ public class DTCModule extends FunctionalModule {
      * suitable for inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @param obdModules
-     * the source address for the OBD Modules
+     *            the source address for the OBD Modules
      * @return true if there are no NACKs from the OBD Modules; false if an OBD
-     * Module NACK'd the request or didn't respond
+     *         Module NACK'd the request or didn't respond
      */
     public RequestResult<ParsedPacket> requestDM11(ResultsListener listener, List<Integer> obdModules) {
 
@@ -230,7 +232,7 @@ public class DTCModule extends FunctionalModule {
      * that's suitable for inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM12(ResultsListener listener) {
@@ -246,12 +248,13 @@ public class DTCModule extends FunctionalModule {
      * Requests and return global DM2 from all vehicle modules and generates a
      * {@link String} that's suitable for inclusion in the report
      *
-     * @param listener the {@link ResultsListener} that will be given the report
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM2(ResultsListener listener, boolean fullString) {
 
-        return getPackets("Global DM2 Request",
+        return getPacketsFromGlobal("Global DM2 Request",
                 DM2PreviouslyActiveDTC.PGN,
                 DM2PreviouslyActiveDTC.class,
                 listener,
@@ -261,10 +264,10 @@ public class DTCModule extends FunctionalModule {
 
     /**
      * Requests and return destination specific DM2 from all vehicle modules and
-     * generates a
-     * {@link String} that's suitable for inclusion in the report
+     * generates a {@link String} that's suitable for inclusion in the report
      *
-     * @param listener the {@link ResultsListener} that will be given the report
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM2(ResultsListener listener, boolean fullString, int obdAddress) {
@@ -279,11 +282,11 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests global DM21 and generates a {@link String}
-     * that's suitable for inclusion in the report
+     * Requests global DM21 and generates a {@link String} that's suitable for
+     * inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM21(ResultsListener listener) {
@@ -297,11 +300,10 @@ public class DTCModule extends FunctionalModule {
 
     /**
      * Requests DM21 from the address specific vehicle module and generates a
-     * {@link String}
-     * that's suitable for inclusion in the report
+     * {@link String} that's suitable for inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM21(ResultsListener listener, int address) {
@@ -318,7 +320,7 @@ public class DTCModule extends FunctionalModule {
      * that's suitable for inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM23(ResultsListener listener) {
@@ -333,8 +335,10 @@ public class DTCModule extends FunctionalModule {
     /**
      * Sends a request to the vehicle for {@link DM25ExpandedFreezeFrame}s
      *
-     * @param listener the {@link ResultsListener}
-     * @param obdModuleAddresses {@link Collection} of Integers}
+     * @param listener
+     *            the {@link ResultsListener}
+     * @param obdModuleAddresses
+     *            {@link Collection} of Integers}
      * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
      */
     public RequestResult<ParsedPacket> requestDM25(ResultsListener listener,
@@ -364,8 +368,10 @@ public class DTCModule extends FunctionalModule {
     /**
      * Sends a request to the vehicle for {@link DM25ExpandedFreezeFrame}s
      *
-     * @param listener the {@link ResultsListener}
-     * @param obdModuleAddresses {@link Collection} of Integers}
+     * @param listener
+     *            the {@link ResultsListener}
+     * @param obdModuleAddresses
+     *            {@link Collection} of Integers}
      * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
      */
     public RequestResult<ParsedPacket> requestDM25(ResultsListener listener,
@@ -395,11 +401,11 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests global DM21 and generates a {@link String}
-     * that's suitable for inclusion in the report
+     * Requests global DM21 and generates a {@link String} that's suitable for
+     * inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM26(ResultsListener listener) {
@@ -412,11 +418,11 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests global DM28 and generates a {@link String}
-     * that's suitable for inclusion in the report
+     * Requests global DM28 and generates a {@link String} that's suitable for
+     * inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM28(ResultsListener listener) {
@@ -429,12 +435,14 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests DM29 from vehicle modules with the address provided and generates a
-     * {@link String} that's suitable for inclusion in the report
+     * Requests DM29 from vehicle modules with the address provided and
+     * generates a {@link String} that's suitable for inclusion in the report
      *
-     * @param listener the {@link ResultsListener} that will be given the report
-     * @param obdAddress the address of the module from which the DM29 is to be
-     * requested
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
+     * @param obdAddress
+     *            the address of the module from which the DM29 is to be
+     *            requested
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM29(ResultsListener listener) {
@@ -447,12 +455,14 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests DM29 from vehicle modules with the address provided and generates a
-     * {@link String} that's suitable for inclusion in the report
+     * Requests DM29 from vehicle modules with the address provided and
+     * generates a {@link String} that's suitable for inclusion in the report
      *
-     * @param listener the {@link ResultsListener} that will be given the report
-     * @param obdAddress the address of the module from which the DM29 is to be
-     * requested
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
+     * @param obdAddress
+     *            the address of the module from which the DM29 is to be
+     *            requested
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM29(ResultsListener listener, int obdAddress) {
@@ -469,7 +479,7 @@ public class DTCModule extends FunctionalModule {
      * that's suitable for inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM31(ResultsListener listener) {
@@ -484,11 +494,10 @@ public class DTCModule extends FunctionalModule {
 
     /**
      * Requests DM31 from the address specific vehicle module and generates a
-     * {@link String}
-     * that's suitable for inclusion in the report
+     * {@link String} that's suitable for inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM31(ResultsListener listener, int address) {
@@ -501,11 +510,11 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests global DM33 and generates a {@link String}
-     * that's suitable for inclusion in the report
+     * Requests global DM33 and generates a {@link String} that's suitable for
+     * inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM33(ResultsListener listener) {
@@ -519,11 +528,11 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests destination specific DM33 and generates a {@link String}
-     * that's suitable for inclusion in the report
+     * Requests destination specific DM33 and generates a {@link String} that's
+     * suitable for inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM33(ResultsListener listener, int address) {
@@ -537,11 +546,11 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests a global DM6 and generates a {@link String}
-     * that's suitable for inclusion in the report
+     * Requests a global DM6 and generates a {@link String} that's suitable for
+     * inclusion in the report
      *
      * @param listener
-     * the {@link ResultsListener} that will be given the report
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM6(ResultsListener listener) {
@@ -560,7 +569,8 @@ public class DTCModule extends FunctionalModule {
      * Requests a global DM6 and generates a {@link String} that's suitable for
      * inclusion in the report
      *
-     * @param listener the {@link ResultsListener} that will be given the report
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<ParsedPacket> requestDM6(ResultsListener listener, List<Integer> obdModules) {

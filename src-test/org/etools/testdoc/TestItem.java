@@ -11,6 +11,6 @@ public @interface TestItem {
 
     String description() default "";
 
-    String value() default "";
+    String verifies() default "";
 
 }

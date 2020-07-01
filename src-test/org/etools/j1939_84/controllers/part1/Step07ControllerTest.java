@@ -58,7 +58,7 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-@TestDoc(items = @TestItem(value = "Part 1 Step 7", description = "DM19: Calibration information"))
+@TestDoc(value = @TestItem(verifies = "Part 1 Step 7", description = "DM19: Calibration information"))
 public class Step07ControllerTest {
 
     private static DM19CalibrationInformationPacket createDM19(int sourceAddress, String calId, String cvn)
@@ -168,11 +168,11 @@ public class Step07ControllerTest {
      * Test one module responds without issue
      */
     @Test
-    @TestDoc(items = {
-            @TestItem("6.1.7"),
-            @TestItem("6.1.7.1.a"),
-            @TestItem("6.1.7.1.b"),
-            @TestItem("6.1.7.1.c") },
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.7"),
+            @TestItem(verifies = "6.1.7.1.a"),
+            @TestItem(verifies = "6.1.7.1.b"),
+            @TestItem(verifies = "6.1.7.1.c") },
             description = "Global DM19 (send Request (PGN 59904) for PGN 54016 (SPNs 1634 and 1635))"
                     + "<br>"
                     + "Create list of ECU address + CAL ID + CVN. [An ECU address may report more than one CAL ID and CVN]"
@@ -219,7 +219,7 @@ public class Step07ControllerTest {
     }
 
     @Test
-    @TestDoc(items = @TestItem(value = "6.1.7.2.a",
+    @TestDoc(value = @TestItem(verifies = "6.1.7.2.a",
             description = "Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units"))
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
             justification = "The method is called just to get some exception.")
@@ -252,18 +252,18 @@ public class Step07ControllerTest {
     }
 
     @Test
-    @TestDoc(items = {
-            @TestItem("6.1.7.2.b.i"),
-            @TestItem("6.1.7.2.b.ii"),
-            @TestItem("6.1.7.2.b.iii"),
-            @TestItem("6.1.7.3.a"),
-            @TestItem("6.1.7.3.b"),
-            @TestItem("6.1.7.3.c.ii"),
-            @TestItem("6.1.7.3.c.iii"),
-            @TestItem("6.1.7.3.c.iv"),
-            @TestItem("6.1.7.5.a"),
-            @TestItem("6.1.7.5.b"),
-            @TestItem("6.1.7.5.c ") })
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.7.2.b.i"),
+            @TestItem(verifies = "6.1.7.2.b.ii"),
+            @TestItem(verifies = "6.1.7.2.b.iii"),
+            @TestItem(verifies = "6.1.7.3.a"),
+            @TestItem(verifies = "6.1.7.3.b"),
+            @TestItem(verifies = "6.1.7.3.c.ii"),
+            @TestItem(verifies = "6.1.7.3.c.iii"),
+            @TestItem(verifies = "6.1.7.3.c.iv"),
+            @TestItem(verifies = "6.1.7.5.a"),
+            @TestItem(verifies = "6.1.7.5.b"),
+            @TestItem(verifies = "6.1.7.5.c ") })
     @SuppressFBWarnings(value = {
             "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT" },
             justification = "The method is called just to get some exception.")

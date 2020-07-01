@@ -10,9 +10,13 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.NoSuchElementException;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
+import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
@@ -46,7 +50,8 @@ public class OBDTestsModule extends FunctionalModule {
     /**
      * Constructor exposed for testing
      *
-     * @param dateTimeModule the {@link DateTimeModule} to use
+     * @param dateTimeModule
+     *            the {@link DateTimeModule} to use
      */
     public OBDTestsModule(DateTimeModule dateTimeModule) {
         super(dateTimeModule);
@@ -56,8 +61,14 @@ public class OBDTestsModule extends FunctionalModule {
      * Helper method to create a DM7 packet with Test ID of 247, FMI 31 and the
      * given SPN. The request will be sent to the specific destination
      *
-     * @param destination the destination address for the packet
-     * @param spn the SPN
+     * @param destination
+     *            the destination address for the packet
+     * @param spn
+     *            the SPN
+     * @param destination
+     *            the destination address for the packet
+     * @param spn
+     *            the SPN
      * @return Packet
      */
     public Packet createDM7Packet(int destination, int spn) {
@@ -78,7 +89,8 @@ public class OBDTestsModule extends FunctionalModule {
      * Sends a destination specific request to the vehicle for
      * {@link DM7CommandTestsPacket}s
      *
-     * @param listener the {@link ResultsListener}
+     * @param listener
+     *            the {@link ResultsListener}
      * @return {@link List} of {@link DM30ScaledTestResultsPacket}s
      */
     public List<DM30ScaledTestResultsPacket> getDM30Packets(ResultsListener listener, int address, SupportedSPN spn) {
@@ -153,9 +165,9 @@ public class OBDTestsModule extends FunctionalModule {
      * to the listener
      *
      * @param listener
-     * the {@link ResultsListener}
+     *            the {@link ResultsListener}
      * @param obdModules
-     * the {@link List} of addresses for ODB Modules
+     *            the {@link List} of addresses for ODB Modules
      */
     public void reportOBDTests(ResultsListener listener, List<Integer> obdModules) {
 
@@ -209,36 +221,35 @@ public class OBDTestsModule extends FunctionalModule {
     }
 
     /**
-     * Sends a global request to the vehicle for {@link DM24SPNSupportPacket}s
-     *
-     * @param listener the {@link ResultsListener}
-     * @return {@link List} of {@link DM24SPNSupportPacket}s
-     */
-    public RequestResult<ParsedPacket> requestDM24Packets(ResultsListener listener) {
-        return getPackets("Global DM24 Request", DM24SPNSupportPacket.PGN, DM24SPNSupportPacket.class, listener, true);
-    }
-
-    /**
      * Sends a destination specific request to the vehicle for
      * {@link DM24SPNSupportPacket}s
      *
-     * @param listener the {@link ResultsListener}
+     * @param listener
+     *            the {@link ResultsListener}
+     * @param addresses
      * @return {@link List} of {@link DM24SPNSupportPacket}s
      */
-    public RequestResult<ParsedPacket> requestDM24Packets(ResultsListener listener, int address) {
-        return getPackets("Destination Specific DM24 Request",
-                DM24SPNSupportPacket.PGN,
-                DM24SPNSupportPacket.class,
-                listener,
-                true,
-                address);
+    public RequestResult<ParsedPacket> requestDM24Packets(ResultsListener listener, Set<Integer> addresses) {
+        BinaryOperator<RequestResult<ParsedPacket>> fn = (a, b) -> new RequestResult<>(
+                a.isRetryUsed() || b.isRetryUsed(),
+                Stream.concat(a.getPackets().stream(), b.getPackets().stream()).collect(Collectors.toList()));
+        return addresses.stream()
+                .map(address -> getPackets("Destination Specific DM24 Request",
+                        DM24SPNSupportPacket.PGN,
+                        DM24SPNSupportPacket.class,
+                        listener,
+                        true,
+                        address))
+                .collect(Collectors.reducing(fn))
+                .orElseThrow(() -> new NoSuchElementException("No DM24s responses."));
     }
 
     /**
      * Sends a destination specific request to the vehicle for
      * {@link DM7CommandTestsPacket}s
      *
-     * @param listener the {@link ResultsListener}
+     * @param listener
+     *            the {@link ResultsListener}
      * @return {@link List} of {@link DM30ScaledTestResultsPacket}s
      */
     public RequestResult<ParsedPacket> requestDM30Packets(ResultsListener listener, int address, int spn) {
@@ -272,12 +283,11 @@ public class OBDTestsModule extends FunctionalModule {
      * Results for the specified SPN
      *
      * @param listener
-     * the {@link ResultsListener}
+     *            the {@link ResultsListener}
      * @param destination
-     * the destination address to send the request to
+     *            the destination address to send the request to
      * @param spn
-     * the SPN for which the Scaled Test Results are being
-     * requested
+     *            the SPN for which the Scaled Test Results are being requested
      * @return the {@link List} of {@link DM30ScaledTestResultsPacket} returned.
      */
     private List<ScaledTestResult> requestScaledTestResultsForSpn(ResultsListener listener, int destination, int spn) {
@@ -302,13 +312,13 @@ public class OBDTestsModule extends FunctionalModule {
      * Results for all the Supported SPNs
      *
      * @param listener
-     * the {@link ResultsListener}
+     *            the {@link ResultsListener}
      * @param destination
-     * the destination address to send the request to
+     *            the destination address to send the request to
      * @param moduleName
-     * the name of the vehicle module for the report
+     *            the name of the vehicle module for the report
      * @param spns
-     * the {@link List} of SPNs that will be requested
+     *            the {@link List} of SPNs that will be requested
      * @return List of {@link ScaledTestResult}s
      */
     private List<ScaledTestResult> requestScaledTestResultsFromModule(ResultsListener listener,
@@ -327,8 +337,10 @@ public class OBDTestsModule extends FunctionalModule {
     /**
      * Sends a request to the vehicle for {@link DM24SPNSupportPacket}s
      *
-     * @param listener the {@link ResultsListener}
-     * @param obdModuleAddresses {@link Collection} of Integers}
+     * @param listener
+     *            the {@link ResultsListener}
+     * @param obdModuleAddresses
+     *            {@link Collection} of Integers}
      * @return {@link List} of {@link DM24SPNSupportPacket}s
      */
     public RequestResult<DM24SPNSupportPacket> requestSupportedSpnPackets(ResultsListener listener,
@@ -340,6 +352,7 @@ public class OBDTestsModule extends FunctionalModule {
             Packet request = getJ1939().createRequestPacket(DM24SPNSupportPacket.PGN, address);
             listener.onResult(getTime() + " Direct DM24 Request to " + Lookup.getAddressName(address));
             listener.onResult(getTime() + " " + request.toString());
+            // FIXME, this should be 220 ms, not 3 s. 6.1.4.1.b
             Optional<BusResult<DM24SPNSupportPacket>> results = getJ1939()
                     .requestPacket(request, DM24SPNSupportPacket.class, address, 3, TimeUnit.SECONDS.toMillis(15));
             if (!results.isPresent()) {

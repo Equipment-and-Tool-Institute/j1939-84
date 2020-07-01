@@ -39,15 +39,15 @@ public class Part10Controller extends Controller {
     /**
      * Constructor exposed for testing
      *
-     * @param executor                  the {@link Executor}
-     * @param engineSpeedModule         the {@link EngineSpeedModule}
-     * @param bannerModule              the {@link BannerModule}
-     * @param dateTimeModule            the {@link DateTimeModule}
-     * @param vehicleInformationModule  the {@link VehicleInformationModule}
-     * @param partResultFactory         the {@link PartResultFactory}
+     * @param executor the {@link Executor}
+     * @param engineSpeedModule the {@link EngineSpeedModule}
+     * @param bannerModule the {@link BannerModule}
+     * @param dateTimeModule the {@link DateTimeModule}
+     * @param vehicleInformationModule the {@link VehicleInformationModule}
+     * @param partResultFactory the {@link PartResultFactory}
      * @param diagnosticReadinessModule the {@link DiagnosticReadinessModule}
-     * @param obdTestsModule            the {@link OBDTestsModule}
-     * @param supportedSpnModule        the {@link SupportedSpnModule}
+     * @param obdTestsModule the {@link OBDTestsModule}
+     * @param supportedSpnModule the {@link SupportedSpnModule}
      */
     public Part10Controller(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,

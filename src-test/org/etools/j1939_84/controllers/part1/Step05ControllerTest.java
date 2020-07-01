@@ -50,7 +50,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  *
  */
 @RunWith(MockitoJUnitRunner.class)
-@TestDoc(items = @TestItem(value = "Part 1 Step 5", description = "PGN 65260 VIN verification"))
 public class Step05ControllerTest {
 
     @Mock
@@ -129,16 +128,18 @@ public class Step05ControllerTest {
 
     @Test
     @TestDoc(
-            items = { @TestItem("6.1.5.2.b"), @TestItem("6.1.5.2.c"), @TestItem("6.1.5.2.d"), @TestItem("6.1.5.2.e"),
-                    @TestItem("6.1.5.3.a"), @TestItem("6.1.5.3.b"), @TestItem("6.1.5.3.d") },
-            description = "More than one OBD ECU responded with VIN" + "<br>" + "VIN does not match user entered VIN."
-                    + "<br>" + "VIN Model Year does not match user entered Vehicle Model Year" + "<br>"
-                    + "VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence" + "<br>"
-                    + "Non-OBD ECU responded with VIN" + "<br>" + "More than one VIN response from an ECU" + "<br>"
-                    + "Manufacturer defined data follows the VIN")
+             value = { @TestItem(verifies = "6.1.5.2.b"), @TestItem(verifies = "6.1.5.2.c"),
+                     @TestItem(verifies = "6.1.5.2.d"), @TestItem(verifies = "6.1.5.2.e"),
+                     @TestItem(verifies = "6.1.5.3.a"), @TestItem(verifies = "6.1.5.3.b"),
+                     @TestItem(verifies = "6.1.5.3.d") },
+             description = "More than one OBD ECU responded with VIN" + "<br>" + "VIN does not match user entered VIN."
+                     + "<br>" + "VIN Model Year does not match user entered Vehicle Model Year" + "<br>"
+                     + "VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence" + "<br>"
+                     + "Non-OBD ECU responded with VIN" + "<br>" + "More than one VIN response from an ECU" + "<br>"
+                     + "Manufacturer defined data follows the VIN")
 
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     public void testError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
@@ -210,20 +211,22 @@ public class Step05ControllerTest {
     }
 
     @Test
+    @TestDoc(description = "Verify step name.")
     public void testGetDisplayName() {
         assertEquals("Display Name", "Part 1 Step 5", instance.getDisplayName());
     }
 
     @Test
+    @TestDoc(description = "Verify step 5 has 1 step.")
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 1, instance.getTotalSteps());
     }
 
     @Test
-    @TestDoc(items = @TestItem(value = "6.1.5.1.a",
-            description = "Global Request (PGN 59904) for PGN 65260 Vehicle Id (SPN 237) VIN"))
+    @TestDoc(value = @TestItem(verifies = "6.1.5",
+                               description = "Verify no failures when no fail criteria are met."))
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     public void testNoError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         Set<Integer> obdModulesAddresses = new HashSet<>();
@@ -256,33 +259,18 @@ public class Step05ControllerTest {
     }
 
     /**
-     * This test will have an error on the nonObdResponses due to error combination
-     * restrictions/requirements
+     * This test will have an error on the nonObdResponses due to error
+     * combination restrictions/requirements
      */
     @Test
-    @TestDoc(items = {
-            @TestItem("6.1.5.2.c"),
-            @TestItem("6.1.5.2.d"),
-            @TestItem("6.1.5.2.e"),
-            @TestItem("6.1.5.3.a"),
-            @TestItem("6.1.5.3.b"),
-            @TestItem("6.1.5.3.c"),
-            @TestItem("6.1.5.3.d") },
-            description = "VIN does not match user entered VIN"
-                    + "<br/>"
-                    + "VIN Model Year does not match user entered Vehicle Model Year"
-                    + "<br/>"
-                    + "VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence"
-                    + "<br/>"
-                    + "Non-OBD ECU responded with VIN"
-                    + "<br/>"
-                    + "More than one VIN response from an ECU"
-                    + "<br/>"
-                    + "VIN provided from more than one non-OBD ECU"
-                    + "<br/>"
-                    + "Manufacturer defined data follows the VIN")
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.5.2.c,d,e"),
+            @TestItem(verifies = "6.1.5.2.d"),
+            @TestItem(verifies = "6.1.5.2.e"),
+            @TestItem(verifies = "6.1.5.3.a,b,c,d") },
+             description = "Verify fails and warns are reported.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     public void testNoObdResponses() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
@@ -347,6 +335,7 @@ public class Step05ControllerTest {
     }
 
     @Test
+    @TestDoc(@TestItem(verifies = "6.1.5.2.a", description = "Verify fail reported with no response."))
     public void testPacketsEmpty() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
 
@@ -362,7 +351,8 @@ public class Step05ControllerTest {
 
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
+    @TestDoc(@TestItem(verifies = "6.1.5.3.a,b,c,d"))
     public void testWarnError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);

@@ -22,7 +22,7 @@ public class EchoBus implements Bus {
      * Constructor
      *
      * @param address
-     *                the address for this connector on the bus
+     *            the address for this connector on the bus
      */
     public EchoBus(int address) {
         this(address, new MultiQueue<>());
@@ -32,9 +32,9 @@ public class EchoBus implements Bus {
      * Constructor exposed for testing
      *
      * @param address
-     *                the address for this connector on the bus
+     *            the address for this connector on the bus
      * @param queue
-     *                the {@link MultiQueue} to use to back the bus
+     *            the {@link MultiQueue} to use to back the bus
      */
     public EchoBus(int address, MultiQueue<Packet> queue) {
         this.address = address;

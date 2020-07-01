@@ -93,11 +93,9 @@ public class Step12Controller extends StepController {
 
         for (OBDModuleInformation obdModule : obdModules) {
             List<ScaledTestResult> moduleTestResults = new ArrayList<>();
-            for (SupportedSPN spn : obdModule.getSupportedSpns()) {
+            for (SupportedSPN spn : obdModule.getTestResultSpns()) {
                 var dm30Packets = obdTestsModule.getDM30Packets(getListener(), obdModule.getSourceAddress(), spn);
-                dm30Packets.forEach(packet -> {
-                    verifyDM30PacketSupported(packet, spn);
-                });
+                dm30Packets.forEach(packet -> verifyDM30PacketSupported(packet, spn));
                 List<ScaledTestResult> testResults = dm30Packets
                         .stream()
                         .flatMap(p -> p.getTestResults().stream())
@@ -151,23 +149,25 @@ public class Step12Controller extends StepController {
         // test limit as initialized (after code clear) values (either
         // 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000).
         for (ScaledTestResult result : testResults) {
-            if (!((result.getTestValue() == 0xFB00 &&
-                    result.getTestMinimum() == 0xFFFF && result.getTestMaximum() == 0xFFFF) ||
-                    (result.getTestValue() == 0x0000 &&
-                            result.getTestMinimum() == 0x0000 && result.getTestMaximum() == 0x0000))) {
-                addFailure(1,
-                        12,
-                        "Fail if any test result does not report the test result max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
-
-            }
-            // else if (result.getTestValue() != 0x0000 &&
-            // result.getTestMinimum() != 0x0000 && result.getTestMaximum() != 0x0000) {
+            // if (!((result.getTestValue() == 0xFB00 &&
+            // result.getTestMinimum() == 0xFFFF && result.getTestMaximum() == 0xFFFF) ||
+            // (result.getTestValue() == 0x0000 &&
+            // result.getTestMinimum() == 0x0000 && result.getTestMaximum() == 0x0000))) {
             // addFailure(1,
             // 12,
-            // "Fail if any test result does not report the test result min test limit
-            // initialized one of the following values 0x0000/0x0000/0x0000");
+            // "Fail if any test result does not report the test result/min test limit/max
+            // test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or
+            // 0x0000/0x0000/0x0000");
             //
             // }
+            // // else if (result.getTestValue() != 0x0000 &&
+            // // result.getTestMinimum() != 0x0000 && result.getTestMaximum() != 0x0000) {
+            // // addFailure(1,
+            // // 12,
+            // // "Fail if any test result does not report the test result min test limit
+            // // initialized one of the following values 0x0000/0x0000/0x0000");
+            // //
+            // // }
             // c. Fail if the SLOT identifier for any test results is an undefined or a not
             // valid SLOT in Appendix A of J1939-71. See Table A-7-2 3 for a list of the
             // valid, SLOTs known to be appropriate for use in test results.

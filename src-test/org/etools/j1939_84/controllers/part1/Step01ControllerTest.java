@@ -114,7 +114,7 @@ public class Step01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Step01Controller#getDisplayName()}.
      */
     @Test
-    @TestDoc(items = @TestItem(value = "6.1.1", description = "Verifies part and step name for report"))
+    @TestDoc(value = @TestItem(verifies = "6.1.1", description = "Verifies part and step name for report"))
     public void testGetDisplayName() {
         assertEquals("Display Name", "Part 1 Step 1", instance.getDisplayName());
     }
@@ -124,7 +124,7 @@ public class Step01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Step01Controller#getTotalSteps()}.
      */
     @Test
-    @TestDoc(items = @TestItem(value = "6.1.1", description = "Verifies that there is a single 6.1.1 step"))
+    @TestDoc(value = @TestItem(verifies = "6.1.1", description = "Verifies that there is a single 6.1.1 step"))
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 1, instance.getTotalSteps());
     }
@@ -134,19 +134,29 @@ public class Step01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Step01Controller#run()}.
      */
     @Test
-    @TestDoc(items = {
-            @TestItem(value = "6.1.1.1.a", dependsOn = "UserInterfacePresenterTest"),
-            @TestItem(value = "6.1.1.1.b", dependsOn = "UserInterfacePresenterTest"),
-            @TestItem(value = "6.1.1.1.c", dependsOn = "UserInterfacePresenterTest"),
-            @TestItem(value = "6.1.1.1.d", dependsOn = "EngineSpeedModuleTest"),
-            @TestItem(value = "6.1.1.1.e.i", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.ii", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.ii.1",
-                      dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.iv", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.v", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.vi",
-                      dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }) },
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.1.1.a,b,c", dependsOn = "UserInterfacePresenterTest",
+                      description = "Verify that the UI presents the data."),
+            @TestItem(verifies = "6.1.1.1.d", dependsOn = "EngineSpeedModuleTest"),
+            @TestItem(verifies = "6.1.1.1", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
+            @TestItem(verifies = "6.1.1.1.e.i",
+                      dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest.testGetVin",
+                              "VehicleInformationModuleTest.testGetVinNoResponse",
+                              "VehicleInformationModuleTest.testGetVinWithDifferentResponses",
+                              "VehicleInformationModuleTest.testReportVin",
+                              "VehicleInformationModuleTest.testReportVinWithNoResponses", "VinDecoderTest" }),
+            @TestItem(verifies = "6.1.1.1.e.ii",
+                      dependsOn = { "VinDecoderTest" }),
+            @TestItem(verifies = "6.1.1.1.e.iv",
+                      dependsOn = { "FuelTypeTest" }),
+            @TestItem(verifies = "6.1.1.1.e.v",
+                      dependsOn = { "VehicleInformationTest",
+                              "VehicleInformationModuleTest.testReportCalibrationInformation",
+                              "VehicleInformationModuleTest.testReportCalibrationInformationWithNoResponses",
+                              "VehicleInformationModuleTest.testRunHappyPath",
+                              "VehicleInformationModuleTest.testRunNoModulesRespond",
+                              "VehicleInformationModuleTest.testRunWithWarningsAndFailures" }),
+    },
              description = "Verify vehicle data collection and that the correct instructions to the user are transmistted to the UI presenter.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
                         justification = "The method is called just to get some exception.")
@@ -204,19 +214,12 @@ public class Step01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Step01Controller#run()}.
      */
     @Test
-    @TestDoc(items = {
-            @TestItem(value = "6.1.1.1.a", dependsOn = "UserInterfacePresenterTest"),
-            @TestItem(value = "6.1.1.1.b", dependsOn = "UserInterfacePresenterTest"),
-            @TestItem(value = "6.1.1.1.c", dependsOn = "UserInterfacePresenterTest"),
-            @TestItem(value = "6.1.1.1.d", dependsOn = "EngineSpeedModuleTest"),
-            @TestItem(value = "6.1.1.1.e.i", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.ii", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.ii.1",
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.1.1.a,b,c", dependsOn = "UserInterfacePresenterTest"),
+            @TestItem(verifies = "6.1.1.1.d", dependsOn = "EngineSpeedModuleTest"),
+            @TestItem(verifies = "6.1.1.1.e",
                       dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.iv", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.v", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.vi",
-                      dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }) },
+    },
              description = "Verify vehicle data collection is empty when the engine is not running and no data is collected.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
                         justification = "The method is called just to get some exception.")
@@ -274,18 +277,10 @@ public class Step01ControllerTest {
     }
 
     @Test
-    @TestDoc(items = {
-            @TestItem(value = "6.1.1.1.a", dependsOn = "UserInterfacePresenterTest"),
-            @TestItem(value = "6.1.1.1.b", dependsOn = "UserInterfacePresenterTest"),
-            @TestItem(value = "6.1.1.1.c", dependsOn = "UserInterfacePresenterTest"),
-            @TestItem(value = "6.1.1.1.d", dependsOn = "EngineSpeedModuleTest"),
-            @TestItem(value = "6.1.1.1.e.i", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.ii", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.ii.1",
-                      dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.iv", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.v", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(value = "6.1.1.1.e.vi",
+    @TestDoc(value = {
+            @TestItem(verifies = "6.1.1.1.a,b,c", dependsOn = "UserInterfacePresenterTest"),
+            @TestItem(verifies = "6.1.1.1.d", dependsOn = "EngineSpeedModuleTest"),
+            @TestItem(verifies = "6.1.1.1.e",
                       dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }) },
              description = "After the key was detected off, notify user to 'Please turn the Engine OFF with Key ON.', then continue with data collection.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",

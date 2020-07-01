@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.testdoc.TestDoc;
 import org.junit.Test;
 
 /**
@@ -20,6 +21,7 @@ import org.junit.Test;
 public class DM24SPNSupportPacketTest {
 
     @Test
+    @TestDoc(description = "Verify that an example DM24 from a real vehicle parses correctly.")
     public void testActual() {
         Packet packet = Packet.create(0,
                 0,
@@ -506,8 +508,8 @@ public class DM24SPNSupportPacketTest {
         DM24SPNSupportPacket instance = new DM24SPNSupportPacket(packet);
         List<SupportedSPN> spns = instance.getSupportedSpns();
         assertEquals(111, spns.size());
-        // Create the expected report with title and the supporting scaled testing
-        // results
+        // Create the expected report with title and the supporting scaled
+        // testing results
         String expected = "DM24 from Engine #1 (0): (Supporting Scaled Test Results) [" + NL;
         expected += "  SPN 102 - Engine Intake Manifold #1 Pressure" + NL;
         expected += "  SPN 164 - Engine Fuel Injection Control Pressure" + NL;
@@ -679,6 +681,7 @@ public class DM24SPNSupportPacketTest {
     }
 
     @Test
+    @TestDoc(description = "Verify that a DM24 with a single SPN parses correctly.")
     public void testOne() {
         Packet packet = Packet.create(0, 0, 0x5C, 0x00, 0x1B, 0x01);
         DM24SPNSupportPacket instance = new DM24SPNSupportPacket(packet);
@@ -699,11 +702,13 @@ public class DM24SPNSupportPacketTest {
     }
 
     @Test
+    @TestDoc(description = "Verify DM24 PGN is 64950.")
     public void testPGN() {
         assertEquals(64950, DM24SPNSupportPacket.PGN);
     }
 
     @Test
+    @TestDoc(description = "Verify that a DM24 with a three SPNs parses correctly.")
     public void testThree() {
         Packet packet = Packet.create(0, 0, 0x5C, 0x00, 0x1B, 0x01, 0x00, 0x02, 0x1B, 0x01, 0x01, 0x02, 0x1B, 0x01);
 

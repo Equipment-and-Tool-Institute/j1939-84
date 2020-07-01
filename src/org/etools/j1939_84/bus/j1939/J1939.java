@@ -83,6 +83,22 @@ public class J1939 {
     /** J1939-21 */
     private static final int SUCCESS = 0x00;
 
+    /**
+     * Helper to create a packet to request a packet with the given PGN be sent
+     * by modules on the bus that support it
+     *
+     * @param pgn
+     *            the PGN of the packet that's being request
+     * @param addr
+     *            the address the request is being directed at
+     * @param tool
+     *            the requestor's address
+     * @return a {@link Packet}
+     */
+    static public Packet createRequestPacket(int pgn, int addr, int tool) {
+        return Packet.create(REQUEST_PGN | addr, tool, true, pgn, pgn >> 8, pgn >> 16);
+    }
+
     private static <T extends ParsedPacket> int getPgn(Class<T> cls) {
         try {
             return cls.getField("PGN").getInt(null);
@@ -99,110 +115,110 @@ public class J1939 {
      * Returns a Subclass of {@link ParsedPacket} that corresponds to the id
      *
      * @param id
-     * the id to match
+     *            the id to match
      * @param packet
-     * the {@link Packet} to process
+     *            the {@link Packet} to process
      * @return a subclass of {@link ParsedPacket}
      */
     private static ParsedPacket process(int id, Packet packet) {
         switch (id) {
 
-            case DM5DiagnosticReadinessPacket.PGN:
-                return new DM5DiagnosticReadinessPacket(packet);
+        case DM5DiagnosticReadinessPacket.PGN:
+            return new DM5DiagnosticReadinessPacket(packet);
 
-            case DM6PendingEmissionDTCPacket.PGN:
-                return new DM6PendingEmissionDTCPacket(packet);
+        case DM6PendingEmissionDTCPacket.PGN:
+            return new DM6PendingEmissionDTCPacket(packet);
+
+        case DM7CommandTestsPacket.PGN:
+            return new DM7CommandTestsPacket(packet);
+
+        case DM11ClearActiveDTCsPacket.PGN:
+            return new DM11ClearActiveDTCsPacket(packet);
+
+        case DM12MILOnEmissionDTCPacket.PGN:
+            return new DM12MILOnEmissionDTCPacket(packet);
+
+        case DM19CalibrationInformationPacket.PGN:
+            return new DM19CalibrationInformationPacket(packet);
+
+        case DM20MonitorPerformanceRatioPacket.PGN:
+            return new DM20MonitorPerformanceRatioPacket(packet);
+
+        case DM21DiagnosticReadinessPacket.PGN:
+            return new DM21DiagnosticReadinessPacket(packet);
+
+        case DM23PreviouslyMILOnEmissionDTCPacket.PGN:
+            return new DM23PreviouslyMILOnEmissionDTCPacket(packet);
+
+        case DM24SPNSupportPacket.PGN:
+            return new DM24SPNSupportPacket(packet);
+
+        case DM25ExpandedFreezeFrame.PGN:
+            return new DM25ExpandedFreezeFrame(packet);
+
+        case DM26TripDiagnosticReadinessPacket.PGN:
+            return new DM26TripDiagnosticReadinessPacket(packet);
+
+        case DM28PermanentEmissionDTCPacket.PGN:
+            return new DM28PermanentEmissionDTCPacket(packet);
+
+        case DM29DtcCounts.PGN:
+            return new DM29DtcCounts(packet);
+
+        case DM30ScaledTestResultsPacket.PGN:
+            return new DM30ScaledTestResultsPacket(packet);
+
+        case DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN:
+            return new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(packet);
+
+        case ComponentIdentificationPacket.PGN:
+            return new ComponentIdentificationPacket(packet);
+
+        case EngineSpeedPacket.PGN:
+            return new EngineSpeedPacket(packet);
+
+        case EngineHoursPacket.PGN:
+            return new EngineHoursPacket(packet);
+
+        case HighResVehicleDistancePacket.PGN:
+            return new HighResVehicleDistancePacket(packet);
+
+        case TotalVehicleDistancePacket.PGN:
+            return new TotalVehicleDistancePacket(packet);
+
+        case VehicleIdentificationPacket.PGN:
+            return new VehicleIdentificationPacket(packet);
+
+        case AddressClaimPacket.PGN:
+            return new AddressClaimPacket(packet);
+
+        case DM56EngineFamilyPacket.PGN:
+            return new DM56EngineFamilyPacket(packet);
+
+        case REQUEST_PGN:
+            // Request; just return a wrapped packet
+            return new ParsedPacket(packet);
+
+        default:
+            int maskedId = id & 0xFF00;
+
+            switch (maskedId) {
+            case AcknowledgmentPacket.PGN:
+                // Acknowledgement, return the packet that was requested
+                return new AcknowledgmentPacket(packet);
 
             case DM7CommandTestsPacket.PGN:
-                return new DM7CommandTestsPacket(packet);
-
-            case DM11ClearActiveDTCsPacket.PGN:
-                return new DM11ClearActiveDTCsPacket(packet);
-
-            case DM12MILOnEmissionDTCPacket.PGN:
-                return new DM12MILOnEmissionDTCPacket(packet);
-
             case DM19CalibrationInformationPacket.PGN:
-                return new DM19CalibrationInformationPacket(packet);
-
             case DM20MonitorPerformanceRatioPacket.PGN:
-                return new DM20MonitorPerformanceRatioPacket(packet);
-
             case DM21DiagnosticReadinessPacket.PGN:
-                return new DM21DiagnosticReadinessPacket(packet);
-
-            case DM23PreviouslyMILOnEmissionDTCPacket.PGN:
-                return new DM23PreviouslyMILOnEmissionDTCPacket(packet);
-
-            case DM24SPNSupportPacket.PGN:
-                return new DM24SPNSupportPacket(packet);
-
-            case DM25ExpandedFreezeFrame.PGN:
-                return new DM25ExpandedFreezeFrame(packet);
-
-            case DM26TripDiagnosticReadinessPacket.PGN:
-                return new DM26TripDiagnosticReadinessPacket(packet);
-
-            case DM28PermanentEmissionDTCPacket.PGN:
-                return new DM28PermanentEmissionDTCPacket(packet);
-
-            case DM29DtcCounts.PGN:
-                return new DM29DtcCounts(packet);
-
             case DM30ScaledTestResultsPacket.PGN:
-                return new DM30ScaledTestResultsPacket(packet);
-
-            case DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN:
-                return new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(packet);
-
-            case ComponentIdentificationPacket.PGN:
-                return new ComponentIdentificationPacket(packet);
-
-            case EngineSpeedPacket.PGN:
-                return new EngineSpeedPacket(packet);
-
-            case EngineHoursPacket.PGN:
-                return new EngineHoursPacket(packet);
-
-            case HighResVehicleDistancePacket.PGN:
-                return new HighResVehicleDistancePacket(packet);
-
-            case TotalVehicleDistancePacket.PGN:
-                return new TotalVehicleDistancePacket(packet);
-
-            case VehicleIdentificationPacket.PGN:
-                return new VehicleIdentificationPacket(packet);
-
             case AddressClaimPacket.PGN:
-                return new AddressClaimPacket(packet);
-
-            case DM56EngineFamilyPacket.PGN:
-                return new DM56EngineFamilyPacket(packet);
-
-            case REQUEST_PGN:
-                // Request; just return a wrapped packet
-                return new ParsedPacket(packet);
+                return process(maskedId, packet);
 
             default:
-                int maskedId = id & 0xFF00;
-
-                switch (maskedId) {
-                    case AcknowledgmentPacket.PGN:
-                        // Acknowledgement, return the packet that was requested
-                        return new AcknowledgmentPacket(packet);
-
-                    case DM7CommandTestsPacket.PGN:
-                    case DM19CalibrationInformationPacket.PGN:
-                    case DM20MonitorPerformanceRatioPacket.PGN:
-                    case DM21DiagnosticReadinessPacket.PGN:
-                    case DM30ScaledTestResultsPacket.PGN:
-                    case AddressClaimPacket.PGN:
-                        return process(maskedId, packet);
-
-                    default:
-                        // IDK
-                        return new ParsedPacket(packet);
-                }
+                // IDK
+                return new ParsedPacket(packet);
+            }
         }
     }
 
@@ -211,7 +227,7 @@ public class J1939 {
      * {@link Packet}
      *
      * @param packet
-     * the {@link Packet} to process
+     *            the {@link Packet} to process
      * @return a subclass of {@link ParsedPacket}
      */
     @SuppressWarnings("unchecked")
@@ -232,7 +248,7 @@ public class J1939 {
      * Constructor
      *
      * @param bus
-     * the {@link Bus} used to communicate with the vehicle
+     *            the {@link Bus} used to communicate with the vehicle
      */
     public J1939(Bus bus) {
         this.bus = bus;
@@ -242,7 +258,7 @@ public class J1939 {
      * Filter to find acknowledgement packets
      *
      * @param pgn
-     * the pgn that's being requested
+     *            the pgn that's being requested
      * @return true if the message is an Acknowledgement for the given pgn
      */
     private Predicate<Packet> ackFilter(int pgn) {
@@ -265,7 +281,7 @@ public class J1939 {
      * Filter to find acknowledgement/nack packets
      *
      * @param pgn
-     * the pgn that's being requested
+     *            the pgn that's being requested
      * @return true if the message is an Acknowledgement/Nack for the given pgn
      */
     private Predicate<Packet> ackNackFilter(int pgn) {
@@ -291,20 +307,20 @@ public class J1939 {
      * by modules on the bus that support it
      *
      * @param pgn
-     * the PGN of the packet that's being request
+     *            the PGN of the packet that's being request
      * @param addr
-     * the address the request is being directed at
+     *            the address the request is being directed at
      * @return a {@link Packet}
      */
     public Packet createRequestPacket(int pgn, int addr) {
-        return Packet.create(0xEA00 | addr, getBusAddress(), true, pgn, pgn >> 8, pgn >> 16);
+        return createRequestPacket(pgn, addr, getBusAddress());
     }
 
     /**
      * Destination Specific PGN Filter
      *
      * @param pgn
-     * the PGN to filter
+     *            the PGN to filter
      * @return {@link Predicate}
      */
     private Predicate<Packet> dsPgnFilter(int pgn) {
@@ -335,7 +351,7 @@ public class J1939 {
      * Returns the destination based upon the request
      *
      * @param requestPacket
-     * the request
+     *            the request
      * @return the destination specific address or GLOBAL_ADDR
      */
     private int getDestination(Packet requestPacket) {
@@ -351,7 +367,7 @@ public class J1939 {
      *
      * @return {@link Stream} of {@link ParsedPacket} s
      * @throws BusException
-     * if there is a problem reading the bus
+     *             if there is a problem reading the bus
      */
     public Stream<ParsedPacket> read() throws BusException {
         return getBus().read(365, TimeUnit.DAYS).map(t -> process(t));
@@ -362,17 +378,17 @@ public class J1939 {
      * the PGN in the given class
      *
      * @param <T>
-     * the Type of Packet to expect back
+     *            the Type of Packet to expect back
      *
      * @param T
-     * the class of interest
+     *            the class of interest
      * @param addr
-     * the source address the packet should come from. NOTE do not
-     * use the Global Address (0xFF) here
+     *            the source address the packet should come from. NOTE do not
+     *            use the Global Address (0xFF) here
      * @param timeout
-     * the maximum time to wait for a message
+     *            the maximum time to wait for a message
      * @param unit
-     * the {@link TimeUnit} for the timeout
+     *            the {@link TimeUnit} for the timeout
      * @return the resulting packet
      */
     public <T extends ParsedPacket> Optional<T> read(Class<T> T, int addr, long timeout, TimeUnit unit) {
@@ -393,13 +409,13 @@ public class J1939 {
      * PGN in the given class
      *
      * @param <T>
-     * the Type of Packet to expect back
+     *            the Type of Packet to expect back
      * @param T
-     * the class of interest
+     *            the class of interest
      * @param timeout
-     * the maximum time to wait for a message
+     *            the maximum time to wait for a message
      * @param unit
-     * the {@link TimeUnit} for the timeout
+     *            the {@link TimeUnit} for the timeout
      * @return the resulting packets in a Stream
      */
     public <T extends ParsedPacket> Stream<T> read(Class<T> T, long timeout, TimeUnit unit) {
@@ -416,7 +432,9 @@ public class J1939 {
     }
 
     private Stream<Packet> read(long timeout, TimeUnit unit) throws BusException {
-        return getBus().read(timeout, unit).peek(packet -> getLogger().log(Level.FINE, "P->" + packet.toString()));
+        Stream<Packet> stream = getBus().read(timeout, unit);
+        // FIXME, does this work or do I need a terminal?
+        return stream.peek(packet -> getLogger().log(Level.FINE, "P->" + packet.toString()));
     }
 
     /**
@@ -424,11 +442,9 @@ public class J1939 {
      * provide the PGN for the Packet that is requested. This will request the
      * packet globally. The request will wait for up to the timeout period.
      *
-     * @param <T>
-     * the Type of Packet to request
      * @param T
-     * the class that extends {@link ParsedPacket} that provides the
-     * PGN for the packet to be requested
+     *            the class that extends {@link ParsedPacket} that provides the
+     *            PGN for the packet to be requested
      * @return a {@link Stream} containing {@link ParsedPacket}
      */
     public <T extends ParsedPacket> Stream<ParsedPacket> requestMultiple(Class<T> T) {
@@ -442,14 +458,12 @@ public class J1939 {
      * packet globally. The request will wait for up to 1.25 seconds
      *
      * @param <T>
-     * the Type of Packet to request
+     *            the Type of Packet to request
      * @param T
-     * the class that extends {@link ParsedPacket} that
-     * provides the
-     * PGN for the packet to be requested
+     *            the class that extends {@link ParsedPacket} that provides the
+     *            PGN for the packet to be requested
      * @param requestPacket
-     * the {@link Packet} to send that will generate the
-     * responses
+     *            the {@link Packet} to send that will generate the responses
      * @return a {@link Stream} containing {@link ParsedPacket}
      */
     public <T extends ParsedPacket> Stream<ParsedPacket> requestMultiple(Class<T> T, Packet requestPacket) {
@@ -462,18 +476,16 @@ public class J1939 {
      * packet globally. NACKs will be ignored.
      *
      * @param <T>
-     * the Type of Packet to request
+     *            the Type of Packet to request
      * @param T
-     * the class that extends {@link ParsedPacket} that
-     * provides the
-     * PGN for the packet to be requested
+     *            the class that extends {@link ParsedPacket} that provides the
+     *            PGN for the packet to be requested
      * @param requestPacket
-     * the {@link Packet} to send that will generate the
-     * responses
+     *            the {@link Packet} to send that will generate the responses
      * @param timeout
-     * the maximum time to wait for responses
+     *            the maximum time to wait for responses
      * @param unit
-     * the {@link TimeUnit} of the timeout
+     *            the {@link TimeUnit} of the timeout
      * @return a {@link Stream} containing {@link ParsedPacket}
      */
     private <T extends ParsedPacket> Stream<ParsedPacket> requestMultiple(Class<T> T,
@@ -515,17 +527,17 @@ public class J1939 {
      * number of tries.
      *
      * @param <T>
-     * the Type of Packet that will be returned
+     *            the Type of Packet that will be returned
      * @param packetToSend
-     * the packet that will be sent
+     *            the packet that will be sent
      * @param T
-     * the Class of packet that's expected to be returned
+     *            the Class of packet that's expected to be returned
      * @param destination
-     * the address response should come from
+     *            the address response should come from
      * @param tries
-     * the number of times to try the request
+     *            the number of times to try the request
      * @return {@link Optional} {@link Packet} This may not contain a value if
-     * there was an exception
+     *         there was an exception
      */
     public <T extends ParsedPacket> Optional<T> requestPacket(Packet packetToSend,
             Class<T> T,
@@ -546,20 +558,20 @@ public class J1939 {
      * Sends a Request for the given packet. The request will repeat the given
      * number of tries.
      *
-     * @param <T>
-     * the Type of Packet that will be returned
+     * @param <T>the
+     *            Type of Packet that will be returned
      * @param packetToSend
-     * the packet that will be sent
+     *            the packet that will be sent
      * @param T
-     * the Class of packet that's expected to be returned
+     *            the Class of packet that's expected to be returned
      * @param destination
-     * the address response should come from
+     *            the address response should come from
      * @param tries
-     * the number of times to try the request
+     *            the number of times to try the request
      * @param timeout
-     * the maximum time, in milliseconds, to wait for a response
+     *            the maximum time, in milliseconds, to wait for a response
      * @return {@link Optional} {@link Packet} This may not contain a value if
-     * there was an exception
+     *         there was an exception
      */
     public <T extends ParsedPacket> Optional<BusResult<T>> requestPacket(Packet packetToSend,
             Class<T> T,
@@ -578,9 +590,11 @@ public class J1939 {
             Stream<Packet> stream = read(timeout, DEFAULT_TIMEOUT_UNITS);
             getBus().send(packetToSend);
 
-            // FIXME this stream needs to be able to check for ACKs and not retry if the
+            // FIXME this stream needs to be able to check for ACKs and not
+            // retry if the
             // request was NACK'd
-            // It also needs to be able to determine if the ACK was busy and retry should be
+            // It also needs to be able to determine if the ACK was busy and
+            // retry should be
             // used.
             Stream<Packet> packets = stream.filter(sourceFilter(destination))
                     .filter(pgnFilter(expectedResponsePGN).or(dsPgnFilter(expectedResponsePGN)));
@@ -604,18 +618,16 @@ public class J1939 {
      * packet globally. NACKs will NOT be ignored.
      *
      * @param <T>
-     * the Type of Packet to request
+     *            the Type of Packet to request
      * @param T
-     * the class that extends {@link ParsedPacket} that
-     * provides the
-     * PGN for the packet to be requested
+     *            the class that extends {@link ParsedPacket} that provides the
+     *            PGN for the packet to be requested
      * @param requestPacket
-     * the {@link Packet} to send that will generate the
-     * responses
+     *            the {@link Packet} to send that will generate the responses
      * @param timeout
-     * the maximum time to wait for responses
+     *            the maximum time to wait for responses
      * @param unit
-     * the {@link TimeUnit} of the timeout
+     *            the {@link TimeUnit} of the timeout
      * @return a {@link Stream} containing {@link ParsedPacket}
      */
     public <T extends ParsedPacket> Stream<ParsedPacket> requestRaw(Class<T> T,

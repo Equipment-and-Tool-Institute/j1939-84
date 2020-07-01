@@ -5,6 +5,7 @@ import static org.junit.Assert.assertEquals;
 import java.nio.charset.StandardCharsets;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.testdoc.TestDoc;
 import org.junit.Test;
 
 /**
@@ -13,6 +14,7 @@ import org.junit.Test;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
+@TestDoc(description = "Verify DM56 decoding.")
 public class DM56EngineFamilyPacketTest {
 
     @Test

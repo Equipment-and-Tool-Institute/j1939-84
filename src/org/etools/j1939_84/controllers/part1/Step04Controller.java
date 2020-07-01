@@ -65,7 +65,8 @@ public class Step04Controller extends StepController {
     protected void run() throws Throwable {
         obdTestsModule.setJ1939(getJ1939());
 
-        RequestResult<ParsedPacket> result = obdTestsModule.requestDM24Packets(getListener());
+        RequestResult<ParsedPacket> result = obdTestsModule.requestDM24Packets(getListener(),
+                dataRepository.getObdModuleAddresses());
         List<DM24SPNSupportPacket> globalPackets = result.getPackets().stream()
                 .filter(packet -> packet instanceof DM24SPNSupportPacket).map(p -> (DM24SPNSupportPacket) p)
                 .collect(Collectors.toList());

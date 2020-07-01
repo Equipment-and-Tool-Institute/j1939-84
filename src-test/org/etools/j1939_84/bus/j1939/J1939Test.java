@@ -52,6 +52,7 @@ public class J1939Test {
 
     final private static class TestPacket extends ParsedPacket {
         // used by tests in getPgn(Packet)
+        @SuppressWarnings("unused")
         public static int PGN = -1;
 
         public TestPacket(Packet packet) {
