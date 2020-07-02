@@ -65,10 +65,7 @@ public class Step03Controller extends StepController {
             addFailure(1, 3, "6.1.3.2.b - The request for DM5 was NACK'ed");
         }
 
-        Stream<DM5DiagnosticReadinessPacket> dm5Packets = response.getPackets().stream()
-                .filter(p -> p instanceof DM5DiagnosticReadinessPacket)
-                .map(p -> p);
-
+        Stream<DM5DiagnosticReadinessPacket> dm5Packets = response.getPackets().stream();
         dm5Packets.filter(p -> p.isObd()).forEach(p -> {
             OBDModuleInformation info = new OBDModuleInformation(p.getSourceAddress());
             info.setObdCompliance(p.getOBDCompliance());

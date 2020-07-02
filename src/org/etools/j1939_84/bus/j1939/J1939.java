@@ -121,6 +121,7 @@ public class J1939 {
      *            the {@link Packet} to process
      * @return a subclass of {@link ParsedPacket}
      */
+    @SuppressWarnings("unchecked")
     private static <T extends ParsedPacket> Either<T, AcknowledgmentPacket> process(int id, Packet packet) {
         ParsedPacket pp = processRaw(id, packet);
         if (pp instanceof AcknowledgmentPacket) {
@@ -138,7 +139,6 @@ public class J1939 {
      *            the {@link Packet} to process
      * @return a subclass of {@link ParsedPacket}
      */
-    @SuppressWarnings("unchecked")
     private static <T extends ParsedPacket> Either<T, AcknowledgmentPacket> process(Packet packet) {
         return process(packet.getId(), packet);
     }
@@ -401,7 +401,8 @@ public class J1939 {
      *            the {@link TimeUnit} for the timeout
      * @return the resulting packet
      */
-    public <T extends ParsedPacket> Optional<Either<T, AcknowledgmentPacket>> read(Class<T> T, int addr, long timeout,
+    public <T extends ParsedPacket> Optional<Either<T, AcknowledgmentPacket>> read(Class<T> T, int addr,
+            long timeout,
             TimeUnit unit) {
         int pgn = getPgn(T);
         try (Stream<Packet> stream = read(timeout, unit)) {

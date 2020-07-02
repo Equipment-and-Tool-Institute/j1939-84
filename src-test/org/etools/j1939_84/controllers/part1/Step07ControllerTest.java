@@ -28,7 +28,6 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -80,12 +79,6 @@ public class Step07ControllerTest {
         when(packet.getCalibrationInformation()).thenReturn(calInfo);
 
         return packet;
-    }
-
-    private static <T extends ParsedPacket> List<T> listOf(T packet) {
-        List<T> result = new ArrayList<>();
-        result.add(packet);
-        return result;
     }
 
     @Mock

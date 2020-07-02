@@ -10,7 +10,6 @@ import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
@@ -95,7 +94,6 @@ public class DTCModule extends FunctionalModule {
      *         Module NACK'd the request or didn't respond
      */
     public boolean reportDM11(ResultsListener listener, List<Integer> obdModules) {
-        boolean[] result = new boolean[] { true };
         listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
 
         Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
@@ -103,29 +101,25 @@ public class DTCModule extends FunctionalModule {
         listener.onResult(getTime() + " " + requestPacket);
 
         // FIXME, where did 5.5 s come from?
-        Stream<AcknowledgmentPacket> results = getJ1939()
-                .requestRaw(AcknowledgmentPacket.class,
+        List<AcknowledgmentPacket> results = getJ1939()
+                .requestRaw(DM11ClearActiveDTCsPacket.class,
                         requestPacket,
                         5500,
                         TimeUnit.MILLISECONDS)
                 // there are only ACKs
-                .flatMap(e -> e.right.stream());
+                .flatMap(e -> e.right.stream())
+                .collect(Collectors.toList());
 
-        List<String> responses = results.peek(t -> {
-            if (obdModules.contains(t.getSourceAddress())
-                    && t instanceof AcknowledgmentPacket
-                    && t.getResponse() != Response.ACK) {
-                result[0] = false;
-            }
-        }).map(getPacketMapperFunction()).collect(Collectors.toList());
-        listener.onResult(responses);
+        listener.onResult(results.stream().map(getPacketMapperFunction()).collect(Collectors.toList()));
 
-        if (result[0]) {
+        if (results.stream().allMatch(t -> !obdModules.contains(t.getSourceAddress())
+                || t.getResponse() == Response.ACK)) {
             listener.onResult(DTCS_CLEARED);
+            return true;
         } else {
             listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
+            return false;
         }
-        return result[0];
     }
 
     /**
@@ -570,12 +564,26 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener, List<Integer> obdModules) {
         Packet requestPacket = getJ1939().createRequestPacket(DM6PendingEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        return new RequestResult<>(false, getJ1939()
+        listener.onResult(getTime() + " Global DM6 Request");
+        listener.onResult(getTime() + " " + requestPacket);
+
+        RequestResult<DM6PendingEmissionDTCPacket> results = new RequestResult<>(false, getJ1939()
                 .requestRaw(DM6PendingEmissionDTCPacket.class,
                         requestPacket,
                         5500,
                         TimeUnit.MILLISECONDS)
                 .collect(Collectors.toList()));
+
+        listener.onResult(results.getPackets().stream().map(getPacketMapperFunction()).collect(Collectors.toList()));
+        // FIXME this looks like it is clearing faults, but that's not what DM6
+        // does.
+        if (results.getAcks().stream().anyMatch(t -> obdModules.contains(t.getSourceAddress())
+                && t.getResponse() != Response.ACK)) {
+            listener.onResult(DTCS_CLEARED);
+        } else {
+            listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
+        }
+        return results;
 
     }
 }

@@ -17,7 +17,7 @@ public class Either<L, R> {
     }
 
     private Either(Optional<L> l, Optional<R> r) {
-        if (l.isPresent() ^ r.isPresent()) {
+        if (!l.isPresent() ^ r.isPresent()) {
             throw new IllegalArgumentException("Either one must be null.");
         }
         left = l;
@@ -31,5 +31,10 @@ public class Either<L, R> {
 
     public <A, B> Either<A, B> map(Function<L, A> lFn, Function<R, B> rFn) {
         return new Either<>(left.map(lFn), right.map(rFn));
+    }
+
+    @Override
+    public String toString() {
+        return map(l -> "left: " + l.toString(), r -> "right: " + r.toString()).as(String.class);
     }
 }

@@ -314,7 +314,7 @@ public class J1939Test {
         Packet requestPacket = instance.createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
 
         List<AcknowledgmentPacket> responses = instance.requestMultiple(AcknowledgmentPacket.class, requestPacket)
-                .flatMap(e -> e.left.stream())
+                .flatMap(e -> e.right.stream())
                 .collect(Collectors.toList());
         assertEquals(3, responses.size());
 
@@ -409,9 +409,8 @@ public class J1939Test {
                 response10));
 
         Packet request = instance.createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
-        List<ParsedPacket> packets = instance
-                .requestRaw(AcknowledgmentPacket.class, request, 5500, TimeUnit.MILLISECONDS)
-                .flatMap(e -> e.left.stream())
+        List<?> packets = instance
+                .requestRaw(DM11ClearActiveDTCsPacket.class, request, 5500, TimeUnit.MILLISECONDS)
                 .collect(Collectors.toList());
 
         assertEquals(9, packets.size());

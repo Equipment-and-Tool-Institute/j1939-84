@@ -272,7 +272,7 @@ public class DTCModuleTest {
         DM11ClearActiveDTCsPacket packet3 = new DM11ClearActiveDTCsPacket(
                 Packet.create(0xE800, 0x21, 0x00, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
         when(j1939.requestRaw(DM11ClearActiveDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(null, p)));
 
         String expected = "";
         expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
@@ -307,8 +307,8 @@ public class DTCModuleTest {
                 Packet.create(0xE800, 0x17, 0x00, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
         AcknowledgmentPacket packet3 = new AcknowledgmentPacket(
                 Packet.create(0xE800, 0x21, 0x00, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
-        when(j1939.requestRaw(AcknowledgmentPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestRaw(DM11ClearActiveDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(null, p)));
 
         String expected = "";
         expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
@@ -367,7 +367,7 @@ public class DTCModuleTest {
                 Packet.create(0xE800, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
 
         when(j1939.requestRaw(DM11ClearActiveDTCsPacket.class, requestPacket1, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(null, p)));
 
         String expected = "";
         expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
@@ -393,8 +393,8 @@ public class DTCModuleTest {
 
         AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
                 Packet.create(0xE800, 0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
-        when(j1939.requestRaw(AcknowledgmentPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+        when(j1939.requestRaw(DM11ClearActiveDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(null, p)));
 
         String expected = "";
         expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
