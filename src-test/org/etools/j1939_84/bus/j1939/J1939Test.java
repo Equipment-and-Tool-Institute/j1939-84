@@ -413,7 +413,7 @@ public class J1939Test {
                 .requestRaw(DM11ClearActiveDTCsPacket.class, request, 5500, TimeUnit.MILLISECONDS)
                 .collect(Collectors.toList());
 
-        assertEquals(9, packets.size());
+        assertEquals(8, packets.size());
     }
 
 }

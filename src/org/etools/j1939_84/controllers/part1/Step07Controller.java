@@ -196,7 +196,7 @@ public class Step07Controller extends StepController {
 
             result.getPackets().stream()
                     .forEach(info -> {
-                        if (!Objects.equals(dm19.getCalibrationInformation(), info)) {
+                        if (!Objects.equals(dm19.getCalibrationInformation(), info.getCalibrationInformation())) {
                             getListener().addOutcome(1,
                                     7,
                                     Outcome.FAIL,
