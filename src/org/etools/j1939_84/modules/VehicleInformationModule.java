@@ -99,7 +99,9 @@ public class VehicleInformationModule extends FunctionalModule {
     private Set<CalibrationInformation> getCalibrations() throws IOException {
         if (calibrations == null) {
             calibrations = getJ1939().requestMultiple(DM19CalibrationInformationPacket.class)
-                    .flatMap(t -> t.getCalibrationInformation().stream()).collect(Collectors.toSet());
+                    .flatMap(t -> t.left.stream()
+                            .flatMap(p -> p.getCalibrationInformation().stream()))
+                    .collect(Collectors.toSet());
             if (calibrations.isEmpty()) {
                 throw new IOException("Timeout Error Reading Calibrations");
             }
@@ -132,8 +134,10 @@ public class VehicleInformationModule extends FunctionalModule {
         if (engineFamilyName == null) {
             Set<String> results = getJ1939()
                     .requestMultiple(DM56EngineFamilyPacket.class)
+                    .flatMap(e -> e.left.stream())
                     .map(t -> t.getFamilyName())
                     .collect(Collectors.toSet());
+            // FIXME what about NACKS?
             if (results.size() == 0) {
                 throw new IOException("Timeout Error Reading Engine Family");
             } else if (results.size() > 1) {
@@ -156,8 +160,10 @@ public class VehicleInformationModule extends FunctionalModule {
         if (engineModelYear == null) {
             Set<Integer> results = getJ1939()
                     .requestMultiple(DM56EngineFamilyPacket.class)
+                    .flatMap(e -> e.left.stream())
                     .map(t -> t.getEngineModelYear())
                     .collect(Collectors.toSet());
+            // FIXME what about NACKS
             if (results.size() == 0) {
                 throw new IOException("Timeout Error Reading Engine Model Year");
             } else if (results.size() > 1) {
@@ -179,8 +185,10 @@ public class VehicleInformationModule extends FunctionalModule {
     public String getVin() throws IOException {
         if (vin == null) {
             Set<String> vins = getJ1939().requestMultiple(VehicleIdentificationPacket.class)
+                    .flatMap(e -> e.left.stream())
                     .map(t -> t.getVin())
                     .collect(Collectors.toSet());
+            // FIXME what about NACKS
             if (vins.size() == 0) {
                 throw new IOException("Timeout Error Reading VIN");
             }
@@ -203,7 +211,7 @@ public class VehicleInformationModule extends FunctionalModule {
         List<AddressClaimPacket> responses = generateReport(listener,
                 "Global Request for Address Claim",
                 AddressClaimPacket.class,
-                request);
+                request).stream().flatMap(e -> e.left.stream()).collect(Collectors.toList());
         if (!responses.isEmpty() && !responses.stream().filter(p -> p.getFunctionId() == 0).findAny().isPresent()) {
             listener.onResult("Error: No module reported Function 0");
         }
@@ -222,7 +230,7 @@ public class VehicleInformationModule extends FunctionalModule {
         return generateReport(listener,
                 "Global DM19 (Calibration Information) Request",
                 DM19CalibrationInformationPacket.class,
-                request);
+                request).stream().flatMap(e -> e.left.stream()).collect(Collectors.toList());
     }
 
     /**
@@ -237,13 +245,14 @@ public class VehicleInformationModule extends FunctionalModule {
      *            addressed
      * @return {@link List} of {@link DM19CalibrationInformationPacket}
      */
-    public List<ParsedPacket> reportCalibrationInformation(ResultsListener listener, int address) {
+    public RequestResult<DM19CalibrationInformationPacket> reportCalibrationInformation(ResultsListener listener,
+            int address) {
         return getPackets("DS DM19 (Calibration Information) Request to " + String.format("%02X", address),
                 DM19CalibrationInformationPacket.PGN,
                 DM19CalibrationInformationPacket.class,
                 listener,
                 false,
-                address).getPackets().stream().map(p -> p).collect(Collectors.toList());
+                address);
     }
 
     /**
@@ -259,7 +268,7 @@ public class VehicleInformationModule extends FunctionalModule {
         return generateReport(listener,
                 "Global Component Identification Request",
                 ComponentIdentificationPacket.class,
-                request);
+                request).stream().flatMap(e -> e.left.stream()).collect(Collectors.toList());
     }
 
     /**
@@ -274,7 +283,7 @@ public class VehicleInformationModule extends FunctionalModule {
      *            addressed
      * @return {@link List} of {@link ComponentIdentificationPacket}
      */
-    public List<ParsedPacket> reportComponentIdentification(ResultsListener listener, int address) {
+    public List<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener, int address) {
         return getPackets(
                 "DS Component Identification Request to " + String.format("%02X", address),
                 ComponentIdentificationPacket.PGN,
@@ -303,7 +312,8 @@ public class VehicleInformationModule extends FunctionalModule {
 
     public List<DM56EngineFamilyPacket> reportEngineFamily(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM56EngineFamilyPacket.PGN, GLOBAL_ADDR);
-        return generateReport(listener, "Global DM56 Request", DM56EngineFamilyPacket.class, request);
+        return generateReport(listener, "Global DM56 Request", DM56EngineFamilyPacket.class, request)
+                .stream().flatMap(e -> e.left.stream()).collect(Collectors.toList());
     }
 
     /**
@@ -329,6 +339,7 @@ public class VehicleInformationModule extends FunctionalModule {
         listener.onResult(getTime() + " Vehicle Distance");
         Optional<HighResVehicleDistancePacket> hiResPacket = getJ1939()
                 .read(HighResVehicleDistancePacket.class, 3, TimeUnit.SECONDS)
+                .flatMap(e -> e.left.stream())
                 .filter(p -> p.getTotalVehicleDistance() != ParsedPacket.NOT_AVAILABLE
                         && p.getTotalVehicleDistance() != ParsedPacket.ERROR)
                 .max((p1, p2) -> Double.compare(p1.getTotalVehicleDistance(), p2.getTotalVehicleDistance()));
@@ -338,6 +349,7 @@ public class VehicleInformationModule extends FunctionalModule {
             packet = hiResPacket;
         } else {
             packet = getJ1939().read(TotalVehicleDistancePacket.class, 300, TimeUnit.MILLISECONDS)
+                    .flatMap(e -> e.left.stream())
                     .filter(p -> p.getTotalVehicleDistance() != ParsedPacket.NOT_AVAILABLE
                             && p.getTotalVehicleDistance() != ParsedPacket.ERROR)
                     .max((p1, p2) -> Double.compare(p1.getTotalVehicleDistance(), p2.getTotalVehicleDistance()));
@@ -357,7 +369,8 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public List<VehicleIdentificationPacket> reportVin(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(VehicleIdentificationPacket.PGN, GLOBAL_ADDR);
-        return generateReport(listener, "Global VIN Request", VehicleIdentificationPacket.class, request);
+        return generateReport(listener, "Global VIN Request", VehicleIdentificationPacket.class, request)
+                .stream().flatMap(e -> e.left.stream()).collect(Collectors.toList());
     }
 
     /**

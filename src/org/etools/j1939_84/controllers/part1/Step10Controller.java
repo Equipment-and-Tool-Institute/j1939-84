@@ -27,7 +27,6 @@ import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmis
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.StepController;
@@ -100,7 +99,7 @@ public class Step10Controller extends StepController {
         List<DM28PermanentEmissionDTCPacket> previousDM28Packets = dtcModule.requestDM28(getListener()).getPackets()
                 .stream()
                 .filter(packet -> packet instanceof DM28PermanentEmissionDTCPacket)
-                .map(p -> (DM28PermanentEmissionDTCPacket) p)
+                .map(p -> p)
                 .filter(t -> !t.getDtcs().isEmpty())
                 .collect(Collectors.toList());
 
@@ -108,7 +107,7 @@ public class Step10Controller extends StepController {
                 .requestDM20(getListener(), true).getPackets()
                 .stream()
                 .filter(packet -> packet instanceof DM20MonitorPerformanceRatioPacket)
-                .map(p -> (DM20MonitorPerformanceRatioPacket) p)
+                .map(p -> p)
                 .collect(Collectors.toList());
 
         List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> previousDM33Packets = new ArrayList<>();
@@ -117,12 +116,13 @@ public class Step10Controller extends StepController {
                     previousDM33Packets.addAll(dtcModule.requestDM33(getListener(), address).getPackets().stream()
                             .filter(
                                     packet -> packet instanceof DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime)
-                            .map(p -> (DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime) p)
+                            .map(p -> p)
                             .collect(Collectors.toList()));
                 });
 
         // 6.1.10 DM11: Diagnostic Data Clear/Reset for Active DTCs
-        List<ParsedPacket> globalDM11Packets = dtcModule.requestDM11(getListener(), obdModuleAddresses).getPackets();
+        List<AcknowledgmentPacket> globalDM11Packets = dtcModule.requestDM11(getListener(), obdModuleAddresses)
+                .getAcks();
 
         // c. Allow 5 s to elapse before proceeding with test step 6.1.9.2.
         getDateTimeModule().pauseFor(5L * 1L * 1000L);
@@ -131,7 +131,7 @@ public class Step10Controller extends StepController {
         // a. Fail if NACK received from any HD OBD ECU.
         // from the dataRepo grab the obdModule addresses
         boolean nacked = globalDM11Packets.stream().anyMatch(packet -> packet instanceof AcknowledgmentPacket
-                && ((AcknowledgmentPacket) packet).getResponse() == Response.NACK);
+                && packet.getResponse() == Response.NACK);
         if (nacked) {
             addWarning(1, 10, "6.1.10.3.a - The request for DM11 was ACK'ed");
         }
@@ -158,7 +158,7 @@ public class Step10Controller extends StepController {
         // 6.1.10.3 Warn criteria:
         // a. Warn if ACK received from any HD OBD ECU.16
         boolean acked = globalDM11Packets.stream().anyMatch(packet -> packet instanceof AcknowledgmentPacket
-                && ((AcknowledgmentPacket) packet).getResponse() == Response.ACK);
+                && packet.getResponse() == Response.ACK);
         if (acked) {
             addWarning(1, 10, "6.1.10.3.a - The request for DM11 was ACK'ed");
         }
@@ -175,7 +175,7 @@ public class Step10Controller extends StepController {
                 .getPackets()
                 .stream()
                 .filter(packet -> packet instanceof DM6PendingEmissionDTCPacket)
-                .map(p -> (DM6PendingEmissionDTCPacket) p)
+                .map(p -> p)
                 .filter(t -> (!t.getDtcs().isEmpty()) ||
                         (t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF &&
                                 t.getMalfunctionIndicatorLampStatus() != LampStatus.FAST_FLASH &&
@@ -198,7 +198,7 @@ public class Step10Controller extends StepController {
                 .getPackets()
                 .stream()
                 .filter(packet -> packet instanceof DM12MILOnEmissionDTCPacket)
-                .map(p -> (DM12MILOnEmissionDTCPacket) p)
+                .map(p -> p)
                 .filter(t -> (!t.getDtcs().isEmpty()) ||
                         (t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF &&
                                 t.getMalfunctionIndicatorLampStatus() != LampStatus.FAST_FLASH &&
@@ -222,7 +222,7 @@ public class Step10Controller extends StepController {
         List<DM23PreviouslyMILOnEmissionDTCPacket> dm23Packets = dtcModule.requestDM23(getListener()).getPackets()
                 .stream()
                 .filter(packet -> packet instanceof DM23PreviouslyMILOnEmissionDTCPacket)
-                .map(p -> (DM23PreviouslyMILOnEmissionDTCPacket) p)
+                .map(p -> p)
                 .filter(t -> (!t.getDtcs().isEmpty()) ||
                         (t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF &&
                                 t.getMalfunctionIndicatorLampStatus() != LampStatus.FAST_FLASH &&
@@ -245,7 +245,7 @@ public class Step10Controller extends StepController {
         // active DTCs
         List<DM29DtcCounts> dm29Packets = dtcModule.requestDM29(getListener()).getPackets().stream()
                 .filter(packet -> packet instanceof DM29DtcCounts)
-                .map(p -> (DM29DtcCounts) p)
+                .map(p -> p)
                 .filter(t -> t.getAllPendingDTCCount() != 0 ||
                         t.getEmissionRelatedMILOnDTCCount() != 0 ||
                         t.getEmissionRelatedPendingDTCCount() != 0 ||
@@ -271,7 +271,7 @@ public class Step10Controller extends StepController {
                 .getPackets()
                 .stream()
                 .filter(packet -> packet instanceof DM5DiagnosticReadinessPacket)
-                .map(p -> (DM5DiagnosticReadinessPacket) p)
+                .map(p -> p)
                 .filter(t -> (t.getActiveCodeCount() != 0) ||
                         (t.getPreviouslyActiveCodeCount() != 0))
                 .collect(Collectors.toList());
@@ -294,10 +294,11 @@ public class Step10Controller extends StepController {
         // a. DM25 expanded freeze frame shall report no data and DTC causing
         // freeze
         // frame with bytes 1-5 = 0 and bytes 6-8 = 255
-        List<ParsedPacket> dm25Packets = dtcModule.requestDM25(getListener(), obdModuleAddresses).getPackets();
+        List<DM25ExpandedFreezeFrame> dm25Packets = dtcModule.requestDM25(getListener(), obdModuleAddresses)
+                .getPackets();
         List<DM25ExpandedFreezeFrame> dm25PacketsWithData = dm25Packets.stream()
                 .filter(packet -> packet instanceof DM25ExpandedFreezeFrame)
-                .map(p -> (DM25ExpandedFreezeFrame) p)
+                .map(p -> p)
                 .filter(t -> !t.getFreezeFrames().isEmpty())
                 .collect(Collectors.toList());
 
@@ -318,7 +319,7 @@ public class Step10Controller extends StepController {
         // supported. See
         // section 6 provisions before section 6.1).
         List<DM31ScaledTestResults> dm31Packets = dtcModule.requestDM31(getListener()).getPackets().stream()
-                .filter(packet -> packet instanceof DM31ScaledTestResults).map(p -> (DM31ScaledTestResults) p)
+                .filter(packet -> packet instanceof DM31ScaledTestResults).map(p -> p)
                 .filter(t -> !t.getDtcLampStatuses().isEmpty())
                 .collect(Collectors.toList());
         if (!dm31Packets.isEmpty()) {
@@ -342,7 +343,7 @@ public class Step10Controller extends StepController {
         List<DM21DiagnosticReadinessPacket> dm21Packets = dtcModule.requestDM21(getListener()).getPackets()
                 .stream()
                 .filter(packet -> packet instanceof DM21DiagnosticReadinessPacket)
-                .map(p -> (DM21DiagnosticReadinessPacket) p)
+                .map(p -> p)
                 .filter(packet -> packet.getKmWhileMILIsActivated() != 0 ||
                         packet.getMinutesWhileMILIsActivated() != 0 ||
                         packet.getKmSinceDTCsCleared() != 0 ||
@@ -388,7 +389,7 @@ public class Step10Controller extends StepController {
         List<DM26TripDiagnosticReadinessPacket> dm26Packets = dtcModule.requestDM26(getListener()).getPackets()
                 .stream()
                 .filter(packet -> packet instanceof DM26TripDiagnosticReadinessPacket)
-                .map(p -> (DM26TripDiagnosticReadinessPacket) p)
+                .map(p -> p)
                 .filter(packet -> packet.getWarmUpsSinceClear() != 0)
                 .collect(Collectors.toList());
         if (!dm26Packets.isEmpty()) {
@@ -417,7 +418,7 @@ public class Step10Controller extends StepController {
                                 .getPackets()
                                 .stream()
                                 .filter(packet -> packet instanceof DM30ScaledTestResultsPacket)
-                                .map(p -> (DM30ScaledTestResultsPacket) p)
+                                .map(p -> p)
                                 .collect(Collectors.toList()));
             }
         });
@@ -451,7 +452,7 @@ public class Step10Controller extends StepController {
                 .getPackets()
                 .stream()
                 .filter(packet -> packet instanceof DM20MonitorPerformanceRatioPacket)
-                .map(p -> (DM20MonitorPerformanceRatioPacket) p)
+                .map(p -> p)
                 .collect(Collectors.toList());
         dm20Packets.forEach(packet -> {
             boolean[] passedHere = { true };
@@ -494,7 +495,7 @@ public class Step10Controller extends StepController {
         List<DM28PermanentEmissionDTCPacket> dm28Packets = dtcModule.requestDM28(getListener()).getPackets()
                 .stream()
                 .filter(packet -> packet instanceof DM28PermanentEmissionDTCPacket)
-                .map(p -> (DM28PermanentEmissionDTCPacket) p)
+                .map(p -> p)
                 .filter(t -> t.getDtcs().size() != 0)
                 .collect(Collectors.toList());
 
@@ -525,7 +526,7 @@ public class Step10Controller extends StepController {
                 .forEach(address -> {
                     dm33Packets.addAll(dtcModule.requestDM33(getListener(), address).getPackets().stream().filter(
                             packet -> packet instanceof DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime)
-                            .map(p -> (DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime) p)
+                            .map(p -> p)
                             .collect(Collectors.toList()));
                 });
         if (!previousDM33Packets.retainAll(dm33Packets)) {

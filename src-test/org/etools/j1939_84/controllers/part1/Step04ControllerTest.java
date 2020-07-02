@@ -13,12 +13,12 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -139,7 +139,7 @@ public class Step04ControllerTest {
     },
              description = "Using a response that indicates that 6.1.4.2.a, 6.1.4.2.b, 6.1.4.2.c all failed, verify that the failures are in the report.")
     public void testErroredObject() {
-        List<ParsedPacket> packets = new ArrayList<>();
+        List<DM24SPNSupportPacket> packets = new ArrayList<>();
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
         when(packet1.getSourceAddress()).thenReturn(0);
         packets.add(packet1);
@@ -162,7 +162,8 @@ public class Step04ControllerTest {
         when(packet4.getSupportedSpns()).thenReturn(supportedSpns);
         packets.add(packet4);
 
-        when(obdTestsModule.requestDM24Packets(any(), any())).thenReturn(new RequestResult<>(true, packets));
+        when(obdTestsModule.requestDM24Packets(any(), any()))
+                .thenReturn(new RequestResult<>(true, packets, Collections.emptyList()));
 
         List<SupportedSPN> expectedSPNs = new ArrayList<>();
         SupportedSPN supportedSpn = new SupportedSPN(new int[] { 0x00, 0x00, 0x00, 0x00 });
@@ -234,7 +235,7 @@ public class Step04ControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.4.2.a,b,c"),
              description = "Verify that step completes without errors when none of the fail criteria are met.")
     public void testGoodObjects() {
-        List<ParsedPacket> packets = new ArrayList<>();
+        List<DM24SPNSupportPacket> packets = new ArrayList<>();
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
         when(packet1.getSourceAddress()).thenReturn(0);
         packets.add(packet1);
@@ -257,7 +258,7 @@ public class Step04ControllerTest {
         when(packet4.getSupportedSpns()).thenReturn(supportedSpns);
         packets.add(packet4);
 
-        RequestResult<ParsedPacket> result = new RequestResult<>(false, packets);
+        RequestResult<DM24SPNSupportPacket> result = new RequestResult<>(false, packets, Collections.emptyList());
         when(obdTestsModule.requestDM24Packets(any(), any())).thenReturn(result);
 
         List<SupportedSPN> expectedSPNs = new ArrayList<>();

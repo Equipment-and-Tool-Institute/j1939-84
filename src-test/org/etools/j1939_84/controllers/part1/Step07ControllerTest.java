@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -32,6 +33,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -80,8 +82,8 @@ public class Step07ControllerTest {
         return packet;
     }
 
-    private static List<ParsedPacket> listOf(ParsedPacket packet) {
-        List<ParsedPacket> result = new ArrayList<>();
+    private static <T extends ParsedPacket> List<T> listOf(T packet) {
+        List<T> result = new ArrayList<>();
         result.add(packet);
         return result;
     }
@@ -173,13 +175,13 @@ public class Step07ControllerTest {
             @TestItem(verifies = "6.1.7.1.a"),
             @TestItem(verifies = "6.1.7.1.b"),
             @TestItem(verifies = "6.1.7.1.c") },
-            description = "Global DM19 (send Request (PGN 59904) for PGN 54016 (SPNs 1634 and 1635))"
-                    + "<br>"
-                    + "Create list of ECU address + CAL ID + CVN. [An ECU address may report more than one CAL ID and CVN]"
-                    + "<br>"
-                    + "Display this list in the log. [Note display the CVNs using big endian format and not little endian format as given in the response]")
+             description = "Global DM19 (send Request (PGN 59904) for PGN 54016 (SPNs 1634 and 1635))"
+                     + "<br>"
+                     + "Create list of ECU address + CAL ID + CVN. [An ECU address may report more than one CAL ID and CVN]"
+                     + "<br>"
+                     + "Display this list in the log. [Note display the CVNs using big endian format and not little endian format as given in the response]")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     public void testRunHappyPath() throws Throwable {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
@@ -196,9 +198,8 @@ public class Step07ControllerTest {
 
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
-        List<ParsedPacket> dsPackets = new ArrayList<>();
-        dsPackets.add(dm19);
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0))).thenReturn(dsPackets);
+        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0)))
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm19), Collections.emptyList()));
 
         Set<Integer> addresses = new HashSet<>();
         addresses.add(0);
@@ -220,9 +221,9 @@ public class Step07ControllerTest {
 
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.7.2.a",
-            description = "Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units"))
+                               description = "Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units"))
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     public void testRunNoModulesRespond() {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
@@ -266,7 +267,7 @@ public class Step07ControllerTest {
             @TestItem(verifies = "6.1.7.5.c ") })
     @SuppressFBWarnings(value = {
             "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT" },
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     public void testRunWithWarningsAndFailures() throws UnsupportedEncodingException {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
@@ -290,12 +291,14 @@ public class Step07ControllerTest {
         DM19CalibrationInformationPacket dm191C = createDM19(0x1C, "CALID", "");
         globalDM19s.add(dm191C);
 
-        // Module 0D - NonPrintable Chars, padded incorrectly in CalId as OBD Module
+        // Module 0D - NonPrintable Chars, padded incorrectly in CalId as OBD
+        // Module
         // Also reports BUSY with DS
         DM19CalibrationInformationPacket dm190D = createDM19(0x0D, "CALID\u0000F", "1234");
         globalDM19s.add(dm190D);
 
-        // Module 1D - Non-Printable Chars, padded incorrectly in CalId as non-OBD
+        // Module 1D - Non-Printable Chars, padded incorrectly in CalId as
+        // non-OBD
         // Module
         DM19CalibrationInformationPacket dm191D = createDM19(0x1D, "CALID\u0000F", "1234");
         globalDM19s.add(dm191D);
@@ -375,20 +378,30 @@ public class Step07ControllerTest {
 
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0A))).thenReturn(listOf(dm190A));
+        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0A)))
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm190A), Collections.emptyList()));
         DM19CalibrationInformationPacket dm190B2 = createDM19(0x0B, "ABCD", "1234");
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0B))).thenReturn(listOf(dm190B2));
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1B))).thenReturn(listOf(dm191B));
+        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0B)))
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm190B2), Collections.emptyList()));
+        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1B)))
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm191B), Collections.emptyList()));
         AcknowledgmentPacket busy = mock(AcknowledgmentPacket.class);
         when(busy.getResponse()).thenReturn(Response.BUSY);
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0C))).thenReturn(listOf(busy));
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1C))).thenReturn(listOf(dm191C));
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0D))).thenReturn(listOf(dm190D));
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1D))).thenReturn(listOf(dm191D));
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0E))).thenReturn(listOf(dm190E));
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1E))).thenReturn(listOf(dm191E));
+        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0C)))
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(busy)));
+        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1C)))
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm191C), Collections.emptyList()));
+        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0D)))
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm190D), Collections.emptyList()));
+        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1D)))
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm191D), Collections.emptyList()));
+        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0E)))
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm190E), Collections.emptyList()));
+        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1E)))
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm191E), Collections.emptyList()));
         DM19CalibrationInformationPacket dm190F = createDM19(0x0F, "ABCD", "1234");
-        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0F))).thenReturn(listOf(dm190F));
+        when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0F)))
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm190F), Collections.emptyList()));
 
         Set<Integer> addresses = new HashSet<>();
         addresses.add(0x0A);

@@ -10,15 +10,14 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -70,7 +69,8 @@ public class Step07Controller extends StepController {
             if (info != null) {
                 info.setCalibrationInformation(packet.getCalibrationInformation());
             } else {
-                // TODO Received a CAL ID for an OBD module that didn't report earlier?
+                // TODO Received a CAL ID for an OBD module that didn't report
+                // earlier?
             }
         }
 
@@ -176,22 +176,25 @@ public class Step07Controller extends StepController {
                     }
                 }
 
-                // TODO 6.1.7.2.b.iv. Fail if CVN padded incorrectly (must use 0x00 in MSB
+                // TODO 6.1.7.2.b.iv. Fail if CVN padded incorrectly (must use
+                // 0x00 in MSB
                 // for unused bytes)
-                // TODO 6.1.7.3.c.v. Warn if CVN padded incorrectly (must use 0x00 in MSB for
+                // TODO 6.1.7.3.c.v. Warn if CVN padded incorrectly (must use
+                // 0x00 in MSB for
                 // unused bytes)
             }
         }
 
-        // 6.1.7.4.a. Destination Specific (DS) DM19 to each OBD ECU (plus all ECUs that
+        // 6.1.7.4.a. Destination Specific (DS) DM19 to each OBD ECU (plus all
+        // ECUs that
         // responded to global DM19).
         globalDM19s.stream().forEach(dm19 -> {
-            List<ParsedPacket> packets = getVehicleInformationModule().reportCalibrationInformation(getListener(),
-                    dm19.getSourceAddress());
+            RequestResult<DM19CalibrationInformationPacket> result = getVehicleInformationModule()
+                    .reportCalibrationInformation(
+                            getListener(),
+                            dm19.getSourceAddress());
 
-            packets.stream()
-                    .filter(p -> p instanceof DM19CalibrationInformationPacket)
-                    .map(p -> ((DM19CalibrationInformationPacket) p).getCalibrationInformation())
+            result.getPackets().stream()
                     .forEach(info -> {
                         if (!Objects.equals(dm19.getCalibrationInformation(), info)) {
                             getListener().addOutcome(1,
@@ -201,10 +204,8 @@ public class Step07Controller extends StepController {
                         }
                     });
 
-            long nackCount = packets.stream()
-                    .filter(p -> p instanceof AcknowledgmentPacket)
-                    .map(p -> (AcknowledgmentPacket) p)
-                    .filter(p -> p.getResponse() == Response.BUSY)
+            long nackCount = result.getAcks().stream()
+                    .filter(a -> a.getResponse() == Response.BUSY)
                     .count();
             if (nackCount != 0) {
                 getListener().addOutcome(1,
@@ -219,13 +220,14 @@ public class Step07Controller extends StepController {
         obdAddresses.removeAll(globalAddresses);
 
         for (int address : obdAddresses) {
-            List<ParsedPacket> packets = getVehicleInformationModule().reportCalibrationInformation(getListener(),
-                    address);
-            long nackCount = packets.stream()
-                    .filter(p -> p instanceof AcknowledgmentPacket)
-                    .map(p -> (AcknowledgmentPacket) p)
-                    .filter(p -> p.getResponse() != Response.NACK)
+            RequestResult<DM19CalibrationInformationPacket> results = getVehicleInformationModule()
+                    .reportCalibrationInformation(
+                            getListener(),
+                            address);
+            long nackCount = results.getAcks().stream()
+                    .filter(a -> a.getResponse() == Response.NACK)
                     .count();
+            // FIXME Why 1?
             if (nackCount != 1) {
                 getListener().addOutcome(1,
                         7,

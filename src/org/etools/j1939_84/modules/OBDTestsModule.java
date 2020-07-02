@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.NoSuchElementException;
-import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BinaryOperator;
@@ -19,12 +18,10 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult.TestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
@@ -94,9 +91,8 @@ public class OBDTestsModule extends FunctionalModule {
      * @return {@link List} of {@link DM30ScaledTestResultsPacket}s
      */
     public List<DM30ScaledTestResultsPacket> getDM30Packets(ResultsListener listener, int address, SupportedSPN spn) {
-        List<DM30ScaledTestResultsPacket> dm30Packets = filterPackets(
-                requestDM30Packets(listener, address, spn.getSpn()).getPackets(),
-                DM30ScaledTestResultsPacket.class);
+        List<DM30ScaledTestResultsPacket> dm30Packets = requestDM30Packets(listener, address, spn.getSpn())
+                .getPackets();
         reportDM30Results(listener, dm30Packets);
         return dm30Packets;
     }
@@ -229,10 +225,10 @@ public class OBDTestsModule extends FunctionalModule {
      * @param addresses
      * @return {@link List} of {@link DM24SPNSupportPacket}s
      */
-    public RequestResult<ParsedPacket> requestDM24Packets(ResultsListener listener, Set<Integer> addresses) {
-        BinaryOperator<RequestResult<ParsedPacket>> fn = (a, b) -> new RequestResult<>(
+    public RequestResult<DM24SPNSupportPacket> requestDM24Packets(ResultsListener listener, Set<Integer> addresses) {
+        BinaryOperator<RequestResult<DM24SPNSupportPacket>> fn = (a, b) -> new RequestResult<>(
                 a.isRetryUsed() || b.isRetryUsed(),
-                Stream.concat(a.getPackets().stream(), b.getPackets().stream()).collect(Collectors.toList()));
+                Stream.concat(a.getEither().stream(), b.getEither().stream()).collect(Collectors.toList()));
         return addresses.stream()
                 .map(address -> getPackets("Destination Specific DM24 Request",
                         DM24SPNSupportPacket.PGN,
@@ -252,12 +248,15 @@ public class OBDTestsModule extends FunctionalModule {
      *            the {@link ResultsListener}
      * @return {@link List} of {@link DM30ScaledTestResultsPacket}s
      */
-    public RequestResult<ParsedPacket> requestDM30Packets(ResultsListener listener, int address, int spn) {
+    public RequestResult<DM30ScaledTestResultsPacket> requestDM30Packets(ResultsListener listener, int address,
+            int spn) {
         Packet request = createDM7Packet(address, spn);
         listener.onResult(getTime() + " " + request.toString());
 
         DM30ScaledTestResultsPacket packet = getJ1939()
-                .requestPacket(request, DM30ScaledTestResultsPacket.class, address, 3).orElse(null);
+                .requestPacket(request, DM30ScaledTestResultsPacket.class, address, 3)
+                .flatMap(e -> e.left)
+                .orElse(null);
         if (packet == null) {
             listener.onResult(TIMEOUT_MESSAGE);
             listener.onResult("");
@@ -266,7 +265,7 @@ public class OBDTestsModule extends FunctionalModule {
             listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
             listener.onResult(packet.toString());
             listener.onResult("");
-            return new RequestResult<>(false, Collections.singletonList(packet));
+            return new RequestResult<>(false, Collections.singletonList(packet), Collections.emptyList());
         }
     }
 
@@ -294,7 +293,9 @@ public class OBDTestsModule extends FunctionalModule {
         Packet request = createDM7Packet(destination, spn);
         listener.onResult(getTime() + " " + request.toString());
         DM30ScaledTestResultsPacket packet = getJ1939()
-                .requestPacket(request, DM30ScaledTestResultsPacket.class, destination, 3).orElse(null);
+                .requestPacket(request, DM30ScaledTestResultsPacket.class, destination, 3)
+                .flatMap(br -> br.left)
+                .orElse(null);
         if (packet == null) {
             listener.onResult(TIMEOUT_MESSAGE);
             listener.onResult("");
@@ -353,19 +354,20 @@ public class OBDTestsModule extends FunctionalModule {
             listener.onResult(getTime() + " Direct DM24 Request to " + Lookup.getAddressName(address));
             listener.onResult(getTime() + " " + request.toString());
             // FIXME, this should be 220 ms, not 3 s. 6.1.4.1.b
-            Optional<BusResult<DM24SPNSupportPacket>> results = getJ1939()
-                    .requestPacket(request, DM24SPNSupportPacket.class, address, 3, TimeUnit.SECONDS.toMillis(15));
-            if (!results.isPresent()) {
+            DM24SPNSupportPacket packet = getJ1939()
+                    .requestPacket(request, DM24SPNSupportPacket.class, address, 3, TimeUnit.SECONDS.toMillis(15))
+                    .flatMap(br -> br.getPacket().left)
+                    .orElse(null);
+            if (packet == null) {
                 listener.onResult(TIMEOUT_MESSAGE);
             } else {
-                DM24SPNSupportPacket packet = results.get().getPacket();
                 listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
                 listener.onResult(packet.toString());
                 packets.add(packet);
             }
             listener.onResult("");
         }
-        return new RequestResult<>(retryUsed, packets);
+        return new RequestResult<>(retryUsed, packets, Collections.emptyList());
     }
 
 }

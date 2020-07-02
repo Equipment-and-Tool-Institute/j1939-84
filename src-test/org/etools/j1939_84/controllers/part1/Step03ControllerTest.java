@@ -15,14 +15,12 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -141,32 +139,34 @@ public class Step03ControllerTest {
              dependsOn = {
                      "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
     public void testBadECUValue() {
-        List<ParsedPacket> packets = new ArrayList<>();
-        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
-                .thenReturn(new RequestResult<>(true, packets));
 
-        ParsedPacket packet1 = mock(ParsedPacket.class);
-        packets.add(packet1);
+        RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(true, new ArrayList<>(),
+                new ArrayList<>());
+        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
+                .thenReturn(requestResult);
+
+        DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
+        requestResult.getPackets().add(packet1);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         when(packet2.getResponse()).thenReturn(Response.ACK);
-        packets.add(packet2);
+        requestResult.getAcks().add(packet2);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
-        packets.add(packet3);
+        requestResult.getAcks().add(packet3);
 
         DM5DiagnosticReadinessPacket packet4 = mock(DM5DiagnosticReadinessPacket.class);
         when(packet4.isObd()).thenReturn(true);
         when(packet4.getSourceAddress()).thenReturn(0);
         when(packet4.getOBDCompliance()).thenReturn((byte) 4);
-        packets.add(packet4);
+        requestResult.getPackets().add(packet4);
 
         DM5DiagnosticReadinessPacket packet5 = mock(DM5DiagnosticReadinessPacket.class);
         when(packet5.isObd()).thenReturn(true);
         when(packet5.getSourceAddress()).thenReturn(17);
         when(packet5.getOBDCompliance()).thenReturn((byte) 5);
-        packets.add(packet5);
+        requestResult.getPackets().add(packet5);
 
         Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
 
@@ -240,18 +240,19 @@ public class Step03ControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.3.2.a"),
              description = "There needs to be at least one OBD Module.")
     public void testModulesEmpty() {
-        List<ParsedPacket> packets = new ArrayList<>();
-        ParsedPacket packet1 = mock(ParsedPacket.class);
-        packets.add(packet1);
+        RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(true, new ArrayList<>(),
+                new ArrayList<>());
+        DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
+        requestResult.getPackets().add(packet1);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         when(packet2.getResponse()).thenReturn(Response.DENIED);
-        packets.add(packet2);
+        requestResult.getAcks().add(packet2);
 
         Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
         when(dataRepository.getObdModules()).thenReturn(obdInfoList);
         when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
-                .thenReturn(new RequestResult<>(true, packets));
+                .thenReturn(requestResult);
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -286,17 +287,18 @@ public class Step03ControllerTest {
                         justification = "The method is called just to get some exception.")
     @TestDoc(value = @TestItem(verifies = "6.1.3.2.b"), description = "The request for DM5 was NACK'ed")
     public void testRun() {
-        List<ParsedPacket> packets = new ArrayList<>();
-        ParsedPacket packet1 = mock(ParsedPacket.class);
-        packets.add(packet1);
+        RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(false, new ArrayList<>(),
+                new ArrayList<>());
+        DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
+        requestResult.getPackets().add(packet1);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         when(packet2.getResponse()).thenReturn(Response.ACK);
-        packets.add(packet2);
+        requestResult.getAcks().add(packet2);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
-        packets.add(packet3);
+        requestResult.getAcks().add(packet3);
 
         DM5DiagnosticReadinessPacket packet4 = mock(DM5DiagnosticReadinessPacket.class);
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
@@ -309,9 +311,9 @@ public class Step03ControllerTest {
         when(packet4.isObd()).thenReturn(true);
         when(packet4.getSourceAddress()).thenReturn(0);
         when(packet4.getOBDCompliance()).thenReturn((byte) 4);
-        packets.add(packet4);
+        requestResult.getPackets().add(packet4);
         when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
-                .thenReturn(new RequestResult<>(false, packets));
+                .thenReturn(requestResult);
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);

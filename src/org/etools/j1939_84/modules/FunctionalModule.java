@@ -12,8 +12,10 @@ import java.util.function.Function;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
@@ -54,27 +56,19 @@ public abstract class FunctionalModule {
      *            the response packets to parse
      * @return a List of the Packets
      */
-    protected <T extends ParsedPacket> List<T> addToReport(ResultsListener listener, Stream<T> results) {
-        List<T> packets = results.collect(Collectors.toList());
+    protected <T extends ParsedPacket> List<Either<T, AcknowledgmentPacket>> addToReport(ResultsListener listener,
+            Stream<Either<T, AcknowledgmentPacket>> results) {
+        List<Either<T, AcknowledgmentPacket>> packets = results.collect(Collectors.toList());
         if (packets.isEmpty()) {
             listener.onResult(TIMEOUT_MESSAGE);
         } else {
-            List<String> strings = packets.stream().map(getPacketMapperFunction()).collect(Collectors.toList());
+            List<String> strings = packets.stream()
+                    // FIXME what about NACKS?
+                    .flatMap(p -> p.left.stream())
+                    .map(getPacketMapperFunction()).collect(Collectors.toList());
             listener.onResult(strings);
         }
         return packets;
-    }
-
-    @SuppressWarnings("unchecked")
-    protected <T extends ParsedPacket> List<T> filterPackets(List<ParsedPacket> packets,
-            Class<T> clazz) {
-        List<T> resultPackets = new ArrayList<>();
-        for (ParsedPacket packet : packets) {
-            if (packet.getClass() == clazz) {
-                resultPackets.add((T) packet);
-            }
-        }
-        return resultPackets;
     }
 
     /**
@@ -95,14 +89,13 @@ public abstract class FunctionalModule {
      *
      * @return the List of Packets that were received
      */
-    protected <T extends ParsedPacket> List<T> generateReport(ResultsListener listener,
+    protected <T extends ParsedPacket> List<Either<T, AcknowledgmentPacket>> generateReport(ResultsListener listener,
             String title,
             Class<T> clazz,
             Packet request) {
         listener.onResult(getTime() + " " + title);
         listener.onResult(getTime() + " " + request.toString());
-        Stream<T> packets = getJ1939().requestMultiple(clazz, request);
-        return addToReport(listener, packets);
+        return addToReport(listener, getJ1939().requestMultiple(clazz, request));
     }
 
     /**
@@ -127,7 +120,7 @@ public abstract class FunctionalModule {
         return t -> t.getPacket().toString(getDateTimeModule().getTimeFormatter()) + NL + t.toString();
     }
 
-    protected <T extends ParsedPacket> RequestResult<ParsedPacket> getPackets(String title,
+    protected <T extends ParsedPacket> RequestResult<T> getPackets(String title,
             int pgn,
             Class<T> clazz,
             ResultsListener listener,
@@ -139,11 +132,12 @@ public abstract class FunctionalModule {
 
         boolean retryUsed = false;
         // Try three times to get packets and ensure there's one from the module
-        List<ParsedPacket> packets = new ArrayList<>();
+        List<Either<T, AcknowledgmentPacket>> packets = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             // FIXME where did 5.5 s come from?
             packets = getJ1939().requestRaw(clazz, request, 5500, TimeUnit.MILLISECONDS).collect(Collectors.toList());
             if (packets.stream()
+                    .map(p -> p.as(ParsedPacket.class))
                     .filter(p -> address == p.getSourceAddress())
                     .findFirst()
                     .isPresent()) {
@@ -161,10 +155,11 @@ public abstract class FunctionalModule {
         if (packets.isEmpty()) {
             listener.onResult(TIMEOUT_MESSAGE);
         } else {
-            for (ParsedPacket packet : packets) {
-                listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+            for (Either<T, AcknowledgmentPacket> packet : packets) {
+                ParsedPacket pp = packet.as(ParsedPacket.class);
+                listener.onResult(pp.getPacket().toString(getDateTimeModule().getTimeFormatter()));
                 if (fullString) {
-                    listener.onResult(packet.toString());
+                    listener.onResult(pp.toString());
                 }
             }
         }
@@ -190,7 +185,7 @@ public abstract class FunctionalModule {
      *            false to only include the returned raw packet in the report
      * @return the List of packets returned
      */
-    protected <T extends ParsedPacket> RequestResult<ParsedPacket> getPacketsFromGlobal(String title,
+    protected <T extends ParsedPacket> RequestResult<T> getPacketsFromGlobal(String title,
             int pgn,
             Class<T> clazz,
             ResultsListener listener,
@@ -204,7 +199,7 @@ public abstract class FunctionalModule {
         boolean retryUsed = false;
 
         // Try three times to get packets and ensure there's one from the engine
-        List<ParsedPacket> packets = new ArrayList<>();
+        List<Either<T, AcknowledgmentPacket>> packets = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
             // FIXME where did 5.5 s come from?
             packets = getJ1939().requestRaw(clazz, request, 5500, TimeUnit.MILLISECONDS).collect(Collectors.toList());
@@ -224,10 +219,12 @@ public abstract class FunctionalModule {
             if (packets.isEmpty()) {
                 listener.onResult(TIMEOUT_MESSAGE);
             } else {
-                for (ParsedPacket packet : packets) {
-                    listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+                for (Either<T, AcknowledgmentPacket> packet : packets) {
+                    ParsedPacket pp = packet.as(ParsedPacket.class);
+                    listener.onResult(
+                            pp.getPacket().toString(getDateTimeModule().getTimeFormatter()));
                     if (fullString) {
-                        listener.onResult(packet.toString());
+                        listener.onResult(pp.toString());
                     }
                 }
             }

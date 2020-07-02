@@ -8,13 +8,12 @@ import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
@@ -30,8 +29,6 @@ import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM31ScaledTestResults;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 
@@ -83,8 +80,7 @@ public class DTCModule extends FunctionalModule {
     public List<DM2PreviouslyActiveDTC> getDM2Packets(ResultsListener listener,
             boolean fullString,
             int obdModuleAddress) {
-        return filterPackets(requestDM2(listener, fullString, obdModuleAddress).getPackets(),
-                DM2PreviouslyActiveDTC.class);
+        return requestDM2(listener, fullString, obdModuleAddress).getPackets();
     }
 
     /**
@@ -107,16 +103,18 @@ public class DTCModule extends FunctionalModule {
         listener.onResult(getTime() + " " + requestPacket);
 
         // FIXME, where did 5.5 s come from?
-        Stream<ParsedPacket> results = getJ1939()
-                .requestRaw(DM11ClearActiveDTCsPacket.class,
+        Stream<AcknowledgmentPacket> results = getJ1939()
+                .requestRaw(AcknowledgmentPacket.class,
                         requestPacket,
                         5500,
-                        TimeUnit.MILLISECONDS);
+                        TimeUnit.MILLISECONDS)
+                // there are only ACKs
+                .flatMap(e -> e.right.stream());
 
         List<String> responses = results.peek(t -> {
             if (obdModules.contains(t.getSourceAddress())
                     && t instanceof AcknowledgmentPacket
-                    && ((AcknowledgmentPacket) t).getResponse() != Response.ACK) {
+                    && t.getResponse() != Response.ACK) {
                 result[0] = false;
             }
         }).map(getPacketMapperFunction()).collect(Collectors.toList());
@@ -140,11 +138,13 @@ public class DTCModule extends FunctionalModule {
      */
     public boolean reportDM12(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM12MILOnEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        List<? extends DiagnosticTroubleCodePacket> packets = generateReport(listener,
+        return generateReport(listener,
                 "Global DM12 Request",
                 DM12MILOnEmissionDTCPacket.class,
-                request);
-        return packets.stream().anyMatch(t -> !t.getDtcs().isEmpty());
+                request).stream()
+                        // ignore the NACKs
+                        .flatMap(e -> e.left.stream())
+                        .anyMatch(t -> !t.getDtcs().isEmpty());
     }
 
     /**
@@ -157,11 +157,13 @@ public class DTCModule extends FunctionalModule {
      */
     public boolean reportDM2(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM2PreviouslyActiveDTC.PGN, GLOBAL_ADDR);
-        List<? extends DiagnosticTroubleCodePacket> packets = generateReport(listener,
+        return generateReport(listener,
                 "Global DM2 Request",
                 DM2PreviouslyActiveDTC.class,
-                request);
-        return packets.stream().anyMatch(t -> !t.getDtcs().isEmpty());
+                request).stream()
+                        // ignore the NACKs
+                        .flatMap(e -> e.left.stream())
+                        .anyMatch(t -> !t.getDtcs().isEmpty());
     }
 
     /**
@@ -174,11 +176,14 @@ public class DTCModule extends FunctionalModule {
      */
     public boolean reportDM23(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM23PreviouslyMILOnEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        List<? extends DiagnosticTroubleCodePacket> packets = generateReport(listener,
+        return generateReport(listener,
                 "Global DM23 Request",
                 DM23PreviouslyMILOnEmissionDTCPacket.class,
-                request);
-        return packets.stream().anyMatch(t -> !t.getDtcs().isEmpty());
+                request)
+                        .stream()
+                        // ignore the NACKs
+                        .flatMap(e -> e.left.stream())
+                        .anyMatch(t -> !t.getDtcs().isEmpty());
     }
 
     /**
@@ -191,11 +196,14 @@ public class DTCModule extends FunctionalModule {
      */
     public boolean reportDM28(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM28PermanentEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        List<? extends DiagnosticTroubleCodePacket> packets = generateReport(listener,
+        return generateReport(listener,
                 "Global DM28 Request",
                 DM28PermanentEmissionDTCPacket.class,
-                request);
-        return packets.stream().anyMatch(t -> !t.getDtcs().isEmpty());
+                request)
+                        .stream()
+                        // ignore the NACKs
+                        .flatMap(e -> e.left.stream())
+                        .anyMatch(t -> !t.getDtcs().isEmpty());
     }
 
     /**
@@ -209,18 +217,15 @@ public class DTCModule extends FunctionalModule {
      * @return true if there are no NACKs from the OBD Modules; false if an OBD
      *         Module NACK'd the request or didn't respond
      */
-    public RequestResult<ParsedPacket> requestDM11(ResultsListener listener, List<Integer> obdModules) {
+    public RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener, List<Integer> obdModules) {
 
         Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
-
-        List<ParsedPacket> packets = getJ1939()
+        return new RequestResult<>(false, getJ1939()
                 .requestRaw(DM11ClearActiveDTCsPacket.class,
                         requestPacket,
                         5500,
                         TimeUnit.MILLISECONDS)
-                .collect(Collectors.toList());
-
-        return new RequestResult<>(false, packets);
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -233,11 +238,10 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM12MILOnEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        List<DM12MILOnEmissionDTCPacket> packets = generateReport(listener,
+        return new RequestResult<>(false, generateReport(listener,
                 "Global DM12 Request",
                 DM12MILOnEmissionDTCPacket.class,
-                request);
-        return new RequestResult<>(false, packets);
+                request));
     }
 
     /**
@@ -248,7 +252,7 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM2(ResultsListener listener, boolean fullString) {
+    public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString) {
 
         return getPacketsFromGlobal("Global DM2 Request",
                 DM2PreviouslyActiveDTC.PGN,
@@ -266,7 +270,8 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM2(ResultsListener listener, boolean fullString, int obdAddress) {
+    public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString,
+            int obdAddress) {
 
         return getPackets("Destination Specific DM2 Request",
                 DM2PreviouslyActiveDTC.PGN,
@@ -287,11 +292,10 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM21DiagnosticReadinessPacket.PGN, GLOBAL_ADDR);
-        List<DM21DiagnosticReadinessPacket> packets = generateReport(listener,
+        return new RequestResult<>(false, generateReport(listener,
                 "Global DM21 Request",
                 DM21DiagnosticReadinessPacket.class,
-                request);
-        return new RequestResult<>(false, packets);
+                request));
     }
 
     /**
@@ -304,11 +308,10 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener, int address) {
         Packet request = getJ1939().createRequestPacket(DM21DiagnosticReadinessPacket.PGN, address);
-        List<DM21DiagnosticReadinessPacket> packets = generateReport(listener,
+        return new RequestResult<>(false, generateReport(listener,
                 "Global DM21 Request",
                 DM21DiagnosticReadinessPacket.class,
-                request);
-        return new RequestResult<>(false, packets);
+                request));
     }
 
     /**
@@ -321,11 +324,10 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM23PreviouslyMILOnEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        List<DM23PreviouslyMILOnEmissionDTCPacket> packets = generateReport(listener,
+        return new RequestResult<>(false, generateReport(listener,
                 "Global DM23 Request",
                 DM23PreviouslyMILOnEmissionDTCPacket.class,
-                request);
-        return new RequestResult<>(false, packets);
+                request));
     }
 
     /**
@@ -337,24 +339,27 @@ public class DTCModule extends FunctionalModule {
      *            {@link Collection} of Integers}
      * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
      */
-    public RequestResult<ParsedPacket> requestDM25(ResultsListener listener,
+    public RequestResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener,
             Collection<Integer> obdModuleAddresses) {
-        List<ParsedPacket> packets = new ArrayList<>();
+        List<Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket>> packets = new ArrayList<>();
         boolean retryUsed = false;
 
         for (int address : obdModuleAddresses) {
             Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, address);
             listener.onResult(getTime() + " Direct DM25 Request to " + Lookup.getAddressName(address));
             listener.onResult(getTime() + " " + request.toString());
-            Optional<BusResult<DM25ExpandedFreezeFrame>> results = getJ1939()
-                    .requestPacket(request, DM25ExpandedFreezeFrame.class, address, 3, TimeUnit.SECONDS.toMillis(15));
-            if (!results.isPresent()) {
+            DM25ExpandedFreezeFrame packet = getJ1939()
+                    .requestPacket(request, DM25ExpandedFreezeFrame.class, address, 3, TimeUnit.SECONDS.toMillis(15))
+                    .flatMap(br -> br.getPacket().left)
+                    .orElse(null);
+            if (packet == null) {
                 listener.onResult(TIMEOUT_MESSAGE);
             } else {
-                DM25ExpandedFreezeFrame packet = results.get().getPacket();
-                listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+                listener.onResult(
+                        packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
                 listener.onResult(packet.toString());
-                packets.add(packet);
+                // FIXME this drops NACKs
+                packets.add(new Either<>(packet, null));
             }
             listener.onResult("");
         }
@@ -370,27 +375,30 @@ public class DTCModule extends FunctionalModule {
      *            {@link Collection} of Integers}
      * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
      */
-    public RequestResult<ParsedPacket> requestDM25(ResultsListener listener,
+    public RequestResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener,
             int obdModuleAddress) {
-        List<ParsedPacket> packets = new ArrayList<>();
+        List<Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket>> packets = new ArrayList<>();
         boolean retryUsed = false;
 
         Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, obdModuleAddress);
         listener.onResult(getTime() + " Direct DM25 Request to " + Lookup.getAddressName(obdModuleAddress));
         listener.onResult(getTime() + " " + request.toString());
-        Optional<BusResult<DM25ExpandedFreezeFrame>> results = getJ1939()
+        DM25ExpandedFreezeFrame packet = getJ1939()
                 .requestPacket(request,
                         DM25ExpandedFreezeFrame.class,
                         obdModuleAddress,
                         3,
-                        TimeUnit.SECONDS.toMillis(15));
-        if (!results.isPresent()) {
+                        TimeUnit.SECONDS.toMillis(15))
+                .flatMap(br -> br.getPacket().left)
+                .orElse(null);
+        if (packet == null) {
             listener.onResult(TIMEOUT_MESSAGE);
         } else {
-            DM25ExpandedFreezeFrame packet = results.get().getPacket();
-            listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+            listener.onResult(
+                    packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
             listener.onResult(packet.toString());
-            packets.add(packet);
+            // FIXME this logic just drops NACKS
+            packets.add(new Either<>(packet, null));
         }
         listener.onResult("");
         return new RequestResult<>(retryUsed, packets);
@@ -406,11 +414,10 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM26TripDiagnosticReadinessPacket> requestDM26(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM26TripDiagnosticReadinessPacket.PGN, GLOBAL_ADDR);
-        List<DM26TripDiagnosticReadinessPacket> packets = generateReport(listener,
+        return new RequestResult<>(false, generateReport(listener,
                 "Global DM26 Request",
                 DM26TripDiagnosticReadinessPacket.class,
-                request);
-        return new RequestResult<>(false, packets);
+                request));
     }
 
     /**
@@ -423,11 +430,10 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM28PermanentEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        List<DM28PermanentEmissionDTCPacket> packets = generateReport(listener,
+        return new RequestResult<>(false, generateReport(listener,
                 "Global DM28 Request",
                 DM28PermanentEmissionDTCPacket.class,
-                request);
-        return new RequestResult<>(false, packets);
+                request));
     }
 
     /**
@@ -443,11 +449,10 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM29DtcCounts> requestDM29(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM29DtcCounts.PGN, GLOBAL_ADDR);
-        List<DM29DtcCounts> packets = generateReport(listener,
+        return new RequestResult<>(false, generateReport(listener,
                 "Desination Specific DM29 Request",
                 DM29DtcCounts.class,
-                request);
-        return new RequestResult<>(false, packets);
+                request));
     }
 
     /**
@@ -463,11 +468,10 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM29DtcCounts> requestDM29(ResultsListener listener, int obdAddress) {
         Packet request = getJ1939().createRequestPacket(DM29DtcCounts.PGN, obdAddress);
-        List<DM29DtcCounts> packets = generateReport(listener,
+        return new RequestResult<>(false, generateReport(listener,
                 "Desination Specific DM29 Request",
                 DM29DtcCounts.class,
-                request);
-        return new RequestResult<>(false, packets);
+                request));
     }
 
     /**
@@ -480,11 +484,10 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM31ScaledTestResults> requestDM31(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM31ScaledTestResults.PGN, GLOBAL_ADDR);
-        List<DM31ScaledTestResults> packets = generateReport(listener,
+        return new RequestResult<>(false, generateReport(listener,
                 "Global DM31 Request",
                 DM31ScaledTestResults.class,
-                request);
-        return new RequestResult<>(false, packets);
+                request));
     }
 
     /**
@@ -497,11 +500,10 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM31ScaledTestResults> requestDM31(ResultsListener listener, int address) {
         Packet request = getJ1939().createRequestPacket(DM31ScaledTestResults.PGN, address);
-        List<DM31ScaledTestResults> packets = generateReport(listener,
+        return new RequestResult<>(false, generateReport(listener,
                 "Global DM31 Request",
                 DM31ScaledTestResults.class,
-                request);
-        return new RequestResult<>(false, packets);
+                request));
     }
 
     /**
@@ -516,11 +518,10 @@ public class DTCModule extends FunctionalModule {
             ResultsListener listener) {
         Packet request = getJ1939()
                 .createRequestPacket(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, GLOBAL_ADDR);
-        List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> packets = generateReport(listener,
+        return new RequestResult<>(false, generateReport(listener,
                 "Global DM33 Request",
                 DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
-                request);
-        return new RequestResult<>(false, packets);
+                request));
     }
 
     /**
@@ -535,11 +536,10 @@ public class DTCModule extends FunctionalModule {
             ResultsListener listener, int address) {
         Packet request = getJ1939()
                 .createRequestPacket(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, address);
-        List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> packets = generateReport(listener,
+        return new RequestResult<>(false, generateReport(listener,
                 "Desination Specific DM33 Request",
                 DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
-                request);
-        return new RequestResult<>(false, packets);
+                request));
     }
 
     /**
@@ -550,16 +550,14 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM6(ResultsListener listener) {
+    public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM6PendingEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        List<ParsedPacket> packets = getJ1939()
+        return new RequestResult<>(false, getJ1939()
                 .requestRaw(DM6PendingEmissionDTCPacket.class,
                         request,
                         5500,
                         TimeUnit.MILLISECONDS)
-                .collect(Collectors.toList());
-
-        return new RequestResult<>(false, packets);
+                .collect(Collectors.toList()));
     }
 
     /**
@@ -570,36 +568,14 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<ParsedPacket> requestDM6(ResultsListener listener, List<Integer> obdModules) {
-        boolean[] result = new boolean[] { true };
-        listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
-
+    public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener, List<Integer> obdModules) {
         Packet requestPacket = getJ1939().createRequestPacket(DM6PendingEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        listener.onResult(getTime() + " Global DM6 Request");
-        listener.onResult(getTime() + " " + requestPacket);
-
-        List<ParsedPacket> results = getJ1939()
+        return new RequestResult<>(false, getJ1939()
                 .requestRaw(DM6PendingEmissionDTCPacket.class,
                         requestPacket,
                         5500,
                         TimeUnit.MILLISECONDS)
-                .collect(Collectors.toList());
-
-        List<String> responses = results.stream().peek(t -> {
-            if (obdModules.contains(t.getSourceAddress())
-                    && t instanceof AcknowledgmentPacket
-                    && ((AcknowledgmentPacket) t).getResponse() != Response.ACK) {
-                result[0] = false;
-            }
-        }).map(getPacketMapperFunction()).collect(Collectors.toList());
-        listener.onResult(responses);
-
-        if (result[0]) {
-            listener.onResult(DTCS_CLEARED);
-        } else {
-            listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
-        }
-        return new RequestResult<>(false, results);
+                .collect(Collectors.toList()));
 
     }
 }
