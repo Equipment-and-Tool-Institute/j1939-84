@@ -672,18 +672,12 @@ public class DiagnosticReadinessModule extends FunctionalModule {
                 listener,
                 fullString)
                         // FIXME this ignores NACKs
-                        .getPackets().stream()
-                        .filter(packet -> packet instanceof DM5DiagnosticReadinessPacket)
-                        .map(p -> p)
-                        .collect(Collectors.toList());
+                        .getPackets();
 
         if (!parsedPackets.isEmpty()) {
             listener.onResult("");
             listener.onResult("Vehicle Composite of DM5:");
-            List<CompositeMonitoredSystem> systems = getCompositeSystems(parsedPackets.stream()
-                    .filter(packet -> packet instanceof DM5DiagnosticReadinessPacket)
-                    .map(p -> p).collect(Collectors.toList()),
-                    true);
+            List<CompositeMonitoredSystem> systems = getCompositeSystems(parsedPackets, true);
             listener.onResult(systems.stream().map(t -> t.toString()).collect(Collectors.toList()));
         }
         return new RequestResult<>(false, parsedPackets, Collections.emptyList());

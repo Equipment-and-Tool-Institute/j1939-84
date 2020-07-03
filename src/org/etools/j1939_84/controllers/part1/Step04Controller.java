@@ -66,9 +66,7 @@ public class Step04Controller extends StepController {
 
         RequestResult<DM24SPNSupportPacket> result = obdTestsModule.requestDM24Packets(getListener(),
                 dataRepository.getObdModuleAddresses());
-        List<DM24SPNSupportPacket> globalPackets = result.getPackets().stream()
-                .filter(packet -> packet instanceof DM24SPNSupportPacket).map(p -> p)
-                .collect(Collectors.toList());
+        List<DM24SPNSupportPacket> globalPackets = result.getPackets();
 
         if (result.isRetryUsed()) {
             addFailure(1, 4, "6.1.4.2.a - Retry was required to obtain DM24 response");

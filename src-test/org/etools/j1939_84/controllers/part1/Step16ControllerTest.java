@@ -133,7 +133,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
     public void testDTCsNotEmpty() {
         DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
         DiagnosticTroubleCode Dtc1 = mock(DiagnosticTroubleCode.class);
-        when(packet1.getDtcs()).thenReturn(listOf(Dtc1));
+        when(packet1.getDtcs()).thenReturn(Collections.singletonList(Dtc1));
         when(packet1.getSourceAddress()).thenReturn(0);
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
 
@@ -151,13 +151,13 @@ public class Step16ControllerTest extends AbstractControllerTest {
         packet2Dtc.add(Dtc2);
         when(packet2.getSourceAddress()).thenReturn(0);
         when(dtcModule.requestDM2(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet2), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet2), Collections.emptyList()));
 
         // add ACK/NACK packets to the listing for complete reality testing
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
         when(packet4.getSourceAddress()).thenReturn(3);
         when(dtcModule.requestDM2(any(), eq(true), eq(3)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), listOf(packet4)));
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet4)));
 
         // Return the modules address so that we can do the destination specific
         // calls
@@ -334,14 +334,14 @@ public class Step16ControllerTest extends AbstractControllerTest {
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         destinationSpecificPackets.add(packet2);
         when(dtcModule.requestDM2(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet2), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet2), Collections.emptyList()));
 
         // add ACK/NACK packets to the listing for complete reality testing
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
         destinationSpecificPackets.add(packet4);
         when(packet4.getSourceAddress()).thenReturn(3);
         when(dtcModule.requestDM2(any(), eq(true), eq(3)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), listOf(packet4)));
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet4)));
 
         // Return the modules address so that we can do the destination specific
         // calls
@@ -405,14 +405,14 @@ public class Step16ControllerTest extends AbstractControllerTest {
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         when(packet2.getSourceAddress()).thenReturn(0);
         when(dtcModule.requestDM2(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet2), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet2), Collections.emptyList()));
 
         // add ACK/NACK packets to the listing for complete reality testing
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
         when(packet4.getSourceAddress()).thenReturn(3);
 
         when(dtcModule.requestDM2(any(), eq(true), eq(3)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), listOf(packet4)));
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet4)));
 
         // Return the modules address so that we can do the destination specific
         // calls
@@ -528,13 +528,13 @@ public class Step16ControllerTest extends AbstractControllerTest {
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         when(packet2.getSourceAddress()).thenReturn(0);
         when(dtcModule.requestDM2(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet2), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet2), Collections.emptyList()));
 
         // add ACK/NACK packets to the listing for complete reality testing
         DM2PreviouslyActiveDTC packet4 = mock(DM2PreviouslyActiveDTC.class);
         when(packet4.getSourceAddress()).thenReturn(3);
         when(dtcModule.requestDM2(any(), eq(true), eq(3)))
-                .thenReturn(new RequestResult<>(false, listOf(packet4), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
 
         // Return the modules address so that we can do the destination specific
         // calls
@@ -599,13 +599,13 @@ public class Step16ControllerTest extends AbstractControllerTest {
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         when(packet2.getSourceAddress()).thenReturn(0);
         when(dtcModule.requestDM2(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet2), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet2), Collections.emptyList()));
 
         // add ACK/NACK packets to the listing for complete reality testing
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
         when(packet4.getSourceAddress()).thenReturn(3);
         when(dtcModule.requestDM2(any(), eq(true), eq(3)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), listOf(packet4)));
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet4)));
 
         // Return the modules address so that we can do the destination specific
         // calls

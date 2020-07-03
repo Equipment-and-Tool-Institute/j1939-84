@@ -290,7 +290,7 @@ public class VehicleInformationModule extends FunctionalModule {
                 ComponentIdentificationPacket.class,
                 listener,
                 false,
-                address).getPackets().stream().map(p -> p).collect(Collectors.toList());
+                address).getPackets();
     }
 
     /**

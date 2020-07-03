@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,8 +56,8 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class Step09ControllerTest extends AbstractControllerTest {
 
     /*
-     * All values must be checked prior to mocking so that we are not
-     * creating unnecessary mocks.
+     * All values must be checked prior to mocking so that we are not creating
+     * unnecessary mocks.
      */
     private static ComponentIdentificationPacket createComponentIdPacket(Integer sourceAddress,
             String make,
@@ -155,9 +156,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
     /*
      * 6.1.9.1 ACTIONS:
      *
-     * a. Destination Specific (DS) Component ID request (PGN 59904) for PGN 65259
-     * (SPNs 586, 587, and 588) to each OBD ECU.
-     * b. Display each positive return in the log.
+     * a. Destination Specific (DS) Component ID request (PGN 59904) for PGN
+     * 65259 (SPNs 586, 587, and 588) to each OBD ECU. b. Display each positive
+     * return in the log.
      */
 
     @Before
@@ -223,7 +224,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
@@ -279,13 +280,14 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new OBDModuleInformation(0);
+        // OBDModuleInformation obdModuleInfomation = new
+        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -339,10 +341,10 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
@@ -388,13 +390,14 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new OBDModuleInformation(0);
+        // OBDModuleInformation obdModuleInfomation = new
+        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -448,13 +451,14 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new OBDModuleInformation(0);
+        // OBDModuleInformation obdModuleInfomation = new
+        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -508,13 +512,14 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new OBDModuleInformation(0);
+        // OBDModuleInformation obdModuleInfomation = new
+        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -569,13 +574,14 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new OBDModuleInformation(0);
+        // OBDModuleInformation obdModuleInfomation = new
+        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -629,13 +635,14 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new OBDModuleInformation(0);
+        // OBDModuleInformation obdModuleInfomation = new
+        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -702,9 +709,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(packetList);
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(listOf(packet1));
+                .thenReturn(Collections.singletonList(packet1));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
@@ -759,10 +766,10 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         // Return and empty list of modules
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
@@ -822,12 +829,13 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(listOf(null));
+                .thenReturn(Collections.emptyList());
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new OBDModuleInformation(0);
+        // OBDModuleInformation obdModuleInfomation = new
+        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -889,13 +897,14 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new OBDModuleInformation(0);
+        // OBDModuleInformation obdModuleInfomation = new
+        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -949,10 +958,10 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
@@ -1007,10 +1016,10 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(listOf(packet));
+                .thenReturn(Collections.singletonList(packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {

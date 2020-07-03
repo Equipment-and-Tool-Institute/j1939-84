@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -156,7 +157,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
     public void testAsteriskTerminationGreaterThanTwelve() {
         String famName = familyName.replace("*", "44*");
 
-        List<DM56EngineFamilyPacket> parsedPackets = listOf(createDM56(null, 2006, "2006E-MY", null, famName));
+        List<DM56EngineFamilyPacket> parsedPackets = Collections.singletonList(createDM56(null, 2006, "2006E-MY", null, famName));
         when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
 
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);
@@ -206,12 +207,11 @@ public class Step06ControllerTest extends AbstractControllerTest {
     public void testAstriskPositionLessThanTwelve() {
         String famName = familyName.replace("A", "*");
 
-        List<DM56EngineFamilyPacket> parsedPackets = listOf(
-                createDM56(null,
-                        2006,
-                        "2006E-MY",
-                        null,
-                        famName));
+        List<DM56EngineFamilyPacket> parsedPackets = Collections.singletonList(createDM56(null,
+        2006,
+        "2006E-MY",
+        null,
+        famName));
         when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
 
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);
@@ -251,7 +251,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.6.2.a", description = "Engine model year does not match user input"))
     public void testEngineModelYearDoesntMatch() {
-        List<DM56EngineFamilyPacket> parsedPackets = listOf(createDM56(null, 2006, "2006E-MY", null, familyName));
+        List<DM56EngineFamilyPacket> parsedPackets = Collections.singletonList(createDM56(null, 2006, "2006E-MY", null, familyName));
         when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
 
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);
@@ -287,7 +287,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
     public void testFamilyNameLessThan13Characters() {
         String famName = familyName.replace(" OBD*", "");
 
-        List<DM56EngineFamilyPacket> parsedPackets = listOf(createDM56(null, 2006, "2006E-MY", null, famName));
+        List<DM56EngineFamilyPacket> parsedPackets = Collections.singletonList(createDM56(null, 2006, "2006E-MY", null, famName));
         when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
 
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);
@@ -337,8 +337,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
         // Remove asterisk from name to test valid null termination
         String famName = familyName.replace('*', Character.MIN_VALUE);
 
-        List<DM56EngineFamilyPacket> parsedPackets = listOf(
-                createDM56(null, 2006, "2006E-MY", null, famName));
+        List<DM56EngineFamilyPacket> parsedPackets = Collections.singletonList(createDM56(null, 2006, "2006E-MY", null, famName));
         when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
 
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);
@@ -370,8 +369,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
         // Remove asterisk from name to test valid null termination
         String famName = familyName.replace("*", "4");
 
-        List<DM56EngineFamilyPacket> parsedPackets = listOf(
-                createDM56(null, 2006, "2006E-MY", null, famName));
+        List<DM56EngineFamilyPacket> parsedPackets = Collections.singletonList(createDM56(null, 2006, "2006E-MY", null, famName));
         when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
 
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);
@@ -431,7 +429,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
                      + "Not formatted correctly")
 
     public void testModelYearField() {
-        List<DM56EngineFamilyPacket> parsedPackets = listOf(createDM56(null, 2006, "2006V-MY", null, familyName));
+        List<DM56EngineFamilyPacket> parsedPackets = Collections.singletonList(createDM56(null, 2006, "2006V-MY", null, familyName));
         when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
 
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);
@@ -496,7 +494,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.6", description = "Happy Path with no errors and one packet"))
     public void testRunHappyPath() {
-        List<DM56EngineFamilyPacket> parsedPackets = listOf(createDM56(null, 2006, "2006E-MY", null, familyName));
+        List<DM56EngineFamilyPacket> parsedPackets = Collections.singletonList(createDM56(null, 2006, "2006E-MY", null, familyName));
         when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
 
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);

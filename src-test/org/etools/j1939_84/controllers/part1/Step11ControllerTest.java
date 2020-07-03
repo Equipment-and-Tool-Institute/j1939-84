@@ -181,15 +181,15 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet4), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, listOf(packet5), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), listOf(packet3)));
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet3)));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -271,19 +271,19 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet4), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
         globalPackets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, listOf(packet5), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
         globalPackets.add(packet5);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
 
         DM21DiagnosticReadinessPacket packet3 = createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, listOf(packet3), Collections.singletonList(packet2)));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet3), Collections.singletonList(packet2)));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -338,23 +338,23 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet4), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
         globalPackets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, listOf(packet5), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
         globalPackets.add(packet5);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(9)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), listOf(packet2)));
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet2)));
         when(packet2.getResponse()).thenReturn(Response.NACK);
         when(packet2.getSourceAddress()).thenReturn(9);
 
         DM21DiagnosticReadinessPacket packet3 = createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, listOf(packet3), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet3), Collections.emptyList()));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -410,23 +410,23 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet4), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
         globalPackets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, listOf(packet5), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
         globalPackets.add(packet5);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(9)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), listOf(packet2)));
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet2)));
         when(packet2.getResponse()).thenReturn(Response.NACK);
         when(packet2.getSourceAddress()).thenReturn(16);
 
         DM21DiagnosticReadinessPacket packet3 = createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, listOf(packet3), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet3), Collections.emptyList()));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -494,17 +494,17 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet4), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, listOf(packet5), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), listOf(packet3)));
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet3)));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -548,18 +548,18 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet4), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
 
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, listOf(packet5), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), listOf(packet3)));
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet3)));
 
         runTest();
 
@@ -623,17 +623,17 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet4), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, listOf(packet5), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), listOf(packet3)));
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet3)));
 
         runTest();
 
@@ -696,17 +696,17 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet4), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 15.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, listOf(packet5), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), listOf(packet3)));
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet3)));
 
         runTest();
 
@@ -769,17 +769,17 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet4), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 10.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, listOf(packet5), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), listOf(packet3)));
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet3)));
 
         runTest();
 
@@ -842,17 +842,17 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet4), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 20.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, listOf(packet5), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), listOf(packet3)));
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet3)));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -916,17 +916,17 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 25.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, listOf(packet4), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, listOf(packet5), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
         packets.add(packet5);
 
         createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, listOf(packet5), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
         packets.add(packet5);
 
         runTest();

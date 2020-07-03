@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -579,7 +580,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         // FIXME - I shouldn't have to mock this - .reportDuplicates needs to be
         // corrected.
-        when(tableA7Validator.hasDuplicates(scaledTestsResults)).thenReturn(listOf(scaledTestResult));
+        when(tableA7Validator.hasDuplicates(scaledTestsResults)).thenReturn(Collections.singletonList(scaledTestResult));
 
         List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
         DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);

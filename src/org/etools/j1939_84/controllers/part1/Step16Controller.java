@@ -101,10 +101,7 @@ public class Step16Controller extends StepController {
                 true);
 
         // Get DM2PrevisoulyActiveDTC so we can get DTCs and report accordingly
-        List<DM2PreviouslyActiveDTC> globalDM2s = globalDiagnosticTroubleCodePackets.getPackets().stream()
-                .filter(p -> p instanceof DM2PreviouslyActiveDTC)
-                .map(p -> p)
-                .collect(Collectors.toList());
+        List<DM2PreviouslyActiveDTC> globalDM2s = globalDiagnosticTroubleCodePackets.getPackets();
 
         // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC.
         if (globalDM2s.stream().flatMap(packet -> packet.getDtcs().stream()).findAny().isPresent()) {

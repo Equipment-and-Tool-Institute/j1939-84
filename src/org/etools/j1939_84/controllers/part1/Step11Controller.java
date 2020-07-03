@@ -69,10 +69,7 @@ public class Step11Controller extends StepController {
         // a. Global DM21 (send Request (PGN 59904) for PGN 49408 (SPNs 3069,
         // 3294-3296)).
         List<DM21DiagnosticReadinessPacket> globalDm21Packets = diagnosticReadinessModule
-                .requestDM21Packets(getListener(), true).getPackets().stream()
-                .filter(packet -> packet instanceof DM21DiagnosticReadinessPacket)
-                .map(p -> p)
-                .collect(Collectors.toList());
+                .requestDM21Packets(getListener(), true).getPackets();
 
         // 6.1.11.2 Fail criteria:
         globalDm21Packets.forEach(packet -> {
