@@ -32,6 +32,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
+import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
@@ -146,6 +147,9 @@ public class J1939 {
     private static ParsedPacket processRaw(int id, Packet packet) {
         switch (id) {
 
+        case DM2PreviouslyActiveDTC.PGN:
+            return new DM2PreviouslyActiveDTC(packet);
+
         case DM5DiagnosticReadinessPacket.PGN:
             return new DM5DiagnosticReadinessPacket(packet);
 
@@ -220,7 +224,7 @@ public class J1939 {
 
         case REQUEST_PGN:
             // Request; just return a wrapped packet
-            return new ParsedPacket(packet);
+            return new UnknownParsedPacket(packet);
 
         default:
             int maskedId = id & 0xFF00;
@@ -240,7 +244,7 @@ public class J1939 {
 
             default:
                 // IDK
-                return new ParsedPacket(packet);
+                return new UnknownParsedPacket(packet);
             }
         }
     }
@@ -569,7 +573,7 @@ public class J1939 {
      *            Type of Packet that will be returned
      * @param packetToSend
      *            the packet that will be sent
-     * @param T
+     * @param clas
      *            the Class of packet that's expected to be returned
      * @param destination
      *            the address response should come from
@@ -581,7 +585,7 @@ public class J1939 {
      *         there was an exception
      */
     public <T extends ParsedPacket> Optional<BusResult<T>> requestPacket(Packet packetToSend,
-            Class<T> T,
+            Class<T> clas,
             int destination,
             int tries,
             long timeout) {
@@ -591,8 +595,7 @@ public class J1939 {
         }
 
         try {
-            boolean retryUsed = false;
-            int expectedResponsePGN = getPgn(T);
+            int expectedResponsePGN = getPgn(clas);
 
             Stream<Packet> stream = read(timeout, DEFAULT_TIMEOUT_UNITS);
             getBus().send(packetToSend);
@@ -607,11 +610,10 @@ public class J1939 {
                     .filter(pgnFilter(expectedResponsePGN).or(dsPgnFilter(expectedResponsePGN)));
             Optional<Either<T, AcknowledgmentPacket>> parsedPackets = packets.findFirst().map(p -> process(p));
             if (parsedPackets.isPresent()) {
-                return Optional.of(new BusResult<>(retryUsed, parsedPackets.get()));
+                return Optional.of(new BusResult<>(false, parsedPackets.get()));
             } else {
-                // FIXME Don't retry for NACK
-                retryUsed = true;
-                return requestPacket(packetToSend, T, destination, tries - 1, timeout);
+                return requestPacket(packetToSend, clas, destination, tries - 1, timeout)
+                        .map(br -> new BusResult<>(true, br.getPacket()));
             }
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Error requesting packet", e);
