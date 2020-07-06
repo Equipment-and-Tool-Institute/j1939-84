@@ -1,3 +1,7 @@
+/**
+ * Copyright 2019 Equipment & Tool Institute
+ */
+
 package org.etools.j1939_84.bus.j1939;
 
 import org.etools.j1939_84.bus.Packet;

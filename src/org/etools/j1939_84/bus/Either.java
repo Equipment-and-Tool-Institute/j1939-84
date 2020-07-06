@@ -1,3 +1,7 @@
+/**
+ * Copyright 2019 Equipment & Tool Institute
+ */
+
 package org.etools.j1939_84.bus;
 
 import java.util.Optional;
@@ -26,15 +30,19 @@ public class Either<L, R> {
 
     @SuppressWarnings("unchecked")
     public <C> C as(Class<C> cls) {
-        return left.map(l -> (C) l).orElseGet(() -> (C) right.get());
+        return resolve(x -> (C) x, x -> (C) x);
     }
 
     public <A, B> Either<A, B> map(Function<L, A> lFn, Function<R, B> rFn) {
         return new Either<>(left.map(lFn), right.map(rFn));
     }
 
+    public <T> T resolve(Function<L, T> lFn, Function<R, T> rFn) {
+        return left.map(lFn).orElseGet(() -> right.map(rFn).orElseThrow());
+    }
+
     @Override
     public String toString() {
-        return map(l -> "left: " + l.toString(), r -> "right: " + r.toString()).as(String.class);
+        return resolve(l -> "left: " + l.toString(), r -> "right: " + r.toString());
     }
 }
