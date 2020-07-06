@@ -21,6 +21,7 @@ import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
+import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
@@ -82,7 +83,7 @@ public class VehicleInformationModuleTest {
     public void testGetEngineFamilyName() throws Exception {
         DM56EngineFamilyPacket response = mock(DM56EngineFamilyPacket.class);
         when(response.getFamilyName()).thenReturn("family");
-        when(j1939.requestMultiple(DM56EngineFamilyPacket.class)).thenReturn(Stream.of(response));
+        when(j1939.requestMultiple(DM56EngineFamilyPacket.class)).thenReturn(Stream.of(new Either<>(response, null)));
 
         String actual = instance.getEngineFamilyName();
         instance.getEngineFamilyName(); // Make sure it's cached
@@ -115,7 +116,8 @@ public class VehicleInformationModuleTest {
         when(response1.getFamilyName()).thenReturn("name1");
         DM56EngineFamilyPacket response2 = mock(DM56EngineFamilyPacket.class);
         when(response2.getFamilyName()).thenReturn("name2");
-        when(j1939.requestMultiple(DM56EngineFamilyPacket.class)).thenReturn(Stream.of(response1, response2));
+        when(j1939.requestMultiple(DM56EngineFamilyPacket.class))
+                .thenReturn(Stream.of(new Either<>(response1, null), new Either<>(response2, null)));
 
         try {
             instance.getEngineFamilyName();
@@ -133,7 +135,7 @@ public class VehicleInformationModuleTest {
     public void testGetEngineModelYear() throws Exception {
         DM56EngineFamilyPacket response = mock(DM56EngineFamilyPacket.class);
         when(response.getEngineModelYear()).thenReturn(123);
-        when(j1939.requestMultiple(DM56EngineFamilyPacket.class)).thenReturn(Stream.of(response));
+        when(j1939.requestMultiple(DM56EngineFamilyPacket.class)).thenReturn(Stream.of(new Either<>(response, null)));
 
         Integer actual = instance.getEngineModelYear();
         instance.getEngineModelYear(); // Make sure it's cached
@@ -165,7 +167,8 @@ public class VehicleInformationModuleTest {
         when(response1.getEngineModelYear()).thenReturn(123);
         DM56EngineFamilyPacket response2 = mock(DM56EngineFamilyPacket.class);
         when(response2.getEngineModelYear()).thenReturn(456);
-        when(j1939.requestMultiple(DM56EngineFamilyPacket.class)).thenReturn(Stream.of(response1, response2));
+        when(j1939.requestMultiple(DM56EngineFamilyPacket.class))
+                .thenReturn(Stream.of(new Either<>(response1, null), new Either<>(response2, null)));
 
         try {
             instance.getEngineModelYear();
@@ -184,7 +187,8 @@ public class VehicleInformationModuleTest {
     public void testGetVin() throws Exception {
         VehicleIdentificationPacket response = mock(VehicleIdentificationPacket.class);
         when(response.getVin()).thenReturn("vin");
-        when(j1939.requestMultiple(VehicleIdentificationPacket.class)).thenReturn(Stream.of(response));
+        when(j1939.requestMultiple(VehicleIdentificationPacket.class))
+                .thenReturn(Stream.of(new Either<>(response, null)));
 
         String vin = instance.getVin();
         instance.getVin(); // Make sure it's cached
@@ -219,7 +223,8 @@ public class VehicleInformationModuleTest {
         when(response1.getVin()).thenReturn("vin1");
         VehicleIdentificationPacket response2 = mock(VehicleIdentificationPacket.class);
         when(response2.getVin()).thenReturn("vin2");
-        when(j1939.requestMultiple(VehicleIdentificationPacket.class)).thenReturn(Stream.of(response1, response2));
+        when(j1939.requestMultiple(VehicleIdentificationPacket.class))
+                .thenReturn(Stream.of(new Either<>(response1, null), new Either<>(response2, null)));
 
         try {
             instance.getVin();
@@ -242,7 +247,8 @@ public class VehicleInformationModuleTest {
         AddressClaimPacket packet2 = new AddressClaimPacket(Packet.parse("18EEFF3D 00 00 00 00 00 00 00 00"));
         AddressClaimPacket packet3 = new AddressClaimPacket(Packet.parse("18EEFF00 00 00 40 05 00 00 65 14"));
         when(j1939.requestMultiple(AddressClaimPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(new Either<>(packet1, null), new Either<>(packet2, null),
+                        new Either<>(packet3, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global Request for Address Claim" + NL;
@@ -287,7 +293,8 @@ public class VehicleInformationModuleTest {
         when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
 
         AddressClaimPacket packet1 = new AddressClaimPacket(Packet.parse("18EEFF55 10 F7 45 01 00 45 00 01"));
-        when(j1939.requestMultiple(AddressClaimPacket.class, requestPacket)).thenReturn(Stream.of(packet1));
+        when(j1939.requestMultiple(AddressClaimPacket.class, requestPacket))
+                .thenReturn(Stream.of(new Either<>(packet1, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global Request for Address Claim" + NL;
@@ -346,7 +353,7 @@ public class VehicleInformationModuleTest {
         DM19CalibrationInformationPacket packet3 = new DM19CalibrationInformationPacket(
                 Packet.create(pgn, 0x21, calBytes3));
         when(j1939.requestMultiple(DM19CalibrationInformationPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM19 (Calibration Information) Request" + NL;
@@ -380,7 +387,7 @@ public class VehicleInformationModuleTest {
                 Packet.create(pgn, 0x21, new byte[] {}));
 
         when(j1939.requestRaw(DM19CalibrationInformationPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 DS DM19 (Calibration Information) Request to 00" + NL;
@@ -456,7 +463,7 @@ public class VehicleInformationModuleTest {
         ComponentIdentificationPacket packet2 = new ComponentIdentificationPacket(Packet.create(pgn, 0x17, bytes2));
         ComponentIdentificationPacket packet3 = new ComponentIdentificationPacket(Packet.create(pgn, 0x21, bytes3));
         when(j1939.requestMultiple(ComponentIdentificationPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global Component Identification Request" + NL;
@@ -539,7 +546,7 @@ public class VehicleInformationModuleTest {
         DM56EngineFamilyPacket packet2 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x17, bytes));
         DM56EngineFamilyPacket packet3 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x21, bytes));
         when(j1939.requestMultiple(DM56EngineFamilyPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM56 Request" + NL;
@@ -601,7 +608,8 @@ public class VehicleInformationModuleTest {
 
         EngineHoursPacket packet1 = new EngineHoursPacket(Packet.create(pgn, 0x00, 1, 2, 3, 4, 5, 6, 7, 8));
         EngineHoursPacket packet2 = new EngineHoursPacket(Packet.create(pgn, 0x01, 8, 7, 6, 5, 4, 3, 2, 1));
-        when(j1939.requestMultiple(EngineHoursPacket.class, requestPacket)).thenReturn(Stream.of(packet1, packet2));
+        when(j1939.requestMultiple(EngineHoursPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1, packet2).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Engine Hours Request" + NL;
@@ -654,7 +662,7 @@ public class VehicleInformationModuleTest {
                 Packet.create(pgn, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF));
 
         when(j1939.read(HighResVehicleDistancePacket.class, 3, TimeUnit.SECONDS))
-                .thenReturn(Stream.of(packet0, packet1, packet2, packetFF));
+                .thenReturn(Stream.of(packet0, packet1, packet2, packetFF).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Vehicle Distance" + NL;
@@ -682,7 +690,7 @@ public class VehicleInformationModuleTest {
                 Packet.create(pgn, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF));
 
         when(j1939.read(TotalVehicleDistancePacket.class, 300, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet2, packet1, packet0, packetFF));
+                .thenReturn(Stream.of(packet2, packet1, packet0, packetFF).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Vehicle Distance" + NL;
@@ -726,7 +734,7 @@ public class VehicleInformationModuleTest {
         VehicleIdentificationPacket packet2 = new VehicleIdentificationPacket(Packet.create(pgn, 0x17, vinBytes));
         VehicleIdentificationPacket packet3 = new VehicleIdentificationPacket(Packet.create(pgn, 0x21, vinBytes));
         when(j1939.requestMultiple(VehicleIdentificationPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global VIN Request" + NL;

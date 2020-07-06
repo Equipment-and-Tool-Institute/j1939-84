@@ -7,7 +7,6 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
@@ -22,7 +21,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
  *
- * The controller for DM24: SPN support
+ *         The controller for DM24: SPN support
  */
 public class Step04Controller extends StepController {
 
@@ -65,11 +64,9 @@ public class Step04Controller extends StepController {
     protected void run() throws Throwable {
         obdTestsModule.setJ1939(getJ1939());
 
-        RequestResult<ParsedPacket> result = obdTestsModule.requestDM24Packets(getListener(),
+        RequestResult<DM24SPNSupportPacket> result = obdTestsModule.requestDM24Packets(getListener(),
                 dataRepository.getObdModuleAddresses());
-        List<DM24SPNSupportPacket> globalPackets = result.getPackets().stream()
-                .filter(packet -> packet instanceof DM24SPNSupportPacket).map(p -> (DM24SPNSupportPacket) p)
-                .collect(Collectors.toList());
+        List<DM24SPNSupportPacket> globalPackets = result.getPackets();
 
         if (result.isRetryUsed()) {
             addFailure(1, 4, "6.1.4.2.a - Retry was required to obtain DM24 response");

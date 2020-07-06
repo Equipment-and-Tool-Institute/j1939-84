@@ -2,18 +2,16 @@ package org.etools.j1939_84.controllers.part1;
 
 import java.util.Collection;
 import java.util.HashSet;
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Stream;
 
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
@@ -60,18 +58,14 @@ public class Step03Controller extends StepController {
     protected void run() throws Throwable {
         diagnosticReadinessModule.setJ1939(getJ1939());
 
-        List<ParsedPacket> packets = diagnosticReadinessModule.requestDM5Packets(getListener(), true).getPackets();
-
-        boolean nacked = packets.stream().anyMatch(packet -> packet instanceof AcknowledgmentPacket
-                && ((AcknowledgmentPacket) packet).getResponse() == Response.NACK);
+        RequestResult<DM5DiagnosticReadinessPacket> response = diagnosticReadinessModule
+                .requestDM5Packets(getListener(), true);
+        boolean nacked = response.getAcks().stream().anyMatch(packet -> packet.getResponse() == Response.NACK);
         if (nacked) {
             addFailure(1, 3, "6.1.3.2.b - The request for DM5 was NACK'ed");
         }
 
-        Stream<DM5DiagnosticReadinessPacket> dm5Packets = packets.stream()
-                .filter(p -> p instanceof DM5DiagnosticReadinessPacket)
-                .map(p -> (DM5DiagnosticReadinessPacket) p);
-
+        Stream<DM5DiagnosticReadinessPacket> dm5Packets = response.getPackets().stream();
         dm5Packets.filter(p -> p.isObd()).forEach(p -> {
             OBDModuleInformation info = new OBDModuleInformation(p.getSourceAddress());
             info.setObdCompliance(p.getOBDCompliance());

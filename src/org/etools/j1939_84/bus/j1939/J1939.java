@@ -16,6 +16,7 @@ import java.util.stream.Stream;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
+import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
@@ -31,6 +32,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
+import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
@@ -120,8 +122,33 @@ public class J1939 {
      *            the {@link Packet} to process
      * @return a subclass of {@link ParsedPacket}
      */
-    private static ParsedPacket process(int id, Packet packet) {
+    @SuppressWarnings("unchecked")
+    private static <T extends ParsedPacket> Either<T, AcknowledgmentPacket> process(int id, Packet packet) {
+        ParsedPacket pp = processRaw(id, packet);
+        if (pp instanceof AcknowledgmentPacket) {
+            return new Either<>(null, (AcknowledgmentPacket) pp);
+        } else {
+            return new Either<>((T) pp, null);
+        }
+    }
+
+    /**
+     * Returns a Subclass of {@link ParsedPacket} that corresponds to the given
+     * {@link Packet}
+     *
+     * @param packet
+     *            the {@link Packet} to process
+     * @return a subclass of {@link ParsedPacket}
+     */
+    private static <T extends ParsedPacket> Either<T, AcknowledgmentPacket> process(Packet packet) {
+        return process(packet.getId(), packet);
+    }
+
+    private static ParsedPacket processRaw(int id, Packet packet) {
         switch (id) {
+
+        case DM2PreviouslyActiveDTC.PGN:
+            return new DM2PreviouslyActiveDTC(packet);
 
         case DM5DiagnosticReadinessPacket.PGN:
             return new DM5DiagnosticReadinessPacket(packet);
@@ -197,7 +224,7 @@ public class J1939 {
 
         case REQUEST_PGN:
             // Request; just return a wrapped packet
-            return new ParsedPacket(packet);
+            return new UnknownParsedPacket(packet);
 
         default:
             int maskedId = id & 0xFF00;
@@ -213,26 +240,13 @@ public class J1939 {
             case DM21DiagnosticReadinessPacket.PGN:
             case DM30ScaledTestResultsPacket.PGN:
             case AddressClaimPacket.PGN:
-                return process(maskedId, packet);
+                return processRaw(maskedId, packet);
 
             default:
                 // IDK
-                return new ParsedPacket(packet);
+                return new UnknownParsedPacket(packet);
             }
         }
-    }
-
-    /**
-     * Returns a Subclass of {@link ParsedPacket} that corresponds to the given
-     * {@link Packet}
-     *
-     * @param packet
-     *            the {@link Packet} to process
-     * @return a subclass of {@link ParsedPacket}
-     */
-    @SuppressWarnings("unchecked")
-    private static <T extends ParsedPacket> T process(Packet packet) {
-        return (T) process(packet.getId(), packet);
     }
 
     private static Predicate<Packet> sourceFilter(int addr) {
@@ -369,7 +383,7 @@ public class J1939 {
      * @throws BusException
      *             if there is a problem reading the bus
      */
-    public Stream<ParsedPacket> read() throws BusException {
+    public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> read() throws BusException {
         return getBus().read(365, TimeUnit.DAYS).map(t -> process(t));
     }
 
@@ -391,7 +405,9 @@ public class J1939 {
      *            the {@link TimeUnit} for the timeout
      * @return the resulting packet
      */
-    public <T extends ParsedPacket> Optional<T> read(Class<T> T, int addr, long timeout, TimeUnit unit) {
+    public <T extends ParsedPacket> Optional<Either<T, AcknowledgmentPacket>> read(Class<T> T, int addr,
+            long timeout,
+            TimeUnit unit) {
         int pgn = getPgn(T);
         try (Stream<Packet> stream = read(timeout, unit)) {
             return stream
@@ -418,7 +434,8 @@ public class J1939 {
      *            the {@link TimeUnit} for the timeout
      * @return the resulting packets in a Stream
      */
-    public <T extends ParsedPacket> Stream<T> read(Class<T> T, long timeout, TimeUnit unit) {
+    public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> read(Class<T> T, long timeout,
+            TimeUnit unit) {
         int pgn = getPgn(T);
         try {
             return read(timeout, unit)
@@ -447,7 +464,7 @@ public class J1939 {
      *            PGN for the packet to be requested
      * @return a {@link Stream} containing {@link ParsedPacket}
      */
-    public <T extends ParsedPacket> Stream<T> requestMultiple(Class<T> clas) {
+    public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> requestMultiple(Class<T> clas) {
         Packet requestPacket = createRequestPacket(getPgn(clas), GLOBAL_ADDR);
         return requestMultiple(clas, requestPacket, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS);
     }
@@ -466,7 +483,8 @@ public class J1939 {
      *            the {@link Packet} to send that will generate the responses
      * @return a {@link Stream} containing {@link ParsedPacket}
      */
-    public <T extends ParsedPacket> Stream<T> requestMultiple(Class<T> T, Packet requestPacket) {
+    public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> requestMultiple(Class<T> T,
+            Packet requestPacket) {
         return requestMultiple(T, requestPacket, DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS);
     }
 
@@ -488,11 +506,11 @@ public class J1939 {
      *            the {@link TimeUnit} of the timeout
      * @return a {@link Stream} containing {@link ParsedPacket}
      */
-    private <T extends ParsedPacket> Stream<T> requestMultiple(Class<T> T,
+    private <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> requestMultiple(Class<T> T,
             Packet requestPacket,
             long timeout,
             TimeUnit unit) {
-        List<T> results = Collections.emptyList();
+        List<Either<T, AcknowledgmentPacket>> results = Collections.emptyList();
         for (int i = 0; i < 3; i++) {
             results = requestMultipleOnce(T, requestPacket, timeout, unit).collect(Collectors.toList());
             if (!results.isEmpty()) {
@@ -502,11 +520,11 @@ public class J1939 {
         return results.stream();
     }
 
-    private <T extends ParsedPacket> Stream<T> requestMultipleOnce(Class<T> T,
+    private <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> requestMultipleOnce(Class<T> T,
             Packet requestPacket,
             long timeout,
             TimeUnit unit) {
-        Stream<T> result = Stream.of();
+        Stream<Either<T, AcknowledgmentPacket>> result = Stream.of();
         try {
             int pgn = getPgn(T);
             Stream<Packet> stream = read(timeout, unit);
@@ -540,19 +558,11 @@ public class J1939 {
      * @return {@link Optional} {@link Packet} This may not contain a value if
      *         there was an exception
      */
-    public <T extends ParsedPacket> Optional<T> requestPacket(Packet packetToSend,
+    public <T extends ParsedPacket> Optional<Either<T, AcknowledgmentPacket>> requestPacket(Packet packetToSend,
             Class<T> T,
             int destination,
             int tries) {
-
-        Optional<BusResult<T>> busResult = requestPacket(packetToSend, T, destination, tries, DEFAULT_TIMEOUT);
-        Optional<T> result;
-        if (busResult.isPresent()) {
-            result = Optional.of(busResult.get().getPacket());
-        } else {
-            result = Optional.empty();
-        }
-        return result;
+        return requestPacket(packetToSend, T, destination, tries, DEFAULT_TIMEOUT).map(br -> br.getPacket());
     }
 
     /**
@@ -563,7 +573,7 @@ public class J1939 {
      *            Type of Packet that will be returned
      * @param packetToSend
      *            the packet that will be sent
-     * @param T
+     * @param clas
      *            the Class of packet that's expected to be returned
      * @param destination
      *            the address response should come from
@@ -575,7 +585,7 @@ public class J1939 {
      *         there was an exception
      */
     public <T extends ParsedPacket> Optional<BusResult<T>> requestPacket(Packet packetToSend,
-            Class<T> T,
+            Class<T> clas,
             int destination,
             int tries,
             long timeout) {
@@ -585,8 +595,7 @@ public class J1939 {
         }
 
         try {
-            boolean retryUsed = false;
-            int expectedResponsePGN = getPgn(T);
+            int expectedResponsePGN = getPgn(clas);
 
             Stream<Packet> stream = read(timeout, DEFAULT_TIMEOUT_UNITS);
             getBus().send(packetToSend);
@@ -599,13 +608,12 @@ public class J1939 {
             // used.
             Stream<Packet> packets = stream.filter(sourceFilter(destination))
                     .filter(pgnFilter(expectedResponsePGN).or(dsPgnFilter(expectedResponsePGN)));
-            Optional<T> parsedPackets = packets.findFirst().map(p -> process(p));
+            Optional<Either<T, AcknowledgmentPacket>> parsedPackets = packets.findFirst().map(p -> process(p));
             if (parsedPackets.isPresent()) {
-                return Optional.of(new BusResult<>(retryUsed, parsedPackets.get()));
+                return Optional.of(new BusResult<>(false, parsedPackets.get()));
             } else {
-                // FIXME Don't retry for NACK
-                retryUsed = true;
-                return requestPacket(packetToSend, T, destination, tries - 1, timeout);
+                return requestPacket(packetToSend, clas, destination, tries - 1, timeout)
+                        .map(br -> new BusResult<>(true, br.getPacket()));
             }
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Error requesting packet", e);
@@ -614,9 +622,8 @@ public class J1939 {
     }
 
     /**
-     * Sends a request for a Packet specified by the given class (T). T will
-     * provide the PGN for the Packet that is requested. This will request the
-     * packet globally. NACKs will NOT be ignored.
+     * Sends a request for a Packet. T will provide the PGN for the response.
+     * NACKs will NOT be ignored.
      *
      * @param <T>
      *            the Type of Packet to request
@@ -631,18 +638,20 @@ public class J1939 {
      *            the {@link TimeUnit} of the timeout
      * @return a {@link Stream} containing {@link ParsedPacket}
      */
-    public <T extends ParsedPacket> Stream<ParsedPacket> requestRaw(Class<T> T,
+    public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> requestRaw(Class<T> T,
             Packet requestPacket,
             long timeout,
             TimeUnit unit) {
-        Stream<ParsedPacket> result = Stream.of();
+        Stream<Either<T, AcknowledgmentPacket>> result = Stream.of();
         try {
             int pgn = getPgn(T);
             Stream<Packet> stream = read(timeout, unit);
             getBus().send(requestPacket);
             int destination = getDestination(requestPacket);
             result = stream.filter(sourceFilter(destination).or(p -> destination == GLOBAL_ADDR))
-                    .filter(pgnFilter(pgn).or(ackNackFilter(pgn))).distinct().map(rawPacket -> process(rawPacket));
+                    .filter(pgnFilter(pgn).or(ackNackFilter(pgn)))
+                    .distinct()
+                    .map(rawPacket -> process(rawPacket));
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Error requesting packet", e);
         }

@@ -15,6 +15,7 @@ import java.util.Collections;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
+import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -40,7 +41,8 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The values returned are properly ignored on verify statements.")
+@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+                    justification = "The values returned are properly ignored on verify statements.")
 @RunWith(MockitoJUnitRunner.class)
 public class DTCModuleTest {
 
@@ -79,7 +81,7 @@ public class DTCModuleTest {
         DM2PreviouslyActiveDTC packet3 = new DM2PreviouslyActiveDTC(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         when(j1939.requestRaw(DM2PreviouslyActiveDTC.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM2 Request" + NL;
@@ -108,8 +110,9 @@ public class DTCModuleTest {
         DM2PreviouslyActiveDTC packet2 = new DM2PreviouslyActiveDTC(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         when(j1939.requestRaw(DM2PreviouslyActiveDTC.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2)).thenReturn(Stream.of(packet1, packet2))
-                .thenReturn(Stream.of(packet1, packet2));
+                .thenReturn(Stream.of(packet1, packet2).map(p -> new Either<>(p, null)))
+                .thenReturn(Stream.of(packet1, packet2).map(p -> new Either<>(p, null)))
+                .thenReturn(Stream.of(packet1, packet2).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM2 Request" + NL;
@@ -166,7 +169,7 @@ public class DTCModuleTest {
         DM2PreviouslyActiveDTC packet3 = new DM2PreviouslyActiveDTC(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         when(j1939.requestRaw(DM2PreviouslyActiveDTC.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM2 Request" + NL;
@@ -204,7 +207,7 @@ public class DTCModuleTest {
         DM2PreviouslyActiveDTC packet3 = new DM2PreviouslyActiveDTC(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         when(j1939.requestRaw(DM2PreviouslyActiveDTC.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM2 Request" + NL;
@@ -269,7 +272,7 @@ public class DTCModuleTest {
         DM11ClearActiveDTCsPacket packet3 = new DM11ClearActiveDTCsPacket(
                 Packet.create(0xE800, 0x21, 0x00, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
         when(j1939.requestRaw(DM11ClearActiveDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(null, p)));
 
         String expected = "";
         expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
@@ -305,7 +308,7 @@ public class DTCModuleTest {
         AcknowledgmentPacket packet3 = new AcknowledgmentPacket(
                 Packet.create(0xE800, 0x21, 0x00, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
         when(j1939.requestRaw(DM11ClearActiveDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(null, p)));
 
         String expected = "";
         expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
@@ -364,7 +367,7 @@ public class DTCModuleTest {
                 Packet.create(0xE800, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
 
         when(j1939.requestRaw(DM11ClearActiveDTCsPacket.class, requestPacket1, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1));
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(null, p)));
 
         String expected = "";
         expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
@@ -391,7 +394,7 @@ public class DTCModuleTest {
         AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
                 Packet.create(0xE800, 0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
         when(j1939.requestRaw(DM11ClearActiveDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
-                .thenReturn(Stream.of(packet1));
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(null, p)));
 
         String expected = "";
         expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
@@ -423,7 +426,7 @@ public class DTCModuleTest {
         DM12MILOnEmissionDTCPacket packet3 = new DM12MILOnEmissionDTCPacket(
                 Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
         when(j1939.requestMultiple(DM12MILOnEmissionDTCPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM12 Request" + NL;
@@ -469,7 +472,8 @@ public class DTCModuleTest {
                 0x10,
                 0x04,
                 0x00));
-        when(j1939.requestMultiple(DM12MILOnEmissionDTCPacket.class, requestPacket)).thenReturn(Stream.of(packet1));
+        when(j1939.requestMultiple(DM12MILOnEmissionDTCPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM12 Request" + NL;
@@ -525,7 +529,7 @@ public class DTCModuleTest {
         DM2PreviouslyActiveDTC packet3 = new DM2PreviouslyActiveDTC(
                 Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
         when(j1939.requestMultiple(DM2PreviouslyActiveDTC.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM2 Request" + NL;
@@ -562,7 +566,7 @@ public class DTCModuleTest {
         DM23PreviouslyMILOnEmissionDTCPacket packet3 = new DM23PreviouslyMILOnEmissionDTCPacket(
                 Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
         when(j1939.requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM23 Request" + NL;
@@ -609,7 +613,7 @@ public class DTCModuleTest {
                 0x04,
                 0x00));
         when(j1939.requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1));
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM23 Request" + NL;
@@ -663,7 +667,7 @@ public class DTCModuleTest {
         DM28PermanentEmissionDTCPacket packet3 = new DM28PermanentEmissionDTCPacket(
                 Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
         when(j1939.requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM28 Request" + NL;
@@ -710,7 +714,8 @@ public class DTCModuleTest {
                 0x04,
                 0x00));
 
-        when(j1939.requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket)).thenReturn(Stream.of(packet1));
+        when(j1939.requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM28 Request" + NL;
@@ -773,7 +778,8 @@ public class DTCModuleTest {
                 0x10,
                 0x04,
                 0x00));
-        when(j1939.requestMultiple(DM2PreviouslyActiveDTC.class, requestPacket)).thenReturn(Stream.of(packet1));
+        when(j1939.requestMultiple(DM2PreviouslyActiveDTC.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM2 Request" + NL;
@@ -827,7 +833,7 @@ public class DTCModuleTest {
         DM6PendingEmissionDTCPacket packet3 = new DM6PendingEmissionDTCPacket(
                 Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
         when(j1939.requestMultiple(DM6PendingEmissionDTCPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3));
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM6 Request" + NL;
@@ -873,7 +879,8 @@ public class DTCModuleTest {
                 0x10,
                 0x04,
                 0x00));
-        when(j1939.requestMultiple(DM6PendingEmissionDTCPacket.class, requestPacket)).thenReturn(Stream.of(packet1));
+        when(j1939.requestMultiple(DM6PendingEmissionDTCPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM6 Request" + NL;

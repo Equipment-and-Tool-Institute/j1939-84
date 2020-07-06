@@ -24,7 +24,9 @@ public class EngineSpeedModule extends FunctionalModule {
     private EngineSpeedPacket getEngineSpeedPacket() {
         // The transmission rate changes based upon the engine speed. 100 ms is
         // the longest period between messages when the engine is off
-        return getJ1939().read(EngineSpeedPacket.class, J1939.ENGINE_ADDR, 300, TimeUnit.MILLISECONDS).orElse(null);
+        return getJ1939().read(EngineSpeedPacket.class, J1939.ENGINE_ADDR, 300, TimeUnit.MILLISECONDS)
+                .flatMap(e -> e.left)
+                .orElse(null);
     }
 
     /**

@@ -29,7 +29,9 @@ public class EchoTest {
                     () -> Packet.create(65260, 0x0, VIN.getBytes()));
 
             assertEquals(VIN,
-                    new J1939(bus).requestMultiple(VehicleIdentificationPacket.class).findFirst()
+                    new J1939(bus).requestMultiple(VehicleIdentificationPacket.class)
+                            .flatMap(e -> e.left.stream())
+                            .findFirst()
                             .map(p1 -> new String(p1.getPacket().getBytes())).get());
         }
     }

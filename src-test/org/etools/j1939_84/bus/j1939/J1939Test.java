@@ -97,7 +97,7 @@ public class J1939Test {
         J1939 j1939 = new J1939(echoBus);
         for (int id = 0; id < 0x1FFFFF; id++) {
             Packet packet = Packet.create(id, 0x17, 11, 22, 33, 44, 55, 66, 77, 88);
-            Stream<ParsedPacket> stream = j1939.read();
+            Stream<?> stream = j1939.read();
             echoBus.send(packet);
             assertTrue("Failed on id " + id, stream.findFirst().isPresent());
         }
@@ -124,8 +124,8 @@ public class J1939Test {
         Packet packet2 = Packet.create(VehicleIdentificationPacket.PGN, 0x00, 1, 2, 3, 4, 5, 6, 7, 8);
         when(bus.read(5000, TimeUnit.DAYS)).thenReturn(Stream.of(packet1, packet2, packet1, packet2, packet1, packet2));
 
-        Stream<EngineSpeedPacket> response = instance.read(EngineSpeedPacket.class, 5000, TimeUnit.DAYS);
-        List<EngineSpeedPacket> packets = response.collect(Collectors.toList());
+        Stream<?> response = instance.read(EngineSpeedPacket.class, 5000, TimeUnit.DAYS);
+        List<?> packets = response.collect(Collectors.toList());
         assertEquals(1, packets.size());
     }
 
@@ -146,7 +146,9 @@ public class J1939Test {
                 | 0x00, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
 
         DM30ScaledTestResultsPacket packet = instance
-                .requestPacket(requestPacket, DM30ScaledTestResultsPacket.class, 0x00, 4).orElse(null);
+                .requestPacket(requestPacket, DM30ScaledTestResultsPacket.class, 0x00, 4)
+                .flatMap(e -> e.left)
+                .orElse(null);
         assertNotNull(packet);
 
         verify(bus).send(sendPacketCaptor.capture());
@@ -170,7 +172,7 @@ public class J1939Test {
         Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN
                 | 0x00, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
 
-        DM30ScaledTestResultsPacket packet = instance
+        Object packet = instance
                 .requestPacket(requestPacket, DM30ScaledTestResultsPacket.class, 0x00, 3).orElse(null);
         assertNull(packet);
 
@@ -197,7 +199,7 @@ public class J1939Test {
         Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN
                 | 0x00, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
 
-        DM30ScaledTestResultsPacket packet = instance
+        Object packet = instance
                 .requestPacket(requestPacket, DM30ScaledTestResultsPacket.class, 0x00, 3).orElse(null);
         assertNotNull(packet);
 
@@ -209,7 +211,7 @@ public class J1939Test {
 
     @Test
     public void testRequestMultipleByClassHandlesException() throws Exception {
-        Stream<TestPacket> response = instance.requestMultiple(TestPacket.class);
+        Stream<?> response = instance.requestMultiple(TestPacket.class);
         assertEquals(0, response.count());
     }
 
@@ -223,7 +225,8 @@ public class J1939Test {
 
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
 
-        Stream<VehicleIdentificationPacket> response = instance.requestMultiple(VehicleIdentificationPacket.class);
+        Stream<VehicleIdentificationPacket> response = instance.requestMultiple(VehicleIdentificationPacket.class)
+                .flatMap(e -> e.left.stream());
         List<VehicleIdentificationPacket> packets = response.collect(Collectors.toList());
         assertEquals(3, packets.size());
         assertEquals("EngineVIN", packets.get(0).getVin());
@@ -239,7 +242,7 @@ public class J1939Test {
                 .thenThrow(new BusException("Testing"));
         Packet request = instance.createRequestPacket(DM5DiagnosticReadinessPacket.PGN, 0x00);
         Stream<DM5DiagnosticReadinessPacket> response = instance.requestMultiple(DM5DiagnosticReadinessPacket.class,
-                request);
+                request).flatMap(e -> e.left.stream());
         assertEquals(0, response.count());
     }
 
@@ -250,7 +253,8 @@ public class J1939Test {
 
         Packet requestPacket = instance.createRequestPacket(EngineHoursPacket.PGN, ENGINE_ADDR);
 
-        Stream<EngineHoursPacket> response = instance.requestMultiple(EngineHoursPacket.class, requestPacket);
+        Stream<EngineHoursPacket> response = instance.requestMultiple(EngineHoursPacket.class, requestPacket)
+                .flatMap(e -> e.left.stream());
         List<EngineHoursPacket> packets = response.collect(Collectors.toList());
         assertEquals(1, packets.size());
         assertEquals(3365299.25, packets.get(0).getEngineHours(), 0.0001);
@@ -261,7 +265,7 @@ public class J1939Test {
     @Test
     public void testRequestMultipleHandlesException() throws Exception {
         Stream<TestPacket> response = instance.requestMultiple(TestPacket.class,
-                Packet.create(0xEA00 | 0, 0, 0, 0 >> 8, 0 >> 16));
+                Packet.create(0xEA00 | 0, 0, 0, 0 >> 8, 0 >> 16)).flatMap(e -> e.left.stream());
         assertEquals(0, response.count());
     }
 
@@ -271,7 +275,7 @@ public class J1939Test {
                 .thenReturn(Stream.empty()).thenReturn(Stream.empty());
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
         Stream<VehicleIdentificationPacket> response = instance.requestMultiple(VehicleIdentificationPacket.class,
-                request);
+                request).flatMap(e -> e.left.stream());
         assertEquals(0, response.count());
         verify(bus, times(3)).send(request);
     }
@@ -290,7 +294,7 @@ public class J1939Test {
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
 
         Stream<VehicleIdentificationPacket> response = instance.requestMultiple(VehicleIdentificationPacket.class,
-                request);
+                request).flatMap(e -> e.left.stream());
         List<VehicleIdentificationPacket> packets = response.collect(Collectors.toList());
         assertEquals(1, packets.size());
         assertEquals(expected, packets.get(0).getVin());
@@ -310,6 +314,7 @@ public class J1939Test {
         Packet requestPacket = instance.createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
 
         List<AcknowledgmentPacket> responses = instance.requestMultiple(AcknowledgmentPacket.class, requestPacket)
+                .flatMap(e -> e.right.stream())
                 .collect(Collectors.toList());
         assertEquals(3, responses.size());
 
@@ -336,7 +341,7 @@ public class J1939Test {
 
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
         Stream<VehicleIdentificationPacket> response = instance.requestMultiple(VehicleIdentificationPacket.class,
-                request);
+                request).flatMap(e -> e.left.stream());
         List<VehicleIdentificationPacket> packets = response.collect(Collectors.toList());
         assertEquals(3, packets.size());
         assertEquals("EngineVIN", packets.get(0).getVin());
@@ -352,7 +357,7 @@ public class J1939Test {
                 .thenReturn(Stream.of(Packet.create(VehicleIdentificationPacket.PGN, 0x00, "*".getBytes(UTF8))));
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
         Stream<VehicleIdentificationPacket> response = instance.requestMultiple(VehicleIdentificationPacket.class,
-                request);
+                request).flatMap(e -> e.left.stream());
         assertEquals(1, response.count());
         verify(bus, times(2)).send(request);
     }
@@ -364,7 +369,7 @@ public class J1939Test {
                 .thenReturn(Stream.of(Packet.create(VehicleIdentificationPacket.PGN, 0x00, "*".getBytes(UTF8))));
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
         Stream<VehicleIdentificationPacket> response = instance.requestMultiple(VehicleIdentificationPacket.class,
-                request);
+                request).flatMap(e -> e.left.stream());
         assertEquals(1, response.count());
         verify(bus, times(3)).send(request);
     }
@@ -404,11 +409,11 @@ public class J1939Test {
                 response10));
 
         Packet request = instance.createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
-        List<ParsedPacket> packets = instance
-                .requestRaw(AcknowledgmentPacket.class, request, 5500, TimeUnit.MILLISECONDS)
+        List<?> packets = instance
+                .requestRaw(DM11ClearActiveDTCsPacket.class, request, 5500, TimeUnit.MILLISECONDS)
                 .collect(Collectors.toList());
 
-        assertEquals(9, packets.size());
+        assertEquals(8, packets.size());
     }
 
 }

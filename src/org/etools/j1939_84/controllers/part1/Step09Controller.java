@@ -23,8 +23,8 @@ import org.etools.j1939_84.utils.StringUtils;
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
- * The controller for 6.1.9 Component ID: Make, Model, Serial Number
- * Support
+ *         The controller for 6.1.9 Component ID: Make, Model, Serial Number
+ *         Support
  */
 public class Step09Controller extends StepController {
 
@@ -66,14 +66,9 @@ public class Step09Controller extends StepController {
         // ComponentIdentificationPacket
         List<ComponentIdentificationPacket> packets = dataRepository.getObdModuleAddresses()
                 .stream()
-                .flatMap(moduleAddress -> {
-                    return getVehicleInformationModule().reportComponentIdentification(getListener(), moduleAddress)
-                            .stream();
-                })
-                .filter(packet -> {
-                    return packet instanceof ComponentIdentificationPacket;
-                })
-                .map(packet -> (ComponentIdentificationPacket) packet)
+                .flatMap(moduleAddress -> getVehicleInformationModule()
+                        .reportComponentIdentification(getListener(), moduleAddress)
+                        .stream())
                 .collect(Collectors.toList());
         if (packets.isEmpty()) {
             getListener().addOutcome(1,
@@ -82,7 +77,8 @@ public class Step09Controller extends StepController {
                     "6.1.9.1.a There are no positive responses (serial number SPN 588 not supported by any OBD ECU)");
         }
 
-        // Filter the modules responded to be only ones with function = 0 (engine
+        // Filter the modules responded to be only ones with function = 0
+        // (engine
         // function)
         List<OBDModuleInformation> zeroFunctionObdBDModules = dataRepository.getObdModules()
                 .stream()
@@ -101,9 +97,7 @@ public class Step09Controller extends StepController {
                 : zeroFunctionObdBDModules.get(0).getSourceAddress();
 
         List<ComponentIdentificationPacket> zeroFunctionPackets = packets.stream()
-                .filter(zeroPacket -> {
-                    return zeroPacket.getSourceAddress() == function0SourceAddress;
-                })
+                .filter(zeroPacket -> zeroPacket.getSourceAddress() == function0SourceAddress)
                 .collect(Collectors.toList());
 
         ComponentIdentificationPacket zeroFunctionPacket = null;
@@ -117,7 +111,8 @@ public class Step09Controller extends StepController {
         }
 
         // 6.1.9.2 Fail Criteria:
-        // c. Fail if the serial number field (SPN 588) from any function 0 device does
+        // c. Fail if the serial number field (SPN 588) from any function 0
+        // device does
         // not end in 6 numeric characters (ASCII 0 through ASCII 9).
         String serialNumber = zeroFunctionPacket != null ? zeroFunctionPacket.getSerialNumber() : "";
 
@@ -130,7 +125,8 @@ public class Step09Controller extends StepController {
                     "6.1.9.2.c Serial number field (SPN 588) from any function 0 device does not end in 6 numeric characters (ASCII 0 through ASCII 9)");
         }
 
-        // d. Fail if the make (SPN 586), model (SPN 587), or serial number (SPN 588)
+        // d. Fail if the make (SPN 586), model (SPN 587), or serial number (SPN
+        // 588)
         // from any OBD ECU contains any unprintable ASCII characters.
         String make = zeroFunctionPacket != null ? zeroFunctionPacket.getMake() : "";
         String model = zeroFunctionPacket != null ? zeroFunctionPacket.getModel() : null;
@@ -146,7 +142,8 @@ public class Step09Controller extends StepController {
         }
 
         // 6.1.9.3 Warn Criteria for OBD ECUs:
-        // a. Warn if the serial number field (SPN 588) from any function 0 device is
+        // a. Warn if the serial number field (SPN 588) from any function 0
+        // device is
         // less than 8 characters long.
         if (!serialNumber.isEmpty() && serialNumber.length() < 8) {
             getListener().addOutcome(1,
@@ -154,7 +151,8 @@ public class Step09Controller extends StepController {
                     Outcome.WARN,
                     "6.1.9.3.a Serial number field (SPN 588) from any function 0 device is less than 8 characters long");
         }
-        // b. Warn if the make field (SPN 586) is longer than 5 ASCII characters.
+        // b. Warn if the make field (SPN 586) is longer than 5 ASCII
+        // characters.
         if (!make.isEmpty() && make.length() > 5) {
             getListener().addOutcome(1,
                     9,
@@ -176,25 +174,28 @@ public class Step09Controller extends StepController {
                     "6.1.9.3.d Model field (SPN 587) is less than 1 character long");
         }
 
-        // 6.1.9.4 Actions2: [Note: No warning message shall be provided for responses
+        // 6.1.9.4 Actions2: [Note: No warning message shall be provided for
+        // responses
         // from non-OBD devices for PGN 59904].
 
-        // a. Global Component ID request (PGN 59904) for PGN 65259 (SPNs 586, 587, and
+        // a. Global Component ID request (PGN 59904) for PGN 65259 (SPNs 586,
+        // 587, and
         // 588).
         // b. Display each positive return in the log.
         List<ComponentIdentificationPacket> globalPackets = getVehicleInformationModule()
-                .reportComponentIdentification(getListener()).stream()
-                .filter(globalPacket -> globalPacket instanceof ComponentIdentificationPacket)
-                .collect(Collectors.toList());
+                .reportComponentIdentification(getListener());
 
         // 6.1.9.5 Fail Criteria2 for function 0:
 
-        // a. Fail if there is no positive response from function 0. (Global request not
+        // a. Fail if there is no positive response from function 0. (Global
+        // request not
         // supported or timed out)
-        // b. Fail if the global response does not match the destination specific
+        // b. Fail if the global response does not match the destination
+        // specific
         // response from function 0.
 
-        // FIXME This needs to check the packets to have source addresses from the
+        // FIXME This needs to check the packets to have source addresses from
+        // the
         // function=0 Module.
         List<OBDModuleInformation> globalObdModuleInformations = dataRepository.getObdModules().stream()
                 .filter(module -> module.getFunction() == 0).collect(Collectors.toList());
@@ -214,7 +215,8 @@ public class Step09Controller extends StepController {
         }
 
         // 6.1.9.6 Warn Criteria2 for OBD ECUs other than function 0:
-        // a. Warn if Component ID not supported for the global query in 6.1.9.4, when
+        // a. Warn if Component ID not supported for the global query in
+        // 6.1.9.4, when
         // supported by destination specific query
         packets.forEach(singlePacket -> {
             if (!globalPackets.contains(singlePacket)) {

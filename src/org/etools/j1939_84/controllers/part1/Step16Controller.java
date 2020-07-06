@@ -10,7 +10,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
@@ -98,13 +97,11 @@ public class Step16Controller extends StepController {
         // a. Global DM2 (send Request (PGN 59904) for PGN 65227 (SPNs
         // 1213-1215, 3038,
         // 1706)).
-        RequestResult<ParsedPacket> globalDiagnosticTroubleCodePackets = dtcModule.requestDM2(getListener(), true);
+        RequestResult<DM2PreviouslyActiveDTC> globalDiagnosticTroubleCodePackets = dtcModule.requestDM2(getListener(),
+                true);
 
         // Get DM2PrevisoulyActiveDTC so we can get DTCs and report accordingly
-        List<DM2PreviouslyActiveDTC> globalDM2s = globalDiagnosticTroubleCodePackets.getPackets().stream()
-                .filter(p -> p instanceof DM2PreviouslyActiveDTC)
-                .map(p -> (DM2PreviouslyActiveDTC) p)
-                .collect(Collectors.toList());
+        List<DM2PreviouslyActiveDTC> globalDM2s = globalDiagnosticTroubleCodePackets.getPackets();
 
         // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC.
         if (globalDM2s.stream().flatMap(packet -> packet.getDtcs().stream()).findAny().isPresent()) {
@@ -140,11 +137,11 @@ public class Step16Controller extends StepController {
         }
 
         // 6.1.16.3.a DS DM2 to each OBD ECU
-        List<ParsedPacket> dsDM2s = new ArrayList<>();
+        List<DM2PreviouslyActiveDTC> dsDM2s = new ArrayList<>();
         obdModuleAddresses.stream()
                 .forEach(address -> dsDM2s.addAll(dtcModule.requestDM2(getListener(), true, address).getPackets()));
 
-        List<ParsedPacket> unmatchedPackets = globalDiagnosticTroubleCodePackets.getPackets().stream()
+        List<DM2PreviouslyActiveDTC> unmatchedPackets = globalDiagnosticTroubleCodePackets.getPackets().stream()
                 .filter(aObject -> (!verifyPacketsEquality(dsDM2s, aObject))).collect(Collectors.toList());
 
         // 6.1.16.4.a Fail if any responses differ from global responses
@@ -158,9 +155,8 @@ public class Step16Controller extends StepController {
         // 6.1.16.4.b Fail if NACK not received from OBD ECUs that did not
         // respond to
         // global query
-        boolean missingNack = unmatchedPackets.stream()
-                .anyMatch(packet -> packet instanceof AcknowledgmentPacket
-                        && ((AcknowledgmentPacket) packet).getResponse() != Response.NACK);
+        boolean missingNack = globalDiagnosticTroubleCodePackets.getAcks().stream()
+                .anyMatch(packet -> packet.getResponse() != Response.NACK);
         if (missingNack) {
             getListener().addOutcome(1,
                     16,
@@ -169,7 +165,7 @@ public class Step16Controller extends StepController {
         }
     }
 
-    private boolean verifyPacketsEquality(List<ParsedPacket> packets, ParsedPacket packet) {
+    private boolean verifyPacketsEquality(List<? extends ParsedPacket> packets, ParsedPacket packet) {
         boolean found = false;
         for (ParsedPacket p : packets) {
             if (p.getSourceAddress() == packet.getSourceAddress() &&

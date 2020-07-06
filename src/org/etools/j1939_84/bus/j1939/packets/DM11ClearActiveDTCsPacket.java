@@ -12,28 +12,28 @@ import org.etools.j1939_84.bus.Packet;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class DM11ClearActiveDTCsPacket extends ParsedPacket {
+public class DM11ClearActiveDTCsPacket extends AcknowledgmentPacket {
 
     /**
      * The possible responses to the DM11 request
      */
-    public enum Response {
+    public enum DM11Response {
         ACK(0, "Acknowledged"), BUSY(3, "Busy"), DENIED(2, "Denied"), NACK(1, "NACK"), UNKNOWN(-1, "Unknown");
 
-        private static Response find(int value) {
-            for (Response r : Response.values()) {
+        private static DM11Response find(int value) {
+            for (DM11Response r : DM11Response.values()) {
                 if (r.value == value) {
                     return r;
                 }
             }
-            return Response.UNKNOWN;
+            return DM11Response.UNKNOWN;
         }
 
         private final String string;
 
         private final int value;
 
-        private Response(int value, String string) {
+        private DM11Response(int value, String string) {
             this.value = value;
             this.string = string;
         }
@@ -46,16 +46,11 @@ public class DM11ClearActiveDTCsPacket extends ParsedPacket {
 
     public static final int PGN = 65235;
 
-    private final Response response;
+    private final DM11Response response;
 
     public DM11ClearActiveDTCsPacket(Packet packet) {
         super(packet);
         response = parseResponse();
-    }
-
-    @Override
-    public String getName() {
-        return "DM11";
     }
 
     /**
@@ -63,18 +58,23 @@ public class DM11ClearActiveDTCsPacket extends ParsedPacket {
      *
      * @return the response
      */
-    public Response getResponse() {
+    public DM11Response getDM11Response() {
         return response;
     }
 
-    private Response parseResponse() {
+    @Override
+    public String getName() {
+        return "DM11";
+    }
+
+    private DM11Response parseResponse() {
         int responseByte = getPacket().get(0);
-        return Response.find(responseByte);
+        return DM11Response.find(responseByte);
     }
 
     @Override
     public String toString() {
-        return getStringPrefix() + "Response is " + getResponse();
+        return getStringPrefix() + "Response is " + getDM11Response();
     }
 
 }
