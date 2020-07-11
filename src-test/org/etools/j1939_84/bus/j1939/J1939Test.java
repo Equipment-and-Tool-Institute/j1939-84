@@ -126,7 +126,7 @@ public class J1939Test {
 
         Stream<?> response = instance.read(EngineSpeedPacket.class, 5000, TimeUnit.DAYS);
         List<?> packets = response.collect(Collectors.toList());
-        assertEquals(1, packets.size());
+        assertEquals(3, packets.size());
     }
 
     /**

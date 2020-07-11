@@ -372,7 +372,7 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
-    public void testReportCalibrationInformationWithAddress() {
+    public void testReportCalibrationInformationWithAddress() throws InterruptedException {
         final int pgn = DM19CalibrationInformationPacket.PGN;
         final byte[] calBytes1 = "ABCD1234567890123456".getBytes(UTF8);
 
@@ -393,8 +393,9 @@ public class VehicleInformationModuleTest {
         expected += "10:15:30.000 DS DM19 (Calibration Information) Request to 00" + NL;
         expected += "10:15:30.000 18EAFFA5 00 D3 00 (TX)" + NL;
         expected += "10:15:30.000 18D30000 41 42 43 44 31 32 33 34 35 36 37 38 39 30 31 32 33 34 35 36" + NL;
-        expected += "10:15:30.000 18D30017 " + NL;
-        expected += "10:15:30.000 18D30021 " + NL;
+        // why were we expecting calibration packets from the wrong addresses?
+        // expected += "10:15:30.000 18D30017 " + NL;
+        // expected += "10:15:30.000 18D30021 " + NL;
         TestResultsListener listener = new TestResultsListener();
         instance.reportCalibrationInformation(listener, 0x00);
         assertEquals(expected, listener.getResults());

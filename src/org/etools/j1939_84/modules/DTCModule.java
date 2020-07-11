@@ -267,7 +267,7 @@ public class DTCModule extends FunctionalModule {
     public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString,
             int obdAddress) {
 
-        return getPackets("Destination Specific DM2 Request",
+        return getPacket("Destination Specific DM2 Request",
                 DM2PreviouslyActiveDTC.PGN,
                 DM2PreviouslyActiveDTC.class,
                 listener,
