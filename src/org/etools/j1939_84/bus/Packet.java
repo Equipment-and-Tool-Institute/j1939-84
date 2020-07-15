@@ -263,7 +263,8 @@ public class Packet {
      * @return int
      */
     public long get32(int i) {
-        return (data[i + 3] << 24) | (data[i + 2] << 16) | (data[i + 1] << 8) | data[i];
+        return ((data[i + 3] & 0xFF) << 24) | ((data[i + 2] & 0xFF) << 16) | ((data[i + 1] & 0xFF) << 8)
+                | (data[i] & 0xFF);
     }
 
     /**
