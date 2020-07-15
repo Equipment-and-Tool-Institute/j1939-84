@@ -10,7 +10,7 @@ package org.etools.j1939_84.bus.j1939.packets;
  *
  */
 public enum LampStatus {
-    FAST_FLASH("Fast Flash"), OFF("Off"), ON("On"), OTHER("Other"), SLOW_FLASH("Slow Flash");
+    FAST_FLASH("fast flash"), OFF("off"), ON("on"), OTHER("other"), SLOW_FLASH("slow flash");
 
     /**
      * Returns a {@link LampStatus} based upon the onOff and flash values as
