@@ -42,7 +42,6 @@ public class EngineHoursTimer {
 
     @Override
     public boolean equals(Object obj) {
-        // TODO Auto-generated method stub
         if (!(obj instanceof EngineHoursTimer)) {
             return false;
         }
