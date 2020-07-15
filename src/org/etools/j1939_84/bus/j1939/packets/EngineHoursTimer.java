@@ -117,19 +117,12 @@ public class EngineHoursTimer {
      */
     private long getScaledLongValue(byte[] bytes, int index, long divisor) {
         byte upperByte = bytes[index + 3];
-        for (byte b : bytes) {
-            System.out.println(b);
-            System.out.println(getLong(bytes, index));
-        }
         switch (upperByte) {
         case (byte) 0xFF:
             return NOT_AVAILABLE;
         case (byte) 0xFE:
             return ERROR;
         default:
-            for (byte b : bytes) {
-                System.out.println(b);
-            }
             return getLong(bytes, index) / divisor;
         }
     }
