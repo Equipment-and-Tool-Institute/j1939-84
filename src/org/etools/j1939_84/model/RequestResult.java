@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.model;
 
+import static org.etools.j1939_84.J1939_84.NL;
+
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -44,6 +46,22 @@ public class RequestResult<T extends ParsedPacket> {
         this.acks = Objects.requireNonNull(acks);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof RequestResult)) {
+            return false;
+        }
+
+        RequestResult<?> that = (RequestResult<?>) obj;
+        return this.isRetryUsed() == that.isRetryUsed()
+                && Objects.equals(this.getPackets(), that.getPackets())
+                && Objects.equals(this.getAcks(), that.getAcks());
+    }
+
     public List<AcknowledgmentPacket> getAcks() {
         return acks;
     }
@@ -62,11 +80,46 @@ public class RequestResult<T extends ParsedPacket> {
         return packets;
     }
 
+    @Override
+    public int hashCode() {
+        return Objects.hash(isRetryUsed(), getPackets(), getAcks());
+    }
+
     /**
      * @return the retryUsed
      */
     public boolean isRetryUsed() {
         return retryUsed;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder("RequestResult");
+        sb.append(NL)
+                .append("Retry  used : ")
+                .append(isRetryUsed());
+        this.getPackets().forEach(packet -> {
+            sb.append(NL)
+                    .append("Source address : ")
+                    .append(packet.getSourceAddress())
+                    .append(" returned ")
+                    .append(packet.toString());
+        });
+        if (this.getPackets().isEmpty()) {
+            sb.append(NL).append("No packets returned");
+        }
+        this.getAcks().forEach(ack -> {
+            sb.append(NL)
+                    .append("Source address : ")
+                    .append(ack.getSourceAddress())
+                    .append(" returned ")
+                    .append(ack.toString());
+        });
+        if (this.getAcks().isEmpty()) {
+            sb.append(NL).append("No acks returned");
+        }
+
+        return sb.toString();
     }
 
 }
