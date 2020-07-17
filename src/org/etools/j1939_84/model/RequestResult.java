@@ -105,7 +105,7 @@ public class RequestResult<T extends ParsedPacket> {
                     .append(" returned ")
                     .append(packet.toString());
         });
-        if (this.getPackets() == null || this.getPackets().isEmpty()) {
+        if (this.getPackets().isEmpty()) {
             sb.append(NL).append("No packets returned");
         }
         this.getAcks().forEach(ack -> {
@@ -115,7 +115,7 @@ public class RequestResult<T extends ParsedPacket> {
                     .append(" returned ")
                     .append(ack.toString());
         });
-        if (this.getAcks() == null || this.getAcks().isEmpty()) {
+        if (this.getAcks().isEmpty()) {
             sb.append(NL).append("No acks returned");
         }
 
