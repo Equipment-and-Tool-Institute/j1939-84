@@ -63,26 +63,6 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Sends an destination specific request for DM2 Packets. The request and
-     * results will be returned to the {@link ResultsListener}
-     *
-     * @param listener
-     *            the {@link ResultsListener} for the results
-     * @param fullString
-     *            true to include the full string of the results in the report;
-     *            false to only include the returned raw packet in the report
-     * @param obdModuleAddress
-     *            the address to which the destination specific request will be
-     *            sent
-     * @return the {@link List} of {@link DM2PreviouslyActiveDTC}s
-     */
-    public List<DM2PreviouslyActiveDTC> getDM2Packets(ResultsListener listener,
-            boolean fullString,
-            int obdModuleAddress) {
-        return requestDM2(listener, fullString, obdModuleAddress).getPackets();
-    }
-
-    /**
      * Requests DM11 from OBD modules and generates a {@link String} that's
      * suitable for inclusion in the report
      *
@@ -135,25 +115,6 @@ public class DTCModule extends FunctionalModule {
         return generateReport(listener,
                 "Global DM12 Request",
                 DM12MILOnEmissionDTCPacket.class,
-                request).stream()
-                        // ignore the NACKs
-                        .flatMap(e -> e.left.stream())
-                        .anyMatch(t -> !t.getDtcs().isEmpty());
-    }
-
-    /**
-     * Requests and reports DM2 from all vehicle modules and generates a
-     * {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *            the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public boolean reportDM2(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM2PreviouslyActiveDTC.PGN, GLOBAL_ADDR);
-        return generateReport(listener,
-                "Global DM2 Request",
-                DM2PreviouslyActiveDTC.class,
                 request).stream()
                         // ignore the NACKs
                         .flatMap(e -> e.left.stream())
@@ -248,11 +209,12 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString) {
 
-        return getPacketsFromGlobal("Global DM2 Request",
+        return getPackets("Global DM2 Request",
                 DM2PreviouslyActiveDTC.PGN,
                 DM2PreviouslyActiveDTC.class,
                 listener,
-                fullString);
+                fullString,
+                GLOBAL_ADDR);
 
     }
 
@@ -546,44 +508,17 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM6PendingEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        return new RequestResult<>(false, getJ1939()
+        listener.onResult(getTime() + " Global DM6 Request");
+        listener.onResult(getTime() + " " + request);
+
+        RequestResult<DM6PendingEmissionDTCPacket> result = new RequestResult<>(false, getJ1939()
                 .requestRaw(DM6PendingEmissionDTCPacket.class,
                         request,
                         5500,
                         TimeUnit.MILLISECONDS)
                 .collect(Collectors.toList()));
-    }
+        listener.onResult(result.getPackets().stream().map(getPacketMapperFunction()).collect(Collectors.toList()));
 
-    /**
-     * Requests a global DM6 and generates a {@link String} that's suitable for
-     * inclusion in the report
-     *
-     * @param listener
-     *            the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener, List<Integer> obdModules) {
-        Packet requestPacket = getJ1939().createRequestPacket(DM6PendingEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        listener.onResult(getTime() + " Global DM6 Request");
-        listener.onResult(getTime() + " " + requestPacket);
-
-        RequestResult<DM6PendingEmissionDTCPacket> results = new RequestResult<>(false, getJ1939()
-                .requestRaw(DM6PendingEmissionDTCPacket.class,
-                        requestPacket,
-                        5500,
-                        TimeUnit.MILLISECONDS)
-                .collect(Collectors.toList()));
-
-        listener.onResult(results.getPackets().stream().map(getPacketMapperFunction()).collect(Collectors.toList()));
-        // FIXME this looks like it is clearing faults, but that's not what DM6
-        // does.
-        if (results.getAcks().stream().anyMatch(t -> obdModules.contains(t.getSourceAddress())
-                && t.getResponse() != Response.ACK)) {
-            listener.onResult(DTCS_CLEARED);
-        } else {
-            listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
-        }
-        return results;
-
+        return result;
     }
 }

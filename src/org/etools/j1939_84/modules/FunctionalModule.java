@@ -5,6 +5,8 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
@@ -138,7 +140,7 @@ public abstract class FunctionalModule {
             packets = getJ1939().requestRaw(clazz, request, 5500, TimeUnit.MILLISECONDS).collect(Collectors.toList());
             if (packets.stream()
                     .map(p -> p.as(ParsedPacket.class))
-                    .filter(p -> address == p.getSourceAddress())
+                    .filter(p -> address == p.getSourceAddress() || address == GLOBAL_ADDR)
                     .findFirst()
                     .isPresent()) {
                 // The module responded, report the results
