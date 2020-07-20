@@ -103,25 +103,6 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests DM12 from all vehicle modules and generates a {@link String}
-     * that's suitable for inclusion in the report
-     *
-     * @param listener
-     *            the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public boolean reportDM12(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM12MILOnEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        return generateReport(listener,
-                "Global DM12 Request",
-                DM12MILOnEmissionDTCPacket.class,
-                request).stream()
-                        // ignore the NACKs
-                        .flatMap(e -> e.left.stream())
-                        .anyMatch(t -> !t.getDtcs().isEmpty());
-    }
-
-    /**
      * Requests DM23 from all vehicle modules and generates a {@link String}
      * that's suitable for inclusion in the report
      *
@@ -191,12 +172,33 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM12MILOnEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        return new RequestResult<>(false, generateReport(listener,
-                "Global DM12 Request",
+    public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, boolean fullString) {
+
+        return getPackets("Global DM12 Request",
+                DM12MILOnEmissionDTCPacket.PGN,
                 DM12MILOnEmissionDTCPacket.class,
-                request));
+                listener,
+                fullString,
+                GLOBAL_ADDR);
+    }
+
+    /**
+     * Requests DM12 from a specific vehicle modules address and generates a
+     * {@link String} that's suitable for inclusion in the report
+     *
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, boolean fullString,
+            int moduleAddress) {
+
+        return getPackets("Destination Specific DM12 Request",
+                DM12MILOnEmissionDTCPacket.PGN,
+                DM12MILOnEmissionDTCPacket.class,
+                listener,
+                fullString,
+                moduleAddress);
     }
 
     /**

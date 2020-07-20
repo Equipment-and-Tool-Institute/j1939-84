@@ -250,109 +250,6 @@ public class DTCModuleTest {
     }
 
     @Test
-    public void testReportDM12() {
-        final int pgn = DM12MILOnEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-
-        DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
-        DM12MILOnEmissionDTCPacket packet2 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x17, 0, 0, 0, 0, 0, 0, 0, 0));
-        DM12MILOnEmissionDTCPacket packet3 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
-        when(j1939.requestMultiple(DM12MILOnEmissionDTCPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
-
-        String expected = "";
-        expected += "10:15:30.000 Global DM12 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 D4 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FED400 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
-        expected += "10:15:30.000 18FED417 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM12 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
-        expected += "10:15:30.000 18FED421 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM12 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        assertEquals(false, instance.reportDM12(listener));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestMultiple(DM12MILOnEmissionDTCPacket.class, requestPacket);
-    }
-
-    @Test
-    public void testReportDM12WithDTCs() {
-        final int pgn = DM12MILOnEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-
-        DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(Packet.create(pgn,
-                0x00,
-                0x00,
-                0xFF,
-                0x61,
-                0x02,
-                0x13,
-                0x00,
-                0x21,
-                0x06,
-                0x1F,
-                0x00,
-                0xEE,
-                0x10,
-                0x04,
-                0x00));
-        when(j1939.requestMultiple(DM12MILOnEmissionDTCPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
-
-        String expected = "";
-        expected += "10:15:30.000 Global DM12 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 D4 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FED400 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 0 times" + NL;
-        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 0 times" + NL;
-        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
-                + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        assertEquals(true, instance.reportDM12(listener));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestMultiple(DM12MILOnEmissionDTCPacket.class, requestPacket);
-    }
-
-    @Test
-    public void testReportDM12WithNoResponses() {
-        final int pgn = DM12MILOnEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-
-        when(j1939.requestMultiple(DM12MILOnEmissionDTCPacket.class, requestPacket)).thenReturn(Stream.empty());
-
-        String expected = "";
-        expected += "10:15:30.000 Global DM12 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 D4 FE 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        assertEquals(false, instance.reportDM12(listener));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestMultiple(DM12MILOnEmissionDTCPacket.class, requestPacket);
-    }
-
-    @Test
     public void testReportDM23() {
         final int pgn = DM23PreviouslyMILOnEmissionDTCPacket.PGN;
 
@@ -553,6 +450,232 @@ public class DTCModuleTest {
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM12DestinationSpecific() {
+        final int pgn = DM12MILOnEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(
+                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
+        when(j1939.requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM12 Request" + NL;
+        expected += "10:15:30.000 18EA00A5 D4 FE 00 (TX)" + NL;
+        expected += "10:15:30.000 18FED400 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "No DTCs" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        List<DM12MILOnEmissionDTCPacket> expectedPackets = new ArrayList<>() {
+            {
+                add(packet1);
+            }
+        };
+        RequestResult<DM12MILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false, expectedPackets,
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM12(listener, true, 0x00));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM12DestinationSpecificWithDTCs() {
+        final int pgn = DM12MILOnEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(Packet.create(pgn,
+                0x00,
+                0x00,
+                0xFF,
+                0x61,
+                0x02,
+                0x13,
+                0x00,
+                0x21,
+                0x06,
+                0x1F,
+                0x00,
+                0xEE,
+                0x10,
+                0x04,
+                0x00));
+        when(j1939.requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM12 Request" + NL;
+        expected += "10:15:30.000 18EA00A5 D4 FE 00 (TX)" + NL;
+        expected += "10:15:30.000 18FED400 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 0 times" + NL;
+        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 0 times" + NL;
+        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM12MILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet1), Collections.emptyList());
+
+        assertEquals(expectedResult, instance.requestDM12(listener, true, 0x00));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM12DestinationSpecificWithNoResponses() {
+        final int pgn = DM12MILOnEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x17, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x17)).thenReturn(requestPacket);
+
+        when(j1939.requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.empty()).thenReturn(Stream.empty()).thenReturn(Stream.empty());
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM12 Request" + NL;
+        expected += "10:15:30.000 18EA17A5 D4 FE 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM12MILOnEmissionDTCPacket> expectedResult = new RequestResult<>(true, Collections.emptyList(),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM12(listener, true, 0x17));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x17);
+        verify(j1939, times(3)).requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500,
+                TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM12Global() {
+        final int pgn = DM12MILOnEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(
+                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
+        DM12MILOnEmissionDTCPacket packet2 = new DM12MILOnEmissionDTCPacket(
+                Packet.create(pgn, 0x17, 0, 0, 0, 0, 0, 0, 0, 0));
+        DM12MILOnEmissionDTCPacket packet3 = new DM12MILOnEmissionDTCPacket(
+                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
+        when(j1939.requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM12 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 D4 FE 00 (TX)" + NL;
+        expected += "10:15:30.000 18FED400 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "No DTCs" + NL;
+        expected += "10:15:30.000 18FED417 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM12 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "No DTCs" + NL;
+        expected += "10:15:30.000 18FED421 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM12 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "No DTCs" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        List<DM12MILOnEmissionDTCPacket> expectedPackets = new ArrayList<>() {
+            {
+                add(packet1);
+                add(packet2);
+                add(packet3);
+            }
+        };
+        RequestResult<DM12MILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false, expectedPackets,
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM12(listener, true));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM12GlobalWithDTCs() {
+        final int pgn = DM12MILOnEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(Packet.create(pgn,
+                0x00,
+                0x00,
+                0xFF,
+                0x61,
+                0x02,
+                0x13,
+                0x00,
+                0x21,
+                0x06,
+                0x1F,
+                0x00,
+                0xEE,
+                0x10,
+                0x04,
+                0x00));
+        when(j1939.requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM12 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 D4 FE 00 (TX)" + NL;
+        expected += "10:15:30.000 18FED400 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 0 times" + NL;
+        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 0 times" + NL;
+        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM12MILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet1), Collections.emptyList());
+
+        assertEquals(expectedResult, instance.requestDM12(listener, true));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM12GlobalWithNoResponses() {
+        final int pgn = DM12MILOnEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        when(j1939.requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.empty()).thenReturn(Stream.empty()).thenReturn(Stream.empty());
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM12 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 D4 FE 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM12MILOnEmissionDTCPacket> expectedResult = new RequestResult<>(true, Collections.emptyList(),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM12(listener, true));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939, times(3)).requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500,
+                TimeUnit.MILLISECONDS);
     }
 
     @Test
