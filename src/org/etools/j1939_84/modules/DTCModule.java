@@ -28,6 +28,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM31ScaledTestResults;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 
@@ -60,46 +61,6 @@ public class DTCModule extends FunctionalModule {
      */
     public DTCModule(DateTimeModule dateTimeModule) {
         super(dateTimeModule);
-    }
-
-    /**
-     * Requests DM11 from OBD modules and generates a {@link String} that's
-     * suitable for inclusion in the report
-     *
-     * @param listener
-     *            the {@link ResultsListener} that will be given the report
-     * @param obdModules
-     *            the source address for the OBD Modules
-     * @return true if there are no NACKs from the OBD Modules; false if an OBD
-     *         Module NACK'd the request or didn't respond
-     */
-    public boolean reportDM11(ResultsListener listener, List<Integer> obdModules) {
-        listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
-
-        Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
-        listener.onResult(getTime() + " Global DM11 Request");
-        listener.onResult(getTime() + " " + requestPacket);
-
-        // FIXME, where did 5.5 s come from?
-        List<AcknowledgmentPacket> results = getJ1939()
-                .requestRaw(DM11ClearActiveDTCsPacket.class,
-                        requestPacket,
-                        5500,
-                        TimeUnit.MILLISECONDS)
-                // there are only ACKs
-                .flatMap(e -> e.right.stream())
-                .collect(Collectors.toList());
-
-        listener.onResult(results.stream().map(getPacketMapperFunction()).collect(Collectors.toList()));
-
-        if (results.stream().allMatch(t -> !obdModules.contains(t.getSourceAddress())
-                || t.getResponse() == Response.ACK)) {
-            listener.onResult(DTCS_CLEARED);
-            return true;
-        } else {
-            listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
-            return false;
-        }
     }
 
     /**
@@ -143,6 +104,46 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
+     * Send Global DM11 Request and generates a {@link String} that's suitable
+     * for inclusion in the report
+     *
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
+     * @param obdModules
+     *            the source address for the OBD Modules
+     * @return true if there are no NACKs from the OBD Modules; false if an OBD
+     *         Module NACK'd the request or didn't respond
+     */
+    public <T extends ParsedPacket> RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener) {
+        listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
+
+        Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN,
+                GLOBAL_ADDR);
+        listener.onResult(getTime() + " Global DM11 Request");
+        listener.onResult(getTime() + " " + requestPacket);
+
+        List<Either<DM11ClearActiveDTCsPacket, AcknowledgmentPacket>> results = getJ1939()
+                .requestRaw(DM11ClearActiveDTCsPacket.class,
+                        requestPacket,
+                        5500,
+                        TimeUnit.MILLISECONDS)
+                .collect(Collectors.toList());
+
+        listener.onResult(results.stream().map(e -> e.right).filter(o -> o.isPresent()).map(o -> o.get())
+                .map(getPacketMapperFunction())
+                .collect(Collectors.toList()));
+
+        if (results.stream().map(e -> e.right).filter(o -> o.isPresent()).map(o -> o.get())
+                .allMatch(t -> t.getResponse() == Response.ACK)) {
+            listener.onResult(DTCS_CLEARED);
+            return new RequestResult<>(false, results);
+        } else {
+            listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
+            return new RequestResult<>(false, results);
+        }
+    }
+
+    /**
      * Requests DM11 from OBD modules and generates a {@link String} that's
      * suitable for inclusion in the report
      *
@@ -153,15 +154,34 @@ public class DTCModule extends FunctionalModule {
      * @return true if there are no NACKs from the OBD Modules; false if an OBD
      *         Module NACK'd the request or didn't respond
      */
-    public RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener, List<Integer> obdModules) {
+    public <T extends ParsedPacket> RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener,
+            Integer obdModule) {
+        listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
 
-        Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
-        return new RequestResult<>(false, getJ1939()
+        Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN, obdModule);
+        listener.onResult(getTime() + " Destination Specific DM11 Request");
+        listener.onResult(getTime() + " " + requestPacket);
+
+        // FIXME, where did 5.5 s come from?
+        List<Either<DM11ClearActiveDTCsPacket, AcknowledgmentPacket>> results = getJ1939()
                 .requestRaw(DM11ClearActiveDTCsPacket.class,
                         requestPacket,
                         5500,
                         TimeUnit.MILLISECONDS)
+                .collect(Collectors.toList());
+
+        listener.onResult(results.stream().map(e -> e.right).filter(o -> o.isPresent()).map(o -> o.get())
+                .map(getPacketMapperFunction())
                 .collect(Collectors.toList()));
+
+        if (results.stream().map(e -> e.right).filter(o -> o.isPresent()).map(o -> o.get())
+                .allMatch(t -> t.getResponse() == Response.ACK)) {
+            listener.onResult(DTCS_CLEARED);
+            return new RequestResult<>(false, results);
+        } else {
+            listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
+            return new RequestResult<>(false, results);
+        }
     }
 
     /**

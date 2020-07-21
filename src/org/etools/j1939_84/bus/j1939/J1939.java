@@ -80,7 +80,7 @@ public class J1939 {
      */
     public static final int GLOBAL_ADDR = 0xFF;
 
-    private static final int REQUEST_PGN = 0xEA00;
+    public static final int REQUEST_PGN = 0xEA00;
 
     /** J1939-21 */
     private static final int SUCCESS = 0x00;
