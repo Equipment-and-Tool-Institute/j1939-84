@@ -73,107 +73,6 @@ public class DTCModuleTest {
     }
 
     @Test
-    public void testReportDM23() {
-        final int pgn = DM23PreviouslyMILOnEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-
-        DM23PreviouslyMILOnEmissionDTCPacket packet1 = new DM23PreviouslyMILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
-        DM23PreviouslyMILOnEmissionDTCPacket packet2 = new DM23PreviouslyMILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x17, 0, 0, 0, 0, 0, 0, 0, 0));
-        DM23PreviouslyMILOnEmissionDTCPacket packet3 = new DM23PreviouslyMILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
-        when(j1939.requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
-
-        String expected = "";
-        expected += "10:15:30.000 Global DM23 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 B5 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FDB500 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM23 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
-        expected += "10:15:30.000 18FDB517 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM23 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
-        expected += "10:15:30.000 18FDB521 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM23 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        assertEquals(false, instance.reportDM23(listener));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket);
-    }
-
-    @Test
-    public void testReportDM23WithDTCs() {
-        final int pgn = DM23PreviouslyMILOnEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-
-        DM23PreviouslyMILOnEmissionDTCPacket packet1 = new DM23PreviouslyMILOnEmissionDTCPacket(Packet.create(pgn,
-                0x00,
-                0x00,
-                0xFF,
-                0x61,
-                0x02,
-                0x13,
-                0x00,
-                0x21,
-                0x06,
-                0x1F,
-                0x00,
-                0xEE,
-                0x10,
-                0x04,
-                0x00));
-        when(j1939.requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
-
-        String expected = "";
-        expected += "10:15:30.000 Global DM23 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 B5 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FDB500 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM23 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 0 times" + NL;
-        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 0 times" + NL;
-        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
-                + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        assertEquals(true, instance.reportDM23(listener));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket);
-    }
-
-    @Test
-    public void testReportDM23WithNoResponses() {
-        final int pgn = DM23PreviouslyMILOnEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-
-        String expected = "";
-        expected += "10:15:30.000 Global DM23 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 B5 FD 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        assertEquals(false, instance.reportDM23(listener));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket);
-    }
-
-    @Test
     public void testReportDM28() {
         final int pgn = DM28PermanentEmissionDTCPacket.PGN;
 
@@ -838,6 +737,210 @@ public class DTCModuleTest {
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939, times(3)).requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500,
                 TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM23DestinationSpecific() {
+        final int pgn = DM23PreviouslyMILOnEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x21, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x21)).thenReturn(requestPacket);
+
+        DM23PreviouslyMILOnEmissionDTCPacket packet1 = new DM23PreviouslyMILOnEmissionDTCPacket(
+                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
+        when(j1939.requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM23 Request" + NL;
+        expected += "10:15:30.000 18EA21A5 B5 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FDB521 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM23 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "No DTCs" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+                Arrays.asList(packet1), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM23(listener, 0x21));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x21);
+        verify(j1939).requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM23DestinationSpecificWithDTCs() {
+        final int pgn = DM23PreviouslyMILOnEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        DM23PreviouslyMILOnEmissionDTCPacket packet1 = new DM23PreviouslyMILOnEmissionDTCPacket(Packet.create(pgn,
+                0x00,
+                0x00,
+                0xFF,
+                0x61,
+                0x02,
+                0x13,
+                0x00,
+                0x21,
+                0x06,
+                0x1F,
+                0x00,
+                0xEE,
+                0x10,
+                0x04,
+                0x00));
+        when(j1939.requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM23 Request" + NL;
+        expected += "10:15:30.000 18EA00A5 B5 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FDB500 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "DM23 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 0 times" + NL;
+        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 0 times" + NL;
+        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet1), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM23(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM23DestinationSpecificWithNoResponses() {
+        final int pgn = DM23PreviouslyMILOnEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x17, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x17)).thenReturn(requestPacket);
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM23 Request" + NL;
+        expected += "10:15:30.000 18EA17A5 B5 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM23(listener, 0x17));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x17);
+        verify(j1939).requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM23Global() {
+        final int pgn = DM23PreviouslyMILOnEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
+
+        DM23PreviouslyMILOnEmissionDTCPacket packet1 = new DM23PreviouslyMILOnEmissionDTCPacket(
+                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
+        DM23PreviouslyMILOnEmissionDTCPacket packet2 = new DM23PreviouslyMILOnEmissionDTCPacket(
+                Packet.create(pgn, 0x17, 0, 0, 0, 0, 0, 0, 0, 0));
+        DM23PreviouslyMILOnEmissionDTCPacket packet3 = new DM23PreviouslyMILOnEmissionDTCPacket(
+                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
+        when(j1939.requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM23 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 B5 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FDB500 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM23 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "No DTCs" + NL;
+        expected += "10:15:30.000 18FDB517 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM23 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "No DTCs" + NL;
+        expected += "10:15:30.000 18FDB521 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM23 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "No DTCs" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+                Arrays.asList(packet1, packet2, packet3), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM23(listener));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0xFF);
+        verify(j1939).requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM23GlobalWithDTCs() {
+        final int pgn = DM23PreviouslyMILOnEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
+
+        DM23PreviouslyMILOnEmissionDTCPacket packet1 = new DM23PreviouslyMILOnEmissionDTCPacket(Packet.create(pgn,
+                0x00,
+                0x00,
+                0xFF,
+                0x61,
+                0x02,
+                0x13,
+                0x00,
+                0x21,
+                0x06,
+                0x1F,
+                0x00,
+                0xEE,
+                0x10,
+                0x04,
+                0x00));
+        when(j1939.requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM23 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 B5 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FDB500 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "DM23 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 0 times" + NL;
+        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 0 times" + NL;
+        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet1), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM23(listener));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0xFF);
+        verify(j1939).requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM23GlobalWithNoResponses() {
+        final int pgn = DM23PreviouslyMILOnEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM23 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 B5 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM23(listener));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0xFF);
+        verify(j1939).requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket);
     }
 
     @Test
