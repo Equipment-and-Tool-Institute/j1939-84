@@ -64,26 +64,6 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests DM23 from all vehicle modules and generates a {@link String}
-     * that's suitable for inclusion in the report
-     *
-     * @param listener
-     *            the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public boolean reportDM23(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM23PreviouslyMILOnEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        return generateReport(listener,
-                "Global DM23 Request",
-                DM23PreviouslyMILOnEmissionDTCPacket.class,
-                request)
-                        .stream()
-                        // ignore the NACKs
-                        .flatMap(e -> e.left.stream())
-                        .anyMatch(t -> !t.getDtcs().isEmpty());
-    }
-
-    /**
      * Requests DM28 from all vehicle modules and generates a {@link String}
      * that's suitable for inclusion in the report
      *
@@ -122,25 +102,7 @@ public class DTCModule extends FunctionalModule {
         listener.onResult(getTime() + " Global DM11 Request");
         listener.onResult(getTime() + " " + requestPacket);
 
-        List<Either<DM11ClearActiveDTCsPacket, AcknowledgmentPacket>> results = getJ1939()
-                .requestRaw(DM11ClearActiveDTCsPacket.class,
-                        requestPacket,
-                        5500,
-                        TimeUnit.MILLISECONDS)
-                .collect(Collectors.toList());
-
-        listener.onResult(results.stream().map(e -> e.right).filter(o -> o.isPresent()).map(o -> o.get())
-                .map(getPacketMapperFunction())
-                .collect(Collectors.toList()));
-
-        if (results.stream().map(e -> e.right).filter(o -> o.isPresent()).map(o -> o.get())
-                .allMatch(t -> t.getResponse() == Response.ACK)) {
-            listener.onResult(DTCS_CLEARED);
-            return new RequestResult<>(false, results);
-        } else {
-            listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
-            return new RequestResult<>(false, results);
-        }
+        return requestDM11(listener, requestPacket);
     }
 
     /**
@@ -162,6 +124,13 @@ public class DTCModule extends FunctionalModule {
         listener.onResult(getTime() + " Destination Specific DM11 Request");
         listener.onResult(getTime() + " " + requestPacket);
 
+        return requestDM11(listener, requestPacket);
+
+    }
+
+    private <T extends ParsedPacket> RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener,
+            Packet requestPacket) {
+
         // FIXME, where did 5.5 s come from?
         List<Either<DM11ClearActiveDTCsPacket, AcknowledgmentPacket>> results = getJ1939()
                 .requestRaw(DM11ClearActiveDTCsPacket.class,
@@ -170,18 +139,19 @@ public class DTCModule extends FunctionalModule {
                         TimeUnit.MILLISECONDS)
                 .collect(Collectors.toList());
 
-        listener.onResult(results.stream().map(e -> e.right).filter(o -> o.isPresent()).map(o -> o.get())
+        listener.onResult(results.stream().map(e -> e.right)
+                .filter(o -> o.isPresent()).map(o -> o.get())
                 .map(getPacketMapperFunction())
                 .collect(Collectors.toList()));
 
         if (results.stream().map(e -> e.right).filter(o -> o.isPresent()).map(o -> o.get())
                 .allMatch(t -> t.getResponse() == Response.ACK)) {
             listener.onResult(DTCS_CLEARED);
-            return new RequestResult<>(false, results);
         } else {
             listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
-            return new RequestResult<>(false, results);
         }
+
+        return new RequestResult<>(false, results);
     }
 
     /**
@@ -293,8 +263,8 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests DM23 from all vehicle modules and generates a {@link String}
-     * that's suitable for inclusion in the report
+     * Global request for DM23 from all vehicle modules and generates a
+     * {@link String} that's suitable for inclusion in the report
      *
      * @param listener
      *            the {@link ResultsListener} that will be given the report
@@ -304,6 +274,23 @@ public class DTCModule extends FunctionalModule {
         Packet request = getJ1939().createRequestPacket(DM23PreviouslyMILOnEmissionDTCPacket.PGN, GLOBAL_ADDR);
         return new RequestResult<>(false, generateReport(listener,
                 "Global DM23 Request",
+                DM23PreviouslyMILOnEmissionDTCPacket.class,
+                request));
+    }
+
+    /**
+     * Destination specific request for DM23 from vehicle modules specified by
+     * address and generates a {@link String} that's suitable for inclusion in
+     * the report
+     *
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener, int address) {
+        Packet request = getJ1939().createRequestPacket(DM23PreviouslyMILOnEmissionDTCPacket.PGN, address);
+        return new RequestResult<>(false, generateReport(listener,
+                "Destination Specific DM23 Request",
                 DM23PreviouslyMILOnEmissionDTCPacket.class,
                 request));
     }
@@ -383,7 +370,7 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests global DM21 and generates a {@link String} that's suitable for
+     * Requests global DM26 and generates a {@link String} that's suitable for
      * inclusion in the report
      *
      * @param listener
