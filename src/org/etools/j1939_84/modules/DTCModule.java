@@ -306,12 +306,8 @@ public class DTCModule extends FunctionalModule {
      * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
      */
     public <T extends ParsedPacket> RequestResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener) {
+        return requestDM25(listener, GLOBAL_ADDR);
 
-        Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, GLOBAL_ADDR);
-
-        listener.onResult(getTime() + " Global DM25 Request to " + Lookup.getAddressName(GLOBAL_ADDR));
-        listener.onResult(getTime() + " " + request.toString());
-        return requestDM25(listener, request);
     }
 
     /**
@@ -327,33 +323,19 @@ public class DTCModule extends FunctionalModule {
             int obdModuleAddress) {
 
         Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, obdModuleAddress);
-        listener.onResult(getTime() + " Direct DM25 Request to " + Lookup.getAddressName(obdModuleAddress));
+
+        String message = obdModuleAddress == GLOBAL_ADDR ? " Global DM25 Request to "
+                : " Destination Specific DM25 Request to ";
+        listener.onResult(getTime() + message + Lookup.getAddressName(obdModuleAddress));
         listener.onResult(getTime() + " " + request.toString());
-
-        return requestDM25(listener, request);
-    }
-
-    /**
-     * Helper method that does the work for DM25's
-     *
-     * Sends a request to the vehicle for {@link DM25ExpandedFreezeFrame}s
-     *
-     * @param listener
-     *            the {@link ResultsListener}
-     * @param obdModuleAddresses
-     *            {@link Collection} of Integers}
-     * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
-     */
-    private <T extends ParsedPacket> RequestResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener,
-            Packet requestPacket) {
 
         List<Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket>> packets = new ArrayList<>();
         boolean retryUsed = false;
 
         BusResult<DM25ExpandedFreezeFrame> result = getJ1939()
-                .requestPacket(requestPacket,
+                .requestPacket(request,
                         DM25ExpandedFreezeFrame.class,
-                        requestPacket.getSource(),
+                        request.getSource(),
                         3,
                         TimeUnit.SECONDS.toMillis(15))
                 .orElse(null);
