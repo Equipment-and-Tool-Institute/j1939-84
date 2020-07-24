@@ -12,8 +12,7 @@ import java.util.List;
 import org.etools.j1939_84.bus.Packet;
 
 /**
- * The {@link ParsedPacket} for Expanded Freeze Frame
- * Codes (DM25)
+ * The {@link ParsedPacket} for Expanded Freeze Frame Codes (DM25)
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
