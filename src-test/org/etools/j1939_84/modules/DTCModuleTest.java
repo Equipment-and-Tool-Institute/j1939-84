@@ -28,6 +28,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
+import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.RequestResult;
@@ -1267,6 +1268,209 @@ public class DTCModuleTest {
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939, times(3)).requestRaw(DM2PreviouslyActiveDTC.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM33DestinationSpecificEmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime() {
+        final int pgn = DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        byte[] data = { 0x01, 0x2B, 0x0B, 0x01, 0x00, 0x2B, (byte) 0xC4, 0x0B, 0x00,
+                // 1 with FE for timer 1 and FF for timer 2
+                0x02, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF,
+                0x03, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, 0x2C, 0x0B, 0x03, 0x00,
+                // 1 with FF for timer 1 and FE for timer 2
+                0x04, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE,
+                (byte) 0xFF };
+        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime packet1 = new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(
+                Packet.create(pgn,
+                        0x00,
+                        data));
+
+        when(j1939.requestMultiple(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM33 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 00 A1 00 (TX)" + NL;
+        expected += "10:15:30.000 18A10000 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
+                + NL;
+        expected += "DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime" + NL;
+        expected += "EngineHoursTimer" + NL;
+        expected += "  EI-AECD Number = 1" + NL;
+        expected += "  EI-AECD Engine Hours Timer 1 = 68395 minutes" + NL;
+        expected += "  EI-AECD Engine Hours Timer 2 = 771115 minutes" + NL;
+        expected += "EngineHoursTimer" + NL;
+        expected += "  EI-AECD Number = 2" + NL;
+        expected += "  EI-AECD Engine Hours Timer 1 = errored" + NL;
+        expected += "  EI-AECD Engine Hours Timer 2 = n/a" + NL;
+        expected += "EngineHoursTimer" + NL;
+        expected += "  EI-AECD Number = 3" + NL;
+        expected += "  EI-AECD Engine Hours Timer 1 = errored" + NL;
+        expected += "  EI-AECD Engine Hours Timer 2 = 199468 minutes" + NL;
+        expected += "EngineHoursTimer" + NL;
+        expected += "  EI-AECD Number = 4" + NL;
+        expected += "  EI-AECD Engine Hours Timer 1 = errored" + NL;
+        expected += "  EI-AECD Engine Hours Timer 2 = n/a" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> expectedResult = new RequestResult<>(
+                false,
+                Collections.singletonList(packet1), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM33(listener));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestMultiple(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
+                requestPacket);
+    }
+
+    @Test
+    public void testRequestDM33DestinationSpecificNoResponse() {
+        final int pgn = DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        when(j1939.requestMultiple(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class, requestPacket))
+                .thenReturn(Stream.empty());
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM33 Request" + NL;
+        expected += "10:15:30.000 18EA00A5 00 A1 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response."
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> expectedResult = new RequestResult<>(
+                false,
+                Collections.emptyList(), Collections.emptyList());
+        System.out.println(requestPacket);
+        assertEquals(expectedResult, instance.requestDM33(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestMultiple(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
+                requestPacket);
+    }
+
+    @Test
+    public void testRequestDM33GlobalEmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime() {
+        final int pgn = DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        byte[] data = { 0x01, 0x2B, 0x0B, 0x01, 0x00, 0x2B, (byte) 0xC4, 0x0B, 0x00,
+                // 1 with FE for timer 1 and FF for timer 2
+                0x02, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF,
+                0x03, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, 0x2C, 0x0B, 0x03, 0x00,
+                // 1 with FF for timer 1 and FE for timer 2
+                0x04, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE,
+                (byte) 0xFF };
+        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime packet1 = new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(
+                Packet.create(pgn,
+                        GLOBAL_ADDR,
+                        data));
+
+        when(j1939.requestMultiple(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM33 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 00 A1 00 (TX)" + NL;
+        expected += "10:15:30.000 18A100FF 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
+                + NL;
+        expected += "DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime" + NL;
+        expected += "EngineHoursTimer" + NL;
+        expected += "  EI-AECD Number = 1" + NL;
+        expected += "  EI-AECD Engine Hours Timer 1 = 68395 minutes" + NL;
+        expected += "  EI-AECD Engine Hours Timer 2 = 771115 minutes" + NL;
+        expected += "EngineHoursTimer" + NL;
+        expected += "  EI-AECD Number = 2" + NL;
+        expected += "  EI-AECD Engine Hours Timer 1 = errored" + NL;
+        expected += "  EI-AECD Engine Hours Timer 2 = n/a" + NL;
+        expected += "EngineHoursTimer" + NL;
+        expected += "  EI-AECD Number = 3" + NL;
+        expected += "  EI-AECD Engine Hours Timer 1 = errored" + NL;
+        expected += "  EI-AECD Engine Hours Timer 2 = 199468 minutes" + NL;
+        expected += "EngineHoursTimer" + NL;
+        expected += "  EI-AECD Number = 4" + NL;
+        expected += "  EI-AECD Engine Hours Timer 1 = errored" + NL;
+        expected += "  EI-AECD Engine Hours Timer 2 = n/a" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> expectedResult = new RequestResult<>(
+                false,
+                Collections.singletonList(packet1), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM33(listener));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestMultiple(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
+                requestPacket);
+    }
+
+    @Test
+    public void testRequestDM33GlobalNoResponse() {
+        final int pgn = DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        byte[] data = { 0x01, 0x2B, 0x0B, 0x01, 0x00, 0x2B, (byte) 0xC4, 0x0B, 0x00,
+                // 1 with FE for timer 1 and FF for timer 2
+                0x02, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF,
+                (byte) 0xFF,
+                0x03, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, 0x2C, 0x0B, 0x03, 0x00,
+                // 1 with FF for timer 1 and FE for timer 2
+                0x04, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE,
+                (byte) 0xFF };
+        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime packet1 = new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(
+                Packet.create(pgn,
+                        0x00,
+                        data));
+
+        when(j1939.requestMultiple(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM33 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 00 A1 00 (TX)" + NL;
+        expected += "10:15:30.000 18A10000 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
+                + NL;
+        expected += "DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime" + NL;
+        expected += "EngineHoursTimer" + NL;
+        expected += "  EI-AECD Number = 1" + NL;
+        expected += "  EI-AECD Engine Hours Timer 1 = 68395 minutes" + NL;
+        expected += "  EI-AECD Engine Hours Timer 2 = 771115 minutes" + NL;
+        expected += "EngineHoursTimer" + NL;
+        expected += "  EI-AECD Number = 2" + NL;
+        expected += "  EI-AECD Engine Hours Timer 1 = errored" + NL;
+        expected += "  EI-AECD Engine Hours Timer 2 = n/a" + NL;
+        expected += "EngineHoursTimer" + NL;
+        expected += "  EI-AECD Number = 3" + NL;
+        expected += "  EI-AECD Engine Hours Timer 1 = errored" + NL;
+        expected += "  EI-AECD Engine Hours Timer 2 = 199468 minutes" + NL;
+        expected += "EngineHoursTimer" + NL;
+        expected += "  EI-AECD Number = 4" + NL;
+        expected += "  EI-AECD Engine Hours Timer 1 = errored" + NL;
+        expected += "  EI-AECD Engine Hours Timer 2 = n/a" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> expectedResult = new RequestResult<>(
+                false,
+                Collections.singletonList(packet1), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM33(listener));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestMultiple(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
+                requestPacket);
     }
 
     @Test
