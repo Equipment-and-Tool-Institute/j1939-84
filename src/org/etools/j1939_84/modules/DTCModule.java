@@ -402,6 +402,22 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
+     * Requests destination specific DM28 and generates a {@link String} that's
+     * suitable for inclusion in the report
+     *
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener, int address) {
+        Packet request = getJ1939().createRequestPacket(DM28PermanentEmissionDTCPacket.PGN, address);
+        return new RequestResult<>(false, generateReport(listener,
+                "Destination Specific DM28 Request",
+                DM28PermanentEmissionDTCPacket.class,
+                request));
+    }
+
+    /**
      * Requests DM29 from vehicle modules with the address provided and
      * generates a {@link String} that's suitable for inclusion in the report
      *
