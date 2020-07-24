@@ -518,7 +518,7 @@ public class DTCModule extends FunctionalModule {
         Packet request = getJ1939()
                 .createRequestPacket(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, address);
         return new RequestResult<>(false, generateReport(listener,
-                "Desination Specific DM33 Request",
+                "Destination Specific DM33 Request",
                 DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
                 request));
     }
