@@ -16,16 +16,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
@@ -1575,8 +1578,6 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
 
-        Packet packet = Packet.create(0, 0, 0x55, 0x55, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF);
-        new DM6PendingEmissionDTCPacket(packet);
         when(j1939.requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
                 .thenReturn(Stream.empty());
 
@@ -1594,4 +1595,370 @@ public class DTCModuleTest {
         verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939).requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
     }
+
+    @Test
+    public void testResquestDM25DestinationSpecificNackOnly() {
+        final int pgn = DM25ExpandedFreezeFrame.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
+                Packet.create(0xE800, 0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
+
+        when(j1939.requestPacket(requestPacket,
+                DM25ExpandedFreezeFrame.class, 0x00, 3,
+                TimeUnit.SECONDS.toMillis(15)))
+                        .thenReturn(Optional.of(new BusResult<>(false,
+                                new Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket>(null, packet1))));
+
+        String expected = "10:15:30.000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 18EA00A5 B7 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18E80000 01 FF FF FF F9 D3 FE 00" + NL;
+        expected += "Acknowledgment from Engine #1 (0): Response: NACK, Group Function: 255, Address Acknowledged: 249, PGN Requested: 65235"
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(),
+                Collections.singletonList(packet1));
+        assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
+                TimeUnit.SECONDS.toMillis(15));
+    }
+
+    @Test
+    public void testResquestDM25DestinationSpecificNoResponse() {
+        final int pgn = DM25ExpandedFreezeFrame.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        when(j1939.requestPacket(requestPacket,
+                DM25ExpandedFreezeFrame.class, 0x00, 3,
+                TimeUnit.SECONDS.toMillis(15)))
+                        .thenReturn(Optional.empty());
+        String expected = "10:15:30.000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 18EA00A5 B7 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
+                TimeUnit.SECONDS.toMillis(15));
+    }
+
+    @Test
+    public void testResquestDM25DestinationSpecificWithResponse() {
+        final int pgn = DM25ExpandedFreezeFrame.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        int[] realData = new int[] {
+                0x56,
+                0x9D,
+                0x00,
+                0x07,
+                0x7F,
+                0x00,
+                0x01,
+                0x7B,
+                0x00,
+                0x00,
+                0x39,
+                0x3A,
+                0x5C,
+                0x0F,
+                0xC4,
+                0xFB,
+                0x00,
+                0x00,
+                0x00,
+                0xF1,
+                0x26,
+                0x00,
+                0x00,
+                0x00,
+                0x12,
+                0x7A,
+                0x7D,
+                0x80,
+                0x65,
+                0x00,
+                0x00,
+                0x32,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x84,
+                0xAD,
+                0x00,
+                0x39,
+                0x2C,
+                0x30,
+                0x39,
+                0xFC,
+                0x38,
+                0xC6,
+                0x35,
+                0xE0,
+                0x34,
+                0x2C,
+                0x2F,
+                0x00,
+                0x00,
+                0x7D,
+                0x7D,
+                0x8A,
+                0x28,
+                0xA0,
+                0x0F,
+                0xA0,
+                0x0F,
+                0xD1,
+                0x37,
+                0x00,
+                0xCA,
+                0x28,
+                0x01,
+                0xA4,
+                0x0D,
+                0x00,
+                0xA8,
+                0xC3,
+                0xB2,
+                0xC2,
+                0xC3,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x7E,
+                0xD0,
+                0x07,
+                0x00,
+                0x7D,
+                0x04,
+                0xFF,
+                0xFA };
+
+        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(pgn, 0x00, realData));
+        when(j1939.requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
+                TimeUnit.SECONDS.toMillis(15)))
+                        .thenReturn(Optional.of(new BusResult<>(false, packet)));
+
+        String expected = "10:15:30.000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 18EA00A5 B7 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FDB700 56 9D 00 07 7F 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
+                + NL;
+        expected += "DM25 from Engine #1 (0): " + NL;
+        expected += "Freeze Frames: [" + NL;
+        expected += "DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 127 times"
+                + NL;
+        expected += "SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF"
+                + NL;
+        expected += "]" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
+                TimeUnit.SECONDS.toMillis(15));
+    }
+
+    @Test
+    public void testResquestDM25GlobalNackOnly() {
+        final int pgn = DM25ExpandedFreezeFrame.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
+                Packet.create(0xE800, 0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
+
+        when(j1939.requestPacket(requestPacket,
+                DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
+                TimeUnit.SECONDS.toMillis(15)))
+                        .thenReturn(Optional.of(new BusResult<>(false,
+                                new Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket>(null, packet1))));
+
+        String expected = "10:15:30.000 Global DM25 Request to Global (255)" + NL;
+        expected += "10:15:30.000 18EAFFA5 B7 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18E80000 01 FF FF FF F9 D3 FE 00" + NL;
+        expected += "Acknowledgment from Engine #1 (0): Response: NACK, Group Function: 255, Address Acknowledged: 249, PGN Requested: 65235"
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(),
+                Collections.singletonList(packet1));
+        assertEquals(expectedResult, instance.requestDM25(listener));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
+                TimeUnit.SECONDS.toMillis(15));
+    }
+
+    @Test
+    public void testResquestDM25GlobalNoResponse() {
+        final int pgn = DM25ExpandedFreezeFrame.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        String expected = "10:15:30.000 Global DM25 Request to Global (255)" + NL;
+        expected += "10:15:30.000 18EAFFA5 B7 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response."
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM25(listener));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestPacket(requestPacket,
+                DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
+                TimeUnit.SECONDS.toMillis(15));
+
+    }
+
+    @Test
+    public void testResquestDM25GlobalWithResponse() {
+        final int pgn = DM25ExpandedFreezeFrame.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        int[] realData = new int[] {
+                0x56,
+                0x9D,
+                0x00,
+                0x07,
+                0x7F,
+                0x00,
+                0x01,
+                0x7B,
+                0x00,
+                0x00,
+                0x39,
+                0x3A,
+                0x5C,
+                0x0F,
+                0xC4,
+                0xFB,
+                0x00,
+                0x00,
+                0x00,
+                0xF1,
+                0x26,
+                0x00,
+                0x00,
+                0x00,
+                0x12,
+                0x7A,
+                0x7D,
+                0x80,
+                0x65,
+                0x00,
+                0x00,
+                0x32,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x84,
+                0xAD,
+                0x00,
+                0x39,
+                0x2C,
+                0x30,
+                0x39,
+                0xFC,
+                0x38,
+                0xC6,
+                0x35,
+                0xE0,
+                0x34,
+                0x2C,
+                0x2F,
+                0x00,
+                0x00,
+                0x7D,
+                0x7D,
+                0x8A,
+                0x28,
+                0xA0,
+                0x0F,
+                0xA0,
+                0x0F,
+                0xD1,
+                0x37,
+                0x00,
+                0xCA,
+                0x28,
+                0x01,
+                0xA4,
+                0x0D,
+                0x00,
+                0xA8,
+                0xC3,
+                0xB2,
+                0xC2,
+                0xC3,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x7E,
+                0xD0,
+                0x07,
+                0x00,
+                0x7D,
+                0x04,
+                0xFF,
+                0xFA };
+
+        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(pgn, 0x00, realData));
+        when(j1939.requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
+                TimeUnit.SECONDS.toMillis(15)))
+                        .thenReturn(Optional.of(new BusResult<>(false, packet)));
+
+        String expected = "10:15:30.000 Global DM25 Request to Global (255)" + NL;
+        expected += "10:15:30.000 18EAFFA5 B7 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FDB700 56 9D 00 07 7F 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
+                + NL;
+        expected += "DM25 from Engine #1 (0): " + NL;
+        expected += "Freeze Frames: [" + NL;
+        expected += "DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 127 times"
+                + NL;
+        expected += "SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF"
+                + NL;
+        expected += "]" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM25(listener));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
+                TimeUnit.SECONDS.toMillis(15));
+    }
+
 }

@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
@@ -304,31 +305,9 @@ public class DTCModule extends FunctionalModule {
      *            {@link Collection} of Integers}
      * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
      */
-    public RequestResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener,
-            Collection<Integer> obdModuleAddresses) {
-        List<Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket>> packets = new ArrayList<>();
-        boolean retryUsed = false;
+    public <T extends ParsedPacket> RequestResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener) {
+        return requestDM25(listener, GLOBAL_ADDR);
 
-        for (int address : obdModuleAddresses) {
-            Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, address);
-            listener.onResult(getTime() + " Direct DM25 Request to " + Lookup.getAddressName(address));
-            listener.onResult(getTime() + " " + request.toString());
-            DM25ExpandedFreezeFrame packet = getJ1939()
-                    .requestPacket(request, DM25ExpandedFreezeFrame.class, address, 3, TimeUnit.SECONDS.toMillis(15))
-                    .flatMap(br -> br.getPacket().left)
-                    .orElse(null);
-            if (packet == null) {
-                listener.onResult(TIMEOUT_MESSAGE);
-            } else {
-                listener.onResult(
-                        packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
-                listener.onResult(packet.toString());
-                // FIXME this drops NACKs
-                packets.add(new Either<>(packet, null));
-            }
-            listener.onResult("");
-        }
-        return new RequestResult<>(retryUsed, packets);
     }
 
     /**
@@ -336,36 +315,47 @@ public class DTCModule extends FunctionalModule {
      *
      * @param listener
      *            the {@link ResultsListener}
-     * @param obdModuleAddresses
-     *            {@link Collection} of Integers}
+     * @param moduleAddress
+     *            the address to send the request to
      * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
      */
-    public RequestResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener,
-            int obdModuleAddress) {
+    public <T extends ParsedPacket> RequestResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener,
+            int moduleAddress) {
+
+        Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, moduleAddress);
+
+        String message = moduleAddress == GLOBAL_ADDR ? " Global DM25 Request to "
+                : " Destination Specific DM25 Request to ";
+        listener.onResult(getTime() + message + Lookup.getAddressName(moduleAddress));
+        listener.onResult(getTime() + " " + request.toString());
+
         List<Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket>> packets = new ArrayList<>();
         boolean retryUsed = false;
 
-        Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, obdModuleAddress);
-        listener.onResult(getTime() + " Direct DM25 Request to " + Lookup.getAddressName(obdModuleAddress));
-        listener.onResult(getTime() + " " + request.toString());
-        DM25ExpandedFreezeFrame packet = getJ1939()
+        BusResult<DM25ExpandedFreezeFrame> result = getJ1939()
                 .requestPacket(request,
                         DM25ExpandedFreezeFrame.class,
-                        obdModuleAddress,
+                        moduleAddress,
                         3,
                         TimeUnit.SECONDS.toMillis(15))
-                .flatMap(br -> br.getPacket().left)
                 .orElse(null);
+
+        ParsedPacket packet = null;
+        if (result != null) {
+            Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket> either = result.getPacket();
+            packets.add(either);
+            packet = either.left.orElse(null);
+            if (packet == null) {
+                packet = either.right.orElse(null);
+            }
+        }
+
         if (packet == null) {
             listener.onResult(TIMEOUT_MESSAGE);
         } else {
-            listener.onResult(
-                    packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+            listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
             listener.onResult(packet.toString());
-            // FIXME this logic just drops NACKS
-            packets.add(new Either<>(packet, null));
         }
-        listener.onResult("");
         return new RequestResult<>(retryUsed, packets);
     }
 
