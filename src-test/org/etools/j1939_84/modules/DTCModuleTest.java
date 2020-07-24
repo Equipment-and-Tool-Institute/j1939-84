@@ -1606,12 +1606,12 @@ public class DTCModuleTest {
                 Packet.create(0xE800, 0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
 
         when(j1939.requestPacket(requestPacket,
-                DM25ExpandedFreezeFrame.class, requestPacket.getSource(), 3,
+                DM25ExpandedFreezeFrame.class, 0x00, 3,
                 TimeUnit.SECONDS.toMillis(15)))
                         .thenReturn(Optional.of(new BusResult<>(false,
                                 new Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket>(null, packet1))));
 
-        String expected = "10:15:30.000 Direct DM25 Request to Engine #1 (0)" + NL;
+        String expected = "10:15:30.000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18EA00A5 B7 FD 00 (TX)" + NL;
         expected += "10:15:30.000 18E80000 01 FF FF FF F9 D3 FE 00" + NL;
         expected += "Acknowledgment from Engine #1 (0): Response: NACK, Group Function: 255, Address Acknowledged: 249, PGN Requested: 65235"
@@ -1625,7 +1625,7 @@ public class DTCModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, requestPacket.getSource(), 3,
+        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
                 TimeUnit.SECONDS.toMillis(15));
     }
 
@@ -1636,10 +1636,10 @@ public class DTCModuleTest {
         when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
 
         when(j1939.requestPacket(requestPacket,
-                DM25ExpandedFreezeFrame.class, requestPacket.getSource(), 3,
+                DM25ExpandedFreezeFrame.class, 0x00, 3,
                 TimeUnit.SECONDS.toMillis(15)))
                         .thenReturn(Optional.empty());
-        String expected = "10:15:30.000 Direct DM25 Request to Engine #1 (0)" + NL;
+        String expected = "10:15:30.000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18EA00A5 B7 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
@@ -1651,7 +1651,7 @@ public class DTCModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, requestPacket.getSource(), 3,
+        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
                 TimeUnit.SECONDS.toMillis(15));
     }
 
@@ -1751,11 +1751,11 @@ public class DTCModuleTest {
                 0xFA };
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(pgn, 0x00, realData));
-        when(j1939.requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, requestPacket.getSource(), 3,
+        when(j1939.requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
                 TimeUnit.SECONDS.toMillis(15)))
                         .thenReturn(Optional.of(new BusResult<>(false, packet)));
 
-        String expected = "10:15:30.000 Direct DM25 Request to Engine #1 (0)" + NL;
+        String expected = "10:15:30.000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18EA00A5 B7 FD 00 (TX)" + NL;
         expected += "10:15:30.000 18FDB700 56 9D 00 07 7F 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
                 + NL;
@@ -1775,7 +1775,7 @@ public class DTCModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, requestPacket.getSource(), 3,
+        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
                 TimeUnit.SECONDS.toMillis(15));
     }
 
@@ -1789,7 +1789,7 @@ public class DTCModuleTest {
                 Packet.create(0xE800, 0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
 
         when(j1939.requestPacket(requestPacket,
-                DM25ExpandedFreezeFrame.class, requestPacket.getSource(), 3,
+                DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
                 TimeUnit.SECONDS.toMillis(15)))
                         .thenReturn(Optional.of(new BusResult<>(false,
                                 new Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket>(null, packet1))));
@@ -1808,7 +1808,7 @@ public class DTCModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, requestPacket.getSource(), 3,
+        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
                 TimeUnit.SECONDS.toMillis(15));
     }
 
@@ -1832,7 +1832,7 @@ public class DTCModuleTest {
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestPacket(requestPacket,
-                DM25ExpandedFreezeFrame.class, requestPacket.getSource(), 3,
+                DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
                 TimeUnit.SECONDS.toMillis(15));
 
     }
@@ -1933,7 +1933,7 @@ public class DTCModuleTest {
                 0xFA };
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(pgn, 0x00, realData));
-        when(j1939.requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, requestPacket.getSource(), 3,
+        when(j1939.requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
                 TimeUnit.SECONDS.toMillis(15)))
                         .thenReturn(Optional.of(new BusResult<>(false, packet)));
 
@@ -1957,7 +1957,7 @@ public class DTCModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, requestPacket.getSource(), 3,
+        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
                 TimeUnit.SECONDS.toMillis(15));
     }
 

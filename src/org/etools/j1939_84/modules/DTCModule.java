@@ -315,18 +315,18 @@ public class DTCModule extends FunctionalModule {
      *
      * @param listener
      *            the {@link ResultsListener}
-     * @param obdModuleAddresses
-     *            {@link Collection} of Integers}
+     * @param moduleAddress
+     *            the address to send the request to
      * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
      */
     public <T extends ParsedPacket> RequestResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener,
-            int obdModuleAddress) {
+            int moduleAddress) {
 
-        Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, obdModuleAddress);
+        Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, moduleAddress);
 
-        String message = obdModuleAddress == GLOBAL_ADDR ? " Global DM25 Request to "
+        String message = moduleAddress == GLOBAL_ADDR ? " Global DM25 Request to "
                 : " Destination Specific DM25 Request to ";
-        listener.onResult(getTime() + message + Lookup.getAddressName(obdModuleAddress));
+        listener.onResult(getTime() + message + Lookup.getAddressName(moduleAddress));
         listener.onResult(getTime() + " " + request.toString());
 
         List<Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket>> packets = new ArrayList<>();
@@ -335,7 +335,7 @@ public class DTCModule extends FunctionalModule {
         BusResult<DM25ExpandedFreezeFrame> result = getJ1939()
                 .requestPacket(request,
                         DM25ExpandedFreezeFrame.class,
-                        request.getSource(),
+                        moduleAddress,
                         3,
                         TimeUnit.SECONDS.toMillis(15))
                 .orElse(null);
