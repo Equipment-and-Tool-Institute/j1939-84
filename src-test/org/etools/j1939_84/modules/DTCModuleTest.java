@@ -77,183 +77,6 @@ public class DTCModuleTest {
     }
 
     @Test
-    public void testReportDM28DestinationSpecificWithDTCs() {
-        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
-
-        DM28PermanentEmissionDTCPacket packet1 = new DM28PermanentEmissionDTCPacket(Packet.create(pgn,
-                0x00,
-                0x00,
-                0xFF,
-                0x61,
-                0x02,
-                0x13,
-                0x00,
-                0x21,
-                0x06,
-                0x1F,
-                0x00,
-                0xEE,
-                0x10,
-                0x04,
-                0x00));
-
-        when(j1939.requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
-
-        String expected = "";
-        expected += "10:15:30.000 Destination Specific DM28 Request" + NL;
-        expected += "10:15:30.000 18EA00A5 80 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FD8000 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 0 times" + NL;
-        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 0 times" + NL;
-        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
-                + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(
-                false, Collections.singletonList(packet1), Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM28(listener, 0x00));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
-    }
-
-    @Test
-    public void testReportDM28DestinationSpecificWithNoResponses() {
-        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0x17, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0x17)).thenReturn(requestPacket);
-
-        String expected = "";
-        expected += "10:15:30.000 Destination Specific DM28 Request" + NL;
-        expected += "10:15:30.000 18EA17A5 80 FD 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false,
-                Collections.emptyList(), Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM28(listener, 0x17));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0x17);
-        verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
-    }
-
-    @Test
-    public void testReportDM28Global() {
-        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
-
-        DM28PermanentEmissionDTCPacket packet1 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
-        DM28PermanentEmissionDTCPacket packet2 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(pgn, 0x17, 0, 0, 0, 0, 0, 0, 0, 0));
-        DM28PermanentEmissionDTCPacket packet3 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
-        when(j1939.requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
-
-        String expected = "";
-        expected += "10:15:30.000 Global DM28 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 80 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FD8000 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
-        expected += "10:15:30.000 18FD8017 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM28 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
-        expected += "10:15:30.000 18FD8021 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM28 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(
-                false, Arrays.asList(packet1, packet2, packet3), Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM28(listener));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
-    }
-
-    @Test
-    public void testReportDM28GlobalWithDTCs() {
-        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
-
-        DM28PermanentEmissionDTCPacket packet1 = new DM28PermanentEmissionDTCPacket(Packet.create(pgn,
-                0x00,
-                0x00,
-                0xFF,
-                0x61,
-                0x02,
-                0x13,
-                0x00,
-                0x21,
-                0x06,
-                0x1F,
-                0x00,
-                0xEE,
-                0x10,
-                0x04,
-                0x00));
-
-        when(j1939.requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
-
-        String expected = "";
-        expected += "10:15:30.000 Global DM28 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 80 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FD8000 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 0 times" + NL;
-        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 0 times" + NL;
-        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
-                + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(
-                false, Arrays.asList(packet1), Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM28(listener));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
-    }
-
-    @Test
-    public void testReportDM28GlobalWithNoResponses() {
-        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-
-        String expected = "";
-        expected += "10:15:30.000 Global DM28 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 80 FD 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false,
-                Collections.emptyList(), Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM28(listener));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
-    }
-
-    @Test
     public void testRequestDM11DestinationSpecificNoResponseWithManyModules() {
         final int pgn = DM11ClearActiveDTCsPacket.PGN;
 
@@ -1048,6 +871,183 @@ public class DTCModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0x21);
+        verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM28DestinationSpecificWithDTCs() {
+        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        DM28PermanentEmissionDTCPacket packet1 = new DM28PermanentEmissionDTCPacket(Packet.create(pgn,
+                0x00,
+                0x00,
+                0xFF,
+                0x61,
+                0x02,
+                0x13,
+                0x00,
+                0x21,
+                0x06,
+                0x1F,
+                0x00,
+                0xEE,
+                0x10,
+                0x04,
+                0x00));
+
+        when(j1939.requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM28 Request" + NL;
+        expected += "10:15:30.000 18EA00A5 80 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FD8000 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 0 times" + NL;
+        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 0 times" + NL;
+        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(
+                false, Collections.singletonList(packet1), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM28(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM28DestinationSpecificWithNoResponses() {
+        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x17, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x17)).thenReturn(requestPacket);
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM28 Request" + NL;
+        expected += "10:15:30.000 18EA17A5 80 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM28(listener, 0x17));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x17);
+        verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM28Global() {
+        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        DM28PermanentEmissionDTCPacket packet1 = new DM28PermanentEmissionDTCPacket(
+                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
+        DM28PermanentEmissionDTCPacket packet2 = new DM28PermanentEmissionDTCPacket(
+                Packet.create(pgn, 0x17, 0, 0, 0, 0, 0, 0, 0, 0));
+        DM28PermanentEmissionDTCPacket packet3 = new DM28PermanentEmissionDTCPacket(
+                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
+        when(j1939.requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM28 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 80 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FD8000 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "No DTCs" + NL;
+        expected += "10:15:30.000 18FD8017 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM28 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "No DTCs" + NL;
+        expected += "10:15:30.000 18FD8021 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM28 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "No DTCs" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(
+                false, Arrays.asList(packet1, packet2, packet3), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM28(listener));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM28GlobalWithDTCs() {
+        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        DM28PermanentEmissionDTCPacket packet1 = new DM28PermanentEmissionDTCPacket(Packet.create(pgn,
+                0x00,
+                0x00,
+                0xFF,
+                0x61,
+                0x02,
+                0x13,
+                0x00,
+                0x21,
+                0x06,
+                0x1F,
+                0x00,
+                0xEE,
+                0x10,
+                0x04,
+                0x00));
+
+        when(j1939.requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM28 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 80 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FD8000 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 0 times" + NL;
+        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 0 times" + NL;
+        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(
+                false, Arrays.asList(packet1), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM28(listener));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM28GlobalWithNoResponses() {
+        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM28 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 80 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM28(listener));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
     }
 

@@ -65,26 +65,6 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
-     * Requests DM28 from all vehicle modules and generates a {@link String}
-     * that's suitable for inclusion in the report
-     *
-     * @param listener
-     *            the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public boolean reportDM28(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM28PermanentEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        return generateReport(listener,
-                "Global DM28 Request",
-                DM28PermanentEmissionDTCPacket.class,
-                request)
-                        .stream()
-                        // ignore the NACKs
-                        .flatMap(e -> e.left.stream())
-                        .anyMatch(t -> !t.getDtcs().isEmpty());
-    }
-
-    /**
      * Send Global DM11 Request and generates a {@link String} that's suitable
      * for inclusion in the report
      *
