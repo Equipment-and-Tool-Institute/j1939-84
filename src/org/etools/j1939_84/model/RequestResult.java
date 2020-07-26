@@ -97,7 +97,9 @@ public class RequestResult<T extends ParsedPacket> {
         StringBuilder sb = new StringBuilder("RequestResult");
         sb.append(NL)
                 .append("Retry  used : ")
-                .append(isRetryUsed());
+                .append(isRetryUsed())
+                .append(NL)
+                .append("Response packets :");
         this.getPackets().forEach(packet -> {
             sb.append(NL)
                     .append("Source address : ")
@@ -108,6 +110,8 @@ public class RequestResult<T extends ParsedPacket> {
         if (this.getPackets().isEmpty()) {
             sb.append(NL).append("No packets returned");
         }
+        sb.append(NL)
+                .append("Ack packets :");
         this.getAcks().forEach(ack -> {
             sb.append(NL)
                     .append("Source address : ")

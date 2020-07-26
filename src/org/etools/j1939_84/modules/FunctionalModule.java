@@ -5,6 +5,8 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
+
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
