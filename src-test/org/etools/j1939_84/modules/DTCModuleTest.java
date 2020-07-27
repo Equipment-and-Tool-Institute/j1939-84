@@ -32,6 +32,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacke
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
+import org.etools.j1939_84.bus.j1939.packets.DM31ScaledTestResults;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -1713,9 +1714,6 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
 
-        Packet packet = Packet.create(0, 0, 0x10, 0x27, 0x20, 0x4E, 0x30, 0x75, 0x40, 0x9C);
-        new DM21DiagnosticReadinessPacket(packet);
-
         when(j1939.requestMultiple(DM21DiagnosticReadinessPacket.class, requestPacket))
                 .thenReturn(Stream.empty());
 
@@ -2064,6 +2062,11 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
+        when(j1939.requestPacket(requestPacket,
+                DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
+                TimeUnit.SECONDS.toMillis(15)))
+                        .thenReturn(Optional.empty());
+
         String expected = "10:15:30.000 Global DM25 Request" + NL;
         expected += "10:15:30.000 18EAFFA5 B7 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response."
@@ -2205,6 +2208,182 @@ public class DTCModuleTest {
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
                 TimeUnit.SECONDS.toMillis(15));
+    }
+
+    @Test
+    public void testResquestDM31DestinationSpecificNoResponse() {
+        final int pgn = DM31ScaledTestResults.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        String expected = "10:15:30.000 Destination Specific DM31 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 18EA00A5 00 A3 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response."
+                + NL;
+
+        when(j1939.requestMultiple(DM31ScaledTestResults.class, requestPacket))
+                .thenReturn(Stream.empty());
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM31(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestMultiple(DM31ScaledTestResults.class,
+                requestPacket);
+
+    }
+
+    @Test
+    public void testResquestDM31DestinationSpecificResponse() {
+        final int pgn = DM31ScaledTestResults.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | 0x21, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x21)).thenReturn(requestPacket);
+
+        String expected = "10:15:30.000 Destination Specific DM31 Request to Body Controller (33)" + NL;
+        expected += "10:15:30.000 18EA21A5 00 A3 00 (TX)" + NL;
+        expected += "10:15:30.000 18A30021 61 02 13 81 58 34 21 06 1F 23 4A 34 EE 10 04 00 37 2A"
+                + NL;
+        expected += "DM31 from Body Controller (33): " + NL;
+        expected += "DTC Lamp Statuses: [" + NL;
+        expected += "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
+        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 1 times" + NL;
+        expected += "MIL: off, RSL: other, AWL: off, PL: other" + NL;
+        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 35 times" + NL;
+        expected += "MIL: other, RSL: other, AWL: other, PL: other" + NL;
+        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+        expected += "]" + NL;
+
+        DM31ScaledTestResults packet1 = new DM31ScaledTestResults(
+                Packet.create(pgn, 0x21,
+                        0x61, // SPN least significant bit
+                        0x02, // SPN most significant bit
+                        0x13, // Failure mode indicator
+                        0x81,
+                        0x58,
+                        0x34,
+
+                        0x21, // SPN least significant bit
+                        0x06, // SPN most significant bit
+                        0x1F, // Failure mode indicator
+                        0x23,
+                        0x4A,
+                        0x34,
+
+                        0xEE, // SPN least significant bit
+                        0x10, // SPN most significant bit
+                        0x04, // Failure mode indicator
+                        0x00,
+                        0x37,
+                        0x2A));
+        when(j1939.requestMultiple(DM31ScaledTestResults.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM31ScaledTestResults> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet1),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM31(listener, 0x21));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0x21);
+        verify(j1939).requestMultiple(DM31ScaledTestResults.class,
+                requestPacket);
+
+    }
+
+    @Test
+    public void testResquestDM31GlobalNoResponse() {
+        final int pgn = DM31ScaledTestResults.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        String expected = "10:15:30.000 Global DM31 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 00 A3 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response."
+                + NL;
+
+        when(j1939.requestMultiple(DM31ScaledTestResults.class, requestPacket))
+                .thenReturn(Stream.empty());
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM31(listener));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestMultiple(DM31ScaledTestResults.class,
+                requestPacket);
+
+    }
+
+    @Test
+    public void testResquestDM31GlobalResponse() {
+        final int pgn = DM31ScaledTestResults.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        String expected = "10:15:30.000 Global DM31 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 00 A3 00 (TX)" + NL;
+        expected += "10:15:30.000 18A30021 61 02 13 81 58 34 21 06 1F 23 4A 34 EE 10 04 00 37 2A"
+                + NL;
+        expected += "DM31 from Body Controller (33): " + NL;
+        expected += "DTC Lamp Statuses: [" + NL;
+        expected += "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
+        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 1 times" + NL;
+        expected += "MIL: off, RSL: other, AWL: off, PL: other" + NL;
+        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 35 times" + NL;
+        expected += "MIL: other, RSL: other, AWL: other, PL: other" + NL;
+        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+        expected += "]" + NL;
+
+        DM31ScaledTestResults packet1 = new DM31ScaledTestResults(
+                Packet.create(pgn, 0x21,
+                        0x61, // SPN least significant bit
+                        0x02, // SPN most significant bit
+                        0x13, // Failure mode indicator
+                        0x81,
+                        0x58,
+                        0x34,
+
+                        0x21, // SPN least significant bit
+                        0x06, // SPN most significant bit
+                        0x1F, // Failure mode indicator
+                        0x23,
+                        0x4A,
+                        0x34,
+
+                        0xEE, // SPN least significant bit
+                        0x10, // SPN most significant bit
+                        0x04, // Failure mode indicator
+                        0x00,
+                        0x37,
+                        0x2A));
+        when(j1939.requestMultiple(DM31ScaledTestResults.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM31ScaledTestResults> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet1),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM31(listener));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestMultiple(DM31ScaledTestResults.class,
+                requestPacket);
+
     }
 
 }
