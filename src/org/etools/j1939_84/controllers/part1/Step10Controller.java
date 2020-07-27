@@ -110,8 +110,10 @@ public class Step10Controller extends StepController {
                 .collect(Collectors.toList());
 
         // 6.1.10 DM11: Diagnostic Data Clear/Reset for Active DTCs
-        List<AcknowledgmentPacket> globalDM11Packets = dtcModule.requestDM11(getListener(), obdModuleAddresses)
-                .getAcks();
+        List<AcknowledgmentPacket> globalDM11Packets = new ArrayList<>();
+        // FIXME
+        // dtcModule.requestDM11(getListener(), obdModuleAddresses)
+        // .getAcks();
 
         // c. Allow 5 s to elapse before proceeding with test step 6.1.9.2.
         getDateTimeModule().pauseFor(5L * 1L * 1000L);
@@ -179,14 +181,16 @@ public class Step10Controller extends StepController {
         }
 
         // b. DM12 active shall report no DTCs and MIL off and not flashing
-        List<DM12MILOnEmissionDTCPacket> dm12Packets = dtcModule.requestDM12(getListener())
-                .getPackets()
-                .stream()
-                .filter(t -> (!t.getDtcs().isEmpty()) ||
-                        (t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF &&
-                                t.getMalfunctionIndicatorLampStatus() != LampStatus.FAST_FLASH &&
-                                t.getMalfunctionIndicatorLampStatus() != LampStatus.SLOW_FLASH))
-                .collect(Collectors.toList());
+        List<DM12MILOnEmissionDTCPacket> dm12Packets = new ArrayList<>();
+        // FIXME
+        // dtcModule.requestDM12(getListener())
+        // .getPackets()
+        // .stream()
+        // .filter(t -> (!t.getDtcs().isEmpty()) ||
+        // (t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF &&
+        // t.getMalfunctionIndicatorLampStatus() != LampStatus.FAST_FLASH &&
+        // t.getMalfunctionIndicatorLampStatus() != LampStatus.SLOW_FLASH))
+        // .collect(Collectors.toList());
 
         if (!dm12Packets.isEmpty()) {
             StringBuilder failureMessage = new StringBuilder("Modules with source address ");
@@ -271,8 +275,10 @@ public class Step10Controller extends StepController {
         // a. DM25 expanded freeze frame shall report no data and DTC causing
         // freeze
         // frame with bytes 1-5 = 0 and bytes 6-8 = 255
-        List<DM25ExpandedFreezeFrame> dm25Packets = dtcModule.requestDM25(getListener(), obdModuleAddresses)
-                .getPackets();
+        List<DM25ExpandedFreezeFrame> dm25Packets = new ArrayList<>();
+        // FIXME
+        // dtcModule.requestDM25(getListener(), obdModuleAddresses)
+        // .getPackets();
         List<DM25ExpandedFreezeFrame> dm25PacketsWithData = dm25Packets.stream()
                 .filter(t -> !t.getFreezeFrames().isEmpty())
                 .collect(Collectors.toList());
