@@ -76,14 +76,8 @@ public class DTCModule extends FunctionalModule {
      *         Module NACK'd the request or didn't respond
      */
     public <T extends ParsedPacket> RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener) {
-        listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
 
-        Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN,
-                GLOBAL_ADDR);
-        listener.onResult(getTime() + " Global DM11 Request");
-        listener.onResult(getTime() + " " + requestPacket);
-
-        return requestDM11(listener, requestPacket);
+        return requestDM11(listener, GLOBAL_ADDR);
     }
 
     /**
@@ -98,19 +92,15 @@ public class DTCModule extends FunctionalModule {
      *         Module NACK'd the request or didn't respond
      */
     public <T extends ParsedPacket> RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener,
-            Integer obdModule) {
+            Integer address) {
         listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
+        Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN, address);
 
-        Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN, obdModule);
-        listener.onResult(getTime() + " Destination Specific DM11 Request");
+        String title = address == GLOBAL_ADDR ? " Global DM11 Request"
+                : " Destination Specific DM11 Request to " + Lookup.getAddressName(address);
+
+        listener.onResult(getTime() + title);
         listener.onResult(getTime() + " " + requestPacket);
-
-        return requestDM11(listener, requestPacket);
-
-    }
-
-    private <T extends ParsedPacket> RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener,
-            Packet requestPacket) {
 
         // FIXME, where did 5.5 s come from?
         List<Either<DM11ClearActiveDTCsPacket, AcknowledgmentPacket>> results = getJ1939()
@@ -145,12 +135,7 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, boolean fullString) {
 
-        return getPackets("Global DM12 Request",
-                DM12MILOnEmissionDTCPacket.PGN,
-                DM12MILOnEmissionDTCPacket.class,
-                listener,
-                fullString,
-                GLOBAL_ADDR);
+        return requestDM12(listener, true, GLOBAL_ADDR);
     }
 
     /**
@@ -164,7 +149,10 @@ public class DTCModule extends FunctionalModule {
     public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, boolean fullString,
             int moduleAddress) {
 
-        return getPackets("Destination Specific DM12 Request",
+        String title = moduleAddress == GLOBAL_ADDR ? "Global DM12 Request"
+                : "Destination Specific DM12 Request to " + Lookup.getAddressName(moduleAddress);
+
+        return getPackets(title,
                 DM12MILOnEmissionDTCPacket.PGN,
                 DM12MILOnEmissionDTCPacket.class,
                 listener,
@@ -182,12 +170,7 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString) {
 
-        return getPackets("Global DM2 Request",
-                DM2PreviouslyActiveDTC.PGN,
-                DM2PreviouslyActiveDTC.class,
-                listener,
-                fullString,
-                GLOBAL_ADDR);
+        return requestDM2(listener, fullString, GLOBAL_ADDR);
 
     }
 
@@ -201,8 +184,10 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString,
             int obdAddress) {
+        String title = obdAddress == GLOBAL_ADDR ? "Global DM2 Request"
+                : "Destination Specific DM2 Request to " + Lookup.getAddressName(obdAddress);
 
-        return getPackets("Destination Specific DM2 Request",
+        return getPackets(title,
                 DM2PreviouslyActiveDTC.PGN,
                 DM2PreviouslyActiveDTC.class,
                 listener,
@@ -220,11 +205,7 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM21DiagnosticReadinessPacket.PGN, GLOBAL_ADDR);
-        return new RequestResult<>(false, generateReport(listener,
-                "Global DM21 Request",
-                DM21DiagnosticReadinessPacket.class,
-                request));
+        return requestDM21(listener, GLOBAL_ADDR);
     }
 
     /**
@@ -237,8 +218,11 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener, int address) {
         Packet request = getJ1939().createRequestPacket(DM21DiagnosticReadinessPacket.PGN, address);
+        String title = address == GLOBAL_ADDR ? "Global DM21 Request"
+                : "Destination Specific DM21 Request to " + Lookup.getAddressName(address);
+
         return new RequestResult<>(false, generateReport(listener,
-                "Global DM21 Request",
+                title,
                 DM21DiagnosticReadinessPacket.class,
                 request));
     }
@@ -252,11 +236,7 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM23PreviouslyMILOnEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        return new RequestResult<>(false, generateReport(listener,
-                "Global DM23 Request",
-                DM23PreviouslyMILOnEmissionDTCPacket.class,
-                request));
+        return requestDM23(listener, GLOBAL_ADDR);
     }
 
     /**
@@ -270,8 +250,11 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener, int address) {
         Packet request = getJ1939().createRequestPacket(DM23PreviouslyMILOnEmissionDTCPacket.PGN, address);
+        String title = address == GLOBAL_ADDR ? "Global DM23 Request"
+                : "Destination Specific DM23 Request to " + Lookup.getAddressName(address);
+
         return new RequestResult<>(false, generateReport(listener,
-                "Destination Specific DM23 Request",
+                title,
                 DM23PreviouslyMILOnEmissionDTCPacket.class,
                 request));
     }
@@ -304,9 +287,9 @@ public class DTCModule extends FunctionalModule {
 
         Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, moduleAddress);
 
-        String message = moduleAddress == GLOBAL_ADDR ? " Global DM25 Request to "
-                : " Destination Specific DM25 Request to ";
-        listener.onResult(getTime() + message + Lookup.getAddressName(moduleAddress));
+        String message = moduleAddress == GLOBAL_ADDR ? " Global DM25 Request"
+                : " Destination Specific DM25 Request to " + Lookup.getAddressName(moduleAddress);
+        listener.onResult(getTime() + message);
         listener.onResult(getTime() + " " + request.toString());
 
         List<Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket>> packets = new ArrayList<>();
@@ -364,11 +347,7 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM28PermanentEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        return new RequestResult<>(false, generateReport(listener,
-                "Global DM28 Request",
-                DM28PermanentEmissionDTCPacket.class,
-                request));
+        return requestDM28(listener, GLOBAL_ADDR);
     }
 
     /**
@@ -381,8 +360,12 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener, int address) {
         Packet request = getJ1939().createRequestPacket(DM28PermanentEmissionDTCPacket.PGN, address);
+
+        String title = address == GLOBAL_ADDR ? "Global DM28 Request"
+                : "Destination Specific DM28 Request to " + Lookup.getAddressName(address);
+
         return new RequestResult<>(false, generateReport(listener,
-                "Destination Specific DM28 Request",
+                title,
                 DM28PermanentEmissionDTCPacket.class,
                 request));
     }
@@ -399,11 +382,7 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM29DtcCounts> requestDM29(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM29DtcCounts.PGN, GLOBAL_ADDR);
-        return new RequestResult<>(false, generateReport(listener,
-                "Desination Specific DM29 Request",
-                DM29DtcCounts.class,
-                request));
+        return requestDM29(listener, GLOBAL_ADDR);
     }
 
     /**
@@ -419,8 +398,12 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM29DtcCounts> requestDM29(ResultsListener listener, int obdAddress) {
         Packet request = getJ1939().createRequestPacket(DM29DtcCounts.PGN, obdAddress);
+
+        String title = obdAddress == GLOBAL_ADDR ? "Global DM29 Request"
+                : "Desination Specific DM29 Request to " + Lookup.getAddressName(obdAddress);
+
         return new RequestResult<>(false, generateReport(listener,
-                "Desination Specific DM29 Request",
+                title,
                 DM29DtcCounts.class,
                 request));
     }
@@ -434,11 +417,7 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM31ScaledTestResults> requestDM31(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM31ScaledTestResults.PGN, GLOBAL_ADDR);
-        return new RequestResult<>(false, generateReport(listener,
-                "Global DM31 Request",
-                DM31ScaledTestResults.class,
-                request));
+        return requestDM31(listener, GLOBAL_ADDR);
     }
 
     /**
@@ -451,8 +430,12 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM31ScaledTestResults> requestDM31(ResultsListener listener, int address) {
         Packet request = getJ1939().createRequestPacket(DM31ScaledTestResults.PGN, address);
+
+        String title = address == GLOBAL_ADDR ? "Global DM31 Request"
+                : "Destination Specific DM31 Request to " + Lookup.getAddressName(address);
+
         return new RequestResult<>(false, generateReport(listener,
-                "Global DM31 Request",
+                title,
                 DM31ScaledTestResults.class,
                 request));
     }
@@ -467,12 +450,7 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> requestDM33(
             ResultsListener listener) {
-        Packet request = getJ1939()
-                .createRequestPacket(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, GLOBAL_ADDR);
-        return new RequestResult<>(false, generateReport(listener,
-                "Global DM33 Request",
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
-                request));
+        return requestDM33(listener, GLOBAL_ADDR);
     }
 
     /**
@@ -487,8 +465,12 @@ public class DTCModule extends FunctionalModule {
             ResultsListener listener, int address) {
         Packet request = getJ1939()
                 .createRequestPacket(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, address);
+
+        String title = address == GLOBAL_ADDR ? "Global DM33 Request"
+                : "Destination Specific DM33 Request to " + Lookup.getAddressName(address);
+
         return new RequestResult<>(false, generateReport(listener,
-                "Destination Specific DM33 Request",
+                title,
                 DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
                 request));
     }
@@ -513,11 +495,11 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener, int address) {
+    public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener, Integer address) {
         Packet request = getJ1939().createRequestPacket(DM6PendingEmissionDTCPacket.PGN, address);
 
-        String title = address == GLOBAL_ADDR ? " Global DM6 Request to " : " Destination Specific DM6 Request to ";
-        title += Lookup.getAddressName(address);
+        String title = address == GLOBAL_ADDR ? " Global DM6 Request"
+                : " Destination Specific DM6 Request to " + Lookup.getAddressName(address);
 
         listener.onResult(getTime() + title);
         listener.onResult(getTime() + " " + request);
