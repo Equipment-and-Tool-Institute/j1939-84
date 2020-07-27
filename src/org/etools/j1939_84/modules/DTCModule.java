@@ -502,8 +502,24 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM6PendingEmissionDTCPacket.PGN, GLOBAL_ADDR);
-        listener.onResult(getTime() + " Global DM6 Request");
+        return requestDM6(listener, GLOBAL_ADDR);
+    }
+
+    /**
+     * Requests a destination specific DM6 and generates a {@link String} that's
+     * suitable for inclusion in the report
+     *
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener, int address) {
+        Packet request = getJ1939().createRequestPacket(DM6PendingEmissionDTCPacket.PGN, address);
+
+        String title = address == GLOBAL_ADDR ? " Global DM6 Request to " : " Destination Specific DM6 Request to ";
+        title += Lookup.getAddressName(address);
+
+        listener.onResult(getTime() + title);
         listener.onResult(getTime() + " " + request);
 
         RequestResult<DM6PendingEmissionDTCPacket> result = new RequestResult<>(false, getJ1939()
