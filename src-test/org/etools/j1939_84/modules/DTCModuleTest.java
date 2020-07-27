@@ -31,6 +31,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM31ScaledTestResults;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
@@ -1152,7 +1153,6 @@ public class DTCModuleTest {
         };
         assertEquals(expectedPackets, instance.requestDM2(listener, true).getPackets());
 
-        // instance.getDM2Packets(listener, true, 0x17);
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(expected, listener.getResults());
@@ -2083,7 +2083,6 @@ public class DTCModuleTest {
         verify(j1939).requestPacket(requestPacket,
                 DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
                 TimeUnit.SECONDS.toMillis(15));
-
     }
 
     @Test
@@ -2211,6 +2210,144 @@ public class DTCModuleTest {
     }
 
     @Test
+    public void testResquestDM29DestinationSpecificNoResponse() {
+        final int pgn = DM29DtcCounts.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        String expected = "10:15:30.000 Desination Specific DM29 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 18EA00A5 00 9E 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response."
+                + NL;
+
+        when(j1939.requestMultiple(DM29DtcCounts.class, requestPacket))
+                .thenReturn(Stream.empty());
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM29(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestMultiple(DM29DtcCounts.class,
+                requestPacket);
+    }
+
+    @Test
+    public void testResquestDM29DestinationSpecificResponse() {
+        final int pgn = DM29DtcCounts.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        String expected = "10:15:30.000 Desination Specific DM29 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 18EA00A5 00 9E 00 (TX)" + NL;
+        expected += "10:15:30.000 189E0000 09 20 47 31 01 FF FF FF" + NL;
+        expected += "DM29 from Engine #1 (0): " + NL;
+        expected += "Emission-Related Pending DTC Count                               9" + NL;
+        expected += "All Pending DTC Count                                           32" + NL;
+        expected += "Emission-Related MIL-On DTC Count                               71" + NL;
+        expected += "Emission-Related Previously MIL-On DTC Count                    49" + NL;
+        expected += "Emission-Related Permanent DTC Count                             1" + NL;
+
+        DM29DtcCounts packet1 = new DM29DtcCounts(
+                Packet.create(pgn, 0x00,
+                        0x09,
+                        0x20,
+                        0x47,
+                        0x31,
+                        0x01,
+                        0xFF,
+                        0xFF,
+                        0xFF));
+        when(j1939.requestMultiple(DM29DtcCounts.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM29DtcCounts> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet1),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM29(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestMultiple(DM29DtcCounts.class,
+                requestPacket);
+    }
+
+    @Test
+    public void testResquestDM29GlobalNoResponse() {
+        final int pgn = DM29DtcCounts.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        String expected = "10:15:30.000 Global DM29 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 00 9E 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response."
+                + NL;
+
+        when(j1939.requestMultiple(DM29DtcCounts.class, requestPacket))
+                .thenReturn(Stream.empty());
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM29DtcCounts> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM29(listener));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestMultiple(DM29DtcCounts.class,
+                requestPacket);
+    }
+
+    @Test
+    public void testResquestDM29GlobalResponse() {
+        final int pgn = DM29DtcCounts.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        String expected = "10:15:30.000 Global DM29 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 00 9E 00 (TX)" + NL;
+        expected += "10:15:30.000 189E0000 09 20 47 31 01 FF FF FF" + NL;
+        expected += "DM29 from Engine #1 (0): " + NL;
+        expected += "Emission-Related Pending DTC Count                               9" + NL;
+        expected += "All Pending DTC Count                                           32" + NL;
+        expected += "Emission-Related MIL-On DTC Count                               71" + NL;
+        expected += "Emission-Related Previously MIL-On DTC Count                    49" + NL;
+        expected += "Emission-Related Permanent DTC Count                             1" + NL;
+
+        DM29DtcCounts packet1 = new DM29DtcCounts(
+                Packet.create(pgn, 0x00,
+                        0x09,
+                        0x20,
+                        0x47,
+                        0x31,
+                        0x01,
+                        0xFF,
+                        0xFF,
+                        0xFF));
+        when(j1939.requestMultiple(DM29DtcCounts.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM29DtcCounts> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet1),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM29(listener));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestMultiple(DM29DtcCounts.class,
+                requestPacket);
+    }
+
+    @Test
     public void testResquestDM31DestinationSpecificNoResponse() {
         final int pgn = DM31ScaledTestResults.PGN;
         Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
@@ -2234,7 +2371,6 @@ public class DTCModuleTest {
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).requestMultiple(DM31ScaledTestResults.class,
                 requestPacket);
-
     }
 
     @Test
@@ -2295,7 +2431,6 @@ public class DTCModuleTest {
         verify(j1939).createRequestPacket(pgn, 0x21);
         verify(j1939).requestMultiple(DM31ScaledTestResults.class,
                 requestPacket);
-
     }
 
     @Test
@@ -2322,7 +2457,6 @@ public class DTCModuleTest {
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestMultiple(DM31ScaledTestResults.class,
                 requestPacket);
-
     }
 
     @Test
@@ -2383,7 +2517,5 @@ public class DTCModuleTest {
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestMultiple(DM31ScaledTestResults.class,
                 requestPacket);
-
     }
-
 }

@@ -10,13 +10,12 @@ import java.util.Arrays;
 import org.etools.j1939_84.bus.Packet;
 
 /**
- * The {@link ParsedPacket} for Diagnostic Trouble Code Counts
- * Codes (DM29)
+ * The {@link ParsedPacket} for Diagnostic Trouble Code Counts Codes (DM29)
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
- * This DM conveys the number of regulated DTC counts (Pending, Permanent, MIL-
- * On, PMIL-On)
+ *         This DM conveys the number of regulated DTC counts (Pending,
+ *         Permanent, MIL- On, PMIL-On)
  */
 public class DM29DtcCounts extends ParsedPacket {
     // Hex value of PGN = 009E00
@@ -105,21 +104,20 @@ public class DM29DtcCounts extends ParsedPacket {
         StringBuilder sb = new StringBuilder();
         sb.append(getStringPrefix() + NL);
         sb.append(String
-                .format("%1$-65s %2$20d", "Emission-Related Pending DTC Count", getEmissionRelatedPendingDTCCount()))
+                .format("%1$-45s %2$20d", "Emission-Related Pending DTC Count", getEmissionRelatedPendingDTCCount()))
                 .append(NL);
-        sb.append(String.format("%1$-65s %2$20d", "All Pending DTC Count", getAllPendingDTCCount()))
+        sb.append(String.format("%1$-45s %2$20d", "All Pending DTC Count", getAllPendingDTCCount()))
                 .append(NL);
         sb.append(String
-                .format("%1$-65s %2$20d", "Emission-Related MIL-On DTC Count", getEmissionRelatedMILOnDTCCount()))
+                .format("%1$-45s %2$20d", "Emission-Related MIL-On DTC Count", getEmissionRelatedMILOnDTCCount()))
                 .append(NL);
-        sb.append(String.format("%1$-65s %2$20d",
+        sb.append(String.format("%1$-45s %2$20d",
                 "Emission-Related Previously MIL-On DTC Count",
                 getEmissionRelatedPreviouslyMILOnDTCCount()))
                 .append(NL);
-        sb.append(String.format("%1$-65s %2$20d",
+        sb.append(String.format("%1$-45s %2$20d",
                 "Emission-Related Permanent DTC Count",
-                getEmissionRelatedPermanentDTCCount()))
-                .append(NL);
+                getEmissionRelatedPermanentDTCCount()));
         return sb.toString();
     }
 }

@@ -120,11 +120,11 @@ public class DM29DtcCountsTest {
     @Test
     public void testToString() {
         String expected = "DM29 from Engine #1 (0): " + NL;
-        expected += "Emission-Related Pending DTC Count                                                   9" + NL;
-        expected += "All Pending DTC Count                                                               32" + NL;
-        expected += "Emission-Related MIL-On DTC Count                                                   71" + NL;
-        expected += "Emission-Related Previously MIL-On DTC Count                                        49" + NL;
-        expected += "Emission-Related Permanent DTC Count                                                 1" + NL;
+        expected += "Emission-Related Pending DTC Count                               9" + NL;
+        expected += "All Pending DTC Count                                           32" + NL;
+        expected += "Emission-Related MIL-On DTC Count                               71" + NL;
+        expected += "Emission-Related Previously MIL-On DTC Count                    49" + NL;
+        expected += "Emission-Related Permanent DTC Count                             1";
         assertEquals(expected, instance.toString());
     }
 
