@@ -1477,11 +1477,119 @@ public class DTCModuleTest {
     }
 
     @Test
-    public void testRequestDM6() {
+    public void testRequestDM6DestinationSpecific() {
         final int pgn = DM6PendingEmissionDTCPacket.PGN;
 
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        DM6PendingEmissionDTCPacket packet1 = new DM6PendingEmissionDTCPacket(
+                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
+        when(j1939.requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM6 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 18EA00A5 CF FE 00 (TX)" + NL;
+        expected += "10:15:30.000 18FECF00 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "No DTCs" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        List<DM6PendingEmissionDTCPacket> dm6Packets = new ArrayList<>() {
+            {
+                add(packet1);
+            }
+        };
+        RequestResult<DM6PendingEmissionDTCPacket> result = new RequestResult<>(false, dm6Packets,
+                Collections.emptyList());
+
+        assertEquals(result, instance.requestDM6(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM6DestinationSpecificWithDTCs() {
+        final int pgn = DM6PendingEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        DM6PendingEmissionDTCPacket packet1 = new DM6PendingEmissionDTCPacket(Packet.create(pgn,
+                0x00,
+                0x00,
+                0xFF,
+                0x61,
+                0x02,
+                0x13,
+                0x00,
+                0x21,
+                0x06,
+                0x1F,
+                0x00,
+                0xEE,
+                0x10,
+                0x04,
+                0x00));
+        when(j1939.requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM6 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 18EA00A5 CF FE 00 (TX)" + NL;
+        expected += "10:15:30.000 18FECF00 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 0 times" + NL;
+        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 0 times" + NL;
+        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM6PendingEmissionDTCPacket> result = new RequestResult<>(false,
+                Collections.singletonList(packet1),
+                Collections.emptyList());
+        assertEquals(result, instance.requestDM6(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM6DestinationSpecificWithNoResponses() {
+        final int pgn = DM6PendingEmissionDTCPacket.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | 0x21, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x21)).thenReturn(requestPacket);
+
+        when(j1939.requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.empty());
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM6 Request to Body Controller (33)" + NL;
+        expected += "10:15:30.000 18EA21A5 CF FE 00 (TX)" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM6PendingEmissionDTCPacket> result = new RequestResult<>(false,
+                Collections.emptyList(),
+                Collections.emptyList());
+        assertEquals(result, instance.requestDM6(listener, 0x21));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x21);
+        verify(j1939).requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM6Global() {
+        final int pgn = DM6PendingEmissionDTCPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
         DM6PendingEmissionDTCPacket packet1 = new DM6PendingEmissionDTCPacket(
                 Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
@@ -1493,7 +1601,7 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM6 Request" + NL;
+        expected += "10:15:30.000 Global DM6 Request to Global (255)" + NL;
         expected += "10:15:30.000 18EAFFA5 CF FE 00 (TX)" + NL;
         expected += "10:15:30.000 18FECF00 00 00 00 00 00 00 00 00" + NL;
         expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
@@ -1521,16 +1629,16 @@ public class DTCModuleTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
-        verify(j1939).createRequestPacket(pgn, 0xFF);
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
     }
 
     @Test
-    public void testRequestDM6WithDTCs() {
+    public void testRequestDM6GlobalWithDTCs() {
         final int pgn = DM6PendingEmissionDTCPacket.PGN;
 
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
         DM6PendingEmissionDTCPacket packet1 = new DM6PendingEmissionDTCPacket(Packet.create(pgn,
                 0x00,
@@ -1552,7 +1660,7 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM6 Request" + NL;
+        expected += "10:15:30.000 Global DM6 Request to Global (255)" + NL;
         expected += "10:15:30.000 18EAFFA5 CF FE 00 (TX)" + NL;
         expected += "10:15:30.000 18FECF00 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
@@ -1568,21 +1676,21 @@ public class DTCModuleTest {
         assertEquals(result, instance.requestDM6(listener));
         assertEquals(expected, listener.getResults());
 
-        verify(j1939).createRequestPacket(pgn, 0xFF);
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
     }
 
     @Test
-    public void testRequestDM6WithNoResponses() {
+    public void testRequestDM6GlobalWithNoResponses() {
         final int pgn = DM6PendingEmissionDTCPacket.PGN;
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
         when(j1939.requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
                 .thenReturn(Stream.empty());
 
         String expected = "";
-        expected += "10:15:30.000 Global DM6 Request" + NL;
+        expected += "10:15:30.000 Global DM6 Request to Global (255)" + NL;
         expected += "10:15:30.000 18EAFFA5 CF FE 00 (TX)" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1592,7 +1700,7 @@ public class DTCModuleTest {
         assertEquals(result, instance.requestDM6(listener));
         assertEquals(expected, listener.getResults());
 
-        verify(j1939).createRequestPacket(pgn, 0xFF);
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
     }
 
