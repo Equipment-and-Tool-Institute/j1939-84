@@ -30,6 +30,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
+import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
@@ -848,6 +849,206 @@ public class DTCModuleTest {
     }
 
     @Test
+    public void testRequestDM26DestinationSpecific() {
+        final int pgn = DM26TripDiagnosticReadinessPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x21, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x21)).thenReturn(requestPacket);
+
+        DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(
+                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
+        when(j1939.requestMultiple(DM26TripDiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM26 Request to Body Controller (33)" + NL;
+        expected += "10:15:30.000 18EA21A5 B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FDB821 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM26 from Body Controller (33): Warm-ups: 0, Time Since Engine Start: 0 seconds" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet1), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM26(listener, 0x21));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x21);
+        verify(j1939).requestMultiple(DM26TripDiagnosticReadinessPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM26DestinationSpecificWithDTCs() {
+        final int pgn = DM26TripDiagnosticReadinessPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(Packet.create(pgn,
+                0x00,
+                0x00,
+                0xFF,
+                0x61,
+                0x02,
+                0x13,
+                0x00,
+                0x21,
+                0x06,
+                0x1F,
+                0x00,
+                0xEE,
+                0x10,
+                0x04,
+                0x00));
+
+        when(j1939.requestMultiple(DM26TripDiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM26 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 18EA00A5 B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FDB800 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "DM26 from Engine #1 (0): Warm-ups: 97, Time Since Engine Start: not available" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(
+                false, Collections.singletonList(packet1), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM26(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestMultiple(DM26TripDiagnosticReadinessPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM26DestinationSpecificWithNoResponses() {
+        final int pgn = DM26TripDiagnosticReadinessPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x17, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x17)).thenReturn(requestPacket);
+
+        when(j1939.requestMultiple(DM26TripDiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(Stream.empty());
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM26 Request to Instrument Cluster #1 (23)" + NL;
+        expected += "10:15:30.000 18EA17A5 B8 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM26(listener, 0x17));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0x17);
+        verify(j1939).requestMultiple(DM26TripDiagnosticReadinessPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM26Global() {
+        final int pgn = DM26TripDiagnosticReadinessPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(
+                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
+        DM26TripDiagnosticReadinessPacket packet2 = new DM26TripDiagnosticReadinessPacket(
+                Packet.create(pgn, 0x17, 0, 0, 0, 0, 0, 0, 0, 0));
+        DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
+                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
+        when(j1939.requestMultiple(DM26TripDiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM26 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FDB800 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM26 from Engine #1 (0): Warm-ups: 0, Time Since Engine Start: 0 seconds" + NL;
+        expected += "10:15:30.000 18FDB817 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM26 from Instrument Cluster #1 (23): Warm-ups: 0, Time Since Engine Start: 0 seconds" + NL;
+        expected += "10:15:30.000 18FDB821 00 00 00 00 00 00 00 00" + NL;
+        expected += "DM26 from Body Controller (33): Warm-ups: 0, Time Since Engine Start: 0 seconds" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(
+                false, Arrays.asList(packet1, packet2, packet3), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM26(listener));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestMultiple(DM26TripDiagnosticReadinessPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM26GlobalWithDTCs() {
+        final int pgn = DM26TripDiagnosticReadinessPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(Packet.create(pgn,
+                0x11,
+                0x22,
+                0x33,
+                0x44,
+                0x55,
+                0x66,
+                0x77,
+                0x88));
+
+        when(j1939.requestMultiple(DM26TripDiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM26 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FDB811 22 33 44 55 66 77 88" + NL;
+        expected += "DM26 from Cruise Control (17): Warm-ups: 68, Time Since Engine Start: 13,090 seconds" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(
+                false, Arrays.asList(packet1), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM26(listener));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestMultiple(DM26TripDiagnosticReadinessPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM26GlobalWithNoResponses() {
+        final int pgn = DM26TripDiagnosticReadinessPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM26 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 B8 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(), Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM26(listener));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0xFF);
+        verify(j1939).requestMultiple(DM26TripDiagnosticReadinessPacket.class, requestPacket);
+    }
+
+    @Test
     public void testRequestDM28DestinationSpecific() {
         final int pgn = DM28PermanentEmissionDTCPacket.PGN;
 
@@ -871,6 +1072,8 @@ public class DTCModuleTest {
                 Collections.singletonList(packet1), Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM28(listener, 0x21));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x21);
         verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
@@ -918,6 +1121,8 @@ public class DTCModuleTest {
                 false, Collections.singletonList(packet1), Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM28(listener, 0x00));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
@@ -940,6 +1145,8 @@ public class DTCModuleTest {
                 Collections.emptyList(), Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM28(listener, 0x17));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x17);
         verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
@@ -979,6 +1186,8 @@ public class DTCModuleTest {
                 false, Arrays.asList(packet1, packet2, packet3), Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM28(listener));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
@@ -1026,30 +1235,10 @@ public class DTCModuleTest {
                 false, Arrays.asList(packet1), Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM28(listener));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
-    }
-
-    @Test
-    public void testRequestDM28GlobalWithNoResponses() {
-        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-
-        String expected = "";
-        expected += "10:15:30.000 Global DM28 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 80 FD 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false,
-                Collections.emptyList(), Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM28(listener));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939).requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket);
     }
 
@@ -1072,6 +1261,8 @@ public class DTCModuleTest {
         List<DM2PreviouslyActiveDTC> expectedPackets = new ArrayList<>();
         assertEquals(expectedPackets, instance.requestDM2(listener, true, 0x17).getPackets());
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x17);
         verify(j1939, times(3))
@@ -1105,6 +1296,8 @@ public class DTCModuleTest {
         };
         assertEquals(expectedPackets, instance.requestDM2(listener, true, 0x01).getPackets());
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x01);
         verify(j1939).requestRaw(DM2PreviouslyActiveDTC.class,
@@ -1194,6 +1387,8 @@ public class DTCModuleTest {
         };
         assertEquals(expectedPackets, instance.requestDM2(listener, false).getPackets());
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestRaw(DM2PreviouslyActiveDTC.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
@@ -1242,6 +1437,8 @@ public class DTCModuleTest {
                 Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM2(listener, true));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939).requestRaw(DM2PreviouslyActiveDTC.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
@@ -1269,6 +1466,8 @@ public class DTCModuleTest {
         TestResultsListener listener = new TestResultsListener();
         assertEquals(new ArrayList<DM2PreviouslyActiveDTC>(), instance.requestDM2(listener, true).getPackets());
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939, times(3)).requestRaw(DM2PreviouslyActiveDTC.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
@@ -1326,6 +1525,8 @@ public class DTCModuleTest {
                 Collections.singletonList(packet1), Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM33(listener));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestMultiple(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
@@ -1355,6 +1556,8 @@ public class DTCModuleTest {
         System.out.println(requestPacket);
         assertEquals(expectedResult, instance.requestDM33(listener, 0x00));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).requestMultiple(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
@@ -1413,6 +1616,8 @@ public class DTCModuleTest {
                 Collections.singletonList(packet1), Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM33(listener));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestMultiple(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
@@ -1471,6 +1676,8 @@ public class DTCModuleTest {
                 Collections.singletonList(packet1), Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM33(listener));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestMultiple(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
@@ -1556,6 +1763,8 @@ public class DTCModuleTest {
                 Collections.emptyList());
         assertEquals(result, instance.requestDM6(listener, 0x00));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
@@ -1580,6 +1789,8 @@ public class DTCModuleTest {
                 Collections.emptyList());
         assertEquals(result, instance.requestDM6(listener, 0x21));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x21);
         verify(j1939).requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
@@ -1867,6 +2078,8 @@ public class DTCModuleTest {
                 Collections.singletonList(packet1));
         assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
@@ -1893,6 +2106,8 @@ public class DTCModuleTest {
                 Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
@@ -2017,6 +2232,8 @@ public class DTCModuleTest {
                 Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
@@ -2050,6 +2267,8 @@ public class DTCModuleTest {
                 Collections.singletonList(packet1));
         assertEquals(expectedResult, instance.requestDM25(listener));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
@@ -2078,6 +2297,8 @@ public class DTCModuleTest {
                 Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM25(listener));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestPacket(requestPacket,
@@ -2203,6 +2424,8 @@ public class DTCModuleTest {
                 Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM25(listener));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, GLOBAL_ADDR, 3,
@@ -2229,6 +2452,8 @@ public class DTCModuleTest {
                 Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM29(listener, 0x00));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).requestMultiple(DM29DtcCounts.class,
@@ -2298,6 +2523,8 @@ public class DTCModuleTest {
                 Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM29(listener));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestMultiple(DM29DtcCounts.class,
@@ -2367,6 +2594,8 @@ public class DTCModuleTest {
                 Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM31(listener, 0x00));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).requestMultiple(DM31ScaledTestResults.class,
@@ -2453,6 +2682,8 @@ public class DTCModuleTest {
                 Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM31(listener));
         assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).requestMultiple(DM31ScaledTestResults.class,

@@ -331,9 +331,25 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM26TripDiagnosticReadinessPacket> requestDM26(ResultsListener listener) {
-        Packet request = getJ1939().createRequestPacket(DM26TripDiagnosticReadinessPacket.PGN, GLOBAL_ADDR);
+        return requestDM26(listener, GLOBAL_ADDR);
+    }
+
+    /**
+     * Requests destination specific DM26 and generates a {@link String} that's
+     * suitable for inclusion in the report
+     *
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<DM26TripDiagnosticReadinessPacket> requestDM26(ResultsListener listener, Integer address) {
+        Packet request = getJ1939().createRequestPacket(DM26TripDiagnosticReadinessPacket.PGN, address);
+
+        String title = address == GLOBAL_ADDR ? "Global DM26 Request"
+                : "Destination Specific DM26 Request to " + Lookup.getAddressName(address);
+
         return new RequestResult<>(false, generateReport(listener,
-                "Global DM26 Request",
+                title,
                 DM26TripDiagnosticReadinessPacket.class,
                 request));
     }
