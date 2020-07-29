@@ -231,7 +231,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
             boolean fullString,
             int obdModuleAddress) {
 
-        return getPackets("Destination Specific DM21 Request",
+        return getPacket("Destination Specific DM21 Request",
                 DM21DiagnosticReadinessPacket.PGN,
                 DM21DiagnosticReadinessPacket.class,
                 listener,

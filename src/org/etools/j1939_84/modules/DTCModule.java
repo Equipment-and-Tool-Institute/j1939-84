@@ -149,15 +149,20 @@ public class DTCModule extends FunctionalModule {
     public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, boolean fullString,
             int moduleAddress) {
 
-        String title = moduleAddress == GLOBAL_ADDR ? "Global DM12 Request"
-                : "Destination Specific DM12 Request to " + Lookup.getAddressName(moduleAddress);
-
-        return getPackets(title,
-                DM12MILOnEmissionDTCPacket.PGN,
-                DM12MILOnEmissionDTCPacket.class,
-                listener,
-                fullString,
-                moduleAddress);
+        if (moduleAddress == GLOBAL_ADDR) {
+            return getPacketsFromGlobal("Global DM12 Request",
+                    DM12MILOnEmissionDTCPacket.PGN,
+                    DM12MILOnEmissionDTCPacket.class,
+                    listener,
+                    fullString);
+        } else {
+            return getPacket("Destination Specific DM12 Request to " + Lookup.getAddressName(moduleAddress),
+                    DM12MILOnEmissionDTCPacket.PGN,
+                    DM12MILOnEmissionDTCPacket.class,
+                    listener,
+                    fullString,
+                    moduleAddress);
+        }
     }
 
     /**
@@ -184,16 +189,19 @@ public class DTCModule extends FunctionalModule {
      */
     public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString,
             int obdAddress) {
-        String title = obdAddress == GLOBAL_ADDR ? "Global DM2 Request"
-                : "Destination Specific DM2 Request to " + Lookup.getAddressName(obdAddress);
-
-        return getPackets(title,
-                DM2PreviouslyActiveDTC.PGN,
-                DM2PreviouslyActiveDTC.class,
-                listener,
-                fullString,
-                obdAddress);
-
+        if (obdAddress == GLOBAL_ADDR) {
+            return getPacketsFromGlobal("Global DM2 Request", DM2PreviouslyActiveDTC.PGN,
+                    DM2PreviouslyActiveDTC.class,
+                    listener,
+                    fullString);
+        } else {
+            return getPacket("Destination Specific DM2 Request to " + Lookup.getAddressName(obdAddress),
+                    DM2PreviouslyActiveDTC.PGN,
+                    DM2PreviouslyActiveDTC.class,
+                    listener,
+                    fullString,
+                    obdAddress);
+        }
     }
 
     /**

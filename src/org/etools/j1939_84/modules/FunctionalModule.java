@@ -8,7 +8,10 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -122,7 +125,7 @@ public abstract class FunctionalModule {
         return t -> t.getPacket().toString(getDateTimeModule().getTimeFormatter()) + NL + t.toString();
     }
 
-    protected <T extends ParsedPacket> RequestResult<T> getPackets(String title,
+    protected <T extends ParsedPacket> RequestResult<T> getPacket(String title,
             int pgn,
             Class<T> clazz,
             ResultsListener listener,
@@ -134,38 +137,28 @@ public abstract class FunctionalModule {
 
         boolean retryUsed = false;
         // Try three times to get packets and ensure there's one from the module
-        List<Either<T, AcknowledgmentPacket>> packets = new ArrayList<>();
+        Optional<Either<T, AcknowledgmentPacket>> packet = Optional.empty();
         for (int i = 0; i < 3; i++) {
             // FIXME where did 5.5 s come from?
-            packets = getJ1939().requestRaw(clazz, request, 5500, TimeUnit.MILLISECONDS).collect(Collectors.toList());
-            if (packets.stream()
-                    .map(p -> p.as(ParsedPacket.class))
-                    .filter(p -> address == p.getSourceAddress() || address == GLOBAL_ADDR)
-                    .findFirst()
-                    .isPresent()) {
+            packet = getJ1939().requestRaw(clazz, request, 5500, TimeUnit.MILLISECONDS).findFirst();
+            if (packet.isPresent()) {
                 // The module responded, report the results
                 break;
             } else {
                 retryUsed = true;
-                // There was no message from the module. Clear the results to
-                // produce a timeout
-                // message/try again
-                packets.clear();
             }
         }
 
-        if (packets.isEmpty()) {
+        if (packet.isEmpty()) {
             listener.onResult(TIMEOUT_MESSAGE);
         } else {
-            for (Either<T, AcknowledgmentPacket> packet : packets) {
-                ParsedPacket pp = packet.as(ParsedPacket.class);
-                listener.onResult(pp.getPacket().toString(getDateTimeModule().getTimeFormatter()));
-                if (fullString) {
-                    listener.onResult(pp.toString());
-                }
+            ParsedPacket pp = packet.get().as(ParsedPacket.class);
+            listener.onResult(pp.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+            if (fullString) {
+                listener.onResult(pp.toString());
             }
         }
-        return new RequestResult<>(retryUsed, packets);
+        return new RequestResult<>(retryUsed, packet.map(p -> Arrays.asList(p)).orElse(Collections.emptyList()));
     }
 
     /**

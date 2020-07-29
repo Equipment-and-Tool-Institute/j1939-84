@@ -230,7 +230,7 @@ public class OBDTestsModule extends FunctionalModule {
                 a.isRetryUsed() || b.isRetryUsed(),
                 Stream.concat(a.getEither().stream(), b.getEither().stream()).collect(Collectors.toList()));
         return addresses.stream()
-                .map(address -> getPackets("Destination Specific DM24 Request",
+                .map(address -> getPacket("Destination Specific DM24 Request",
                         DM24SPNSupportPacket.PGN,
                         DM24SPNSupportPacket.class,
                         listener,

@@ -247,7 +247,7 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public RequestResult<DM19CalibrationInformationPacket> reportCalibrationInformation(ResultsListener listener,
             int address) {
-        return getPackets("DS DM19 (Calibration Information) Request to " + String.format("%02X", address),
+        return getPacket("DS DM19 (Calibration Information) Request to " + String.format("%02X", address),
                 DM19CalibrationInformationPacket.PGN,
                 DM19CalibrationInformationPacket.class,
                 listener,
@@ -284,7 +284,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * @return {@link List} of {@link ComponentIdentificationPacket}
      */
     public List<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener, int address) {
-        return getPackets(
+        return getPacket(
                 "DS Component Identification Request to " + String.format("%02X", address),
                 ComponentIdentificationPacket.PGN,
                 ComponentIdentificationPacket.class,

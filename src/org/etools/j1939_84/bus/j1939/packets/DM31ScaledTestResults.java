@@ -7,7 +7,6 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
-import org.etools.j1939_84.bus.j1939.packets.DTCLampStatus;
 
 import org.etools.j1939_84.bus.Packet;
 
@@ -17,7 +16,7 @@ import org.etools.j1939_84.bus.Packet;
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
- * DTC to Lamp Association
+ *         DTC to Lamp Association
  */
 public class DM31ScaledTestResults extends ParsedPacket {
     // Hex value of PGN = 00A300
