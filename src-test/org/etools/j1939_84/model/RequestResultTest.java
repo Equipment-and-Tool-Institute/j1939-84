@@ -151,7 +151,11 @@ public class RequestResultTest {
         expected.append(NL)
                 .append("Retry  used : false")
                 .append(NL)
+                .append("Response packets :")
+                .append(NL)
                 .append("Source address : 0 returned packet")
+                .append(NL)
+                .append("Ack packets :")
                 .append(NL)
                 .append("Source address : 0 returned ackPacket");
         assertEquals(expected.toString(), instance.toString());
@@ -161,7 +165,11 @@ public class RequestResultTest {
         expected1.append(NL)
                 .append("Retry  used : false")
                 .append(NL)
+                .append("Response packets :")
+                .append(NL)
                 .append("No packets returned")
+                .append(NL)
+                .append("Ack packets :")
                 .append(NL)
                 .append("No acks returned");
         assertEquals(expected1.toString(), instance1.toString());

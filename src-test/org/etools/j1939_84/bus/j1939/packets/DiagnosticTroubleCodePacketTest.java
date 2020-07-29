@@ -8,9 +8,8 @@ import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
-import org.junit.Test;
-
 import org.etools.j1939_84.bus.Packet;
+import org.junit.Test;
 
 /**
  * Unit tests the {@link DiagnosticTroubleCodePacket} class
@@ -246,7 +245,7 @@ public class DiagnosticTroubleCodePacketTest {
         int[] data = new int[] { 0x54, 0x4F, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06, 0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00 };
         Packet packet = Packet.create(0x123456, 0x00, data);
         DiagnosticTroubleCodePacket instance = new DiagnosticTroubleCodePacket(packet);
-        String expected = "DM from Engine #1 (0): MIL: Fast Flash, RSL: Slow Flash, AWL: On, PL: Off" + NL
+        String expected = "DM from Engine #1 (0): MIL: fast flash, RSL: slow flash, AWL: on, PL: off" + NL
                 + "DTC: Controller #2 (609) Received Network Data In Error (19) 0 times" + NL
                 + "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 0 times" + NL
                 + "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times";
@@ -258,7 +257,7 @@ public class DiagnosticTroubleCodePacketTest {
         int[] data = new int[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
         Packet packet = Packet.create(0x123456, 0x00, data);
         DiagnosticTroubleCodePacket instance = new DiagnosticTroubleCodePacket(packet);
-        String expected = "DM from Engine #1 (0): MIL: Off, RSL: Off, AWL: Off, PL: Off" + NL + "No DTCs";
+        String expected = "DM from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL + "No DTCs";
         assertEquals(expected, instance.toString());
     }
 
