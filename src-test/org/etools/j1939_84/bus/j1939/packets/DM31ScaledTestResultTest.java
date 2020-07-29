@@ -33,9 +33,9 @@ public class DM31ScaledTestResultTest {
     @Test
     public void testOneDTCs() {
         int[] data = {
-                0x61,       // SPN least significant bit
-                0x02,       // SPN most significant bit
-                0x13,       // Failure mode indicator
+                0x61, // SPN least significant bit
+                0x02, // SPN most significant bit
+                0x13, // Failure mode indicator
                 0x81,
                 0x58,
                 0x34
@@ -47,7 +47,7 @@ public class DM31ScaledTestResultTest {
         assertEquals(1, instance.getDtcLampStatuses().size());
         String expected = "DM31 from Engine #1 (0): " + NL;
         expected += "DTC Lamp Statuses: [" + NL;
-        expected += "MIL: Slow Flash, RSL: Other, AWL: Off, PL: Other" + NL;
+        expected += "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
         expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 1 times" + NL;
         expected += "]";
         assertEquals(expected, instance.toString());
@@ -73,23 +73,23 @@ public class DM31ScaledTestResultTest {
     public void testThreeDTCs() {
         Packet packet = Packet.create(DM31ScaledTestResults.PGN,
                 0,
-                0x61,       // SPN least significant bit
-                0x02,       // SPN most significant bit
-                0x13,       // Failure mode indicator
+                0x61, // SPN least significant bit
+                0x02, // SPN most significant bit
+                0x13, // Failure mode indicator
                 0x81,
                 0x58,
                 0x34,
 
-                0x21,       // SPN least significant bit
-                0x06,       // SPN most significant bit
-                0x1F,       // Failure mode indicator
+                0x21, // SPN least significant bit
+                0x06, // SPN most significant bit
+                0x1F, // Failure mode indicator
                 0x23,
                 0x4A,
                 0x34,
 
-                0xEE,       // SPN least significant bit
-                0x10,       // SPN most significant bit
-                0x04,       // Failure mode indicator
+                0xEE, // SPN least significant bit
+                0x10, // SPN most significant bit
+                0x04, // Failure mode indicator
                 0x00,
                 0x37,
                 0x2A);
@@ -99,11 +99,11 @@ public class DM31ScaledTestResultTest {
         assertEquals(0x03, lampStatuses.size());
         String expected = "DM31 from Engine #1 (0): " + NL;
         expected += "DTC Lamp Statuses: [" + NL;
-        expected += "MIL: Slow Flash, RSL: Other, AWL: Off, PL: Other" + NL;
+        expected += "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
         expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 1 times" + NL;
-        expected += "MIL: Off, RSL: Other, AWL: Off, PL: Other" + NL;
+        expected += "MIL: off, RSL: other, AWL: off, PL: other" + NL;
         expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 35 times" + NL;
-        expected += "MIL: Other, RSL: Other, AWL: Other, PL: Other" + NL;
+        expected += "MIL: other, RSL: other, AWL: other, PL: other" + NL;
         expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
                 + NL;
         expected += "]";

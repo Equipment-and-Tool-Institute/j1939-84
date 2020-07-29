@@ -53,10 +53,10 @@ public class LampStatusTest {
 
     @Test
     public void testToString() {
-        assertEquals("Off", LampStatus.OFF.toString());
-        assertEquals("On", LampStatus.ON.toString());
-        assertEquals("Fast Flash", LampStatus.FAST_FLASH.toString());
-        assertEquals("Slow Flash", LampStatus.SLOW_FLASH.toString());
+        assertEquals("off", LampStatus.OFF.toString());
+        assertEquals("on", LampStatus.ON.toString());
+        assertEquals("fast flash", LampStatus.FAST_FLASH.toString());
+        assertEquals("slow flash", LampStatus.SLOW_FLASH.toString());
     }
 
     @Test
