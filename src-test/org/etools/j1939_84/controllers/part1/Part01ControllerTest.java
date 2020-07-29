@@ -65,6 +65,9 @@ public class Part01ControllerTest {
     private TestResultsListener listener;
 
     @Mock
+    private ResultsListener mockListener;
+
+    @Mock
     private PartResultFactory partResultFactory;
 
     @Mock
@@ -105,7 +108,7 @@ public class Part01ControllerTest {
 
     @Mock
     private Step12Controller step12Controller;
-    
+
     @Mock
     private Step16Controller step16Controller;
 
@@ -114,7 +117,7 @@ public class Part01ControllerTest {
 
     @Before
     public void setUp() {
-        listener = new TestResultsListener();
+        listener = new TestResultsListener(mockListener);
         dateTimeModule = new TestDateTimeModule();
 
         instance = new Part01Controller(executor,
@@ -156,7 +159,8 @@ public class Part01ControllerTest {
                 step09Controller,
                 step10Controller,
                 step11Controller,
-                step12Controller);
+                step12Controller,
+                step16Controller);
     }
 
     /**
@@ -182,36 +186,54 @@ public class Part01ControllerTest {
      * {@link org.etools.j1939_84.controllers.part1.Part01Controller#Part01Controller()}.
      */
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
+                        justification = "The method is called just to get some exception.")
     public void testPart01Controller() {
         PartResult partResult = mock(PartResult.class);
         when(partResult.toString()).thenReturn("Part 1");
         when(partResultFactory.create(1)).thenReturn(partResult);
 
-        for (int i = 1; i < 27; i++) {
+        int[] steps = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16 };
+
+        for (int i : steps) {
             StepResult stepResult = mock(StepResult.class);
             when(stepResult.toString()).thenReturn("Step " + i);
             when(partResult.getStepResult(i)).thenReturn(stepResult);
         }
 
         StringBuffer expectedMessages = new StringBuffer();
-        for (int i = 1; i < 27; i++) {
+        for (int i : steps) {
             expectedMessages.append("\nStep ").append(i);
         }
 
         StringBuffer expectedMilestones = new StringBuffer("Begin Part: Part 1\n");
-        for (int i = 1; i < 27; i++) {
+        for (int i : steps) {
             expectedMilestones.append("Begin Step: Step ").append(i).append("\n");
             expectedMilestones.append("End Step: Step ").append(i).append("\n");
         }
         expectedMilestones.append("End Part: Part 1");
 
         StringBuffer expectedResults = new StringBuffer("Start Part 1\n");
-        for (int i = 1; i < 27; i++) {
+
+        for (int i : steps) {
             expectedResults.append("\n\nStart Step ").append(i).append("\n");
             expectedResults.append("End Step ").append(i).append("\n");
         }
         expectedResults.append("End Part 1\n");
+
+        when(step01Controller.getStepNumber()).thenReturn(1);
+        when(step02Controller.getStepNumber()).thenReturn(2);
+        when(step03Controller.getStepNumber()).thenReturn(3);
+        when(step04Controller.getStepNumber()).thenReturn(4);
+        when(step05Controller.getStepNumber()).thenReturn(5);
+        when(step06Controller.getStepNumber()).thenReturn(6);
+        when(step07Controller.getStepNumber()).thenReturn(7);
+        when(step08Controller.getStepNumber()).thenReturn(8);
+        when(step09Controller.getStepNumber()).thenReturn(9);
+        when(step10Controller.getStepNumber()).thenReturn(10);
+        when(step11Controller.getStepNumber()).thenReturn(11);
+        when(step12Controller.getStepNumber()).thenReturn(12);
+        when(step16Controller.getStepNumber()).thenReturn(16);
 
         instance.execute(listener, j1939, reportFileModule);
 
@@ -246,10 +268,23 @@ public class Part01ControllerTest {
         inOrder.verify(step12Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step16Controller).run(any(ResultsListener.class), eq(j1939));
 
-
         verify(partResultFactory).create(1);
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(engineSpeedModule).setJ1939(j1939);
+
+        verify(step01Controller).getStepNumber();
+        verify(step02Controller).getStepNumber();
+        verify(step03Controller).getStepNumber();
+        verify(step04Controller).getStepNumber();
+        verify(step05Controller).getStepNumber();
+        verify(step06Controller).getStepNumber();
+        verify(step07Controller).getStepNumber();
+        verify(step08Controller).getStepNumber();
+        verify(step09Controller).getStepNumber();
+        verify(step10Controller).getStepNumber();
+        verify(step11Controller).getStepNumber();
+        verify(step12Controller).getStepNumber();
+        verify(step16Controller).getStepNumber();
 
         assertEquals(expectedMilestones.toString(), listener.getMilestones());
         assertEquals(expectedMessages.toString(), listener.getMessages());
