@@ -37,11 +37,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 public class SectionA5Verifier {
     private static boolean isValid(int value) {
-        if (value != 0xFFFF && value != 0xFB00 && value != 0x0000) {
-            return false;
-        } else {
-            return true;
-        }
+        return (value == 0xFFFF || value == 0xFB00 || value == 0x0000);
     }
 
     private final DataRepository dataRepository;
