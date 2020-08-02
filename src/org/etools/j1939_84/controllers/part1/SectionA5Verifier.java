@@ -138,17 +138,15 @@ public class SectionA5Verifier {
         // flashing
         List<DM23PreviouslyMILOnEmissionDTCPacket> dm23Packets = dtcModule.requestDM23(listener).getPackets()
                 .stream()
-                .filter(packet -> packet instanceof DM23PreviouslyMILOnEmissionDTCPacket)
-                .map(p -> p)
-                .filter(t -> (!t.getDtcs().isEmpty()) ||
-                        (t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF))
+                .filter(t -> !t.getDtcs().isEmpty() ||
+                        t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF)
                 .collect(Collectors.toList());
         if (!dm23Packets.isEmpty()) {
             StringBuilder failureMessage = new StringBuilder(
                     "Section A.5 verification failed during DM23 check done at table step 1.c");
-            failureMessage.append(NL).append("Modules with source address ");
             dm23Packets.forEach(packet -> {
-                failureMessage.append(packet.getSourceAddress() + ", reported ")
+                failureMessage.append(NL).append("Module with source address ")
+                        .append(packet.getSourceAddress() + ", reported ")
                         .append(packet.getDtcs().size()).append(" DTCs.").append(NL).append("MIL status is : ")
                         .append(packet.getMalfunctionIndicatorLampStatus()).append(".");
             });
@@ -213,23 +211,33 @@ public class SectionA5Verifier {
 
         // 2. Freeze Frame information
         // a. DM25 expanded freeze frame shall report no data and DTC causing
-        // freeze frame with bytes 1-5 = 0 and bytes 6-8 = 255
-        // FIXME this needs to loop through all modules.
-        List<DM25ExpandedFreezeFrame> dm25Packets = dtcModule.requestDM25(listener, obdModuleAddresses.get(0))
-                .getPackets()
-                .stream()
-                .filter(packet -> packet instanceof DM25ExpandedFreezeFrame)
-                .map(p -> p)
-                .filter(t -> !t.getFreezeFrames().isEmpty())
-                .collect(Collectors.toList());
+        // freeze frame with bytes 1-5 = 0 and bytes 6-8 = 255 (**Remember array
+        // are zero based**)
+        List<DM25ExpandedFreezeFrame> dm25Packets = new ArrayList<>();
+        obdModuleAddresses.forEach(address -> {
+            dm25Packets.addAll(dtcModule.requestDM25(listener, address)
+                    .getPackets()
+                    .stream()
+                    .filter(packet -> {
+                        byte[] bytes = packet.getPacket().getBytes();
+                        return bytes[0] != 0x00
+                                || bytes[1] != 0x00
+                                || bytes[2] != 0x00
+                                || bytes[3] != 0x00
+                                || bytes[4] != 0x00
+                                || bytes[5] != (byte) 0xFF
+                                || bytes[6] != (byte) 0xFF
+                                || bytes[7] != (byte) 0xFF;
+                    })
+                    .collect(Collectors.toList()));
+        });
 
         if (!dm25Packets.isEmpty()) {
             // Verify the no data & DTC didn't cause freeze frame
             StringBuilder failureMessage = new StringBuilder(
                     "Section A.5 verification failed during DM25 check done at table step 2.a");
-            failureMessage.append(NL).append("Modules with source address ");
             dm25Packets.forEach(packet -> {
-                failureMessage.append(packet.getSourceAddress() + ", has ")
+                failureMessage.append(NL).append("Module with source address " + packet.getSourceAddress() + ", has ")
                         .append(packet.getFreezeFrames().size() + " supported SPNs");
             });
             listener.onProgress(failureMessage.toString());
@@ -303,16 +311,12 @@ public class SectionA5Verifier {
 
         // 4. Readiness status
         // a. DM5 shall report test not complete (1) for all supported monitors
-        // except
-        // comprehensive components.
-        // 54 See 1971.1 section (h)(5.1.2)(A)(ii). 55 See 1971.1 section
-        // (h)(4.4.2)(F)(iii). 56 See 1971.1 section (h)(5.2.2)(B).
-        // Non-Business SAE INTERNATIONAL J1939TM-84 Proposed Draft June 2019
-        // Page 113 of 129
+        // except comprehensive components.
         List<MonitoredSystem> monitoredSystems = new ArrayList<>();
         StringBuilder failedMessage = new StringBuilder(
                 "Section A.5 verification failed during DM5 check done at table step 4.a");
         failedMessage.append(NL).append("Module address ");
+
         dm5Packets.forEach(packet -> {
             failedMessage.append(packet.getSourceAddress());
             failedMessage.append(" :");
@@ -323,13 +327,13 @@ public class SectionA5Verifier {
                     failedMessage.append(packet.toString());
                 }
             }
-            if (!monitoredSystems.isEmpty()) {
-                listener.onProgress(failedMessage.toString());
-                passed[0] = false;
-            } else {
-                listener.onProgress("PASS: Section A.5 Step 4.a DM5 Verification");
-            }
         });
+        if (!monitoredSystems.isEmpty()) {
+            listener.onProgress(failedMessage.toString());
+            passed[0] = false;
+        } else {
+            listener.onProgress("PASS: Section A.5 Step 4.a DM5 Verification");
+        }
 
         // 5. Activity since code clear
         // a. DM26 diagnostic readiness 3 shall report 0 for number of warm-ups
@@ -381,49 +385,39 @@ public class SectionA5Verifier {
                                 .collect(Collectors.toList()));
             }
         });
-        boolean[] failed = { false };
-        StringBuilder failureMessage = new StringBuilder(
-                "Section A.5 verification failed during DM7/DM30 check done at table step 6.a");
-        failureMessage.append(NL).append("DM30 Scaled Test Results for");
-        dm30Packets.forEach(packet -> {
-            failureMessage.append(NL).append("source address ").append(packet.getSourceAddress())
-                    .append(" are : [")
-                    .append(NL);
-            for (ScaledTestResult testResult : packet.getTestResults()) {
-                boolean packetFailed = false;
-                int testMaximum = testResult.getTestMaximum();
-                if (!isValid(testMaximum)) {
-                    failureMessage.append("  TestMaximum failed and the value returned was : ")
-                            .append(testMaximum).append(NL);
-                    packetFailed = true;
-                    failed[0] = true;
+        if (!dm30Packets.isEmpty()) {
+            boolean[] failed = { false };
+            StringBuilder failureMessage = new StringBuilder(
+                    "Section A.5 verification failed during DM7/DM30 check done at table step 6.a");
+            failureMessage.append(NL).append("DM30 Scaled Test Results for");
+            dm30Packets.forEach(packet -> {
+                failureMessage.append(NL).append("source address ").append(packet.getSourceAddress())
+                        .append(" are : [")
+                        .append(NL);
+                for (ScaledTestResult testResult : packet.getTestResults()) {
+                    int testMaximum = testResult.getTestMaximum();
+                    if (!isValid(testMaximum)) {
+                        failureMessage.append("  TestMaximum failed and the value returned was : ")
+                                .append(testMaximum).append(NL);
+                        failed[0] = true;
+                    }
+                    int testValue = testResult.getTestValue();
+                    if (!isValid(testValue)) {
+                        failureMessage.append("  TestResult failed and the value returned was : ")
+                                .append(testResult.getTestValue()).append(NL);
+                        failed[0] = true;
+                    }
+                    int testMinimum = testResult.getTestMinimum();
+                    if (!isValid(testMinimum)) {
+                        failureMessage.append("  TestMinimum failed and the value returned was : ")
+                                .append(testResult.getTestMinimum()).append(NL);
+                        failed[0] = true;
+                    }
+                    failureMessage.append("]");
                 }
-
-                if (testResult.getTestValue() != 0xFFFF &&
-                        testResult.getTestValue() != 0xFB00 &&
-                        testResult.getTestValue() != 0x0000) {
-                    failureMessage.append("  TestResult failed and the value returned was : ")
-                            .append(testResult.getTestValue()).append(NL);
-                    packetFailed = true;
-                    failed[0] = true;
-                }
-                if (testResult.getTestMinimum() != 0xFFFF &&
-                        testResult.getTestMinimum() != 0xFB00 &&
-                        testResult.getTestMinimum() != 0x0000) {
-                    failureMessage.append("  TestMinimum failed and the value returned was : ")
-                            .append(testResult.getTestMinimum()).append(NL);
-                    packetFailed = true;
-                    failed[0] = true;
-                }
-                if (!packetFailed) {
-                    failureMessage.append(" TestMaximum, TestResult, and TestMinimum all passed.").append(NL);
-                }
-                failureMessage.append("]");
-            }
-        });
-        if (failed[0]) {
+            });
             listener.onProgress(failureMessage.toString());
-            passed[0] = !failed[0];
+            passed[0] = false;
         } else {
             listener.onProgress("PASS: Section A.5 Step 6.a DM7/DM30 Verification");
         }
@@ -463,7 +457,14 @@ public class SectionA5Verifier {
                 .map(p -> p)
                 .filter(t -> t.getDtcs().size() != 0)
                 .collect(Collectors.toList());
-        if (!previousDM28Packets.equals(dm28Packets)) {
+        // Since we only care about packets that have dtc, let make sure both
+        // both lists accurately reflect that.
+        System.out.println(dm28Packets.size());
+        System.out.println(previousDM28Packets.size());
+        if (!previousDM28Packets.stream()
+                .filter(packet -> packet.getDtcs().size() != 0)
+                .collect(Collectors.toList())
+                .equals(dm28Packets)) {
             StringBuilder failMessage = new StringBuilder(
                     "Section A.5 verification failed during DM28 check done at table step 8.a");
             failMessage.append(NL).append(
