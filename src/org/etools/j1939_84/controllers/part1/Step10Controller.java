@@ -131,7 +131,7 @@ public class Step10Controller extends StepController {
                 getListener())) {
             StringBuilder failureMessage = new StringBuilder(
                     "6.1.10.3.b - Fail if any diagnostic information in any ECU is not ")
-                            .append("reset or starts outwith unexpected values.")
+                            .append("reset or starts out with unexpected values.")
                             .append(NL)
                             .append("Diagnostic information is defined in section A.5, ")
                             .append("Diagnostic Information Definition.");
