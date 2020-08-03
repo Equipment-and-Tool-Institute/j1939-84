@@ -200,6 +200,12 @@ public class Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testGetStepNumber() {
+
+        assertEquals(9, instance.getStepNumber());
+    }
+
+    @Test
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 1, instance.getTotalSteps());
     }
