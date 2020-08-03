@@ -118,7 +118,7 @@ public class Step10Controller extends StepController {
         // from the dataRepo grab the obdModule addresses
         boolean nacked = globalDM11Packets.stream().anyMatch(packet -> packet.getResponse() == Response.NACK);
         if (nacked) {
-            addWarning(1, 10, "6.1.10.3.a - The request for DM11 was ACK'ed");
+            addWarning(1, 10, "6.1.10.3.a - The request for DM11 was NACK'ed");
         }
 
         // b. Fail if any diagnostic information in any ECU is not reset or
@@ -131,17 +131,16 @@ public class Step10Controller extends StepController {
                 getListener())) {
             StringBuilder failureMessage = new StringBuilder(
                     "6.1.10.3.b - Fail if any diagnostic information in any ECU is not ")
-                            .append("reset or starts outwith unexpected values. ")
+                            .append("reset or starts out with unexpected values.")
+                            .append(NL)
                             .append("Diagnostic information is defined in section A.5, ")
-                            .append("Diagnostic Information Definition.")
-                            .append(NL);
+                            .append("Diagnostic Information Definition.");
             addFailure(1, 10, failureMessage.toString());
         }
 
         // 6.1.10.3 Warn criteria:
         // a. Warn if ACK received from any HD OBD ECU.16
-        boolean acked = globalDM11Packets.stream().anyMatch(packet -> packet instanceof AcknowledgmentPacket
-                && packet.getResponse() == Response.ACK);
+        boolean acked = globalDM11Packets.stream().anyMatch(packet -> packet.getResponse() == Response.ACK);
         if (acked) {
             addWarning(1, 10, "6.1.10.3.a - The request for DM11 was ACK'ed");
         }
