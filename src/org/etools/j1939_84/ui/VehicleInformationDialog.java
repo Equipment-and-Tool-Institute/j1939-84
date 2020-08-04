@@ -49,7 +49,8 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     /**
      * Creates and return {@link GridBagConstraints} for the column with Labels
      *
-     * @param gridy the y coordinate in the grid
+     * @param gridy
+     *            the y coordinate in the grid
      * @return {@link GridBagConstraints}
      */
     private static GridBagConstraints getLabelGbc(int gridy) {
@@ -68,8 +69,10 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     /**
      * Creates and returns {@link GridBagConstraints} from the Validation Column
      *
-     * @param gridx the x coordinate on the grid
-     * @param gridy the y coordinate on the grid
+     * @param gridx
+     *            the x coordinate on the grid
+     * @param gridy
+     *            the y coordinate on the grid
      * @return {@link GridBagConstraints}
      */
     private static GridBagConstraints getValidationGbc(int gridx, int gridy) {
@@ -84,8 +87,10 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     /**
      * Creates and returns {@link GridBagConstraints} for the Value Column
      *
-     * @param gridy the y coordinate in the grid
-     * @param fill true to completely fill the cel
+     * @param gridy
+     *            the y coordinate in the grid
+     * @param fill
+     *            true to completely fill the cel
      * @return {@link GridBagConstraints}
      */
     private static GridBagConstraints getValueGbc(int gridy, boolean fill) {
@@ -101,6 +106,8 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     }
 
     private JPanel buttonPanel;
+
+    private JSpinner calIdsSpinner;
 
     private JButton cancelButton;
 
@@ -126,6 +133,8 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
 
     private JPanel mainPanel;
 
+    private JSpinner numberOfTripsForFaultBImplantSpinner;
+
     private JButton okButton;
 
     private transient final VehicleInformationContract.Presenter presenter;
@@ -145,8 +154,10 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     /**
      * Constructor exposed for testing
      *
-     * @param presenter the {@link VehicleInformationContract.Presenter}
-     * @param frame main application frame
+     * @param presenter
+     *            the {@link VehicleInformationContract.Presenter}
+     * @param frame
+     *            main application frame
      */
     /* package */ VehicleInformationDialog(JFrame frame, VehicleInformationContract.Presenter presenter) {
         super(frame);
@@ -157,10 +168,13 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     /**
      * Creates a new instance of the Dialog
      *
-     * @param frame main application frame
-     * @param listener the {@link VehicleInformationListener} that will be returned
-     * the information entered by the user
-     * @param j1939 the vehicle bus
+     * @param frame
+     *            main application frame
+     * @param listener
+     *            the {@link VehicleInformationListener} that will be returned
+     *            the information entered by the user
+     * @param j1939
+     *            the vehicle bus
      */
     /* package */ VehicleInformationDialog(JFrame frame, VehicleInformationListener listener, J1939 j1939) {
         super(frame);
@@ -197,6 +211,18 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             buttonPanel.add(getCancelButton(), cancelButtonGbc);
         }
         return buttonPanel;
+    }
+
+    private JSpinner getCalIdsJSpinner() {
+        if (calIdsSpinner == null) {
+            calIdsSpinner = new JSpinner(new SpinnerNumberModel(99, 1, 99, 1));
+            JSpinner.NumberEditor editor = new JSpinner.NumberEditor(calIdsSpinner, "#");
+            editor.getTextField().setColumns(2);
+            calIdsSpinner.setEditor(editor);
+            calIdsSpinner
+                    .addChangeListener(e -> presenter.onCalIdsChanged((int) calIdsSpinner.getValue()));
+        }
+        return calIdsSpinner;
     }
 
     private JButton getCancelButton() {
@@ -342,20 +368,40 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             mainPanel.add(getEmissionUnitsLabel(), getLabelGbc(6));
             mainPanel.add(getEmissionUnitsJSpinner(), getValueGbc(6, false));
 
-            mainPanel.add(getCertificationLabel(), getLabelGbc(7));
-            GridBagConstraints certificationGbc = getValueGbc(7, false);
+            mainPanel.add(new JLabel("Calibration IDs"), getLabelGbc(7));
+            mainPanel.add(getCalIdsJSpinner(), getValueGbc(7, false));
+
+            mainPanel.add(getCertificationLabel(), getLabelGbc(8));
+            GridBagConstraints certificationGbc = getValueGbc(8, false);
             certificationGbc.gridwidth = 3;
             mainPanel.add(getCertificationScrollPane(), certificationGbc);
+
+            mainPanel.add(new JLabel("Number Of Trips For Fault B Implant"), getLabelGbc(9));
+            mainPanel.add(getNumberOfTripsForFaultBImplantJSpinner(), getValueGbc(9, false));
 
             GridBagConstraints buttonPanelGbc = new GridBagConstraints();
             buttonPanelGbc.insets = new Insets(0, 0, 0, 5);
             buttonPanelGbc.anchor = GridBagConstraints.WEST;
             buttonPanelGbc.gridwidth = 2;
             buttonPanelGbc.gridx = 1;
-            buttonPanelGbc.gridy = 9;
+            buttonPanelGbc.gridy = 10;
             mainPanel.add(getButtonPanel(), buttonPanelGbc);
         }
         return mainPanel;
+    }
+
+    private JSpinner getNumberOfTripsForFaultBImplantJSpinner() {
+        if (numberOfTripsForFaultBImplantSpinner == null) {
+            numberOfTripsForFaultBImplantSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 99, 1));
+            JSpinner.NumberEditor editor = new JSpinner.NumberEditor(numberOfTripsForFaultBImplantSpinner, "#");
+            editor.getTextField().setColumns(2);
+            numberOfTripsForFaultBImplantSpinner.setEditor(editor);
+            numberOfTripsForFaultBImplantSpinner
+                    .addChangeListener(e -> presenter
+                            .onNumberOfTripsForFaultBImplantChanged(
+                                    (int) numberOfTripsForFaultBImplantSpinner.getValue()));
+        }
+        return numberOfTripsForFaultBImplantSpinner;
     }
 
     private JButton getOkButton() {
@@ -442,6 +488,11 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     }
 
     @Override
+    public void setCalIds(int calIds) {
+        getCalIdsJSpinner().setValue(calIds);
+    }
+
+    @Override
     public void setCertificationIntent(String certificationIntent) {
         getCertificationTextField().setText(certificationIntent);
     }
@@ -459,6 +510,11 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     @Override
     public void setFuelType(FuelType fuelType) {
         getFuelTypeComboBox().setSelectedItem(fuelType);
+    }
+
+    @Override
+    public void setNumberOfTripsForFaultBImplant(int count) {
+        getNumberOfTripsForFaultBImplantJSpinner().setValue(count);
     }
 
     @Override

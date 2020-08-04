@@ -273,7 +273,6 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return the {@link List} of {@link DM5DiagnosticReadinessPacket}s
      */
     public List<DM5DiagnosticReadinessPacket> getDM5Packets(ResultsListener listener, boolean fullString) {
-
         return getPacketsFromGlobal("Global DM5 Request",
                 DM5DiagnosticReadinessPacket.PGN,
                 DM5DiagnosticReadinessPacket.class,
@@ -292,10 +291,11 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      */
     public List<Integer> getOBDModules(ResultsListener listener) {
         List<DM5DiagnosticReadinessPacket> packets = getDM5Packets(listener, false);
-        Set<Integer> addressSet = packets.stream().filter(t -> t.isHdObd()).map(t -> t.getSourceAddress())
-                .collect(Collectors.toSet());
-        List<Integer> addresses = new ArrayList<>(addressSet);
-        Collections.sort(addresses);
+        List<Integer> addresses = packets.stream().filter(t -> t.isHdObd())
+                .map(t -> t.getSourceAddress())
+                .sorted()
+                .distinct()
+                .collect(Collectors.toList());
         if (addresses.isEmpty()) {
             listener.onResult("No modules report as HD-OBD compliant - stopping.");
         } else {

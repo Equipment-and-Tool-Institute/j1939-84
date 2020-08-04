@@ -3,11 +3,21 @@
  */
 package org.etools.j1939_84.ui;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.function.Function;
+
+import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
 
@@ -21,6 +31,13 @@ import org.etools.j1939_84.utils.VinDecoder;
 public class VehicleInformationPresenter implements VehicleInformationContract.Presenter {
 
     /**
+     * The value the user has entered for the number of CalIDs on the vehicle
+     */
+    private int calIds;
+
+    private List<DM19CalibrationInformationPacket> calIdsFound;
+
+    /**
      * The value the user has entered for the certification intent
      */
     private String certificationIntent;
@@ -31,11 +48,19 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     private final DateTimeModule dateTimeModule;
 
     /**
+     * The module used to gather information about the module readiness
+     */
+    private final DiagnosticReadinessModule diagnosticReadinessModule;
+
+    /**
      * The value the user has entered for the number of emissions units on the
      * vehicle
      */
     private int emissionUnits;
-
+    /**
+     * The component Id for the emissions units on the vehicle
+     */
+    private List<ComponentIdentificationPacket> emissionUnitsFound;
     /**
      * The value the user has entered for the engine model year
      */
@@ -50,6 +75,10 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * The listener that will be notified when the user is done
      */
     private final VehicleInformationListener listener;
+    /**
+     * The number of trips for fault B implant
+     */
+    private int numberOfTripsForFaultBImplant;
 
     /**
      * The VehicleInformation that will be returned to the listener
@@ -84,42 +113,80 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     /**
      * Constructor
      *
-     * @param view the View to be controlled
-     * @param listener the {@link VehicleInformationListener} that will be given the
-     * {@link VehicleInformation}
-     * @param j1939 the vehicle bus
+     * @param view
+     *            the View to be controlled
+     * @param listener
+     *            the {@link VehicleInformationListener} that will be given the
+     *            {@link VehicleInformation}
+     * @param j1939
+     *            the vehicle bus
      */
     public VehicleInformationPresenter(VehicleInformationContract.View view, VehicleInformationListener listener,
             J1939 j1939) {
-        this(view, listener, j1939, new DateTimeModule(), new VehicleInformationModule(), new VinDecoder());
+        this(view, listener, j1939, new DateTimeModule(), new VehicleInformationModule(),
+                new DiagnosticReadinessModule(), new VinDecoder());
     }
 
     /**
      * Constructor exposed for testing
      *
-     * @param view the View to be controlled
-     * @param listener the {@link VehicleInformationListener} that
-     * will be given the {@link VehicleInformation}
-     * @param dateTimeModule the {@link DateTimeModule}
-     * @param vehicleInformationModule the {@link VehicleInformationModule}
-     * @param vinDecoder the {@link VinDecoder}
-     * @param j1939 the vehicle interface
+     * @param view
+     *            the View to be controlled
+     * @param listener
+     *            the {@link VehicleInformationListener} that will be given the
+     *            {@link VehicleInformation}
+     * @param dateTimeModule
+     *            the {@link DateTimeModule}
+     * @param vehicleInformationModule
+     *            the {@link VehicleInformationModule}
+     * @param vinDecoder
+     *            the {@link VinDecoder}
+     * @param j1939
+     *            the vehicle interface
      */
     public VehicleInformationPresenter(VehicleInformationContract.View view, VehicleInformationListener listener,
             J1939 j1939, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
-            VinDecoder vinDecoder) {
+            DiagnosticReadinessModule diagnosticReadinessModule, VinDecoder vinDecoder) {
         this.view = view;
         this.listener = listener;
         this.dateTimeModule = dateTimeModule;
         this.vehicleInformationModule = vehicleInformationModule;
         this.vehicleInformationModule.setJ1939(j1939);
+        this.diagnosticReadinessModule = diagnosticReadinessModule;
+        this.diagnosticReadinessModule.setJ1939(j1939);
         this.vinDecoder = vinDecoder;
     }
 
     @Override
     public void initialize() {
-        view.setFuelType(FuelType.DSL); // Assuming this used mostly on Diesel engines
-        view.setEmissionUnits(1); // Assuming there's usually 1 Emission Unit
+        view.setFuelType(FuelType.DSL); // Assuming this used mostly on Diesel
+                                        // engines
+
+        try {
+            List<Integer> obdModules = diagnosticReadinessModule.getOBDModules(ResultsListener.NOOP);
+            emissionUnitsFound = new ArrayList<>();
+            obdModules.forEach(address -> {
+                Function<Either<ComponentIdentificationPacket, AcknowledgmentPacket>, ComponentIdentificationPacket> mapper = e -> e
+                        .resolve(
+                                p -> p,
+                                ack -> ComponentIdentificationPacket.error(address, "ERROR"));
+                emissionUnitsFound
+                        .add(vehicleInformationModule.reportComponentIdentification(ResultsListener.NOOP, address)
+                                .map(mapper)
+                                .orElse(ComponentIdentificationPacket.error(address, "MISSING")));
+            });
+            view.setEmissionUnits(emissionUnitsFound.size());
+        } catch (Exception e) {
+            // Don't care
+            e.printStackTrace(); // FXIME remove this
+        }
+
+        try {
+            calIdsFound = vehicleInformationModule.reportCalibrationInformation(ResultsListener.NOOP);
+            view.setCalIds(calIdsFound.size());
+        } catch (Exception e) {
+            // Don't care
+        }
 
         try {
             vin = vehicleInformationModule.getVin();
@@ -147,6 +214,12 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         } catch (Exception e) {
             // Don't care
         }
+    }
+
+    @Override
+    public void onCalIdsChanged(int count) {
+        calIds = count;
+        validate();
     }
 
     @Override
@@ -185,6 +258,12 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     }
 
     @Override
+    public void onNumberOfTripsForFaultBImplantChanged(int numberOfTripsForFaultBImplant) {
+        this.numberOfTripsForFaultBImplant = numberOfTripsForFaultBImplant;
+        validate();
+    }
+
+    @Override
     public void onOkButtonClicked() {
         vehicleInformation = new VehicleInformation();
         vehicleInformation.setVin(vin);
@@ -192,7 +271,13 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         vehicleInformation.setEngineModelYear(engineModelYear);
         vehicleInformation.setFuelType(fuelType);
         vehicleInformation.setEmissionUnits(emissionUnits);
+        vehicleInformation.setCalIds(emissionUnits);
         vehicleInformation.setCertificationIntent(certificationIntent);
+
+        vehicleInformation.setNumberOfTripsForFaultBImplant(numberOfTripsForFaultBImplant);
+
+        vehicleInformation.setCalIdsFound(calIdsFound);
+        vehicleInformation.setEmissionUnitsFound(emissionUnitsFound);
 
         // vehicleInformation is returned to listener when the dialog is closed
 
@@ -212,7 +297,8 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     }
 
     /**
-     * Validates the information in the form to determine if the user can proceed
+     * Validates the information in the form to determine if the user can
+     * proceed
      */
     private void validate() {
         boolean vinValid = vinDecoder.isVinValid(vin);
@@ -227,7 +313,9 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         enabled &= vinDecoder.isModelYearValid(engineModelYear);
         enabled &= fuelType != null;
         enabled &= emissionUnits > 0;
+        enabled &= calIds > 0;
         enabled &= certificationIntent != null && certificationIntent.trim().length() > 0;
+        enabled &= numberOfTripsForFaultBImplant > 0;
 
         view.setOkButtonEnabled(enabled);
     }

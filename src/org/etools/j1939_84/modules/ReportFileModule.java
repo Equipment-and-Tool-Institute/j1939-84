@@ -58,10 +58,14 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     /**
      * Constructor exposed for testing
      *
-     * @param dateTimeModule The {@link DateTimeModule}
-     * @param logger         The {@link Logger} to use for logging
-     * @param summaryModule  The {@link SummaryModule}
-     * @param bannerModule   The {@link BannerModule}
+     * @param dateTimeModule
+     *            The {@link DateTimeModule}
+     * @param logger
+     *            The {@link Logger} to use for logging
+     * @param summaryModule
+     *            The {@link SummaryModule}
+     * @param bannerModule
+     *            The {@link BannerModule}
      */
     public ReportFileModule(DateTimeModule dateTimeModule, Logger logger, SummaryModule summaryModule,
             BannerModule bannerModule) {
@@ -172,8 +176,8 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      * Reports the information about the report file
      *
      * @param listener
-     *                 the {@link ResultsListener} that will be notified of the
-     *                 results
+     *            the {@link ResultsListener} that will be notified of the
+     *            results
      */
     public void reportFileInformation(ResultsListener listener) {
         listener.onResult(getTime() + " File: " + reportFile.getAbsolutePath());
@@ -183,12 +187,11 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      * Sets the File that will be used to log results to
      *
      * @param listener
-     *                   the {@link ResultsListener} that will be notified of
-     *                   progress
+     *            the {@link ResultsListener} that will be notified of progress
      * @param reportFile
-     *                   the File used for the report
+     *            the File used for the report
      * @throws IOException
-     *                     if there is problem with the file
+     *             if there is problem with the file
      *
      */
     public void setReportFile(ResultsListener listener, File reportFile) throws IOException {
@@ -207,9 +210,9 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      * Writes a result to the report file
      *
      * @param result
-     *               the result to write
+     *            the result to write
      * @throws IOException
-     *                     if there is a problem writing to the file
+     *             if there is a problem writing to the file
      */
     private void write(String result) throws IOException {
         writer.write(result + NL);
@@ -222,7 +225,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             tempFileWriter.write(bannerModule.getHeader() + NL);
             tempFileWriter.write(NL);
             tempFileWriter.write(bannerModule.getSummaryHeader() + NL);
-            tempFileWriter.write("Generated " + getTime() + NL);
+            tempFileWriter.write("Generated " + getDate() + " " + getTime() + NL);
             tempFileWriter.write(NL);
             tempFileWriter.write(vehicleInformation + NL);
             tempFileWriter.write(NL);

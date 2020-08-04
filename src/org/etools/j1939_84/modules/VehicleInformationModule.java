@@ -8,6 +8,7 @@ import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
 import java.util.Optional;
@@ -38,23 +39,10 @@ import org.etools.j1939_84.model.RequestResult;
  *
  */
 public class VehicleInformationModule extends FunctionalModule {
-
-    /**
-     * Helper method to convert a {@link Set} of {@link CalibrationInformation}
-     * to a {@link String}
-     *
-     * @param cals
-     *            the {@link Set} of {@link CalibrationInformation}
-     * @return {@link String}
-     */
-    private static String calibrationAsString(Set<CalibrationInformation> cals) {
-        return cals.stream().map(t -> t.toString()).collect(Collectors.joining(NL));
-    }
-
     /**
      * The calibrations read from the vehicle
      */
-    private Set<CalibrationInformation> calibrations;
+    private List<CalibrationInformation> calibrations;
 
     /**
      * The Family Name of the Engine as read from the vehicle
@@ -96,12 +84,16 @@ public class VehicleInformationModule extends FunctionalModule {
      * @throws IOException
      *             if there are no {@link CalibrationInformation} returned
      */
-    private Set<CalibrationInformation> getCalibrations() throws IOException {
+    public List<CalibrationInformation> getCalibrations() throws IOException {
         if (calibrations == null) {
             calibrations = getJ1939().requestMultiple(DM19CalibrationInformationPacket.class)
+                    // flatten an Optional<Either<packetWithAList>>
                     .flatMap(t -> t.left.stream()
                             .flatMap(p -> p.getCalibrationInformation().stream()))
-                    .collect(Collectors.toSet());
+                    // get consistent order
+                    .sorted(Comparator.comparing(
+                            CalibrationInformation::toString))
+                    .collect(Collectors.toList());
             if (calibrations.isEmpty()) {
                 throw new IOException("Timeout Error Reading Calibrations");
             }
@@ -119,7 +111,7 @@ public class VehicleInformationModule extends FunctionalModule {
      *             if there are no {@link CalibrationInformation} returned
      */
     public String getCalibrationsAsString() throws IOException {
-        return calibrationAsString(getCalibrations());
+        return getCalibrations().stream().map(t -> t.toString()).collect(Collectors.joining(NL));
     }
 
     /**
@@ -272,9 +264,8 @@ public class VehicleInformationModule extends FunctionalModule {
     }
 
     /**
-     * Requests globally the Component Identification from all vehicle modules
-     * and generates a {@link String} that's suitable for inclusion in the
-     * report
+     * Requests the Component Identification from all specified address and
+     * generates a {@link String} that's suitable for inclusion in the report
      *
      * @param listener
      *            the {@link ResultsListener} that will be given the report
@@ -283,7 +274,8 @@ public class VehicleInformationModule extends FunctionalModule {
      *            addressed
      * @return {@link List} of {@link ComponentIdentificationPacket}
      */
-    public List<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener, int address) {
+    public Optional<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener,
+            int address) {
         return getPacket(
                 "DS Component Identification Request to " + String.format("%02X", address),
                 ComponentIdentificationPacket.PGN,

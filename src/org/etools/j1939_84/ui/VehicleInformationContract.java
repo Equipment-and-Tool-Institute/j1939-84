@@ -17,10 +17,18 @@ public interface VehicleInformationContract {
     public interface Presenter {
 
         /**
-         * Called to initialize the presenter. This should be called when the dialog is
-         * created/displayed
+         * Called to initialize the presenter. This should be called when the
+         * dialog is created/displayed
          */
         void initialize();
+
+        /**
+         * Called when the Emissions Unit count changes
+         *
+         * @param count
+         *            the new value
+         */
+        void onCalIdsChanged(int count);
 
         /**
          * Called when the Cancel Button is clicked
@@ -30,7 +38,8 @@ public interface VehicleInformationContract {
         /**
          * Called when the text in the Certification Intent changes
          *
-         * @param certification the new value
+         * @param certification
+         *            the new value
          */
         void onCertificationChanged(String certification);
 
@@ -42,23 +51,35 @@ public interface VehicleInformationContract {
         /**
          * Called when the Emissions Unit count changes
          *
-         * @param count the new value
+         * @param count
+         *            the new value
          */
         void onEmissionUnitsChanged(int count);
 
         /**
          * Called when the Engine Model Year changes
          *
-         * @param modelYear the new value
+         * @param modelYear
+         *            the new value
          */
         void onEngineModelYearChanged(int modelYear);
 
         /**
          * Called when the Fuel Type changes
          *
-         * @param fuelType the new value
+         * @param fuelType
+         *            the new value
          */
         void onFuelTypeChanged(FuelType fuelType);
+
+        /**
+         * Called when number of trips for fault B implant changes
+         *
+         * @param trips
+         *            the new value
+         */
+
+        void onNumberOfTripsForFaultBImplantChanged(int trips);
 
         /**
          * Called when the OK button is clicked
@@ -68,88 +89,109 @@ public interface VehicleInformationContract {
         /**
          * Called when the Vehicle Model Year changes
          *
-         * @param modelYear the new value
+         * @param modelYear
+         *            the new value
          */
         void onVehicleModelYearChanged(int modelYear);
 
         /**
          * Called when the VIN changes
          *
-         * @param vin the new value
+         * @param vin
+         *            the new value
          */
         void onVinChanged(String vin);
 
     }
 
     public interface View {
+        /**
+         * Sets the Number of Calibration IDs expected on the Vehicle
+         *
+         * @param count
+         *            the number of Calibration IDs expected on the Vehicle
+         */
+        void setCalIds(int calIds);
 
         /**
          * Sets the Certification Intent of the Vehicle/Engine
          *
-         * @param certificationIntent the certification intent to set
+         * @param certificationIntent
+         *            the certification intent to set
          */
         void setCertificationIntent(String certificationIntent);
 
         /**
-         * Sets the Number of Emissions Units on the Vehicle
+         * Sets the Number of Emissions Units expected on the Vehicle
          *
-         * @param count the number of Emissions Units on the Vehicle
+         * @param count
+         *            the number of Emissions Units expected on the Vehicle
          */
         void setEmissionUnits(int count);
 
         /**
          * Sets the Engine Model Year
          *
-         * @param modelYear the Engine Model year to set
+         * @param modelYear
+         *            the Engine Model year to set
          */
         void setEngineModelYear(int modelYear);
 
         /**
          * Sets the Fuel Type
          *
-         * @param fuelType the Fuel Type to set
+         * @param fuelType
+         *            the Fuel Type to set
          */
         void setFuelType(FuelType fuelType);
+
+        void setNumberOfTripsForFaultBImplant(int count);
 
         /**
          * Enables and Disables the Ok Button
          *
-         * @param isEnabled true to enable the button
+         * @param isEnabled
+         *            true to enable the button
          */
         void setOkButtonEnabled(boolean isEnabled);
 
         /**
          * Sets the Vehicle Model Year
          *
-         * @param modelYear the Vehicle Model Year to set
+         * @param modelYear
+         *            the Vehicle Model Year to set
          */
         void setVehicleModelYear(int modelYear);
 
         /**
          * Indicates if the Vehicle Model Year is valid
          *
-         * @param isValid true indicates the Vehicle Model Year is valid
+         * @param isValid
+         *            true indicates the Vehicle Model Year is valid
          */
         void setVehicleModelYearValid(boolean isValid);
 
         /**
          * Sets the VIN
          *
-         * @param vin the VIN to set
+         * @param vin
+         *            the VIN to set
          */
         void setVin(String vin);
 
         /**
          * Indicates if the VIN is valid
          *
-         * @param isValid true indicate the VIN is valid
+         * @param isValid
+         *            true indicate the VIN is valid
          */
         void setVinValid(boolean isValid);
 
         /**
          * Called to show or hide the dialog
          *
-         * @param isVisible true to show the dialog; false to hide the dialog;
+         * @param isVisible
+         *            true to show the dialog; false to hide the dialog;
          */
         void setVisible(boolean isVisible);
     }

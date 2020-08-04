@@ -29,13 +29,21 @@ public class DateTimeModule {
      * Formats the given {@link TemporalAccessor} as a {@link String}
      *
      * @param time
-     *             the {@link TemporalAccessor} to format
+     *            the {@link TemporalAccessor} to format
      * @return {@link String}
      * @throws DateTimeException
-     *                           if an error occurs during formatting
+     *             if an error occurs during formatting
      */
     public String format(TemporalAccessor time) throws DateTimeException {
         return getTimeFormatter().format(time);
+    }
+
+    /**
+     *
+     * @return Current date as a string.
+     */
+    public String getDate() {
+        return now().format(DateTimeFormatter.ofPattern("YYY/MM/DD"));
     }
 
     /**

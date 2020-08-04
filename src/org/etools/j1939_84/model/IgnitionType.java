@@ -8,5 +8,11 @@ package org.etools.j1939_84.model;
  *
  */
 public enum IgnitionType {
-    COMPRESSION, SPARK, UNKNOWN;
+    COMPRESSION("Compression"), SPARK("Spark"), UNKNOWN("Unknown");
+
+    public final String name;
+
+    IgnitionType(String name) {
+        this.name = name;
+    }
 }
