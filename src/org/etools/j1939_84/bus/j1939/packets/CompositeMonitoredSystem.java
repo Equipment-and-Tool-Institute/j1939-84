@@ -102,12 +102,9 @@ public class CompositeMonitoredSystem extends MonitoredSystem {
 
         boolean isComplete = false;
         for (MonitoredSystemStatus systemStatus : systems.values()) {
-            if (!systemStatus.isComplete() && systemStatus.isEnabled()) {
-                isComplete = false;
+            isComplete = systemStatus.isComplete();
+            if (!isComplete) {
                 break;
-            }
-            if (systemStatus.isComplete()) {
-                isComplete = true;
             }
         }
 
