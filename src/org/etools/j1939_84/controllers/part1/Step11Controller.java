@@ -9,11 +9,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.PartResultFactory;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
@@ -109,14 +109,17 @@ public class Step11Controller extends StepController {
 
         // 6.1.11.3 Actions2:
         // a. DS DM21 to each OBD ECU
-        List<RequestResult<DM21DiagnosticReadinessPacket>> addressSpecificDM21Results = dataRepository
+        List<BusResult<DM21DiagnosticReadinessPacket>> addressSpecificDM21Results = dataRepository
                 .getObdModuleAddresses().stream()
                 .map(addr -> diagnosticReadinessModule.getDM21Packets(getListener(), true, addr))
                 .collect(Collectors.toList());
 
         // 6.1.11.4 Fail criteria2:
+        // ignore missing responses and NACKs
         List<DM21DiagnosticReadinessPacket> addressSpecificDm21Packets = addressSpecificDM21Results.stream()
-                .flatMap(r -> r.getPackets().stream()).collect(Collectors.toList());
+                .flatMap(r -> r.getPacket().stream())
+                .flatMap(r -> r.left.stream())
+                .collect(Collectors.toList());
         addressSpecificDm21Packets
                 .forEach(packet -> {
                     // a. Fail if any ECU reports distance with MIL on (SPN
@@ -173,7 +176,11 @@ public class Step11Controller extends StepController {
         addressSpecificDm21Packets.forEach(addressPacket -> globalDm21Packets
                 .removeIf(globalPacket -> globalPacket.getSourceAddress() == addressPacket.getSourceAddress()));
 
-        addressSpecificDM21Results.stream().flatMap(e -> e.getAcks().stream())
+        addressSpecificDM21Results.stream()
+                // for each bus result
+                .flatMap(br -> br.getPacket().stream())
+                // only consider the NACKs
+                .flatMap(e -> e.right.stream())
                 .filter(a -> a.getResponse() == Response.NACK)
                 .forEach(nackPacket -> globalDm21Packets
                         .removeIf(globalPacket -> globalPacket.getSourceAddress() == nackPacket.getSourceAddress()));

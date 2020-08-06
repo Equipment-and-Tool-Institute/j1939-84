@@ -10,18 +10,16 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.NoSuchElementException;
-import java.util.Set;
 import java.util.concurrent.TimeUnit;
-import java.util.function.BinaryOperator;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult.TestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
@@ -218,30 +216,6 @@ public class OBDTestsModule extends FunctionalModule {
 
     /**
      * Sends a destination specific request to the vehicle for
-     * {@link DM24SPNSupportPacket}s
-     *
-     * @param listener
-     *            the {@link ResultsListener}
-     * @param addresses
-     * @return {@link List} of {@link DM24SPNSupportPacket}s
-     */
-    public RequestResult<DM24SPNSupportPacket> requestDM24Packets(ResultsListener listener, Set<Integer> addresses) {
-        BinaryOperator<RequestResult<DM24SPNSupportPacket>> fn = (a, b) -> new RequestResult<>(
-                a.isRetryUsed() || b.isRetryUsed(),
-                Stream.concat(a.getEither().stream(), b.getEither().stream()).collect(Collectors.toList()));
-        return addresses.stream()
-                .map(address -> getPacket("Destination Specific DM24 Request",
-                        DM24SPNSupportPacket.PGN,
-                        DM24SPNSupportPacket.class,
-                        listener,
-                        true,
-                        address))
-                .collect(Collectors.reducing(fn))
-                .orElseThrow(() -> new NoSuchElementException("No DM24s responses."));
-    }
-
-    /**
-     * Sends a destination specific request to the vehicle for
      * {@link DM7CommandTestsPacket}s
      *
      * @param listener
@@ -270,11 +244,10 @@ public class OBDTestsModule extends FunctionalModule {
     }
 
     public RequestResult<DM24SPNSupportPacket> requestObdTests(ResultsListener listener,
-            Collection<Integer> obdModuleAddresses) {
+            List<Integer> obdModuleAddresses) {
         RequestResult<DM24SPNSupportPacket> requestedPackets = requestSupportedSpnPackets(listener, obdModuleAddresses);
         reportObdTests(listener, requestedPackets.getPackets());
         return requestedPackets;
-
     }
 
     /**
@@ -345,7 +318,7 @@ public class OBDTestsModule extends FunctionalModule {
      * @return {@link List} of {@link DM24SPNSupportPacket}s
      */
     public RequestResult<DM24SPNSupportPacket> requestSupportedSpnPackets(ResultsListener listener,
-            Collection<Integer> obdModuleAddresses) {
+            List<Integer> obdModuleAddresses) {
         List<DM24SPNSupportPacket> packets = new ArrayList<>();
         boolean retryUsed = false;
 
@@ -354,19 +327,24 @@ public class OBDTestsModule extends FunctionalModule {
             listener.onResult(getTime() + " Direct DM24 Request to " + Lookup.getAddressName(address));
             listener.onResult(getTime() + " " + request.toString());
             // FIXME, this should be 220 ms, not 3 s. 6.1.4.1.b
-            DM24SPNSupportPacket packet = getJ1939()
-                    .requestPacket(request, DM24SPNSupportPacket.class, address, 3, TimeUnit.SECONDS.toMillis(15))
-                    .flatMap(br -> br.getPacket().left)
-                    .orElse(null);
-            if (packet == null) {
-                listener.onResult(TIMEOUT_MESSAGE);
-            } else {
-                listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
-                listener.onResult(packet.toString());
-                packets.add(packet);
-            }
+            BusResult<DM24SPNSupportPacket> busResult = getJ1939()
+                    .requestPacket(request, DM24SPNSupportPacket.class, address, 3, TimeUnit.SECONDS.toMillis(15));
+            retryUsed |= busResult.isRetryUsed();
+            busResult
+                    .getPacket()
+                    .ifPresentOrElse(packet -> {
+                        // log DM24 or ACK
+                        ParsedPacket pp = packet.resolve();
+                        listener.onResult(pp.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+                        listener.onResult(pp.toString());
+                        // only return DM24s
+                        packet.left.ifPresent(p -> packets.add(p));
+                    },
+                            // log missing responses
+                            () -> listener.onResult(TIMEOUT_MESSAGE));
             listener.onResult("");
         }
+        reportObdTests(listener, packets);
         return new RequestResult<>(retryUsed, packets, Collections.emptyList());
     }
 

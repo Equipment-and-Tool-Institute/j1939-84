@@ -28,13 +28,21 @@ public class Either<L, R> {
         right = r;
     }
 
-    @SuppressWarnings("unchecked")
-    public <C> C as(Class<C> cls) {
-        return resolve(x -> (C) x, x -> (C) x);
+    @Override
+    public boolean equals(Object o) {
+        if (o instanceof Either) {
+            Either that = (Either) o;
+            return left.equals(that.left) && right.equals(that.right);
+        }
+        return false;
     }
 
     public <A, B> Either<A, B> map(Function<L, A> lFn, Function<R, B> rFn) {
         return new Either<>(left.map(lFn), right.map(rFn));
+    }
+
+    public <T> T resolve() {
+        return left.map(x -> (T) x).orElseGet(() -> right.map(x -> (T) x).orElseThrow());
     }
 
     public <T> T resolve(Function<L, T> lFn, Function<R, T> rFn) {

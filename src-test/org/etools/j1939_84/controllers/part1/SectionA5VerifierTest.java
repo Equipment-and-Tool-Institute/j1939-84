@@ -16,12 +16,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
@@ -175,7 +174,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
      */
     @Test
     public void testVerifyError() {
-        Set<Integer> obdModuleAddresses = new HashSet<>() {
+        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
             {
                 add(0x00);
                 add(0x17);
@@ -352,13 +351,13 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                         Collections.singletonList(dm23Packet), Collections.emptyList()));
         when(dtcModule.requestDM25(any(), eq(0x00)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet0), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet0));
         when(dtcModule.requestDM25(any(), eq(0x17)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet17), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet17));
         when(dtcModule.requestDM25(any(), eq(0x21)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet21), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet21));
         when(dtcModule.requestDM26(any()))
                 .thenReturn(new RequestResult<>(false,
                         Collections.singletonList(dm26Packet), Collections.emptyList()));
@@ -600,7 +599,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     @Test
 
     public void testVerifyMoreError() {
-        Set<Integer> obdModuleAddresses = new HashSet<>() {
+        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
             {
                 add(0x00);
                 add(0x17);
@@ -766,13 +765,13 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                         Collections.emptyList()));
         when(dtcModule.requestDM25(any(), eq(0x00)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet0), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet0));
         when(dtcModule.requestDM25(any(), eq(0x17)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet17), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet17));
         when(dtcModule.requestDM25(any(), eq(0x21)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet21), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet21));
         when(dtcModule.requestDM26(any()))
                 .thenReturn(new RequestResult<>(false,
                         Collections.singletonList(dm26Packet), Collections.emptyList()));
@@ -1000,7 +999,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
      */
     @Test
     public void testVerifyNoError() {
-        Set<Integer> obdModuleAddresses = new HashSet<>() {
+        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
             {
                 add(0x00);
                 add(0x17);
@@ -1133,13 +1132,13 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm23Packet), Collections.emptyList()));
         when(dtcModule.requestDM25(any(), eq(0x00)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet0), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet0));
         when(dtcModule.requestDM25(any(), eq(0x17)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet17), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet17));
         when(dtcModule.requestDM25(any(), eq(0x21)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet21), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet21));
 
         when(dtcModule.requestDM26(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm26Packet), Collections.emptyList()));
@@ -1253,7 +1252,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
      */
     @Test
     public void testVerifyNoErrorAgain() {
-        Set<Integer> obdModuleAddresses = new HashSet<>() {
+        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
             {
                 add(0x00);
                 add(0x17);
@@ -1373,13 +1372,13 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm23Packet), Collections.emptyList()));
         when(dtcModule.requestDM25(any(), eq(0x00)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet0), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet0));
         when(dtcModule.requestDM25(any(), eq(0x17)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet17), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet17));
         when(dtcModule.requestDM25(any(), eq(0x21)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet21), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet21));
 
         when(dtcModule.requestDM26(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm26Packet), Collections.emptyList()));
