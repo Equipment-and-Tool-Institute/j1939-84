@@ -210,7 +210,7 @@ public class Step10ControllerTest extends AbstractControllerTest {
 
         StringBuilder expectedResults = new StringBuilder("WARN: 6.1.10.3.a - The request for DM11 was NACK'ed" + NL);
         expectedResults.append(
-                "FAIL: 6.1.10.3.b - Fail if any diagnostic information in any ECU is not reset or starts outwith unexpected values."
+                "FAIL: 6.1.10.3.b - Fail if any diagnostic information in any ECU is not reset or starts out with unexpected values."
                         + NL);
         expectedResults
                 .append("Diagnostic information is defined in section A.5, Diagnostic Information Definition." + NL);
