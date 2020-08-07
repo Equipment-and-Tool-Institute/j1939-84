@@ -562,7 +562,7 @@ public class J1939 {
             Class<T> T,
             int destination,
             int tries) {
-        return requestPacket(packetToSend, T, destination, tries, DEFAULT_TIMEOUT).map(br -> br.getPacket());
+        return requestPacket(packetToSend, T, destination, tries, DEFAULT_TIMEOUT).getPacket();
     }
 
     /**
@@ -584,14 +584,14 @@ public class J1939 {
      * @return {@link Optional} {@link Packet} This may not contain a value if
      *         there was an exception
      */
-    public <T extends ParsedPacket> Optional<BusResult<T>> requestPacket(Packet packetToSend,
+    public <T extends ParsedPacket> BusResult<T> requestPacket(Packet packetToSend,
             Class<T> clas,
             int destination,
             int tries,
             long timeout) {
         if (tries <= 0) {
             // Give up
-            return Optional.empty();
+            return new BusResult<>(true, Optional.empty());
         }
 
         try {
@@ -610,14 +610,14 @@ public class J1939 {
                     .filter(pgnFilter(expectedResponsePGN).or(dsPgnFilter(expectedResponsePGN)));
             Optional<Either<T, AcknowledgmentPacket>> parsedPackets = packets.findFirst().map(p -> process(p));
             if (parsedPackets.isPresent()) {
-                return Optional.of(new BusResult<>(false, parsedPackets.get()));
+                return new BusResult<>(false, parsedPackets);
             } else {
-                return requestPacket(packetToSend, clas, destination, tries - 1, timeout)
-                        .map(br -> new BusResult<>(true, br.getPacket()));
+                return new BusResult<>(true,
+                        requestPacket(packetToSend, clas, destination, tries - 1, timeout).getPacket());
             }
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Error requesting packet", e);
-            return Optional.empty();
+            return new BusResult<>(true, Optional.empty());
         }
     }
 

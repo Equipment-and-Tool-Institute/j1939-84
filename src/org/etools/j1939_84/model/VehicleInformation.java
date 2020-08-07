@@ -3,7 +3,13 @@
  */
 package org.etools.j1939_84.model;
 
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
+import java.util.stream.Collectors;
+
+import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 
 /**
  * The Vehicle Information which is required in Part 1.
@@ -13,11 +19,24 @@ import java.util.Objects;
  */
 public class VehicleInformation {
 
+    private int calIds;
+
+    private List<DM19CalibrationInformationPacket> calIdsFound = Collections.emptyList();
+
     private String certificationIntent;
+
     private int emissionUnits;
+
+    private List<ComponentIdentificationPacket> emissionUnitsFound = Collections.emptyList();
+
     private int engineModelYear;
+
     private FuelType fuelType;
+
+    private int numberOfTripsForFaultBImplant;
+
     private int vehicleModelYear;
+
     private String vin;
 
     @Override
@@ -32,9 +51,22 @@ public class VehicleInformation {
 
         VehicleInformation that = (VehicleInformation) obj;
 
-        return Objects.equals(certificationIntent, that.certificationIntent) && emissionUnits == that.emissionUnits
+        return Objects.equals(certificationIntent, that.certificationIntent)
+                && calIds == that.calIds
+                && Objects.equals(calIdsFound, that.calIdsFound)
+                && emissionUnits == that.emissionUnits
+                && Objects.equals(emissionUnitsFound, that.emissionUnitsFound)
                 && engineModelYear == that.engineModelYear && fuelType == that.fuelType
-                && vehicleModelYear == that.vehicleModelYear && Objects.equals(vin, that.vin);
+                && vehicleModelYear == that.vehicleModelYear && Objects.equals(vin, that.vin)
+                && numberOfTripsForFaultBImplant == that.numberOfTripsForFaultBImplant;
+    }
+
+    public int getCalIds() {
+        return calIds;
+    }
+
+    public List<DM19CalibrationInformationPacket> getCalIdsFound() {
+        return calIdsFound;
     }
 
     public String getCertificationIntent() {
@@ -45,12 +77,20 @@ public class VehicleInformation {
         return emissionUnits;
     }
 
+    public List<ComponentIdentificationPacket> getEmissionUnitsFound() {
+        return emissionUnitsFound;
+    }
+
     public int getEngineModelYear() {
         return engineModelYear;
     }
 
     public FuelType getFuelType() {
         return fuelType;
+    }
+
+    public int getNumberOfTripsForFaultBImplant() {
+        return numberOfTripsForFaultBImplant;
     }
 
     public int getVehicleModelYear() {
@@ -63,7 +103,16 @@ public class VehicleInformation {
 
     @Override
     public int hashCode() {
-        return Objects.hash(certificationIntent, emissionUnits, engineModelYear, fuelType, vehicleModelYear, vin);
+        return Objects.hash(calIds, calIdsFound, certificationIntent, emissionUnits, emissionUnitsFound,
+                engineModelYear, fuelType, vehicleModelYear, vin, numberOfTripsForFaultBImplant);
+    }
+
+    public void setCalIds(int calIds) {
+        this.calIds = calIds;
+    }
+
+    public void setCalIdsFound(List<DM19CalibrationInformationPacket> calIdsFound) {
+        this.calIdsFound = calIdsFound;
     }
 
     public void setCertificationIntent(String certificationIntent) {
@@ -74,12 +123,20 @@ public class VehicleInformation {
         this.emissionUnits = emissionUnits;
     }
 
+    public void setEmissionUnitsFound(List<ComponentIdentificationPacket> emissionUnitsFound) {
+        this.emissionUnitsFound = emissionUnitsFound;
+    }
+
     public void setEngineModelYear(int engineModelYear) {
         this.engineModelYear = engineModelYear;
     }
 
     public void setFuelType(FuelType fuelType) {
         this.fuelType = fuelType;
+    }
+
+    public void setNumberOfTripsForFaultBImplant(int numberOfTripsForFaultBImplant) {
+        this.numberOfTripsForFaultBImplant = numberOfTripsForFaultBImplant;
     }
 
     public void setVehicleModelYear(int vehicleModelYear) {
@@ -92,14 +149,28 @@ public class VehicleInformation {
 
     @Override
     public String toString() {
-        String result = "Vehicle Information:\n";
-        result += "Certification: " + certificationIntent + "\n";
-        result += "Emissions: " + emissionUnits + "\n";
-        result += "Engine MY: " + engineModelYear + "\n";
-        result += "FuelType: " + fuelType + "\n";
-        result += "Vehicle MY: " + vehicleModelYear + "\n";
-        result += "VIN: " + vin;
-        return result;
+        return "User Data Entry: \n\n"
+                + "Number of Emissions ECUs Expected: " + emissionUnits + "\n"
+                + "Number of CAL IDs Expected: " + calIds + "\n"
+                + "Fuel Type: " + fuelType + "\n"
+                + "Ignition Type: " + fuelType.ignitionType.name + "\n"
+                + "Number of Trips for Fault B Implant: " + numberOfTripsForFaultBImplant + "\n\n"
+
+                + "Vehicle Information:\n"
+                + "VIN: " + vin + "\n"
+                + "Vehicle MY: " + vehicleModelYear + "\n"
+                + "Engine MY: " + engineModelYear + "\n"
+                + "Cert. Engine Family: " + certificationIntent + "\n"
+                + "Number of OBD ECUs Found: " + emissionUnitsFound.size() + "\n"
+                + emissionUnitsFound.stream()
+                        .map(m -> "     Make: " + m.getMake() + ", Model: " + m.getModel() + ", Serial: "
+                                + m.getSerialNumber())
+                        .collect(Collectors.joining("\n     "))
+                + "Number of CAL IDs Found: " + calIdsFound.stream()
+                        .map(ci -> ci.toString())
+                        .collect(Collectors.joining("\n"))
+                + "\n";
+
     }
 
 }

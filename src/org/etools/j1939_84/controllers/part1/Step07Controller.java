@@ -10,14 +10,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -189,25 +188,25 @@ public class Step07Controller extends StepController {
         // ECUs that
         // responded to global DM19).
         globalDM19s.stream().forEach(dm19 -> {
-            RequestResult<DM19CalibrationInformationPacket> result = getVehicleInformationModule()
+            BusResult<DM19CalibrationInformationPacket> result = getVehicleInformationModule()
                     .reportCalibrationInformation(
                             getListener(),
                             dm19.getSourceAddress());
 
-            result.getPackets().stream()
-                    .forEach(info -> {
-                        if (!Objects.equals(dm19.getCalibrationInformation(), info.getCalibrationInformation())) {
-                            getListener().addOutcome(1,
+            result.getPacket()
+                    // treat NACKs as failed response
+                    .flatMap(e -> e.left)
+                    // filter for only those that match
+                    .filter(info -> Objects.equals(dm19.getCalibrationInformation(), info.getCalibrationInformation()))
+                    .ifPresentOrElse(x -> {
+                    }, // report everything that failed to respond or doesn't
+                       // match
+                            () -> getListener().addOutcome(1,
                                     7,
                                     Outcome.FAIL,
-                                    "6.1.7.5.a. Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference.");
-                        }
-                    });
-
-            long nackCount = result.getAcks().stream()
-                    .filter(a -> a.getResponse() == Response.BUSY)
-                    .count();
-            if (nackCount != 0) {
+                                    "6.1.7.5.a. Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference."
+                                            + " " + dm19.getCalibrationInformation()));
+            if (result.isRetryUsed()) {
                 getListener().addOutcome(1,
                         7,
                         Outcome.FAIL,
@@ -216,26 +215,21 @@ public class Step07Controller extends StepController {
         });
 
         Set<Integer> globalAddresses = globalDM19s.stream().map(p -> p.getSourceAddress()).collect(Collectors.toSet());
-        Set<Integer> obdAddresses = dataRepository.getObdModuleAddresses();
+        List<Integer> obdAddresses = dataRepository.getObdModuleAddresses();
         obdAddresses.removeAll(globalAddresses);
 
         for (int address : obdAddresses) {
-            RequestResult<DM19CalibrationInformationPacket> results = getVehicleInformationModule()
+            BusResult<DM19CalibrationInformationPacket> results = getVehicleInformationModule()
                     .reportCalibrationInformation(
                             getListener(),
                             address);
-            long nackCount = results.getAcks().stream()
-                    .filter(a -> a.getResponse() == Response.NACK)
-                    .count();
-            // FIXME Why 1?
-            if (nackCount != 1) {
-                getListener().addOutcome(1,
-                        7,
-                        Outcome.FAIL,
-                        "6.1.7.5.c. NACK not received from OBD ECU that did not respond to global query.");
-            }
+            results.getPacket()
+                    .flatMap(e -> e.left)
+                    // if there is a DM19, then there was not a NACK
+                    .ifPresent(dm19 -> getListener().addOutcome(1,
+                            7,
+                            Outcome.FAIL,
+                            "6.1.7.5.c. NACK not received from OBD ECU that did not respond to global query."));
         }
-
     }
-
 }

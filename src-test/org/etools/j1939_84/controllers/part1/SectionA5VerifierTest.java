@@ -16,12 +16,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
@@ -50,11 +49,11 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
-import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.FunctionalModule;
 import org.etools.j1939_84.modules.OBDTestsModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -80,7 +79,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     private AcknowledgmentPacket acknowledgmentPacket;
 
     @Mock
-    private BannerModule bannerModule;
+    private FunctionalModule bannerModule;
 
     @Mock
     private DataRepository dataRepository;
@@ -175,7 +174,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
      */
     @Test
     public void testVerifyError() {
-        Set<Integer> obdModuleAddresses = new HashSet<>() {
+        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
             {
                 add(0x00);
                 add(0x17);
@@ -352,13 +351,13 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                         Collections.singletonList(dm23Packet), Collections.emptyList()));
         when(dtcModule.requestDM25(any(), eq(0x00)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet0), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet0));
         when(dtcModule.requestDM25(any(), eq(0x17)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet17), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet17));
         when(dtcModule.requestDM25(any(), eq(0x21)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet21), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet21));
         when(dtcModule.requestDM26(any()))
                 .thenReturn(new RequestResult<>(false,
                         Collections.singletonList(dm26Packet), Collections.emptyList()));
@@ -448,9 +447,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 .append(NL)
                 .append("Module with source address 0, has 1 supported SPNs")
                 .append(NL)
-                .append("Module with source address 33, has 1 supported SPNs")
-                .append(NL)
                 .append("Module with source address 23, has 1 supported SPNs")
+                .append(NL)
+                .append("Module with source address 33, has 1 supported SPNs")
                 .append(NL)
                 .append("Section A.5 verification failed during DM31 check done at table step 3.a")
                 .append(NL)
@@ -490,15 +489,15 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 .append(NL)
                 .append("]")
                 .append(NL)
-                .append("source address 33 are : [")
-                .append(NL)
-                .append("  TestMinimum failed and the value returned was : 22")
-                .append(NL)
-                .append("]")
-                .append(NL)
                 .append("source address 23 are : [")
                 .append(NL)
                 .append("  TestResult failed and the value returned was : 65302")
+                .append(NL)
+                .append("]")
+                .append(NL)
+                .append("source address 33 are : [")
+                .append(NL)
+                .append("  TestMinimum failed and the value returned was : 22")
                 .append(NL)
                 .append("]")
                 .append(NL)
@@ -600,7 +599,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     @Test
 
     public void testVerifyMoreError() {
-        Set<Integer> obdModuleAddresses = new HashSet<>() {
+        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
             {
                 add(0x00);
                 add(0x17);
@@ -766,13 +765,13 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                         Collections.emptyList()));
         when(dtcModule.requestDM25(any(), eq(0x00)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet0), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet0));
         when(dtcModule.requestDM25(any(), eq(0x17)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet17), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet17));
         when(dtcModule.requestDM25(any(), eq(0x21)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet21), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet21));
         when(dtcModule.requestDM26(any()))
                 .thenReturn(new RequestResult<>(false,
                         Collections.singletonList(dm26Packet), Collections.emptyList()));
@@ -861,9 +860,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 .append(NL)
                 .append("Module with source address 0, has 1 supported SPNs")
                 .append(NL)
-                .append("Module with source address 33, has 1 supported SPNs")
-                .append(NL)
                 .append("Module with source address 23, has 1 supported SPNs")
+                .append(NL)
+                .append("Module with source address 33, has 1 supported SPNs")
                 .append(NL)
                 .append("PASS: Section A.5 Step 3.a DM31 Verification")
                 .append(NL)
@@ -1000,7 +999,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
      */
     @Test
     public void testVerifyNoError() {
-        Set<Integer> obdModuleAddresses = new HashSet<>() {
+        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
             {
                 add(0x00);
                 add(0x17);
@@ -1133,13 +1132,13 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm23Packet), Collections.emptyList()));
         when(dtcModule.requestDM25(any(), eq(0x00)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet0), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet0));
         when(dtcModule.requestDM25(any(), eq(0x17)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet17), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet17));
         when(dtcModule.requestDM25(any(), eq(0x21)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet21), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet21));
 
         when(dtcModule.requestDM26(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm26Packet), Collections.emptyList()));
@@ -1253,7 +1252,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
      */
     @Test
     public void testVerifyNoErrorAgain() {
-        Set<Integer> obdModuleAddresses = new HashSet<>() {
+        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
             {
                 add(0x00);
                 add(0x17);
@@ -1373,13 +1372,13 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm23Packet), Collections.emptyList()));
         when(dtcModule.requestDM25(any(), eq(0x00)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet0), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet0));
         when(dtcModule.requestDM25(any(), eq(0x17)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet17), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet17));
         when(dtcModule.requestDM25(any(), eq(0x21)))
                 .thenReturn(
-                        new RequestResult<>(false, Collections.singletonList(dm25Packet21), Collections.emptyList()));
+                        new BusResult<>(false, dm25Packet21));
 
         when(dtcModule.requestDM26(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm26Packet), Collections.emptyList()));

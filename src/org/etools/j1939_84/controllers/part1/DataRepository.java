@@ -3,8 +3,9 @@ package org.etools.j1939_84.controllers.part1;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
-import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
@@ -22,8 +23,8 @@ public class DataRepository {
         return obdModules.get(sourceAddress);
     }
 
-    public Set<Integer> getObdModuleAddresses() {
-        return new HashSet<>(obdModules.keySet());
+    public List<Integer> getObdModuleAddresses() {
+        return obdModules.keySet().stream().sorted().collect(Collectors.toList());
     }
 
     public Collection<OBDModuleInformation> getObdModules() {

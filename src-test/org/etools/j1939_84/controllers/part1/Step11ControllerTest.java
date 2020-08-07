@@ -13,11 +13,11 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.bus.Either;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
@@ -162,7 +162,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testEmptyDM21PacketsCleared() {
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(17);
@@ -181,15 +181,15 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet4));
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet5));
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet3)));
+                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -252,7 +252,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGlobalAndAddressSpecificResponsesDiffer() {
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(17);
@@ -271,19 +271,20 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
 
-        AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
+        mock(AcknowledgmentPacket.class);
 
         DM21DiagnosticReadinessPacket packet3 = createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet3), Collections.singletonList(packet2)));
+                .thenReturn(new BusResult<>(false, new Either<>(packet3, null
+                /* packet3 - this didn't make sense */)));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -316,7 +317,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGlobalAndAddressSpecificResponsesDifferAtNackPacket() {
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(9);
@@ -338,23 +339,23 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(9)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet2)));
+                .thenReturn(new BusResult<>(false, packet2));
         when(packet2.getResponse()).thenReturn(Response.NACK);
         when(packet2.getSourceAddress()).thenReturn(9);
 
         DM21DiagnosticReadinessPacket packet3 = createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet3), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -388,7 +389,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGlobalAndAddressSpecificResponsesDifferAtSourceAddress() {
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(9);
@@ -410,23 +411,23 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(9)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet2)));
+                .thenReturn(new BusResult<>(false, packet2));
         when(packet2.getResponse()).thenReturn(Response.NACK);
         when(packet2.getSourceAddress()).thenReturn(16);
 
         DM21DiagnosticReadinessPacket packet3 = createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet3), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -475,7 +476,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testHappyPath() {
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(17);
@@ -494,17 +495,17 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet3)));
+                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -528,7 +529,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testKmSinceDTCsCleared() {
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(17);
@@ -548,18 +549,18 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet4));
 
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet3)));
+                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
 
@@ -604,7 +605,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testKmWhileMILIsActivated() {
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(17);
@@ -623,17 +624,17 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet3)));
+                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
 
@@ -677,7 +678,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testMilesSinceDTCsCleared() {
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(17);
@@ -696,17 +697,17 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 15.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet3)));
+                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
 
@@ -751,7 +752,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testMilesWhileMILIsActivated() {
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(17);
@@ -769,17 +770,17 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 10.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet3)));
+                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
 
@@ -823,7 +824,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testMinutesSinceDTCsCleared() {
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(17);
@@ -842,17 +843,17 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 20.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet3)));
+                .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -897,7 +898,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testMinutesWhileMILIsActivated() {
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(17);
@@ -916,17 +917,17 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 25.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet5), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         runTest();

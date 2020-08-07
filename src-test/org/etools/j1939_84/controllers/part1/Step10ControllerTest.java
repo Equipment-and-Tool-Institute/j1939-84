@@ -11,9 +11,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -132,7 +130,7 @@ public class Step10ControllerTest extends AbstractControllerTest {
     @Test
     public void testError() {
 
-        Set<Integer> obdModuleAddresses = new HashSet<>() {
+        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
             {
                 add(0x00);
                 add(0x17);

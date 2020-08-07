@@ -39,9 +39,9 @@ public class BannerModule extends FunctionalModule {
      * Constructor exposed to for testing
      *
      * @param dateTimeModule
-     *                       the {@link DateTimeModule}
+     *            the {@link DateTimeModule}
      * @param buildNumber
-     *                       the {@link BuildNumber}
+     *            the {@link BuildNumber}
      */
     public BannerModule(DateTimeModule dateTimeModule, BuildNumber buildNumber) {
         super(dateTimeModule);
@@ -64,7 +64,7 @@ public class BannerModule extends FunctionalModule {
      * Writes the Aborted Footer for the report to the {@link ResultsListener}
      *
      * @param listener
-     *                 the {@link ResultsListener}
+     *            the {@link ResultsListener}
      */
     public void reportAborted(ResultsListener listener) {
         listener.onResult(getFooter("Aborted"));
@@ -74,7 +74,7 @@ public class BannerModule extends FunctionalModule {
      * Writes the Failure Footer for the report to the {@link ResultsListener}
      *
      * @param listener
-     *                 the {@link ResultsListener}
+     *            the {@link ResultsListener}
      */
     public void reportFailed(ResultsListener listener) {
         listener.onResult(getFooter("Failed"));
@@ -84,7 +84,7 @@ public class BannerModule extends FunctionalModule {
      * Writes the Footer for the report to the {@link ResultsListener}
      *
      * @param listener
-     *                 the {@link ResultsListener}
+     *            the {@link ResultsListener}
      */
     public void reportFooter(ResultsListener listener) {
         listener.onResult(getFooter(END_OF_REPORT));
@@ -94,7 +94,7 @@ public class BannerModule extends FunctionalModule {
      * Writes the Header for the report to the {@link ResultsListener}
      *
      * @param listener
-     *                 the {@link ResultsListener} to give the header to
+     *            the {@link ResultsListener} to give the header to
      */
     public void reportHeader(ResultsListener listener) {
         listener.onResult(getHeader());
@@ -104,7 +104,7 @@ public class BannerModule extends FunctionalModule {
      * Writes the Stopped Footer for the report to the {@link ResultsListener}
      *
      * @param listener
-     *                 the {@link ResultsListener}
+     *            the {@link ResultsListener}
      */
     public void reportStopped(ResultsListener listener) {
         listener.onResult(getFooter("Stopped"));

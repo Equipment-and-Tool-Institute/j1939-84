@@ -67,9 +67,11 @@ public class Step09Controller extends StepController {
         // ComponentIdentificationPacket
         List<ComponentIdentificationPacket> packets = dataRepository.getObdModuleAddresses()
                 .stream()
+                // convert each address to it's component ID, ignoring the NACKs
                 .flatMap(moduleAddress -> getVehicleInformationModule()
                         .reportComponentIdentification(getListener(), moduleAddress)
-                        .stream())
+                        .getPacket()
+                        .flatMap(e -> e.left).stream())
                 .collect(Collectors.toList());
         if (packets.isEmpty()) {
             getListener().addOutcome(1,

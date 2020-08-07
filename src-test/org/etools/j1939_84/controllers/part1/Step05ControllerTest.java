@@ -12,9 +12,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -153,7 +151,7 @@ public class Step05ControllerTest {
         when(packet.getSourceAddress()).thenReturn(3);
         packets.add(packet2);
 
-        Set<Integer> obdModuleAddresses = new HashSet<>();
+        ArrayList<Integer> obdModuleAddresses = new ArrayList<>();
         obdModuleAddresses.add(1);
         obdModuleAddresses.add(2);
         obdModuleAddresses.add(3);
@@ -229,7 +227,7 @@ public class Step05ControllerTest {
                         justification = "The method is called just to get some exception.")
     public void testNoError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
-        Set<Integer> obdModulesAddresses = new HashSet<>();
+        ArrayList<Integer> obdModulesAddresses = new ArrayList<>();
         obdModulesAddresses.add(0);
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
         when(packet.getVin()).thenReturn("vin");
@@ -371,7 +369,7 @@ public class Step05ControllerTest {
         when(vehicleInformation.getVehicleModelYear()).thenReturn(2006);
 
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getObdModuleAddresses()).thenReturn(new HashSet<Integer>());
+        when(dataRepository.getObdModuleAddresses()).thenReturn(new ArrayList<Integer>());
         when(vinDecoder.getModelYear("78654321345667889")).thenReturn(2006);
         when(vinDecoder.isVinValid("78654321345667889")).thenReturn(true);
 
