@@ -27,6 +27,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -91,7 +92,7 @@ public class OBDTestsModuleTest {
                 0x00));
 
         when(j1939.requestPacket(dm24RequestPacket1, DM24SPNSupportPacket.class, 0x00, 3, 15000))
-                .thenReturn(Optional.of(new BusResult<>(false, engineDm24Packet)));
+                .thenReturn((new BusResult<>(false, engineDm24Packet)));
 
         DM30ScaledTestResultsPacket engineDm30PacketSpn102 = new DM30ScaledTestResultsPacket(
                 Packet.create(0xA400, 0x00, 0xF7, 0x66, 0x00, 0x12, 0xD0, 0x00, 0x00, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF));
@@ -119,7 +120,7 @@ public class OBDTestsModuleTest {
         DM24SPNSupportPacket atDm24Packet = new DM24SPNSupportPacket(
                 Packet.create(64950, 0x55, 0xA7, 0x13, 0x1C, 0x00, 0x0C, 0x11, 0x18, 0x00, 0x9A, 0x0C, 0x18, 0x00));
         when(j1939.requestPacket(dm24RequestPacket2, DM24SPNSupportPacket.class, 0x55, 3, 15000))
-                .thenReturn(Optional.of(new BusResult<>(false, atDm24Packet)));
+                .thenReturn((new BusResult<>(false, atDm24Packet)));
 
         DM30ScaledTestResultsPacket atDm30PacketSpn4364 = new DM30ScaledTestResultsPacket(
                 Packet.create(0xA400, 0x55, 0xF7, 0x0C, 0x11, 0x00, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF));
@@ -136,7 +137,7 @@ public class OBDTestsModuleTest {
                 3)).thenReturn(Optional.of(new Either<>(atDm30PacketSpn3226, null)));
 
         List<Integer> obdModules = Arrays.asList(new Integer[] { 0x00, 0x55 });
-        instance.reportOBDTests(listener, obdModules);
+        instance.requestSupportedSpnPackets(listener, obdModules);
 
         String expected = "";
         expected += "10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;
@@ -211,9 +212,12 @@ public class OBDTestsModuleTest {
     public void testReportOBDTestsNoResponse() {
         final Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, 0xB6, 0xFD, 0x00);
         when(j1939.createRequestPacket(64950, 0x00)).thenReturn(requestPacket);
+        when(j1939.requestPacket(any(Packet.class), eq(DM24SPNSupportPacket.class), eq(0x00), ArgumentMatchers.anyInt(),
+                ArgumentMatchers.anyLong()))
+                        .thenReturn(new BusResult<>(true, Optional.empty()));
         List<Integer> obdModules = Arrays.asList(new Integer[] { 0x00 });
 
-        instance.reportOBDTests(listener, obdModules);
+        instance.requestSupportedSpnPackets(listener, obdModules);
         String expected = "";
         expected += "10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18EA00A5 B6 FD 00 (TX)" + NL;
@@ -242,9 +246,9 @@ public class OBDTestsModuleTest {
         DM24SPNSupportPacket engineDm24Packet = new DM24SPNSupportPacket(
                 Packet.create(64950, 0x00, 0x66, 0x00, 0x1B, 0x01));
         when(j1939.requestPacket(dm24RequestPacket, DM24SPNSupportPacket.class, 0, 3, 15000))
-                .thenReturn(Optional.of(new BusResult<>(false, engineDm24Packet)));
+                .thenReturn((new BusResult<>(false, engineDm24Packet)));
         List<Integer> obdModules = Arrays.asList(new Integer[] { 0x00 });
-        instance.reportOBDTests(listener, obdModules);
+        instance.requestSupportedSpnPackets(listener, obdModules);
 
         String expected = "";
         expected += "10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;
@@ -279,13 +283,13 @@ public class OBDTestsModuleTest {
         DM24SPNSupportPacket engineDm24Packet = new DM24SPNSupportPacket(
                 Packet.create(64950, 0x00, 0x66, 0x00, 0x1B, 0x01));
         when(j1939.requestPacket(requestPacket, DM24SPNSupportPacket.class, 0, 3, 15000))
-                .thenReturn(Optional.of(new BusResult<>(false, engineDm24Packet)));
+                .thenReturn((new BusResult<>(false, engineDm24Packet)));
 
         when(j1939.requestPacket(any(Packet.class), eq(DM30ScaledTestResultsPacket.class), eq(0x00), eq(3)))
                 .thenReturn(Optional.empty());
 
         List<Integer> obdModules = Arrays.asList(new Integer[] { 0x00 });
-        instance.reportOBDTests(listener, obdModules);
+        instance.requestSupportedSpnPackets(listener, obdModules);
 
         String expected = "";
         expected += "10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;
@@ -320,10 +324,10 @@ public class OBDTestsModuleTest {
         DM24SPNSupportPacket engineDm24Packet = new DM24SPNSupportPacket(
                 Packet.create(64950, 0x00, 0x66, 0x00, 0x1C, 0x01));
         when(j1939.requestPacket(requestPacket, DM24SPNSupportPacket.class, 0, 3, 15000))
-                .thenReturn(Optional.of(new BusResult<>(false, engineDm24Packet)));
+                .thenReturn((new BusResult<>(false, engineDm24Packet)));
 
         List<Integer> obdModules = Arrays.asList(new Integer[] { 0x00 });
-        instance.reportOBDTests(listener, obdModules);
+        instance.requestSupportedSpnPackets(listener, obdModules);
 
         String expected = "";
         expected += "10:15:30.000 Direct DM24 Request to Engine #1 (0)" + NL;

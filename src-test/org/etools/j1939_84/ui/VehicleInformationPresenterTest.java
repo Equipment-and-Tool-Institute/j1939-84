@@ -22,6 +22,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -89,11 +90,13 @@ public class VehicleInformationPresenterTest {
         verify(vinDecoder).getModelYear("vin");
         verify(vinDecoder).isModelYearValid(2);
         verify(view).setFuelType(FuelType.DSL);
-        verify(view).setEmissionUnits(1);
+        verify(view).setEmissionUnits(0);
         verify(view).setVin("vin");
         verify(view).setVehicleModelYear(2);
+        verify(view).setCalIds(0);
         verify(vehicleInformationModule).getEngineModelYear();
         verify(view).setEngineModelYear(4);
+        verify(vehicleInformationModule).reportCalibrationInformation(ArgumentMatchers.any());
         verify(vehicleInformationModule).getEngineFamilyName();
         verify(view).setCertificationIntent("family");
     }
@@ -115,9 +118,11 @@ public class VehicleInformationPresenterTest {
         verify(vinDecoder).getModelYear(null);
         verify(vinDecoder).isModelYearValid(-1);
         verify(view).setFuelType(FuelType.DSL);
-        verify(view).setEmissionUnits(1);
+        verify(view).setEmissionUnits(0);
+        verify(view).setCalIds(0);
         verify(dateTimeModule).getYear();
         verify(view).setVehicleModelYear(500);
+        verify(vehicleInformationModule).reportCalibrationInformation(ArgumentMatchers.any());
         verify(vehicleInformationModule).getEngineModelYear();
         verify(vehicleInformationModule).getEngineFamilyName();
     }
@@ -317,24 +322,28 @@ public class VehicleInformationPresenterTest {
 
         instance.onCertificationChanged("cert");
         instance.onEmissionUnitsChanged(4);
+        instance.onCalIdsChanged(6);
+        instance.onNumberOfTripsForFaultBImplantChanged(1);
         instance.onEngineModelYearChanged(1);
         instance.onFuelTypeChanged(FuelType.DSL);
         instance.onVehicleModelYearChanged(2);
         instance.onVinChanged("vin");
 
-        verify(vinDecoder, times(5)).isVinValid(null);
+        verify(vinDecoder, times(7)).isVinValid(null);
         verify(vinDecoder, times(1)).isVinValid("vin");
-        verify(vinDecoder, times(5)).getModelYear(null);
+        verify(vinDecoder, times(7)).getModelYear(null);
         verify(vinDecoder, times(1)).getModelYear("vin");
-        verify(vinDecoder, times(2)).isModelYearValid(0);
+        verify(vinDecoder, times(4)).isModelYearValid(0);
         verify(vinDecoder, times(4)).isModelYearValid(1);
 
-        verify(view, times(5)).setVinValid(false);
+        verify(view, times(7)).setVinValid(false);
         verify(view, times(1)).setVinValid(true);
         verify(view, times(1)).setVehicleModelYearValid(false);
-        verify(view, times(5)).setVehicleModelYearValid(true);
-        verify(view, times(5)).setOkButtonEnabled(false);
+        verify(view, times(7)).setVehicleModelYearValid(true);
+        verify(view, times(7)).setOkButtonEnabled(false);
         verify(view, times(1)).setOkButtonEnabled(true);
+        // verify(view).setCalIds(0);
+        // verify(vehicleInformationModule).reportCalibrationInformation(ArgumentMatchers.any());
 
         instance.onOkButtonClicked();
         verify(view).setVisible(false);
@@ -344,6 +353,8 @@ public class VehicleInformationPresenterTest {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setCertificationIntent("cert");
         vehicleInformation.setEmissionUnits(4);
+        vehicleInformation.setCalIds(4);
+        vehicleInformation.setNumberOfTripsForFaultBImplant(1);
         vehicleInformation.setEngineModelYear(1);
         vehicleInformation.setFuelType(FuelType.DSL);
         vehicleInformation.setVehicleModelYear(2);

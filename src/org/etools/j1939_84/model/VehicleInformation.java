@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.model;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -20,13 +21,13 @@ public class VehicleInformation {
 
     private int calIds;
 
-    private List<DM19CalibrationInformationPacket> calIdsFound;
+    private List<DM19CalibrationInformationPacket> calIdsFound = Collections.emptyList();
 
     private String certificationIntent;
 
     private int emissionUnits;
 
-    private List<ComponentIdentificationPacket> emissionUnitsFound;
+    private List<ComponentIdentificationPacket> emissionUnitsFound = Collections.emptyList();
 
     private int engineModelYear;
 

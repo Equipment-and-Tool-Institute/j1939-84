@@ -19,8 +19,11 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Optional;
 import java.util.concurrent.Executor;
+import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
@@ -43,6 +46,7 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -227,10 +231,13 @@ public class Step09ControllerTest extends AbstractControllerTest {
             }
         };
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
+        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new BusResult<>(false, packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
@@ -283,13 +290,17 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 entry(2, 2),
                 entry(3, 3));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()).stream()
+                        .sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(Collections.singletonList(packet));
 
+        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new BusResult<>(false, packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         // OBDModuleInformation obdModuleInfomation = new
@@ -344,13 +355,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 entry(2, 2),
                 entry(3, 3));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(Collections.singletonList(packet));
 
+        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new BusResult<>(false, packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
@@ -393,13 +407,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 entry(2, 2),
                 entry(3, 3));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(Collections.singletonList(packet));
 
+        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new BusResult<>(false, packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         // OBDModuleInformation obdModuleInfomation = new
@@ -454,13 +471,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 entry(2, 2),
                 entry(3, 3));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(Collections.singletonList(packet));
 
+        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new BusResult<>(false, packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         // OBDModuleInformation obdModuleInfomation = new
@@ -515,13 +535,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 entry(2, 2),
                 entry(3, 3));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(Collections.singletonList(packet));
 
+        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new BusResult<>(false, packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         // OBDModuleInformation obdModuleInfomation = new
@@ -577,13 +600,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 entry(2, 2),
                 entry(3, 3));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(Collections.singletonList(packet));
 
+        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new BusResult<>(false, packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         // OBDModuleInformation obdModuleInfomation = new
@@ -638,13 +664,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 entry(2, 2),
                 entry(3, 3));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(Collections.singletonList(packet));
 
+        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new BusResult<>(false, packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         // OBDModuleInformation obdModuleInfomation = new
@@ -709,15 +738,18 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 entry(2, 2),
                 entry(3, 3));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(packetList);
 
+        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new BusResult<>(false, packet));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(Collections.singletonList(packet1));
+                .thenReturn(new BusResult<>(false, packet1));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
@@ -769,13 +801,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 entry(2, 2),
                 entry(3, 3));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(Collections.singletonList(packet));
 
+        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new BusResult<>(false, packet));
 
         // Return and empty list of modules
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
@@ -832,10 +867,13 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 entry(2, 2),
                 entry(3, 3));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
+        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(Collections.emptyList());
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(Collections.singletonList(packet));
 
@@ -900,13 +938,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 entry(2, 2),
                 entry(3, 3));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(Collections.singletonList(packet));
 
+        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new BusResult<>(false, packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         // OBDModuleInformation obdModuleInfomation = new
@@ -961,13 +1002,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 entry(2, 2),
                 entry(3, 3));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(Collections.singletonList(packet));
 
+        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new BusResult<>(false, packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
@@ -1019,13 +1063,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 entry(2, 2),
                 entry(3, 3));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(moduleAddressFunction.keySet());
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(Collections.singletonList(packet));
 
+        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new BusResult<>(false, packet));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {

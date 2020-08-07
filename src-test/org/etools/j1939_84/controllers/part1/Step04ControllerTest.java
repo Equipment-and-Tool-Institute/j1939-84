@@ -162,7 +162,7 @@ public class Step04ControllerTest {
         when(packet4.getSupportedSpns()).thenReturn(supportedSpns);
         packets.add(packet4);
 
-        when(obdTestsModule.requestDM24Packets(any(), any()))
+        when(obdTestsModule.requestSupportedSpnPackets(any(), any()))
                 .thenReturn(new RequestResult<>(true, packets, Collections.emptyList()));
 
         List<SupportedSPN> expectedSPNs = new ArrayList<>();
@@ -182,7 +182,7 @@ public class Step04ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(obdTestsModule).setJ1939(j1939);
-        verify(obdTestsModule).requestDM24Packets(any(), any());
+        verify(obdTestsModule).requestSupportedSpnPackets(any(), any());
 
         verify(dataRepository).getObdModule(0);
         verify(dataRepository).getObdModule(1);
@@ -259,7 +259,7 @@ public class Step04ControllerTest {
         packets.add(packet4);
 
         RequestResult<DM24SPNSupportPacket> result = new RequestResult<>(false, packets, Collections.emptyList());
-        when(obdTestsModule.requestDM24Packets(any(), any())).thenReturn(result);
+        when(obdTestsModule.requestSupportedSpnPackets(any(), any())).thenReturn(result);
 
         List<SupportedSPN> expectedSPNs = new ArrayList<>();
         SupportedSPN supportedSpn = new SupportedSPN(new int[] { 0x00, 0x00, 0x00, 0x00 });
@@ -281,7 +281,7 @@ public class Step04ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(obdTestsModule).setJ1939(j1939);
-        verify(obdTestsModule).requestDM24Packets(any(), any());
+        verify(obdTestsModule).requestSupportedSpnPackets(any(), any());
 
         verify(dataRepository).getObdModule(0);
         verify(dataRepository).getObdModule(1);

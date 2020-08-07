@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.NumberFormatter;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
@@ -227,10 +228,8 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      *            sent
      * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
      */
-    public RequestResult<DM21DiagnosticReadinessPacket> getDM21Packets(ResultsListener listener,
-            boolean fullString,
+    public BusResult<DM21DiagnosticReadinessPacket> getDM21Packets(ResultsListener listener, boolean fullString,
             int obdModuleAddress) {
-
         return getPacket("Destination Specific DM21 Request",
                 DM21DiagnosticReadinessPacket.PGN,
                 DM21DiagnosticReadinessPacket.class,

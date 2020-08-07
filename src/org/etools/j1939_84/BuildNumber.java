@@ -71,8 +71,8 @@ public class BuildNumber {
             String revision = getProperties().getProperty("build.revision.number");
             result += revision != null ? "." + revision : "";
 
-            // String date = getProperties().getProperty("build.date");
-            // result += date != null ? " - " + date : "";
+            String date = getProperties().getProperty("build.date");
+            result += date != null ? " - " + date : "";
         }
         return result;
     }

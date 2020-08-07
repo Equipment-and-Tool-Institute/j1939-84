@@ -16,13 +16,12 @@ import static org.mockito.Mockito.when;
 
 import java.io.UnsupportedEncodingException;
 import java.util.ArrayList;
-import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
@@ -32,7 +31,6 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -192,9 +190,9 @@ public class Step07ControllerTest {
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm19), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, dm19));
 
-        Set<Integer> addresses = new HashSet<>();
+        ArrayList<Integer> addresses = new ArrayList<>();
         addresses.add(0);
         when(dataRepository.getObdModuleAddresses()).thenReturn(addresses);
 
@@ -227,7 +225,7 @@ public class Step07ControllerTest {
 
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
-        Set<Integer> addresses = new HashSet<>();
+        ArrayList<Integer> addresses = new ArrayList<>();
         when(dataRepository.getObdModuleAddresses()).thenReturn(addresses);
 
         runTest();
@@ -372,31 +370,31 @@ public class Step07ControllerTest {
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0A)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm190A), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, dm190A));
         DM19CalibrationInformationPacket dm190B2 = createDM19(0x0B, "ABCD", "1234");
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0B)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm190B2), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, dm190B2));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1B)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm191B), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, dm191B));
         AcknowledgmentPacket busy = mock(AcknowledgmentPacket.class);
         when(busy.getResponse()).thenReturn(Response.BUSY);
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0C)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(busy)));
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1C)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm191C), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, dm191C));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0D)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm190D), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, dm190D));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1D)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm191D), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, dm191D));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0E)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm190E), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, dm190E));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1E)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm191E), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, dm191E));
         DM19CalibrationInformationPacket dm190F = createDM19(0x0F, "ABCD", "1234");
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0F)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm190F), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, dm190F));
 
-        Set<Integer> addresses = new HashSet<>();
+        ArrayList<Integer> addresses = new ArrayList<>();
         addresses.add(0x0A);
         addresses.add(0x0B);
         addresses.add(0x0C);

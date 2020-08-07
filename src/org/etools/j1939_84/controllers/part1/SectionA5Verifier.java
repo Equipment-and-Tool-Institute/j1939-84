@@ -209,24 +209,24 @@ public class SectionA5Verifier {
         // a. DM25 expanded freeze frame shall report no data and DTC causing
         // freeze frame with bytes 1-5 = 0 and bytes 6-8 = 255 (**Remember array
         // are zero based**)
-        List<DM25ExpandedFreezeFrame> dm25Packets = new ArrayList<>();
-        obdModuleAddresses.forEach(address -> {
-            dm25Packets.addAll(dtcModule.requestDM25(listener, address)
-                    .getPackets()
-                    .stream()
-                    .filter(packet -> {
-                        byte[] bytes = packet.getPacket().getBytes();
-                        return bytes[0] != 0x00
-                                || bytes[1] != 0x00
-                                || bytes[2] != 0x00
-                                || bytes[3] != 0x00
-                                || bytes[4] != 0x00
-                                || bytes[5] != (byte) 0xFF
-                                || bytes[6] != (byte) 0xFF
-                                || bytes[7] != (byte) 0xFF;
-                    })
-                    .collect(Collectors.toList()));
-        });
+        List<DM25ExpandedFreezeFrame> dm25Packets = obdModuleAddresses.stream()
+                // convert address to DM25
+                .flatMap(address -> dtcModule.requestDM25(listener, address).getPacket().stream())
+                // ignore DM25 NACKs
+                .flatMap(e -> e.left.stream())
+                // filter invalid DM25 out
+                .filter(packet -> {
+                    byte[] bytes = packet.getPacket().getBytes();
+                    return bytes[0] != 0x00
+                            || bytes[1] != 0x00
+                            || bytes[2] != 0x00
+                            || bytes[3] != 0x00
+                            || bytes[4] != 0x00
+                            || bytes[5] != (byte) 0xFF
+                            || bytes[6] != (byte) 0xFF
+                            || bytes[7] != (byte) 0xFF;
+                })
+                .collect(Collectors.toList());
 
         if (!dm25Packets.isEmpty()) {
             // Verify the no data & DTC didn't cause freeze frame
@@ -457,9 +457,7 @@ public class SectionA5Verifier {
         // both lists accurately reflect that.
         System.out.println(dm28Packets.size());
         System.out.println(previousDM28Packets.size());
-        if (!previousDM28Packets.stream()
-                .filter(packet -> packet.getDtcs().size() != 0)
-                .collect(Collectors.toList())
+        if (!previousDM28Packets.stream().filter(packet -> packet.getDtcs().size() != 0).collect(Collectors.toList())
                 .equals(dm28Packets)) {
             StringBuilder failMessage = new StringBuilder(
                     "Section A.5 verification failed during DM28 check done at table step 8.a");
@@ -494,11 +492,8 @@ public class SectionA5Verifier {
         });
 
         Collections.sort(previousDM33Packets,
-                (packet1, packet2) -> packet1.getSourceAddress() -
-                        packet2.getSourceAddress());
-        Collections.sort(dm33Packets,
-                (packet1, packet2) -> packet1.getSourceAddress() -
-                        packet2.getSourceAddress());
+                (packet1, packet2) -> packet1.getSourceAddress() - packet2.getSourceAddress());
+        Collections.sort(dm33Packets, (packet1, packet2) -> packet1.getSourceAddress() - packet2.getSourceAddress());
 
         if (!previousDM33Packets.equals(dm33Packets)) {
             StringBuilder failMessage = new StringBuilder(

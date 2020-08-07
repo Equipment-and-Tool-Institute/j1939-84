@@ -4,12 +4,10 @@
 package org.etools.j1939_84.ui;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
-import java.util.function.Function;
 
-import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -35,7 +33,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      */
     private int calIds;
 
-    private List<DM19CalibrationInformationPacket> calIdsFound;
+    private List<DM19CalibrationInformationPacket> calIdsFound = Collections.emptyList();
 
     /**
      * The value the user has entered for the certification intent
@@ -60,7 +58,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     /**
      * The component Id for the emissions units on the vehicle
      */
-    private List<ComponentIdentificationPacket> emissionUnitsFound;
+    private List<ComponentIdentificationPacket> emissionUnitsFound = Collections.emptyList();
     /**
      * The value the user has entered for the engine model year
      */
@@ -166,13 +164,11 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
             List<Integer> obdModules = diagnosticReadinessModule.getOBDModules(ResultsListener.NOOP);
             emissionUnitsFound = new ArrayList<>();
             obdModules.forEach(address -> {
-                Function<Either<ComponentIdentificationPacket, AcknowledgmentPacket>, ComponentIdentificationPacket> mapper = e -> e
-                        .resolve(
-                                p -> p,
-                                ack -> ComponentIdentificationPacket.error(address, "ERROR"));
                 emissionUnitsFound
                         .add(vehicleInformationModule.reportComponentIdentification(ResultsListener.NOOP, address)
-                                .map(mapper)
+                                .getPacket()
+                                .map(e -> e.resolve(p -> p,
+                                        ack -> ComponentIdentificationPacket.error(address, "ERROR")))
                                 .orElse(ComponentIdentificationPacket.error(address, "MISSING")));
             });
             view.setEmissionUnits(emissionUnitsFound.size());

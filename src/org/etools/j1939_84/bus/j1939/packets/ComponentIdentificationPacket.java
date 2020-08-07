@@ -16,6 +16,11 @@ public class ComponentIdentificationPacket extends ParsedPacket {
 
     public static final int PGN = 65259;
 
+    public static ComponentIdentificationPacket error(Integer address, String str) {
+        return new ComponentIdentificationPacket(
+                Packet.create(PGN, 0, (str + "*" + str + "*" + str + "*" + str).getBytes()));
+    }
+
     /**
      * Holds the different parts of the component identification:
      *
@@ -26,7 +31,7 @@ public class ComponentIdentificationPacket extends ParsedPacket {
      * 3 - Unit Number
      * </pre>
      */
-    private String[] parts;
+    final private String[] parts = new String[4];
 
     /**
      * Constructor
@@ -36,6 +41,11 @@ public class ComponentIdentificationPacket extends ParsedPacket {
      */
     public ComponentIdentificationPacket(Packet packet) {
         super(packet);
+        String str = new String(packet.getBytes());
+        String[] array = str.split("\\*", -1);
+        for (int i = 0; i < 4 && i < array.length; i++) {
+            parts[i] = array[i].trim();
+        }
     }
 
     /**
@@ -44,7 +54,7 @@ public class ComponentIdentificationPacket extends ParsedPacket {
      * @return String
      */
     public String getMake() {
-        return getPart(0);
+        return parts[0];
     }
 
     /**
@@ -53,7 +63,7 @@ public class ComponentIdentificationPacket extends ParsedPacket {
      * @return String
      */
     public String getModel() {
-        return getPart(1);
+        return parts[1];
     }
 
     @Override
@@ -62,27 +72,12 @@ public class ComponentIdentificationPacket extends ParsedPacket {
     }
 
     /**
-     * Helper method to make sure the packet is parsed on first use
-     *
-     * @param index
-     *            the index of the part to return
-     * @return String that corresponds to the part
-     */
-    private String getPart(int index) {
-        if (parts == null) {
-            parts = new String[4];
-            parsePacket();
-        }
-        return parts[index];
-    }
-
-    /**
      * Returns the Serial Number, never null
      *
      * @return String
      */
     public String getSerialNumber() {
-        return getPart(2);
+        return parts[2];
     }
 
     /**
@@ -91,7 +86,7 @@ public class ComponentIdentificationPacket extends ParsedPacket {
      * @return String
      */
     public String getUnitNumber() {
-        return getPart(3);
+        return parts[3];
     }
 
     /**

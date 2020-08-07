@@ -5,11 +5,7 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
-import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
-
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -19,8 +15,10 @@ import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
@@ -121,11 +119,7 @@ public abstract class FunctionalModule {
         return j1939;
     }
 
-    protected Function<ParsedPacket, String> getPacketMapperFunction() {
-        return t -> t.getPacket().toString(getDateTimeModule().getTimeFormatter()) + NL + t.toString();
-    }
-
-    protected <T extends ParsedPacket> RequestResult<T> getPacket(String title,
+    protected <T extends ParsedPacket> BusResult<T> getPacket(String title,
             int pgn,
             Class<T> clazz,
             ResultsListener listener,
@@ -139,26 +133,37 @@ public abstract class FunctionalModule {
         // Try three times to get packets and ensure there's one from the module
         Optional<Either<T, AcknowledgmentPacket>> packet = Optional.empty();
         for (int i = 0; i < 3; i++) {
-            // FIXME where did 5.5 s come from?
             packet = getJ1939().requestRaw(clazz, request, 5500, TimeUnit.MILLISECONDS).findFirst();
-            if (packet.isPresent()) {
-                // The module responded, report the results
+            if (packet
+                    .map(o -> o.resolve(
+                            // there was a packet
+                            p -> true,
+                            // there was a terminal error
+                            ack -> ack.getResponse() != Response.BUSY))
+                    // there was no response
+                    .orElse(false)) {
                 break;
             } else {
                 retryUsed = true;
+                // FIXME wait for a delay. Should it be 200 ms? It should be
+                // specified in the requirements somewhere.
             }
         }
 
         if (packet.isEmpty()) {
             listener.onResult(TIMEOUT_MESSAGE);
         } else {
-            ParsedPacket pp = packet.get().as(ParsedPacket.class);
+            ParsedPacket pp = packet.get().resolve();
             listener.onResult(pp.getPacket().toString(getDateTimeModule().getTimeFormatter()));
             if (fullString) {
                 listener.onResult(pp.toString());
             }
         }
-        return new RequestResult<>(retryUsed, packet.map(p -> Arrays.asList(p)).orElse(Collections.emptyList()));
+        return new BusResult<>(retryUsed, packet);
+    }
+
+    protected Function<ParsedPacket, String> getPacketMapperFunction() {
+        return t -> t.getPacket().toString(getDateTimeModule().getTimeFormatter()) + NL + t.toString();
     }
 
     /**
@@ -215,7 +220,7 @@ public abstract class FunctionalModule {
                 listener.onResult(TIMEOUT_MESSAGE);
             } else {
                 for (Either<T, AcknowledgmentPacket> packet : packets) {
-                    ParsedPacket pp = packet.as(ParsedPacket.class);
+                    ParsedPacket pp = packet.resolve();
                     listener.onResult(
                             pp.getPacket().toString(getDateTimeModule().getTimeFormatter()));
                     if (fullString) {
@@ -244,5 +249,9 @@ public abstract class FunctionalModule {
      */
     public void setJ1939(J1939 j1939) {
         this.j1939 = j1939;
+    }
+
+    protected String getDate() {
+        return getDateTimeModule().getDate();
     }
 }

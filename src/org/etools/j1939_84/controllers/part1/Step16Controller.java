@@ -3,9 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
@@ -125,7 +123,7 @@ public class Step16Controller extends StepController {
         // 6.1.16.2.c Fail if any non-OBD ECU does not report MIL off or not
         // supported -
         // LampStatus of OTHER
-        Set<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
+        List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
         if (globalDM2s.stream().filter(p -> !obdModuleAddresses.contains(p.getSourceAddress())
                 && (p.getMalfunctionIndicatorLampStatus() != LampStatus.OFF
                         && p.getMalfunctionIndicatorLampStatus() != LampStatus.OTHER))
@@ -137,9 +135,12 @@ public class Step16Controller extends StepController {
         }
 
         // 6.1.16.3.a DS DM2 to each OBD ECU
-        List<DM2PreviouslyActiveDTC> dsDM2s = new ArrayList<>();
-        obdModuleAddresses.stream()
-                .forEach(address -> dsDM2s.addAll(dtcModule.requestDM2(getListener(), true, address).getPackets()));
+        List<DM2PreviouslyActiveDTC> dsDM2s = obdModuleAddresses.stream()
+                // get BusResults<DM2> for each address
+                .flatMap(address -> dtcModule.requestDM2(getListener(), true, address).getPacket().stream())
+                // unwrap only successful DM2 results
+                .flatMap(e -> e.left.stream())
+                .collect(Collectors.toList());
 
         List<DM2PreviouslyActiveDTC> unmatchedPackets = globalDiagnosticTroubleCodePackets.getPackets().stream()
                 .filter(aObject -> (!verifyPacketsEquality(dsDM2s, aObject))).collect(Collectors.toList());

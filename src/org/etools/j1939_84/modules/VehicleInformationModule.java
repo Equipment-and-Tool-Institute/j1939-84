@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
@@ -237,7 +238,7 @@ public class VehicleInformationModule extends FunctionalModule {
      *            addressed
      * @return {@link List} of {@link DM19CalibrationInformationPacket}
      */
-    public RequestResult<DM19CalibrationInformationPacket> reportCalibrationInformation(ResultsListener listener,
+    public BusResult<DM19CalibrationInformationPacket> reportCalibrationInformation(ResultsListener listener,
             int address) {
         return getPacket("DS DM19 (Calibration Information) Request to " + String.format("%02X", address),
                 DM19CalibrationInformationPacket.PGN,
@@ -274,7 +275,7 @@ public class VehicleInformationModule extends FunctionalModule {
      *            addressed
      * @return {@link List} of {@link ComponentIdentificationPacket}
      */
-    public Optional<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener,
+    public BusResult<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener,
             int address) {
         return getPacket(
                 "DS Component Identification Request to " + String.format("%02X", address),
@@ -282,7 +283,7 @@ public class VehicleInformationModule extends FunctionalModule {
                 ComponentIdentificationPacket.class,
                 listener,
                 false,
-                address).getPackets();
+                address);
     }
 
     /**

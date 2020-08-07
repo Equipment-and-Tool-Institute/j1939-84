@@ -14,11 +14,10 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashSet;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
@@ -151,17 +150,17 @@ public class Step16ControllerTest extends AbstractControllerTest {
         packet2Dtc.add(Dtc2);
         when(packet2.getSourceAddress()).thenReturn(0);
         when(dtcModule.requestDM2(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet2), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet2));
 
         // add ACK/NACK packets to the listing for complete reality testing
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
         when(packet4.getSourceAddress()).thenReturn(3);
         when(dtcModule.requestDM2(any(), eq(true), eq(3)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet4)));
+                .thenReturn(new BusResult<>(false, packet4));
 
         // Return the modules address so that we can do the destination specific
         // calls
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(3);
@@ -220,7 +219,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
         // Return the modules address so that we can do the destination specific
         // calls
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
             }
         };
@@ -285,7 +284,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
         // Return the modules address so that we can do the destination specific
         // calls
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
             }
         };
@@ -334,18 +333,18 @@ public class Step16ControllerTest extends AbstractControllerTest {
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         destinationSpecificPackets.add(packet2);
         when(dtcModule.requestDM2(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet2), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet2));
 
         // add ACK/NACK packets to the listing for complete reality testing
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
         destinationSpecificPackets.add(packet4);
         when(packet4.getSourceAddress()).thenReturn(3);
         when(dtcModule.requestDM2(any(), eq(true), eq(3)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet4)));
+                .thenReturn(new BusResult<>(false, packet4));
 
         // Return the modules address so that we can do the destination specific
         // calls
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(3);
@@ -405,18 +404,18 @@ public class Step16ControllerTest extends AbstractControllerTest {
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         when(packet2.getSourceAddress()).thenReturn(0);
         when(dtcModule.requestDM2(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet2), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet2));
 
         // add ACK/NACK packets to the listing for complete reality testing
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
         when(packet4.getSourceAddress()).thenReturn(3);
 
         when(dtcModule.requestDM2(any(), eq(true), eq(3)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet4)));
+                .thenReturn(new BusResult<>(false, packet4));
 
         // Return the modules address so that we can do the destination specific
         // calls
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(3);
@@ -463,7 +462,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
         // Return the modules address so that we can do the destination specific
         // calls
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
             }
         };
@@ -528,17 +527,17 @@ public class Step16ControllerTest extends AbstractControllerTest {
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         when(packet2.getSourceAddress()).thenReturn(0);
         when(dtcModule.requestDM2(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet2), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet2));
 
         // add ACK/NACK packets to the listing for complete reality testing
         DM2PreviouslyActiveDTC packet4 = mock(DM2PreviouslyActiveDTC.class);
         when(packet4.getSourceAddress()).thenReturn(3);
         when(dtcModule.requestDM2(any(), eq(true), eq(3)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet4), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet4));
 
         // Return the modules address so that we can do the destination specific
         // calls
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(3);
@@ -599,17 +598,17 @@ public class Step16ControllerTest extends AbstractControllerTest {
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         when(packet2.getSourceAddress()).thenReturn(0);
         when(dtcModule.requestDM2(any(), eq(true), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet2), Collections.emptyList()));
+                .thenReturn(new BusResult<>(false, packet2));
 
         // add ACK/NACK packets to the listing for complete reality testing
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
         when(packet4.getSourceAddress()).thenReturn(3);
         when(dtcModule.requestDM2(any(), eq(true), eq(3)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.singletonList(packet4)));
+                .thenReturn(new BusResult<>(false, packet4));
 
         // Return the modules address so that we can do the destination specific
         // calls
-        Set<Integer> obdAddressSet = new HashSet<>() {
+        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
             {
                 add(0);
                 add(3);

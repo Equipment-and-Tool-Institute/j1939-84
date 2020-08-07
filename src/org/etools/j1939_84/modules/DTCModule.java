@@ -5,8 +5,6 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -134,8 +132,11 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, boolean fullString) {
-
-        return requestDM12(listener, true, GLOBAL_ADDR);
+        return getPacketsFromGlobal("Global DM12 Request",
+                DM12MILOnEmissionDTCPacket.PGN,
+                DM12MILOnEmissionDTCPacket.class,
+                listener,
+                fullString);
     }
 
     /**
@@ -146,23 +147,14 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, boolean fullString,
+    public BusResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, boolean fullString,
             int moduleAddress) {
-
-        if (moduleAddress == GLOBAL_ADDR) {
-            return getPacketsFromGlobal("Global DM12 Request",
-                    DM12MILOnEmissionDTCPacket.PGN,
-                    DM12MILOnEmissionDTCPacket.class,
-                    listener,
-                    fullString);
-        } else {
-            return getPacket("Destination Specific DM12 Request to " + Lookup.getAddressName(moduleAddress),
-                    DM12MILOnEmissionDTCPacket.PGN,
-                    DM12MILOnEmissionDTCPacket.class,
-                    listener,
-                    fullString,
-                    moduleAddress);
-        }
+        return getPacket("Destination Specific DM12 Request to " + Lookup.getAddressName(moduleAddress),
+                DM12MILOnEmissionDTCPacket.PGN,
+                DM12MILOnEmissionDTCPacket.class,
+                listener,
+                fullString,
+                moduleAddress);
     }
 
     /**
@@ -174,9 +166,10 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString) {
-
-        return requestDM2(listener, fullString, GLOBAL_ADDR);
-
+        return getPacketsFromGlobal("Global DM2 Request", DM2PreviouslyActiveDTC.PGN,
+                DM2PreviouslyActiveDTC.class,
+                listener,
+                fullString);
     }
 
     /**
@@ -187,21 +180,14 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString,
+    public BusResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString,
             int obdAddress) {
-        if (obdAddress == GLOBAL_ADDR) {
-            return getPacketsFromGlobal("Global DM2 Request", DM2PreviouslyActiveDTC.PGN,
-                    DM2PreviouslyActiveDTC.class,
-                    listener,
-                    fullString);
-        } else {
-            return getPacket("Destination Specific DM2 Request to " + Lookup.getAddressName(obdAddress),
-                    DM2PreviouslyActiveDTC.PGN,
-                    DM2PreviouslyActiveDTC.class,
-                    listener,
-                    fullString,
-                    obdAddress);
-        }
+        return getPacket("Destination Specific DM2 Request to " + Lookup.getAddressName(obdAddress),
+                DM2PreviouslyActiveDTC.PGN,
+                DM2PreviouslyActiveDTC.class,
+                listener,
+                fullString,
+                obdAddress);
     }
 
     /**
@@ -272,62 +258,36 @@ public class DTCModule extends FunctionalModule {
      *
      * @param listener
      *            the {@link ResultsListener}
-     * @param obdModuleAddresses
-     *            {@link Collection} of Integers}
-     * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
-     */
-    public <T extends ParsedPacket> RequestResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener) {
-        return requestDM25(listener, GLOBAL_ADDR);
-
-    }
-
-    /**
-     * Sends a request to the vehicle for {@link DM25ExpandedFreezeFrame}s
-     *
-     * @param listener
-     *            the {@link ResultsListener}
      * @param moduleAddress
      *            the address to send the request to
      * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
      */
-    public <T extends ParsedPacket> RequestResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener,
+    public BusResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener,
             int moduleAddress) {
 
         Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, moduleAddress);
 
-        String message = moduleAddress == GLOBAL_ADDR ? " Global DM25 Request"
-                : " Destination Specific DM25 Request to " + Lookup.getAddressName(moduleAddress);
+        String message = " Destination Specific DM25 Request to " + Lookup.getAddressName(moduleAddress);
+
         listener.onResult(getTime() + message);
         listener.onResult(getTime() + " " + request.toString());
-
-        List<Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket>> packets = new ArrayList<>();
-        boolean retryUsed = false;
 
         BusResult<DM25ExpandedFreezeFrame> result = getJ1939()
                 .requestPacket(request,
                         DM25ExpandedFreezeFrame.class,
                         moduleAddress,
                         3,
-                        TimeUnit.SECONDS.toMillis(15))
-                .orElse(null);
+                        TimeUnit.SECONDS.toMillis(15));
 
-        ParsedPacket packet = null;
-        if (result != null) {
-            Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket> either = result.getPacket();
-            packets.add(either);
-            packet = either.left.orElse(null);
-            if (packet == null) {
-                packet = either.right.orElse(null);
-            }
-        }
-
-        if (packet == null) {
-            listener.onResult(TIMEOUT_MESSAGE);
-        } else {
+        result.getPacket().ifPresentOrElse(either -> {
+            // report
+            ParsedPacket packet = either.resolve();
             listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
             listener.onResult(packet.toString());
-        }
-        return new RequestResult<>(retryUsed, packets);
+        }, // report missing response
+                () -> listener.onResult(TIMEOUT_MESSAGE));
+
+        return result;
     }
 
     /**
