@@ -35,7 +35,13 @@ public class Sim implements AutoCloseable {
     /**
      * The executor
      */
-    private final ScheduledExecutorService exec = new ScheduledThreadPoolExecutor(2);
+    private final ScheduledExecutorService exec = new ScheduledThreadPoolExecutor(2, r -> new Thread(() -> {
+        try {
+            r.run();
+        } catch (Throwable t) {
+            t.printStackTrace();
+        }
+    }, "Sim Thread"));
 
     /**
      * The collection of responses
@@ -44,7 +50,8 @@ public class Sim implements AutoCloseable {
 
     public Sim(Bus bus) throws BusException {
         this.bus = bus;
-        // stream is collected in the current thread to avoid missing any packets during
+        // stream is collected in the current thread to avoid missing any
+        // packets during
         // the Thread startup.
         Stream<Packet> stream = bus.read(365, TimeUnit.DAYS);
         exec.submit(() -> stream.forEach(packet -> responses.stream().forEach(c -> c.accept(packet))));
@@ -59,10 +66,10 @@ public class Sim implements AutoCloseable {
      * Sends a response every time
      *
      * @param predicate
-     *                  the {@link Predicate} used to determine if the
-     *                  {@link Packet} should be sent
+     *            the {@link Predicate} used to determine if the {@link Packet}
+     *            should be sent
      * @param supplier
-     *                  the {@link Supplier} of the {@link Packet}
+     *            the {@link Supplier} of the {@link Packet}
      * @return this
      */
     public Sim response(Predicate<Packet> predicate, Supplier<Packet> supplier) {
@@ -78,13 +85,13 @@ public class Sim implements AutoCloseable {
      * Schedules a {@link Runnable} periodically
      *
      * @param period
-     *               how often the {@link Runnable} should be run
+     *            how often the {@link Runnable} should be run
      * @param delay
-     *               how long to wait until running the first {@link Runnable}
+     *            how long to wait until running the first {@link Runnable}
      * @param unit
-     *               the {@link TimeUnit} for the delay and period
+     *            the {@link TimeUnit} for the delay and period
      * @param run
-     *               the {@link Runnable} to run
+     *            the {@link Runnable} to run
      * @return this
      */
     public Sim schedule(int period, int delay, TimeUnit unit, Runnable run) {
@@ -96,13 +103,13 @@ public class Sim implements AutoCloseable {
      * Schedules a {@link Packet} to be sent periodically
      *
      * @param period
-     *                 how often the {@link Packet} should be sent
+     *            how often the {@link Packet} should be sent
      * @param delay
-     *                 how long to wait until sending the first {@link Packet}
+     *            how long to wait until sending the first {@link Packet}
      * @param unit
-     *                 the {@link TimeUnit} for the delay and period
+     *            the {@link TimeUnit} for the delay and period
      * @param supplier
-     *                 the {@link Supplier} of the {@link Packet} to send
+     *            the {@link Supplier} of the {@link Packet} to send
      * @return this
      */
     public Sim schedule(int period, int delay, TimeUnit unit, Supplier<Packet> supplier) {
@@ -114,7 +121,7 @@ public class Sim implements AutoCloseable {
      * exceptions. Should only be called from the exec.
      *
      * @param supplier
-     *                 the {@link Supplier} for the {@link Packet}
+     *            the {@link Supplier} for the {@link Packet}
      */
     private void send(Supplier<Packet> supplier) {
         try {
@@ -128,7 +135,7 @@ public class Sim implements AutoCloseable {
      * Sends a {@link Packet} now.
      *
      * @param packet
-     *               the {@link Packet}
+     *            the {@link Packet}
      */
     public void sendNow(Packet packet) {
         exec.execute(() -> send(() -> packet));
