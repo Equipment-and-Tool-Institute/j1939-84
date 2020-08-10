@@ -615,7 +615,7 @@
   {
     "PGN": "F004",
     "SA": "00",
-    "period": 100,
+    "period": 1000,
     "packets": [
       {
         isClear: "koer",
@@ -630,7 +630,7 @@
   {
     "PGN": "FECA",
     "SA": "25",
-    "period": 100,
+    "period": 1000,
     "packets": [
       {
         "packet": "18FECA25 00 FF 00 00 00 00 FF FF"
@@ -640,7 +640,7 @@
   {
     "PGN": "FECA",
     "SA": "31",
-    "period": 100,
+    "period": 1000,
     "packets": [
       {
         "packet": "18FECA31 00 00 0A FD FF 01 FF FF"
@@ -650,7 +650,7 @@
   {
     "PGN": "FECA",
     "SA": "47",
-    "period": 100,
+    "period": 1000,
     "packets": [
       {
         "packet": "18FECA47 00 FF 00 00 00 00 FF FF"
@@ -887,7 +887,7 @@
   {
     "PGN": "FECA",
     "SA": "00",
-    "period": 100,
+    "period": 1000,
     "packets": [
       {
         "packet": "18FECA00 03 FF 00 00 00 00 FF FF"
@@ -897,7 +897,7 @@
   {
     "PGN": "FECA",
     "SA": "01",
-    "period": 100,
+    "period": 1000,
     "packets": [
       {
         "packet": "18FECA01 03 FF 00 00 00 00 FF FF"
@@ -916,7 +916,7 @@
   {
     "PGN": "FECA",
     "SA": "03",
-    "period": 100,
+    "period": 1000,
     "packets": [
       {
         "packet": "18FECA03 03 FF 00 00 00 00 FF FF"
@@ -926,7 +926,7 @@
   {
     "PGN": "FECA",
     "SA": "0B",
-    "period": 100,
+    "period": 1000,
     "packets": [
       {
         "packet": "18FECA0B 00 FF 00 00 00 00 FF FF"
@@ -939,7 +939,7 @@
   {
     "PGN": "FECA",
     "SA": "17",
-    "period": 100,
+    "period": 1000,
     "packets": [
       {
         "packet": "18FECA17 00 FF 00 00 00 00 FF FF"
@@ -949,7 +949,7 @@
   {
     "PGN": "FECA",
     "SA": "3D",
-    "period": 100,
+    "period": 1000,
     "packets": [
       {
         "packet": "18FECA3D 03 FF 00 00 00 00 FF FF"
@@ -959,7 +959,7 @@
   {
     "PGN": "FECA",
     "SA": "4A",
-    "period": 100,
+    "period": 1000,
     "packets": [
       {
         "packet": "18FECA4A FF FF 00 00 00 00 FF FF"
@@ -1104,7 +1104,7 @@
   {
     "PGN": "FEE0",
     "SA": "00",
-    "period": 100,
+    "period": 1000,
     "packets": [
       {
         "packet": "18FEE000 00 00 00 00 00 00 00 00"

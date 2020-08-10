@@ -3,9 +3,14 @@
  */
 package org.etools.j1939_84.ui;
 
+import java.lang.reflect.InvocationHandler;
+import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
+
+import javax.swing.SwingUtilities;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
@@ -145,7 +150,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     public VehicleInformationPresenter(VehicleInformationContract.View view, VehicleInformationListener listener,
             J1939 j1939, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
             DiagnosticReadinessModule diagnosticReadinessModule, VinDecoder vinDecoder) {
-        this.view = view;
+        this.view = swingProxy(view, VehicleInformationContract.View.class);
         this.listener = listener;
         this.dateTimeModule = dateTimeModule;
         this.vehicleInformationModule = vehicleInformationModule;
@@ -159,7 +164,8 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     public void initialize() {
         view.setFuelType(FuelType.DSL); // Assuming this used mostly on Diesel
                                         // engines
-
+        numberOfTripsForFaultBImplant = 1;
+        view.setNumberOfTripsForFaultBImplant(numberOfTripsForFaultBImplant);
         try {
             List<Integer> obdModules = diagnosticReadinessModule.getOBDModules(ResultsListener.NOOP);
             emissionUnitsFound = new ArrayList<>();
@@ -292,11 +298,33 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         validate();
     }
 
+    @SuppressWarnings("unchecked")
+    <T> T swingProxy(T o, Class<T> cls) {
+        return (T) Proxy.newProxyInstance(getClass().getClassLoader(),
+                new Class<?>[] { cls }, (InvocationHandler) (proxy, method, args) -> {
+                    if (SwingUtilities.isEventDispatchThread()) {
+                        return method.invoke(o, args);
+                    }
+                    CompletableFuture<Object> f = new CompletableFuture<>();
+                    SwingUtilities.invokeLater(() -> {
+                        try {
+                            f.complete(method.invoke(o, args));
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    return f.join();
+                });
+    }
+
     /**
      * Validates the information in the form to determine if the user can
      * proceed
      */
     private void validate() {
+        if (!SwingUtilities.isEventDispatchThread()) {
+            throw new IllegalStateException();
+        }
         boolean vinValid = vinDecoder.isVinValid(vin);
         view.setVinValid(vinValid);
 

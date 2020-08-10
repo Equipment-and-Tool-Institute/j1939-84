@@ -546,7 +546,7 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     public void setVisible(boolean b) {
         super.setVisible(b);
         if (b) {
-            presenter.initialize();
+            new Thread(() -> presenter.initialize()).start();
         } else {
             super.dispose();
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));

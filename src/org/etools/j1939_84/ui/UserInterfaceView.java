@@ -130,12 +130,12 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      * Constructor exposed for testing
      *
      * @param controller
-     * The {@link UserInterfacePresenter} that will control the UI
+     *            The {@link UserInterfacePresenter} that will control the UI
      * @param buildNumber
-     * The {@link BuildNumber} that will return the build number
+     *            The {@link BuildNumber} that will return the build number
      * @param swingExecutor
-     * The {@link SwingExecutor} used to make updates to the UI on
-     * the Swing Thread
+     *            The {@link SwingExecutor} used to make updates to the UI on
+     *            the Swing Thread
      */
     UserInterfaceView(Presenter controller, BuildNumber buildNumber, Executor swingExecutor) {
         this.controller = controller;
@@ -194,7 +194,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
 
     @Override
     public void displayForm(VehicleInformationListener listener, J1939 j1939) {
-        new VehicleInformationDialog(getFrame(), listener, j1939).setVisible(true);
+        SwingUtilities.invokeLater(() -> new VehicleInformationDialog(getFrame(), listener, j1939).setVisible(true));
     }
 
     /**
@@ -733,7 +733,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      * update the UI
      *
      * @param runnable
-     * the {@link Runnable} to execute
+     *            the {@link Runnable} to execute
      */
     private void refreshUI(Runnable runnable) {
         swingExecutor.execute(runnable);

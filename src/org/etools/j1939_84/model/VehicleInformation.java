@@ -165,8 +165,9 @@ public class VehicleInformation {
                 + emissionUnitsFound.stream()
                         .map(m -> "     Make: " + m.getMake() + ", Model: " + m.getModel() + ", Serial: "
                                 + m.getSerialNumber())
-                        .collect(Collectors.joining("\n     "))
-                + "Number of CAL IDs Found: " + calIdsFound.stream()
+                        .collect(Collectors.joining("\n"))
+                + "\n"
+                + "Number of CAL IDs Found: " + calIdsFound.size() + "\n" + calIdsFound.stream()
                         .map(ci -> ci.toString())
                         .collect(Collectors.joining("\n"))
                 + "\n";
