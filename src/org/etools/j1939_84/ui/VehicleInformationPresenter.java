@@ -164,7 +164,8 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     public void initialize() {
         view.setFuelType(FuelType.DSL); // Assuming this used mostly on Diesel
                                         // engines
-
+        numberOfTripsForFaultBImplant = 1;
+        view.setNumberOfTripsForFaultBImplant(numberOfTripsForFaultBImplant);
         try {
             List<Integer> obdModules = diagnosticReadinessModule.getOBDModules(ResultsListener.NOOP);
             emissionUnitsFound = new ArrayList<>();

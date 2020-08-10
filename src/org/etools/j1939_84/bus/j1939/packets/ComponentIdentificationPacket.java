@@ -89,23 +89,6 @@ public class ComponentIdentificationPacket extends ParsedPacket {
         return parts[3];
     }
 
-    /**
-     * Parses the {@link Packet} into the parts
-     */
-    private void parsePacket() {
-        String information = format(getPacket().getBytes());
-        int beginIndex = 0;
-        int endIndex = 0;
-        for (int i = 0; i < parts.length && endIndex < information.length(); i++) {
-            endIndex = information.indexOf("*", beginIndex);
-            if (endIndex == -1) {
-                endIndex = information.length();
-            }
-            parts[i] = information.substring(beginIndex, endIndex).trim();
-            beginIndex = endIndex + 1;
-        }
-    }
-
     @Override
     public String toString() {
         String result = "Found " + Lookup.getAddressName(getSourceAddress()) + ": ";
