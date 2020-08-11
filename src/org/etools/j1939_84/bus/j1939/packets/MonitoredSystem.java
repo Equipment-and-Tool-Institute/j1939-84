@@ -13,7 +13,7 @@ import java.util.Objects;
  */
 public class MonitoredSystem implements Comparable<MonitoredSystem> {
 
-    private final int id;
+    private final CompositeSystem id;
     private final String name;
     private final int sourceAddress;
     private final MonitoredSystemStatus status;
@@ -32,7 +32,7 @@ public class MonitoredSystem implements Comparable<MonitoredSystem> {
      *            {@link MonitoredSystem} from various source addresses to be
      *            matched up
      */
-    public MonitoredSystem(String name, MonitoredSystemStatus status, int sourceAddress, int id) {
+    public MonitoredSystem(String name, MonitoredSystemStatus status, int sourceAddress, CompositeSystem id) {
         this.name = name;
         this.status = status;
         this.sourceAddress = sourceAddress;
@@ -49,7 +49,7 @@ public class MonitoredSystem implements Comparable<MonitoredSystem> {
             result = getStatus().toString().compareTo(o.getStatus().toString());
         }
         if (result == 0) {
-            result = getId() - o.getId();
+            result = getId().compareTo(o.getId());
         }
         return result;
     }
@@ -77,7 +77,7 @@ public class MonitoredSystem implements Comparable<MonitoredSystem> {
      *
      * @return int
      */
-    public int getId() {
+    public CompositeSystem getId() {
         return id;
     }
 
