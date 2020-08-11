@@ -314,13 +314,12 @@ public class J1939Test {
         Packet requestPacket = instance.createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
 
         List<AcknowledgmentPacket> responses = instance.requestMultiple(AcknowledgmentPacket.class, requestPacket)
-                .flatMap(e -> e.right.stream())
+                .map(e -> (AcknowledgmentPacket) e.resolve())
                 .collect(Collectors.toList());
-        assertEquals(3, responses.size());
+        assertEquals(2, responses.size());
 
         assertEquals("NACK", responses.get(0).getResponse().toString());
         assertEquals("ACK", responses.get(1).getResponse().toString());
-        assertEquals("ACK", responses.get(2).getResponse().toString());
 
         verify(bus).send(sendPacketCaptor.capture());
         List<Packet> packets = sendPacketCaptor.getAllValues();

@@ -33,6 +33,25 @@ import org.etools.j1939_84.utils.VinDecoder;
  */
 public class VehicleInformationPresenter implements VehicleInformationContract.Presenter {
 
+    @SuppressWarnings("unchecked")
+    public static <T> T swingProxy(T o, Class<T> cls) {
+        return (T) Proxy.newProxyInstance(cls.getClassLoader(),
+                new Class<?>[] { cls }, (InvocationHandler) (proxy, method, args) -> {
+                    if (SwingUtilities.isEventDispatchThread()) {
+                        return method.invoke(o, args);
+                    }
+                    CompletableFuture<Object> f = new CompletableFuture<>();
+                    SwingUtilities.invokeLater(() -> {
+                        try {
+                            f.complete(method.invoke(o, args));
+                        } catch (Throwable e) {
+                            e.printStackTrace();
+                        }
+                    });
+                    return f.join();
+                });
+    }
+
     /**
      * The value the user has entered for the number of CalIDs on the vehicle
      */
@@ -54,7 +73,6 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * The module used to gather information about the module readiness
      */
     private final DiagnosticReadinessModule diagnosticReadinessModule;
-
     /**
      * The value the user has entered for the number of emissions units on the
      * vehicle
@@ -64,6 +82,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * The component Id for the emissions units on the vehicle
      */
     private List<ComponentIdentificationPacket> emissionUnitsFound = Collections.emptyList();
+
     /**
      * The value the user has entered for the engine model year
      */
@@ -73,11 +92,11 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * The value the user has entered for the Fuel Type
      */
     private FuelType fuelType;
-
     /**
      * The listener that will be notified when the user is done
      */
     private final VehicleInformationListener listener;
+
     /**
      * The number of trips for fault B implant
      */
@@ -298,33 +317,11 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         validate();
     }
 
-    @SuppressWarnings("unchecked")
-    <T> T swingProxy(T o, Class<T> cls) {
-        return (T) Proxy.newProxyInstance(getClass().getClassLoader(),
-                new Class<?>[] { cls }, (InvocationHandler) (proxy, method, args) -> {
-                    if (SwingUtilities.isEventDispatchThread()) {
-                        return method.invoke(o, args);
-                    }
-                    CompletableFuture<Object> f = new CompletableFuture<>();
-                    SwingUtilities.invokeLater(() -> {
-                        try {
-                            f.complete(method.invoke(o, args));
-                        } catch (Throwable e) {
-                            e.printStackTrace();
-                        }
-                    });
-                    return f.join();
-                });
-    }
-
     /**
      * Validates the information in the form to determine if the user can
      * proceed
      */
     private void validate() {
-        if (!SwingUtilities.isEventDispatchThread()) {
-            throw new IllegalStateException();
-        }
         boolean vinValid = vinDecoder.isVinValid(vin);
         view.setVinValid(vinValid);
 

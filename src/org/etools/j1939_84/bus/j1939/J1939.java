@@ -82,9 +82,6 @@ public class J1939 {
 
     public static final int REQUEST_PGN = 0xEA00;
 
-    /** J1939-21 */
-    private static final int SUCCESS = 0x00;
-
     /**
      * Helper to create a packet to request a packet with the given PGN be sent
      * by modules on the bus that support it
@@ -569,10 +566,12 @@ public class J1939 {
             // Give up
             return new BusResult<>(true, Optional.empty());
         }
+        if (destination != requestPacket.getDestination()) {
+            throw new IllegalArgumentException(
+                    "request " + requestPacket + " destination doesn't match destination " + destination);
+        }
 
         try {
-            getPgn(clas);
-
             Stream<Packet> stream = read(timeout, DEFAULT_TIMEOUT_UNITS);
             getBus().send(requestPacket);
 
@@ -582,13 +581,17 @@ public class J1939 {
             // It also needs to be able to determine if the ACK was busy and
             // retry should be
             // used.
-            Optional<Either<T, AcknowledgmentPacket>> parsedPackets = stream.filter(basicFilter(requestPacket))
+            Optional<Either<T, AcknowledgmentPacket>> parsedPackets = stream
+                    // use PGN from clas, not from request, so that we support
+                    // DM7
+                    .filter(basicFilter(getPgn(clas), requestPacket.getDestination(), requestPacket.getSource()))
                     .findFirst().map(p -> process(p));
             if (parsedPackets.isPresent()) {
                 return new BusResult<>(false, parsedPackets);
             } else {
                 return new BusResult<>(true,
-                        requestPacket(requestPacket, clas, destination, tries - 1, timeout).getPacket());
+                        requestPacket(requestPacket, clas, requestPacket.getDestination(), tries - 1, timeout)
+                                .getPacket());
             }
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Error requesting packet", e);
