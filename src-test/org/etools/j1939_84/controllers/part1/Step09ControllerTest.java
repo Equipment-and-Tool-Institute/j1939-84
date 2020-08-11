@@ -35,6 +35,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -250,7 +251,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(2)).getObdModules();
+        verify(dataRepository, times(1)).getObdModules();
 
         verify(mockListener).addOutcome(1,
                 9,
@@ -295,7 +296,8 @@ public class Step09ControllerTest extends AbstractControllerTest {
                         .sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
@@ -316,7 +318,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(2)).getObdModules();
+        verify(dataRepository, times(1)).getObdModules();
 
         verify(mockListener).addOutcome(1,
                 9,
@@ -359,7 +361,8 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
@@ -377,7 +380,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(2)).getObdModules();
+        verify(dataRepository, times(1)).getObdModules();
 
         verify(reportFileModule).onProgress(0, 1, "");
 
@@ -411,7 +414,8 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
@@ -432,7 +436,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(2)).getObdModules();
+        verify(dataRepository, times(1)).getObdModules();
 
         verify(mockListener).addOutcome(1,
                 9,
@@ -475,7 +479,8 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
@@ -496,7 +501,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(2)).getObdModules();
+        verify(dataRepository, times(1)).getObdModules();
 
         verify(mockListener).addOutcome(1,
                 9,
@@ -539,7 +544,8 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
@@ -560,7 +566,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(2)).getObdModules();
+        verify(dataRepository, times(1)).getObdModules();
 
         verify(mockListener).addOutcome(1,
                 9,
@@ -604,7 +610,8 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
@@ -625,7 +632,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(2)).getObdModules();
+        verify(dataRepository, times(1)).getObdModules();
 
         verify(mockListener).addOutcome(1,
                 9,
@@ -668,7 +675,8 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
@@ -689,7 +697,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(2)).getObdModules();
+        verify(dataRepository, times(1)).getObdModules();
 
         verify(mockListener).addOutcome(1,
                 9,
@@ -725,7 +733,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 "WW",
                 "TheInvisibleJet",
                 "IJ345612");
-        List<ComponentIdentificationPacket> packetList = new ArrayList<>() {
+        new ArrayList<>() {
             {
                 add(packet);
                 add(packet1);
@@ -742,7 +750,8 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(packetList);
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
@@ -762,7 +771,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(2)).getObdModules();
+        verify(dataRepository, times(1)).getObdModules();
 
         verify(mockListener).addOutcome(1,
                 9,
@@ -805,7 +814,8 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
@@ -820,7 +830,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(2)).getObdModules();
+        verify(dataRepository, times(1)).getObdModules();
 
         verify(mockListener).addOutcome(1,
                 9,
@@ -875,7 +885,8 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         // OBDModuleInformation obdModuleInfomation = new
@@ -890,7 +901,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(2)).getObdModules();
+        verify(dataRepository, times(1)).getObdModules();
 
         verify(mockListener).addOutcome(1,
                 9,
@@ -942,7 +953,8 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
@@ -963,7 +975,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(2)).getObdModules();
+        verify(dataRepository, times(1)).getObdModules();
 
         verify(mockListener).addOutcome(1,
                 9,
@@ -1006,7 +1018,8 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
@@ -1024,7 +1037,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(2)).getObdModules();
+        verify(dataRepository, times(1)).getObdModules();
 
         verify(mockListener).addOutcome(1,
                 9,
@@ -1067,7 +1080,8 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(Collections.singletonList(packet));
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
@@ -1085,7 +1099,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(2)).getObdModules();
+        verify(dataRepository, times(1)).getObdModules();
 
         verify(mockListener).addOutcome(1,
                 9,

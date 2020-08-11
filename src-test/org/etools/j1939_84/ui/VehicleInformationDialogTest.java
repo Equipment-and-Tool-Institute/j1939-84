@@ -27,7 +27,7 @@ public class VehicleInformationDialogTest {
     private VehicleInformationDialog instance;
 
     @Mock
-    private VehicleInformationContract.Presenter presenter;
+    private VehicleInformationPresenter presenter;
 
     @Before
     public void setUp() {
