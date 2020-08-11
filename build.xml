@@ -26,7 +26,7 @@
 	</taskdef>
 
 	<taskdef uri="antlib:org.jacoco.ant" resource="org/jacoco/ant/antlib.xml">
-		<classpath path="${lib-test}/jacoco-0.7.9/lib/jacocoant.jar" />
+		<classpath path="${lib-test}/jacoco-0.8.5/lib/jacocoant.jar" />
 	</taskdef>
 
 	<condition property="isWindows" value="true">
