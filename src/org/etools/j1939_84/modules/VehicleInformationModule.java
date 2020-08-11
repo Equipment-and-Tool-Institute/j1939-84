@@ -206,11 +206,12 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public void reportAddressClaim(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(AddressClaimPacket.PGN, GLOBAL_ADDR);
-        List<AddressClaimPacket> responses = generateReport(listener,
+        RequestResult<AddressClaimPacket> responses = generateReport(listener,
                 "Global Request for Address Claim",
                 AddressClaimPacket.class,
-                request).stream().flatMap(e -> e.left.stream()).collect(Collectors.toList());
-        if (!responses.isEmpty() && !responses.stream().filter(p -> p.getFunctionId() == 0).findAny().isPresent()) {
+                request);
+        if (!responses.getPackets().isEmpty()
+                && !responses.getPackets().stream().filter(p -> p.getFunctionId() == 0).findAny().isPresent()) {
             listener.onResult("Error: No module reported Function 0");
         }
     }
@@ -228,7 +229,7 @@ public class VehicleInformationModule extends FunctionalModule {
         return generateReport(listener,
                 "Global DM19 (Calibration Information) Request",
                 DM19CalibrationInformationPacket.class,
-                request).stream().flatMap(e -> e.left.stream()).collect(Collectors.toList());
+                request).getPackets();
     }
 
     /**
@@ -254,19 +255,20 @@ public class VehicleInformationModule extends FunctionalModule {
     }
 
     /**
-     * Requests the Component Identification from all vehicle modules and
-     * generates a {@link String} that's suitable for inclusion in the report
+     * Requests globally the Component Identification from all vehicle modules
+     * and generates a {@link String} that's suitable for inclusion in the
+     * report
      *
      * @param listener
      *            the {@link ResultsListener} that will be given the report
      * @return {@link List} of {@link DM19CalibrationInformationPacket}
      */
-    public List<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener) {
+    public RequestResult<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(ComponentIdentificationPacket.PGN, GLOBAL_ADDR);
         return generateReport(listener,
                 "Global Component Identification Request",
                 ComponentIdentificationPacket.class,
-                request).stream().flatMap(e -> e.left.stream()).collect(Collectors.toList());
+                request);
     }
 
     /**
@@ -310,8 +312,7 @@ public class VehicleInformationModule extends FunctionalModule {
 
     public List<DM56EngineFamilyPacket> reportEngineFamily(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(DM56EngineFamilyPacket.PGN, GLOBAL_ADDR);
-        return generateReport(listener, "Global DM56 Request", DM56EngineFamilyPacket.class, request)
-                .stream().flatMap(e -> e.left.stream()).collect(Collectors.toList());
+        return generateReport(listener, "Global DM56 Request", DM56EngineFamilyPacket.class, request).getPackets();
     }
 
     /**
@@ -367,8 +368,7 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public List<VehicleIdentificationPacket> reportVin(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(VehicleIdentificationPacket.PGN, GLOBAL_ADDR);
-        return generateReport(listener, "Global VIN Request", VehicleIdentificationPacket.class, request)
-                .stream().flatMap(e -> e.left.stream()).collect(Collectors.toList());
+        return generateReport(listener, "Global VIN Request", VehicleIdentificationPacket.class, request).getPackets();
     }
 
     /**
@@ -380,8 +380,7 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public RequestResult<EngineHoursPacket> requestEngineHours(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(EngineHoursPacket.PGN, GLOBAL_ADDR);
-        return new RequestResult<>(false,
-                generateReport(listener, "Global Engine Hours Request", EngineHoursPacket.class, request));
+        return generateReport(listener, "Global Engine Hours Request", EngineHoursPacket.class, request);
     }
 
     /**

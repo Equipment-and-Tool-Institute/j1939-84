@@ -59,19 +59,26 @@ public abstract class FunctionalModule {
      *            the response packets to parse
      * @return a List of the Packets
      */
-    protected <T extends ParsedPacket> List<Either<T, AcknowledgmentPacket>> addToReport(ResultsListener listener,
+    protected <T extends ParsedPacket> RequestResult<T> addToReport(ResultsListener listener,
             Stream<Either<T, AcknowledgmentPacket>> results) {
         List<Either<T, AcknowledgmentPacket>> packets = results.collect(Collectors.toList());
+        RequestResult<T> result;
+
         if (packets.isEmpty()) {
             listener.onResult(TIMEOUT_MESSAGE);
+            result = new RequestResult<>(true, packets);
         } else {
-            List<String> strings = packets.stream()
-                    // FIXME what about NACKS?
-                    .flatMap(p -> p.left.stream())
-                    .map(getPacketMapperFunction()).collect(Collectors.toList());
+            List<ParsedPacket> allResponses = packets.stream().flatMap(p -> p.left.stream()).map(p -> p)
+                    .collect(Collectors.toList());
+            allResponses
+                    .addAll(packets.stream().flatMap(p -> p.right.stream()).map(p -> p).collect(Collectors.toList()));
+            allResponses.sort((o1, o2) -> o1.getPacket().getTimestamp().compareTo(o2.getPacket().getTimestamp()));
+
+            List<String> strings = allResponses.stream().map(getPacketMapperFunction()).collect(Collectors.toList());
             listener.onResult(strings);
+            result = new RequestResult<>(false, packets);
         }
-        return packets;
+        return result;
     }
 
     /**
@@ -92,13 +99,18 @@ public abstract class FunctionalModule {
      *
      * @return the List of Packets that were received
      */
-    protected <T extends ParsedPacket> List<Either<T, AcknowledgmentPacket>> generateReport(ResultsListener listener,
+    protected <T extends ParsedPacket> RequestResult<T> generateReport(
+            ResultsListener listener,
             String title,
             Class<T> clazz,
             Packet request) {
         listener.onResult(getTime() + " " + title);
         listener.onResult(getTime() + " " + request.toString());
         return addToReport(listener, getJ1939().requestMultiple(clazz, request));
+    }
+
+    protected String getDate() {
+        return getDateTimeModule().getDate();
     }
 
     /**
@@ -249,9 +261,5 @@ public abstract class FunctionalModule {
      */
     public void setJ1939(J1939 j1939) {
         this.j1939 = j1939;
-    }
-
-    protected String getDate() {
-        return getDateTimeModule().getDate();
     }
 }

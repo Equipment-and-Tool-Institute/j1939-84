@@ -23,19 +23,24 @@ public abstract class DiagnosticReadinessPacket extends ParsedPacket {
         super(packet);
     }
 
-    private MonitoredSystem createContinouslyMonitoredSystem(String name, int completedMask) {
+    private MonitoredSystem createContinouslyMonitoredSystem(CompositeSystem compositeSystem) {
+        String name = compositeSystem.getName();
+        int completedMask = compositeSystem.getMask();
         int supportedMask = completedMask >> 4;
         boolean notCompleted = (getByte(3) & completedMask) == completedMask;
         boolean supported = isOBDModule() && (getByte(3) & supportedMask) == supportedMask;
         MonitoredSystemStatus status = MonitoredSystemStatus.findStatus(isDM5(), supported, !notCompleted);
-        return new MonitoredSystem(name, status, getSourceAddress(), completedMask);
+        return new MonitoredSystem(name, status, getSourceAddress(), compositeSystem);
     }
 
-    private MonitoredSystem createNonContinouslyMonitoredSystem(String name, int lowerByte, int mask) {
+    private MonitoredSystem createNonContinouslyMonitoredSystem(CompositeSystem compositeSystem) {
+        String name = compositeSystem.getName();
+        int lowerByte = compositeSystem.getLowerByte();
+        int mask = compositeSystem.getMask();
         boolean notCompleted = (getByte(lowerByte + 2) & mask) == mask;
         boolean supported = isOBDModule() && (getByte(lowerByte) & mask) == mask;
         MonitoredSystemStatus status = MonitoredSystemStatus.findStatus(isDM5(), supported, !notCompleted);
-        return new MonitoredSystem(name, status, getSourceAddress(), lowerByte << 8 | mask);
+        return new MonitoredSystem(name, status, getSourceAddress(), compositeSystem);
     }
 
     @Override
@@ -61,9 +66,9 @@ public abstract class DiagnosticReadinessPacket extends ParsedPacket {
      */
     public List<MonitoredSystem> getContinuouslyMonitoredSystems() {
         List<MonitoredSystem> systems = new ArrayList<>();
-        systems.add(createContinouslyMonitoredSystem("Comprehensive component   ", 0x40));
-        systems.add(createContinouslyMonitoredSystem("Fuel System               ", 0x20));
-        systems.add(createContinouslyMonitoredSystem("Misfire                   ", 0x10));
+        systems.add(createContinouslyMonitoredSystem(CompositeSystem.COMPREHENSIVE_COMPONENT));
+        systems.add(createContinouslyMonitoredSystem(CompositeSystem.FUEL_SYSTEM));
+        systems.add(createContinouslyMonitoredSystem(CompositeSystem.MISFIRE));
         return systems;
     }
 
@@ -88,31 +93,31 @@ public abstract class DiagnosticReadinessPacket extends ParsedPacket {
     public List<MonitoredSystem> getNonContinuouslyMonitoredSystems() {
         List<MonitoredSystem> systems = new ArrayList<>();
         systems.add(
-                createNonContinouslyMonitoredSystem("EGR/VVT system            ", 4, 0x80));
+                createNonContinouslyMonitoredSystem(CompositeSystem.EGR_VVT_SYSTEM));
         systems.add(
-                createNonContinouslyMonitoredSystem("Exhaust Gas Sensor heater ", 4, 0x40));
+                createNonContinouslyMonitoredSystem(CompositeSystem.EXHAUST_GAS_SENSOR_HEATER));
         systems.add(
-                createNonContinouslyMonitoredSystem("Exhaust Gas Sensor        ", 4, 0x20));
+                createNonContinouslyMonitoredSystem(CompositeSystem.EXHAUST_GAS_SENSOR));
         systems.add(
-                createNonContinouslyMonitoredSystem("A/C system refrigerant    ", 4, 0x10));
+                createNonContinouslyMonitoredSystem(CompositeSystem.AC_SYSTEM_REFRIGERANT));
         systems.add(
-                createNonContinouslyMonitoredSystem("Secondary air system      ", 4, 0x08));
+                createNonContinouslyMonitoredSystem(CompositeSystem.SECONDARY_AIR_SYSTEM));
         systems.add(
-                createNonContinouslyMonitoredSystem("Evaporative system        ", 4, 0x04));
+                createNonContinouslyMonitoredSystem(CompositeSystem.EVAPORATIVE_SYSTEM));
         systems.add(
-                createNonContinouslyMonitoredSystem("Heated catalyst           ", 4, 0x02));
+                createNonContinouslyMonitoredSystem(CompositeSystem.HEATED_CATALYST));
         systems.add(
-                createNonContinouslyMonitoredSystem("Catalyst                  ", 4, 0x01));
+                createNonContinouslyMonitoredSystem(CompositeSystem.CATALYST));
         systems.add(
-                createNonContinouslyMonitoredSystem("NMHC converting catalyst  ", 5, 0x10));
+                createNonContinouslyMonitoredSystem(CompositeSystem.NMHC_CONVERTING_CATALYST));
         systems.add(
-                createNonContinouslyMonitoredSystem("NOx catalyst/adsorber     ", 5, 0x08));
+                createNonContinouslyMonitoredSystem(CompositeSystem.NOX_CATALYST_ABSORBER));
         systems.add(
-                createNonContinouslyMonitoredSystem("Diesel Particulate Filter ", 5, 0x04));
+                createNonContinouslyMonitoredSystem(CompositeSystem.DIESEL_PARTICULATE_FILTER));
         systems.add(
-                createNonContinouslyMonitoredSystem("Boost pressure control sys", 5, 0x02));
+                createNonContinouslyMonitoredSystem(CompositeSystem.BOOST_PRESSURE_CONTROL_SYS));
         systems.add(
-                createNonContinouslyMonitoredSystem("Cold start aid system     ", 5, 0x01));
+                createNonContinouslyMonitoredSystem(CompositeSystem.COLD_START_AID_SYSTEM));
 
         return systems;
     }

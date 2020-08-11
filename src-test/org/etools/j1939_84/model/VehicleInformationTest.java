@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.model;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -105,13 +106,19 @@ public class VehicleInformationTest {
     @TestDoc(description = "Detect regressions in the display of VehicleInformation.")
     public void testToString() {
         String actual = instance.toString();
-        String expected = "Vehicle Information:\n" +
-                "Certification: cert\n" +
-                "Emissions: 4\n" +
+        String expected = "User Data Entry: " + NL + NL +
+                "Number of Emissions ECUs Expected: 4" + NL +
+                "Number of CAL IDs Expected: 0" + NL +
+                "Fuel Type: Diesel vehicle" + NL +
+                "Ignition Type: Compression" + NL +
+                "Number of Trips for Fault B Implant: 0" + NL + NL +
+                "Vehicle Information:\n" +
+                "VIN: vin\n" +
+                "Vehicle MY: 2\n" +
                 "Engine MY: 1\n" +
-                "FuelType: Diesel vehicle\n" +
-                "Vehicle MY: 2\n"
-                + "VIN: vin";
+                "Cert. Engine Family: cert\n" +
+                "Number of OBD ECUs Found: 0\n" + NL +
+                "Number of CAL IDs Found: 0" + NL + NL;
         assertEquals(expected, actual);
     }
 }

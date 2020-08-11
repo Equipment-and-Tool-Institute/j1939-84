@@ -31,6 +31,19 @@ public class CompositeMonitoredSystem extends MonitoredSystem {
     private final Map<Integer, MonitoredSystemStatus> systems = new ConcurrentHashMap<>();
 
     /**
+     * Creates a {@link CompositeMonitoredSystem} with a name and id
+     *
+     * @param id
+     *            the id
+     * @param isDm5
+     *            true to indicate this system is for a DM5 message
+     */
+    public CompositeMonitoredSystem(CompositeSystem id, boolean isDm5) {
+        super(id.getName(), null, -1, id);
+        this.isDm5 = isDm5;
+    }
+
+    /**
      * Creates a {@link CompositeMonitoredSystem} starting with the given
      * {@link MonitoredSystem}
      *
@@ -40,26 +53,9 @@ public class CompositeMonitoredSystem extends MonitoredSystem {
      *            true to indicate this system is from a DM5 message
      */
     public CompositeMonitoredSystem(MonitoredSystem system, boolean isDm5) {
-        super(system.getName(), system.getStatus(), system.getSourceAddress(), system.getId());
+        super(system.getName(), system.getStatus(), -1, system.getId());
         this.isDm5 = isDm5;
         addMonitoredSystems(system);
-    }
-
-    /**
-     * Creates a {@link CompositeMonitoredSystem} with a name and id
-     *
-     * @param name
-     *            the name
-     * @param sourceAddress
-     *            the source address of the module this is from
-     * @param id
-     *            the id
-     * @param isDm5
-     *            true to indicate this system is for a DM5 message
-     */
-    public CompositeMonitoredSystem(String name, int sourceAddress, int id, boolean isDm5) {
-        super(name, null, sourceAddress, id);
-        this.isDm5 = isDm5;
     }
 
     /**
@@ -99,14 +95,7 @@ public class CompositeMonitoredSystem extends MonitoredSystem {
         }
 
         boolean isEnabled = systems.values().stream().filter(s -> s.isEnabled()).findFirst().isPresent();
-
-        boolean isComplete = false;
-        for (MonitoredSystemStatus systemStatus : systems.values()) {
-            isComplete = systemStatus.isComplete();
-            if (!isComplete) {
-                break;
-            }
-        }
+        boolean isComplete = !systems.values().stream().filter(s -> !s.isComplete()).findFirst().isPresent();
 
         return MonitoredSystemStatus.findStatus(isDm5, isEnabled, isComplete);
     }

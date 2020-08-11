@@ -724,7 +724,7 @@ public class DTCModuleTest {
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new RequestResult<>(true,
                 Collections.emptyList(), Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM23(listener, 0x17));
         assertEquals(expected, listener.getResults());
@@ -831,7 +831,7 @@ public class DTCModuleTest {
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new RequestResult<>(true,
                 Collections.emptyList(), Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM23(listener));
         assertEquals(expected, listener.getResults());
@@ -931,7 +931,7 @@ public class DTCModuleTest {
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(false,
+        RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(true,
                 Collections.emptyList(), Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM26(listener, 0x17));
         assertEquals(expected, listener.getResults());
@@ -1031,7 +1031,7 @@ public class DTCModuleTest {
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(false,
+        RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(true,
                 Collections.emptyList(), Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM26(listener));
         assertEquals(expected, listener.getResults());
@@ -1135,7 +1135,7 @@ public class DTCModuleTest {
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(true,
                 Collections.emptyList(), Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM28(listener, 0x17));
         assertEquals(expected, listener.getResults());
@@ -1539,7 +1539,7 @@ public class DTCModuleTest {
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> expectedResult = new RequestResult<>(
-                false,
+                true,
                 Collections.emptyList(), Collections.emptyList());
         System.out.println(requestPacket);
         assertEquals(expectedResult, instance.requestDM33(listener, 0x00));
@@ -1921,7 +1921,7 @@ public class DTCModuleTest {
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM21DiagnosticReadinessPacket> result = new RequestResult<>(false,
+        RequestResult<DM21DiagnosticReadinessPacket> result = new RequestResult<>(true,
                 Collections.emptyList(),
                 Collections.emptyList());
 
@@ -2237,7 +2237,7 @@ public class DTCModuleTest {
                 .thenReturn(Stream.empty());
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
+        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(true,
                 Collections.emptyList(),
                 Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM29(listener, 0x00));
@@ -2308,7 +2308,7 @@ public class DTCModuleTest {
                 .thenReturn(Stream.empty());
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM29DtcCounts> expectedResult = new RequestResult<>(false,
+        RequestResult<DM29DtcCounts> expectedResult = new RequestResult<>(true,
                 Collections.emptyList(),
                 Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM29(listener));
@@ -2379,7 +2379,7 @@ public class DTCModuleTest {
                 .thenReturn(Stream.empty());
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
+        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(true,
                 Collections.emptyList(),
                 Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM31(listener, 0x00));
@@ -2467,7 +2467,7 @@ public class DTCModuleTest {
                 .thenReturn(Stream.empty());
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
+        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(true,
                 Collections.emptyList(),
                 Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM31(listener));

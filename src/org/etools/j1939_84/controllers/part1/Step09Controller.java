@@ -181,7 +181,7 @@ public class Step09Controller extends StepController {
         // 587, and 588).
         // b. Display each positive return in the log.
         List<ComponentIdentificationPacket> globalPackets = getVehicleInformationModule()
-                .reportComponentIdentification(getListener());
+                .reportComponentIdentification(getListener()).getPackets();
         if (globalPackets.isEmpty()) {
             getListener().addOutcome(1,
                     9,

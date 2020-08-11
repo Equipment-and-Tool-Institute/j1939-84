@@ -18,6 +18,7 @@ import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
+import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
@@ -86,12 +87,12 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      */
     public static List<CompositeMonitoredSystem> getCompositeSystems(Collection<MonitoredSystem> monitoredSystems,
             boolean isDM5) {
-        Map<Integer, CompositeMonitoredSystem> map = new HashMap<>();
+        Map<CompositeSystem, CompositeMonitoredSystem> map = new HashMap<>();
         for (MonitoredSystem system : monitoredSystems) {
-            int id = system.getId();
-            CompositeMonitoredSystem existingSystem = map.get(id);
+            CompositeSystem key = system.getId();
+            CompositeMonitoredSystem existingSystem = map.get(key);
             if (existingSystem == null) {
-                map.put(id, new CompositeMonitoredSystem(system, isDM5));
+                map.put(key, new CompositeMonitoredSystem(system, isDM5));
             } else {
                 existingSystem.addMonitoredSystems(system);
             }
