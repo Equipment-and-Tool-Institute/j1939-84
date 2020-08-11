@@ -8,6 +8,7 @@ import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
@@ -17,8 +18,10 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.BusException;
+import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
@@ -87,7 +90,9 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public List<CalibrationInformation> getCalibrations() throws IOException {
         if (calibrations == null) {
-            calibrations = getJ1939().requestMultiple(DM19CalibrationInformationPacket.class)
+            Collection<Either<DM19CalibrationInformationPacket, AcknowledgmentPacket>> raw = getJ1939()
+                    .requestMultiple(DM19CalibrationInformationPacket.class).collect(Collectors.toList());
+            calibrations = raw.stream()
                     // flatten an Optional<Either<packetWithAList>>
                     .flatMap(t -> t.left.stream()
                             .flatMap(p -> p.getCalibrationInformation().stream()))
