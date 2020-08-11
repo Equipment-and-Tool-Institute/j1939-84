@@ -269,29 +269,6 @@ public class J1939 {
     }
 
     /**
-     * Filter to find acknowledgement packets
-     *
-     * @param pgn
-     *            the pgn that's being requested
-     * @return true if the message is an Acknowledgement for the given pgn
-     */
-    private Predicate<Packet> ackFilter(int pgn) {
-        return response -> {
-            return
-            // ID is Acknowledgment
-            (response.getId() & 0xFF00) == 0xE800
-                    // There are enough bytes
-                    && response.getLength() == 8
-            // The response is Success
-                    && response.get(0) == SUCCESS
-            // Accepting 0xFF as "Address Acknowledged" is to handle Cummins
-                    && (response.get(4) == getBusAddress() || response.get(4) == 0xFF)
-            // The Acknowledged PGN matches
-                    && response.get24(5) == pgn;
-        };
-    }
-
-    /**
      * Filter to find acknowledgement/nack packets
      *
      * @param pgn
@@ -310,6 +287,22 @@ public class J1939 {
             // The Acknowledged PGN matches
                     && response.get24(5) == pgn;
         };
+    }
+
+    private Predicate<Packet> basicFilter(int pgn, int requestDestination, int requestSource) {
+        return
+        // does the packet have the right ID
+        pgnFilter(pgn).or(ackNackFilter(pgn))
+                // did it come from the right module or any if addressed to all
+                .and(sourceFilter(requestDestination)
+                        .or(p -> requestDestination == GLOBAL_ADDR))
+                // is it addressed to us or all
+                .and(((Predicate<Packet>) response -> response.getDestination() == requestSource)
+                        .or(p -> p.getDestination() == GLOBAL_ADDR));
+    }
+
+    private Predicate<Packet> basicFilter(Packet request) {
+        return basicFilter(request.get24(0), request.getDestination(), request.getSource());
     }
 
     public void close() {
@@ -361,17 +354,6 @@ public class J1939 {
         return getBus().getAddress();
     }
 
-    /**
-     * Returns the destination based upon the request
-     *
-     * @param requestPacket
-     *            the request
-     * @return the destination specific address or GLOBAL_ADDR
-     */
-    private int getDestination(Packet requestPacket) {
-        return requestPacket.getId() < 0xF000 ? requestPacket.getId() & 0xFF : GLOBAL_ADDR;
-    }
-
     private Logger getLogger() {
         return J1939_84.getLogger();
     }
@@ -411,8 +393,7 @@ public class J1939 {
         int pgn = getPgn(T);
         try (Stream<Packet> stream = read(timeout, unit)) {
             return stream
-                    .filter(sourceFilter(addr))
-                    .filter(pgnFilter(pgn))
+                    .filter(sourceFilter(addr).and(pgnFilter(pgn)))
                     .findFirst().map(t -> process(t));
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, "Error reading packets", e);
@@ -440,7 +421,6 @@ public class J1939 {
         try {
             return read(timeout, unit)
                     .filter(pgnFilter(pgn))
-                    // why? .distinct()
                     .map(t -> process(t));
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, "Error reading packets", e);
@@ -450,7 +430,6 @@ public class J1939 {
 
     private Stream<Packet> read(long timeout, TimeUnit unit) throws BusException {
         Stream<Packet> stream = getBus().read(timeout, unit);
-        // FIXME, does this work or do I need a terminal?
         return stream.peek(packet -> getLogger().log(Level.FINE, "P->" + packet.toString()));
     }
 
@@ -526,14 +505,10 @@ public class J1939 {
             TimeUnit unit) {
         Stream<Either<T, AcknowledgmentPacket>> result = Stream.of();
         try {
-            int pgn = getPgn(T);
             Stream<Packet> stream = read(timeout, unit);
             getBus().send(requestPacket);
-            int destination = getDestination(requestPacket);
             result = stream
-                    .filter(sourceFilter(destination).or(p -> destination == GLOBAL_ADDR))
-                    .filter(pgnFilter(pgn).or(ackFilter(pgn)))
-                    // why? .distinct()
+                    .filter(basicFilter(requestPacket))
                     .map(rawPacket -> process(rawPacket));
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, "Error requesting packet", e);
@@ -558,6 +533,7 @@ public class J1939 {
      * @return {@link Optional} {@link Packet} This may not contain a value if
      *         there was an exception
      */
+    @Deprecated // use BusResult version instead
     public <T extends ParsedPacket> Optional<Either<T, AcknowledgmentPacket>> requestPacket(Packet packetToSend,
             Class<T> T,
             int destination,
@@ -571,7 +547,7 @@ public class J1939 {
      *
      * @param <T>the
      *            Type of Packet that will be returned
-     * @param packetToSend
+     * @param requestPacket
      *            the packet that will be sent
      * @param clas
      *            the Class of packet that's expected to be returned
@@ -584,9 +560,9 @@ public class J1939 {
      * @return {@link Optional} {@link Packet} This may not contain a value if
      *         there was an exception
      */
-    public <T extends ParsedPacket> BusResult<T> requestPacket(Packet packetToSend,
+    public <T extends ParsedPacket> BusResult<T> requestPacket(Packet requestPacket,
             Class<T> clas,
-            int destination,
+            int destination, // FIXME this arg is redundant. Remove.
             int tries,
             long timeout) {
         if (tries <= 0) {
@@ -595,10 +571,10 @@ public class J1939 {
         }
 
         try {
-            int expectedResponsePGN = getPgn(clas);
+            getPgn(clas);
 
             Stream<Packet> stream = read(timeout, DEFAULT_TIMEOUT_UNITS);
-            getBus().send(packetToSend);
+            getBus().send(requestPacket);
 
             // FIXME this stream needs to be able to check for ACKs and not
             // retry if the
@@ -606,14 +582,13 @@ public class J1939 {
             // It also needs to be able to determine if the ACK was busy and
             // retry should be
             // used.
-            Stream<Packet> packets = stream.filter(sourceFilter(destination))
-                    .filter(pgnFilter(expectedResponsePGN).or(dsPgnFilter(expectedResponsePGN)));
-            Optional<Either<T, AcknowledgmentPacket>> parsedPackets = packets.findFirst().map(p -> process(p));
+            Optional<Either<T, AcknowledgmentPacket>> parsedPackets = stream.filter(basicFilter(requestPacket))
+                    .findFirst().map(p -> process(p));
             if (parsedPackets.isPresent()) {
                 return new BusResult<>(false, parsedPackets);
             } else {
                 return new BusResult<>(true,
-                        requestPacket(packetToSend, clas, destination, tries - 1, timeout).getPacket());
+                        requestPacket(requestPacket, clas, destination, tries - 1, timeout).getPacket());
             }
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Error requesting packet", e);
@@ -644,13 +619,9 @@ public class J1939 {
             TimeUnit unit) {
         Stream<Either<T, AcknowledgmentPacket>> result = Stream.of();
         try {
-            int pgn = getPgn(T);
             Stream<Packet> stream = read(timeout, unit);
             getBus().send(requestPacket);
-            int destination = getDestination(requestPacket);
-            result = stream.filter(sourceFilter(destination).or(p -> destination == GLOBAL_ADDR))
-                    .filter(pgnFilter(pgn).or(ackNackFilter(pgn)))
-                    // why? .distinct()
+            result = stream.filter(basicFilter(requestPacket))
                     .map(rawPacket -> process(rawPacket));
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Error requesting packet", e);

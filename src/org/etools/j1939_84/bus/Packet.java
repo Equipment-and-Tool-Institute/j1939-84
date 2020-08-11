@@ -13,6 +13,7 @@ import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import org.etools.j1939_84.J1939_84;
+import org.etools.j1939_84.bus.j1939.J1939;
 
 /**
  * Sends a Packet containing an id with data from a source onto the bus
@@ -307,6 +308,17 @@ public class Packet {
      */
     public int[] getData(int beginIndex, int endIndex) {
         return Arrays.copyOfRange(data, beginIndex, endIndex);
+    }
+
+    /**
+     * Returns the destination address
+     *
+     * @param requestPacket
+     *            the request
+     * @return the destination specific address or GLOBAL_ADDR
+     */
+    public int getDestination() {
+        return getId() < 0xF000 ? getId() & 0xFF : J1939.GLOBAL_ADDR;
     }
 
     /**
