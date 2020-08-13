@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 
@@ -18,6 +19,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
  *
  */
 public class VehicleInformation {
+    private RequestResult<AddressClaimPacket> addressClaim;
 
     private int calIds;
 
@@ -59,6 +61,10 @@ public class VehicleInformation {
                 && engineModelYear == that.engineModelYear && fuelType == that.fuelType
                 && vehicleModelYear == that.vehicleModelYear && Objects.equals(vin, that.vin)
                 && numberOfTripsForFaultBImplant == that.numberOfTripsForFaultBImplant;
+    }
+
+    public RequestResult<AddressClaimPacket> getAddressClaim() {
+        return addressClaim;
     }
 
     public int getCalIds() {
@@ -107,6 +113,10 @@ public class VehicleInformation {
                 engineModelYear, fuelType, vehicleModelYear, vin, numberOfTripsForFaultBImplant);
     }
 
+    public void setAddressClaim(RequestResult<AddressClaimPacket> addressClaim) {
+        this.addressClaim = addressClaim;
+    }
+
     public void setCalIds(int calIds) {
         this.calIds = calIds;
     }
@@ -150,6 +160,7 @@ public class VehicleInformation {
     @Override
     public String toString() {
         return "User Data Entry: \n\n"
+                + "Engine Model Emissions Year: " + engineModelYear + "\n"
                 + "Number of Emissions ECUs Expected: " + emissionUnits + "\n"
                 + "Number of CAL IDs Expected: " + calIds + "\n"
                 + "Fuel Type: " + fuelType + "\n"
@@ -167,8 +178,11 @@ public class VehicleInformation {
                                 + m.getSerialNumber())
                         .collect(Collectors.joining("\n"))
                 + "\n"
-                + "Number of CAL IDs Found: " + calIdsFound.size() + "\n" + calIdsFound.stream()
+                + "Number of CAL IDs Found: " + calIdsFound.size() + "\n"
+                + calIdsFound.stream()
                         .map(ci -> ci.toString())
+                        .flatMap(s -> s.lines())
+                        .map(s -> "     " + s)
                         .collect(Collectors.joining("\n"))
                 + "\n";
 

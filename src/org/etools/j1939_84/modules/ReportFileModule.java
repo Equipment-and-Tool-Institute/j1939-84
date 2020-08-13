@@ -16,6 +16,7 @@ import java.nio.file.StandardOpenOption;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -226,19 +227,35 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             tempFileWriter.write(NL);
             tempFileWriter.write(bannerModule.getSummaryHeader() + NL);
             tempFileWriter.write("Generated " + getDate() + " " + getTime() + NL);
+            tempFileWriter.write("Log File Name: " + reportFile + NL);
             tempFileWriter.write(NL);
             tempFileWriter.write(vehicleInformation + NL);
             tempFileWriter.write(NL);
+            tempFileWriter.write("Addresses Claimed" + NL);
+            tempFileWriter.write(vehicleInformation.getAddressClaim().getPackets().stream()
+                    .map(a -> "    " + a.getPacket() + " " + a.getSource())
+                    .collect(Collectors.joining("\n")) + NL); // FIXME
+            tempFileWriter.write(" <PAGE BREAK> " + NL); // FIXME
+            tempFileWriter.write(NL);
+
+            tempFileWriter.write("TEST SUMMARY REPORT" + NL);
+            tempFileWriter.write("OUTCOME: " + NL);
+            tempFileWriter.write("Failures: " + summaryModule.getFailures() + NL);
+            tempFileWriter.write("Warnings: " + summaryModule.getWarnings() + NL);
+            tempFileWriter.write("Timing:   " + summaryModule.getTiming() + NL + NL);
+            tempFileWriter.write(vehicleInformation + NL);
+
             tempFileWriter.write(summaryModule.generateSummary());
-            tempFileWriter.write(NL); // FIXME This should be a page break
+            tempFileWriter
+                    .write(bannerModule.getDate() + " " + bannerModule.getTime() + " END TEST SUMMARY REPORT" + NL);
+
+            tempFileWriter.write(" <PAGE BREAK> " + NL); // FIXME
             tempFileWriter.flush();
 
-            Reader reportFileReader = Files.newBufferedReader(reportFile.toPath());
-            int read = reportFileReader.read();
-            // FIXME - Use a byte array to read in chunks
-            while (read != -1) {
-                tempFileWriter.write(read);
-                read = reportFileReader.read();
+            tempFileWriter.write("TEST LOG REPORT" + NL + NL);
+            tempFileWriter.write(vehicleInformation + NL);
+            try (Reader reportFileReader = Files.newBufferedReader(reportFile.toPath())) {
+                reportFileReader.transferTo(tempFileWriter);
             }
             tempFileWriter.flush();
             Files.copy(tempFilePath, reportFile.toPath(), StandardCopyOption.REPLACE_EXISTING);

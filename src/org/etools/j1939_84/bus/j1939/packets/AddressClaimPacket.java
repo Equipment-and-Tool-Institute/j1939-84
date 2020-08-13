@@ -541,6 +541,8 @@ public class AddressClaimPacket extends ParsedPacket {
      */
     private final int functionId;
 
+    private final String source;
+
     /**
      * The String that's returned by the toString method
      */
@@ -555,7 +557,7 @@ public class AddressClaimPacket extends ParsedPacket {
     public AddressClaimPacket(Packet packet) {
         super(packet);
 
-        String source = Lookup.getAddressName(getSourceAddress());
+        source = Lookup.getAddressName(getSourceAddress());
         int identityNumber = (packet.get(0) & 0xFF) + ((packet.get(1) & 0xFF) << 8) + ((packet.get(2) & 0x1F) << 16);
         int manufacturerId = ((packet.get(2) & 0xE0) >> 5) + ((packet.get(3) & 0xFF) << 3);
 
@@ -597,6 +599,10 @@ public class AddressClaimPacket extends ParsedPacket {
     @Override
     public String getName() {
         return "Address Claim";
+    }
+
+    public String getSource() {
+        return source;
     }
 
     @Override

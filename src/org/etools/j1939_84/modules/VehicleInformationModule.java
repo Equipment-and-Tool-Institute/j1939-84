@@ -203,8 +203,9 @@ public class VehicleInformationModule extends FunctionalModule {
      *
      * @param listener
      *            the {@link ResultsListener} that will be given the report
+     * @return
      */
-    public void reportAddressClaim(ResultsListener listener) {
+    public RequestResult<AddressClaimPacket> reportAddressClaim(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(AddressClaimPacket.PGN, GLOBAL_ADDR);
         RequestResult<AddressClaimPacket> responses = generateReport(listener,
                 "Global Request for Address Claim",
@@ -214,6 +215,7 @@ public class VehicleInformationModule extends FunctionalModule {
                 && !responses.getPackets().stream().filter(p -> p.getFunctionId() == 0).findAny().isPresent()) {
             listener.onResult("Error: No module reported Function 0");
         }
+        return responses;
     }
 
     /**

@@ -51,6 +51,10 @@ public class StepResult implements IResult {
         return outcome;
     }
 
+    public List<ActionOutcome> getOutcomes() {
+        return results;
+    }
+
     /**
      * @return the stepNumber
      */

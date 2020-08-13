@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -42,28 +43,44 @@ public class OverallController extends Controller {
     /**
      * Constructor expose for testing
      *
-     * @param executor                 {@link Executor}
-     * @param engineSpeedModule        the {@link EngineSpeedModule} used to request
-     *                                 engine speed
-     * @param bannerModule             the {@link BannerModule} used to display
-     *                                 headers and footers on the report
-     * @param dateTimeModule           the {@link DateTimeModule} used to determine
-     *                                 the date and time
-     * @param vehicleInformationModule the {@link VehicleInformationModule} used to
-     *                                 gather information about the vehicle
-     * @param partResultFactory        the {@link PartResultFactory}
-     * @param part1Controller          the {@link Part01Controller}
-     * @param part2Controller          the {@link Part02Controller}
-     * @param part3Controller          the {@link Part03Controller}
-     * @param part4Controller          the {@link Part04Controller}
-     * @param part5Controller          the {@link Part05Controller}
-     * @param part6Controller          the {@link Part06Controller}
-     * @param part7Controller          the {@link Part07Controller}
-     * @param part8Controller          the {@link Part08Controller}
-     * @param part9Controller          the {@link Part09Controller}
-     * @param part10Controller         the {@link Part10Controller}
-     * @param part11Controller         the {@link Part11Controller}
-     * @param part12Controller         the {@link Part12Controller}
+     * @param executor
+     *            {@link Executor}
+     * @param engineSpeedModule
+     *            the {@link EngineSpeedModule} used to request engine speed
+     * @param bannerModule
+     *            the {@link BannerModule} used to display headers and footers
+     *            on the report
+     * @param dateTimeModule
+     *            the {@link DateTimeModule} used to determine the date and time
+     * @param vehicleInformationModule
+     *            the {@link VehicleInformationModule} used to gather
+     *            information about the vehicle
+     * @param partResultFactory
+     *            the {@link PartResultFactory}
+     * @param part1Controller
+     *            the {@link Part01Controller}
+     * @param part2Controller
+     *            the {@link Part02Controller}
+     * @param part3Controller
+     *            the {@link Part03Controller}
+     * @param part4Controller
+     *            the {@link Part04Controller}
+     * @param part5Controller
+     *            the {@link Part05Controller}
+     * @param part6Controller
+     *            the {@link Part06Controller}
+     * @param part7Controller
+     *            the {@link Part07Controller}
+     * @param part8Controller
+     *            the {@link Part08Controller}
+     * @param part9Controller
+     *            the {@link Part09Controller}
+     * @param part10Controller
+     *            the {@link Part10Controller}
+     * @param part11Controller
+     *            the {@link Part11Controller}
+     * @param part12Controller
+     *            the {@link Part12Controller}
      */
     public OverallController(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
@@ -119,9 +136,7 @@ public class OverallController extends Controller {
 
     @Override
     public void stop() {
-        if (activeController != null) {
-            activeController.stop();
-        }
+        Optional.ofNullable(activeController).ifPresent(ac -> ac.stop());
         super.stop();
     }
 

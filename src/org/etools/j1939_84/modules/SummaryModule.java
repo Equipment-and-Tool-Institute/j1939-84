@@ -49,7 +49,8 @@ public class SummaryModule {
     }
 
     /**
-     * @param partResult {@link PartResult} to be added to partResults
+     * @param partResult
+     *            {@link PartResult} to be added to partResults
      */
     public void beginPart(PartResult partResult) {
         partResults.add(partResult);
@@ -74,6 +75,14 @@ public class SummaryModule {
         return sb.toString();
     }
 
+    public long getFailures() {
+        return partResults.stream()
+                .flatMap(p -> p.getStepResults().stream())
+                .flatMap(s -> s.getOutcomes().stream())
+                .filter(o -> o.getOutcome() == Outcome.FAIL)
+                .count();
+    }
+
     private StepResult getStepResult(int partNumber, int stepNumber) {
         for (PartResult partResult : partResults) {
             if (partResult.getPartNumber() == partNumber) {
@@ -81,6 +90,24 @@ public class SummaryModule {
             }
         }
         return null;
+    }
+
+    public long getTiming() {
+        return -1;
+        // FIXME this probably means J1939-21 TP timing warnings.
+        // return partResults.stream()
+        // .flatMap(p -> p.getStepResults().stream())
+        // .flatMap(s -> s.getOutcomes().stream())
+        // .filter(o -> o.getOutcome() == Outcome.?)
+        // .count();
+    }
+
+    public long getWarnings() {
+        return partResults.stream()
+                .flatMap(p -> p.getStepResults().stream())
+                .flatMap(s -> s.getOutcomes().stream())
+                .filter(o -> o.getOutcome() == Outcome.WARN)
+                .count();
     }
 
     private String println(IResult iResult) {

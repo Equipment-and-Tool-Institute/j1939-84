@@ -13,10 +13,12 @@ import java.util.concurrent.CompletableFuture;
 import javax.swing.SwingUtilities;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.FuelType;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -52,6 +54,8 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
                 });
     }
 
+    private RequestResult<AddressClaimPacket> addressClaim;
+
     /**
      * The value the user has entered for the number of CalIDs on the vehicle
      */
@@ -68,7 +72,6 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * The module used to retrieve the Date/Time
      */
     private final DateTimeModule dateTimeModule;
-
     /**
      * The module used to gather information about the module readiness
      */
@@ -78,6 +81,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * vehicle
      */
     private int emissionUnits;
+
     /**
      * The component Id for the emissions units on the vehicle
      */
@@ -87,11 +91,11 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * The value the user has entered for the engine model year
      */
     private int engineModelYear;
-
     /**
      * The value the user has entered for the Fuel Type
      */
     private FuelType fuelType;
+
     /**
      * The listener that will be notified when the user is done
      */
@@ -181,6 +185,8 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
 
     @Override
     public void initialize() {
+        addressClaim = vehicleInformationModule.reportAddressClaim(ResultsListener.NOOP);
+
         view.setFuelType(FuelType.DSL); // Assuming this used mostly on Diesel
                                         // engines
         numberOfTripsForFaultBImplant = 1;
@@ -299,6 +305,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
 
         vehicleInformation.setCalIdsFound(calIdsFound);
         vehicleInformation.setEmissionUnitsFound(emissionUnitsFound);
+        vehicleInformation.setAddressClaim(addressClaim);
 
         // vehicleInformation is returned to listener when the dialog is closed
 
