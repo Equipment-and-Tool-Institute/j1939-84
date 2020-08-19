@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 
 /**
  * The Vehicle Information which is required in Part 1.
@@ -23,7 +23,7 @@ public class VehicleInformation {
 
     private int calIds;
 
-    private List<DM19CalibrationInformationPacket> calIdsFound = Collections.emptyList();
+    private List<CalibrationInformation> calIdsFound = Collections.emptyList();
 
     private String certificationIntent;
 
@@ -71,7 +71,7 @@ public class VehicleInformation {
         return calIds;
     }
 
-    public List<DM19CalibrationInformationPacket> getCalIdsFound() {
+    public List<CalibrationInformation> getCalIdsFound() {
         return calIdsFound;
     }
 
@@ -121,7 +121,7 @@ public class VehicleInformation {
         this.calIds = calIds;
     }
 
-    public void setCalIdsFound(List<DM19CalibrationInformationPacket> calIdsFound) {
+    public void setCalIdsFound(List<CalibrationInformation> calIdsFound) {
         this.calIdsFound = calIdsFound;
     }
 
