@@ -300,7 +300,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         vehicleInformation.setEngineModelYear(engineModelYear);
         vehicleInformation.setFuelType(fuelType);
         vehicleInformation.setEmissionUnits(emissionUnits);
-        vehicleInformation.setCalIds(emissionUnits);
+        vehicleInformation.setCalIds(calIds);
         vehicleInformation.setCertificationIntent(certificationIntent);
 
         vehicleInformation.setNumberOfTripsForFaultBImplant(numberOfTripsForFaultBImplant);

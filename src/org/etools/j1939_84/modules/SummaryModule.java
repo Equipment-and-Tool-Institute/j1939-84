@@ -113,11 +113,8 @@ public class SummaryModule {
     private String println(IResult iResult) {
         String name = iResult.toString();
 
-        String result = "";
         Outcome outcome = iResult.getOutcome();
-        if (outcome != Outcome.PASS) {
-            result = "(" + outcome + ")";
-        }
+        String result = "(" + outcome + ")";
 
         if (!result.isEmpty()) {
             int totalLength = name.length() + result.length() + 9;
