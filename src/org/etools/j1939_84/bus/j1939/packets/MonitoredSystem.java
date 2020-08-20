@@ -21,6 +21,22 @@ public class MonitoredSystem implements Comparable<MonitoredSystem> {
     /**
      * Creates a Monitored System
      *
+     * @param status
+     *            the {@link MonitoredSystemStatus} of the Monitored System
+     * @param sourceAddress
+     *            the source address that reported this
+     * @param id
+     *            the unique id for this system. This allows
+     *            {@link MonitoredSystem} from various source addresses to be
+     *            matched up
+     */
+    public MonitoredSystem(MonitoredSystemStatus status, int sourceAddress, CompositeSystem id) {
+        this(id.getName(), status, sourceAddress, id);
+    }
+
+    /**
+     * Creates a Monitored System
+     *
      * @param name
      *            the Name of the Monitored System
      * @param status
@@ -47,9 +63,6 @@ public class MonitoredSystem implements Comparable<MonitoredSystem> {
         }
         if (result == 0) {
             result = getStatus().toString().compareTo(o.getStatus().toString());
-        }
-        if (result == 0) {
-            result = getId().compareTo(o.getId());
         }
         return result;
     }

@@ -12,12 +12,19 @@ import org.etools.j1939_84.model.VehicleInformation;
 
 public class DataRepository {
 
+    private boolean isAfterCodeClear;
+
     /**
      * Map of OBD Module Source Address to {@link OBDModuleInformation}
      */
     private final Map<Integer, OBDModuleInformation> obdModules = new HashMap<>();
 
     private VehicleInformation vehicleInformation;
+
+    public boolean getIsAfterCodeClear() {
+        return isAfterCodeClear;
+
+    }
 
     public OBDModuleInformation getObdModule(int sourceAddress) {
         return obdModules.get(sourceAddress);
