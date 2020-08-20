@@ -79,17 +79,6 @@ public class MonitoredSystemTest {
     }
 
     @Test
-    public void testNotEqualsById() {
-        MonitoredSystem instance1 = new MonitoredSystem("Name", findStatus(false, true, true), 0,
-                CompositeSystem.EXHAUST_GAS_SENSOR);
-        MonitoredSystem instance2 = new MonitoredSystem("Name", findStatus(false, true, true), 0,
-                CompositeSystem.NOX_CATALYST_ABSORBER);
-        assertFalse(instance1.equals(instance2));
-        assertFalse(instance2.equals(instance1));
-        assertEquals(-6, instance1.compareTo(instance2));
-    }
-
-    @Test
     public void testNotEqualsByName() {
         MonitoredSystem instance1 = new MonitoredSystem("Name1", findStatus(false, true, true), 0,
                 CompositeSystem.NMHC_CONVERTING_CATALYST);
