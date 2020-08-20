@@ -39,7 +39,6 @@ public class DataRepository {
 
     public boolean isAfterCodeClear() {
         return isAfterCodeClear;
-
     }
 
     public int obdModuleCount() {
@@ -52,7 +51,6 @@ public class DataRepository {
 
     public void setIsAfterCodeClear(boolean isAfterCodeClear) {
         this.isAfterCodeClear = isAfterCodeClear;
-
     }
 
     public void setVehicleInformation(VehicleInformation vehicleInformation) {
