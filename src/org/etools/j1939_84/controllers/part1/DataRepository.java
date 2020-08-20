@@ -7,10 +7,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 
 public class DataRepository {
+
+    private boolean isAfterCodeClear;
 
     /**
      * Map of OBD Module Source Address to {@link OBDModuleInformation}
@@ -35,12 +38,23 @@ public class DataRepository {
         return vehicleInformation;
     }
 
+    /**
+     * Flag tracking DM11 code clear was sent {@link DM11ClearActiveDTCsPacket}
+     */
+    public boolean isAfterCodeClear() {
+        return isAfterCodeClear;
+    }
+
     public int obdModuleCount() {
         return obdModules.size();
     }
 
     public void putObdModule(int sourceAddress, OBDModuleInformation information) {
         obdModules.put(sourceAddress, information);
+    }
+
+    public void setIsAfterCodeClear(boolean isAfterCodeClear) {
+        this.isAfterCodeClear = isAfterCodeClear;
     }
 
     public void setVehicleInformation(VehicleInformation vehicleInformation) {
