@@ -193,7 +193,7 @@ public class TableA6ValidatorTest {
         when(vehicleInformation.getFuelType()).thenReturn(FuelType.DSL);
 
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getIsAfterCodeClear()).thenReturn(false);
+        when(dataRepository.isAfterCodeClear()).thenReturn(false);
 
         assertTrue(instance.verify(listener, packet1, 1, 2));
         StringBuilder expectedMessages = new StringBuilder(
@@ -234,7 +234,7 @@ public class TableA6ValidatorTest {
         assertEquals("", listener.getResults());
 
         verify(dataRepository, atLeast(1)).getVehicleInformation();
-        verify(dataRepository, atLeast(1)).getIsAfterCodeClear();
+        verify(dataRepository, atLeast(1)).isAfterCodeClear();
 
     }
 
@@ -329,7 +329,7 @@ public class TableA6ValidatorTest {
         when(vehicleInformation.getEngineModelYear()).thenReturn(2013);
 
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getIsAfterCodeClear()).thenReturn(false);
+        when(dataRepository.isAfterCodeClear()).thenReturn(false);
 
         assertTrue(instance.verify(listener, packet1, 1, 2));
         StringBuilder expectedMessages = new StringBuilder(
@@ -370,7 +370,7 @@ public class TableA6ValidatorTest {
         assertEquals("", listener.getResults());
 
         verify(dataRepository, atLeast(1)).getVehicleInformation();
-        verify(dataRepository, atLeast(1)).getIsAfterCodeClear();
+        verify(dataRepository, atLeast(1)).isAfterCodeClear();
 
         verify(mockListener).addOutcome(1, 2, WARN, "TableA6 Exhaust Gas Sensor heater is not enabled, not complete");
     }
@@ -461,7 +461,7 @@ public class TableA6ValidatorTest {
         when(vehicleInformation.getFuelType()).thenReturn(FuelType.DSL);
 
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getIsAfterCodeClear()).thenReturn(true);
+        when(dataRepository.isAfterCodeClear()).thenReturn(true);
 
         assertFalse(instance.verify(listener, packet1, 1, 2));
         StringBuilder expectedMessages = new StringBuilder(
@@ -502,7 +502,7 @@ public class TableA6ValidatorTest {
         assertEquals("", listener.getResults());
 
         verify(dataRepository, atLeast(1)).getVehicleInformation();
-        verify(dataRepository, atLeast(1)).getIsAfterCodeClear();
+        verify(dataRepository, atLeast(1)).isAfterCodeClear();
 
         verify(mockListener).addOutcome(1, 2, WARN, "TableA6 Misfire is     enabled, not complete");
     }
@@ -593,7 +593,7 @@ public class TableA6ValidatorTest {
         when(vehicleInformation.getFuelType()).thenReturn(FuelType.BATT_ELEC);
 
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getIsAfterCodeClear()).thenReturn(true);
+        when(dataRepository.isAfterCodeClear()).thenReturn(true);
 
         assertFalse(instance.verify(listener, packet1, 1, 2));
         StringBuilder expectedMessages = new StringBuilder(
@@ -646,7 +646,7 @@ public class TableA6ValidatorTest {
         assertEquals("", listener.getResults());
 
         verify(dataRepository, atLeast(1)).getVehicleInformation();
-        verify(dataRepository, atLeast(1)).getIsAfterCodeClear();
+        verify(dataRepository, atLeast(1)).isAfterCodeClear();
     }
 
     /**
@@ -739,7 +739,7 @@ public class TableA6ValidatorTest {
         when(vehicleInformation.getFuelType()).thenReturn(FuelType.GAS);
 
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getIsAfterCodeClear()).thenReturn(true);
+        when(dataRepository.isAfterCodeClear()).thenReturn(true);
 
         assertTrue(instance.verify(listener, packet1, 1, 2));
         StringBuilder expectedMessages = new StringBuilder(
@@ -780,7 +780,7 @@ public class TableA6ValidatorTest {
         assertEquals("", listener.getResults());
 
         verify(dataRepository, atLeast(1)).getVehicleInformation();
-        verify(dataRepository, atLeast(1)).getIsAfterCodeClear();
+        verify(dataRepository, atLeast(1)).isAfterCodeClear();
     }
 
     /**
@@ -873,7 +873,7 @@ public class TableA6ValidatorTest {
         when(vehicleInformation.getFuelType()).thenReturn(FuelType.GAS);
 
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getIsAfterCodeClear()).thenReturn(false);
+        when(dataRepository.isAfterCodeClear()).thenReturn(false);
 
         assertFalse(instance.verify(listener, packet1, 1, 2));
         StringBuilder expectedMessages = new StringBuilder(
@@ -914,7 +914,7 @@ public class TableA6ValidatorTest {
         assertEquals("", listener.getResults());
 
         verify(dataRepository, atLeast(1)).getVehicleInformation();
-        verify(dataRepository, atLeast(1)).getIsAfterCodeClear();
+        verify(dataRepository, atLeast(1)).isAfterCodeClear();
 
         verify(mockListener).addOutcome(1, 2, WARN, "TableA6 Cold start aid system is not enabled,     complete");
         verify(mockListener).addOutcome(1, 2, WARN, "TableA6 EGR/VVT system is not supported,     complete");

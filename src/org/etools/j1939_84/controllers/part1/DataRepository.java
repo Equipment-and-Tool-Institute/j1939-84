@@ -21,11 +21,6 @@ public class DataRepository {
 
     private VehicleInformation vehicleInformation;
 
-    public boolean getIsAfterCodeClear() {
-        return isAfterCodeClear;
-
-    }
-
     public OBDModuleInformation getObdModule(int sourceAddress) {
         return obdModules.get(sourceAddress);
     }
@@ -42,12 +37,22 @@ public class DataRepository {
         return vehicleInformation;
     }
 
+    public boolean isAfterCodeClear() {
+        return isAfterCodeClear;
+
+    }
+
     public int obdModuleCount() {
         return obdModules.size();
     }
 
     public void putObdModule(int sourceAddress, OBDModuleInformation information) {
         obdModules.put(sourceAddress, information);
+    }
+
+    public void setIsAfterCodeClear(boolean isAfterCodeClear) {
+        this.isAfterCodeClear = isAfterCodeClear;
+
     }
 
     public void setVehicleInformation(VehicleInformation vehicleInformation) {

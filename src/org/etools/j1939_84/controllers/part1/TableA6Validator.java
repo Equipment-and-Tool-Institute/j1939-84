@@ -57,10 +57,6 @@ public class TableA6Validator {
 
     private final DataRepository dataRepository;
 
-    private int partNumber;
-
-    private int stepNumber;
-
     public TableA6Validator(DataRepository dataRepository) {
         this.dataRepository = dataRepository;
     }
@@ -69,7 +65,8 @@ public class TableA6Validator {
      * @param system
      * @param listener
      */
-    private void addOutcome(MonitoredSystem system, ResultsListener listener, Outcome outcome) {
+    private void addOutcome(MonitoredSystem system, ResultsListener listener, Outcome outcome, int partNumber,
+            int stepNumber) {
         listener.addOutcome(partNumber, stepNumber, outcome,
                 TABLE_NAME + " " + system.getName().trim() + " is " + system.getStatus().toString());
     }
@@ -79,7 +76,7 @@ public class TableA6Validator {
     }
 
     private boolean getIsAfterCodeClear() {
-        return dataRepository.getIsAfterCodeClear();
+        return dataRepository.isAfterCodeClear();
     }
 
     private int getModelYear() {
@@ -142,7 +139,8 @@ public class TableA6Validator {
         return recordProgress(system, listener, acceptableStatuses);
     }
 
-    private boolean validateColdStartAidSystem(MonitoredSystem system, ResultsListener listener) {
+    private boolean validateColdStartAidSystem(MonitoredSystem system, ResultsListener listener, int partNumber,
+            int stepNumber) {
 
         FuelType fuelType = getFuelType();
         List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>() {
@@ -153,7 +151,7 @@ public class TableA6Validator {
         };
         // Warning is required if spark ignition and the system isn't enabled
         if (fuelType.isSparkIgnition() && !system.getStatus().isEnabled()) {
-            addOutcome(system, listener, WARN);
+            addOutcome(system, listener, WARN, partNumber, stepNumber);
         }
         return recordProgress(system, listener, acceptableStatuses);
     }
@@ -192,7 +190,8 @@ public class TableA6Validator {
         return recordProgress(system, listener, acceptableStatuses);
     }
 
-    private boolean validateEgrVvtSystem(MonitoredSystem system, ResultsListener listener) {
+    private boolean validateEgrVvtSystem(MonitoredSystem system, ResultsListener listener, int partNumber,
+            int stepNumber) {
 
         FuelType fuelType = getFuelType();
         List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>() {
@@ -210,7 +209,7 @@ public class TableA6Validator {
             // Warning is required if spark ignition and the system isn't
             // enabled
             if (!system.getStatus().isEnabled()) {
-                addOutcome(system, listener, WARN);
+                addOutcome(system, listener, WARN, partNumber, stepNumber);
             }
         }
         return recordProgress(system, listener, acceptableStatuses);
@@ -248,7 +247,8 @@ public class TableA6Validator {
         return recordProgress(system, listener, acceptableStatuses);
     }
 
-    private boolean validateExhaustGasSensorHeater(MonitoredSystem system, ResultsListener listener) {
+    private boolean validateExhaustGasSensorHeater(MonitoredSystem system, ResultsListener listener, int partNumber,
+            int stepNumber) {
 
         FuelType fuelType = getFuelType();
         List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>() {
@@ -267,7 +267,7 @@ public class TableA6Validator {
         // Warning is required if the engine model year is 2013
         // and the system is not-enabled for compression ignition only
         if (fuelType.isCompressionIgnition() && !system.getStatus().isEnabled() && getModelYear() == 2013) {
-            addOutcome(system, listener, WARN);
+            addOutcome(system, listener, WARN, partNumber, stepNumber);
         }
         return recordProgress(system, listener, acceptableStatuses);
     }
@@ -307,7 +307,7 @@ public class TableA6Validator {
         return recordProgress(system, listener, acceptableStatuses);
     }
 
-    private boolean validateMisfire(MonitoredSystem system, ResultsListener listener) {
+    private boolean validateMisfire(MonitoredSystem system, ResultsListener listener, int partNumber, int stepNumber) {
 
         FuelType fuelType = getFuelType();
         // Compression and spark ignition allows for enabled/complete OR
@@ -330,7 +330,7 @@ public class TableA6Validator {
         if (fuelType.isCompressionIgnition()
                 && !system.getStatus().isComplete()
                 && getIsAfterCodeClear()) {
-            addOutcome(system, listener, WARN);
+            addOutcome(system, listener, WARN, partNumber, stepNumber);
         }
         return recordProgress(system, listener, acceptableStatuses);
     }
@@ -397,7 +397,7 @@ public class TableA6Validator {
         return recordProgress(system, listener, acceptableStatuses);
     }
 
-    private boolean validateSystem(MonitoredSystem system, ResultsListener listener) {
+    private boolean validateSystem(MonitoredSystem system, ResultsListener listener, int partNumber, int stepNumber) {
 
         switch (system.getId()) {
         case AC_SYSTEM_REFRIGERANT:
@@ -407,25 +407,25 @@ public class TableA6Validator {
         case CATALYST:
             return validateCatalyst(system, listener);
         case COLD_START_AID_SYSTEM:
-            return validateColdStartAidSystem(system, listener);
+            return validateColdStartAidSystem(system, listener, partNumber, stepNumber);
         case COMPREHENSIVE_COMPONENT:
             return validateComprehensiveComponent(system, listener);
         case DIESEL_PARTICULATE_FILTER:
             return validateDieselParticulateFilter(system, listener);
         case EGR_VVT_SYSTEM:
-            return validateEgrVvtSystem(system, listener);
+            return validateEgrVvtSystem(system, listener, partNumber, stepNumber);
         case EVAPORATIVE_SYSTEM:
             return validateEvaporativeSystem(system, listener);
         case EXHAUST_GAS_SENSOR:
             return validateExhaustGasSensor(system, listener);
         case EXHAUST_GAS_SENSOR_HEATER:
-            return validateExhaustGasSensorHeater(system, listener);
+            return validateExhaustGasSensorHeater(system, listener, partNumber, stepNumber);
         case FUEL_SYSTEM:
             return validateFuelSystem(system, listener);
         case HEATED_CATALYST:
             return validateHeatedCatalyst(system, listener);
         case MISFIRE:
-            return validateMisfire(system, listener);
+            return validateMisfire(system, listener, partNumber, stepNumber);
         case NMHC_CONVERTING_CATALYST:
             return validateNmhcConvertingCatalyst(system, listener);
         case NOX_CATALYST_ABSORBER:
@@ -439,17 +439,13 @@ public class TableA6Validator {
 
     public boolean verify(ResultsListener listener, DiagnosticReadinessPacket packet, int partNumber, int stepNumber) {
 
-        this.stepNumber = stepNumber;
-        this.partNumber = partNumber;
-
         boolean[] passed = { true };
 
         List<MonitoredSystem> systems = packet.getMonitoredSystems().stream().collect(Collectors.toList());
 
         Collections.sort(systems);
         systems.forEach(system -> {
-            if (!validateSystem(system, listener)) {
-                System.out.println("Failed system is: " + system.toString());
+            if (!validateSystem(system, listener, partNumber, stepNumber)) {
                 passed[0] = false;
             }
         });
