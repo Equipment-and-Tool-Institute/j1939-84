@@ -144,13 +144,13 @@ public class DiagnosticReadinessModule extends FunctionalModule {
 
     /**
      * Helper method to get the {@link Set} of {@link MonitoredSystem} from
-     * {@link DM5DiagnosticReadinessPacket}
+     * {@link DiagnosticReadinessPacket}
      *
      * @param packets
-     *            the {@link Collection} of {@link DM5DiagnosticReadinessPacket}
+     *            the {@link Collection} of {@link DiagnosticReadinessPacket}
      * @return {@link Set} of {@link MonitoredSystem}
      */
-    public static Set<MonitoredSystem> getSystems(Collection<DM5DiagnosticReadinessPacket> packets) {
+    public static Set<MonitoredSystem> getSystems(Collection<? extends DiagnosticReadinessPacket> packets) {
         return packets.stream().flatMap(t -> t.getMonitoredSystems().stream()).collect(Collectors.toSet());
     }
 

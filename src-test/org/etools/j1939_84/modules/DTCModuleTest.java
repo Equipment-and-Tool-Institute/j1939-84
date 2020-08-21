@@ -1541,7 +1541,7 @@ public class DTCModuleTest {
         RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> expectedResult = new RequestResult<>(
                 true,
                 Collections.emptyList(), Collections.emptyList());
-        System.out.println(requestPacket);
+
         assertEquals(expectedResult, instance.requestDM33(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());

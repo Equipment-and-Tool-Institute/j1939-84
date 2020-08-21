@@ -58,7 +58,6 @@ public enum CompositeSystem {
      * @return the name
      */
     public String getName() {
-        System.out.println(String.format("%-26s", name));
         return String.format("%-26s", name);
     }
 

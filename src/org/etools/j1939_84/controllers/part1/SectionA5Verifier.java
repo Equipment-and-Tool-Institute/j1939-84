@@ -455,8 +455,6 @@ public class SectionA5Verifier {
                 .collect(Collectors.toList());
         // Since we only care about packets that have dtc, let make sure both
         // both lists accurately reflect that.
-        System.out.println(dm28Packets.size());
-        System.out.println(previousDM28Packets.size());
         if (!previousDM28Packets.stream().filter(packet -> packet.getDtcs().size() != 0).collect(Collectors.toList())
                 .equals(dm28Packets)) {
             StringBuilder failMessage = new StringBuilder(
