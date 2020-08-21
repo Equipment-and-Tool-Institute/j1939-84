@@ -10,7 +10,7 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 
 /**
  * The Vehicle Information which is required in Part 1.
@@ -23,7 +23,7 @@ public class VehicleInformation {
 
     private int calIds;
 
-    private List<CalibrationInformation> calIdsFound = Collections.emptyList();
+    private List<DM19CalibrationInformationPacket> calIdsFound = Collections.emptyList();
 
     private String certificationIntent;
 
@@ -71,7 +71,7 @@ public class VehicleInformation {
         return calIds;
     }
 
-    public List<CalibrationInformation> getCalIdsFound() {
+    public List<DM19CalibrationInformationPacket> getCalIdsFound() {
         return calIdsFound;
     }
 
@@ -121,7 +121,7 @@ public class VehicleInformation {
         this.calIds = calIds;
     }
 
-    public void setCalIdsFound(List<CalibrationInformation> calIdsFound) {
+    public void setCalIdsFound(List<DM19CalibrationInformationPacket> calIdsFound) {
         this.calIdsFound = calIdsFound;
     }
 
@@ -178,7 +178,8 @@ public class VehicleInformation {
                                 + m.getSerialNumber())
                         .collect(Collectors.joining("\n"))
                 + "\n"
-                + "Number of CAL IDs Found: " + calIdsFound.size() + "\n"
+                + "Number of CAL IDs Found: "
+                + calIdsFound.stream().flatMap(dm19 -> dm19.getCalibrationInformation().stream()).count() + "\n"
                 + calIdsFound.stream()
                         .map(ci -> ci.toString())
                         .flatMap(s -> s.lines())

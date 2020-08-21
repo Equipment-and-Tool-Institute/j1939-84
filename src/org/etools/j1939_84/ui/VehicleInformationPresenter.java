@@ -9,14 +9,13 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-import java.util.stream.Collectors;
 
 import javax.swing.SwingUtilities;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.RequestResult;
@@ -62,7 +61,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      */
     private int calIds;
 
-    private List<CalibrationInformation> calIdsFound = Collections.emptyList();
+    private List<DM19CalibrationInformationPacket> calIdsFound = Collections.emptyList();
 
     /**
      * The value the user has entered for the certification intent
@@ -210,8 +209,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         }
 
         try {
-            calIdsFound = vehicleInformationModule.reportCalibrationInformation(ResultsListener.NOOP).stream()
-                    .flatMap(dm19 -> dm19.getCalibrationInformation().stream()).collect(Collectors.toList());
+            calIdsFound = vehicleInformationModule.reportCalibrationInformation(ResultsListener.NOOP);
             view.setCalIds(calIdsFound.size());
         } catch (Exception e) {
             // Don't care
