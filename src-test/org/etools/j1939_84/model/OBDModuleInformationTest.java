@@ -147,7 +147,7 @@ public class OBDModuleInformationTest {
 
     @Test
     public void testToString() {
-        String expectedObd = "OBD Module Information:\n";
+        String expectedObd = "OBD Module Information: \n";
         expectedObd += "sourceAddress is : " + 0 + "\n";
         expectedObd += "obdCompliance is : " + 4 + "\n";
         expectedObd += "function is : " + 0 + "\n";

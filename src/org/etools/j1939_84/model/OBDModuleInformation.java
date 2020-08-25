@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.model;
 
+import static org.etools.j1939_84.J1939_84.NL;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -130,7 +132,8 @@ public class OBDModuleInformation {
     }
 
     /**
-     * @param calibrationInformation the calibrationInformation to set
+     * @param calibrationInformation
+     *            the calibrationInformation to set
      */
     public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {
         this.calibrationInformation.clear();
@@ -138,21 +141,24 @@ public class OBDModuleInformation {
     }
 
     /**
-     * @param function the function to set
+     * @param function
+     *            the function to set
      */
     public void setFunction(int function) {
         this.function = function;
     }
 
     /**
-     * @param obdCompliance the obdCompliance to set
+     * @param obdCompliance
+     *            the obdCompliance to set
      */
     public void setObdCompliance(byte obdCompliance) {
         this.obdCompliance = obdCompliance;
     }
 
     /**
-     * @param performanceRatios the performanceRatios to set
+     * @param performanceRatios
+     *            the performanceRatios to set
      */
     public void setPerformanceRatios(Collection<PerformanceRatio> performanceRatios) {
         this.performanceRatios.clear();
@@ -165,7 +171,8 @@ public class OBDModuleInformation {
     }
 
     /**
-     * @param supportedSpns the supportedSpns to set
+     * @param supportedSpns
+     *            the supportedSpns to set
      */
     public void setSupportedSpns(List<SupportedSPN> supportedSpns) {
         this.supportedSpns.clear();
@@ -174,11 +181,11 @@ public class OBDModuleInformation {
 
     @Override
     public String toString() {
-        String result = "OBD Module Information:\n";
-        result += "sourceAddress is : " + sourceAddress + "\n";
-        result += "obdCompliance is : " + getObdCompliance() + "\n";
-        result += "function is : " + getFunction() + "\n";
-        result += "Supported SPNs: \n"
+        String result = "OBD Module Information: " + NL;
+        result += "sourceAddress is : " + sourceAddress + NL;
+        result += "obdCompliance is : " + getObdCompliance() + NL;
+        result += "function is : " + getFunction() + NL;
+        result += "Supported SPNs: " + NL
                 + getSupportedSpns().stream().map(i -> i.toString()).collect(Collectors.joining(","));
         return result;
     }

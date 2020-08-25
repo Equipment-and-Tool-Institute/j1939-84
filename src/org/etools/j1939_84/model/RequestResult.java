@@ -5,6 +5,7 @@ package org.etools.j1939_84.model;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
@@ -12,6 +13,7 @@ import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 
 /**
@@ -19,6 +21,10 @@ import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
  *
  */
 public class RequestResult<T extends ParsedPacket> {
+
+    public static RequestResult<AddressClaimPacket> empty() {
+        return new RequestResult<>(false, Collections.emptyList());
+    }
 
     private final List<AcknowledgmentPacket> acks;
 

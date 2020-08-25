@@ -4,6 +4,7 @@
 package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.J1939_84.PAGE_BREAK;
 
 import java.io.File;
 import java.io.IOException;
@@ -234,8 +235,8 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             tempFileWriter.write("Addresses Claimed" + NL);
             tempFileWriter.write(vehicleInformation.getAddressClaim().getPackets().stream()
                     .map(a -> "    " + a.getPacket() + " " + a.getSource())
-                    .collect(Collectors.joining("\n")) + NL); // FIXME
-            tempFileWriter.write(" <PAGE BREAK> " + NL); // FIXME
+                    .collect(Collectors.joining(NL)) + NL);
+            tempFileWriter.write(PAGE_BREAK);
             tempFileWriter.write(NL);
 
             tempFileWriter.write("TEST SUMMARY REPORT" + NL);
@@ -249,7 +250,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             tempFileWriter
                     .write(bannerModule.getDate() + " " + bannerModule.getTime() + " END TEST SUMMARY REPORT" + NL);
 
-            tempFileWriter.write(" <PAGE BREAK> " + NL); // FIXME
+            tempFileWriter.write(PAGE_BREAK);
             tempFileWriter.flush();
 
             tempFileWriter.write("TEST LOG REPORT" + NL + NL);
@@ -263,5 +264,4 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             e.printStackTrace();
         }
     }
-
 }

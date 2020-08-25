@@ -88,7 +88,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      * Default Constructor
      *
      * @param view
-     *             The {@link UserInterfaceView} to control
+     *            The {@link UserInterfaceView} to control
      */
     public UserInterfacePresenter(UserInterfaceContract.View view) {
         this(view, new VehicleInformationModule(), new RP1210(), new ReportFileModule(), Runtime.getRuntime(),
@@ -99,24 +99,24 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      * Constructor used for testing
      *
      * @param view
-     *                                 The {@link UserInterfaceView} to control
+     *            The {@link UserInterfaceView} to control
      * @param vehicleInformationModule
-     *                                 the {@link VehicleInformationModule}
+     *            the {@link VehicleInformationModule}
      * @param rp1210
-     *                                 the {@link RP1210}
+     *            the {@link RP1210}
      * @param reportFileModule
-     *                                 the {@link ReportFileModule}
+     *            the {@link ReportFileModule}
      * @param runtime
-     *                                 the {@link Runtime}
+     *            the {@link Runtime}
      * @param executor
-     *                                 the {@link Executor} used to execute
-     *                                 {@link Thread} s
+     *            the {@link Executor} used to execute {@link Thread} s
      * @param helpView
-     *                                 the {@link HelpView} that will display
-     *                                 help for the application
+     *            the {@link HelpView} that will display help for the
+     *            application
      *
-     * @param overallController        the {@link OverallController} which will
-     *                                 run all the other parts
+     * @param overallController
+     *            the {@link OverallController} which will run all the other
+     *            parts
      */
     public UserInterfacePresenter(UserInterfaceContract.View view, VehicleInformationModule vehicleInformationModule,
             RP1210 rp1210, ReportFileModule reportFileModule, Runtime runtime, Executor executor, HelpView helpView,
@@ -473,9 +473,9 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      * for testing.
      *
      * @param file
-     *             the report file to use
+     *            the report file to use
      * @throws IOException
-     *                     if there is a problem setting the report file
+     *             if there is a problem setting the report file
      */
     void setReportFile(File file) throws IOException {
         getReportFileModule().setReportFile(getResultsListener(), file);
@@ -486,7 +486,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      * Sets the selected adapter. This should only be used for testing.
      *
      * @param selectedAdapter
-     *                        the selectedAdapter to set
+     *            the selectedAdapter to set
      */
     private void setSelectedAdapter(Adapter selectedAdapter) {
         try {
@@ -514,10 +514,10 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      * to store the Report. If it's valid, the report file is returned.
      *
      * @param file
-     *             the {@link File} to check
+     *            the {@link File} to check
      * @return The file to be used for the report
      * @throws IOException
-     *                     if the file cannot be used
+     *             if the file cannot be used
      */
 
     private File setupReportFile(File file) throws IOException {

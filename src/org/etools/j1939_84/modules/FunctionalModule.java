@@ -213,17 +213,12 @@ public abstract class FunctionalModule {
         // Try three times to get packets and ensure there's one from the engine
         List<Either<T, AcknowledgmentPacket>> packets = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            // FIXME where did 5.5 s come from?
             packets = getJ1939().requestRaw(clazz, request, 5500, TimeUnit.MILLISECONDS).collect(Collectors.toList());
-            if (packets.stream().findFirst().isPresent()) {
+            if (packets.isEmpty()) {
+                retryUsed = true;
+            } else {
                 // The something responded, report the results
                 break;
-            } else {
-                // There was no messages. Clear the results to produce a timeout
-                // message/try
-                // again
-                packets.clear();
-                retryUsed = true;
             }
         }
 
@@ -233,8 +228,7 @@ public abstract class FunctionalModule {
             } else {
                 for (Either<T, AcknowledgmentPacket> packet : packets) {
                     ParsedPacket pp = packet.resolve();
-                    listener.onResult(
-                            pp.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+                    listener.onResult(pp.getPacket().toString(getDateTimeModule().getTimeFormatter()));
                     if (fullString) {
                         listener.onResult(pp.toString());
                     }

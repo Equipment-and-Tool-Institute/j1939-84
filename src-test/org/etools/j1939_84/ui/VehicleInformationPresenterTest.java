@@ -11,7 +11,9 @@ import static org.mockito.Mockito.when;
 import java.io.IOException;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.FuelType;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -81,6 +83,7 @@ public class VehicleInformationPresenterTest {
         when(vehicleInformationModule.getVin()).thenReturn("vin");
         when(vinDecoder.getModelYear("vin")).thenReturn(2);
         when(vinDecoder.isModelYearValid(2)).thenReturn(true);
+        when(vehicleInformationModule.reportAddressClaim(ResultsListener.NOOP)).thenReturn(RequestResult.empty());
         when(vehicleInformationModule.getEngineModelYear()).thenReturn(4);
         when(vehicleInformationModule.getEngineFamilyName()).thenReturn("family");
 
@@ -90,12 +93,14 @@ public class VehicleInformationPresenterTest {
         verify(vinDecoder).getModelYear("vin");
         verify(vinDecoder).isModelYearValid(2);
         verify(view).setFuelType(FuelType.DSL);
+        verify(view).setNumberOfTripsForFaultBImplant(1);
         verify(view).setEmissionUnits(0);
         verify(view).setVin("vin");
         verify(view).setVehicleModelYear(2);
         verify(view).setCalIds(0);
         verify(vehicleInformationModule).getEngineModelYear();
         verify(view).setEngineModelYear(4);
+        verify(vehicleInformationModule).reportAddressClaim(ArgumentMatchers.any());
         verify(vehicleInformationModule).reportCalibrationInformation(ArgumentMatchers.any());
         verify(vehicleInformationModule).getEngineFamilyName();
         verify(view).setCertificationIntent("family");
@@ -109,6 +114,7 @@ public class VehicleInformationPresenterTest {
         when(vinDecoder.getModelYear(null)).thenReturn(-1);
         when(vinDecoder.isModelYearValid(-1)).thenReturn(false);
         when(dateTimeModule.getYear()).thenReturn(500);
+        when(vehicleInformationModule.reportAddressClaim(ResultsListener.NOOP)).thenReturn(RequestResult.empty());
         when(vehicleInformationModule.getEngineModelYear()).thenThrow(new IOException());
         when(vehicleInformationModule.getEngineFamilyName()).thenThrow(new IOException());
 
@@ -118,10 +124,12 @@ public class VehicleInformationPresenterTest {
         verify(vinDecoder).getModelYear(null);
         verify(vinDecoder).isModelYearValid(-1);
         verify(view).setFuelType(FuelType.DSL);
+        verify(view).setNumberOfTripsForFaultBImplant(1);
         verify(view).setEmissionUnits(0);
         verify(view).setCalIds(0);
         verify(dateTimeModule).getYear();
         verify(view).setVehicleModelYear(500);
+        verify(vehicleInformationModule).reportAddressClaim(ArgumentMatchers.any());
         verify(vehicleInformationModule).reportCalibrationInformation(ArgumentMatchers.any());
         verify(vehicleInformationModule).getEngineModelYear();
         verify(vehicleInformationModule).getEngineFamilyName();
@@ -353,7 +361,7 @@ public class VehicleInformationPresenterTest {
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setCertificationIntent("cert");
         vehicleInformation.setEmissionUnits(4);
-        vehicleInformation.setCalIds(4);
+        vehicleInformation.setCalIds(6);
         vehicleInformation.setNumberOfTripsForFaultBImplant(1);
         vehicleInformation.setEngineModelYear(1);
         vehicleInformation.setFuelType(FuelType.DSL);
