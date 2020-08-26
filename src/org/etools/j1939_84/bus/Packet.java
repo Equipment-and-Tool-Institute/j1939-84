@@ -318,16 +318,23 @@ public class Packet {
      * @return the destination specific address or GLOBAL_ADDR
      */
     public int getDestination() {
-        return getId() < 0xF000 ? getId() & 0xFF : J1939.GLOBAL_ADDR;
+        return getId(0xFFFF) < 0xF000 ? getId(0xFF) : J1939.GLOBAL_ADDR;
+    }
+
+    @Deprecated
+    public int getId() {
+        return id;
     }
 
     /**
      * Returns the ID of the packet
      *
+     * @param mask
+     *            Because the whole id rarely ever used, provide the mask.
      * @return int
      */
-    public int getId() {
-        return id;
+    public int getId(int mask) {
+        return id & mask;
     }
 
     /**

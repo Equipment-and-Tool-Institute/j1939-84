@@ -214,7 +214,7 @@ public class Step03ControllerTest {
                 "");
         verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
 
-        String expectedObd = "OBD Module Information:\n";
+        String expectedObd = "OBD Module Information: \n";
         expectedObd += "sourceAddress is : 0\n";
         expectedObd += "obdCompliance is : 4\n";
         expectedObd += "function is : " + "0" + "\n";

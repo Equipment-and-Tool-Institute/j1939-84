@@ -25,10 +25,10 @@ import com.google.gson.JsonObject;
 
 public class ScriptedEngine implements AutoCloseable {
     /** Handle responding to DM7 requests. */
-    private class DM7Provider implements Supplier<Packet>, Predicate<Packet> {
+    class DM7Provider implements Supplier<Packet>, Predicate<Packet> {
         /**
-         * Packet identified in last positive test. This avoids testing twice, but makes
-         * assumptions about the process. It is fragile.
+         * Packet identified in last positive test. This avoids testing twice,
+         * but makes assumptions about the process. It is fragile.
          */
         private Packet next;
 
@@ -48,7 +48,8 @@ public class ScriptedEngine implements AutoCloseable {
             this.sa = sa;
             // now let's find the right packet
             packetDescriptors = messageDescriptot.get("packets").getAsJsonArray();
-            // It's easy to leave a stray "," and get a null, so just remove them for our
+            // It's easy to leave a stray "," and get a null, so just remove
+            // them for our
             // users.
             while (packetDescriptors.remove(JsonNull.INSTANCE)) {
             }
@@ -61,12 +62,16 @@ public class ScriptedEngine implements AutoCloseable {
 
         @Override
         synchronized public boolean test(Packet packet) {
+            if ((packet.getId() & 0xFF00) == 0xE300) {
+                System.err.println("DM7: " + packet);
+            }
+
             // SPN DM7?
             if (packet.getId() != (0xE300 | sa)) {
                 return false;
             }
             // J1939-84 6.1.12.1 TID 247
-            if (packet.get(0) != 247) {
+            if (packet.get(0) != 0xF7) {
                 return false;
             }
             // J1939-84 6.1.12.1 FMI 31
@@ -114,7 +119,8 @@ public class ScriptedEngine implements AutoCloseable {
         synchronized public Packet get() {
             try {
                 JsonArray array = messageDescriptor.get("packets").getAsJsonArray();
-                // It's easy to leave a stray "," and get a null, so just remove them for our
+                // It's easy to leave a stray "," and get a null, so just remove
+                // them for our
                 // users.
                 while (array.remove(JsonNull.INSTANCE)) {
                 }
@@ -151,11 +157,19 @@ public class ScriptedEngine implements AutoCloseable {
         return id;
     }
 
-    private static Predicate<Packet> isRequestForPredicate(Packet responsePacket) {
-        int pgn = getPgn(responsePacket);
-        int address = responsePacket.getSource();
-        return packet -> (packet.getId() == (0xEA00 | address) || packet.getId() == 0xEAFF)
-                && packet.get24(0) == pgn;
+    static Predicate<Packet> isRequestForPredicate(Packet response) {
+        int pgn = getPgn(response);
+        if (pgn < 0xF000) {
+            // if daPgn then only match response to requester
+            return request -> (request.getId() & 0xFF00) == 0xEA00
+                    && request.get24(0) == pgn
+                    && ((request.getId() & 0xFF) == 0xFF
+                            // ? (response.getId() & 0xFF) == 0xFF
+                            || response.getSource() == (request.getId() & 0xFF));
+        } else {
+            return request -> (request.getId() & 0xFF00) == 0xEA00
+                    && request.get24(0) == pgn;
+        }
     }
 
     private final Set<String> env = new HashSet<>();
@@ -166,6 +180,8 @@ public class ScriptedEngine implements AutoCloseable {
 
     public ScriptedEngine(Bus bus, InputStream in) throws BusException {
         sim = new Sim(bus);
+        // bus.log(p -> "P: " + p);
+
         JsonArray a = new Gson().fromJson(new InputStreamReader(in), JsonArray.class);
         a.forEach(e -> {
             JsonObject o = e.getAsJsonObject();
@@ -179,12 +195,14 @@ public class ScriptedEngine implements AutoCloseable {
                         // we only need one DM17Provider for each SPN
                         .distinct()
                         .map(spn -> new DM7Provider(spn, sa, o))
-                        .forEach(provider -> sim.response(provider, provider));
+                        .forEach(provider -> sim.response(String.format("DM7: %02X %06X -> ", sa, provider.spn),
+                                provider,
+                                provider));
             } else if (o.has("onRequest") && o.get("onRequest").getAsBoolean()) {
                 // register a response in the simulator for each EA00 request
                 JsonObject firstPacket = array.get(0).getAsJsonObject();
                 Packet packet = Packet.parse(firstPacket.get("packet").getAsString());
-                sim.response(isRequestForPredicate(packet), new ResponseProvider(o));
+                sim.response(String.format("Req: %s", packet), isRequestForPredicate(packet), new ResponseProvider(o));
             } else {
                 // register a periodic broadcast
                 int period = o.get("period").getAsInt();
@@ -199,6 +217,7 @@ public class ScriptedEngine implements AutoCloseable {
                         () -> sim.sendNow(responseProvider.get()));
             }
         });
+        sim.responses.forEach(r -> System.err.println(r));
     }
 
     @Override
@@ -209,9 +228,10 @@ public class ScriptedEngine implements AutoCloseable {
     /**
      * Handle checking and updating the environment.
      *
-     * @param descriptor The possible response to be checked. If it passes, then the
-     *                   environment will be updated based on the set, setFor and
-     *                   clear commands.
+     * @param descriptor
+     *            The possible response to be checked. If it passes, then the
+     *            environment will be updated based on the set, setFor and clear
+     *            commands.
      * @return Should this descriptor be used?
      */
     private boolean envHandler(JsonObject descriptor) {

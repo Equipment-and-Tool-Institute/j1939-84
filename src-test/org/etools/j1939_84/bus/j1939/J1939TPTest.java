@@ -536,7 +536,7 @@ public class J1939TPTest {
     public void testRequestFail() throws Exception {
         try (EchoBus bus = new EchoBus(0xF9);
                 J1939TP tp = new J1939TP(bus, 0)) {
-            bus.log("P: ");
+            bus.log(p -> "P: " + p);
 
             CompletableFuture<Packet> result = new CompletableFuture<>();
             RuntimeException success = new RuntimeException("BOOM");
@@ -578,7 +578,7 @@ public class J1939TPTest {
     public void testRequestTimeout() throws Exception {
         try (EchoBus bus = new EchoBus(0xF9);
                 J1939TP tp = new J1939TP(bus, 0)) {
-            bus.log("P: ");
+            bus.log(p1 -> "P: " + p1);
 
             CompletableFuture<Packet> result = new CompletableFuture<>();
 

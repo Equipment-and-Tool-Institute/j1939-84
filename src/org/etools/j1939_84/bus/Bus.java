@@ -47,12 +47,8 @@ public interface Bus extends AutoCloseable {
     @SuppressFBWarnings(value = { "UW_UNCOND_WAIT", "WA_NOT_IN_LOOP" }, justification = "Wait for stream open.")
     default AutoCloseable log(Function<Packet, String> prefix) throws BusException {
         Stream<Packet> stream = read(999, TimeUnit.DAYS);
-        new Thread(() -> stream.forEach(p -> System.err.println(prefix.apply(p) + p))).start();
+        new Thread(() -> stream.forEach(p -> System.err.println(prefix.apply(p)))).start();
         return () -> stream.close();
-    }
-
-    default AutoCloseable log(String prefix) throws BusException {
-        return log(p -> prefix);
     }
 
     /**

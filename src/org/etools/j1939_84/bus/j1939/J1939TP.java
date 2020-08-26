@@ -391,7 +391,7 @@ public class J1939TP implements Bus {
     public void send(Packet packet) throws BusException {
         if (packet.getLength() <= 8) {
             bus.send(packet);
-        } else if ((0xFF00 & packet.getId()) >= 0xF000) {
+        } else if ((0xFFFF & packet.getId()) >= 0xF000) {
             sendBam(packet);
         } else {
             sendDestinationSpecific(packet);
@@ -439,7 +439,7 @@ public class J1939TP implements Bus {
         int pgn = packet.getId();
         int destinationAddress = packet.getId() & 0xFF;
         Predicate<Packet> controlMessageFilter = p -> p.getSource() == destinationAddress
-                && p.getId() == (CM | packet.getSource());
+                && (0xFFFF & p.getId()) == (CM | packet.getSource());
 
         Stream<Packet> ctsStream = bus.read(T3, TimeUnit.MILLISECONDS)
                 .filter(controlMessageFilter);

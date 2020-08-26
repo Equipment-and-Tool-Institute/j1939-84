@@ -43,7 +43,7 @@ public class DateTimeModule {
      * @return Current date as a string.
      */
     public String getDate() {
-        return now().format(DateTimeFormatter.ofPattern("YYY/MM/DD"));
+        return now().format(DateTimeFormatter.ofPattern("YYY/MM/dd"));
     }
 
     /**
