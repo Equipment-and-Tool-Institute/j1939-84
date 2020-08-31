@@ -6,7 +6,6 @@ package org.etools.j1939_84.model;
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
@@ -18,7 +17,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class VehicleInformation {
+public class VehicleInformation implements Cloneable {
     private RequestResult<AddressClaimPacket> addressClaim;
 
     private int calIds;
@@ -40,6 +39,24 @@ public class VehicleInformation {
     private int vehicleModelYear;
 
     private String vin;
+
+    @Override
+    public VehicleInformation clone() {
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setAddressClaim(getAddressClaim());
+        vehInfo.setCalIds(getCalIds());
+        vehInfo.setCalIdsFound(getCalIdsFound());
+        vehInfo.setCertificationIntent(getCertificationIntent());
+        vehInfo.setEmissionUnits(getEmissionUnits());
+        vehInfo.setEmissionUnitsFound(getEmissionUnitsFound());
+        vehInfo.setEngineModelYear(getEngineModelYear());
+        vehInfo.setFuelType(getFuelType());
+        vehInfo.setNumberOfTripsForFaultBImplant(getNumberOfTripsForFaultBImplant());
+        vehInfo.setVehicleModelYear(getVehicleModelYear());
+        vehInfo.setVin(getVin());
+
+        return vehInfo;
+    }
 
     @Override
     public boolean equals(Object obj) {
@@ -155,37 +172,6 @@ public class VehicleInformation {
 
     public void setVin(String vin) {
         this.vin = vin;
-    }
-
-    @Override
-    public String toString() {
-        return "User Data Entry: \n\n"
-                + "Engine Model Emissions Year: " + engineModelYear + "\n"
-                + "Number of Emissions ECUs Expected: " + emissionUnits + "\n"
-                + "Number of CAL IDs Expected: " + calIds + "\n"
-                + "Fuel Type: " + fuelType + "\n"
-                + "Ignition Type: " + fuelType.ignitionType.name + "\n"
-                + "Number of Trips for Fault B Implant: " + numberOfTripsForFaultBImplant + "\n\n"
-
-                + "Vehicle Information:\n"
-                + "VIN: " + vin + "\n"
-                + "Vehicle MY: " + vehicleModelYear + "\n"
-                + "Engine MY: " + engineModelYear + "\n"
-                + "Cert. Engine Family: " + certificationIntent + "\n"
-                + "Number of OBD ECUs Found: " + emissionUnitsFound.size() + "\n"
-                + emissionUnitsFound.stream()
-                        .map(m -> "     Make: " + m.getMake() + ", Model: " + m.getModel() + ", Serial: "
-                                + m.getSerialNumber())
-                        .collect(Collectors.joining("\n"))
-                + "\n"
-                + "Number of CAL IDs Found: " + calIdsFound.size() + "\n"
-                + calIdsFound.stream()
-                        .map(ci -> ci.toString())
-                        .flatMap(s -> s.lines())
-                        .map(s -> "     " + s)
-                        .collect(Collectors.joining("\n"))
-                + "\n";
-
     }
 
 }
