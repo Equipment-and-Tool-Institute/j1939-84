@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -47,8 +46,6 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 /**
- * The unit test for {@link Step12Controller}
- *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
  */
@@ -198,15 +195,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step12Controller#getStepNumber()}.
-     */
-    @Test
-    public void testGetStepNumber() {
-        assertEquals("Step Number", 12, instance.getStepNumber());
-    }
-
-    /**
-     * Test method for
      * {@link org.etools.j1939_84.controllers.part1.Step12Controller#getTotalSteps()}.
      */
     @Test
@@ -239,9 +227,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         scaledTestsResults.add(scaledTestResult);
         when(scaledTestResult.getSpn()).thenReturn(157);
         when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
-        when(scaledTestResult.getTestMaximum()).thenReturn(0x0000);
-        when(scaledTestResult.getTestMinimum()).thenReturn(0x0000);
-        when(scaledTestResult.getTestValue()).thenReturn(0x0000);
+
         List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
         DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
         when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
@@ -289,7 +275,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
         ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
         scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getTestMaximum()).thenReturn(0x88);
         when(scaledTestResult.getSpn()).thenReturn(157);
         when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
 
@@ -305,10 +290,12 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(1,
-                12,
-                Outcome.FAIL,
-                "Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+        // FIXME this logic should be removed
+        // verify(mockListener).addOutcome(1,
+        // 12,
+        // Outcome.FAIL,
+        // "Fail if any test result does not report the test result max test
+        // limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -319,9 +306,10 @@ public class Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
-        String expectedResults = "FAIL: Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
+        // String expectedResults = "FAIL: Fail if any test result does not
+        // report the test result max test limit initialized one of the
+        // following values 0xFB00/0xFFFF/0xFFFF\n";
+        // assertEquals(expectedResults, listener.getResults());
     }
 
     @Test
@@ -343,8 +331,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
         ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
         scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getTestValue()).thenReturn(0xFB00);
-        when(scaledTestResult.getTestMinimum()).thenReturn(0x88);
         when(scaledTestResult.getSpn()).thenReturn(157);
         when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
 
@@ -360,10 +346,12 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(1,
-                12,
-                Outcome.FAIL,
-                "Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+        // this logic should be removed
+        // verify(mockListener).addOutcome(1,
+        // 12,
+        // Outcome.FAIL,
+        // "Fail if any test result does not report the test result min test
+        // limit initialized one of the following values 0x0000/0x0000/0x0000");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -373,62 +361,10 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
-    }
-
-    @Test
-    public void testInvalidScaledTestMinimum2() {
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(FuelType.BI_GAS);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        List<SupportedSPN> supportedSPNs = new ArrayList<>();
-        SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        when(supportedSPN.getSpn()).thenReturn(157);
-        supportedSPNs.add(supportedSPN);
-
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs,
-                new ArrayList<ScaledTestResult>()));
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
-
-        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
-        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getTestValue()).thenReturn(0x25);
-        when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
-
-        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
-        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
-        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
-        dm30Packets.add(dm30Packet);
-
-        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
-
-        runTest();
-
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-
-        verify(mockListener).addOutcome(1,
-                12,
-                Outcome.FAIL,
-                "Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
-
-        verify(obdTestsModule).setJ1939(j1939);
-
-        verify(tableA7Validator).hasDuplicates(scaledTestsResults);
-        verify(tableA7Validator).validateForSparkIgnition(any(), any());
-
-        // Verify the documentation was recorded correctly
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
+        // String expectedResults = "FAIL: Fail if any test result does not
+        // report the test result min test limit initialized one of the
+        // following values 0x0000/0x0000/0x0000\n";
+        // assertEquals(expectedResults, listener.getResults());
     }
 
     /**
@@ -453,12 +389,8 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
         ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
-        when(scaledTestResult.getTestValue()).thenReturn(0xFB00);
-        when(scaledTestResult.getTestMinimum()).thenReturn(0xFFFF);
-        when(scaledTestResult.getTestMaximum()).thenReturn(0xFFFF);
-        when(scaledTestResult.getSpn()).thenReturn(157);
         scaledTestsResults.add(scaledTestResult);
-
+        when(scaledTestResult.getSpn()).thenReturn(157);
         int slotNumber = 1;
         when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(slotNumber));
 
@@ -638,7 +570,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
         ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
         scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getTestValue()).thenReturn(0x00C1);
         when(scaledTestResult.getSpn()).thenReturn(157);
         when(scaledTestResult.getFmi()).thenReturn(18);
         when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
@@ -647,8 +578,9 @@ public class Step12ControllerTest extends AbstractControllerTest {
         when(scaledTestResult2.getSpn()).thenReturn(157);
         when(scaledTestResult2.getSlot()).thenReturn(Slot.findSlot(242));
 
-        when(tableA7Validator.hasDuplicates(scaledTestsResults))
-                .thenReturn(Collections.singletonList(scaledTestResult));
+        // FIXME - I shouldn't have to mock this - .reportDuplicates needs to be
+        // corrected.
+        when(tableA7Validator.hasDuplicates(scaledTestsResults)).thenReturn(Collections.singletonList(scaledTestResult));
 
         List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
         DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
@@ -666,10 +598,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
                 12,
                 Outcome.FAIL,
                 "SPN 157 FMI 18 returned duplicates.");
-        verify(mockListener).addOutcome(1,
-                12,
-                Outcome.FAIL,
-                "Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -679,12 +607,8 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder(
-                "FAIL: Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
-                        + NL);
-        expectedResults.append("FAIL: SPN 157 FMI 18 returned duplicates."
-                + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        String expectedResults = "FAIL: SPN 157 FMI 18 returned duplicates.\n";
+        assertEquals(expectedResults, listener.getResults());
     }
 
 }

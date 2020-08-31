@@ -29,8 +29,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
- *         The controller for 6.1.12 DM7/DM30: Command Non-continuously
- *         Monitored Test/Scaled Test Results
+ * The controller for 6.1.12 DM7/DM30: Command Non-continuously
+ * Monitored Test/Scaled Test Results
  */
 public class Step12Controller extends StepController {
 
@@ -76,8 +76,7 @@ public class Step12Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test
-        // Results
+        // 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
         obdTestsModule.setJ1939(getJ1939());
         //
         // 6.1.12.1 Actions:
@@ -133,8 +132,7 @@ public class Step12Controller extends StepController {
     private boolean verifyDM30PacketSupported(DM30ScaledTestResultsPacket packet, SupportedSPN spn) {
         boolean verified = false;
 
-        // a. Fail if no test result (comprised of a SPN+FMI with a test result
-        // and a
+        // a. Fail if no test result (comprised of a SPN+FMI with a test result and a
         // min and max test limit) for an SPN indicated as supported is actually
         // reported from the ECU/device that indicated support.
         List<ScaledTestResult> testResults = packet.getTestResults().stream()
@@ -147,30 +145,37 @@ public class Step12Controller extends StepController {
                     "Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support.");
         }
 
-        // b. Fail if any test result does not report the test result/min test
-        // limit/max test limit as initialized (after code clear) values (either
+        // b. Fail if any test result does not report the test result/min test limit/max
+        // test limit as initialized (after code clear) values (either
         // 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000).
         for (ScaledTestResult result : testResults) {
-            boolean isMaximum = result.getTestValue() == 0xFB00 &&
-                    result.getTestMinimum() == 0xFFFF && result.getTestMaximum() == 0xFFFF;
-            boolean isMinimum = result.getTestValue() == 0x0000 &&
-                    result.getTestMinimum() == 0x0000 && result.getTestMaximum() == 0x0000;
-            if (!isMaximum && !isMinimum) {
-                addFailure(1,
-                        12,
-                        "Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
-
-            }
-            // c. Fail if the SLOT identifier for any test results is an
-            // undefined or a not valid SLOT in Appendix A of J1939-71. See
-            // Table A-7-2 3 for a list of the valid, SLOTs known to be
-            // appropriate for use in test results.
+            // if (!((result.getTestValue() == 0xFB00 &&
+            // result.getTestMinimum() == 0xFFFF && result.getTestMaximum() == 0xFFFF) ||
+            // (result.getTestValue() == 0x0000 &&
+            // result.getTestMinimum() == 0x0000 && result.getTestMaximum() == 0x0000))) {
+            // addFailure(1,
+            // 12,
+            // "Fail if any test result does not report the test result/min test limit/max
+            // test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or
+            // 0x0000/0x0000/0x0000");
+            //
+            // }
+            // // else if (result.getTestValue() != 0x0000 &&
+            // // result.getTestMinimum() != 0x0000 && result.getTestMaximum() != 0x0000) {
+            // // addFailure(1,
+            // // 12,
+            // // "Fail if any test result does not report the test result min test limit
+            // // initialized one of the following values 0x0000/0x0000/0x0000");
+            // //
+            // // }
+            // c. Fail if the SLOT identifier for any test results is an undefined or a not
+            // valid SLOT in Appendix A of J1939-71. See Table A-7-2 3 for a list of the
+            // valid, SLOTs known to be appropriate for use in test results.
             verifyValidSlotIdentifier(result.getSlot().getId());
 
         }
 
-        // d. Warn if any ECU reports more than one set of test results for the
-        // same
+        // d. Warn if any ECU reports more than one set of test results for the same
         // SPN+FMI.
         List<ScaledTestResult> reportedDuplicates = new ArrayList<>() {
             {
