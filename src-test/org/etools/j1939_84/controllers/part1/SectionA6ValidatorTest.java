@@ -36,6 +36,8 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 /**
+ * The unit test for {@link SectionA6Validator}
+ *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
  */

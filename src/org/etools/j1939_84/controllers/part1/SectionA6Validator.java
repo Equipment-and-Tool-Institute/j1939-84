@@ -8,8 +8,6 @@ import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.PASS;
 import static org.etools.j1939_84.model.Outcome.WARN;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
@@ -19,20 +17,20 @@ import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 
+/**
+ *
+ * @author Marianne Schaefer (marianne.schaefer@gmail.com)
+ *
+ *         The validation class for Section A.6 Criteria for Readiness 1
+ *         Evaluation
+ *
+ */
 public class SectionA6Validator {
-
-    private static Collection<MonitoredSystemStatus> findStatus(boolean isSupported, boolean isComplete) {
-        List<MonitoredSystemStatus> statuses = new ArrayList<>();
-        statuses.add(MonitoredSystemStatus.findStatus(false, isSupported, isComplete));
-        statuses.add(MonitoredSystemStatus.findStatus(true, isSupported, isComplete));
-        return statuses;
-    }
 
     private final DataRepository dataRepository;
     private final DiagnosticReadinessModule diagnosticReadinessModule;
