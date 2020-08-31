@@ -75,12 +75,12 @@ public class TableA6Validator {
         return dataRepository.getVehicleInformation().getFuelType();
     }
 
-    private boolean getIsAfterCodeClear() {
-        return dataRepository.isAfterCodeClear();
-    }
-
     private int getModelYear() {
         return dataRepository.getVehicleInformation().getEngineModelYear();
+    }
+
+    private boolean isAfterCodeClear() {
+        return dataRepository.isAfterCodeClear();
     }
 
     private boolean validateAcSystemRefrigerant(MonitoredSystem system, ResultsListener listener) {
@@ -101,7 +101,7 @@ public class TableA6Validator {
         List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>();
 
         // Check if code clear has happened
-        if (!getIsAfterCodeClear()) {
+        if (!isAfterCodeClear()) {
             // If a code clear hasn't happened the additional
             // state of enable but not complete is allowed
             // for both compression and spark
@@ -174,7 +174,7 @@ public class TableA6Validator {
 
         if (fuelType.isCompressionIgnition()) {
             // Check if code clear has happened
-            if (!getIsAfterCodeClear()) {
+            if (!isAfterCodeClear()) {
                 // If a code clear hasn't happened the additional
                 // state of enable but not complete is allowed
                 // for compression ignition
@@ -199,7 +199,7 @@ public class TableA6Validator {
                 addAll(findStatus(true, true));
             }
         };
-        if (!getIsAfterCodeClear()) {
+        if (!isAfterCodeClear()) {
             // If a code clear hasn't happened the additional
             // state of enable but not complete is allowed
             // for both compression and spark ignition
@@ -238,7 +238,7 @@ public class TableA6Validator {
                 addAll(findStatus(true, true));
             }
         };
-        if (!getIsAfterCodeClear()) {
+        if (!isAfterCodeClear()) {
             // If a code clear hasn't happened the additional
             // state of enable but not complete is allowed
             // for both compression and spark ignition
@@ -257,7 +257,7 @@ public class TableA6Validator {
                 addAll(findStatus(false, false));
             }
         };
-        if (!getIsAfterCodeClear()) {
+        if (!isAfterCodeClear()) {
             // If a code clear hasn't happened the additional
             // state of enable but not complete is allowed
             // for both compression and spark ignition
@@ -283,7 +283,7 @@ public class TableA6Validator {
         // If a code clear hasn't happened the additional
         // state of enable but not complete is allowed
         // for both compression and spark ignition
-        if (!getIsAfterCodeClear()) {
+        if (!isAfterCodeClear()) {
             acceptableStatuses.addAll(findStatus(true, false));
         }
         return recordProgress(system, listener, acceptableStatuses);
@@ -300,7 +300,7 @@ public class TableA6Validator {
             // If a code clear hasn't happened the additional
             // state of enable but not complete is allowed
             // for spark ignition
-            if (!getIsAfterCodeClear()) {
+            if (!isAfterCodeClear()) {
                 acceptableStatuses.addAll(findStatus(true, false));
             }
         }
@@ -318,7 +318,7 @@ public class TableA6Validator {
                 addAll(findStatus(false, false));
             }
         };
-        if (!getIsAfterCodeClear() || fuelType.isSparkIgnition()) {
+        if (!isAfterCodeClear() || fuelType.isSparkIgnition()) {
             // If a code clear hasn't happened for compression ignition add
             // additional state OR this is spark ignition which has only the
             // state of enable but not complete
@@ -329,7 +329,7 @@ public class TableA6Validator {
         // ignition only after a code clear has happened
         if (fuelType.isCompressionIgnition()
                 && !system.getStatus().isComplete()
-                && getIsAfterCodeClear()) {
+                && isAfterCodeClear()) {
             addOutcome(system, listener, WARN, partNumber, stepNumber);
         }
         return recordProgress(system, listener, acceptableStatuses);
@@ -345,7 +345,7 @@ public class TableA6Validator {
             // If a code clear hasn't happened the additional
             // state of enable but not complete is allowed
             // for compression ignition
-            if (!getIsAfterCodeClear()) {
+            if (!isAfterCodeClear()) {
                 acceptableStatuses.addAll(findStatus(true, false));
             }
         } else if (fuelType.isSparkIgnition()) {
@@ -365,7 +365,7 @@ public class TableA6Validator {
             // If a code clear hasn't happened the additional
             // state of enable but not complete is allowed
             // for compression ignition
-            if (!getIsAfterCodeClear()) {
+            if (!isAfterCodeClear()) {
                 acceptableStatuses.addAll(findStatus(true, false));
             }
         } else {
@@ -390,7 +390,7 @@ public class TableA6Validator {
             // If a code clear hasn't happened the additional
             // state of enable but not complete is allowed
             // for spark ignition
-            if (!getIsAfterCodeClear()) {
+            if (!isAfterCodeClear()) {
                 acceptableStatuses.addAll(findStatus(true, false));
             }
         }

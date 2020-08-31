@@ -33,7 +33,6 @@ import static org.mockito.Mockito.when;
 import java.util.HashSet;
 import java.util.Set;
 
-import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus;
@@ -68,9 +67,6 @@ public class TableA6ValidatorTest {
 
     private TableA6Validator instance;
 
-    @Mock
-    private J1939 j1939;
-
     private TestResultsListener listener;
 
     @Mock
@@ -82,25 +78,20 @@ public class TableA6ValidatorTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         listener = new TestResultsListener(mockListener);
-
         instance = new TableA6Validator(dataRepository);
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verifyNoMoreInteractions(
-                j1939,
                 dataRepository,
-                mockListener);
+                diagnosticReadinessModule,
+                mockListener,
+                obdTestsModule,
+                vehicleInformationModule);
     }
 
     /**
