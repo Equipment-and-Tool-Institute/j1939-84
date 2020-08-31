@@ -72,18 +72,6 @@ public class SectionA6Validator {
      * @param message
      * @param packet
      */
-    // TODO write a finder method so you can identify Monitored Systems by name
-    // converted CompositeSystems to be enums which allows for the comparison
-    // TODO Translate Table A6 into (not) Enabled & (not) Complete for each
-    // Monitor
-    // Handled in TableA6Validator
-    // TODO This method below needs to consider the Fuel Type and if Code Clear
-    // has been performed as well as Engine Model Year
-    // Handled in the TableA6Validator
-    // TODO Evaluate each MonitoredSystem using the translated table based upon
-    // the name of each monitor
-    // Wrote TableA6Validator
-
     public void setJ1939(J1939 j1939) {
         diagnosticReadinessModule.setJ1939(j1939);
     }
