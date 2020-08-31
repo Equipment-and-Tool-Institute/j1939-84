@@ -46,6 +46,8 @@ public class OBDModuleInformationTest {
 
     private OBDModuleInformation instance2;
 
+    private OBDModuleInformation instance3;
+
     @Before
     public void setUp() throws Exception {
         instance = new OBDModuleInformation(0);
@@ -55,6 +57,8 @@ public class OBDModuleInformationTest {
         instance2 = new OBDModuleInformation(0);
         instance2.setObdCompliance((byte) 4);
         instance2.setSupportedSpns(makeListOfSupportedSPNs(null));
+
+        instance3 = instance.clone();
     }
 
     @Test
@@ -63,6 +67,7 @@ public class OBDModuleInformationTest {
         assertFalse(instance.equals(null));
         assertTrue(instance.equals(instance));
         assertTrue(instance.equals(instance2));
+        assertTrue(instance.equals(instance3));
     }
 
     @Test
@@ -106,6 +111,7 @@ public class OBDModuleInformationTest {
     @Test
     public void testHashCode() {
         assertTrue("HashCode", instance.hashCode() == instance2.hashCode());
+        assertTrue("HashCode", instance.hashCode() == instance3.hashCode());
     }
 
     @Test

@@ -24,7 +24,7 @@ public class DataRepository {
     private VehicleInformation vehicleInformation;
 
     public OBDModuleInformation getObdModule(int sourceAddress) {
-        return obdModules.get(sourceAddress);
+        return obdModules.get(sourceAddress).clone();
     }
 
     public List<Integer> getObdModuleAddresses() {
