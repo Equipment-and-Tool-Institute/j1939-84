@@ -86,10 +86,7 @@ public class Sim implements AutoCloseable {
                 send(response);
                 // if request is not to broadcast, only accept first
                 // response
-                boolean a = response.getId(0xFFFF) < 0xF000;
-                boolean b = request.getId(0xFF) != 0xFF;
-                System.err.format("r: %04X a:%s b:%s\n", response.getId(0xFFFF), a, b);
-                return a && b;
+                return response.getPgn() < 0xF000 && request.getDestination() != 0xFF;
             }
             return false;
         });

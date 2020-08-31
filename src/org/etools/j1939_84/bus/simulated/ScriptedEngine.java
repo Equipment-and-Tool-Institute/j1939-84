@@ -62,12 +62,12 @@ public class ScriptedEngine implements AutoCloseable {
 
         @Override
         synchronized public boolean test(Packet packet) {
-            if ((packet.getId() & 0xFF00) == 0xE300) {
+            if (packet.getId(0xFF00) == 0xE300) {
                 System.err.println("DM7: " + packet);
             }
 
             // SPN DM7?
-            if (packet.getId() != (0xE300 | sa)) {
+            if (packet.getId(0xFFFF) != (0xE300 | sa)) {
                 return false;
             }
             // J1939-84 6.1.12.1 TID 247
@@ -149,25 +149,17 @@ public class ScriptedEngine implements AutoCloseable {
                 | (packet.get(1) & 0xFF);
     }
 
-    private static int getPgn(Packet p) {
-        int id = p.getId() & 0xFFFF;
-        if (id < 0xF000) {
-            id &= 0xFF00;
-        }
-        return id;
-    }
-
     static Predicate<Packet> isRequestForPredicate(Packet response) {
-        int pgn = getPgn(response);
+        int pgn = response.getPgn();
         if (pgn < 0xF000) {
             // if daPgn then only match response to requester
-            return request -> (request.getId() & 0xFF00) == 0xEA00
+            return request -> request.getPgn() == 0xEA00
                     && request.get24(0) == pgn
-                    && ((request.getId() & 0xFF) == 0xFF
+                    && (request.getDestinationAddress() == 0xFF
                             // ? (response.getId() & 0xFF) == 0xFF
-                            || response.getSource() == (request.getId() & 0xFF));
+                            || response.getSource() == request.getDestinationAddress());
         } else {
-            return request -> (request.getId() & 0xFF00) == 0xEA00
+            return request -> request.getPgn() == 0xEA00
                     && request.get24(0) == pgn;
         }
     }
@@ -195,14 +187,12 @@ public class ScriptedEngine implements AutoCloseable {
                         // we only need one DM17Provider for each SPN
                         .distinct()
                         .map(spn -> new DM7Provider(spn, sa, o))
-                        .forEach(provider -> sim.response(String.format("DM7: %02X %06X -> ", sa, provider.spn),
-                                provider,
-                                provider));
+                        .forEach(provider -> sim.response(provider, provider));
             } else if (o.has("onRequest") && o.get("onRequest").getAsBoolean()) {
                 // register a response in the simulator for each EA00 request
                 JsonObject firstPacket = array.get(0).getAsJsonObject();
                 Packet packet = Packet.parse(firstPacket.get("packet").getAsString());
-                sim.response(String.format("Req: %s", packet), isRequestForPredicate(packet), new ResponseProvider(o));
+                sim.response(isRequestForPredicate(packet), new ResponseProvider(o));
             } else {
                 // register a periodic broadcast
                 int period = o.get("period").getAsInt();

@@ -21,24 +21,38 @@ public class ScriptedEngineTest {
 
     @Test
     public void testIsRequestForPredicate() {
+        // request from broadcast, receive to broadcast
         assertTrue(reqResp("18EAFFF9 00 12 00", "1812FF00 00 11 22 33 44 55 66 77"));
+        // request from broadcast, receive to DS
         assertTrue(reqResp("18EAFFF9 00 12 00", "1812F900 00 11 22 33 44 55 66 77"));
+        // request from DA, receive to DA
         assertTrue(reqResp("18EA01F9 00 12 00", "1812F901 00 11 22 33 44 55 66 77"));
+        // request from DA, receive to DA from wrong source
         assertFalse(reqResp("18EA01F9 00 12 00", "1812F902 00 11 22 33 44 55 66 77"));
+        // request from DA, receive to broadcast from wrong source
         assertFalse(reqResp("18EA01F9 00 12 00", "1812FF02 00 11 22 33 44 55 66 77"));
+
+        // request from broadcast, receive to broadcast
         assertTrue(reqResp("18EAFFF9 34 FF 00", "18FF3400 00 11 22 33 44 55 66 77"));
+        // request from DA, receive to broadcast
         assertTrue(reqResp("18EA00F9 34 FF 00", "18FF3400 00 11 22 33 44 55 66 77"));
     }
 
     @Test
+    /**
+     * Verify that multiple packets are sent for requests to are responses to
+     * broadcast
+     *
+     * @throws Exception
+     */
     public void testPriority1() throws Exception {
 
         try (Bus bus = new EchoBus(0xF9);
                 Sim sim = new Sim(bus)) {
             bus.log(p -> "P: " + p);
             Packet respFF = Packet.parsePacket("1812FF00 00 11 22 33 44 55 66 77");
-            sim.response("1", ScriptedEngine.isRequestForPredicate(respFF), () -> respFF);
-            sim.response("2", ScriptedEngine.isRequestForPredicate(respFF), () -> respFF);
+            sim.response(ScriptedEngine.isRequestForPredicate(respFF), () -> respFF);
+            sim.response(ScriptedEngine.isRequestForPredicate(respFF), () -> respFF);
 
             Stream<Packet> s = bus.read(100, TimeUnit.MILLISECONDS);
             bus.send(Packet.parsePacket("18EAFFF9 00 12 00"));
@@ -47,15 +61,41 @@ public class ScriptedEngineTest {
     }
 
     @Test
+    /**
+     * Verify that multiple packets are sent for requests for broadcast
+     *
+     * @throws Exception
+     */
     public void testPriority2() throws Exception {
+
+        try (Bus bus = new EchoBus(0xF9);
+                Sim sim = new Sim(bus)) {
+            bus.log(p -> "P: " + p);
+            Packet respFF = Packet.parsePacket("18FF0100 00 11 22 33 44 55 66 77");
+            sim.response(ScriptedEngine.isRequestForPredicate(respFF), () -> respFF);
+            sim.response(ScriptedEngine.isRequestForPredicate(respFF), () -> respFF);
+
+            Stream<Packet> s = bus.read(100, TimeUnit.MILLISECONDS);
+            bus.send(Packet.parsePacket("18EAFFF9 01 FF 00"));
+            assertEquals(3, s.count());
+        }
+    }
+
+    @Test
+    /**
+     * Should only have a single response for da request for da response.
+     *
+     * @throws Exception
+     */
+    public void testPriority3() throws Exception {
 
         try (Bus bus = new EchoBus(0xF9);
                 Sim sim = new Sim(bus)) {
             bus.log(p -> "P: " + p);
             Packet respF9 = Packet.parsePacket("1812F901 00 11 22 33 44 55 66 77");
             Packet respFF = Packet.parsePacket("1812FF01 00 11 22 33 44 55 66 77");
-            sim.response("1", ScriptedEngine.isRequestForPredicate(respF9), () -> respF9);
-            sim.response("2", ScriptedEngine.isRequestForPredicate(respFF), () -> respFF);
+            sim.response(ScriptedEngine.isRequestForPredicate(respF9), () -> respF9);
+            sim.response(ScriptedEngine.isRequestForPredicate(respFF), () -> respFF);
 
             Stream<Packet> s = bus.read(100, TimeUnit.MILLISECONDS);
             bus.send(Packet.parsePacket("18EA01F9 00 12 00"));
