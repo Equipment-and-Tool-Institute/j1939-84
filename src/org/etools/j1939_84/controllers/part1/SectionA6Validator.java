@@ -58,7 +58,7 @@ public class SectionA6Validator {
      * @param message
      * @param listener
      */
-    private void addOutcome(int partNumber, int stepNumber, Outcome outCome, String message,
+    private static void addOutcome(int partNumber, int stepNumber, Outcome outCome, String message,
             ResultsListener listener) {
         listener.addOutcome(partNumber, stepNumber, outCome, message);
     }
