@@ -174,4 +174,35 @@ public class VehicleInformation implements Cloneable {
         this.vin = vin;
     }
 
+    @Override
+    public String toString() {
+        return "User Data Entry: \n\n"
+                + "Engine Model Emissions Year: " + engineModelYear + "\n"
+                + "Number of Emissions ECUs Expected: " + emissionUnits + "\n"
+                + "Number of CAL IDs Expected: " + calIds + "\n"
+                + "Fuel Type: " + fuelType + "\n"
+                + "Ignition Type: " + fuelType.ignitionType.name + "\n"
+                + "Number of Trips for Fault B Implant: " + numberOfTripsForFaultBImplant + "\n\n"
+
+                + "Vehicle Information:\n"
+                + "VIN: " + vin + "\n"
+                + "Vehicle MY: " + vehicleModelYear + "\n"
+                + "Engine MY: " + engineModelYear + "\n"
+                + "Cert. Engine Family: " + certificationIntent + "\n"
+                + "Number of OBD ECUs Found: " + emissionUnitsFound.size() + "\n"
+                + emissionUnitsFound.stream()
+                        .map(m -> "     Make: " + m.getMake() + ", Model: " + m.getModel() + ", Serial: "
+                                + m.getSerialNumber())
+                        .collect(Collectors.joining("\n"))
+                + "\n"
+                + "Number of CAL IDs Found: " + calIdsFound.size() + "\n"
+                + calIdsFound.stream()
+                        .map(ci -> ci.toString())
+                        .flatMap(s -> s.lines())
+                        .map(s -> "     " + s)
+                        .collect(Collectors.joining("\n"))
+                + "\n";
+
+    }
+
 }
