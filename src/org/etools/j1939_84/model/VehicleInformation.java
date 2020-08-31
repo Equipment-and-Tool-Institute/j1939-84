@@ -18,7 +18,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class VehicleInformation {
+public class VehicleInformation implements Cloneable {
     private RequestResult<AddressClaimPacket> addressClaim;
 
     private int calIds;
@@ -40,6 +40,24 @@ public class VehicleInformation {
     private int vehicleModelYear;
 
     private String vin;
+
+    @Override
+    public VehicleInformation clone() {
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setAddressClaim(getAddressClaim());
+        vehInfo.setCalIds(getCalIds());
+        vehInfo.setCalIdsFound(getCalIdsFound());
+        vehInfo.setCertificationIntent(getCertificationIntent());
+        vehInfo.setEmissionUnits(getEmissionUnits());
+        vehInfo.setEmissionUnitsFound(getEmissionUnitsFound());
+        vehInfo.setEngineModelYear(getEngineModelYear());
+        vehInfo.setFuelType(getFuelType());
+        vehInfo.setNumberOfTripsForFaultBImplant(getNumberOfTripsForFaultBImplant());
+        vehInfo.setVehicleModelYear(getVehicleModelYear());
+        vehInfo.setVin(getVin());
+
+        return vehInfo;
+    }
 
     @Override
     public boolean equals(Object obj) {

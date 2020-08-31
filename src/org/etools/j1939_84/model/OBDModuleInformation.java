@@ -20,7 +20,7 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class OBDModuleInformation {
+public class OBDModuleInformation implements Cloneable {
 
     private final List<CalibrationInformation> calibrationInformation = new ArrayList<>();
 
@@ -38,6 +38,19 @@ public class OBDModuleInformation {
 
     public OBDModuleInformation(int sourceAddress) {
         this.sourceAddress = sourceAddress;
+    }
+
+    @Override
+    public OBDModuleInformation clone() {
+        OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress());
+        obdInfo.setCalibrationInformation(getCalibrationInformation());
+        obdInfo.setFunction(getFunction());
+        obdInfo.setObdCompliance(getObdCompliance());
+        obdInfo.setPerformanceRatios(getPerformanceRatios());
+        obdInfo.setScaledTestResults(getScaledTestResults());
+        obdInfo.setSupportedSpns(getSupportedSpns());
+
+        return obdInfo;
     }
 
     @Override
@@ -130,7 +143,8 @@ public class OBDModuleInformation {
     }
 
     /**
-     * @param calibrationInformation the calibrationInformation to set
+     * @param calibrationInformation
+     *            the calibrationInformation to set
      */
     public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {
         this.calibrationInformation.clear();
@@ -138,21 +152,24 @@ public class OBDModuleInformation {
     }
 
     /**
-     * @param function the function to set
+     * @param function
+     *            the function to set
      */
     public void setFunction(int function) {
         this.function = function;
     }
 
     /**
-     * @param obdCompliance the obdCompliance to set
+     * @param obdCompliance
+     *            the obdCompliance to set
      */
     public void setObdCompliance(byte obdCompliance) {
         this.obdCompliance = obdCompliance;
     }
 
     /**
-     * @param performanceRatios the performanceRatios to set
+     * @param performanceRatios
+     *            the performanceRatios to set
      */
     public void setPerformanceRatios(Collection<PerformanceRatio> performanceRatios) {
         this.performanceRatios.clear();
@@ -165,7 +182,8 @@ public class OBDModuleInformation {
     }
 
     /**
-     * @param supportedSpns the supportedSpns to set
+     * @param supportedSpns
+     *            the supportedSpns to set
      */
     public void setSupportedSpns(List<SupportedSPN> supportedSpns) {
         this.supportedSpns.clear();
