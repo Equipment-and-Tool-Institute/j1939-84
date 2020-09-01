@@ -232,9 +232,15 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             tempFileWriter.write(vehicleInformation + NL);
             tempFileWriter.write(NL);
             tempFileWriter.write("Addresses Claimed" + NL);
-            tempFileWriter.write(vehicleInformation.getAddressClaim().getPackets().stream()
-                    .map(a -> "    " + a.getPacket() + " " + a.getSource())
-                    .collect(Collectors.joining("\n")) + NL); // FIXME
+            if (vehicleInformation != null && vehicleInformation.getAddressClaim() != null) {
+                tempFileWriter
+                        .write(vehicleInformation.getAddressClaim().getPackets().stream()
+                                .filter(packet -> packet != null)
+                                .map(a -> "    " + a.getPacket() + " " + a.getSource())
+                                .collect(Collectors.joining(NL)) + NL); // FIXME
+            } else {
+                tempFileWriter.write(" IS EMPTY" + NL);
+            }
             tempFileWriter.write(" <PAGE BREAK> " + NL); // FIXME
             tempFileWriter.write(NL);
 

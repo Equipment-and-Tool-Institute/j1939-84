@@ -39,7 +39,7 @@ public class VehicleInformation implements Cloneable {
 
     private int vehicleModelYear;
 
-    private String vin;
+    private String vin = "";
 
     @Override
     public VehicleInformation clone() {
@@ -172,6 +172,9 @@ public class VehicleInformation implements Cloneable {
     }
 
     public void setVin(String vin) {
+        if (vin == null) {
+            vin = "";
+        }
         this.vin = vin;
     }
 
@@ -203,7 +206,6 @@ public class VehicleInformation implements Cloneable {
                         .map(s -> "     " + s)
                         .collect(Collectors.joining("\n"))
                 + "\n";
-
     }
 
 }
