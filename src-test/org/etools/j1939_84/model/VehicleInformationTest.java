@@ -25,6 +25,8 @@ public class VehicleInformationTest {
 
     private VehicleInformation instance2;
 
+    private VehicleInformation instance3;
+
     @Before
     public void setUp() {
         instance = new VehicleInformation();
@@ -42,6 +44,8 @@ public class VehicleInformationTest {
         instance2.setFuelType(FuelType.DSL);
         instance2.setVehicleModelYear(2);
         instance2.setVin("vin");
+
+        instance3 = instance.clone();
     }
 
     @Test
@@ -51,6 +55,7 @@ public class VehicleInformationTest {
         assertFalse(instance.equals(new Object()));
         assertTrue(instance.equals(instance));
         assertTrue(instance.equals(instance2));
+        assertTrue(instance.equals(instance3));
     }
 
     @Test
@@ -58,6 +63,7 @@ public class VehicleInformationTest {
     public void testHashCode() {
         assertTrue(instance.hashCode() == instance.hashCode());
         assertTrue(instance.hashCode() == instance2.hashCode());
+        assertTrue(instance.hashCode() == instance3.hashCode());
     }
 
     @Test

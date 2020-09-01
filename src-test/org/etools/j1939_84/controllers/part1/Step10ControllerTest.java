@@ -1,6 +1,8 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -25,7 +27,6 @@ import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
@@ -45,6 +46,12 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+/**
+ * The unit test for {@link Step10Controller}
+ *
+ * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
+ *
+ */
 @RunWith(MockitoJUnitRunner.class)
 public class Step10ControllerTest extends AbstractControllerTest {
 
@@ -196,8 +203,14 @@ public class Step10ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM33(any(), eq(0x17));
         verify(dtcModule).requestDM33(any(), eq(0x21));
 
-        verify(mockListener).addOutcome(1, 10, Outcome.WARN, "6.1.10.3.a - The request for DM11 was NACK'ed");
-        verify(mockListener).addOutcome(1, 10, Outcome.WARN, "6.1.10.3.a - The request for DM11 was ACK'ed");
+        verify(mockListener).addOutcome(1, 10, WARN, "6.1.10.3.a - The request for DM11 was NACK'ed");
+        verify(mockListener).addOutcome(1, 10, WARN, "6.1.10.3.a - The request for DM11 was ACK'ed");
+        StringBuilder expectedMessage6b = new StringBuilder(
+                "6.1.10.3.b - Fail if any diagnostic information in any ECU is not reset or starts out with unexpected values."
+                        + NL);
+        expectedMessage6b
+                .append("Diagnostic information is defined in section A.5, Diagnostic Information Definition.");
+        verify(mockListener).addOutcome(1, 10, FAIL, expectedMessage6b.toString());
 
         verify(obdTestsModule).setJ1939(j1939);
 

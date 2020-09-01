@@ -22,7 +22,7 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class OBDModuleInformation {
+public class OBDModuleInformation implements Cloneable {
 
     private final List<CalibrationInformation> calibrationInformation = new ArrayList<>();
 
@@ -40,6 +40,19 @@ public class OBDModuleInformation {
 
     public OBDModuleInformation(int sourceAddress) {
         this.sourceAddress = sourceAddress;
+    }
+
+    @Override
+    public OBDModuleInformation clone() {
+        OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress());
+        obdInfo.setCalibrationInformation(getCalibrationInformation());
+        obdInfo.setFunction(getFunction());
+        obdInfo.setObdCompliance(getObdCompliance());
+        obdInfo.setPerformanceRatios(getPerformanceRatios());
+        obdInfo.setScaledTestResults(getScaledTestResults());
+        obdInfo.setSupportedSpns(getSupportedSpns());
+
+        return obdInfo;
     }
 
     @Override

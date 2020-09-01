@@ -1,5 +1,6 @@
 package org.etools.j1939_84.controllers.part1;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -23,11 +24,11 @@ public class DataRepository {
     private VehicleInformation vehicleInformation;
 
     public OBDModuleInformation getObdModule(int sourceAddress) {
-        return obdModules.get(sourceAddress);
+        return obdModules.get(sourceAddress).clone();
     }
 
     public List<Integer> getObdModuleAddresses() {
-        return obdModules.keySet().stream().sorted().collect(Collectors.toList());
+        return new ArrayList<>(obdModules.keySet().stream().sorted().collect(Collectors.toList()));
     }
 
     public Collection<OBDModuleInformation> getObdModules() {
@@ -35,7 +36,7 @@ public class DataRepository {
     }
 
     public VehicleInformation getVehicleInformation() {
-        return vehicleInformation;
+        return vehicleInformation.clone();
     }
 
     /**
