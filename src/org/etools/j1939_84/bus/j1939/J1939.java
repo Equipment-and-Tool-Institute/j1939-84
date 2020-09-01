@@ -140,7 +140,7 @@ public class J1939 {
      * @return a subclass of {@link ParsedPacket}
      */
     private static <T extends ParsedPacket> Either<T, AcknowledgmentPacket> process(Packet packet) {
-        return process(packet.getId(0xFFFF), packet);
+        return process(packet.getPgn(), packet);
     }
 
     private static ParsedPacket processRaw(int id, Packet packet) {
@@ -226,6 +226,7 @@ public class J1939 {
             return new UnknownParsedPacket(packet);
 
         default:
+            // FIXME why blindly mask off lower byte?
             int maskedId = id & 0xFF00;
 
             switch (maskedId) {

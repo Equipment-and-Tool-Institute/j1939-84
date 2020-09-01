@@ -6,6 +6,7 @@ import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
@@ -36,7 +37,7 @@ public class DataRepository {
     }
 
     public VehicleInformation getVehicleInformation() {
-        return vehicleInformation.clone();
+        return Optional.ofNullable(vehicleInformation).map(vi -> vi.clone()).orElse(null);
     }
 
     /**

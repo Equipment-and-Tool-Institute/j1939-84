@@ -17,6 +17,7 @@ import java.util.stream.StreamSupport;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -26,6 +27,7 @@ import com.google.gson.JsonObject;
 public class ScriptedEngine implements AutoCloseable {
     /** Handle responding to DM7 requests. */
     class DM7Provider implements Supplier<Packet>, Predicate<Packet> {
+
         /**
          * Packet identified in last positive test. This avoids testing twice,
          * but makes assumptions about the process. It is fragile.
@@ -62,12 +64,12 @@ public class ScriptedEngine implements AutoCloseable {
 
         @Override
         synchronized public boolean test(Packet packet) {
-            if (packet.getId(0xFF00) == 0xE300) {
+            if (packet.getPgn() == 0xE300) {
                 System.err.println("DM7: " + packet);
             }
 
             // SPN DM7?
-            if (packet.getId(0xFFFF) != (0xE300 | sa)) {
+            if (packet.getPgn() != (DM7CommandTestsPacket.PGN | sa)) {
                 return false;
             }
             // J1939-84 6.1.12.1 TID 247
@@ -93,15 +95,10 @@ public class ScriptedEngine implements AutoCloseable {
                 if (dm7Spn(p) != spn) {
                     continue;
                 }
-                if (envHandler(descriptor)) {
-                    next = p;
-                }
+                next = p;
+                return true;
             }
-            if (next == null) {
-                throw new IllegalStateException(
-                        "env not compatible with DM7 response:" + packetDescriptors + " env: " + env);
-            }
-            return true;
+            throw new IllegalStateException("Valide DM7 SPN detected, but not found.");
         }
     }
 
@@ -155,9 +152,9 @@ public class ScriptedEngine implements AutoCloseable {
             // if daPgn then only match response to requester
             return request -> request.getPgn() == 0xEA00
                     && request.get24(0) == pgn
-                    && (request.getDestinationAddress() == 0xFF
+                    && (request.getDestination() == 0xFF
                             // ? (response.getId() & 0xFF) == 0xFF
-                            || response.getSource() == request.getDestinationAddress());
+                            || response.getSource() == request.getDestination());
         } else {
             return request -> request.getPgn() == 0xEA00
                     && request.get24(0) == pgn;
