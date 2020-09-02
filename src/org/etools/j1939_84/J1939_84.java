@@ -28,6 +28,9 @@ public class J1939_84 {
      */
     public static final String NL = System.lineSeparator();
 
+    /** Page break including text for editors that do not support page break. */
+    public static final String PAGE_BREAK = " <<PAGE BREAK>> " + NL + "\f";
+
     /**
      * The name of the property that is set when the application is being used
      * in a testing mode
@@ -72,7 +75,7 @@ public class J1939_84 {
      * Launch the application.
      *
      * @param args
-     *             The arguments used to start the application
+     *            The arguments used to start the application
      */
     public static void main(String[] args) {
         getLogger().info("J1939_84 starting");
@@ -98,7 +101,7 @@ public class J1939_84 {
      * Sets the System Property to indicate the system is under test
      *
      * @param testing
-     *                - true to indicate the system is under test
+     *            - true to indicate the system is under test
      */
     public static final void setTesting(boolean testing) {
         System.setProperty(TESTING_PROPERTY_NAME, Boolean.toString(testing));

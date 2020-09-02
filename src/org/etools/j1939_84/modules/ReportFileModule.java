@@ -4,6 +4,7 @@
 package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.J1939_84.PAGE_BREAK;
 
 import java.io.File;
 import java.io.IOException;
@@ -241,8 +242,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             } else {
                 tempFileWriter.write(" IS EMPTY" + NL);
             }
-            tempFileWriter.write(" <PAGE BREAK> " + NL); // FIXME
-            tempFileWriter.write(NL);
+            tempFileWriter.write(PAGE_BREAK);
 
             tempFileWriter.write("TEST SUMMARY REPORT" + NL);
             tempFileWriter.write("OUTCOME: " + NL);
@@ -255,7 +255,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             tempFileWriter
                     .write(bannerModule.getDate() + " " + bannerModule.getTime() + " END TEST SUMMARY REPORT" + NL);
 
-            tempFileWriter.write(" <PAGE BREAK> " + NL); // FIXME
+            tempFileWriter.write(PAGE_BREAK);
             tempFileWriter.flush();
 
             tempFileWriter.write("TEST LOG REPORT" + NL + NL);
@@ -269,5 +269,4 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             e.printStackTrace();
         }
     }
-
 }

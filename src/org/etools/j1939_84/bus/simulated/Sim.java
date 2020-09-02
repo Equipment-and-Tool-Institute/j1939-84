@@ -3,12 +3,12 @@
  */
 package org.etools.j1939_84.bus.simulated;
 
+import java.util.ArrayList;
 import java.util.Collection;
-import java.util.concurrent.ConcurrentLinkedQueue;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
-import java.util.function.Consumer;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -44,9 +44,10 @@ public class Sim implements AutoCloseable {
     }, "Sim Thread"));
 
     /**
-     * The collection of responses
+     * The collection of responses. If the response returns true, then don't try
+     * other responses.
      */
-    private final Collection<Consumer<Packet>> responses = new ConcurrentLinkedQueue<>();
+    public final Collection<Function<Packet, Boolean>> responses = new ArrayList<>();
 
     public Sim(Bus bus) throws BusException {
         this.bus = bus;
@@ -54,7 +55,13 @@ public class Sim implements AutoCloseable {
         // packets during
         // the Thread startup.
         Stream<Packet> stream = bus.read(365, TimeUnit.DAYS);
-        exec.submit(() -> stream.forEach(packet -> responses.stream().forEach(c -> c.accept(packet))));
+        exec.submit(() -> stream.parallel().forEach(packet -> {
+            for (var r : responses) {
+                if (r.apply(packet)) {
+                    return;
+                }
+            }
+        }));
     }
 
     @Override
@@ -73,10 +80,15 @@ public class Sim implements AutoCloseable {
      * @return this
      */
     public Sim response(Predicate<Packet> predicate, Supplier<Packet> supplier) {
-        responses.add(packet -> {
-            if (predicate.test(packet)) {
-                send(supplier);
+        responses.add(request -> {
+            if (predicate.test(request)) {
+                Packet response = supplier.get();
+                send(response);
+                // if request is not to broadcast, only accept first
+                // response
+                return response.getPgn() < 0xF000 && request.getDestination() != 0xFF;
             }
+            return false;
         });
         return this;
     }
@@ -113,7 +125,7 @@ public class Sim implements AutoCloseable {
      * @return this
      */
     public Sim schedule(int period, int delay, TimeUnit unit, Supplier<Packet> supplier) {
-        return schedule(period, delay, unit, () -> send(supplier));
+        return schedule(period, delay, unit, () -> send(supplier.get()));
     }
 
     /**
@@ -123,10 +135,10 @@ public class Sim implements AutoCloseable {
      * @param supplier
      *            the {@link Supplier} for the {@link Packet}
      */
-    private void send(Supplier<Packet> supplier) {
+    private void send(Packet p) {
         try {
-            bus.send(supplier.get());
-        } catch (BusException e) {
+            bus.send(p);
+        } catch (Throwable e) {
             J1939_84.getLogger().log(Level.SEVERE, "Error sending", e);
         }
     }
@@ -138,7 +150,7 @@ public class Sim implements AutoCloseable {
      *            the {@link Packet}
      */
     public void sendNow(Packet packet) {
-        exec.execute(() -> send(() -> packet));
+        exec.execute(() -> send(packet));
     }
 
 }

@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.model;
 
+import static org.etools.j1939_84.J1939_84.NL;
+
 import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
@@ -180,32 +182,33 @@ public class VehicleInformation implements Cloneable {
 
     @Override
     public String toString() {
-        return "User Data Entry: \n\n"
-                + "Engine Model Emissions Year: " + engineModelYear + "\n"
-                + "Number of Emissions ECUs Expected: " + emissionUnits + "\n"
-                + "Number of CAL IDs Expected: " + calIds + "\n"
-                + "Fuel Type: " + fuelType + "\n"
-                + "Ignition Type: " + fuelType.ignitionType.name + "\n"
-                + "Number of Trips for Fault B Implant: " + numberOfTripsForFaultBImplant + "\n\n"
+        return "User Data Entry: " + NL + NL
+                + "Engine Model Emissions Year: " + engineModelYear + NL
+                + "Number of Emissions ECUs Expected: " + emissionUnits + NL
+                + "Number of CAL IDs Expected: " + calIds + NL
+                + "Fuel Type: " + fuelType + NL
+                + "Ignition Type: " + fuelType.ignitionType.name + NL
+                + "Number of Trips for Fault B Implant: " + numberOfTripsForFaultBImplant + NL + NL
 
-                + "Vehicle Information:\n"
-                + "VIN: " + vin + "\n"
-                + "Vehicle MY: " + vehicleModelYear + "\n"
-                + "Engine MY: " + engineModelYear + "\n"
-                + "Cert. Engine Family: " + certificationIntent + "\n"
-                + "Number of OBD ECUs Found: " + emissionUnitsFound.size() + "\n"
+                + "Vehicle Information:" + NL
+                + "VIN: " + vin + NL
+                + "Vehicle MY: " + vehicleModelYear + NL
+                + "Engine MY: " + engineModelYear + NL
+                + "Cert. Engine Family: " + certificationIntent + NL
+                + "Number of OBD ECUs Found: " + emissionUnitsFound.size() + NL
                 + emissionUnitsFound.stream()
                         .map(m -> "     Make: " + m.getMake() + ", Model: " + m.getModel() + ", Serial: "
                                 + m.getSerialNumber())
-                        .collect(Collectors.joining("\n"))
-                + "\n"
-                + "Number of CAL IDs Found: " + calIdsFound.size() + "\n"
+                        .collect(Collectors.joining(NL))
+                + NL
+                + "Number of CAL IDs Found: "
+                + calIdsFound.stream().flatMap(dm19 -> dm19.getCalibrationInformation().stream()).count() + NL
                 + calIdsFound.stream()
                         .map(ci -> ci.toString())
                         .flatMap(s -> s.lines())
                         .map(s -> "     " + s)
-                        .collect(Collectors.joining("\n"))
-                + "\n";
+                        .collect(Collectors.joining(NL))
+                + NL;
     }
 
 }

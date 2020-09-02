@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.model;
 
+import static org.etools.j1939_84.J1939_84.NL;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
@@ -192,11 +194,11 @@ public class OBDModuleInformation implements Cloneable {
 
     @Override
     public String toString() {
-        String result = "OBD Module Information:\n";
-        result += "sourceAddress is : " + sourceAddress + "\n";
-        result += "obdCompliance is : " + getObdCompliance() + "\n";
-        result += "function is : " + getFunction() + "\n";
-        result += "Supported SPNs: \n"
+        String result = "OBD Module Information: " + NL;
+        result += "sourceAddress is : " + sourceAddress + NL;
+        result += "obdCompliance is : " + getObdCompliance() + NL;
+        result += "function is : " + getFunction() + NL;
+        result += "Supported SPNs: " + NL
                 + getSupportedSpns().stream().map(i -> i.toString()).collect(Collectors.joining(","));
         return result;
     }

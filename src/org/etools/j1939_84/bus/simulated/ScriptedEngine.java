@@ -17,6 +17,7 @@ import java.util.stream.StreamSupport;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
 
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -25,10 +26,11 @@ import com.google.gson.JsonObject;
 
 public class ScriptedEngine implements AutoCloseable {
     /** Handle responding to DM7 requests. */
-    private class DM7Provider implements Supplier<Packet>, Predicate<Packet> {
+    class DM7Provider implements Supplier<Packet>, Predicate<Packet> {
+
         /**
-         * Packet identified in last positive test. This avoids testing twice, but makes
-         * assumptions about the process. It is fragile.
+         * Packet identified in last positive test. This avoids testing twice,
+         * but makes assumptions about the process. It is fragile.
          */
         private Packet next;
 
@@ -48,7 +50,8 @@ public class ScriptedEngine implements AutoCloseable {
             this.sa = sa;
             // now let's find the right packet
             packetDescriptors = messageDescriptot.get("packets").getAsJsonArray();
-            // It's easy to leave a stray "," and get a null, so just remove them for our
+            // It's easy to leave a stray "," and get a null, so just remove
+            // them for our
             // users.
             while (packetDescriptors.remove(JsonNull.INSTANCE)) {
             }
@@ -61,12 +64,16 @@ public class ScriptedEngine implements AutoCloseable {
 
         @Override
         synchronized public boolean test(Packet packet) {
+            if (packet.getPgn() == 0xE300) {
+                System.err.println("DM7: " + packet);
+            }
+
             // SPN DM7?
-            if (packet.getId() != (0xE300 | sa)) {
+            if (packet.getPgn() != (DM7CommandTestsPacket.PGN | sa)) {
                 return false;
             }
             // J1939-84 6.1.12.1 TID 247
-            if (packet.get(0) != 247) {
+            if (packet.get(0) != 0xF7) {
                 return false;
             }
             // J1939-84 6.1.12.1 FMI 31
@@ -88,15 +95,10 @@ public class ScriptedEngine implements AutoCloseable {
                 if (dm7Spn(p) != spn) {
                     continue;
                 }
-                if (envHandler(descriptor)) {
-                    next = p;
-                }
+                next = p;
+                return true;
             }
-            if (next == null) {
-                throw new IllegalStateException(
-                        "env not compatible with DM7 response:" + packetDescriptors + " env: " + env);
-            }
-            return true;
+            throw new IllegalStateException("Valide DM7 SPN detected, but not found.");
         }
     }
 
@@ -114,7 +116,8 @@ public class ScriptedEngine implements AutoCloseable {
         synchronized public Packet get() {
             try {
                 JsonArray array = messageDescriptor.get("packets").getAsJsonArray();
-                // It's easy to leave a stray "," and get a null, so just remove them for our
+                // It's easy to leave a stray "," and get a null, so just remove
+                // them for our
                 // users.
                 while (array.remove(JsonNull.INSTANCE)) {
                 }
@@ -143,19 +146,19 @@ public class ScriptedEngine implements AutoCloseable {
                 | (packet.get(1) & 0xFF);
     }
 
-    private static int getPgn(Packet p) {
-        int id = p.getId() & 0xFFFF;
-        if (id < 0xF000) {
-            id &= 0xFF00;
+    static Predicate<Packet> isRequestForPredicate(Packet response) {
+        int pgn = response.getPgn();
+        if (pgn < 0xF000) {
+            // if daPgn then only match response to requester
+            return request -> request.getPgn() == 0xEA00
+                    && request.get24(0) == pgn
+                    && (request.getDestination() == 0xFF
+                            // ? (response.getId() & 0xFF) == 0xFF
+                            || response.getSource() == request.getDestination());
+        } else {
+            return request -> request.getPgn() == 0xEA00
+                    && request.get24(0) == pgn;
         }
-        return id;
-    }
-
-    private static Predicate<Packet> isRequestForPredicate(Packet responsePacket) {
-        int pgn = getPgn(responsePacket);
-        int address = responsePacket.getSource();
-        return packet -> (packet.getId() == (0xEA00 | address) || packet.getId() == 0xEAFF)
-                && packet.get24(0) == pgn;
     }
 
     private final Set<String> env = new HashSet<>();
@@ -166,6 +169,8 @@ public class ScriptedEngine implements AutoCloseable {
 
     public ScriptedEngine(Bus bus, InputStream in) throws BusException {
         sim = new Sim(bus);
+        // bus.log(p -> "P: " + p);
+
         JsonArray a = new Gson().fromJson(new InputStreamReader(in), JsonArray.class);
         a.forEach(e -> {
             JsonObject o = e.getAsJsonObject();
@@ -199,6 +204,7 @@ public class ScriptedEngine implements AutoCloseable {
                         () -> sim.sendNow(responseProvider.get()));
             }
         });
+        sim.responses.forEach(r -> System.err.println(r));
     }
 
     @Override
@@ -209,9 +215,10 @@ public class ScriptedEngine implements AutoCloseable {
     /**
      * Handle checking and updating the environment.
      *
-     * @param descriptor The possible response to be checked. If it passes, then the
-     *                   environment will be updated based on the set, setFor and
-     *                   clear commands.
+     * @param descriptor
+     *            The possible response to be checked. If it passes, then the
+     *            environment will be updated based on the set, setFor and clear
+     *            commands.
      * @return Should this descriptor be used?
      */
     private boolean envHandler(JsonObject descriptor) {

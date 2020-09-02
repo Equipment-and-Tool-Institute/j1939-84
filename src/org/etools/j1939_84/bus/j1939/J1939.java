@@ -107,7 +107,9 @@ public class J1939 {
     }
 
     private static Predicate<Packet> pgnFilter(int pgn) {
-        return response -> (response.getId() == pgn) || ((response.getId() & 0xFF00) == pgn);
+        return response -> pgn >= 0xF000
+                ? response.getId(0xFFFF) == pgn
+                : response.getId(0xFF00) == pgn;
     }
 
     /**
@@ -138,7 +140,7 @@ public class J1939 {
      * @return a subclass of {@link ParsedPacket}
      */
     private static <T extends ParsedPacket> Either<T, AcknowledgmentPacket> process(Packet packet) {
-        return process(packet.getId(), packet);
+        return process(packet.getPgn(), packet);
     }
 
     private static ParsedPacket processRaw(int id, Packet packet) {
@@ -224,6 +226,7 @@ public class J1939 {
             return new UnknownParsedPacket(packet);
 
         default:
+            // FIXME why blindly mask off lower byte?
             int maskedId = id & 0xFF00;
 
             switch (maskedId) {
@@ -318,18 +321,6 @@ public class J1939 {
      */
     public Packet createRequestPacket(int pgn, int addr) {
         return createRequestPacket(pgn, addr, getBusAddress());
-    }
-
-    /**
-     * Destination Specific PGN Filter
-     *
-     * @param pgn
-     *            the PGN to filter
-     * @return {@link Predicate}
-     */
-    private Predicate<Packet> dsPgnFilter(int pgn) {
-        return response -> ((response.getId() & 0xFF00) == pgn)
-                && (((response.getId() & 0xFF) == getBusAddress()) || ((response.getId() & 0xFF) == GLOBAL_ADDR));
     }
 
     /**
