@@ -58,7 +58,7 @@ public class J1939 {
     /**
      * The default time to wait for a response
      */
-    private static final int DEFAULT_TIMEOUT = 2500;
+    private static final int DEFAULT_TIMEOUT = 220;
 
     /**
      * The default time unit for responses
@@ -277,9 +277,8 @@ public class J1939 {
      */
     private Predicate<Packet> ackNackFilter(int pgn) {
         return response -> {
-            return
-            // ID is Acknowledgment
-            (response.getId() & 0xFF00) == 0xE800
+            return // ID is Acknowledgment
+            response.getPgn() == 0xE800
                     // There are enough bytes
                     && response.getLength() == 8
             // Accepting 0xFF as "Address Acknowledged" is to handle Cummins

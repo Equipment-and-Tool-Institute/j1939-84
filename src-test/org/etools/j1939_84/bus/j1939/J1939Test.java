@@ -6,6 +6,7 @@ package org.etools.j1939_84.bus.j1939;
 import static org.etools.j1939_84.bus.j1939.J1939.ENGINE_ADDR;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
@@ -16,6 +17,7 @@ import static org.mockito.Mockito.when;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
@@ -23,9 +25,11 @@ import java.util.stream.Stream;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.EchoBus;
+import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
@@ -33,6 +37,7 @@ import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
+import org.etools.testdoc.TestDoc;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -83,6 +88,48 @@ public class J1939Test {
 
         sendPacketCaptor = ArgumentCaptor.forClass(Packet.class);
         instance = new J1939(bus);
+    }
+
+    @Test()
+    @TestDoc(description = "6.1.4.1.b no retry on NACK")
+    public void test6141bNoRetryOnNack() throws BusException {
+        // verify 3 trys in 3*220ms
+        Bus bus = new EchoBus(0xF9);
+        Stream<Packet> all = bus.read(1, TimeUnit.SECONDS);
+        J1939 j1939 = new J1939(bus);
+        Stream<Packet> stream = bus.read(200, TimeUnit.SECONDS);
+        new Thread(() -> {
+            try {
+                stream.findFirst();
+                bus.send(Packet.parsePacket("18E8F900 01 FF FF FF FF 00 A4 00"));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+
+        long start = System.currentTimeMillis();
+        Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = j1939.requestPacket(
+                j1939.createRequestPacket(DM24SPNSupportPacket.PGN, 0), DM30ScaledTestResultsPacket.class, 0, 3);
+
+        assertTrue(result.isPresent());
+        Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket> e = result.get();
+        assertTrue(e.left.isEmpty());
+        assertTrue(e.right.isPresent());
+        assertTrue("Took too long", System.currentTimeMillis() - start < 100);
+        assertEquals(2L, all.count());
+    }
+
+    @Test
+    @TestDoc(description = "6.1.4.1.b retry on timeout of 220 ms")
+    public void test6141bRetry() {
+        // verify 3 trys in 3*220ms
+        Bus bus = new EchoBus(0xF9);
+        J1939 j1939 = new J1939(bus);
+        long start = System.currentTimeMillis();
+        Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = j1939.requestPacket(
+                j1939.createRequestPacket(DM24SPNSupportPacket.PGN, 0), DM30ScaledTestResultsPacket.class, 0, 3);
+        assertFalse(result.isPresent());
+        assertEquals(220 * 3, System.currentTimeMillis() - start, 20);
     }
 
     /**
@@ -138,7 +185,7 @@ public class J1939Test {
     public void testRequestDM7() throws Exception {
         Packet packet1 = Packet.create(DM30ScaledTestResultsPacket.PGN
                 | 0xA5, 0x00, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0x0A, 0x0B, 0x0C, 0x0D);
-        when(bus.read(2500, TimeUnit.MILLISECONDS)).thenReturn(Stream.of(packet1));
+        when(bus.read(220, TimeUnit.MILLISECONDS)).thenReturn(Stream.of(packet1));
 
         int spn = 1024;
 
@@ -164,7 +211,7 @@ public class J1939Test {
      */
     @Test
     public void testRequestDM7Timesout() throws Exception {
-        when(bus.read(2500, TimeUnit.MILLISECONDS)).thenReturn(Stream.of()).thenReturn(Stream.of())
+        when(bus.read(220, TimeUnit.MILLISECONDS)).thenReturn(Stream.of()).thenReturn(Stream.of())
                 .thenReturn(Stream.of());
 
         int spn = 1024;
@@ -191,7 +238,7 @@ public class J1939Test {
     public void testRequestDM7WillTryThreeTimes() throws Exception {
         Packet packet1 = Packet.create(DM30ScaledTestResultsPacket.PGN
                 | 0xA5, 0x00, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0x0A, 0x0B, 0x0C, 0x0D);
-        when(bus.read(2500, TimeUnit.MILLISECONDS)).thenReturn(Stream.of()).thenReturn(Stream.of())
+        when(bus.read(220, TimeUnit.MILLISECONDS)).thenReturn(Stream.of()).thenReturn(Stream.of())
                 .thenReturn(Stream.of(packet1));
 
         int spn = 1024;
