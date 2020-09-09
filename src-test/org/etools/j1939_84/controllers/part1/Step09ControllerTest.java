@@ -4,6 +4,10 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static java.util.Map.entry;
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.PASS;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -33,7 +37,6 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
@@ -47,7 +50,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -59,6 +61,61 @@ import org.mockito.junit.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Step09ControllerTest extends AbstractControllerTest {
+
+    private static final String COLON_SPACE = ": ";
+
+    private static final String EXPECTEC_FAIL_MESSAGE_3_D = "6.1.9.3.d Model field (SPN 587) is less than 1 character long";
+
+    private static final String EXPECTED_FAIL_MESSAGE_1_A = "6.1.9.1.a There are no positive responses (serial number SPN 588 not supported by any OBD ECU)";
+
+    private static final String EXPECTED_FAIL_MESSAGE_2_B = "6.1.9.2.b None of the positive responses were provided by the same SA as the SA that claims to be function 0 (engine)";
+
+    private static final String EXPECTED_FAIL_MESSAGE_2_C = "6.1.9.2.c Serial number field (SPN 588) from any function 0 device does not end in 6 numeric characters (ASCII 0 through ASCII 9)";
+
+    private static final String EXPECTED_FAIL_MESSAGE_2_D = "6.1.9.2.d The make (SPN 586), model (SPN 587), or serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters";
+
+    private static final String EXPECTED_FAIL_MESSAGE_5_A = "6.1.9.5.a Fail if there is no positive response from function 0. (Global request not supported or timed out)";
+
+    private static final String EXPECTED_FAIL_MESSAGE_5_B = "6.1.9.5.b  Fail if the global response does not match the destination specific response from function 0";
+
+    private static final String EXPECTED_FAIL_MESSAGE_6_A = "6.1.9.6.a Component ID not supported for the global query in 6.1.9.4, when supported by destination specific query";
+
+    private static final String EXPECTED_PASS_MESSAGE_1_A = "6.1.9.1.a";
+
+    private static final String EXPECTED_PASS_MESSAGE_1_B = "6.1.9.1.b";
+
+    private static final String EXPECTED_PASS_MESSAGE_2_C = "6.1.9.2.c";
+
+    private static final String EXPECTED_PASS_MESSAGE_2_D = "6.1.9.2.d";
+
+    private static final String EXPECTED_PASS_MESSAGE_3_A = "6.1.9.3.a";
+
+    private static final String EXPECTED_PASS_MESSAGE_3_B = "6.1.9.3.b";
+
+    private static final String EXPECTED_PASS_MESSAGE_3_C = "6.1.9.3.c";
+
+    private static final String EXPECTED_PASS_MESSAGE_3_D = "6.1.9.3.d";
+
+    private static final String EXPECTED_PASS_MESSAGE_4_A_4_B = "6.1.9.4.a & 6.1.9.4.b";
+
+    private static final String EXPECTED_PASS_MESSAGE_5_A = "6.1.9.5.a";
+
+    private static final String EXPECTED_PASS_MESSAGE_5_B = "6.1.9.5.b";
+
+    private static final String EXPECTED_PASS_MESSAGE_6_A = "6.1.9.6.a";
+
+    private static final String EXPECTED_WARN_MESSAGE_3_A = "6.1.9.3.a Serial number field (SPN 588) from any function 0 device is less than 8 characters long";
+
+    private static final String EXPECTED_WARN_MESSAGE_3_B = "6.1.9.3.b Make field (SPN 586) is longer than 5 ASCII characters";
+
+    private static final String EXPECTED_WARN_MESSAGE_3_C = "6.1.9.3.c Make field (SPN 586) is less than 2 ASCII characters";
+
+    private static final String EXPECTED_WARN_MESSAGE_4_A_4_B = "6.1.9.4.a & 6.1.9.4.b Global Componenet ID request(PGN 59904) for PGN 65259 (SPNs 586, 587, and 588)"
+            + NL + "  did not recieve any packets back to filter for display in the log";
+
+    private static final int PART_NUMBER = 1;
+
+    private static final int STEP_NUMBER = 9;
 
     /*
      * All values must be checked prior to mocking so that we are not creating
@@ -200,19 +257,109 @@ public class Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testDestinationSpecificPacketsEmpty() {
+        ComponentIdentificationPacket packet = createComponentIdPacket(0,
+                "Bat",
+                "TheBatCave",
+                "ST109823456");
+
+        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
+                entry(0, 4),
+                entry(1, 1),
+                entry(2, 2),
+                entry(3, 3));
+
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
+
+        when(vehicleInformationModule.reportComponentIdentification(any()))
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
+
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+
+        // Return and empty list of modules
+        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
+        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+
+        runTest();
+
+        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository).getObdModules();
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_1_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
+
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_1_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
+
+        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
+
+        verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_1_A);
+        verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A);
+        verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B);
+
+        String functionZeroWarning = "0 module(s) have claimed function 0 - only one module should";
+        verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + functionZeroWarning);
+
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
+        verify(vehicleInformationModule).reportComponentIdentification(any());
+
+        // Verify the documentation was recorded correctly
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        StringBuilder expectedResults = new StringBuilder(
+                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_1_A + NL);
+        expectedResults.append(WARN.toString() + COLON_SPACE + functionZeroWarning + NL)
+                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D + NL)
+                .append(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B + NL)
+                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A + NL)
+                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
+
+    }
+
+    @Test
     public void testGetDisplayName() {
-        assertEquals("Display Name", "Part 1 Step 9", instance.getDisplayName());
+        String name = "Part " + PART_NUMBER + " Step " + STEP_NUMBER;
+        assertEquals("Display Name", name, instance.getDisplayName());
     }
 
     @Test
     public void testGetStepNumber() {
 
-        assertEquals(9, instance.getStepNumber());
+        assertEquals(STEP_NUMBER, instance.getStepNumber());
     }
 
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", PART_NUMBER, instance.getTotalSteps());
     }
 
     @Test
@@ -235,78 +382,22 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses())
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
-            obdModuleInformations
-                    .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
-        }
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
-
-        runTest();
-
-        verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(1)).getObdModules();
-
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.6.a Component ID not supported for the global query in 6.1.9.4, when supported by destination specific query");
-
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.6.a Component ID not supported for the global query in 6.1.9.4, when supported by destination specific query");
-
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
-
-        // Verify the documentation was recorded correctly
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
-
-    }
-
-    @Test
-    public void testGlobalPacketMatchFailure() {
-
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "BatMan",
-                "TheBatCave",
-                "ST109823456");
-
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 0),
-                entry(1, 1),
-                entry(2, 2),
-                entry(3, 3));
-
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()).stream()
-                        .sorted().collect(Collectors.toList()));
-
+        // Global request response
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(),
                         Collections.emptyList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
+        // Destination specific responses
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
+                .thenReturn(new BusResult<ComponentIdentificationPacket>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
+                .thenReturn(new BusResult<ComponentIdentificationPacket>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+                .thenReturn(new BusResult<ComponentIdentificationPacket>(false, Optional.empty()));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new
-        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -316,20 +407,49 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(1)).getObdModules();
+        verify(dataRepository).getObdModules();
 
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.WARN,
-                "6.1.9.3.b Make field (SPN 586) is longer than 5 ASCII characters");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_4_A_4_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
 
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.WARN,
-                "6.1.9.3.b Make field (SPN 586) is longer than 5 ASCII characters");
+        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
+
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_4_A_4_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
+
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_4_A_4_B);
+        verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A);
+        verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B);
+        verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -340,8 +460,20 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
-
+        StringBuilder expectedResults = new StringBuilder(
+                PASS.toString().trim() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A + NL);
+        expectedResults.append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D + NL)
+                .append(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_4_A_4_B + NL)
+                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A + NL)
+                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B + NL)
+                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_6_A + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 
     @Test
@@ -364,10 +496,14 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
                         Collections.emptyList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
@@ -380,9 +516,48 @@ public class Step09ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(1)).getObdModules();
+        verify(dataRepository).getObdModules();
 
-        verify(reportFileModule).onProgress(0, 1, "");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
+
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
+
+        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
+
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -393,7 +568,20 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
+        StringBuilder expectedResults = new StringBuilder(
+                PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A + NL);
+        expectedResults.append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 
     @Test
@@ -417,14 +605,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
                         Collections.emptyList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new
-        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -434,20 +624,49 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(1)).getObdModules();
+        verify(dataRepository).getObdModules();
 
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.2.d The make (SPN 586), model (SPN 587), or serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters.");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
 
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.2.d The make (SPN 586), model (SPN 587), or serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters.");
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
+
+        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
+
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -458,7 +677,130 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
+        StringBuilder expectedResults = new StringBuilder(
+                PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A + NL);
+        expectedResults.append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C + NL)
+                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
+    }
+
+    @Test
+    public void testMakeFieldMoreThanFiveCharacters() {
+
+        ComponentIdentificationPacket packet = createComponentIdPacket(0,
+                "BatMan",
+                "TheBatCave",
+                "ST109823456");
+
+        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
+                entry(0, 0),
+                entry(1, 1),
+                entry(2, 2),
+                entry(3, 3));
+
+        when(dataRepository.getObdModuleAddresses())
+                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()).stream()
+                        .sorted().collect(Collectors.toList()));
+
+        when(vehicleInformationModule.reportComponentIdentification(any()))
+                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                        Collections.emptyList()));
+
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+                .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+
+        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
+        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
+            obdModuleInformations
+                    .add(createOBDModuleInformation(address
+                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
+        }
+        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+
+        runTest();
+
+        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository).getObdModules();
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
+
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
+
+        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
+
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A);
+
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
+        verify(vehicleInformationModule).reportComponentIdentification(any());
+
+        // Verify the documentation was recorded correctly
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        StringBuilder expectedResults = new StringBuilder(
+                PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A + NL);
+        expectedResults.append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A + NL)
+                .append(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
 
     }
 
@@ -482,14 +824,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
                         Collections.emptyList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new
-        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -499,20 +843,49 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(1)).getObdModules();
+        verify(dataRepository).getObdModules();
 
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.WARN,
-                "6.1.9.3.b Make field (SPN 586) is longer than 5 ASCII characters");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
 
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.WARN,
-                "6.1.9.3.b Make field (SPN 586) is longer than 5 ASCII characters");
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
+
+        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
+
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -523,8 +896,20 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
-
+        StringBuilder expectedResults = new StringBuilder(
+                PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A + NL);
+        expectedResults.append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A + NL)
+                .append(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 
     @Test
@@ -547,14 +932,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
                         Collections.emptyList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new
-        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -564,20 +951,51 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(1)).getObdModules();
+        verify(dataRepository).getObdModules();
 
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.WARN,
-                "6.1.9.3.c Make field (SPN 586) is less than 2 ASCII characters");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
 
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.WARN,
-                "6.1.9.3.c Make field (SPN 586) is less than 2 ASCII characters");
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
+                EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
+                EXPECTED_PASS_MESSAGE_6_A);
+
+        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
+
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -588,7 +1006,21 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
+
+        StringBuilder expectedResults = new StringBuilder(
+                PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A + NL);
+        expectedResults.append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B + NL)
+                .append(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
 
     }
 
@@ -613,14 +1045,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
                         Collections.emptyList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new
-        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -630,20 +1064,49 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(1)).getObdModules();
+        verify(dataRepository).getObdModules();
 
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.2.d The make (SPN 586), model (SPN 587), or serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters.");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
 
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.2.d The make (SPN 586), model (SPN 587), or serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters.");
+        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
+
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
+
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -652,10 +1115,22 @@ public class Step09ControllerTest extends AbstractControllerTest {
         verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
+        StringBuilder expectedResults = new StringBuilder(
+                PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A + NL);
+        expectedResults.append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C + NL)
+                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A + NL);
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
-
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 
     @Test
@@ -678,14 +1153,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
                         Collections.emptyList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new
-        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -695,20 +1172,49 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(1)).getObdModules();
+        verify(dataRepository).getObdModules();
 
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.WARN,
-                "6.1.9.3.d Model field (SPN 587) is less than 1 character long");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTEC_FAIL_MESSAGE_3_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
 
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.WARN,
-                "6.1.9.3.d Model field (SPN 587) is less than 1 character long");
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTEC_FAIL_MESSAGE_3_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
+
+        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
+
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTEC_FAIL_MESSAGE_3_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -719,7 +1225,20 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
+        StringBuilder expectedResults = new StringBuilder(
+                PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A + NL);
+        expectedResults.append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C + NL)
+                .append(WARN.toString() + COLON_SPACE + EXPECTEC_FAIL_MESSAGE_3_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
 
     }
 
@@ -733,7 +1252,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 "WW",
                 "TheInvisibleJet",
                 "IJ345612");
-        new ArrayList<>() {
+        List<ComponentIdentificationPacket> packets = new ArrayList<>() {
             {
                 add(packet);
                 add(packet1);
@@ -750,15 +1269,17 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                .thenReturn(new RequestResult<>(false, packets,
                         Collections.emptyList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
                 .thenReturn(new BusResult<>(false, packet1));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
@@ -771,34 +1292,85 @@ public class Step09ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(1)).getObdModules();
+        verify(dataRepository).getObdModules();
 
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.5.b None of the positive responses are provided by the same SA as the SA that claims to be function 0 (engine). (SPN 588 ESN not supported by the engine function)");
+        int twice = 2;
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(mockListener, times(twice)).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
 
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.5.b None of the positive responses are provided by the same SA as the SA that claims to be function 0 (engine). (SPN 588 ESN not supported by the engine function)");
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
+                EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule, times(twice)).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
+                EXPECTED_PASS_MESSAGE_6_A);
+
+        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
+
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A);
+        String expected2ModulesWarnMessage = "2 module(s) have claimed function 0 - only one module should";
+        verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + expected2ModulesWarnMessage);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule, times(twice)).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(twice));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
         verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
+        StringBuilder expectedResults = new StringBuilder(
+                PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A + NL);
 
+        expectedResults
+                .append(WARN.toString() + COLON_SPACE + expected2ModulesWarnMessage + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 
     @Test
-    public void testNoModuleWithFunctionZero() {
+    public void testPacketsEmptyFailureGlobalRequest() {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
                 "Bat",
                 "TheBatCave",
@@ -814,83 +1386,19 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                .thenReturn(new RequestResult<>(false, Collections.emptyList(),
                         Collections.emptyList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
-
-        // Return and empty list of modules
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
-
-        runTest();
-
-        // verify(dataRepository).getObdModule(eq(0));
-        verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(1)).getObdModules();
-
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.2.b None of the positive responses were provided by the same SA as the SA that claims to be function 0 (engine)");
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.5.a There are no positive responses (serial number SPN 588 not supported by any OBD ECU)");
-
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.2.b None of the positive responses were provided by the same SA as the SA that claims to be function 0 (engine)");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.5.a There are no positive responses (serial number SPN 588 not supported by any OBD ECU)");
-
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
-
-        // Verify the documentation was recorded correctly
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
-
-    }
-
-    @Test
-    public void testPacketsEmptyFailure() {
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "Bat",
-                "TheBatCave",
-                "ST109823456");
-
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 0),
-                entry(1, 1),
-                entry(2, 2),
-                entry(3, 3));
-
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
-
-        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                        Collections.emptyList()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new
-        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -901,26 +1409,48 @@ public class Step09ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(1)).getObdModules();
+        verify(dataRepository).getObdModules();
 
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.1.a There are no positive responses (serial number SPN 588 not supported by any OBD ECU)");
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.2.b None of the positive responses were provided by the same SA as the SA that claims to be function 0 (engine)");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_4_A_4_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
 
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.1.a There are no positive responses (serial number SPN 588 not supported by any OBD ECU)");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.2.b None of the positive responses were provided by the same SA as the SA that claims to be function 0 (engine)");
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_4_A_4_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
+
+        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
+
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_4_A_4_B);
+        verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A);
+        verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B);
+        verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -931,8 +1461,21 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
 
+        StringBuilder expectedResults = new StringBuilder(
+                PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A + NL);
+        expectedResults.append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D + NL)
+                .append(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_4_A_4_B + NL)
+                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A + NL)
+                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B + NL)
+                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_6_A + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 
     @Test
@@ -956,14 +1499,16 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
                         Collections.emptyList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        // OBDModuleInformation obdModuleInfomation = new
-        // OBDModuleInformation(0);
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
@@ -975,18 +1520,48 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         // verify(dataRepository).getObdModule(eq(0));
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(1)).getObdModules();
+        verify(dataRepository).getObdModules();
 
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.2.d The make (SPN 586), model (SPN 587), or serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters.");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
 
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.2.d The make (SPN 586), model (SPN 587), or serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters.");
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
+
+        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
+
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -997,8 +1572,20 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
-
+        StringBuilder expectedResults = new StringBuilder(
+                PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A + NL);
+        expectedResults.append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C + NL)
+                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 
     @Test
@@ -1021,10 +1608,14 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
                         Collections.emptyList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
@@ -1037,18 +1628,52 @@ public class Step09ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(1)).getObdModules();
+        verify(dataRepository).getObdModules();
 
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.WARN,
-                "6.1.9.3.a Serial number field (SPN 588) from any function 0 device is less than 8 characters long");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
 
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.WARN,
-                "6.1.9.3.a Serial number field (SPN 588) from any function 0 device is less than 8 characters long");
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
+
+        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
+
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -1059,7 +1684,22 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
+
+        StringBuilder expectedResults = new StringBuilder(
+                PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A + NL);
+        expectedResults.append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D + NL)
+                .append(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A + NL);
+
+        assertEquals(expectedResults.toString(), listener.getResults());
 
     }
 
@@ -1083,10 +1723,14 @@ public class Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
                         Collections.emptyList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), ArgumentMatchers.anyInt()))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
@@ -1099,18 +1743,48 @@ public class Step09ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository, times(1)).getObdModules();
+        verify(dataRepository).getObdModules();
 
-        verify(mockListener).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.2.c Serial number field (SPN 588) from any function 0 device does not end in 6 numeric characters (ASCII 0 through ASCII 9)");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
 
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).addOutcome(1,
-                9,
-                Outcome.FAIL,
-                "6.1.9.2.c Serial number field (SPN 588) from any function 0 device does not end in 6 numeric characters (ASCII 0 through ASCII 9)");
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, EXPECTED_PASS_MESSAGE_6_A);
+
+        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
+
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B);
+        verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B);
+        verify(reportFileModule).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -1121,7 +1795,19 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
-
+        StringBuilder expectedResults = new StringBuilder(
+                PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_A + NL);
+        expectedResults.append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_1_B + NL)
+                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_2_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_C + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_3_D + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_4_A_4_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_A + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_5_B + NL)
+                .append(PASS.toString() + COLON_SPACE + EXPECTED_PASS_MESSAGE_6_A + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 }

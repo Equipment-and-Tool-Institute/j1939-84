@@ -3,17 +3,18 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.model.Outcome.WARN;
+
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.logging.Level;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -29,6 +30,8 @@ import org.etools.j1939_84.utils.StringUtils;
  */
 public class Step09Controller extends StepController {
 
+    private static final int PART_NUMBER = 1;
+    private static final int STEP_NUMBER = 9;
     private final DataRepository dataRepository;
 
     Step09Controller(DataRepository dataRepository) {
@@ -46,17 +49,17 @@ public class Step09Controller extends StepController {
 
     @Override
     public String getDisplayName() {
-        return "Part 1 Step 9";
+        return "Part " + PART_NUMBER + " Step " + STEP_NUMBER;
     }
 
     @Override
     public int getStepNumber() {
-        return 9;
+        return STEP_NUMBER;
     }
 
     @Override
     protected int getTotalSteps() {
-        return 1;
+        return PART_NUMBER;
     }
 
     @Override
@@ -74,10 +77,11 @@ public class Step09Controller extends StepController {
                         .flatMap(e -> e.left).stream())
                 .collect(Collectors.toList());
         if (packets.isEmpty()) {
-            getListener().addOutcome(1,
-                    9,
-                    Outcome.FAIL,
+            addFailure(PART_NUMBER,
+                    STEP_NUMBER,
                     "6.1.9.1.a There are no positive responses (serial number SPN 588 not supported by any OBD ECU)");
+        } else {
+            addPass(PART_NUMBER, STEP_NUMBER, "6.1.9.1.a");
         }
 
         // Filter the modules responded to be only ones with function = 0
@@ -90,7 +94,7 @@ public class Step09Controller extends StepController {
         // Log missing engine response
         if (zeroFunctionObdBDModules.size() != 1) {
             // TODO Only one module should be reporting function 0
-            getLogger().log(Level.WARNING,
+            getListener().onResult(WARN.toString() + ": " +
                     String.format(
                             "%s module(s) have claimed function 0 - only one module should",
                             zeroFunctionObdBDModules.size()));
@@ -104,12 +108,12 @@ public class Step09Controller extends StepController {
 
         ComponentIdentificationPacket zeroFunctionPacket = null;
         if (zeroFunctionObdBDModules.isEmpty() || zeroFunctionPackets.isEmpty()) {
-            getListener().addOutcome(1,
-                    9,
-                    Outcome.FAIL,
+            addFailure(PART_NUMBER,
+                    getStepNumber(),
                     "6.1.9.2.b None of the positive responses were provided by the same SA as the SA that claims to be function 0 (engine)");
         } else {
             zeroFunctionPacket = zeroFunctionPackets.get(0);
+            addPass(PART_NUMBER, STEP_NUMBER, "6.1.9.1.b");
         }
 
         // 6.1.9.2 Fail Criteria:
@@ -121,10 +125,11 @@ public class Step09Controller extends StepController {
         if (serialNumber.length() >= 6 && !StringUtils.containsOnlyNumericAsciiCharacters(serialNumber.substring(
                 (zeroFunctionPacket.getSerialNumber().length() - 6),
                 zeroFunctionPacket.getSerialNumber().length()))) {
-            getListener().addOutcome(1,
-                    9,
-                    Outcome.FAIL,
+            addFailure(PART_NUMBER,
+                    STEP_NUMBER,
                     "6.1.9.2.c Serial number field (SPN 588) from any function 0 device does not end in 6 numeric characters (ASCII 0 through ASCII 9)");
+        } else if (!serialNumber.isBlank() && !serialNumber.isEmpty()) {
+            addPass(PART_NUMBER, STEP_NUMBER, "6.1.9.2.c");
         }
 
         // d. Fail if the make (SPN 586), model (SPN 587), or serial number (SPN
@@ -135,43 +140,48 @@ public class Step09Controller extends StepController {
         if (StringUtils.containsNonPrintableAsciiCharacter(serialNumber) ||
                 StringUtils.containsNonPrintableAsciiCharacter(make) || (model != null &&
                         StringUtils.containsNonPrintableAsciiCharacter(model))) {
-            getListener().addOutcome(1,
-                    9,
-                    Outcome.FAIL,
-                    "6.1.9.2.d The make (SPN 586), model (SPN 587), or serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters.");
+            addFailure(PART_NUMBER,
+                    STEP_NUMBER,
+                    "6.1.9.2.d The make (SPN 586), model (SPN 587), or serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters");
 
+        } else {
+            addPass(PART_NUMBER, STEP_NUMBER, "6.1.9.2.d");
         }
 
         // 6.1.9.3 Warn Criteria for OBD ECUs:
         // a. Warn if the serial number field (SPN 588) from any function 0
         // device is less than 8 characters long.
-        if (!serialNumber.isEmpty() && serialNumber.length() < 8) {
-            getListener().addOutcome(1,
-                    9,
-                    Outcome.WARN,
+        if (serialNumber.length() < 8) {
+            addWarning(PART_NUMBER,
+                    STEP_NUMBER,
                     "6.1.9.3.a Serial number field (SPN 588) from any function 0 device is less than 8 characters long");
+        } else if (!serialNumber.isBlank() && !serialNumber.isEmpty()) {
+            addPass(PART_NUMBER, STEP_NUMBER, "6.1.9.3.a");
         }
         // b. Warn if the make field (SPN 586) is longer than 5 ASCII
         // characters.
         if (!make.isEmpty() && make.length() > 5) {
-            getListener().addOutcome(1,
-                    9,
-                    Outcome.WARN,
+            addWarning(PART_NUMBER,
+                    STEP_NUMBER,
                     "6.1.9.3.b Make field (SPN 586) is longer than 5 ASCII characters");
+        } else if (!make.isBlank() && !make.isEmpty()) {
+            addPass(PART_NUMBER, STEP_NUMBER, "6.1.9.3.b");
         }
         // c. Warn if the make field (SPN 586) is less than 2 ASCII characters.
         if (!make.isEmpty() && make.length() < 2) {
-            getListener().addOutcome(1,
-                    9,
-                    Outcome.WARN,
+            addWarning(PART_NUMBER,
+                    STEP_NUMBER,
                     "6.1.9.3.c Make field (SPN 586) is less than 2 ASCII characters");
+        } else if (!make.isBlank() && !make.isEmpty()) {
+            addPass(PART_NUMBER, STEP_NUMBER, "6.1.9.3.c");
         }
         // d. Warn if the model field (SPN 587) is less than 1 character long.
         if (model != null && model.length() < 1) {
-            getListener().addOutcome(1,
-                    9,
-                    Outcome.WARN,
+            addWarning(PART_NUMBER,
+                    STEP_NUMBER,
                     "6.1.9.3.d Model field (SPN 587) is less than 1 character long");
+        } else if (model != null && !model.isBlank() && !model.isEmpty()) {
+            addPass(PART_NUMBER, STEP_NUMBER, "6.1.9.3.d");
         }
 
         // 6.1.9.4 Actions2: [Note: No warning message shall be provided for
@@ -183,48 +193,51 @@ public class Step09Controller extends StepController {
         List<ComponentIdentificationPacket> globalPackets = getVehicleInformationModule()
                 .reportComponentIdentification(getListener()).getPackets();
         if (globalPackets.isEmpty()) {
-            getListener().addOutcome(1,
-                    9,
-                    Outcome.FAIL,
-                    "6.1.9.5.a Fail if there is no positive response from function 0. (Global request not supported or timed out)");
+            addWarning(PART_NUMBER, STEP_NUMBER,
+                    "6.1.9.4.a & 6.1.9.4.b Global Componenet ID request(PGN 59904) for PGN 65259 (SPNs 586, 587, and 588)"
+                            + NL + "  did not recieve any packets back to filter for display in the log");
+        } else {
+            addPass(PART_NUMBER, STEP_NUMBER, "6.1.9.4.a & 6.1.9.4.b");
         }
+
         // 6.1.9.5 Fail Criteria2 for function 0:
-
-        // a. Fail if there is no positive response from function 0. (Global
-        // request not supported or timed out)
-
-        // b. Fail if the global response does not match the destination
-        // specific response from function 0.
-
         List<ComponentIdentificationPacket> globalPacketsFunctionZero = new ArrayList<>();
         zeroFunctionObdBDModules.forEach(moduleInfo -> {
             globalPacketsFunctionZero.addAll(globalPackets.stream()
                     .filter(packet -> packet.getSourceAddress() == moduleInfo.getSourceAddress())
                     .collect(Collectors.toList()));
         });
+
         if (globalPacketsFunctionZero.isEmpty()) {
-            getListener().addOutcome(1,
-                    9,
-                    Outcome.FAIL,
-                    "6.1.9.5.b None of the positive responses are provided by the same SA as the SA that claims to be function 0 (engine). (SPN 588 ESN not supported by the engine function)");
-        } else if (!globalPacketsFunctionZero.get(0).equals(zeroFunctionPacket)) {
-            getListener().addOutcome(1,
-                    9,
-                    Outcome.FAIL,
-                    "6.1.9.5.b  Fail if the global response does not match the destination specific response from function 0.");
+            // a. Fail if there is no positive response from function 0. (Global
+            // request not supported or timed out)
+            addFailure(PART_NUMBER,
+                    STEP_NUMBER,
+                    "6.1.9.5.a Fail if there is no positive response from function 0. (Global request not supported or timed out)");
+        } else {
+            addPass(PART_NUMBER, STEP_NUMBER, "6.1.9.5.a");
+        }
+        if (!globalPacketsFunctionZero.contains(zeroFunctionPacket)) {
+            // b. Fail if the global response does not match the destination
+            // specific response from function 0.
+            addFailure(PART_NUMBER,
+                    STEP_NUMBER,
+                    "6.1.9.5.b  Fail if the global response does not match the destination specific response from function 0");
+        } else {
+            addPass(PART_NUMBER, STEP_NUMBER, "6.1.9.5.b");
         }
 
         // 6.1.9.6 Warn Criteria2 for OBD ECUs other than function 0:
         // a. Warn if Component ID not supported for the global query in
-        // 6.1.9.4, when
-        // supported by destination specific query
+        // 6.1.9.4, when supported by destination specific query
         packets.forEach(singlePacket -> {
             if (!globalPackets.contains(singlePacket)) {
-                getListener().addOutcome(1,
-                        9,
-                        Outcome.FAIL,
+                addFailure(PART_NUMBER,
+                        STEP_NUMBER,
                         "6.1.9.6.a Component ID not supported for the global query in 6.1.9.4, when supported by destination specific query");
 
+            } else {
+                addPass(PART_NUMBER, STEP_NUMBER, "6.1.9.6.a");
             }
         });
 
