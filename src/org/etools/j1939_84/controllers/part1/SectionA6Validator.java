@@ -18,7 +18,7 @@ import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.model.Outcome;
+import org.etools.j1939_84.controllers.Validator;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 
@@ -30,9 +30,10 @@ import org.etools.j1939_84.modules.DiagnosticReadinessModule;
  *         Evaluation
  *
  */
-public class SectionA6Validator {
+public class SectionA6Validator extends Validator {
 
     private final DataRepository dataRepository;
+
     private final DiagnosticReadinessModule diagnosticReadinessModule;
 
     private final String SECTION_NAME = "Section A6 Validator";
@@ -49,18 +50,6 @@ public class SectionA6Validator {
         this.dataRepository = dataRepository;
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.tableA6Validator = tableA6Validator;
-    }
-
-    /**
-     * @param partNumber
-     * @param stepNumber
-     * @param outCome
-     * @param message
-     * @param listener
-     */
-    private static void addOutcome(int partNumber, int stepNumber, Outcome outCome, String message,
-            ResultsListener listener) {
-        listener.addOutcome(partNumber, stepNumber, outCome, message);
     }
 
     /**

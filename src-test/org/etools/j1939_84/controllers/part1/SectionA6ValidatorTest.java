@@ -89,62 +89,10 @@ public class SectionA6ValidatorTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.SectionA6Validator#SectionA6Validator(org.etools.j1939_84.controllers.part1.DataRepository, org.etools.j1939_84.modules.DiagnosticReadinessModule, org.etools.j1939_84.modules.DTCModule, org.etools.j1939_84.modules.OBDTestsModule, org.etools.j1939_84.controllers.part1.TableA6Validator, org.etools.j1939_84.modules.VehicleInformationModule)}.
-     */
-    @Test
-    public void testNoObdResponse() {
-
-        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
-            {
-                add(0x00);
-                add(0x17);
-                add(0x21);
-            }
-        };
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
-
-        RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false,
-                Collections.emptyList(), Collections.emptyList());
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(response);
-
-        instance.setJ1939(j1939);
-
-        assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER));
-
-        verify(dataRepository).getObdModuleAddresses();
-
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true));
-
-        StringBuilder expectedMessage1a = new StringBuilder(SECTION_A6_VALIDATOR + NL);
-        expectedMessage1a.append(
-                " Step 1.a - Fail if no response from an OBD ECU (ECUs that indicate 0x13, 0x14, 0x22, or 0x23 for OBD compliance)"
-                        + NL)
-                .append("   ECU with source address :  0 did not return a response" + NL)
-                .append("   ECU with source address :  23 did not return a response" + NL)
-                .append("   ECU with source address :  33 did not return a response");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                expectedMessage1a.toString());
-
-        StringBuilder expectedMessage2d = new StringBuilder(SECTION_A6_VALIDATOR + NL);
-        expectedMessage2d.append("Step 2.d - Pass");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, expectedMessage2d.toString());
-
-        StringBuilder expectedMessage3b = new StringBuilder(SECTION_A6_VALIDATOR + NL);
-        expectedMessage3b.append("Step 3.b - Pass");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, expectedMessage3b.toString());
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
-    }
-
-    /**
-     * Test method for
      * {@link org.etools.j1939_84.controllers.part1.SectionA6Validator#setJ1939(org.etools.j1939_84.bus.j1939.J1939)}.
      */
     @Test
-    public void testSetJ1939() {
+    public void testMoreFails() {
 
         ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
             {
@@ -216,10 +164,97 @@ public class SectionA6ValidatorTest {
 
         verify(tableA6Validator, times(3)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
-        assertEquals("", listener.getMessages());
+        StringBuilder expectedMessages = new StringBuilder(PASS.toString() + ": ");
+        expectedMessages.append(expectedMessage1a + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1b + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1c + NL)
+                .append(FAIL.toString() + ": ")
+                .append(expectedMessage1dPacket0 + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage2c + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1b + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1c + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1d + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage2c + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1b + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1c + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1d + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage2c + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage2d + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage3b);
+
+        assertEquals(expectedMessages.toString(), listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
+    }
+
+    /**
+     * Test method for
+     * {@link org.etools.j1939_84.controllers.part1.SectionA6Validator#SectionA6Validator(org.etools.j1939_84.controllers.part1.DataRepository, org.etools.j1939_84.modules.DiagnosticReadinessModule, org.etools.j1939_84.modules.DTCModule, org.etools.j1939_84.modules.OBDTestsModule, org.etools.j1939_84.controllers.part1.TableA6Validator, org.etools.j1939_84.modules.VehicleInformationModule)}.
+     */
+    @Test
+    public void testNoObdResponse() {
+
+        ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
+            {
+                add(0x00);
+                add(0x17);
+                add(0x21);
+            }
+        };
+        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
+
+        RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false,
+                Collections.emptyList(), Collections.emptyList());
+        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(response);
+
+        instance.setJ1939(j1939);
+
+        assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER));
+
+        verify(dataRepository).getObdModuleAddresses();
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(true));
+
+        StringBuilder expectedMessage1a = new StringBuilder(SECTION_A6_VALIDATOR + NL);
+        expectedMessage1a.append(
+                " Step 1.a - Fail if no response from an OBD ECU (ECUs that indicate 0x13, 0x14, 0x22, or 0x23 for OBD compliance)"
+                        + NL)
+                .append("   ECU with source address :  0 did not return a response" + NL)
+                .append("   ECU with source address :  23 did not return a response" + NL)
+                .append("   ECU with source address :  33 did not return a response");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                expectedMessage1a.toString());
+
+        StringBuilder expectedMessage2d = new StringBuilder(SECTION_A6_VALIDATOR + NL);
+        expectedMessage2d.append("Step 2.d - Pass");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, expectedMessage2d.toString());
+
+        StringBuilder expectedMessage3b = new StringBuilder(SECTION_A6_VALIDATOR + NL);
+        expectedMessage3b.append("Step 3.b - Pass");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, expectedMessage3b.toString());
+
+        StringBuilder expectedMessage = new StringBuilder(FAIL.toString() + ": ");
+        expectedMessage
+                .append(expectedMessage1a.append(NL).append(PASS.toString() + ": ").append(expectedMessage2d).append(NL)
+                        .append(PASS.toString() + ": ").append(expectedMessage3b));
+        assertEquals(expectedMessage.toString(), listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getResults());
     }
 
     /**
@@ -297,7 +332,64 @@ public class SectionA6ValidatorTest {
 
         verify(tableA6Validator, times(4)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
-        assertEquals("", listener.getMessages());
+        StringBuilder expectedMessage = new StringBuilder(PASS.toString() + ": ");
+        expectedMessage.append(expectedMessage1a)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1b)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1c)
+                .append(NL)
+                .append(FAIL.toString() + ": ")
+                .append(expectedMessage1d)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage2c)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1b)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1c)
+                .append(NL)
+                .append(FAIL.toString() + ": ")
+                .append(expectedMessage1d)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage2c)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1b)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1c)
+                .append(NL)
+                .append(FAIL.toString() + ": ")
+                .append(expectedMessage1d)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage2c)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1b)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1c)
+                .append(NL)
+                .append(FAIL.toString() + ": ")
+                .append(expectedMessage1d)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage2c)
+                .append(NL)
+                .append(WARN.toString() + ": ")
+                .append(expectedMessage2d)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage3b);
+
+        assertEquals(expectedMessage.toString(), listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
@@ -372,7 +464,38 @@ public class SectionA6ValidatorTest {
 
         verify(tableA6Validator, times(3)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
-        assertEquals("", listener.getMessages());
+        StringBuilder expectedMessage = new StringBuilder(PASS.toString() + ": ");
+        expectedMessage.append(expectedMessage1a + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1b + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1c + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1d + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage2c + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1b + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1c + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1d + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage2c + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1b + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1c + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1d + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage2c + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage2d + NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage3b);
+
+        assertEquals(expectedMessage.toString(), listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
@@ -451,11 +574,11 @@ public class SectionA6ValidatorTest {
         verify(mockListener, times(3)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 expectedMessage1c.toString());
 
-        StringBuilder expectedMessage1dPass = new StringBuilder(
+        StringBuilder expectedMessage1d = new StringBuilder(
                 SECTION_A6_VALIDATOR + NL);
-        expectedMessage1dPass.append("Step 1.d - Pass");
+        expectedMessage1d.append("Step 1.d - Pass");
         verify(mockListener, times(3)).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                expectedMessage1dPass.toString());
+                expectedMessage1d.toString());
 
         StringBuilder expectedMessage2c = new StringBuilder(SECTION_A6_VALIDATOR + NL);
         expectedMessage2c.append(
@@ -480,7 +603,43 @@ public class SectionA6ValidatorTest {
 
         verify(tableA6Validator, times(3)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
-        assertEquals("", listener.getMessages());
+        StringBuilder expectedMessage = new StringBuilder(FAIL.toString() + ": ");
+        expectedMessage.append(expectedMessage1a)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1bPass)
+                .append(NL)
+                .append(FAIL.toString() + ": ")
+                .append(expectedMessage1c)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1d)
+                .append(NL)
+                .append(FAIL.toString() + ": ")
+                .append(expectedMessage1b)
+                .append(NL)
+                .append(FAIL.toString() + ": ")
+                .append(expectedMessage1c)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1d)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1bPass)
+                .append(NL)
+                .append(FAIL.toString() + ": ")
+                .append(expectedMessage1c)
+                .append(NL)
+                .append(PASS.toString() + ": ")
+                .append(expectedMessage1d)
+                .append(NL)
+                .append(WARN.toString() + ": ")
+                .append(expectedMessage2d)
+                .append(NL)
+                .append(WARN.toString() + ": ")
+                .append(expectedMessage3b);
+
+        assertEquals(expectedMessage.toString(), listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
