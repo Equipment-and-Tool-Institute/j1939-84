@@ -143,6 +143,13 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
         // Don't care
     }
 
+    private void onResult(int partNumber, int stepNumber, Outcome outcome, String message) {
+        StringBuilder messageBuilder = new StringBuilder(outcome.toString() + " ");
+        messageBuilder.append("Step " + partNumber + "." + stepNumber)
+                .append(" " + message + NL);
+        onResult(messageBuilder.toString());
+    }
+
     @Override
     public void onResult(List<String> results) {
         for (String result : results) {
