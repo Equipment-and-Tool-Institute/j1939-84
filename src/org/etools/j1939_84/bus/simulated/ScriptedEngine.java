@@ -153,7 +153,6 @@ public class ScriptedEngine implements AutoCloseable {
             return request -> request.getPgn() == 0xEA00
                     && request.get24(0) == pgn
                     && (request.getDestination() == 0xFF
-                            // ? (response.getId() & 0xFF) == 0xFF
                             || response.getSource() == request.getDestination());
         } else {
             return request -> request.getPgn() == 0xEA00
@@ -175,23 +174,34 @@ public class ScriptedEngine implements AutoCloseable {
         a.forEach(e -> {
             JsonObject o = e.getAsJsonObject();
             JsonArray array = o.get("packets").getAsJsonArray();
-            if (o.has("onRequest") && "dm7".equals(o.get("onRequest").getAsString())) {
-                int sa = Packet.parse(array.get(0).getAsJsonObject().get("packet").getAsString()).getSource();
-                // register a response in the simulator for each DM7 SPN request
+            Packet packet = Packet.parse(array.get(0).getAsJsonObject().get("packet").getAsString());
+            switch (o.has("onRequest") ? o.get("onRequest").getAsString() : "") {
+            case "dm7":
+                // register a response in the simulator for each DM7 SPN
+                // request
                 StreamSupport.stream(array.spliterator(), false)
                         .map(element -> Packet.parse(element.getAsJsonObject().get("packet").getAsString()))
                         .map(ScriptedEngine::dm7Spn)
                         // we only need one DM17Provider for each SPN
                         .distinct()
-                        .map(spn -> new DM7Provider(spn, sa, o))
+                        .map(spn -> new DM7Provider(spn, packet.getSource(), o))
                         .forEach(provider -> sim.response(provider, provider));
-            } else if (o.has("onRequest") && o.get("onRequest").getAsBoolean()) {
-                // register a response in the simulator for each EA00 request
-                JsonObject firstPacket = array.get(0).getAsJsonObject();
-                Packet packet = Packet.parse(firstPacket.get("packet").getAsString());
+
+                break;
+            case "true":
                 sim.response(isRequestForPredicate(packet), new ResponseProvider(o));
-            } else {
-                // register a periodic broadcast
+                break;
+            case "DS":
+            case "ds":
+                sim.response(isRequestForPredicate(packet).and(req -> req.getDestination() == packet.getSource()),
+                        new ResponseProvider(o));
+                break;
+            case "FF":
+            case "ff":
+                sim.response(isRequestForPredicate(packet).and(req -> req.getDestination() == 0xFF),
+                        new ResponseProvider(o));
+                break;
+            default: { // register a periodic broadcast
                 int period = o.get("period").getAsInt();
                 if (period <= 0) {
                     System.err.println("FAIL:" + o.get("response").getAsString());
@@ -203,8 +213,9 @@ public class ScriptedEngine implements AutoCloseable {
                         TimeUnit.MILLISECONDS,
                         () -> sim.sendNow(responseProvider.get()));
             }
+                break;
+            }
         });
-        sim.responses.forEach(r -> System.err.println(r));
     }
 
     @Override

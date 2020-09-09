@@ -793,7 +793,7 @@
   {
     "PGN": "C100",
     "SA": "00",
-    "onRequest": "true",
+    "onRequest": "ds",
     "packets": [
       {
         "packet": "18C1F900 00 00 00 00 01 00 0B 00"
@@ -824,7 +824,7 @@
   {
     "PGN": "C100",
     "SA": "00",
-    "onRequest": "true",
+    "onRequest": "FF",
     "packets": [
       {
         "packet": "18C1FF00 00 00 00 00 00 00 00 00"

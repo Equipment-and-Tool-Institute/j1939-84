@@ -660,7 +660,7 @@
   {
     "PGN": "C100",
     "SA": "01",
-    "onRequest": "true",
+    "onRequest": "DS",
     "packets": [
       {
         "packet": "18C1F901 00 00 00 00 00 00 00 00"
@@ -676,7 +676,7 @@
   {
     "PGN": "C100",
     "SA": "3D",
-    "onRequest": "true",
+    "onRequest": "DS",
     "packets": [
       {
         "packet": "18C1F93D 00 00 00 00 00 00 00 00"
@@ -692,7 +692,7 @@
   {
     "PGN": "C100",
     "SA": "01",
-    "onRequest": "true",
+    "onRequest": "FF",
     "packets": [
       {
         "packet": "18C1FF01 00 00 00 00 00 00 00 00"
@@ -705,7 +705,7 @@
   {
     "PGN": "C100",
     "SA": "3D",
-    "onRequest": "true",
+    "onRequest": "FF",
     "packets": [
       {
         "packet": "18C1FF3D 00 00 00 00 00 00 00 00"
