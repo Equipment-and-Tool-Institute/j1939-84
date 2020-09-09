@@ -152,19 +152,15 @@ public class TestDocProcessor extends AbstractProcessor {
                 .distinct()
                 .collect(Collectors.toList());
 
-        try (
-
-                Writer out = processingEnv.getFiler()
-                        .createResource(StandardLocation.SOURCE_OUTPUT,
-                                "",
-                                "testdoc.html")
-                        .openWriter()) {
+        try (Writer out = processingEnv.getFiler()
+                .createResource(StandardLocation.SOURCE_OUTPUT, "", "testdoc.html")
+                .openWriter()) {
             // index by requirement
             out.write("<html>\n");
             // out.write("<link rel=\"stylesheet\" href=\"testdoc.css\">\n");
             // embed style for a single file solution
             try (InputStreamReader in = new InputStreamReader(
-                    TestDocProcessor.class.getResourceAsStream("style.html"))) {
+                    TestDocProcessor.class.getResourceAsStream("/style.html"))) {
                 in.transferTo(out);
             }
             out.write("<h1>Test Plan</h1>\n");
@@ -189,9 +185,7 @@ public class TestDocProcessor extends AbstractProcessor {
 
             out.write("</html>\n");
             return true;
-        } catch (
-
-        Throwable e1) {
+        } catch (Throwable e1) {
             e1.printStackTrace();
         }
         return false;

@@ -269,10 +269,11 @@
 				</fileset>
 			</classpath>
 		</javac>
-
+	        <delete file="lib-test/testdoc.jar" />
 		<jar file="lib-test/testdoc.jar">
 			<fileset dir="build" includes="org/etools/testdoc/**" />
 			<fileset dir="etc/testdoc" />
+			<zipfileset src="lib-test/junit-4.12.jar" includes="org/junit/Test.class"/>
 		</jar>
 	</target>
 </project>
