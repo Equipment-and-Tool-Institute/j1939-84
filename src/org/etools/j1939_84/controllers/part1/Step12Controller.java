@@ -34,6 +34,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  */
 public class Step12Controller extends StepController {
 
+    private static final int PART_NUMBER = 1;
+    private static final int STEP_NUMBER = 12;
     private final DataRepository dataRepository;
     private final OBDTestsModule obdTestsModule;
     private final TableA7Validator tableA7Validator;
@@ -56,18 +58,13 @@ public class Step12Controller extends StepController {
 
     @Override
     public String getDisplayName() {
-        return "Part 1 Step 12";
+        return "Part " + PART_NUMBER + " Step " + STEP_NUMBER;
     }
 
     @Override
     public int getStepNumber() {
-        return 12;
+        return STEP_NUMBER;
     }
-
-    // So we need to go back to step 4
-    // get from repository all the supported spns by module address
-    // then send DM7 to each module address asking each supported spn
-    // then we need to save to dataRepository the spn and fmi by address
 
     @Override
     protected int getTotalSteps() {
@@ -88,7 +85,7 @@ public class Step12Controller extends StepController {
         // Record it the DM30 for each module
         Collection<OBDModuleInformation> obdModules = dataRepository.getObdModules();
         if (obdModules.isEmpty()) {
-            getLogger().info("No OBD modules found.  Continuing...");
+            addWarning(PART_NUMBER, STEP_NUMBER, "No OBD modules found.  Continuing...");
         }
 
         for (OBDModuleInformation obdModule : obdModules) {
@@ -108,23 +105,29 @@ public class Step12Controller extends StepController {
         }
         // 6.1.12.2 Fail/warn criteria:
         //
-        // Create list of ECU address+SPN+FMI
-        // supported test results.19
+        // Create list of ECU address+SPN+FMI supported test results.19
         // a. Fail/warn per section A.7 Criteria for Test Results Evaluation.
         // Evaluate each result.
         FuelType fuelType = dataRepository.getVehicleInformation().getFuelType();
 
         if (fuelType.isCompressionIgnition()) {
-            tableA7Validator.validateForCompressionIgnition(vehicleTestResults, getListener());
-
+            if (tableA7Validator.validateForCompressionIgnition(vehicleTestResults, getListener())) {
+                addPass(PART_NUMBER, STEP_NUMBER, "6.1.12.2.a");
+            } else {
+                addFailure(PART_NUMBER, STEP_NUMBER,
+                        "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)");
+            }
         } else if (fuelType.isSparkIgnition()) {
-            tableA7Validator.validateForSparkIgnition(vehicleTestResults, getListener());
-
+            if (tableA7Validator.validateForSparkIgnition(vehicleTestResults, getListener())) {
+                addPass(PART_NUMBER, STEP_NUMBER, "6.1.12.2.a");
+            } else {
+                addFailure(PART_NUMBER, STEP_NUMBER,
+                        "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Spark Ignition)");
+            }
         } else {
             // TODO - verify this is what we really want to do.
-            addFailure(1,
-                    12,
-                    "Fail verification of 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results is only defined for spark ignition or compression engines.");
+            addFailure(PART_NUMBER, STEP_NUMBER,
+                    "6.1.12.2.a Verification of 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results is only defined for spark or compression ignition");
         }
 
     }
@@ -140,9 +143,10 @@ public class Step12Controller extends StepController {
                 .collect(Collectors.toList());
 
         if (testResults.isEmpty()) {
-            addFailure(1,
-                    12,
-                    "Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support.");
+            addFailure(PART_NUMBER, STEP_NUMBER,
+                    "6.1.12.1.a Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support");
+        } else {
+            addPass(PART_NUMBER, STEP_NUMBER, "6.1.12.1.a");
         }
 
         // b. Fail if any test result does not report the test result/min test
@@ -154,10 +158,10 @@ public class Step12Controller extends StepController {
             boolean isMinimum = result.getTestValue() == 0x0000 &&
                     result.getTestMinimum() == 0x0000 && result.getTestMaximum() == 0x0000;
             if (!isMaximum && !isMinimum) {
-                addFailure(1,
-                        12,
-                        "Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
-
+                addFailure(PART_NUMBER, STEP_NUMBER,
+                        "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+            } else {
+                addPass(PART_NUMBER, STEP_NUMBER, "6.1.12.1.b");
             }
             // c. Fail if the SLOT identifier for any test results is an
             // undefined or a not valid SLOT in Appendix A of J1939-71. See
@@ -176,12 +180,13 @@ public class Step12Controller extends StepController {
         };
         if (!reportedDuplicates.isEmpty()) {
             reportedDuplicates.forEach(dup -> {
-                String failureMessage = "SPN " + dup.getSpn() + " FMI " + dup.getFmi() + " returned duplicates.";
-                addFailure(1,
-                        12,
+                String failureMessage = "6.1.12.1.d SPN " + dup.getSpn() + " FMI " + dup.getFmi()
+                        + " returned duplicates";
+                addFailure(PART_NUMBER, STEP_NUMBER,
                         failureMessage);
             });
-
+        } else {
+            addPass(PART_NUMBER, STEP_NUMBER, "6.1.12.1.d");
         }
 
         return verified;
@@ -203,9 +208,10 @@ public class Step12Controller extends StepController {
                 451, 452, 453, 456, 459, 460, 462, 463, 464, 474, 475, 476, 479
         }));
         if (!validSlots.contains(slotIdentifier)) {
-            addFailure(1,
-                    12,
-                    "#" + slotIdentifier + " SLOT identifier is an undefined or invalid");
+            addFailure(PART_NUMBER, STEP_NUMBER,
+                    "6.1.12.1.c #" + slotIdentifier + " SLOT identifier is an undefined or invalid");
+        } else {
+            addPass(PART_NUMBER, STEP_NUMBER, "6.1.12.1.c");
         }
     }
 
