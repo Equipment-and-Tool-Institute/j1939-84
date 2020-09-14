@@ -4,10 +4,16 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.model.FuelType.BI_DSL;
+import static org.etools.j1939_84.model.FuelType.BI_GAS;
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.PASS;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -27,7 +33,6 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
@@ -54,6 +59,10 @@ import org.mockito.junit.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Step12ControllerTest extends AbstractControllerTest {
+    private static final int PART_NUMBER = 1;
+
+    private static final int STEP_NUMBER = 12;
+
     @Mock
     private BannerModule bannerModule;
 
@@ -142,9 +151,141 @@ public class Step12ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testCompressionIgnition() {
+        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
+        when(vehicleInformation.getFuelType()).thenReturn(BI_DSL);
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+
+        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
+        List<SupportedSPN> supportedSPNs = new ArrayList<>();
+        SupportedSPN supportedSPN = mock(SupportedSPN.class);
+        when(supportedSPN.getSpn()).thenReturn(159);
+        supportedSPNs.add(supportedSPN);
+
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs,
+                new ArrayList<ScaledTestResult>()));
+        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+
+        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
+
+        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
+        scaledTestsResults.add(scaledTestResult);
+        when(scaledTestResult.getSpn()).thenReturn(157);
+
+        ScaledTestResult scaledTestResult2 = mock(ScaledTestResult.class);
+        scaledTestsResults.add(scaledTestResult2);
+        when(scaledTestResult2.getSpn()).thenReturn(159);
+        int slotNumber2 = 8;
+        when(scaledTestResult2.getSlot()).thenReturn(Slot.findSlot(slotNumber2));
+
+        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
+        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
+        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
+        dm30Packets.add(dm30Packet);
+
+        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
+
+        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.validateForCompressionIgnition(any(), any())).thenReturn(true);
+
+        runTest();
+
+        verify(dataRepository).getObdModules();
+        verify(dataRepository).getVehicleInformation();
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.b");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.2.a");
+
+        verify(obdTestsModule).setJ1939(j1939);
+
+        verify(tableA7Validator).hasDuplicates(any());
+        verify(tableA7Validator).validateForCompressionIgnition(any(), any());
+
+        // Verify the documentation was recorded correctly
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
+        expectedResults.append("PASS: 6.1.12.1.b" + NL)
+                .append("PASS: 6.1.12.1.c" + NL)
+                .append("PASS: 6.1.12.1.d" + NL)
+                .append("PASS: 6.1.12.2.a" + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
+    }
+
+    @Test
+    public void testCompressionIgnitionFailure() {
+        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
+        when(vehicleInformation.getFuelType()).thenReturn(BI_DSL);
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+
+        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
+        List<SupportedSPN> supportedSPNs = new ArrayList<>();
+        SupportedSPN supportedSPN = mock(SupportedSPN.class);
+        when(supportedSPN.getSpn()).thenReturn(159);
+        supportedSPNs.add(supportedSPN);
+
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs,
+                new ArrayList<ScaledTestResult>()));
+        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+
+        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
+
+        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
+        scaledTestsResults.add(scaledTestResult);
+        when(scaledTestResult.getSpn()).thenReturn(157);
+
+        ScaledTestResult scaledTestResult2 = mock(ScaledTestResult.class);
+        scaledTestsResults.add(scaledTestResult2);
+        when(scaledTestResult2.getSpn()).thenReturn(159);
+        int slotNumber2 = 8;
+        when(scaledTestResult2.getSlot()).thenReturn(Slot.findSlot(slotNumber2));
+
+        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
+        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
+        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
+        dm30Packets.add(dm30Packet);
+
+        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
+
+        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.validateForCompressionIgnition(any(), any())).thenReturn(false);
+
+        runTest();
+
+        verify(dataRepository).getObdModules();
+        verify(dataRepository).getVehicleInformation();
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.b");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)");
+
+        verify(obdTestsModule).setJ1939(j1939);
+
+        verify(tableA7Validator).hasDuplicates(any());
+        verify(tableA7Validator).validateForCompressionIgnition(any(), any());
+
+        // Verify the documentation was recorded correctly
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
+        expectedResults.append("PASS: 6.1.12.1.b" + NL)
+                .append("PASS: 6.1.12.1.c" + NL)
+                .append("PASS: 6.1.12.1.d" + NL)
+                .append("FAIL: 6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)"
+                        + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
+    }
+
+    @Test
     public void testEmptyTestResults() {
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(FuelType.BI_GAS);
+        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
         Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
@@ -165,15 +306,18 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
+        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
+
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(1,
-                12,
-                Outcome.FAIL,
-                "Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support.");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                "6.1.12.1.a Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.2.a");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -183,8 +327,12 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support.\n";
-        assertEquals(expectedResults, listener.getResults());
+        StringBuilder expectedResults = new StringBuilder(
+                "FAIL: 6.1.12.1.a Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support"
+                        + NL);
+        expectedResults.append("PASS: 6.1.12.1.d" + NL)
+                .append("PASS: 6.1.12.2.a" + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 
     /**
@@ -254,10 +402,12 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(1,
-                12,
-                Outcome.FAIL,
-                "Fail verification of 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results is only defined for spark ignition or compression engines.");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.b");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                "6.1.12.2.a Verification of 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results is only defined for spark or compression ignition");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -266,14 +416,20 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: Fail verification of 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results is only defined for spark ignition or compression engines.\n";
-        assertEquals(expectedResults, listener.getResults());
+        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
+        expectedResults.append("PASS: 6.1.12.1.b" + NL)
+                .append("PASS: 6.1.12.1.c" + NL)
+                .append("PASS: 6.1.12.1.d" + NL)
+                .append(
+                        "FAIL: 6.1.12.2.a Verification of 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results is only defined for spark or compression ignition"
+                                + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 
     @Test
     public void testInvalidScaledTestMaximum() {
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(FuelType.BI_GAS);
+        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
         Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
@@ -300,15 +456,21 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
+        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
+
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(1,
-                12,
-                Outcome.FAIL,
-                "Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
+                "6.1.12.1.a");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.2.a");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -319,15 +481,20 @@ public class Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
-        String expectedResults = "FAIL: Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
+        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
+        expectedResults.append(
+                "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
+                        + NL)
+                .append("PASS: 6.1.12.1.c" + NL)
+                .append("PASS: 6.1.12.1.d" + NL)
+                .append("PASS: 6.1.12.2.a" + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 
     @Test
     public void testInvalidScaledTestMinimum() {
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(FuelType.BI_GAS);
+        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
         Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
@@ -355,15 +522,19 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
+        when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
+
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(1,
-                12,
-                Outcome.FAIL,
-                "Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.2.a");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -373,15 +544,20 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
+        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
+        expectedResults.append(
+                "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
+                        + NL)
+                .append("PASS: 6.1.12.1.c" + NL)
+                .append("PASS: 6.1.12.1.d" + NL)
+                .append("PASS: 6.1.12.2.a" + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 
     @Test
     public void testInvalidScaledTestMinimum2() {
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(FuelType.BI_GAS);
+        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
         Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
@@ -408,15 +584,24 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
+        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptySet());
+        when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
+
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(1,
-                12,
-                Outcome.FAIL,
-                "Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
+                "6.1.12.1.a");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
+                "6.1.12.1.c");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
+                "6.1.12.1.d");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
+                "6.1.12.2.a");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -426,9 +611,14 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
+        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
+        expectedResults.append(
+                "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
+                        + NL)
+                .append("PASS: 6.1.12.1.c" + NL)
+                .append("PASS: 6.1.12.1.d" + NL)
+                .append("PASS: 6.1.12.2.a" + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 
     /**
@@ -438,7 +628,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testInvalidSlot() {
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(FuelType.BI_GAS);
+        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
         Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
@@ -469,15 +659,19 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
+        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(1,
-                12,
-                Outcome.FAIL,
-                "#" + slotNumber + " SLOT identifier is an undefined or invalid");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.b");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                "6.1.12.1.c #" + slotNumber + " SLOT identifier is an undefined or invalid");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.2.a");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -487,15 +681,193 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: #" + String.valueOf(slotNumber)
-                + " SLOT identifier is an undefined or invalid\n";
-        assertEquals(expectedResults, listener.getResults());
+        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
+        expectedResults.append("PASS: 6.1.12.1.b" + NL)
+                .append("FAIL: 6.1.12.1.c #" + String.valueOf(slotNumber)
+                        + " SLOT identifier is an undefined or invalid" + NL)
+                .append("PASS: 6.1.12.1.d" + NL)
+                .append("PASS: 6.1.12.2.a" + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
     }
 
     @Test
-    public void testNonMatchingSpns() {
+    public void testNoOBDModules() {
+        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
+        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(FuelType.BI_GAS);
+        when(vehicleInformation.getFuelType()).thenReturn(BI_DSL);
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+
+        runTest();
+
+        verify(dataRepository).getObdModules();
+        verify(dataRepository).getVehicleInformation();
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, "No OBD modules found.  Continuing...");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)");
+
+        verify(obdTestsModule).setJ1939(j1939);
+
+        verify(tableA7Validator).validateForCompressionIgnition(any(), any());
+
+        verify(vehicleInformation).getFuelType();
+
+        // Verify the documentation was recorded correctly
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        StringBuilder expectedResults = new StringBuilder("WARN: No OBD modules found.  Continuing..." + NL);
+        expectedResults.append(
+                "FAIL: 6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)"
+                        + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
+    }
+
+    /**
+     * Test method for
+     * {@link org.etools.j1939_84.controllers.part1.Step12Controller#run()}.
+     */
+    @Test
+    public void testOneModule() {
+        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
+        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+
+        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
+        List<SupportedSPN> supportedSPNs = new ArrayList<>();
+        SupportedSPN supportedSPN = mock(SupportedSPN.class);
+        when(supportedSPN.getSpn()).thenReturn(157);
+        supportedSPNs.add(supportedSPN);
+
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs,
+                new ArrayList<ScaledTestResult>()));
+        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+
+        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
+        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
+        scaledTestsResults.add(scaledTestResult);
+        when(scaledTestResult.getSpn()).thenReturn(157);
+        when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
+
+        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
+        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
+        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
+        dm30Packets.add(dm30Packet);
+
+        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
+
+        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
+
+        runTest();
+
+        verify(dataRepository).getObdModules();
+        verify(dataRepository).getVehicleInformation();
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.b");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.2.a");
+
+        verify(obdTestsModule).setJ1939(j1939);
+
+        verify(tableA7Validator).hasDuplicates(scaledTestsResults);
+        verify(tableA7Validator).validateForSparkIgnition(any(), any());
+
+        // Verify the documentation was recorded correctly
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
+        expectedResults.append("PASS: 6.1.12.1.b" + NL)
+                .append("PASS: 6.1.12.1.c" + NL)
+                .append("PASS: 6.1.12.1.d" + NL)
+                .append("PASS: 6.1.12.2.a" + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
+    }
+
+    @Test
+    public void testReportedDuplicates() {
+        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
+        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
+        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+
+        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
+        List<SupportedSPN> supportedSPNs = new ArrayList<>();
+        SupportedSPN supportedSPN = mock(SupportedSPN.class);
+        when(supportedSPN.getSpn()).thenReturn(157);
+        supportedSPNs.add(supportedSPN);
+
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs,
+                new ArrayList<ScaledTestResult>()));
+        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+
+        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
+        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
+        scaledTestsResults.add(scaledTestResult);
+        when(scaledTestResult.getTestValue()).thenReturn(0x0000);
+        when(scaledTestResult.getTestMinimum()).thenReturn(0xFB00);
+        when(scaledTestResult.getSpn()).thenReturn(157);
+        when(scaledTestResult.getFmi()).thenReturn(18);
+        when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
+        ScaledTestResult scaledTestResult2 = mock(ScaledTestResult.class);
+        scaledTestsResults.add(scaledTestResult2);
+        when(scaledTestResult2.getTestValue()).thenReturn(0xFB00);
+        when(scaledTestResult2.getTestMinimum()).thenReturn(0xFFFF);
+        when(scaledTestResult2.getTestMaximum()).thenReturn(0xFF00);
+        when(scaledTestResult2.getSpn()).thenReturn(157);
+        when(scaledTestResult2.getSlot()).thenReturn(Slot.findSlot(242));
+
+        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
+        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
+        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
+        dm30Packets.add(dm30Packet);
+
+        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
+
+        when(tableA7Validator.hasDuplicates(scaledTestsResults))
+                .thenReturn(Collections.singletonList(scaledTestResult));
+        when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
+
+        runTest();
+
+        verify(dataRepository).getObdModules();
+        verify(dataRepository).getVehicleInformation();
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
+        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                "6.1.12.1.d SPN 157 FMI 18 returned duplicates");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.2.a");
+
+        verify(obdTestsModule).setJ1939(j1939);
+
+        verify(tableA7Validator).hasDuplicates(scaledTestsResults);
+        verify(tableA7Validator).validateForSparkIgnition(any(), any());
+
+        // Verify the documentation was recorded correctly
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
+        expectedResults.append(
+                "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
+                        + NL)
+                .append("PASS: 6.1.12.1.c" + NL)
+                .append("FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
+                        + NL)
+                .append("PASS: 6.1.12.1.c" + NL)
+                .append("FAIL: 6.1.12.1.d SPN 157 FMI 18 returned duplicates" + NL)
+                .append("PASS: 6.1.12.2.a" + NL);
+        assertEquals(expectedResults.toString(), listener.getResults());
+    }
+
+    @Test
+    public void testSparkIgnitionFailure() {
+        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
+        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
         Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
@@ -527,10 +899,20 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
+        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(false);
+
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.b");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Spark Ignition)");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -540,150 +922,12 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
-    }
-
-    @Test
-    public void testNoOBDModules() {
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
-
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(FuelType.BI_DSL);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-
-        runTest();
-
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-
-        verify(obdTestsModule).setJ1939(j1939);
-
-        verify(tableA7Validator).validateForCompressionIgnition(any(), any());
-
-        verify(vehicleInformation).getFuelType();
-
-        // Verify the documentation was recorded correctly
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
-
-    }
-
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step12Controller#run()}.
-     */
-    @Test
-    public void testOneModule() {
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(FuelType.BI_GAS);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        List<SupportedSPN> supportedSPNs = new ArrayList<>();
-        SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        when(supportedSPN.getSpn()).thenReturn(157);
-        supportedSPNs.add(supportedSPN);
-
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs,
-                new ArrayList<ScaledTestResult>()));
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
-
-        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
-        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
-
-        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
-        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
-        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
-        dm30Packets.add(dm30Packet);
-
-        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
-
-        runTest();
-
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-
-        verify(obdTestsModule).setJ1939(j1939);
-
-        verify(tableA7Validator).hasDuplicates(scaledTestsResults);
-        verify(tableA7Validator).validateForSparkIgnition(any(), any());
-
-        // Verify the documentation was recorded correctly
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
-    }
-
-    @Test
-    public void testReportedDuplicates() {
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(FuelType.BI_GAS);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        List<SupportedSPN> supportedSPNs = new ArrayList<>();
-        SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        when(supportedSPN.getSpn()).thenReturn(157);
-        supportedSPNs.add(supportedSPN);
-
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs,
-                new ArrayList<ScaledTestResult>()));
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
-
-        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
-        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getTestValue()).thenReturn(0x00C1);
-        when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getFmi()).thenReturn(18);
-        when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
-        ScaledTestResult scaledTestResult2 = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult2);
-        when(scaledTestResult2.getSpn()).thenReturn(157);
-        when(scaledTestResult2.getSlot()).thenReturn(Slot.findSlot(242));
-
-        when(tableA7Validator.hasDuplicates(scaledTestsResults))
-                .thenReturn(Collections.singletonList(scaledTestResult));
-
-        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
-        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
-        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
-        dm30Packets.add(dm30Packet);
-
-        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
-
-        runTest();
-
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-
-        verify(mockListener).addOutcome(1,
-                12,
-                Outcome.FAIL,
-                "SPN 157 FMI 18 returned duplicates.");
-        verify(mockListener).addOutcome(1,
-                12,
-                Outcome.FAIL,
-                "Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
-
-        verify(obdTestsModule).setJ1939(j1939);
-
-        verify(tableA7Validator).hasDuplicates(scaledTestsResults);
-        verify(tableA7Validator).validateForSparkIgnition(any(), any());
-
-        // Verify the documentation was recorded correctly
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder(
-                "FAIL: Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
+        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
+        expectedResults.append("PASS: 6.1.12.1.b" + NL)
+                .append("PASS: 6.1.12.1.c" + NL)
+                .append("PASS: 6.1.12.1.d" + NL)
+                .append("FAIL: 6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Spark Ignition)"
                         + NL);
-        expectedResults.append("FAIL: SPN 157 FMI 18 returned duplicates."
-                + NL);
         assertEquals(expectedResults.toString(), listener.getResults());
     }
 

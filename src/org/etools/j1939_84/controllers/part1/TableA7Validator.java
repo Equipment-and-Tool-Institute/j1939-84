@@ -25,6 +25,8 @@ public class TableA7Validator {
 
     private class Row {
 
+        private static final int PART_NUMBER = 1;
+        private static final int STEP_NUMBER = 12;
         private final Collection<ExpectedTestResult> expectedTestResults;
         private final int minimumContains;
         private final String monitorName;
@@ -35,11 +37,16 @@ public class TableA7Validator {
             this.expectedTestResults = Arrays.asList(expectedTestResults);
         }
 
-        public void validate(Collection<ScaledTestResult> actualTestResults, ResultsListener listener) {
+        public boolean validate(Collection<ScaledTestResult> actualTestResults, ResultsListener listener) {
             boolean isValid = rowValidator.isValid(actualTestResults, expectedTestResults, minimumContains);
             if (!isValid) {
-                listener.addOutcome(1, 12, Outcome.FAIL, monitorName + " is missing required Test Result");
+                listener.addOutcome(PART_NUMBER, STEP_NUMBER, Outcome.FAIL,
+                        monitorName + " is missing required Test Result");
+            } else {
+                listener.addOutcome(PART_NUMBER, STEP_NUMBER, Outcome.PASS,
+                        monitorName + " has the required Test Result");
             }
+            return isValid;
         }
     }
 
@@ -149,15 +156,26 @@ public class TableA7Validator {
                 }
             }
         }
-
         return results;
     }
 
-    public void validateForCompressionIgnition(Collection<ScaledTestResult> testResults, ResultsListener listener) {
-        getCompressionIgnitionRows().forEach(r -> r.validate(testResults, listener));
+    public boolean validateForCompressionIgnition(Collection<ScaledTestResult> testResults, ResultsListener listener) {
+        boolean[] isValid = { true };
+        getCompressionIgnitionRows().forEach(r -> {
+            if (!r.validate(testResults, listener)) {
+                isValid[0] = false;
+            }
+        });
+        return isValid[0];
     }
 
-    public void validateForSparkIgnition(Collection<ScaledTestResult> testResults, ResultsListener listener) {
-        getSparkIgnitionRows().forEach(r -> r.validate(testResults, listener));
+    public boolean validateForSparkIgnition(Collection<ScaledTestResult> testResults, ResultsListener listener) {
+        boolean[] isValid = { true };
+        getSparkIgnitionRows().forEach(r -> {
+            if (!r.validate(testResults, listener)) {
+                isValid[0] = false;
+            }
+        });
+        return isValid[0];
     }
 }
