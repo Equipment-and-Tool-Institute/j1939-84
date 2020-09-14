@@ -36,6 +36,7 @@ public class Step12Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 12;
+    private static final int TOTAL_STEPS = 1;
     private final DataRepository dataRepository;
     private final OBDTestsModule obdTestsModule;
     private final TableA7Validator tableA7Validator;
@@ -50,25 +51,11 @@ public class Step12Controller extends StepController {
             DateTimeModule dateTimeModule, DataRepository dataRepository,
             VehicleInformationModule vehicleInformationModule,
             OBDTestsModule obdTestsModule, PartResultFactory partResultFactory, TableA7Validator tableA7Validator) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.dataRepository = dataRepository;
         this.obdTestsModule = obdTestsModule;
         this.tableA7Validator = tableA7Validator;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Part " + PART_NUMBER + " Step " + STEP_NUMBER;
-    }
-
-    @Override
-    public int getStepNumber() {
-        return STEP_NUMBER;
-    }
-
-    @Override
-    protected int getTotalSteps() {
-        return 1;
     }
 
     @Override

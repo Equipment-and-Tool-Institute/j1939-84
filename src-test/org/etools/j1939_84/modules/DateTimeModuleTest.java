@@ -108,7 +108,7 @@ public class DateTimeModuleTest {
         long difference = after - before;
 
         assertTrue("difference is: " + difference + " which is below the minimum", 5L <= difference);
-        assertTrue("difference is: " + difference + " which is above the maximum", difference <= 6L);
+        assertTrue("difference is: " + Math.ceil(difference * 1.1) + " which is above the maximum", difference <= 6L);
     }
 
 }
