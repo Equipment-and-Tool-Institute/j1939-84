@@ -27,6 +27,8 @@ public class Step07Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 7;
+    private static final int TOTAL_STEPS = 1;
+
     private final DataRepository dataRepository;
 
     Step07Controller(DataRepository dataRepository) {
@@ -38,23 +40,9 @@ public class Step07Controller extends StepController {
             BannerModule bannerModule, DateTimeModule dateTimeModule,
             VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory,
             DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.dataRepository = dataRepository;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Part " + PART_NUMBER + " Step " + getStepNumber();
-    }
-
-    @Override
-    public int getStepNumber() {
-        return STEP_NUMBER;
-    }
-
-    @Override
-    protected int getTotalSteps() {
-        return 1;
     }
 
     @Override

@@ -247,15 +247,35 @@ public abstract class Controller {
         getListener().onResult("");
     }
 
+    /**
+     * Adds a failure to the report
+     *
+     * @param partNumber
+     *            the part number to add to the report
+     *
+     * @param stepNumber
+     *            the step number where the warning originated
+     *
+     * @param message
+     *            the warning to add to the report
+     */
     protected void addFailure(int partNumber, int stepNumber, String message) {
         getListener().addOutcome(partNumber, stepNumber, Outcome.FAIL, message);
         getListener().onResult("FAIL: " + message);
     }
 
-    protected void addPass(int partNumber, int stepNumber) {
-
-    }
-
+    /**
+     * Adds a pass to the report
+     *
+     * @param partNumber
+     *            the part number to add to the report
+     *
+     * @param stepNumber
+     *            the step number where the warning originated
+     *
+     * @param message
+     *            the warning to add to the report
+     */
     protected void addPass(int partNumber, int stepNumber, String message) {
         getListener().addOutcome(partNumber, stepNumber, Outcome.PASS, message);
         getListener().onResult("PASS: " + message);

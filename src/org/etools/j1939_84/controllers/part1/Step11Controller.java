@@ -29,6 +29,10 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 public class Step11Controller extends StepController {
 
+    private static final int PART_NUMBER = 1;
+    private static final int STEP_NUMBER = 11;
+    private static final int TOTAL_STEPS = 1;
+
     private final DataRepository dataRepository;
     private final DiagnosticReadinessModule diagnosticReadinessModule;
 
@@ -42,24 +46,10 @@ public class Step11Controller extends StepController {
             DateTimeModule dateTimeModule, DiagnosticReadinessModule diagnositcReadinessModule,
             VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory,
             DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         diagnosticReadinessModule = diagnositcReadinessModule;
         this.dataRepository = dataRepository;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Part 1 Step 11";
-    }
-
-    @Override
-    public int getStepNumber() {
-        return 11;
-    }
-
-    @Override
-    protected int getTotalSteps() {
-        return 1;
     }
 
     @Override

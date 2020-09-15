@@ -32,6 +32,8 @@ public class Step09Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 9;
+    private static final int TOTAL_STEPS = 1;
+
     private final DataRepository dataRepository;
 
     Step09Controller(DataRepository dataRepository) {
@@ -43,23 +45,9 @@ public class Step09Controller extends StepController {
     protected Step09Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
             DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
             PartResultFactory partResultFactory, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.dataRepository = dataRepository;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Part " + PART_NUMBER + " Step " + STEP_NUMBER;
-    }
-
-    @Override
-    public int getStepNumber() {
-        return STEP_NUMBER;
-    }
-
-    @Override
-    protected int getTotalSteps() {
-        return PART_NUMBER;
     }
 
     @Override
@@ -77,8 +65,7 @@ public class Step09Controller extends StepController {
                         .flatMap(e -> e.left).stream())
                 .collect(Collectors.toList());
         if (packets.isEmpty()) {
-            addFailure(PART_NUMBER,
-                    STEP_NUMBER,
+            addFailure(
                     "6.1.9.1.a There are no positive responses (serial number SPN 588 not supported by any OBD ECU)");
         } else {
             addPass(PART_NUMBER, STEP_NUMBER, "6.1.9.1.a");

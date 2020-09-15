@@ -16,6 +16,9 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 public class Step01Controller extends StepController {
+    private static final int PART_NUMBER = 1;
+    private static final int STEP_NUMBER = 1;
+    private static final int TOTAL_STEPS = 1;
 
     private final DataRepository dataRepository;
 
@@ -27,14 +30,16 @@ public class Step01Controller extends StepController {
     Step01Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
             DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
             PartResultFactory partResultFactory, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }
 
     /**
      * Sends the request to the UI to gather vehicle information from the user.
      *
-     * @throws InterruptedException if the cancelled the operation
+     * @throws InterruptedException
+     *             if the cancelled the operation
      */
     private void collectVehicleInformation() throws InterruptedException {
         getListener().onVehicleInformationNeeded(vehInfo -> {
@@ -51,7 +56,11 @@ public class Step01Controller extends StepController {
 
         while (dataRepository.getVehicleInformation() == null) {
             Thread.sleep(500);
-            updateProgress("Part 1, Step 1 e Collecting Vehicle Information"); // To check for test aborted
+            updateProgress("Part 1, Step 1 e Collecting Vehicle Information"); // To
+                                                                               // check
+                                                                               // for
+                                                                               // test
+                                                                               // aborted
         }
 
         getListener().onResult("User provided " + dataRepository.getVehicleInformation());
@@ -90,21 +99,6 @@ public class Step01Controller extends StepController {
             getListener().addOutcome(1, 2, Outcome.ABORT, "User cancelled operation");
             throw e;
         }
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Part 1 Step 1";
-    }
-
-    @Override
-    public int getStepNumber() {
-        return 1;
-    }
-
-    @Override
-    protected int getTotalSteps() {
-        return 1;
     }
 
     @Override

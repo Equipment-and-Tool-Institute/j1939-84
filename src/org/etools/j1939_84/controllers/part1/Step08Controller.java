@@ -23,12 +23,14 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- *
  * @author Garrison Garland (garrison@soliddesign.net)
- *
  */
 
 public class Step08Controller extends StepController {
+
+    private static final int PART_NUMBER = 1;
+    private static final int STEP_NUMBER = 8;
+    private static final int TOTAL_STEPS = 1;
 
     private final DataRepository dataRepository;
 
@@ -44,24 +46,10 @@ public class Step08Controller extends StepController {
             BannerModule bannerModule, DateTimeModule dateTimeModule,
             VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory,
             DiagnosticReadinessModule diagnosticReadinessModule, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dataRepository = dataRepository;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Part 1 Step 8";
-    }
-
-    @Override
-    public int getStepNumber() {
-        return 8;
-    }
-
-    @Override
-    protected int getTotalSteps() {
-        return 1;
     }
 
     /**

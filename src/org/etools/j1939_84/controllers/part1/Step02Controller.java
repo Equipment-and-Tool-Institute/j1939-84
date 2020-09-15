@@ -4,12 +4,12 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.Outcome.ABORT;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -17,6 +17,10 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 public class Step02Controller extends StepController {
+
+    private static final int PART_NUMBER = 1;
+    private static final int STEP_NUMBER = 2;
+    private static final int TOTAL_STEPS = 1;
 
     Step02Controller() {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
@@ -26,22 +30,8 @@ public class Step02Controller extends StepController {
     Step02Controller(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule,
             VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Part 1 Step 2";
-    }
-
-    @Override
-    public int getStepNumber() {
-        return 2;
-    }
-
-    @Override
-    protected int getTotalSteps() {
-        return 1;
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
     }
 
     @Override
@@ -56,7 +46,7 @@ public class Step02Controller extends StepController {
                 }
             }
         } catch (InterruptedException e) {
-            getListener().addOutcome(1, 2, Outcome.ABORT, "User cancelled operation");
+            getListener().addOutcome(1, 2, ABORT, "User cancelled operation");
             throw e;
         }
     }
