@@ -29,6 +29,10 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 public class Step16Controller extends StepController {
 
+    private static final int PART_NUMBER = 1;
+    private static final int STEP_NUMBER = 16;
+    private static final int TOTAL_STEPS = 1;
+
     private final DataRepository dataRepository;
     private final DTCModule dtcModule;
 
@@ -41,25 +45,11 @@ public class Step16Controller extends StepController {
     protected Step16Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
             DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule, DTCModule dtcModule,
             PartResultFactory partResultFactory, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
+        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+
         this.dtcModule = dtcModule;
         this.dataRepository = dataRepository;
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Part 1 Step 16";
-    }
-
-    @Override
-    public int getStepNumber() {
-        // TODO Auto-generated method stub
-        return 16;
-    }
-
-    @Override
-    protected int getTotalSteps() {
-        return 1;
     }
 
     @Override
