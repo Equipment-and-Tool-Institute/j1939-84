@@ -134,7 +134,8 @@ public class Engine implements AutoCloseable {
         });
         sim.response(p -> isRequestFor(65253, p),
                 () -> {
-                    // Start a timer that will increment the numerators and denominators
+                    // Start a timer that will increment the numerators and
+                    // denominators
                     // for UI demo purposes
                     // startTimer();
                     return Packet.create(65253, ADDR, combine(ENGINE_HOURS, NA4));
@@ -142,9 +143,11 @@ public class Engine implements AutoCloseable {
         // Address Claim
         sim.response(p -> isRequestFor(0xEE00, p),
                 () -> Packet.create(0xEEFF, ADDR, 0x00, 0x00, 0x40, 0x05, 0x00, 0x00, 0x65, 0x14));
+
         sim.response(p -> isRequestFor(65260, p), () -> Packet.create(65260, ADDR, VIN));
+        // DM19
         sim.response(p -> isRequestFor(54016, p),
-                () -> Packet.create(54016,
+                () -> Packet.create(54016 | 0xF9,
                         ADDR,
                         combine(ENGINE_CVN1,
                                 ENGINE_CAL_ID1,
