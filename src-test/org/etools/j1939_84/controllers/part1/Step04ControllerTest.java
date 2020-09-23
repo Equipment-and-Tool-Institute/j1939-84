@@ -186,8 +186,6 @@ public class Step04ControllerTest {
 
         verify(dataRepository).getObdModule(0);
         verify(dataRepository).getObdModule(1);
-        verify(dataRepository).putObdModule(0, obdInfo);
-        verify(dataRepository).putObdModule(1, obdInfo);
         verify(dataRepository, atLeastOnce()).getObdModules();
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
         verify(dataRepository, atLeastOnce()).getVehicleInformation();
@@ -285,8 +283,6 @@ public class Step04ControllerTest {
 
         verify(dataRepository).getObdModule(0);
         verify(dataRepository).getObdModule(1);
-        verify(dataRepository).putObdModule(0, obdInfo);
-        verify(dataRepository).putObdModule(1, obdInfo);
         verify(dataRepository, atLeastOnce()).getObdModules();
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
         verify(dataRepository, atLeastOnce()).getVehicleInformation();
