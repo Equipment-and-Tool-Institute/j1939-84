@@ -66,7 +66,6 @@ public class Step04Controller extends StepController {
             OBDModuleInformation info = dataRepository.getObdModule(p.getSourceAddress());
             if (info != null) {
                 info.setSupportedSpns(p.getSupportedSpns());
-                dataRepository.putObdModule(p.getSourceAddress(), info);
             }
         });
 
