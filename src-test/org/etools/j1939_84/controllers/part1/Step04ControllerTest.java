@@ -1173,7 +1173,7 @@ public class Step04ControllerTest extends AbstractControllerTest {
         byte[] spn1173 = { (byte) 0x95, 0x04, 0x18, 0x02 };
         byte[] spn237 = { (byte) 0xED, 0x00, 0x1D, 0x11 };
         byte[] spn4257 = { (byte) 0xA1, 0x10, 0x1B, 0x01 };
-        byte[] spnV2304 = { 0x00, 0x09, 0x1F, 0x01 };
+        byte[] spn2304 = { 0x00, 0x09, 0x1F, 0x01 };
         byte[] spn899 = { (byte) 0x83, 0x03, 0x1D, 0x01 };
         byte[] spn2305 = { 0x01, 0x09, 0x1F, 0x01 };
         byte[] spn3069 = { (byte) 0xFD, 0x0B, 0x1D, 0x01 };
@@ -1288,7 +1288,7 @@ public class Step04ControllerTest extends AbstractControllerTest {
                 add(new SupportedSPN(convertToIntArray(spn1173)));
                 add(new SupportedSPN(convertToIntArray(spn237)));
                 add(new SupportedSPN(convertToIntArray(spn4257)));
-                add(new SupportedSPN(convertToIntArray(spnV2304)));
+                add(new SupportedSPN(convertToIntArray(spn2304)));
                 add(new SupportedSPN(convertToIntArray(spn899)));
                 add(new SupportedSPN(convertToIntArray(spn2305)));
                 add(new SupportedSPN(convertToIntArray(spn3069)));
