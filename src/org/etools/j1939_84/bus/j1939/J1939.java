@@ -56,9 +56,15 @@ import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 public class J1939 {
 
     /**
+     * The default number of times to retry sending a message if response isn't
+     * received with in the specified timeout period
+     */
+    public static final int DEFAULT_NUMBER_OF_TRIES = 3;
+
+    /**
      * The default time to wait for a response
      */
-    private static final int DEFAULT_TIMEOUT = 220;
+    public static final int DEFAULT_TIMEOUT = 220;
 
     /**
      * The default time unit for responses
