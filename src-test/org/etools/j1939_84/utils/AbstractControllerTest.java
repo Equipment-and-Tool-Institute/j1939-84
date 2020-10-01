@@ -24,11 +24,13 @@ import org.mockito.ArgumentCaptor;
  */
 public abstract class AbstractControllerTest {
 
+    protected static final String COLON_SPACE = ": ";
     private EngineSpeedModule engineSpeedModule;
     private Executor executor;
     private Controller instance;
     private J1939 j1939;
     private TestResultsListener listener;
+
     private ReportFileModule reportFileModule;
 
     private VehicleInformationModule vehicleInformationModule;
@@ -46,8 +48,7 @@ public abstract class AbstractControllerTest {
         runnableCaptor.getValue().run();
 
         // Since we these interactions are mocked for every test that extends
-        // this
-        // class, we need to verify them here.
+        // this class, we need to verify them here.
         verify(engineSpeedModule).setJ1939(j1939);
         verify(vehicleInformationModule).setJ1939(j1939);
     }

@@ -215,6 +215,31 @@ public class OBDTestsModule extends FunctionalModule {
     }
 
     /**
+     * Sends a destination specific request to a module for
+     * {@link DM24SPNSupportPacket}s DM24 are only destination specific messages
+     *
+     * @param listener
+     *            {@link ResultsListener}
+     * @param obdModuleAddress
+     *            {@link Integer}
+     * @param tries
+     *            {@link Integer}
+     * @param timeOutInMillis
+     *            {@link Integer}
+     * @return {@link List} of {@link DM24SPNSupportPacket}s
+     */
+    public BusResult<DM24SPNSupportPacket> requestDM24(ResultsListener listener,
+            int obdModuleAddress, int tries, int timeOutInMillis) {
+
+        Packet request = getJ1939().createRequestPacket(DM24SPNSupportPacket.PGN, obdModuleAddress);
+        listener.onResult(getTime() + " Direct DM24 Request to " + Lookup.getAddressName(obdModuleAddress));
+        listener.onResult(getTime() + " " + request.toString());
+        return getJ1939().requestPacket(request, DM24SPNSupportPacket.class, obdModuleAddress, tries,
+                timeOutInMillis);
+
+    }
+
+    /**
      * Sends a destination specific request to the vehicle for
      * {@link DM7CommandTestsPacket}s
      *
