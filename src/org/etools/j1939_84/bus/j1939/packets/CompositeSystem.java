@@ -3,8 +3,6 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
-import static org.etools.j1939_84.J1939_84.NL;
-
 /**
  * The Composite Monitoring Systems
  *
@@ -63,13 +61,9 @@ public enum CompositeSystem {
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder(String.format("%-26s", "Composite System"));
-        stringBuilder.append(String.format("%-9s", "Lower Byte"))
-                .append(String.format("%-7s", "Address"))
-                .append(NL);
-        stringBuilder.append(getName())
-                .append(String.format("%-9s", String.valueOf(getMask())))
-                .append(String.format("%-7s", String.valueOf(getLowerByte())));
+        StringBuilder stringBuilder = new StringBuilder(String.format("%-30s", getName()))
+                .append(String.format("%-17s", String.valueOf("Lower Byte: " + getMask())))
+                .append(String.format("%-10s", String.valueOf("Address: " + getLowerByte())));
         return stringBuilder.toString();
     }
 
