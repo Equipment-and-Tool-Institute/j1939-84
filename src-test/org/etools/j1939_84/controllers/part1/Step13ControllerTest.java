@@ -51,7 +51,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Step13ControllerTest extends AbstractControllerTest {
-    private static final String COLON_SPACE = ": ";
     private static final String EXPECTED_PASS_6_1_13_1_A = "6.1.13.1.a";
     private static final String EXPECTED_PASS_6_1_13_2_A = "6.1.13.2.a";
     private static final String EXPECTED_PASS_6_1_13_2_B = "6.1.13.2.b";
