@@ -31,7 +31,7 @@ public abstract class StepController extends Controller {
         addPass(getPartNumber(), getStepNumber(), message);
     }
 
-    protected void addWarnined(String message) {
+    protected void addWarning(String message) {
         addWarning(getPartNumber(), getStepNumber(), message);
     }
 

@@ -110,6 +110,9 @@ public class Part01ControllerTest {
     private Step12Controller step12Controller;
 
     @Mock
+    private Step13Controller step13Controller;
+
+    @Mock
     private Step16Controller step16Controller;
 
     @Mock
@@ -138,6 +141,7 @@ public class Part01ControllerTest {
                 step10Controller,
                 step11Controller,
                 step12Controller,
+                step13Controller,
                 step16Controller);
     }
 
@@ -160,6 +164,7 @@ public class Part01ControllerTest {
                 step10Controller,
                 step11Controller,
                 step12Controller,
+                step13Controller,
                 step16Controller);
     }
 
@@ -193,7 +198,7 @@ public class Part01ControllerTest {
         when(partResult.toString()).thenReturn("Part 1");
         when(partResultFactory.create(1)).thenReturn(partResult);
 
-        int[] steps = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 16 };
+        int[] steps = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 16 };
 
         for (int i : steps) {
             StepResult stepResult = mock(StepResult.class);
@@ -233,6 +238,7 @@ public class Part01ControllerTest {
         when(step10Controller.getStepNumber()).thenReturn(10);
         when(step11Controller.getStepNumber()).thenReturn(11);
         when(step12Controller.getStepNumber()).thenReturn(12);
+        when(step13Controller.getStepNumber()).thenReturn(13);
         when(step16Controller.getStepNumber()).thenReturn(16);
 
         instance.execute(listener, j1939, reportFileModule);
@@ -253,6 +259,7 @@ public class Part01ControllerTest {
                 step10Controller,
                 step11Controller,
                 step12Controller,
+                step13Controller,
                 step16Controller);
         inOrder.verify(step01Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step02Controller).run(any(ResultsListener.class), eq(j1939));
@@ -266,6 +273,7 @@ public class Part01ControllerTest {
         inOrder.verify(step10Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step11Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step12Controller).run(any(ResultsListener.class), eq(j1939));
+        inOrder.verify(step13Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step16Controller).run(any(ResultsListener.class), eq(j1939));
 
         verify(partResultFactory).create(1);
@@ -284,6 +292,7 @@ public class Part01ControllerTest {
         verify(step10Controller).getStepNumber();
         verify(step11Controller).getStepNumber();
         verify(step12Controller).getStepNumber();
+        verify(step13Controller).getStepNumber();
         verify(step16Controller).getStepNumber();
 
         assertEquals(expectedMilestones.toString(), listener.getMilestones());

@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.modules;
 
+import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -16,7 +18,6 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.NumberFormatter;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
@@ -300,7 +301,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
             listener.onResult("No modules report as HD-OBD compliant - stopping.");
         } else {
             for (int i : addresses) {
-                listener.onResult(Lookup.getAddressName(i) + " reported as an HD-OBD Module.");
+                listener.onResult(getAddressName(i) + " reported as an HD-OBD Module.");
             }
         }
         return addresses;
@@ -652,6 +653,31 @@ public class DiagnosticReadinessModule extends FunctionalModule {
                 DM5DiagnosticReadinessPacket.class,
                 listener,
                 fullString);
+    }
+
+    /**
+     * Sends a destination request for DM5 Packets. The request and results will
+     * be returned to the {@link ResultsListener}
+     *
+     * @param listener
+     *            the {@link ResultsListener} for the results
+     * @param fullString
+     *            true to include the full string of the results in the report;
+     *            false to only include the returned raw packet in the report
+     * @param obdAddress
+     *            address of module to which request is to be made
+     *
+     * @return the {@link List} of {@link DM5DiagnosticReadinessPacket}s
+     */
+    public BusResult<DM5DiagnosticReadinessPacket> requestDM5(ResultsListener listener, boolean fullString,
+            int obdAddress) {
+
+        return getPacket("Destination Specific DM5 Request to " + getAddressName(obdAddress),
+                DM5DiagnosticReadinessPacket.PGN,
+                DM5DiagnosticReadinessPacket.class,
+                listener,
+                fullString,
+                obdAddress);
     }
 
     /**
