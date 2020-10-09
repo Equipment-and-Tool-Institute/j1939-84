@@ -64,8 +64,7 @@ public class ScriptedEngine implements AutoCloseable {
 
         @Override
         synchronized public boolean test(Packet packet) {
-            // SPN DM7?
-            if (packet.getPgn() != (DM7CommandTestsPacket.PGN | sa)) {
+            if (packet.getPgn() != DM7CommandTestsPacket.PGN || packet.getDestination() != sa) {
                 return false;
             }
             // J1939-84 6.1.12.1 TID 247
@@ -94,7 +93,7 @@ public class ScriptedEngine implements AutoCloseable {
                 next = p;
                 return true;
             }
-            throw new IllegalStateException("Valide DM7 SPN detected, but not found.");
+            throw new IllegalStateException("Valid DM7 SPN detected, but not found.");
         }
     }
 
