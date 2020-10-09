@@ -4,7 +4,6 @@ import static org.etools.j1939_84.bus.j1939.J1939.DEFAULT_NUMBER_OF_TRIES;
 import static org.etools.j1939_84.bus.j1939.J1939.DEFAULT_TIMEOUT;
 
 import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
@@ -72,8 +71,7 @@ public class Step04Controller extends StepController {
         // then retry DS DM24 request to the OBD ECU.
         //
         // [Do not attempt retry for NACKs that indicate not supported].
-        Collection<OBDModuleInformation> obdModules = dataRepository.getObdModules();
-        obdModules.forEach(module -> {
+        dataRepository.getObdModules().forEach(module -> {
             BusResult<DM24SPNSupportPacket> result = obdTestsModule.requestDM24(getListener(),
                     module.getSourceAddress(), DEFAULT_NUMBER_OF_TRIES, DEFAULT_TIMEOUT);
 
@@ -111,7 +109,7 @@ public class Step04Controller extends StepController {
         });
 
         // 6.1.4.1.e. Create ECU specific list of supported freeze frame SPNs.
-        Set<Integer> freezeFrameSpns = obdModules.stream()
+        Set<Integer> freezeFrameSpns = dataRepository.getObdModules().stream()
                 .map(info -> info.getFreezeFrameSpns())
                 .flatMap(spns -> spns.stream())
                 .map(s -> s.getSpn())
@@ -129,7 +127,7 @@ public class Step04Controller extends StepController {
 
         // 6.1.4.1.d. Create ECU specific list of supported SPNs for test
         // results.
-        Set<Integer> dataStreamSpns = obdModules.stream()
+        Set<Integer> dataStreamSpns = dataRepository.getObdModules().stream()
                 .map(info -> info.getDataStreamSpns())
                 .flatMap(spns -> spns.stream())
                 .map(s -> s.getSpn())
