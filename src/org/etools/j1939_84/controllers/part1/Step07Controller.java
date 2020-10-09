@@ -65,11 +65,11 @@ public class Step07Controller extends StepController {
 
         List<String> calIds = globalDM19s.stream().map(p -> p.getCalibrationInformation()).flatMap(l -> l.stream())
                 .map(c -> c.getCalibrationIdentification()).collect(Collectors.toList());
-        int emissionUnits = dataRepository.getVehicleInformation().getEmissionUnits();
-        if (calIds.size() < emissionUnits) {
+        int expectedCalIdCount = dataRepository.getVehicleInformation().getCalIds();
+        if (calIds.size() < expectedCalIdCount) {
             addFailure(PART_NUMBER, STEP_NUMBER,
                     "6.1.7.2.a Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units");
-        } else if (calIds.size() > emissionUnits) {
+        } else if (calIds.size() > expectedCalIdCount) {
             addWarning(PART_NUMBER, STEP_NUMBER,
                     "6.1.7.3.a Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units");
         } else {

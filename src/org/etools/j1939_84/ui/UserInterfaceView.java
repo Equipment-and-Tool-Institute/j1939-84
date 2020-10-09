@@ -307,7 +307,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             final FileNameExtensionFilter filter = new FileNameExtensionFilter("J1939-84 Data Files",
                     UserInterfacePresenter.FILE_SUFFIX);
             fileChooser.setFileFilter(filter);
-            fileChooser.setDialogTitle("Create or Select Report File");
+            fileChooser.setDialogTitle("Create Report File");
 
         }
         return fileChooser;

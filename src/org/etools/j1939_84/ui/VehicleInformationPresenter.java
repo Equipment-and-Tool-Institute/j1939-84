@@ -210,7 +210,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
 
         try {
             calIdsFound = vehicleInformationModule.reportCalibrationInformation(ResultsListener.NOOP);
-            view.setCalIds(calIdsFound.size());
+            view.setCalIds((int) calIdsFound.stream().flatMap(p -> p.getCalibrationInformation().stream()).count());
         } catch (Exception e) {
             // Don't care
         }
