@@ -64,10 +64,6 @@ public class ScriptedEngine implements AutoCloseable {
 
         @Override
         synchronized public boolean test(Packet packet) {
-            if (packet.getPgn() == 0xE300) {
-                System.err.println("DM7: " + packet);
-            }
-
             // SPN DM7?
             if (packet.getPgn() != (DM7CommandTestsPacket.PGN | sa)) {
                 return false;

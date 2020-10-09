@@ -3,8 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import static org.etools.j1939_84.J1939_84.NL;
-
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -119,13 +117,8 @@ public class Step10Controller extends StepController {
                 previousDM33Packets,
                 previousEngineHourPackets,
                 getListener())) {
-            StringBuilder failureMessage = new StringBuilder(
-                    "6.1.10.3.b - Fail if any diagnostic information in any ECU is not ")
-                            .append("reset or starts out with unexpected values.")
-                            .append(NL)
-                            .append("Diagnostic information is defined in section A.5, ")
-                            .append("Diagnostic Information Definition.");
-            addFailure(1, 10, failureMessage.toString());
+            addFailure(1, 10, "6.1.10.3.b - Fail if any diagnostic information in any ECU is not "
+                    + "reset or starts out with unexpected values.");
         }
 
         // 6.1.10.3 Warn criteria:
