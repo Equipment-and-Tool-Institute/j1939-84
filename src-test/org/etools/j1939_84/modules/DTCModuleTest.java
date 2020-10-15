@@ -433,8 +433,7 @@ public class DTCModuleTest {
         expected += "10:15:30.000 Destination Specific DM12 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18EA00A5 D4 FE 00 (TX)" + NL;
         expected += "10:15:30.000 18FED400 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
 
@@ -537,14 +536,11 @@ public class DTCModuleTest {
         expected += "10:15:30.000 Global DM12 Request" + NL;
         expected += "10:15:30.000 18EAFFA5 D4 FE 00 (TX)" + NL;
         expected += "10:15:30.000 18FED400 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
         expected += "10:15:30.000 18FED417 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM12 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM12 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
         expected += "10:15:30.000 18FED421 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM12 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM12 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         List<DM12MILOnEmissionDTCPacket> expectedPackets = new ArrayList<>() {
@@ -652,8 +648,7 @@ public class DTCModuleTest {
         expected += "10:15:30.000 Destination Specific DM23 Request to Body Controller (33)" + NL;
         expected += "10:15:30.000 18EA21A5 B5 FD 00 (TX)" + NL;
         expected += "10:15:30.000 18FDB521 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM23 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM23 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
@@ -753,14 +748,11 @@ public class DTCModuleTest {
         expected += "10:15:30.000 Global DM23 Request" + NL;
         expected += "10:15:30.000 18EAFFA5 B5 FD 00 (TX)" + NL;
         expected += "10:15:30.000 18FDB500 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM23 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM23 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
         expected += "10:15:30.000 18FDB517 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM23 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM23 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
         expected += "10:15:30.000 18FDB521 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM23 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM23 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
@@ -1058,8 +1050,7 @@ public class DTCModuleTest {
         expected += "10:15:30.000 Destination Specific DM28 Request to Body Controller (33)" + NL;
         expected += "10:15:30.000 18EA21A5 80 FD 00 (TX)" + NL;
         expected += "10:15:30.000 18FD8021 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM28 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM28 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false,
@@ -1166,14 +1157,11 @@ public class DTCModuleTest {
         expected += "10:15:30.000 Global DM28 Request" + NL;
         expected += "10:15:30.000 18EAFFA5 80 FD 00 (TX)" + NL;
         expected += "10:15:30.000 18FD8000 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
         expected += "10:15:30.000 18FD8017 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM28 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM28 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
         expected += "10:15:30.000 18FD8021 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM28 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM28 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(
@@ -1688,8 +1676,7 @@ public class DTCModuleTest {
         expected += "10:15:30.000 Destination Specific DM6 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18EA00A5 CF FE 00 (TX)" + NL;
         expected += "10:15:30.000 18FECF00 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         List<DM6PendingEmissionDTCPacket> dm6Packets = new ArrayList<>() {
@@ -1804,14 +1791,11 @@ public class DTCModuleTest {
         expected += "10:15:30.000 Global DM6 Request" + NL;
         expected += "10:15:30.000 18EAFFA5 CF FE 00 (TX)" + NL;
         expected += "10:15:30.000 18FECF00 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
         expected += "10:15:30.000 18FECF17 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM6 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM6 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
         expected += "10:15:30.000 18FECF21 00 00 00 00 00 00 00 00" + NL;
-        expected += "DM6 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "No DTCs" + NL;
+        expected += "DM6 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         List<DM6PendingEmissionDTCPacket> dm6Packets = new ArrayList<>() {
