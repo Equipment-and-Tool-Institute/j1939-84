@@ -8,6 +8,7 @@ import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
@@ -58,6 +59,11 @@ public class Step03Controller extends StepController {
         dm5Packets.filter(p -> p.isObd()).forEach(p -> {
             OBDModuleInformation info = new OBDModuleInformation(p.getSourceAddress());
             info.setObdCompliance(p.getOBDCompliance());
+            info.setMontioredSystems(new HashSet<MonitoredSystem>() {
+                {
+                    addAll(p.getMonitoredSystems());
+                }
+            });
             dataRepository.putObdModule(p.getSourceAddress(), info);
         });
 
