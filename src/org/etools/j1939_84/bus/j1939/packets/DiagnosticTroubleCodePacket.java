@@ -145,12 +145,12 @@ public class DiagnosticTroubleCodePacket extends ParsedPacket {
     @Override
     public String toString() {
         String result = getStringPrefix() + "MIL: " + getMalfunctionIndicatorLampStatus() + ", RSL: "
-                + getRedStopLampStatus() + ", AWL: " + getAmberWarningLampStatus() + ", PL: " + getProtectLampStatus()
-                + NL;
+                + getRedStopLampStatus() + ", AWL: " + getAmberWarningLampStatus() + ", PL: " + getProtectLampStatus();
 
         if (getDtcs().isEmpty()) {
-            result += "No DTCs";
+            result += ", No DTCs";
         } else {
+            result += NL;
             String joinedDtcs = getDtcs().stream().map(DiagnosticTroubleCode::toString).collect(Collectors.joining(NL));
             result += joinedDtcs;
         }

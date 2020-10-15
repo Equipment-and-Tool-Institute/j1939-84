@@ -257,7 +257,7 @@ public class DiagnosticTroubleCodePacketTest {
         int[] data = new int[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
         Packet packet = Packet.create(0x123456, 0x00, data);
         DiagnosticTroubleCodePacket instance = new DiagnosticTroubleCodePacket(packet);
-        String expected = "DM from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL + "No DTCs";
+        String expected = "DM from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs";
         assertEquals(expected, instance.toString());
     }
 
