@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
@@ -27,6 +28,8 @@ public class OBDModuleInformation implements Cloneable {
     private final List<CalibrationInformation> calibrationInformation = new ArrayList<>();
 
     private int function;
+
+    private final Set<MonitoredSystem> monitoredSystems = new HashSet<>();
 
     private byte obdCompliance;
 
@@ -51,6 +54,7 @@ public class OBDModuleInformation implements Cloneable {
         obdInfo.setPerformanceRatios(getPerformanceRatios());
         obdInfo.setScaledTestResults(getScaledTestResults());
         obdInfo.setSupportedSpns(getSupportedSpns());
+        obdInfo.setMontioredSystems(getMonitoredSystems());
 
         return obdInfo;
     }
@@ -71,7 +75,8 @@ public class OBDModuleInformation implements Cloneable {
                 && Objects.equals(scaledTestResults, that.scaledTestResults)
                 && Objects.equals(obdCompliance, that.obdCompliance)
                 && Objects.equals(function, that.function)
-                && Objects.equals(calibrationInformation, that.calibrationInformation);
+                && Objects.equals(calibrationInformation, that.calibrationInformation)
+                && Objects.equals(monitoredSystems, that.monitoredSystems);
     }
 
     /**
@@ -100,6 +105,13 @@ public class OBDModuleInformation implements Cloneable {
      */
     public int getFunction() {
         return function;
+    }
+
+    /**
+     * @return the monitoredSystems
+     */
+    public Set<MonitoredSystem> getMonitoredSystems() {
+        return monitoredSystems;
     }
 
     /**
@@ -141,7 +153,8 @@ public class OBDModuleInformation implements Cloneable {
                 scaledTestResults,
                 supportedSpns,
                 obdCompliance,
-                calibrationInformation);
+                calibrationInformation,
+                monitoredSystems);
     }
 
     /**
@@ -159,6 +172,15 @@ public class OBDModuleInformation implements Cloneable {
      */
     public void setFunction(int function) {
         this.function = function;
+    }
+
+    /**
+     * @param calibrationInformation
+     *            the calibrationInformation to set
+     */
+    public void setMontioredSystems(Set<MonitoredSystem> monitoredSystems) {
+        this.monitoredSystems.clear();
+        this.monitoredSystems.addAll(monitoredSystems);
     }
 
     /**

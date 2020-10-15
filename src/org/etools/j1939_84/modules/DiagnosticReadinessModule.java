@@ -104,6 +104,23 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     }
 
     /**
+     * Helper method to extract all the {@link MonitoredSystem}s given a
+     * {@link List} of {@link DiagnosticReadinessPacket}s
+     *
+     * @param packets
+     *            the Packets to parse
+     * @param isDM5
+     *            true to indicate the packets are DM5s
+     * @return a {@link List} of {@link MonitoredSystem}s
+     */
+    public static List<CompositeMonitoredSystem> getCompositeSystems(List<? extends DiagnosticReadinessPacket> packets,
+            boolean isDM5) {
+        return getCompositeSystems(
+                packets.stream().flatMap(p -> p.getMonitoredSystems().stream()).collect(Collectors.toSet()),
+                isDM5);
+    }
+
+    /**
      * Helper method to get the Number of Ignition Cycles from the packets. The
      * maximum value is returned.
      *
@@ -177,23 +194,6 @@ public class DiagnosticReadinessModule extends FunctionalModule {
         super(dateTimeModule);
         obdModuleAddresses.add(J1939.ENGINE_ADDR);
         obdModuleAddresses.add(J1939.ENGINE_ADDR_1);
-    }
-
-    /**
-     * Helper method to extract all the {@link MonitoredSystem}s given a
-     * {@link List} of {@link DiagnosticReadinessPacket}s
-     *
-     * @param packets
-     *            the Packets to parse
-     * @param isDM5
-     *            true to indicate the packets are DM5s
-     * @return a {@link List} of {@link MonitoredSystem}s
-     */
-    private List<CompositeMonitoredSystem> getCompositeSystems(List<? extends DiagnosticReadinessPacket> packets,
-            boolean isDM5) {
-        return getCompositeSystems(
-                packets.stream().flatMap(p -> p.getMonitoredSystems().stream()).collect(Collectors.toSet()),
-                isDM5);
     }
 
     /**
