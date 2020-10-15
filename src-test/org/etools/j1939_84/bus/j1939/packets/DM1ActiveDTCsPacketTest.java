@@ -12,11 +12,12 @@ import static org.junit.Assert.assertEquals;
 import java.util.List;
 
 import org.etools.j1939_84.bus.Packet;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 
 /**
+ * Unit tests the {@link DM1ActiveDTCsPacket} class
+ * 
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
  */
@@ -31,13 +32,6 @@ public class DM1ActiveDTCsPacketTest {
     public void setUp() throws Exception {
         instance = new DM1ActiveDTCsPacket(Packet.create(65226, 0x00, 0x11, 0x01, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
                 0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
-    }
-
-    /**
-     * @throws java.lang.Exception
-     */
-    @After
-    public void tearDown() throws Exception {
     }
 
     /**
