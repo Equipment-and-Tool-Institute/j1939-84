@@ -13,7 +13,7 @@ import org.etools.j1939_84.bus.Packet;
  */
 public class DM1ActiveDTCsPacket extends DiagnosticTroubleCodePacket {
 
-    public static final int PGN = 65226; // (00FECA16);
+    public static final int PGN = 65226; // (0x00FECA);
 
     public DM1ActiveDTCsPacket(Packet packet) {
         super(packet);
