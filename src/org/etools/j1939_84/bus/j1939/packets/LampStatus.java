@@ -34,14 +34,10 @@ public enum LampStatus {
         boolean dontFlash = (flash & 0x03) == 0x03;
 
         if (off) {
-            System.out.println("slow flash is: " + slowFlash);
             if (slowFlash) {
                 return LampStatus.ALTERNATE_OFF;
-
             }
-            System.out.println("returning the correct value");
             return LampStatus.OFF;
-
         }
         if (on) {
             if (slowFlash) {
