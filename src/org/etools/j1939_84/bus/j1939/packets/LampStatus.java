@@ -25,11 +25,6 @@ public enum LampStatus {
      * @return {@link LampStatus}
      */
     public static LampStatus getStatus(int onOff, int flash) {
-        System.out.println("onOff is: " + onOff);
-        System.out.println("flash is: " + flash);
-        System.out.println("onOff & 0x03 is: " + (onOff & 0x03));
-        System.out.println("flash & 0x03 is: " + (flash & 0x03));
-
         boolean off = (onOff & 0x03) == 0x00;
         boolean on = (onOff & 0x03) == 0x01;
         boolean notSupported = (onOff & 0x03) == 0x03;
