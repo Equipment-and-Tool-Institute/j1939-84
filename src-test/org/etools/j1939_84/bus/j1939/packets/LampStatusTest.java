@@ -16,13 +16,22 @@ import org.junit.Test;
 public class LampStatusTest {
 
     @Test
+    public void testAlternateOff() {
+        assertEquals(LampStatus.ALTERNATE_OFF, LampStatus.getStatus(0, 0));
+    }
+
+    @Test
     public void testFastFlash() {
         assertEquals(LampStatus.FAST_FLASH, LampStatus.getStatus(1, 1));
     }
 
     @Test
+    public void testNotSupported() {
+        assertEquals(LampStatus.NOT_SUPPORTED, LampStatus.getStatus(3, 3));
+    }
+
+    @Test
     public void testOff() {
-        assertEquals(LampStatus.OFF, LampStatus.getStatus(0, 0));
         assertEquals(LampStatus.OFF, LampStatus.getStatus(0, 1));
         assertEquals(LampStatus.OFF, LampStatus.getStatus(0, 2));
         assertEquals(LampStatus.OFF, LampStatus.getStatus(0, 3));
@@ -43,7 +52,7 @@ public class LampStatusTest {
         assertEquals(LampStatus.OTHER, LampStatus.getStatus(3, 0));
         assertEquals(LampStatus.OTHER, LampStatus.getStatus(3, 1));
         assertEquals(LampStatus.OTHER, LampStatus.getStatus(3, 2));
-        assertEquals(LampStatus.OTHER, LampStatus.getStatus(3, 3));
+
     }
 
     @Test
@@ -53,24 +62,29 @@ public class LampStatusTest {
 
     @Test
     public void testToString() {
+        assertEquals("alternate off", LampStatus.ALTERNATE_OFF.toString());
+        assertEquals("fast flash", LampStatus.FAST_FLASH.toString());
+        assertEquals("not supported", LampStatus.NOT_SUPPORTED.toString());
         assertEquals("off", LampStatus.OFF.toString());
         assertEquals("on", LampStatus.ON.toString());
-        assertEquals("fast flash", LampStatus.FAST_FLASH.toString());
+        assertEquals("other", LampStatus.OTHER.toString());
         assertEquals("slow flash", LampStatus.SLOW_FLASH.toString());
     }
 
     @Test
     public void testValueOf() {
         assertEquals(LampStatus.OFF, LampStatus.valueOf("OFF"));
+        assertEquals(LampStatus.ALTERNATE_OFF, LampStatus.valueOf("ALTERNATE_OFF"));
         assertEquals(LampStatus.ON, LampStatus.valueOf("ON"));
         assertEquals(LampStatus.FAST_FLASH, LampStatus.valueOf("FAST_FLASH"));
+        assertEquals(LampStatus.NOT_SUPPORTED, LampStatus.valueOf("NOT_SUPPORTED"));
         assertEquals(LampStatus.SLOW_FLASH, LampStatus.valueOf("SLOW_FLASH"));
         assertEquals(LampStatus.OTHER, LampStatus.valueOf("OTHER"));
     }
 
     @Test
     public void testValues() {
-        assertEquals(5, LampStatus.values().length);
+        assertEquals(7, LampStatus.values().length);
     }
 
 }
