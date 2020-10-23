@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import java.util.Objects;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 
 /**
@@ -47,6 +49,22 @@ public class DiagnosticTroubleCode {
         oc = (data[3] & 0x7F);
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof DiagnosticTroubleCode)) {
+            return false;
+        }
+        DiagnosticTroubleCode that = (DiagnosticTroubleCode) obj;
+        return (getSuspectParameterNumber() == that.getSuspectParameterNumber() &&
+                getOccurrenceCount() == that.getOccurrenceCount() &&
+                getFailureModeIndicator() == that.getFailureModeIndicator() &&
+                getConversionMethod() == that.getConversionMethod() &&
+                getSuspectParameterNumber() == that.getSuspectParameterNumber());
+    }
+
     /**
      * Returns the Conversation Method, range 0 to 1
      *
@@ -81,6 +99,15 @@ public class DiagnosticTroubleCode {
      */
     public int getSuspectParameterNumber() {
         return spn;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(getSuspectParameterNumber(),
+                getOccurrenceCount(),
+                getFailureModeIndicator(),
+                getConversionMethod(),
+                getSuspectParameterNumber());
     }
 
     @Override
