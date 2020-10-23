@@ -31,7 +31,7 @@ public class DiagnosticTroubleCodePacketTest {
 
     @Test
     public void testGetAmberWarningLampStatusOff() {
-        int[] data = new int[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+        int[] data = new int[] { 0x00, 0x0C, 0x00, 0x00, 0x00, 0x00 };
         Packet packet = Packet.create(0x00, 0x00, data);
         DiagnosticTroubleCodePacket instance = new DiagnosticTroubleCodePacket(packet);
 
@@ -132,7 +132,7 @@ public class DiagnosticTroubleCodePacketTest {
 
     @Test
     public void testGetMalfunctionIndicatorLampStatusOff() {
-        int[] data = new int[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+        int[] data = new int[] { 0x00, 0x0C0, 0x00, 0x00, 0x00, 0x00 };
         Packet packet = Packet.create(0x00, 0x00, data);
         DiagnosticTroubleCodePacket instance = new DiagnosticTroubleCodePacket(packet);
 
@@ -172,7 +172,7 @@ public class DiagnosticTroubleCodePacketTest {
 
     @Test
     public void testGetProtectLampStatusOff() {
-        int[] data = new int[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+        int[] data = new int[] { 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00 };
         Packet packet = Packet.create(0x00, 0x00, data);
         DiagnosticTroubleCodePacket instance = new DiagnosticTroubleCodePacket(packet);
 
@@ -212,7 +212,7 @@ public class DiagnosticTroubleCodePacketTest {
 
     @Test
     public void testGetRedStopLampStatusOff() {
-        int[] data = new int[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+        int[] data = new int[] { 0x00, 0x30, 0x00, 0x00, 0x00, 0x00 };
         Packet packet = Packet.create(0x00, 0x00, data);
         DiagnosticTroubleCodePacket instance = new DiagnosticTroubleCodePacket(packet);
 
@@ -254,7 +254,7 @@ public class DiagnosticTroubleCodePacketTest {
 
     @Test
     public void testToStringNoDtcs() {
-        int[] data = new int[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+        int[] data = new int[] { 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00 };
         Packet packet = Packet.create(0x123456, 0x00, data);
         DiagnosticTroubleCodePacket instance = new DiagnosticTroubleCodePacket(packet);
         String expected = "DM from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs";

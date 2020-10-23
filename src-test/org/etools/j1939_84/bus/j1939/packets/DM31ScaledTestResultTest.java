@@ -36,9 +36,9 @@ public class DM31ScaledTestResultTest {
                 0x61, // SPN least significant bit
                 0x02, // SPN most significant bit
                 0x13, // Failure mode indicator
-                0x81,
-                0x58,
-                0x34
+                0x81, // SPN Conversion Occurrence Count
+                0x62, // Lamp Status/Support
+                0x1D, // Lamp Status/State
         };
         Packet packet = Packet.create(DM31ScaledTestResults.PGN,
                 0,
@@ -53,7 +53,7 @@ public class DM31ScaledTestResultTest {
         assertEquals(expected, instance.toString());
 
         DTCLampStatus dtcLampStatus0 = instance.getDtcLampStatuses().get(0);
-        DiagnosticTroubleCode actualDTC = dtcLampStatus0.getDtc();
+        DiagnosticTroubleCode actualDTC = dtcLampStatus0.getDtcs();
         assertEquals(0x0261, actualDTC.getSuspectParameterNumber());
         assertEquals(0x01, actualDTC.getConversionMethod());
         assertEquals(0x13, actualDTC.getFailureModeIndicator());
@@ -76,23 +76,24 @@ public class DM31ScaledTestResultTest {
                 0x61, // SPN least significant bit
                 0x02, // SPN most significant bit
                 0x13, // Failure mode indicator
-                0x81,
-                0x58,
-                0x34,
+                0x81, // SPN Conversion Occurrence Count
+                0x62, // Lamp Status/Support
+                0x1D, // Lamp Status/State
 
                 0x21, // SPN least significant bit
                 0x06, // SPN most significant bit
                 0x1F, // Failure mode indicator
-                0x23,
-                0x4A,
-                0x34,
+                0x23, // SPN Conversion Occurrence Count
+                0x22, // Lamp Status/Support
+                0xDD, // Lamp Status/State
 
                 0xEE, // SPN least significant bit
                 0x10, // SPN most significant bit
                 0x04, // Failure mode indicator
-                0x00,
-                0x37,
-                0x2A);
+                0x00, // SPN Conversion Occurrence Count
+                0xAA, // Lamp Status/Support
+                0x55);// Lamp Status/State
+
         DM31ScaledTestResults instance = new DM31ScaledTestResults(packet);
         assertEquals("DM31", instance.getName());
         List<DTCLampStatus> lampStatuses = instance.getDtcLampStatuses();
@@ -110,7 +111,7 @@ public class DM31ScaledTestResultTest {
         assertEquals(expected, instance.toString());
 
         DTCLampStatus lampStatus0 = lampStatuses.get(0);
-        DiagnosticTroubleCode dtc0 = lampStatus0.getDtc();
+        DiagnosticTroubleCode dtc0 = lampStatus0.getDtcs();
         assertEquals(0x01, dtc0.getConversionMethod());
         assertEquals(0x13, dtc0.getFailureModeIndicator());
         assertEquals(0x01, dtc0.getOccurrenceCount());
@@ -121,7 +122,7 @@ public class DM31ScaledTestResultTest {
         assertEquals(LampStatus.OFF, instance.getDtcLampStatuses().get(0).getAmberWarningLampStatus());
 
         DTCLampStatus lampStatus1 = lampStatuses.get(1);
-        DiagnosticTroubleCode dtc1 = lampStatus1.getDtc();
+        DiagnosticTroubleCode dtc1 = lampStatus1.getDtcs();
         assertEquals(0x0, dtc1.getConversionMethod());
         assertEquals(0x1F, dtc1.getFailureModeIndicator());
         assertEquals(0x23, dtc1.getOccurrenceCount());
@@ -132,7 +133,7 @@ public class DM31ScaledTestResultTest {
         assertEquals(LampStatus.OFF, lampStatus1.getAmberWarningLampStatus());
 
         DTCLampStatus lampStatus2 = lampStatuses.get(2);
-        DiagnosticTroubleCode dtc2 = lampStatus2.getDtc();
+        DiagnosticTroubleCode dtc2 = lampStatus2.getDtcs();
         assertEquals(0x00, dtc2.getConversionMethod());
         assertEquals(0x04, dtc2.getFailureModeIndicator());
         assertEquals(0x00, dtc2.getOccurrenceCount());

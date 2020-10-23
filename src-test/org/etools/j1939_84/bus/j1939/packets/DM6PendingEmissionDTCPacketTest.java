@@ -69,7 +69,7 @@ public class DM6PendingEmissionDTCPacketTest {
     @Test
     public void testToString() {
         // Test two on and rest off
-        Packet packet = Packet.create(0, 0, 0x11, 0x01, 0x01, 0x01, 0x01, 0x01, 0x31, 0x11);
+        Packet packet = Packet.create(0, 0, 0x11, 0xCD, 0x01, 0x01, 0x01, 0x01, 0x31, 0x11);
         DM6PendingEmissionDTCPacket instance = new DM6PendingEmissionDTCPacket(packet);
         assertEquals(LampStatus.OFF, instance.getAmberWarningLampStatus());
         assertEquals(LampStatus.FAST_FLASH, instance.getProtectLampStatus());
