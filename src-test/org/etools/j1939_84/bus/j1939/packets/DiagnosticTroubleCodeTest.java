@@ -4,7 +4,11 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertTrue;
 
+import org.etools.j1939_84.bus.Packet;
 import org.junit.Test;
 
 /**
@@ -46,6 +50,30 @@ public class DiagnosticTroubleCodeTest {
     }
 
     @Test
+    public void testEquals() {
+        int[] data = new int[] { 0x61, // conversion method
+                0x02, // suspect parameter number
+                0x13, // failure mode indicator
+                0x81 };// occurrence count
+        DiagnosticTroubleCode instance = new DiagnosticTroubleCode(data);
+        DiagnosticTroubleCode instance2 = new DiagnosticTroubleCode(data);
+        int[] data2 = new int[] { 0x13, 0x81, 0x61, 0x02 };
+        DiagnosticTroubleCode instance3 = new DiagnosticTroubleCode(data2);
+        DM31ScaledTestResults instance4 = new DM31ScaledTestResults(
+                Packet.create(0, 0, new int[] { 0x61, 0x02, 0x13, 0x81 }));
+        assertTrue(instance.equals(instance2));
+        assertFalse(instance.equals(instance3));
+        assertFalse(instance.equals(instance4));
+        int[] data3 = new int[] { 0x61, 0x02, 0x03, 0x81 };
+        DiagnosticTroubleCode instance5 = new DiagnosticTroubleCode(data3);
+        assertFalse(instance.equals(instance5));
+        assertEquals(3, instance5.getFailureModeIndicator());
+        int[] data4 = new int[] { 0x61, 0x02, 0x13, 0x21 };
+        DiagnosticTroubleCode instance6 = new DiagnosticTroubleCode(data4);
+        assertFalse(instance.equals(instance6));
+    }
+
+    @Test
     public void testFMI() {
         int[] data = new int[] { 0x00, 0x00, 0x1F, 0x00 };
         DiagnosticTroubleCode instance = new DiagnosticTroubleCode(data);
@@ -83,6 +111,17 @@ public class DiagnosticTroubleCodeTest {
         assertEquals(0, instance.getFailureModeIndicator());
         assertEquals(524287, instance.getSuspectParameterNumber());
         assertEquals(0, instance.getOccurrenceCount());
+    }
+
+    @Test
+    public void testHashCode() {
+        int[] data = new int[] { 0x61, 0x02, 0x13, 0x81 };
+        int[] data2 = new int[] { 0x13, 0x81, 0x61, 0x02 };
+        DiagnosticTroubleCode instance = new DiagnosticTroubleCode(data);
+        DiagnosticTroubleCode instance2 = new DiagnosticTroubleCode(data2);
+        DiagnosticTroubleCode instance3 = new DiagnosticTroubleCode(data);
+        assertNotEquals(instance.hashCode(), instance2.hashCode());
+        assertEquals(instance.hashCode(), instance3.hashCode());
     }
 
     @Test
