@@ -31,8 +31,7 @@ public class SummaryModule {
 
     public static void main(String... strings) throws InterruptedException {
         SummaryModule module = new SummaryModule();
-        String summary = module.generateSummary();
-        System.out.println(summary);
+        module.generateSummary();
     }
 
     private final List<PartResult> partResults = new ArrayList<>();

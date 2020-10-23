@@ -24,7 +24,6 @@ public class VinGenerator {
             String vin = generator.generateVin();
             int modelYear = vinDecoder.getModelYear(vin);
             if (modelYear == nextModelYear) {
-                System.out.println("ModelYear " + nextModelYear + ": " + vin);
                 nextModelYear++;
             }
         }
