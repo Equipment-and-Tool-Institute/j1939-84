@@ -77,7 +77,7 @@ public class DTCModule extends FunctionalModule {
                 .collect(Collectors.toList());
 
         if (packets.isEmpty()) {
-            listener.onResult(getTime() + " No published DM1 messages were idententified");
+            listener.onResult(getTime() + " No published DM1 messages were identified");
         }
         return new RequestResult<>(false, packets, Collections.emptyList());
     }

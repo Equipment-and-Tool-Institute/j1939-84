@@ -130,7 +130,7 @@ public class DTCModuleTest {
         assertEquals(expectedResult, instance.readDM1(listener, true));
 
         String expected = "10:15:30.000 Reading the bus for published DM1 messages" + NL;
-        expected += "10:15:30.000 No published DM1 messages were idententified" + NL;
+        expected += "10:15:30.000 No published DM1 messages were identified" + NL;
         assertEquals(expected, listener.getResults());
         verify(j1939).read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS);
     }
