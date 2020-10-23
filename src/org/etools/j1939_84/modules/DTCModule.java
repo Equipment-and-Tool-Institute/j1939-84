@@ -5,6 +5,7 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
@@ -17,6 +18,7 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
@@ -62,6 +64,24 @@ public class DTCModule extends FunctionalModule {
         super(dateTimeModule);
     }
 
+    public RequestResult<DM1ActiveDTCsPacket> readDM1(ResultsListener listener, boolean fullString) {
+        String title = " Reading the bus for published DM1 messages";
+        listener.onResult(getTime() + title);
+
+        List<DM1ActiveDTCsPacket> packets = getJ1939()
+                .read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS)
+                .map(r -> r.left)
+                .filter(o -> o.isPresent())
+                .map(o -> o.get())
+                .peek(p -> listener.onResult(p.toString()))
+                .collect(Collectors.toList());
+
+        if (packets.isEmpty()) {
+            listener.onResult(getTime() + " No published DM1 messages were identified");
+        }
+        return new RequestResult<>(false, packets, Collections.emptyList());
+    }
+
     /**
      * Send Global DM11 Request and generates a {@link String} that's suitable
      * for inclusion in the report
@@ -74,7 +94,6 @@ public class DTCModule extends FunctionalModule {
      *         Module NACK'd the request or didn't respond
      */
     public <T extends ParsedPacket> RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener) {
-
         return requestDM11(listener, GLOBAL_ADDR);
     }
 

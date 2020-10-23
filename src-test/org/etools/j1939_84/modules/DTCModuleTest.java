@@ -28,6 +28,7 @@ import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
@@ -79,6 +80,59 @@ public class DTCModuleTest {
     @After
     public void tearDown() {
         verifyNoMoreInteractions(j1939);
+    }
+
+    /**
+     * Test method for
+     * {@link org.etools.j1939_84.bus.j1939.packets.DTCModule#readDM1()}.
+     */
+    @Test
+    public void testReadDM1() {
+        DM1ActiveDTCsPacket packet = new DM1ActiveDTCsPacket(
+                Packet.create(65226, 0x00, 0x11, 0x01, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
+                        0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+
+        when(j1939.read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS))
+                .thenReturn(Stream.of(packet).map(p -> new Either<>(p, null)));
+
+        TestResultsListener listener = new TestResultsListener();
+
+        RequestResult<DM1ActiveDTCsPacket> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.readDM1(listener, true));
+
+        String expected = "10:15:30.000 Reading the bus for published DM1 messages" + NL;
+        expected += "DM1 from Engine #1 (0): MIL: alternate off, RSL: slow flash, AWL: alternate off, PL: fast flash"
+                + NL;
+        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 0 times" + NL;
+        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 0 times" + NL;
+        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+        assertEquals(expected, listener.getResults());
+        verify(j1939).read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS);
+    }
+
+    /**
+     * Test method for
+     * {@link org.etools.j1939_84.bus.j1939.packets.DTCModule#readDM1()}.
+     */
+    @Test
+    public void testReadDM1WithEmptyResponse() {
+        when(j1939.read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS))
+                .thenReturn(Stream.empty());
+
+        TestResultsListener listener = new TestResultsListener();
+
+        RequestResult<DM1ActiveDTCsPacket> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.readDM1(listener, true));
+
+        String expected = "10:15:30.000 Reading the bus for published DM1 messages" + NL;
+        expected += "10:15:30.000 No published DM1 messages were identified" + NL;
+        assertEquals(expected, listener.getResults());
+        verify(j1939).read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS);
     }
 
     @Test
