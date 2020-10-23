@@ -29,12 +29,6 @@ public class SummaryModule {
         return new String(charArray);
     }
 
-    public static void main(String... strings) throws InterruptedException {
-        SummaryModule module = new SummaryModule();
-        String summary = module.generateSummary();
-        System.out.println(summary);
-    }
-
     private final List<PartResult> partResults = new ArrayList<>();
 
     /**

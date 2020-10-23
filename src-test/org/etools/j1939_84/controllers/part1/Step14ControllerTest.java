@@ -192,14 +192,6 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
         DM26TripDiagnosticReadinessPacket obdPacket3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
-        System.out.println("packet3 systems are: ");
-        packet3.getMonitoredSystems().stream().sorted().forEach(system -> {
-            System.out.println(system.toString());
-        });
-        System.out.println("obdPacket3 systems are: ");
-        obdPacket3.getMonitoredSystems().stream().sorted().forEach(system -> {
-            System.out.println(system.toString());
-        });
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x03);
         obdModule1.setMontioredSystems(packet1.getMonitoredSystems());
         OBDModuleInformation obdModule3 = new OBDModuleInformation(0x03);
