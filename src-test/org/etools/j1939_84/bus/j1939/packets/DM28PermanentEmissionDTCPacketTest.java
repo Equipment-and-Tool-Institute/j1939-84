@@ -30,7 +30,7 @@ public class DM28PermanentEmissionDTCPacketTest {
 
     @Test
     public void testToString() {
-        int[] data = { 0x43, 0xFF, 0x9D, 0x00, 0x07, 0x01, 0xFF, 0xFF };
+        int[] data = { 0x42, 0xFD, 0x9D, 0x00, 0x07, 0x01, 0xFF, 0xFF };
         Packet packet = Packet.create(0, 0, data);
         DM28PermanentEmissionDTCPacket dm28Packet = new DM28PermanentEmissionDTCPacket(packet);
         StringBuilder expected = new StringBuilder(
