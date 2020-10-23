@@ -425,14 +425,14 @@ public class DTCModuleTest {
         when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
 
         DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         when(j1939.requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM12 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18EA00A5 D4 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FED400 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FED400 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -524,22 +524,22 @@ public class DTCModuleTest {
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
         DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         DM12MILOnEmissionDTCPacket packet2 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x17, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x17, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         DM12MILOnEmissionDTCPacket packet3 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x21, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         when(j1939.requestRaw(DM12MILOnEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
                 .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM12 Request" + NL;
         expected += "10:15:30.000 18EAFFA5 D4 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FED400 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FED400 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FED417 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FED417 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM12 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FED421 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FED421 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM12 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -640,14 +640,14 @@ public class DTCModuleTest {
         when(j1939.createRequestPacket(pgn, 0x21)).thenReturn(requestPacket);
 
         DM23PreviouslyMILOnEmissionDTCPacket packet1 = new DM23PreviouslyMILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x21, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         when(j1939.requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket))
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM23 Request to Body Controller (33)" + NL;
         expected += "10:15:30.000 18EA21A5 B5 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FDB521 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FDB521 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM23 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -736,22 +736,22 @@ public class DTCModuleTest {
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
         DM23PreviouslyMILOnEmissionDTCPacket packet1 = new DM23PreviouslyMILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         DM23PreviouslyMILOnEmissionDTCPacket packet2 = new DM23PreviouslyMILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x17, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x17, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         DM23PreviouslyMILOnEmissionDTCPacket packet3 = new DM23PreviouslyMILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x21, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         when(j1939.requestMultiple(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket))
                 .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM23 Request" + NL;
         expected += "10:15:30.000 18EAFFA5 B5 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FDB500 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FDB500 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM23 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FDB517 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FDB517 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM23 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FDB521 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FDB521 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM23 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1042,14 +1042,14 @@ public class DTCModuleTest {
         when(j1939.createRequestPacket(pgn, 0x21)).thenReturn(requestPacket);
 
         DM28PermanentEmissionDTCPacket packet1 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x21, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         when(j1939.requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket))
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM28 Request to Body Controller (33)" + NL;
         expected += "10:15:30.000 18EA21A5 80 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FD8021 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FD8021 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM28 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1145,22 +1145,22 @@ public class DTCModuleTest {
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
         DM28PermanentEmissionDTCPacket packet1 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         DM28PermanentEmissionDTCPacket packet2 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(pgn, 0x17, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x17, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         DM28PermanentEmissionDTCPacket packet3 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x21, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         when(j1939.requestMultiple(DM28PermanentEmissionDTCPacket.class, requestPacket))
                 .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM28 Request" + NL;
         expected += "10:15:30.000 18EAFFA5 80 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FD8000 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FD8000 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FD8017 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FD8017 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM28 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FD8021 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FD8021 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM28 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1258,14 +1258,14 @@ public class DTCModuleTest {
         when(j1939.createRequestPacket(pgn, 0x01)).thenReturn(requestPacket);
 
         DM2PreviouslyActiveDTC packet1 = new DM2PreviouslyActiveDTC(
-                Packet.create(pgn, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                Packet.create(pgn, 0x01, 0x22, 0xDD, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
         when(j1939.requestRaw(DM2PreviouslyActiveDTC.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM2 Request to Engine #2 (1)" + NL;
         expected += "10:15:30.000 18EA01A5 CB FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FECB01 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.000 18FECB01 22 DD 33 44 55 66 77 88" + NL;
         expected += "DM2 from Engine #2 (1): MIL: off, RSL: other, AWL: off, PL: other" + NL;
         expected += "DTC: Unknown (148531) Data Drifted Low (21) 102 times" + NL;
 
@@ -1290,24 +1290,24 @@ public class DTCModuleTest {
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
         DM2PreviouslyActiveDTC packet1 = new DM2PreviouslyActiveDTC(
-                Packet.create(pgn, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                Packet.create(pgn, 0x00, 0x22, 0xDD, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
         DM2PreviouslyActiveDTC packet2 = new DM2PreviouslyActiveDTC(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+                Packet.create(pgn, 0x17, 0x02, 0xFD, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM2PreviouslyActiveDTC packet3 = new DM2PreviouslyActiveDTC(
-                Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
+                Packet.create(pgn, 0x21, 0x20, 0xDF, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         when(j1939.requestRaw(DM2PreviouslyActiveDTC.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
                 .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM2 Request" + NL;
         expected += "10:15:30.000 18EAFFA5 CB FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FECB00 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.000 18FECB00 22 DD 33 44 55 66 77 88" + NL;
         expected += "DM2 from Engine #1 (0): MIL: off, RSL: other, AWL: off, PL: other" + NL;
         expected += "DTC: Unknown (148531) Data Drifted Low (21) 102 times" + NL;
-        expected += "10:15:30.000 18FECB17 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.000 18FECB17 02 FD 03 04 05 06 07 08" + NL;
         expected += "DM2 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: other" + NL;
         expected += "DTC: Trip Time in Derate by Engine (1027) Current Below Normal Or Open Circuit (5) 6 times" + NL;
-        expected += "10:15:30.000 18FECB21 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.000 18FECB21 20 DF 30 40 50 60 70 80" + NL;
         expected += "DM2 from Body Controller (33): MIL: off, RSL: other, AWL: off, PL: off" + NL;
         expected += "DTC: Unknown (147504) Data Valid But Above Normal Operating Range - Moderately Severe Level (16) 96 times"
                 + NL;
@@ -1668,14 +1668,14 @@ public class DTCModuleTest {
         when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
 
         DM6PendingEmissionDTCPacket packet1 = new DM6PendingEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         when(j1939.requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM6 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18EA00A5 CF FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FECF00 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FECF00 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1779,22 +1779,22 @@ public class DTCModuleTest {
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
         DM6PendingEmissionDTCPacket packet1 = new DM6PendingEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x61));
         DM6PendingEmissionDTCPacket packet2 = new DM6PendingEmissionDTCPacket(
-                Packet.create(pgn, 0x17, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x17, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         DM6PendingEmissionDTCPacket packet3 = new DM6PendingEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
+                Packet.create(pgn, 0x21, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         when(j1939.requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
                 .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
         expected += "10:15:30.000 Global DM6 Request" + NL;
         expected += "10:15:30.000 18EAFFA5 CF FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FECF00 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FECF00 00 FF 61" + NL;
         expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FECF17 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FECF17 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM6 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FECF21 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.000 18FECF21 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM6 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -2384,7 +2384,7 @@ public class DTCModuleTest {
 
         String expected = "10:15:30.000 Destination Specific DM31 Request to Body Controller (33)" + NL;
         expected += "10:15:30.000 18EA21A5 00 A3 00 (TX)" + NL;
-        expected += "10:15:30.000 18A30021 61 02 13 81 58 34 21 06 1F 23 4A 34 EE 10 04 00 37 2A"
+        expected += "10:15:30.000 18A30021 61 02 13 81 62 1D 21 06 1F 23 22 DD EE 10 04 00 AA 55"
                 + NL;
         expected += "DM31 from Body Controller (33): " + NL;
         expected += "DTC Lamp Statuses: [" + NL;
@@ -2402,23 +2402,23 @@ public class DTCModuleTest {
                         0x61, // SPN least significant bit
                         0x02, // SPN most significant bit
                         0x13, // Failure mode indicator
-                        0x81,
-                        0x58,
-                        0x34,
+                        0x81, // SPN Conversion Occurrence Count
+                        0x62, // Lamp Status/Support
+                        0x1D, // Lamp Status/State
 
                         0x21, // SPN least significant bit
                         0x06, // SPN most significant bit
                         0x1F, // Failure mode indicator
-                        0x23,
-                        0x4A,
-                        0x34,
+                        0x23, // SPN Conversion Occurrence Count
+                        0x22, // Lamp Status/Support
+                        0xDD, // Lamp Status/State
 
                         0xEE, // SPN least significant bit
                         0x10, // SPN most significant bit
                         0x04, // Failure mode indicator
-                        0x00,
-                        0x37,
-                        0x2A));
+                        0x00, // SPN Conversion Occurrence Count
+                        0xAA, // Lamp Status/Support
+                        0x55));// Lamp Status/State
         when(j1939.requestMultiple(DM31ScaledTestResults.class, requestPacket))
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
@@ -2472,7 +2472,7 @@ public class DTCModuleTest {
 
         String expected = "10:15:30.000 Global DM31 Request" + NL;
         expected += "10:15:30.000 18EAFFA5 00 A3 00 (TX)" + NL;
-        expected += "10:15:30.000 18A30021 61 02 13 81 58 34 21 06 1F 23 4A 34 EE 10 04 00 37 2A"
+        expected += "10:15:30.000 18A30021 61 02 13 81 62 1D 21 06 1F 23 22 DD EE 10 04 00 AA 55"
                 + NL;
         expected += "DM31 from Body Controller (33): " + NL;
         expected += "DTC Lamp Statuses: [" + NL;
@@ -2491,22 +2491,22 @@ public class DTCModuleTest {
                         0x02, // SPN most significant bit
                         0x13, // Failure mode indicator
                         0x81,
-                        0x58,
-                        0x34,
+                        0x62,
+                        0x1D,
 
                         0x21, // SPN least significant bit
                         0x06, // SPN most significant bit
                         0x1F, // Failure mode indicator
                         0x23,
-                        0x4A,
-                        0x34,
+                        0x22,
+                        0xDD,
 
                         0xEE, // SPN least significant bit
                         0x10, // SPN most significant bit
                         0x04, // Failure mode indicator
                         0x00,
-                        0x37,
-                        0x2A));
+                        0xAA,
+                        0x55));
         when(j1939.requestMultiple(DM31ScaledTestResults.class, requestPacket))
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
