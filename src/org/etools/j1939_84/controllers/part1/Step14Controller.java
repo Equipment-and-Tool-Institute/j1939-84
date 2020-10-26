@@ -97,7 +97,6 @@ public class Step14Controller extends StepController {
                         // this cycle or not supported' in SPN 3303 bits 1-4 and
                         // SPN 3305 [except comprehensive components monitor
                         // (CCM)].
-                        System.out.println(NL + "Makayla is prettier than Matthew!" + NL);
                         if (system.getStatus().isEnabled() && dm26Systems.stream()
                                 .anyMatch(s -> (s.getId() == system.getId()) && (!s.getStatus().isEnabled()))) {
                             addFailure(

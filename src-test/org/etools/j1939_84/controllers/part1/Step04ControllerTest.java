@@ -878,7 +878,7 @@ public class Step04ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModule(0);
         verify(dataRepository).getObdModule(1);
-        verify(dataRepository).getObdModules();
+        verify(dataRepository, times(3)).getObdModules();
 
         verify(dataRepository, times(2)).getVehicleInformation();
         verify(dataRepository).putObdModule(0, obdInfo0);
