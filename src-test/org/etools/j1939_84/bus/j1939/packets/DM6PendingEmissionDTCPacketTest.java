@@ -29,7 +29,7 @@ public class DM6PendingEmissionDTCPacketTest {
         StringBuilder expected = new StringBuilder(
                 "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off\n");
         expected.append(
-                "DTC: Engine Cylinder 2 Peak Pressure (6401) Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times");
+                "DTC:  (6401) Engine Cylinder 2 Peak Pressure Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times");
         assertEquals(expected.toString(), instance.toString());
         assertEquals(65231, DM6PendingEmissionDTCPacket.PGN);
     }
@@ -61,7 +61,7 @@ public class DM6PendingEmissionDTCPacketTest {
         StringBuilder expected = new StringBuilder(
                 "DM6 from Engine #1 (0): MIL: on, RSL: on, AWL: on, PL: on\n");
         expected.append(
-                "DTC: Special Ignitor Loop 38 - Resistance (4865) Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times");
+                "DTC:  (4865) Special Ignitor Loop 38 - Resistance Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times");
         assertEquals(expected.toString(), instance.toString());
         assertEquals(65231, DM6PendingEmissionDTCPacket.PGN);
     }
@@ -78,7 +78,7 @@ public class DM6PendingEmissionDTCPacketTest {
         StringBuilder expected = new StringBuilder(
                 "DM6 from Engine #1 (0): MIL: off, RSL: slow flash, AWL: off, PL: fast flash");
         expected.append(NL)
-                .append("DTC: Cold Restart Of Specific Component (257) Data Valid But Below Normal Operational Range - Most Severe Level (1) 1 times");
+                .append("DTC:  (257) Cold Restart Of Specific Component Data Valid But Below Normal Operational Range - Most Severe Level (1) 1 times");
         assertEquals(expected.toString(), instance.toString());
     }
 
