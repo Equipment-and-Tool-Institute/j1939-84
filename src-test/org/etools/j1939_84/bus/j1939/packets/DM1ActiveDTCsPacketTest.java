@@ -17,7 +17,7 @@ import org.junit.Test;
 
 /**
  * Unit tests the {@link DM1ActiveDTCsPacket} class
- * 
+ *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
  */
@@ -30,7 +30,7 @@ public class DM1ActiveDTCsPacketTest {
      */
     @Before
     public void setUp() throws Exception {
-        instance = new DM1ActiveDTCsPacket(Packet.create(65226, 0x00, 0x11, 0x01, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
+        instance = new DM1ActiveDTCsPacket(Packet.create(65226, 0x00, 0x11, 0x0CD, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
                 0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
     }
 
@@ -41,7 +41,7 @@ public class DM1ActiveDTCsPacketTest {
     @Test
     public void testDiagnosticTroubleCodePacket() {
         DM1ActiveDTCsPacket copy = new DM1ActiveDTCsPacket(
-                Packet.create(65226, 0x00, 0x11, 0x01, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
+                Packet.create(65226, 0x00, 0x11, 0xCD, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
                         0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
         assertEquals(copy, instance);
     }
@@ -53,7 +53,7 @@ public class DM1ActiveDTCsPacketTest {
     @Test
     public void testDM1ActiveDTCsPacket() {
         assertEquals(0x00, instance.getSourceAddress());
-        assertEquals("18FECA00 11 01 61 02 13 00 21 06 1F 00 EE 10 04 00", instance.getPacket().toString());
+        assertEquals("18FECA00 11 CD 61 02 13 00 21 06 1F 00 EE 10 04 00", instance.getPacket().toString());
     }
 
     /**
