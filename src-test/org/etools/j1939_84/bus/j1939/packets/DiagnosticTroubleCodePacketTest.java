@@ -246,9 +246,9 @@ public class DiagnosticTroubleCodePacketTest {
         Packet packet = Packet.create(0x123456, 0x00, data);
         DiagnosticTroubleCodePacket instance = new DiagnosticTroubleCodePacket(packet);
         String expected = "DM from Engine #1 (0): MIL: fast flash, RSL: slow flash, AWL: on, PL: off" + NL
-                + "DTC: Controller #2 (609) Received Network Data In Error (19) 0 times" + NL
-                + "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 0 times" + NL
-                + "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times";
+                + "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL
+                + "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL
+                + "DTC:  (4334) Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure Voltage Below Normal, Or Shorted To Low Source (4) 0 times";
         assertEquals(expected, instance.toString());
     }
 

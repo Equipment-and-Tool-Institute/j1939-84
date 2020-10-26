@@ -113,9 +113,11 @@ public class DiagnosticTroubleCode {
     @Override
     public String toString() {
         String result = "DTC: ";
-        result += Lookup.getSpnName(getSuspectParameterNumber()) + " (" + getSuspectParameterNumber() + ") ";
-        result += Lookup.getFmiDescription(getFailureModeIndicator()) + " (" + getFailureModeIndicator() + ") ";
-        result += getOccurrenceCount() + " times";
+        result += " (" + getSuspectParameterNumber() + ") " + Lookup.getSpnName(getSuspectParameterNumber());
+        result += " " + Lookup.getFmiDescription(getFailureModeIndicator()) + " (" + getFailureModeIndicator() + ")";
+        if (getOccurrenceCount() != 0x3F && getOccurrenceCount() != 127) {
+            result += " " + getOccurrenceCount() + " times";
+        }
         return result;
     }
 
