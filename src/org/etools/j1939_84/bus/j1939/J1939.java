@@ -24,6 +24,7 @@ import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
@@ -151,6 +152,8 @@ public class J1939 {
 
     private static ParsedPacket processRaw(int id, Packet packet) {
         switch (id) {
+        case DM1ActiveDTCsPacket.PGN:
+            return new DM1ActiveDTCsPacket(packet);
 
         case DM2PreviouslyActiveDTC.PGN:
             return new DM2PreviouslyActiveDTC(packet);
