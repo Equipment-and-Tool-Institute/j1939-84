@@ -88,7 +88,6 @@ public class Step15Controller extends StepController {
             }
             // c. Fail if any non-OBD ECU does not report MIL off or not
             // supported/ MIL status (per SAE J1939-73 Table 5).
-            System.out.println("LampStatus is: " + malfunctionIndicatorLampStatus);
             if (!isObdModule && malfunctionIndicatorLampStatus != OFF
                     && malfunctionIndicatorLampStatus != NOT_SUPPORTED) {
                 addFailure("6.1.15.2.c - Fail if any non-OBD ECU does not report MIL off or not supported");
