@@ -232,7 +232,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      */
     public BusResult<DM21DiagnosticReadinessPacket> getDM21Packets(ResultsListener listener, boolean fullString,
             int obdModuleAddress) {
-        return getPacket("Destination Specific DM21 Request",
+        return getPacketDS("Destination Specific DM21 Request",
                 DM21DiagnosticReadinessPacket.PGN,
                 DM21DiagnosticReadinessPacket.class,
                 listener,
@@ -672,7 +672,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     public BusResult<DM5DiagnosticReadinessPacket> requestDM5(ResultsListener listener, boolean fullString,
             int obdAddress) {
 
-        return getPacket("Destination Specific DM5 Request to " + getAddressName(obdAddress),
+        return getPacketDS("Destination Specific DM5 Request to " + getAddressName(obdAddress),
                 DM5DiagnosticReadinessPacket.PGN,
                 DM5DiagnosticReadinessPacket.class,
                 listener,

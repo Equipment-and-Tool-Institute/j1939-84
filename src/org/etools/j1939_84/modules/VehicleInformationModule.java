@@ -182,7 +182,9 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public String getVin() throws IOException {
         if (vin == null) {
-            Set<String> vins = getJ1939().requestMultiple(VehicleIdentificationPacket.class)
+            Collection<Either<VehicleIdentificationPacket, AcknowledgmentPacket>> all = getJ1939()
+                    .requestMultiple(VehicleIdentificationPacket.class).collect(Collectors.toList());
+            Set<String> vins = all.stream()
                     .flatMap(e -> e.left.stream())
                     .map(t -> t.getVin())
                     .collect(Collectors.toSet());
@@ -248,7 +250,7 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public BusResult<DM19CalibrationInformationPacket> reportCalibrationInformation(ResultsListener listener,
             int address) {
-        return getPacket("DS DM19 (Calibration Information) Request to " + String.format("%02X", address),
+        return getPacketDS("DS DM19 (Calibration Information) Request to " + String.format("%02X", address),
                 DM19CalibrationInformationPacket.PGN,
                 DM19CalibrationInformationPacket.class,
                 listener,
@@ -286,7 +288,7 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public BusResult<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener,
             int address) {
-        return getPacket(
+        return getPacketDS(
                 "DS Component Identification Request to " + String.format("%02X", address),
                 ComponentIdentificationPacket.PGN,
                 ComponentIdentificationPacket.class,

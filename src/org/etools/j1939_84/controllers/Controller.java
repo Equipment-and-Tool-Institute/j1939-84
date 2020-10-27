@@ -212,22 +212,26 @@ public abstract class Controller {
     /**
      * Constructor
      *
-     * @param executor                 the {@link Executor} used to
-     *                                 run the process.
+     * @param executor
+     *            the {@link Executor} used to run the process.
      *
-     * @param engineSpeedModule        the {@link EngineSpeedModule} that will
-     *                                 determine if the engine is communicating
+     * @param engineSpeedModule
+     *            the {@link EngineSpeedModule} that will determine if the
+     *            engine is communicating
      *
-     * @param bannerModule             the {@link BannerModule} used to generate the
-     *                                 headers and footers for the report
+     * @param bannerModule
+     *            the {@link BannerModule} used to generate the headers and
+     *            footers for the report
      *
-     * @param dateTimeModule           the {@link DateTimeModule} used to generate
-     *                                 the timestamps for the report
+     * @param dateTimeModule
+     *            the {@link DateTimeModule} used to generate the timestamps for
+     *            the report
      *
-     * @param vehicleInformationModule the {@link VehicleInformationModule} that
-     *                                 will gather general
-     *                                 information from the vehicle for the report
-     * @param partResultFactory        the {@link PartResultFactory} for the report
+     * @param vehicleInformationModule
+     *            the {@link VehicleInformationModule} that will gather general
+     *            information from the vehicle for the report
+     * @param partResultFactory
+     *            the {@link PartResultFactory} for the report
      */
     protected Controller(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule,
@@ -285,11 +289,14 @@ public abstract class Controller {
     /**
      * Adds a warning to the report
      *
-     * @param partNumber the part number to add to the report
+     * @param partNumber
+     *            the part number to add to the report
      *
-     * @param stepNumber the step number where the warning originated
+     * @param stepNumber
+     *            the step number where the warning originated
      *
-     * @param message    the warning to add to the report
+     * @param message
+     *            the warning to add to the report
      */
     protected void addWarning(int partNumber, int stepNumber, String message) {
         getListener().addOutcome(partNumber, stepNumber, Outcome.WARN, message);
@@ -301,7 +308,7 @@ public abstract class Controller {
      * the value has been set to Stopped or Aborted
      *
      * @throws InterruptedException
-     *                              if the ending has been set
+     *             if the ending has been set
      */
     private void checkEnding() throws InterruptedException {
         if (INTERUPPTABLE_ENDINGS.contains(getEnding())) {
@@ -314,14 +321,12 @@ public abstract class Controller {
      * {@link ResultsListener}
      *
      * @param listener
-     *                         the {@link ResultsListener} that will be given the
-     *                         results
+     *            the {@link ResultsListener} that will be given the results
      * @param j1939
-     *                         the {@link J1939} to use for communications
+     *            the {@link J1939} to use for communications
      * @param reportFileModule
-     *                         the {@link ReportFileModule} that will be used to
-     *                         read and
-     *                         generate the report
+     *            the {@link ReportFileModule} that will be used to read and
+     *            generate the report
      */
     public void execute(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
         setupRun(listener, j1939, reportFileModule);
@@ -534,9 +539,9 @@ public abstract class Controller {
      * Increments the overall progress and sends the message to the listener
      *
      * @param message
-     *                the {@link String} message to display
+     *            the {@link String} message to display
      * @throws InterruptedException
-     *                              if the operation has been Stopped
+     *             if the operation has been Stopped
      */
     protected void incrementProgress(String message) throws InterruptedException {
         getListener().onProgress(++currentStep, maxSteps, message);
@@ -557,7 +562,7 @@ public abstract class Controller {
      * subclasses. Callers should use execute() instead.
      *
      * @throws Throwable
-     *                   if there is a problem
+     *             if there is a problem
      */
     protected abstract void run() throws Throwable;
 
@@ -568,9 +573,9 @@ public abstract class Controller {
 
     /**
      * @param ending
-     *               the ending to set
+     *            the ending to set
      * @throws InterruptedException
-     *                              if the ending was set to ABORTED or STOPPED
+     *             if the ending was set to ABORTED or STOPPED
      */
     protected void setEnding(Ending ending) throws InterruptedException {
         this.ending = ending;
@@ -581,7 +586,7 @@ public abstract class Controller {
      * Sets the {@link J1939} to be used for communications
      *
      * @param j1939
-     *              the {@link J1939} to set
+     *            the {@link J1939} to set
      */
     private void setJ1939(J1939 j1939) {
         this.j1939 = j1939;
@@ -590,7 +595,8 @@ public abstract class Controller {
     }
 
     /**
-     * @param reportFileModule the reportFileModule to set
+     * @param reportFileModule
+     *            the reportFileModule to set
      */
     public void setReportFileModule(ReportFileModule reportFileModule) {
         this.reportFileModule = reportFileModule;
@@ -601,7 +607,7 @@ public abstract class Controller {
      * sets the maximum number of steps
      *
      * @param maxSteps
-     *                 the maximum number of steps in the operation
+     *            the maximum number of steps in the operation
      */
     private void setupProgress(int maxSteps) {
         currentStep = 0;
@@ -625,7 +631,6 @@ public abstract class Controller {
      */
     public void stop() {
         ending = Ending.STOPPED;
-        j1939.close();
     }
 
     /**
@@ -633,9 +638,9 @@ public abstract class Controller {
      * progress
      *
      * @param message
-     *                the message to send
+     *            the message to send
      * @throws InterruptedException
-     *                              if the operation has been Stopped
+     *             if the operation has been Stopped
      */
     protected void updateProgress(String message) throws InterruptedException {
         getListener().onProgress(currentStep, maxSteps, message);

@@ -178,7 +178,7 @@ public class DTCModule extends FunctionalModule {
      */
     public BusResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, boolean fullString,
             int moduleAddress) {
-        return getPacket("Destination Specific DM12 Request to " + Lookup.getAddressName(moduleAddress),
+        return getPacketDS("Destination Specific DM12 Request to " + Lookup.getAddressName(moduleAddress),
                 DM12MILOnEmissionDTCPacket.PGN,
                 DM12MILOnEmissionDTCPacket.class,
                 listener,
@@ -211,7 +211,7 @@ public class DTCModule extends FunctionalModule {
      */
     public BusResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString,
             int obdAddress) {
-        return getPacket("Destination Specific DM2 Request to " + Lookup.getAddressName(obdAddress),
+        return getPacketDS("Destination Specific DM2 Request to " + Lookup.getAddressName(obdAddress),
                 DM2PreviouslyActiveDTC.PGN,
                 DM2PreviouslyActiveDTC.class,
                 listener,

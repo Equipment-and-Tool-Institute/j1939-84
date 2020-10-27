@@ -350,5 +350,4 @@ public class ParsedPacket {
     public String toString() {
         return getPacket().toString();
     }
-
 }

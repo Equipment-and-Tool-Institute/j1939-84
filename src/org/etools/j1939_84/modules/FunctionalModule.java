@@ -131,7 +131,7 @@ public abstract class FunctionalModule {
         return j1939;
     }
 
-    protected <T extends ParsedPacket> BusResult<T> getPacket(String title,
+    protected <T extends ParsedPacket> BusResult<T> getPacketDS(String title,
             int pgn,
             Class<T> clazz,
             ResultsListener listener,

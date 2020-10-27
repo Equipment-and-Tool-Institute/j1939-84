@@ -185,11 +185,11 @@ public class J1939TP implements Bus {
     private void receive(Packet packet) {
         // ignore the packet if it is from this
         if (packet.getSource() != getAddress()) {
-            switch (packet.getId() & 0xFF00) {
+            switch (packet.getPgn()) {
             case CM: // TP connection management
                 switch (packet.get(0)) {
                 case CM_RTS: { // Request to send
-                    if ((packet.getId() & 0xFF) == getAddress()) {
+                    if (packet.getDestination() == getAddress()) {
                         exec.execute(() -> {
                             try {
                                 inbound.send(receiveDestinationSpecific(packet));
@@ -245,7 +245,7 @@ public class J1939TP implements Bus {
 
         byte[] data = new byte[rts.get16(1)];
         BitSet received = new BitSet(numberOfPackets + 1);
-        int dataId = DT | (rts.getId() & 0xFF);
+        int dataId = DT | rts.getDestination();
         int controlId = CM | (rts.getId() & 0xFF);
         int source = rts.getSource();
 
@@ -391,7 +391,7 @@ public class J1939TP implements Bus {
     public void send(Packet packet) throws BusException {
         if (packet.getLength() <= 8) {
             bus.send(packet);
-        } else if ((0xFFFF & packet.getId()) >= 0xF000) {
+        } else if (packet.getPgn() >= 0xF000) {
             sendBam(packet);
         } else {
             sendDestinationSpecific(packet);
@@ -399,7 +399,7 @@ public class J1939TP implements Bus {
     }
 
     public void sendBam(Packet packet) throws BusException {
-        int pgn = packet.getId();
+        int pgn = packet.getPgn();
         int packetsToSend = packet.getLength() / 7 + 1;
         int sourceAddress = getAddress();
         Packet bam = Packet.create(CM | 0xFF,
@@ -436,8 +436,8 @@ public class J1939TP implements Bus {
     }
 
     public void sendDestinationSpecific(Packet packet) throws BusException {
-        int pgn = packet.getId();
-        int destinationAddress = packet.getId() & 0xFF;
+        int pgn = packet.getPgn();
+        int destinationAddress = packet.getDestination();
         Predicate<Packet> controlMessageFilter = p -> p.getSource() == destinationAddress
                 && (0xFFFF & p.getId()) == (CM | packet.getSource());
 
@@ -446,7 +446,7 @@ public class J1939TP implements Bus {
 
         // send RTS
         int totalPacketsToSend = packet.getLength() / 7 + 1;
-        Packet rts = Packet.create(CM | (0xFF & packet.getId()),
+        Packet rts = Packet.create(CM | packet.getDestination(),
                 getAddress(),
                 CM_RTS,
                 packet.getLength(),

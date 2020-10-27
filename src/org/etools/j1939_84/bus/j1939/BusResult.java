@@ -17,6 +17,11 @@ public class BusResult<T> {
     private final Optional<Either<T, AcknowledgmentPacket>> packet;
     private final boolean retryUsed;
 
+    public BusResult(boolean retryUsed) {
+        this(retryUsed, Optional.empty());
+    }
+
+    // FIXME ugly null parameter
     public BusResult(boolean retryUsed, AcknowledgmentPacket packet) {
         this(retryUsed, packet == null
                 ? Optional.empty()
@@ -39,6 +44,7 @@ public class BusResult<T> {
         this.packet = packet;
     }
 
+    // FIXME ugly null parameter
     public BusResult(boolean retryUsed, T packet) {
         this(retryUsed, packet == null
                 ? Optional.empty()
