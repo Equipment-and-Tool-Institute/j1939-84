@@ -8,6 +8,7 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -508,8 +509,10 @@ public class J1939 {
                     .collect(Collectors.toList());
         }
         // now try the DA request
+        Function<AcknowledgmentPacket, Stream<Either<T, AcknowledgmentPacket>>> mapper = p -> requestDaOnce(packetClass,
+                p.getSourceAddress()).stream();
         Collection<Either<T, AcknowledgmentPacket>> list = busyNACKs.stream()
-                .flatMap(p -> requestDaOnce(packetClass, p.getSourceAddress()).stream())
+                .flatMap(mapper)
                 .collect(Collectors.toList());
         results.addAll(list);
         return new RequestResult<>(retry, results);
@@ -620,8 +623,8 @@ public class J1939 {
             long timeout,
             TimeUnit unit) {
         return (requestPacket.getDestination() == 0xFF)
-                ? requestGlobal(getPgn(T), requestPacket)
-                : requestDa(getPgn(T), requestPacket);
+                ? requestGlobal(getPgn(T), requestPacket).getEither().stream()
+                : requestDa(getPgn(T), requestPacket).get;
     }
 
     private void sleep(int time) {
