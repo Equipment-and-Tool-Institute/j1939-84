@@ -132,7 +132,7 @@ public class SectionA5Verifier {
 
         // c. DM23 previously active shall report no DTCs and MIL off and not
         // flashing
-        List<DM23PreviouslyMILOnEmissionDTCPacket> dm23Packets = dtcModule.requestDM23(listener).getPackets()
+        List<DM23PreviouslyMILOnEmissionDTCPacket> dm23Packets = dtcModule.requestDM23(listener, true).getPackets()
                 .stream()
                 .filter(t -> !t.getDtcs().isEmpty() ||
                         t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF)
