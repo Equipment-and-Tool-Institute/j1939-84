@@ -263,7 +263,7 @@ public class Part01ControllerTest {
         when(step15Controller.getStepNumber()).thenReturn(15);
         when(step16Controller.getStepNumber()).thenReturn(16);
         when(step17Controller.getStepNumber()).thenReturn(17);
-        when(step18Controller.getStepNumber()).thenReturn(17);
+        when(step18Controller.getStepNumber()).thenReturn(18);
 
         instance.execute(listener, j1939, reportFileModule);
 
