@@ -178,7 +178,7 @@ public class DTCLampStatusTest {
         int[] data = new int[] { 0x00, 0x00, 0x00, 0x00, 0x62, 0x1D };
         DTCLampStatus instance = new DTCLampStatus(data);
         String expected = "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
-        expected += "DTC: Unknown (0) Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times";
+        expected += "DTC:  (0) Unknown Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times";
         assertEquals(expected, instance.toString());
     }
 }

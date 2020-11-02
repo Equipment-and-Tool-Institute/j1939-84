@@ -138,14 +138,15 @@ public class DiagnosticTroubleCodeTest {
     public void testToString() {
         int[] data = new int[] { 0x21, 0x06, 0x1F, 0x23 };
         DiagnosticTroubleCode instance = new DiagnosticTroubleCode(data);
-        assertEquals("DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 35 times", instance.toString());
+        assertEquals("DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 35 times",
+                instance.toString());
     }
 
     @Test
     public void testToStringNoDTC() {
         int[] data = new int[] { 0x00, 0x00, 0x00, 0x00 };
         DiagnosticTroubleCode instance = new DiagnosticTroubleCode(data);
-        assertEquals("DTC: Unknown (0) Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times",
+        assertEquals("DTC:  (0) Unknown Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times",
                 instance.toString());
     }
 }

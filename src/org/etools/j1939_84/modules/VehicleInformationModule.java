@@ -269,6 +269,7 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public RequestResult<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(ComponentIdentificationPacket.PGN, GLOBAL_ADDR);
+        listener.onResult("");
         return generateReport(listener,
                 "Global Component Identification Request",
                 ComponentIdentificationPacket.class,

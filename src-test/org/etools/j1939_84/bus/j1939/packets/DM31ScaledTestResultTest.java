@@ -48,7 +48,7 @@ public class DM31ScaledTestResultTest {
         String expected = "DM31 from Engine #1 (0): " + NL;
         expected += "DTC Lamp Statuses: [" + NL;
         expected += "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
-        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 1 times" + NL;
+        expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 1 times" + NL;
         expected += "]";
         assertEquals(expected, instance.toString());
 
@@ -101,11 +101,11 @@ public class DM31ScaledTestResultTest {
         String expected = "DM31 from Engine #1 (0): " + NL;
         expected += "DTC Lamp Statuses: [" + NL;
         expected += "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
-        expected += "DTC: Controller #2 (609) Received Network Data In Error (19) 1 times" + NL;
+        expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 1 times" + NL;
         expected += "MIL: off, RSL: other, AWL: off, PL: other" + NL;
-        expected += "DTC: Engine Protection Torque Derate (1569) Condition Exists (31) 35 times" + NL;
+        expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 35 times" + NL;
         expected += "MIL: other, RSL: other, AWL: other, PL: other" + NL;
-        expected += "DTC: Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure (4334) Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+        expected += "DTC:  (4334) Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
                 + NL;
         expected += "]";
         assertEquals(expected, instance.toString());

@@ -64,7 +64,7 @@ public class DM25ExpandedFreezeFrameTest {
         assertArrayEquals(new int[] { 0xFF, 0xFE, 0xFF }, freezeFrame.getSpnData());
         String expected = "DM25 from Engine #1 (0): " + NL;
         expected += "Freeze Frames: [" + NL;
-        expected += "DTC: Unknown (0) Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times"
+        expected += "DTC:  (0) Unknown Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times"
                 + NL;
         expected += "SPN Data: FF FE FF" + NL;
         expected += "]";
@@ -97,7 +97,7 @@ public class DM25ExpandedFreezeFrameTest {
 
         String expected = "DM25 from Engine #1 (0): " + NL;
         expected += "Freeze Frames: [" + NL;
-        expected += "DTC: Unknown (1) Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times"
+        expected += "DTC:  (1) Unknown Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times"
                 + NL;
         expected += "SPN Data: FF FF FF" + NL;
         expected += "]";
@@ -205,7 +205,7 @@ public class DM25ExpandedFreezeFrameTest {
         assertEquals(7, actual.getDtc().getFailureModeIndicator());
         String expected = "DM25 from Engine #1 (0): " + NL;
         expected += "Freeze Frames: [" + NL;
-        expected += "DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 127 times"
+        expected += "DTC:  (157) Engine Fuel 1 Injector Metering Rail 1 Pressure Mechanical System Not Responding Or Out Of Adjustment (7)"
                 + NL;
         expected += "SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF"
                 + NL;
@@ -409,11 +409,11 @@ public class DM25ExpandedFreezeFrameTest {
 
         String expected = "DM25 from Engine #1 (0): " + NL;
         expected += "Freeze Frames: [" + NL;
-        expected += "DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 127 times"
+        expected += "DTC:  (157) Engine Fuel 1 Injector Metering Rail 1 Pressure Mechanical System Not Responding Or Out Of Adjustment (7)"
                 + NL;
         expected += "SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF"
                 + NL;
-        expected += "DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 127 times"
+        expected += "DTC:  (157) Engine Fuel 1 Injector Metering Rail 1 Pressure Mechanical System Not Responding Or Out Of Adjustment (7)"
                 + NL;
         expected += "SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF"
                 + NL;

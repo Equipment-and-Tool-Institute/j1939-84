@@ -466,7 +466,7 @@ public class VehicleInformationModuleTest {
         when(j1939.requestMultiple(ComponentIdentificationPacket.class, requestPacket))
                 .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
-        String expected = "";
+        String expected = NL;
         expected += "10:15:30.000 Global Component Identification Request" + NL;
         expected += "10:15:30.000 18EAFFA5 EB FE 00 (TX)" + NL;
         expected += "10:15:30.000 18FEEB00 4D 61 6B 65 31 2A 4D 6F 64 65 6C 31 2A 53 65 72 69 61 6C 4E 75 6D 62 65 72 31 2A 2A"
@@ -494,7 +494,7 @@ public class VehicleInformationModuleTest {
 
         when(j1939.requestMultiple(ComponentIdentificationPacket.class, requestPacket)).thenReturn(Stream.empty());
 
-        String expected = "";
+        String expected = NL;
         expected += "10:15:30.000 Global Component Identification Request" + NL;
         expected += "10:15:30.000 18EAFFA5 EB FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;

@@ -36,7 +36,7 @@ public class DM28PermanentEmissionDTCPacketTest {
         StringBuilder expected = new StringBuilder(
                 "DM28 from Engine #1 (0): MIL: on, RSL: off, AWL: off, PL: other");
         expected.append(NL).append(
-                "DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 1 times");
+                "DTC:  (157) Engine Fuel 1 Injector Metering Rail 1 Pressure Mechanical System Not Responding Or Out Of Adjustment (7) 1 times");
 
         assertEquals(expected.toString(), dm28Packet.toString());
     }
