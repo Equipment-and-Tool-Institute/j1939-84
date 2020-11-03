@@ -536,15 +536,19 @@ public class J1939TPTest {
     public void testRequestFail() throws Exception {
         try (EchoBus bus = new EchoBus(0xF9);
                 J1939TP tp = new J1939TP(bus, 0)) {
-            bus.log(p -> "P: " + p);
+            bus.log(p -> System.currentTimeMillis() + ": " + p);
 
             CompletableFuture<Packet> result = new CompletableFuture<>();
             RuntimeException success = new RuntimeException("BOOM");
 
-            Stream<Packet> rxStream = bus.read(50, TimeUnit.MILLISECONDS);
-            run(() -> tp.request(0xEA00, 0xF9, 100, TimeUnit.MILLISECONDS).findFirst()
-                    .ifPresentOrElse(p -> result.complete(p),
-                            () -> result.completeExceptionally(success)));
+            Stream<Packet> rxStream = bus.read(500, TimeUnit.MILLISECONDS);
+            run(() -> {
+                Stream<Packet> stream = tp.read(100, TimeUnit.MILLISECONDS);
+                tp.send(J1939.createRequestPacket(0xEA00, 0xF9, tp.getAddress()), stream);
+                stream.findFirst()
+                        .ifPresentOrElse(p -> result.complete(p),
+                                () -> result.completeExceptionally(success));
+            });
             Assert.assertEquals(0xEAF9, rxStream.findFirst().get().getId());
 
             Stream<Packet> ctsStream = bus.read(1000, TimeUnit.MILLISECONDS).filter(p -> p.getSource() == 0);
@@ -582,11 +586,15 @@ public class J1939TPTest {
 
             CompletableFuture<Packet> result = new CompletableFuture<>();
 
-            Stream<Packet> rxStream = bus.read(1000, TimeUnit.MILLISECONDS);
-            run(() -> tp.request(0xEA00, 0xF9, 200, TimeUnit.MILLISECONDS).findFirst()
-                    .ifPresentOrElse(p -> result.complete(p),
-                            () -> result.completeExceptionally(
-                                    new RuntimeException("too late. Stream timeout wasn't refreshed."))));
+            Stream<Packet> rxStream = bus.read(500, TimeUnit.MILLISECONDS);
+            run(() -> {
+                Stream<Packet> stream = tp.read(200, TimeUnit.MILLISECONDS);
+                tp.send(J1939.createRequestPacket(0xEA00, 0xF9, tp.getAddress()), stream);
+                stream.findFirst()
+                        .ifPresentOrElse(p -> result.complete(p),
+                                () -> result.completeExceptionally(
+                                        new RuntimeException("too late. Stream timeout wasn't refreshed.")));
+            });
             Assert.assertEquals(0xEAF9, rxStream.findFirst().get().getId());
 
             Stream<Packet> ctsStream = bus.read(1000, TimeUnit.MILLISECONDS).filter(p -> p.getSource() == 0);

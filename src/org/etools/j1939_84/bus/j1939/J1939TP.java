@@ -380,13 +380,6 @@ public class J1939TP implements Bus {
         return Packet.create(pgn, rts.getSource(), data);
     }
 
-    @Deprecated
-    public Stream<Packet> request(int pgn, int addr, int timeout, TimeUnit unit) throws BusException {
-        Stream<Packet> stream = inbound.read(timeout, unit);
-        send(J1939.createRequestPacket(pgn, addr, getAddress()), stream);
-        return stream;
-    }
-
     @Override
     public void resetTimeout(Stream<Packet> stream, int time, TimeUnit unit) {
         bus.resetTimeout(stream, time, unit);
