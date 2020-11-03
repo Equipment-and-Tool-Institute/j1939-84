@@ -321,7 +321,7 @@ public class J1939 {
     }
 
     private Predicate<Packet> daFilter(int pgn, int requestDestination, int requestSource) {
-        return daFilter(pgn, requestDestination, requestSource)
+        return globalFilter(pgn)
                 // did it come from the right module or any if addressed to all
                 .and(sourceFilter(requestDestination));
     }
@@ -483,15 +483,18 @@ public class J1939 {
     }
 
     public <T extends ParsedPacket> BusResult<DM30ScaledTestResultsPacket> requestDm7(int address, int spn) {
+        // FIXME
+        return null;
     }
 
     public <T extends ParsedPacket> RequestResult<T> requestGlobal(Class<T> packetClass) {
         int pgn = getPgn(packetClass);
-        requestGlobal(pgn,
+        return requestGlobal(packetClass, pgn,
                 createRequestPacket(pgn, 0xFF));
     }
 
-    public <T extends ParsedPacket> RequestResult<T> requestGlobal(int pgn, Packet request) {
+    public <T extends ParsedPacket> RequestResult<T> requestGlobal(Class<T> packetClass, int pgn,
+            Packet request) {
         List<Either<T, AcknowledgmentPacket>> results = requestMultipleOnce(pgn, request);
         List<AcknowledgmentPacket> busyNACKs = results.stream().flatMap(e -> e.right.stream())
                 .filter(p -> p.getResponse() == Response.BUSY)
@@ -548,7 +551,7 @@ public class J1939 {
      */
     public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> requestMultiple(Class<T> T,
             Packet requestPacket) {
-        return requestMultiple(T, requestPacket);
+        return requestGlobal(T, getPgn(T), requestPacket).getEither().stream();
     }
 
     private <T extends ParsedPacket> List<Either<T, AcknowledgmentPacket>> requestMultipleOnce(int pgn,
@@ -623,8 +626,8 @@ public class J1939 {
             long timeout,
             TimeUnit unit) {
         return (requestPacket.getDestination() == 0xFF)
-                ? requestGlobal(getPgn(T), requestPacket).getEither().stream()
-                : requestDa(getPgn(T), requestPacket).get;
+                ? requestGlobal(T, getPgn(T), requestPacket).getEither().stream()
+                : requestDa(T, requestPacket.getDestination()).getPacket().stream();
     }
 
     private void sleep(int time) {
