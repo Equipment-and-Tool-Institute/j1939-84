@@ -12,6 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -73,18 +74,17 @@ public class J1939TP implements Bus {
     final static public int DT = 0xEB00;
 
     static private final Logger logger = Logger.getLogger(J1939TP.class.getName());
-
     final static public int T1 = 750;
-
     final static public int T2 = 1250;
 
     final static public int T3 = 1250;
+
     final static public int T4 = 1050;
     final static public Map<Integer, String> table7;
     final static public int Th = 500;
-
     final static public int Tr = 200;
 
+    final static public int TrPlus = 220;
     static {
         Map<Integer, String> err = new HashMap<>();
         err.put(1, "Already in one or more connection managed sessions and cannot support another.");
@@ -115,6 +115,7 @@ public class J1939TP implements Bus {
     }
 
     private final Bus bus;
+
     // Support up to 255 concurrent TP sessions plus main kickoff thread, but we
     // only expect there to normally be 5, so shut down idle threads after 5 ms.
     private final ExecutorService exec = new ThreadPoolExecutor(5 + 1,
@@ -123,7 +124,6 @@ public class J1939TP implements Bus {
             TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<Runnable>());
     private final EchoBus inbound;
-
     /**
      * map of active requests (pgn<<32)|addr -> callbacks that are called when
      * RTS is received.
@@ -131,6 +131,10 @@ public class J1939TP implements Bus {
     private final Map<Long, Runnable> requestCBs = new WeakHashMap<>();
 
     private final Stream<Packet> stream;
+
+    {
+        logger.setLevel(Level.FINEST);
+    }
 
     public J1939TP(Bus bus) throws BusException {
         this(bus, bus.getAddress());
@@ -288,7 +292,9 @@ public class J1939TP implements Bus {
         int lastCardinality = -1;
         int cardinality;
 
-        Runnable requestCallback = requestCBs.get(((long) rts.get24Big(5) << 32) | rts.getSource());
+        long key = ((long) rts.get24Big(5) << 32) | rts.getSource();
+        System.err.println("key:" + key + "\n map:" + requestCBs);
+        Runnable requestCallback = requestCBs.get(key);
         if (requestCallback != null) {
             requestCallback.run();
         }
@@ -374,11 +380,10 @@ public class J1939TP implements Bus {
         return Packet.create(pgn, rts.getSource(), data);
     }
 
-    @Override
+    @Deprecated
     public Stream<Packet> request(int pgn, int addr, int timeout, TimeUnit unit) throws BusException {
         Stream<Packet> stream = inbound.read(timeout, unit);
-        requestCBs.put((((long) pgn) << 32) | addr, () -> inbound.resetTimeout(stream, timeout, unit));
-        send(J1939.createRequestPacket(pgn, addr, getAddress()));
+        send(J1939.createRequestPacket(pgn, addr, getAddress()), stream);
         return stream;
     }
 
@@ -398,7 +403,19 @@ public class J1939TP implements Bus {
         }
     }
 
-    public void sendBam(Packet packet) throws BusException {
+    @SafeVarargs
+    final public void send(Packet packet, Stream<Packet>... streams) throws BusException {
+        long pgn = packet.getPgn();
+        requestCBs.put((pgn << 32) | packet.getDestination(),
+                () -> {
+                    for (var stream : streams) {
+                        inbound.resetTimeout(stream, TrPlus, TimeUnit.MILLISECONDS);
+                    }
+                });
+        send(packet);
+    }
+
+    void sendBam(Packet packet) throws BusException {
         int pgn = packet.getPgn();
         int packetsToSend = packet.getLength() / 7 + 1;
         int sourceAddress = getAddress();
@@ -435,9 +452,11 @@ public class J1939TP implements Bus {
         }
     }
 
-    public void sendDestinationSpecific(Packet packet) throws BusException {
-        int pgn = packet.getPgn();
-        int destinationAddress = packet.getDestination();
+    void sendDestinationSpecific(Packet packet) throws BusException {
+        // int pgn = packet.getPgn();
+        // int destinationAddress = packet.getDestination();
+        int pgn = packet.getId();
+        int destinationAddress = packet.getId() & 0xFF;
         Predicate<Packet> controlMessageFilter = p -> p.getSource() == destinationAddress
                 && (0xFFFF & p.getId()) == (CM | packet.getSource());
 

@@ -582,10 +582,11 @@ public class J1939TPTest {
 
             CompletableFuture<Packet> result = new CompletableFuture<>();
 
-            Stream<Packet> rxStream = bus.read(50, TimeUnit.MILLISECONDS);
+            Stream<Packet> rxStream = bus.read(1000, TimeUnit.MILLISECONDS);
             run(() -> tp.request(0xEA00, 0xF9, 200, TimeUnit.MILLISECONDS).findFirst()
                     .ifPresentOrElse(p -> result.complete(p),
-                            () -> result.completeExceptionally(new RuntimeException())));
+                            () -> result.completeExceptionally(
+                                    new RuntimeException("too late. Stream timeout wasn't refreshed."))));
             Assert.assertEquals(0xEAF9, rxStream.findFirst().get().getId());
 
             Stream<Packet> ctsStream = bus.read(1000, TimeUnit.MILLISECONDS).filter(p -> p.getSource() == 0);
@@ -699,7 +700,7 @@ public class J1939TPTest {
             CompletableFuture<Object> sender = CompletableFuture
                     .supplyAsync(() -> {
                         try {
-                            tp.send(Packet.parse("1812F900 00 01 02 03 04 05 06 07 08 09 10"));
+                            tp.send(Packet.parse("1812F900 00 01 02 03 04 05 06 07 08 09 10"), waitForRts);
                         } catch (BusException e1) {
                         }
                         return null;
@@ -739,7 +740,7 @@ public class J1939TPTest {
                 bus.send(Packet.parse("18EC00F9 11 FF 01 11 11 F9 EA 00"));
             });
 
-            tp.send(Packet.parse("18EAF900 01 02 03 04 05 06 07 08 09 10"));
+            tp.send(Packet.parse("18EAF900 01 02 03 04 05 06 07 08 09 10"), stream);
             fail();
         } catch (RuntimeException e) {
             assertEquals(success, e);
@@ -769,7 +770,7 @@ public class J1939TPTest {
                 bus.send(Packet.parse("18EC00F9 11 00 11 11 11 11 11 11"));
             });
 
-            tp.send(Packet.parse("18EAF900 01 02 03 04 05 06 07 08 09 10"));
+            tp.send(Packet.parse("18EAF900 01 02 03 04 05 06 07 08 09 10"), stream);
             fail();
         } catch (RuntimeException e) {
             assertEquals(success, e);
@@ -779,7 +780,7 @@ public class J1939TPTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "J1939-21 5.10.3",
                                description = "Verify that PGN in CTS matches PGN in RTS."))
-    public void testWaringsCtsPgn() throws Exception {
+    public void testWarningsCtsPgn() throws Exception {
         RuntimeException success = new RuntimeException();
         try (EchoBus bus = new EchoBus(0xF9);
                 J1939TP tp = new J1939TP(bus, 0) {
@@ -799,7 +800,7 @@ public class J1939TPTest {
                 bus.send(Packet.parse("18EC00F9 11 01 02 FF FF 11 11 11"));
             });
 
-            tp.send(Packet.parse("18EAF900 01 02 03 04 05 06 07 08 09 10"));
+            tp.send(Packet.parse("18EAF900 01 02 03 04 05 06 07 08 09 10"), stream);
             fail();
         } catch (RuntimeException e) {
             assertEquals(success, e);

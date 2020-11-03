@@ -7,8 +7,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Stream;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
@@ -66,31 +64,6 @@ public interface Bus extends AutoCloseable {
      *             if there is a problem reading packets
      */
     Stream<Packet> read(long timeout, TimeUnit unit) throws BusException;
-
-    /**
-     * Reads {@link Packet}s from the bus
-     *
-     * @param pgn
-     *            to request.
-     * @param addr
-     *            dest of request.
-     * @param timeout
-     *            the amount of time to wait for the first packet that is part
-     *            of the response
-     *
-     * @param unit
-     *            the {@link TimeUnit} for the amount of time
-     *
-     * @return a {@link Stream} of {@link Packet}
-     *
-     * @throws BusException
-     *             if there is a problem reading packets
-     */
-    default Stream<Packet> request(int pgn, int addr, int timeout, TimeUnit unit) throws BusException {
-        Stream<Packet> stream = read(timeout, unit);
-        send(J1939.createRequestPacket(pgn, addr, getAddress()));
-        return stream.filter(p -> p.matchesPgn(pgn));
-    }
 
     /**
      * Reset stream timeout for stream created with bus.read(). To be used in a
