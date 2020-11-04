@@ -588,12 +588,14 @@ public class J1939TPTest {
 
             Stream<Packet> rxStream = bus.read(500, TimeUnit.MILLISECONDS);
             run(() -> {
-                Stream<Packet> stream = tp.read(200, TimeUnit.MILLISECONDS);
+                long start = System.currentTimeMillis();
+                Stream<Packet> stream = tp.read(220, TimeUnit.MILLISECONDS);
                 tp.send(J1939.createRequestPacket(0xEA00, 0xF9, tp.getAddress()), stream);
                 stream.findFirst()
                         .ifPresentOrElse(p -> result.complete(p),
                                 () -> result.completeExceptionally(
-                                        new RuntimeException("too late. Stream timeout wasn't refreshed.")));
+                                        new RuntimeException("too late (" + (System.currentTimeMillis() - start)
+                                                + " ms). Stream timeout wasn't refreshed.")));
             });
             Assert.assertEquals(0xEAF9, rxStream.findFirst().get().getId());
 

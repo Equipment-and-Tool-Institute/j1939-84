@@ -106,7 +106,7 @@ public abstract class FunctionalModule {
             Packet request) {
         listener.onResult(getTime() + " " + title);
         listener.onResult(getTime() + " " + request.toString());
-        return addToReport(listener, getJ1939().requestMultiple(clazz, request));
+        return addToReport(listener, getJ1939().requestGlobal(clazz, request));
     }
 
     protected String getDate() {
