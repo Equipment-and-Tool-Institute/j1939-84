@@ -65,7 +65,6 @@
 	<target name="dist" description="Generates the JAR File">
 		<antcall target="init" />
 		<antcall target="clean" />
-		<antcall target="increment.minor.build.number" />
 		<antcall target="compile" />
 		<antcall target="compile.tests" />
 
@@ -123,7 +122,6 @@
 			<src path="${src}" />
 			<classpath refid="compile.path" />
 		</javac>
-		<antcall target="increment.revision.build.number" />
 		<!-- Copy files from ${src} into ${build} -->
 		<copy todir="${build}">
 			<fileset dir="${src}">
