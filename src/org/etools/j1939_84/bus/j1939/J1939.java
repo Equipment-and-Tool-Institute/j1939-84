@@ -331,7 +331,7 @@ public class J1939 {
      *
      * @return the {@link Bus} that backs this class
      */
-    final public Bus getBus() {
+    public Bus getBus() {
         return bus;
     }
 
@@ -435,9 +435,23 @@ public class J1939 {
         return stream.peek(packet -> getLogger().log(Level.FINE, "P->" + packet.toString()));
     }
 
-    public <T extends ParsedPacket> BusResult<DM30ScaledTestResultsPacket> requestDm7(int address, int spn) {
-        // FIXME
-        return null;
+    public BusResult<DM30ScaledTestResultsPacket> requestDm7(Packet request) {
+        try {
+            for (int i = 0; i < 3; i++) {
+                Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = bus
+                        .read(220, TimeUnit.MILLISECONDS)
+                        .filter(daFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(), TOOL_ADDRESS))
+                        .map(p -> process(p));
+                bus.send(request);
+                Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = stream.findFirst();
+                if (result.isPresent()) {
+                    return new BusResult<>(i > 0, result);
+                }
+            }
+        } catch (BusException e) {
+            getLogger().log(Level.SEVERE, "Error requesting DS packet", e);
+        }
+        return new BusResult<>(true);
     }
 
     /**
@@ -592,7 +606,8 @@ public class J1939 {
             int destination, // FIXME this arg is redundant. Remove.
             int tries,
             long timeout) {
-        return requestDS(clas, destination);
+        return requestPacket.getPgn() == DM7CommandTestsPacket.PGN ? (BusResult<T>) requestDm7(requestPacket)
+                : requestDS(clas, destination);
     }
 
     /**

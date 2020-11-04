@@ -96,7 +96,7 @@ public class UserInterfaceViewTest {
     @Test
     public void testFileChooser() {
         JFileChooser fileChooser = instance.getFileChooser();
-        assertEquals("Create or Select Report File", fileChooser.getDialogTitle());
+        assertEquals("Create Report File", fileChooser.getDialogTitle());
         FileFilter fileFilter = fileChooser.getFileFilter();
         assertTrue(fileFilter instanceof FileNameExtensionFilter);
         FileNameExtensionFilter filter = (FileNameExtensionFilter) fileFilter;

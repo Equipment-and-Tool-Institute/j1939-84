@@ -253,7 +253,7 @@ public class OBDTestsModule extends FunctionalModule {
         listener.onResult(getTime() + " " + request.toString());
 
         DM30ScaledTestResultsPacket packet = getJ1939()
-                .requestPacket(request, DM30ScaledTestResultsPacket.class, address, 3)
+                .requestDm7(request).getPacket()
                 .flatMap(e -> e.left)
                 .orElse(null);
         if (packet == null) {
