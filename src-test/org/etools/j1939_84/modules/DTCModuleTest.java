@@ -1154,9 +1154,9 @@ public class DTCModuleTest {
         expected += "DM28 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false,
-                Collections.singletonList(packet1), Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM28(listener, 0x21));
+        BusResult<DM28PermanentEmissionDTCPacket> expectedResult = new BusResult<>(false,
+                packet1);
+        assertEquals(expectedResult, instance.requestDM28(listener, true, 0x21));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -1205,7 +1205,7 @@ public class DTCModuleTest {
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(
                 false, Collections.singletonList(packet1), Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM28(listener, 0x00));
+        assertEquals(expectedResult, instance.requestDM28(listener, true, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -1229,7 +1229,7 @@ public class DTCModuleTest {
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(true,
                 Collections.emptyList(), Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM28(listener, 0x17));
+        assertEquals(expectedResult, instance.requestDM28(listener, true, 0x17));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -1267,7 +1267,7 @@ public class DTCModuleTest {
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(
                 false, Arrays.asList(packet1, packet2, packet3), Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM28(listener));
+        assertEquals(expectedResult, instance.requestDM28(listener, true));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -1316,7 +1316,7 @@ public class DTCModuleTest {
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(
                 false, Arrays.asList(packet1), Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM28(listener));
+        assertEquals(expectedResult, instance.requestDM28(listener, true));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());

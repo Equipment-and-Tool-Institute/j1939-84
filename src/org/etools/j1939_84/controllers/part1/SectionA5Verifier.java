@@ -448,7 +448,7 @@ public class SectionA5Verifier {
         // 8. Permanent DTCs
         // a. DM28 Permanent DTCs shall not be erased/still report any permanent
         // DTC that was present before code clear.
-        List<DM28PermanentEmissionDTCPacket> dm28Packets = dtcModule.requestDM28(listener).getPackets()
+        List<DM28PermanentEmissionDTCPacket> dm28Packets = dtcModule.requestDM28(listener, true).getPackets()
                 .stream()
                 .map(p -> p)
                 .filter(t -> t.getDtcs().size() != 0)
