@@ -11,7 +11,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
@@ -60,25 +59,14 @@ public abstract class FunctionalModule {
      * @return a List of the Packets
      */
     protected <T extends ParsedPacket> RequestResult<T> addToReport(ResultsListener listener,
-            Stream<Either<T, AcknowledgmentPacket>> results) {
-        List<Either<T, AcknowledgmentPacket>> packets = results.collect(Collectors.toList());
-        RequestResult<T> result;
-
-        if (packets.isEmpty()) {
+            RequestResult<T> results) {
+        if (results.isRetryUsed()) {
             listener.onResult(TIMEOUT_MESSAGE);
-            result = new RequestResult<>(true, packets);
         } else {
-            List<ParsedPacket> allResponses = packets.stream().flatMap(p -> p.left.stream()).map(p -> p)
-                    .collect(Collectors.toList());
-            allResponses
-                    .addAll(packets.stream().flatMap(p -> p.right.stream()).map(p -> p).collect(Collectors.toList()));
-            allResponses.sort((o1, o2) -> o1.getPacket().getTimestamp().compareTo(o2.getPacket().getTimestamp()));
-
-            List<String> strings = allResponses.stream().map(getPacketMapperFunction()).collect(Collectors.toList());
-            listener.onResult(strings);
-            result = new RequestResult<>(false, packets);
+            listener.onResult(results.getEither().stream().map(e -> (ParsedPacket) e.resolve())
+                    .map(getPacketMapperFunction()).collect(Collectors.toList()));
         }
-        return result;
+        return results;
     }
 
     /**
@@ -106,7 +94,7 @@ public abstract class FunctionalModule {
             Packet request) {
         listener.onResult(getTime() + " " + title);
         listener.onResult(getTime() + " " + request.toString());
-        return addToReport(listener, getJ1939().requestGlobal(clazz, request));
+        return addToReport(listener, getJ1939().requestResult(clazz, request));
     }
 
     protected String getDate() {

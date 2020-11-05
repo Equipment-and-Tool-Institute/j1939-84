@@ -346,7 +346,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dtcModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false,
                         Collections.singletonList(dm21Packet), Collections.emptyList()));
-        when(dtcModule.requestDM23(any()))
+        when(dtcModule.requestDM23(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false,
                         Collections.singletonList(dm23Packet), Collections.emptyList()));
         when(dtcModule.requestDM25(any(), eq(0x00)))
@@ -569,7 +569,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(dtcModule).requestDM6(any());
         verify(dtcModule).requestDM12(any(), eq(true));
         verify(dtcModule).requestDM21(any());
-        verify(dtcModule).requestDM23(any());
+        verify(dtcModule).requestDM23(any(), eq(true));
 
         verify(dtcModule).requestDM25(any(), eq(0x00));
         verify(dtcModule).requestDM25(any(), eq(0x17));
@@ -760,7 +760,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dtcModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false,
                         Collections.singletonList(dm21Packet), Collections.emptyList()));
-        when(dtcModule.requestDM23(any()))
+        when(dtcModule.requestDM23(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm23Packet),
                         Collections.emptyList()));
         when(dtcModule.requestDM25(any(), eq(0x00)))
@@ -972,7 +972,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(dtcModule).requestDM6(any());
         verify(dtcModule).requestDM12(any(), eq(true));
         verify(dtcModule).requestDM21(any());
-        verify(dtcModule).requestDM23(any());
+        verify(dtcModule).requestDM23(any(), eq(true));
         verify(dtcModule).requestDM25(any(), eq(0x00));
         verify(dtcModule).requestDM25(any(), eq(0x17));
         verify(dtcModule).requestDM25(any(), eq(0x21));
@@ -1128,7 +1128,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                         Collections.emptyList()));
         when(dtcModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm21Packet), Collections.emptyList()));
-        when(dtcModule.requestDM23(any()))
+        when(dtcModule.requestDM23(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm23Packet), Collections.emptyList()));
         when(dtcModule.requestDM25(any(), eq(0x00)))
                 .thenReturn(
@@ -1225,7 +1225,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(dtcModule).requestDM6(any());
         verify(dtcModule).requestDM12(any(), eq(true));
         verify(dtcModule).requestDM21(any());
-        verify(dtcModule).requestDM23(any());
+        verify(dtcModule).requestDM23(any(), eq(true));
         verify(dtcModule).requestDM25(any(), eq(0x00));
         verify(dtcModule).requestDM25(any(), eq(0x17));
         verify(dtcModule).requestDM25(any(), eq(0x21));
@@ -1368,7 +1368,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                         Collections.emptyList()));
         when(dtcModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm21Packet), Collections.emptyList()));
-        when(dtcModule.requestDM23(any()))
+        when(dtcModule.requestDM23(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm23Packet), Collections.emptyList()));
         when(dtcModule.requestDM25(any(), eq(0x00)))
                 .thenReturn(
@@ -1465,7 +1465,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(dtcModule).requestDM6(any());
         verify(dtcModule).requestDM12(any(), eq(true));
         verify(dtcModule).requestDM21(any());
-        verify(dtcModule).requestDM23(any());
+        verify(dtcModule).requestDM23(any(), eq(true));
         verify(dtcModule).requestDM25(any(), eq(0x00));
         verify(dtcModule).requestDM25(any(), eq(0x17));
         verify(dtcModule).requestDM25(any(), eq(0x21));

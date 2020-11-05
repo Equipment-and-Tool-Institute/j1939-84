@@ -435,6 +435,10 @@ public class J1939 {
         return stream.peek(packet -> getLogger().log(Level.FINE, "P->" + packet.toString()));
     }
 
+    public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> request(Class<T> clazz, Packet request) {
+        return requestRaw(clazz, request, -1L, null);
+    }
+
     public BusResult<DM30ScaledTestResultsPacket> requestDm7(Packet request) {
         try {
             for (int i = 0; i < 3; i++) {
@@ -514,49 +518,9 @@ public class J1939 {
         return requestGlobal(clas, createRequestPacket(getPgn(clas), GLOBAL_ADDR));
     }
 
-    public <T extends ParsedPacket> RequestResult<T> requestGlobal(Class<T> packetClass, int pgn,
-            Packet request) {
-        List<Either<T, AcknowledgmentPacket>> results = requestGlobalOnce(pgn, request);
-        List<AcknowledgmentPacket> busyNACKs = results.stream().flatMap(e -> e.right.stream())
-                .filter(p -> p.getResponse() == Response.BUSY)
-                .collect(Collectors.toList());
-        boolean retry = !busyNACKs.isEmpty();
-        if (retry) {
-            // then rerequest from global and combine results
-            List<Either<T, AcknowledgmentPacket>> secondResults = requestGlobalOnce(pgn, request);
-
-            // find any results in the first request that are not in the second
-            // FIXME
-
-            results = secondResults;
-            busyNACKs = results.stream().flatMap(e -> e.right.stream()).filter(p -> p.getResponse() == Response.BUSY)
-                    .collect(Collectors.toList());
-        }
-        // now try the DA request
-        Collection<Either<T, AcknowledgmentPacket>> list = busyNACKs.stream()
-                .flatMap(p -> requestDSOnce(packetClass, p.getSourceAddress()).stream())
-                .collect(Collectors.toList());
-        results.addAll(list);
-        return new RequestResult<>(retry, results);
-    }
-
-    /**
-     * Sends a request for a Packet specified by the given class (T). T will
-     * provide the PGN for the Packet that is requested. This will request the
-     * packet globally.
-     *
-     * @param <T>
-     *            the Type of Packet to request
-     * @param T
-     *            the class that extends {@link ParsedPacket} that provides the
-     *            PGN for the packet to be requested
-     * @param requestPacket
-     *            the {@link Packet} to send that will generate the responses
-     * @return a {@link Stream} containing {@link ParsedPacket}
-     */
     public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> requestGlobal(Class<T> T,
             Packet requestPacket) {
-        return requestGlobal(T, getPgn(T), requestPacket).getEither().stream();
+        return requestGlobalResult(T, requestPacket).getEither().stream();
     }
 
     private <T extends ParsedPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
@@ -574,6 +538,33 @@ public class J1939 {
             result = Collections.emptyList();
         }
         return result;
+    }
+
+    public <T extends ParsedPacket> RequestResult<T> requestGlobalResult(Class<T> T,
+            Packet requestPacket) {
+        int pgn = getPgn(T);
+        List<Either<T, AcknowledgmentPacket>> results = requestGlobalOnce(pgn, requestPacket);
+        List<AcknowledgmentPacket> busyNACKs = results.stream().flatMap(e -> e.right.stream())
+                .filter(p -> p.getResponse() == Response.BUSY)
+                .collect(Collectors.toList());
+        boolean retry = !busyNACKs.isEmpty();
+        if (retry) {
+            // then rerequest from global and combine results
+            List<Either<T, AcknowledgmentPacket>> secondResults = requestGlobalOnce(pgn, requestPacket);
+
+            // find any results in the first request that are not in the second
+            // FIXME
+
+            results = secondResults;
+            busyNACKs = results.stream().flatMap(e -> e.right.stream()).filter(p -> p.getResponse() == Response.BUSY)
+                    .collect(Collectors.toList());
+        }
+        // now try the DA request
+        Collection<Either<T, AcknowledgmentPacket>> list = busyNACKs.stream()
+                .flatMap(p -> requestDSOnce(T, p.getSourceAddress()).stream())
+                .collect(Collectors.toList());
+        results.addAll(list);
+        return new RequestResult<>(retry, results);
     }
 
     /**
@@ -631,9 +622,13 @@ public class J1939 {
             Packet requestPacket,
             long timeout,
             TimeUnit unit) {
-        return (requestPacket.getDestination() == 0xFF)
-                ? requestGlobal(T, getPgn(T), requestPacket).getEither().stream()
-                : requestDS(T, requestPacket.getDestination()).getPacket().stream();
+        return requestResult(T, requestPacket).getEither().stream();
+    }
+
+    public <T extends ParsedPacket> RequestResult<T> requestResult(Class<T> clazz, Packet request) {
+        return (request.getDestination() == 0xFF)
+                ? requestGlobalResult(clazz, request)
+                : requestDS(clazz, request.getDestination()).requestResult();
     }
 
     private void sleep(int time) {

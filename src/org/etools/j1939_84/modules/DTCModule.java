@@ -258,8 +258,13 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener) {
-        return requestDM23(listener, GLOBAL_ADDR);
+    public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener,
+            boolean fullString) {
+        return getPacketsFromGlobal("Global DM23 Request",
+                DM23PreviouslyMILOnEmissionDTCPacket.PGN,
+                DM23PreviouslyMILOnEmissionDTCPacket.class,
+                listener,
+                fullString);
     }
 
     /**
@@ -271,15 +276,14 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener, int address) {
-        Packet request = getJ1939().createRequestPacket(DM23PreviouslyMILOnEmissionDTCPacket.PGN, address);
-        String title = address == GLOBAL_ADDR ? "Global DM23 Request"
-                : "Destination Specific DM23 Request to " + Lookup.getAddressName(address);
-
-        return generateReport(listener,
-                title,
+    public BusResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener, boolean fullString,
+            int address) {
+        return getPacketDS("Destination Specific DM23 Request to " + Lookup.getAddressName(address),
+                DM23PreviouslyMILOnEmissionDTCPacket.PGN,
                 DM23PreviouslyMILOnEmissionDTCPacket.class,
-                request);
+                listener,
+                fullString,
+                address);
     }
 
     /**
@@ -339,7 +343,7 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM26TripDiagnosticReadinessPacket> requestDM26(ResultsListener listener, Integer address) {
+    public RequestResult<DM26TripDiagnosticReadinessPacket> requestDM26(ResultsListener listener, int address) {
         Packet request = getJ1939().createRequestPacket(DM26TripDiagnosticReadinessPacket.PGN, address);
 
         String title = address == GLOBAL_ADDR ? "Global DM26 Request"

@@ -4,15 +4,18 @@
 package org.etools.j1939_84.bus.j1939;
 
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
+import org.etools.j1939_84.model.RequestResult;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class BusResult<T> {
+public class BusResult<T extends ParsedPacket> {
 
     private final Optional<Either<T, AcknowledgmentPacket>> packet;
     private final boolean retryUsed;
@@ -72,5 +75,9 @@ public class BusResult<T> {
      */
     public boolean isRetryUsed() {
         return retryUsed;
+    }
+
+    public RequestResult<T> requestResult() {
+        return new RequestResult<>(isRetryUsed(), getPacket().stream().collect(Collectors.toList()));
     }
 }
