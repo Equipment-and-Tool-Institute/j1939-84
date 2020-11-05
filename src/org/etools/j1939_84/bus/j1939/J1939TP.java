@@ -293,7 +293,6 @@ public class J1939TP implements Bus {
         int cardinality;
 
         long key = ((long) rts.get24Big(5) << 32) | rts.getSource();
-        System.err.println("key:" + key + "\n map:" + requestCBs);
         Runnable requestCallback = requestCBs.get(key);
         if (requestCallback != null) {
             requestCallback.run();
