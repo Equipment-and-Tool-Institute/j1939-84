@@ -33,6 +33,7 @@ import org.etools.j1939_84.bus.j1939.packets.HighResVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.TotalVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
 import org.junit.After;
@@ -246,9 +247,8 @@ public class VehicleInformationModuleTest {
         AddressClaimPacket packet1 = new AddressClaimPacket(Packet.parse("18EEFF55 10 F7 45 01 00 45 00 01"));
         AddressClaimPacket packet2 = new AddressClaimPacket(Packet.parse("18EEFF3D 00 00 00 00 00 00 00 00"));
         AddressClaimPacket packet3 = new AddressClaimPacket(Packet.parse("18EEFF00 00 00 40 05 00 00 65 14"));
-        when(j1939.requestGlobal(AddressClaimPacket.class, requestPacket))
-                .thenReturn(Stream.of(new Either<>(packet1, null), new Either<>(packet2, null),
-                        new Either<>(packet3, null)));
+        when(j1939.requestResult(AddressClaimPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global Request for Address Claim" + NL;
@@ -282,7 +282,7 @@ public class VehicleInformationModuleTest {
         instance.reportAddressClaim(listener);
         assertEquals(expected, listener.getResults());
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestGlobal(AddressClaimPacket.class, requestPacket);
+        verify(j1939).requestResult(AddressClaimPacket.class, requestPacket);
     }
 
     @Test
@@ -293,8 +293,8 @@ public class VehicleInformationModuleTest {
         when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
 
         AddressClaimPacket packet1 = new AddressClaimPacket(Packet.parse("18EEFF55 10 F7 45 01 00 45 00 01"));
-        when(j1939.requestGlobal(AddressClaimPacket.class, requestPacket))
-                .thenReturn(Stream.of(new Either<>(packet1, null)));
+        when(j1939.requestResult(AddressClaimPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
         expected += "10:15:30.000 Global Request for Address Claim" + NL;
@@ -312,7 +312,7 @@ public class VehicleInformationModuleTest {
         instance.reportAddressClaim(listener);
         assertEquals(expected, listener.getResults());
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestGlobal(AddressClaimPacket.class, requestPacket);
+        verify(j1939).requestResult(AddressClaimPacket.class, requestPacket);
     }
 
     @Test
@@ -322,8 +322,8 @@ public class VehicleInformationModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
 
-        when(j1939.requestGlobal(AddressClaimPacket.class, requestPacket)).thenReturn(Stream.empty())
-                .thenReturn(Stream.empty()).thenReturn(Stream.empty());
+        when(j1939.requestResult(AddressClaimPacket.class, requestPacket)).thenReturn(RequestResult.empty())
+                .thenReturn(RequestResult.empty()).thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Global Request for Address Claim" + NL;
@@ -333,7 +333,7 @@ public class VehicleInformationModuleTest {
         instance.reportAddressClaim(listener);
         assertEquals(expected, listener.getResults());
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestGlobal(AddressClaimPacket.class, requestPacket);
+        verify(j1939).requestResult(AddressClaimPacket.class, requestPacket);
     }
 
     @Test
@@ -352,8 +352,8 @@ public class VehicleInformationModuleTest {
                 Packet.create(pgn, 0x17, calBytes2));
         DM19CalibrationInformationPacket packet3 = new DM19CalibrationInformationPacket(
                 Packet.create(pgn, 0x21, calBytes3));
-        when(j1939.requestGlobal(DM19CalibrationInformationPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestResult(DM19CalibrationInformationPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM19 (Calibration Information) Request" + NL;
@@ -368,7 +368,7 @@ public class VehicleInformationModuleTest {
         instance.reportCalibrationInformation(listener);
         assertEquals(expected, listener.getResults());
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestGlobal(DM19CalibrationInformationPacket.class, requestPacket);
+        verify(j1939).requestResult(DM19CalibrationInformationPacket.class, requestPacket);
     }
 
     @Test
@@ -436,7 +436,8 @@ public class VehicleInformationModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
 
-        when(j1939.requestGlobal(DM19CalibrationInformationPacket.class, requestPacket)).thenReturn(Stream.empty());
+        when(j1939.requestResult(DM19CalibrationInformationPacket.class, requestPacket))
+                .thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Global DM19 (Calibration Information) Request" + NL;
@@ -447,7 +448,7 @@ public class VehicleInformationModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestGlobal(DM19CalibrationInformationPacket.class, requestPacket);
+        verify(j1939).requestResult(DM19CalibrationInformationPacket.class, requestPacket);
     }
 
     @Test
@@ -463,8 +464,8 @@ public class VehicleInformationModuleTest {
         ComponentIdentificationPacket packet1 = new ComponentIdentificationPacket(Packet.create(pgn, 0x00, bytes1));
         ComponentIdentificationPacket packet2 = new ComponentIdentificationPacket(Packet.create(pgn, 0x17, bytes2));
         ComponentIdentificationPacket packet3 = new ComponentIdentificationPacket(Packet.create(pgn, 0x21, bytes3));
-        when(j1939.requestGlobal(ComponentIdentificationPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestResult(ComponentIdentificationPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = NL;
         expected += "10:15:30.000 Global Component Identification Request" + NL;
@@ -482,7 +483,7 @@ public class VehicleInformationModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestGlobal(ComponentIdentificationPacket.class, requestPacket);
+        verify(j1939).requestResult(ComponentIdentificationPacket.class, requestPacket);
     }
 
     @Test
@@ -492,7 +493,7 @@ public class VehicleInformationModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
 
-        when(j1939.requestGlobal(ComponentIdentificationPacket.class, requestPacket)).thenReturn(Stream.empty());
+        when(j1939.requestResult(ComponentIdentificationPacket.class, requestPacket)).thenReturn(RequestResult.empty());
 
         String expected = NL;
         expected += "10:15:30.000 Global Component Identification Request" + NL;
@@ -504,7 +505,7 @@ public class VehicleInformationModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestGlobal(ComponentIdentificationPacket.class, requestPacket);
+        verify(j1939).requestResult(ComponentIdentificationPacket.class, requestPacket);
     }
 
     @Test
@@ -546,8 +547,8 @@ public class VehicleInformationModuleTest {
         DM56EngineFamilyPacket packet1 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x00, bytes));
         DM56EngineFamilyPacket packet2 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x17, bytes));
         DM56EngineFamilyPacket packet3 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x21, bytes));
-        when(j1939.requestGlobal(DM56EngineFamilyPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestResult(DM56EngineFamilyPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM56 Request" + NL;
@@ -574,7 +575,7 @@ public class VehicleInformationModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestGlobal(DM56EngineFamilyPacket.class, requestPacket);
+        verify(j1939).requestResult(DM56EngineFamilyPacket.class, requestPacket);
     }
 
     @Test
@@ -584,7 +585,7 @@ public class VehicleInformationModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
 
-        when(j1939.requestGlobal(DM56EngineFamilyPacket.class, requestPacket)).thenReturn(Stream.empty());
+        when(j1939.requestResult(DM56EngineFamilyPacket.class, requestPacket)).thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Global DM56 Request" + NL;
@@ -597,7 +598,7 @@ public class VehicleInformationModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestGlobal(DM56EngineFamilyPacket.class, requestPacket);
+        verify(j1939).requestResult(DM56EngineFamilyPacket.class, requestPacket);
     }
 
     @Test
@@ -609,8 +610,8 @@ public class VehicleInformationModuleTest {
 
         EngineHoursPacket packet1 = new EngineHoursPacket(Packet.create(pgn, 0x00, 1, 2, 3, 4, 5, 6, 7, 8));
         EngineHoursPacket packet2 = new EngineHoursPacket(Packet.create(pgn, 0x01, 8, 7, 6, 5, 4, 3, 2, 1));
-        when(j1939.requestGlobal(EngineHoursPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2).map(p -> new Either<>(p, null)));
+        when(j1939.requestResult(EngineHoursPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2));
 
         String expected = "";
         expected += "10:15:30.000 Engine Hours Request" + NL;
@@ -625,7 +626,7 @@ public class VehicleInformationModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestGlobal(EngineHoursPacket.class, requestPacket);
+        verify(j1939).requestResult(EngineHoursPacket.class, requestPacket);
     }
 
     @Test
@@ -635,7 +636,7 @@ public class VehicleInformationModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
 
-        when(j1939.requestGlobal(EngineHoursPacket.class, requestPacket)).thenReturn(Stream.empty());
+        when(j1939.requestResult(EngineHoursPacket.class, requestPacket)).thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Engine Hours Request" + NL;
@@ -647,7 +648,7 @@ public class VehicleInformationModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestGlobal(EngineHoursPacket.class, requestPacket);
+        verify(j1939).requestResult(EngineHoursPacket.class, requestPacket);
     }
 
     @Test
@@ -734,8 +735,8 @@ public class VehicleInformationModuleTest {
         VehicleIdentificationPacket packet1 = new VehicleIdentificationPacket(Packet.create(pgn, 0x00, vinBytes));
         VehicleIdentificationPacket packet2 = new VehicleIdentificationPacket(Packet.create(pgn, 0x17, vinBytes));
         VehicleIdentificationPacket packet3 = new VehicleIdentificationPacket(Packet.create(pgn, 0x21, vinBytes));
-        when(j1939.requestGlobal(VehicleIdentificationPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestResult(VehicleIdentificationPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global VIN Request" + NL;
@@ -756,7 +757,7 @@ public class VehicleInformationModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestGlobal(VehicleIdentificationPacket.class, requestPacket);
+        verify(j1939).requestResult(VehicleIdentificationPacket.class, requestPacket);
     }
 
     @Test
@@ -766,7 +767,8 @@ public class VehicleInformationModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
 
-        when(j1939.requestGlobal(VehicleIdentificationPacket.class, requestPacket)).thenReturn(Stream.empty());
+        when(j1939.requestResult(VehicleIdentificationPacket.class, requestPacket))
+                .thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Global VIN Request" + NL;
@@ -779,7 +781,7 @@ public class VehicleInformationModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestGlobal(VehicleIdentificationPacket.class, requestPacket);
+        verify(j1939).requestResult(VehicleIdentificationPacket.class, requestPacket);
     }
 
 }
