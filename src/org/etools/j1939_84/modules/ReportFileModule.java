@@ -271,7 +271,11 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
                 reportFileReader.transferTo(tempFileWriter);
             }
             tempFileWriter.flush();
+            tempFileWriter.close();
+            File raw = new File(reportFile + ".raw");
+            reportFile.renameTo(raw);
             Files.copy(tempFilePath, reportFile.toPath(), StandardCopyOption.REPLACE_EXISTING);
+            raw.delete();
         } catch (Exception e) {
             e.printStackTrace();
         }
