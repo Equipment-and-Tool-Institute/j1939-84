@@ -434,7 +434,7 @@ public class J1939 {
         try {
             for (int i = 0; i < 3; i++) {
                 Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = bus
-                        .read(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
+                        .read(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS)
                         .filter(dsFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(), TOOL_ADDRESS))
                         .map(p -> process(p));
                 bus.send(request);
@@ -488,7 +488,7 @@ public class J1939 {
         }
 
         try {
-            Stream<Either<T, AcknowledgmentPacket>> stream = bus.read(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
+            Stream<Either<T, AcknowledgmentPacket>> stream = bus.read(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS)
                     .filter(dsFilter(getPgn(packetClass), request.getDestination(), TOOL_ADDRESS))
                     .map(p -> process(p));
             bus.send(request);
