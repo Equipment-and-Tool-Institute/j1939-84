@@ -305,7 +305,7 @@ public class DTCModule extends FunctionalModule {
         listener.onResult(getTime() + message);
         listener.onResult(getTime() + " " + request.toString());
 
-        BusResult<DM25ExpandedFreezeFrame> result = getJ1939().requestPacket(request, DM25ExpandedFreezeFrame.class);
+        BusResult<DM25ExpandedFreezeFrame> result = getJ1939().requestDS(DM25ExpandedFreezeFrame.class, request);
 
         result.getPacket().ifPresentOrElse(either -> {
             // report

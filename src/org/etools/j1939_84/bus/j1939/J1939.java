@@ -319,7 +319,7 @@ public class J1939 {
         return createRequestPacket(pgn, addr, getBusAddress());
     }
 
-    private Predicate<Packet> daFilter(int pgn, int requestDestination, int requestSource) {
+    private Predicate<Packet> dsFilter(int pgn, int requestDestination, int requestSource) {
         return globalFilter(pgn)
                 // did it come from the right module or any if addressed to all
                 .and(sourceFilter(requestDestination));
@@ -396,7 +396,8 @@ public class J1939 {
         try (Stream<Packet> stream = read(timeout, unit)) {
             return stream
                     .filter(sourceFilter(addr).and(pgnFilter(pgn)))
-                    .findFirst().map(t -> process(t));
+                    .findFirst()
+                    .map(t -> process(t));
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, "Error reading packets", e);
         }
@@ -440,7 +441,7 @@ public class J1939 {
             for (int i = 0; i < 3; i++) {
                 Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = bus
                         .read(220, TimeUnit.MILLISECONDS)
-                        .filter(daFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(), TOOL_ADDRESS))
+                        .filter(dsFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(), TOOL_ADDRESS))
                         .map(p -> process(p));
                 bus.send(request);
                 Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = stream.findFirst();
@@ -490,7 +491,7 @@ public class J1939 {
             Packet request) {
         try {
             Stream<Either<T, AcknowledgmentPacket>> stream = bus.read(220, TimeUnit.MILLISECONDS)
-                    .filter(daFilter(getPgn(packetClass), request.getDestination(), TOOL_ADDRESS))
+                    .filter(dsFilter(getPgn(packetClass), request.getDestination(), TOOL_ADDRESS))
                     .map(p -> process(p));
             bus.send(request);
             return stream.findFirst();
@@ -498,25 +499,6 @@ public class J1939 {
             getLogger().log(Level.SEVERE, "Error requesting DS packet", e);
             return Optional.empty();
         }
-    }
-
-    /**
-     * Sends a request for a Packet specified by the given class (T). T will
-     * provide the PGN for the Packet that is requested. This will request the
-     * packet globally.
-     *
-     * @param clas
-     *            the class that extends {@link ParsedPacket} that provides the
-     *            PGN for the packet to be requested
-     * @return a {@link Stream} containing {@link ParsedPacket}
-     */
-    public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> requestGlobal(Class<T> clas) {
-        return requestGlobal(clas, createRequestPacket(getPgn(clas), GLOBAL_ADDR));
-    }
-
-    public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> requestGlobal(Class<T> T,
-            Packet requestPacket) {
-        return requestGlobalResult(T, requestPacket).getEither().stream();
     }
 
     @SuppressWarnings("unchecked")
@@ -537,8 +519,15 @@ public class J1939 {
         return result;
     }
 
+    public <T extends ParsedPacket> RequestResult<T> requestGlobalResult(Class<T> clas) {
+        return requestGlobalResult(clas, createRequestPacket(getPgn(clas), GLOBAL_ADDR));
+    }
+
     public <T extends ParsedPacket> RequestResult<T> requestGlobalResult(Class<T> T,
             Packet requestPacket) {
+        if (requestPacket.getDestination() != 0xFF) {
+            throw new IllegalArgumentException("Request not to global.");
+        }
         int pgn = getPgn(T);
         List<Either<T, AcknowledgmentPacket>> results = requestGlobalOnce(pgn, requestPacket);
         List<AcknowledgmentPacket> busyNACKs = results.stream().flatMap(e -> e.right.stream())
@@ -563,14 +552,6 @@ public class J1939 {
                 .collect(Collectors.toList());
         results.addAll(list);
         return new RequestResult<>(retry, results);
-    }
-
-    @SuppressWarnings("unchecked")
-    public <T extends ParsedPacket> BusResult<T> requestPacket(Packet requestPacket,
-            Class<T> clas) {
-        return requestPacket.getPgn() == DM7CommandTestsPacket.PGN
-                ? (BusResult<T>) requestDm7(requestPacket)
-                : requestDS(clas, requestPacket);
     }
 
     /**

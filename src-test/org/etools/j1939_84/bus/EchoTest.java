@@ -17,7 +17,7 @@ public class EchoTest {
 
     public void failVin() throws BusException {
         Bus bus = new EchoBus(0xF9);
-        assertFalse(new J1939(bus).requestGlobal(VehicleIdentificationPacket.class).findFirst().isPresent());
+        assertFalse(new J1939(bus).requestGlobalResult(VehicleIdentificationPacket.class).getEither().stream().findFirst().isPresent());
     }
 
     @Test
@@ -29,7 +29,7 @@ public class EchoTest {
                     () -> Packet.create(65260, 0x0, VIN.getBytes()));
 
             assertEquals(VIN,
-                    new J1939(bus).requestGlobal(VehicleIdentificationPacket.class)
+                    new J1939(bus).requestGlobalResult(VehicleIdentificationPacket.class).getEither().stream()
                             .flatMap(e -> e.left.stream())
                             .findFirst()
                             .map(p1 -> new String(p1.getPacket().getBytes())).get());

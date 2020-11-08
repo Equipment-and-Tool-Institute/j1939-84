@@ -90,8 +90,7 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public List<CalibrationInformation> getCalibrations() throws IOException {
         if (calibrations == null) {
-            Collection<Either<DM19CalibrationInformationPacket, AcknowledgmentPacket>> raw = getJ1939()
-                    .requestGlobal(DM19CalibrationInformationPacket.class).collect(Collectors.toList());
+            Collection<Either<DM19CalibrationInformationPacket, AcknowledgmentPacket>> raw = getJ1939().requestGlobalResult(DM19CalibrationInformationPacket.class).getEither().stream().collect(Collectors.toList());
             calibrations = raw.stream()
                     // flatten an Optional<Either<packetWithAList>>
                     .flatMap(t -> t.left.stream()
@@ -130,8 +129,7 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public String getEngineFamilyName() throws IOException {
         if (engineFamilyName == null) {
-            Set<String> results = getJ1939()
-                    .requestGlobal(DM56EngineFamilyPacket.class)
+            Set<String> results = getJ1939().requestGlobalResult(DM56EngineFamilyPacket.class).getEither().stream()
                     .flatMap(e -> e.left.stream())
                     .map(t -> t.getFamilyName())
                     .collect(Collectors.toSet());
@@ -156,8 +154,7 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public int getEngineModelYear() throws IOException {
         if (engineModelYear == null) {
-            Set<Integer> results = getJ1939()
-                    .requestGlobal(DM56EngineFamilyPacket.class)
+            Set<Integer> results = getJ1939().requestGlobalResult(DM56EngineFamilyPacket.class).getEither().stream()
                     .flatMap(e -> e.left.stream())
                     .map(t -> t.getEngineModelYear())
                     .collect(Collectors.toSet());
@@ -182,8 +179,7 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public String getVin() throws IOException {
         if (vin == null) {
-            Collection<Either<VehicleIdentificationPacket, AcknowledgmentPacket>> all = getJ1939()
-                    .requestGlobal(VehicleIdentificationPacket.class).collect(Collectors.toList());
+            Collection<Either<VehicleIdentificationPacket, AcknowledgmentPacket>> all = getJ1939().requestGlobalResult(VehicleIdentificationPacket.class).getEither().stream().collect(Collectors.toList());
             Set<String> vins = all.stream()
                     .flatMap(e -> e.left.stream())
                     .map(t -> t.getVin())

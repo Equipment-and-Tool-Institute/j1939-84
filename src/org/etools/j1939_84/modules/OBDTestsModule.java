@@ -233,7 +233,7 @@ public class OBDTestsModule extends FunctionalModule {
         Packet request = getJ1939().createRequestPacket(DM24SPNSupportPacket.PGN, obdModuleAddress);
         listener.onResult(getTime() + " Direct DM24 Request to " + Lookup.getAddressName(obdModuleAddress));
         listener.onResult(getTime() + " " + request.toString());
-        return getJ1939().requestPacket(request, DM24SPNSupportPacket.class);
+        return getJ1939().requestDS(DM24SPNSupportPacket.class, request);
 
     }
 
@@ -349,7 +349,7 @@ public class OBDTestsModule extends FunctionalModule {
             listener.onResult(getTime() + " Direct DM24 Request to " + Lookup.getAddressName(address));
             listener.onResult(getTime() + " " + request.toString());
             // FIXME, this should be 220 ms, not 3 s. 6.1.4.1.b
-            BusResult<DM24SPNSupportPacket> busResult = getJ1939().requestPacket(request, DM24SPNSupportPacket.class);
+            BusResult<DM24SPNSupportPacket> busResult = getJ1939().requestDS(DM24SPNSupportPacket.class, request);
             retryUsed |= busResult.isRetryUsed();
             busResult
                     .getPacket()
