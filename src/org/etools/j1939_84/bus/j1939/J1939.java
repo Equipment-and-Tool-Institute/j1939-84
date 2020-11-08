@@ -435,10 +435,6 @@ public class J1939 {
         return stream.peek(packet -> getLogger().log(Level.FINE, "P->" + packet.toString()));
     }
 
-    public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> request(Class<T> clazz, Packet request) {
-        return requestRaw(clazz, request, -1L, null);
-    }
-
     public BusResult<DM30ScaledTestResultsPacket> requestDm7(Packet request) {
         try {
             for (int i = 0; i < 3; i++) {
@@ -468,11 +464,11 @@ public class J1939 {
      * @return
      * @throws BusException
      */
-    public <T extends ParsedPacket> BusResult<T> requestDS(Class<T> packetClass, int address) {
+    public <T extends ParsedPacket> BusResult<T> requestDS(Class<T> packetClass, Packet request) {
         long end = System.currentTimeMillis() + 1200;
         int noResponse = 0;
         while (true) {
-            Optional<Either<T, AcknowledgmentPacket>> result = requestDSOnce(packetClass, address);
+            Optional<Either<T, AcknowledgmentPacket>> result = requestDSOnce(packetClass, request);
             if (result.isPresent()) {
                 if (System.currentTimeMillis() < end
                         && result.get().right.map(a -> a.getResponse() == Response.BUSY).orElse(false)) {
@@ -491,12 +487,12 @@ public class J1939 {
     }
 
     private <T extends ParsedPacket> Optional<Either<T, AcknowledgmentPacket>> requestDSOnce(Class<T> packetClass,
-            int address) {
+            Packet request) {
         try {
             Stream<Either<T, AcknowledgmentPacket>> stream = bus.read(220, TimeUnit.MILLISECONDS)
-                    .filter(daFilter(getPgn(packetClass), address, TOOL_ADDRESS))
+                    .filter(daFilter(getPgn(packetClass), request.getDestination(), TOOL_ADDRESS))
                     .map(p -> process(p));
-            bus.send(createRequestPacket(getPgn(packetClass), address));
+            bus.send(request);
             return stream.findFirst();
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, "Error requesting DS packet", e);
@@ -523,6 +519,7 @@ public class J1939 {
         return requestGlobalResult(T, requestPacket).getEither().stream();
     }
 
+    @SuppressWarnings("unchecked")
     private <T extends ParsedPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
             Packet request) {
         List<Either<T, AcknowledgmentPacket>> result;
@@ -561,44 +558,19 @@ public class J1939 {
         }
         // now try the DA request
         Collection<Either<T, AcknowledgmentPacket>> list = busyNACKs.stream()
-                .flatMap(p -> requestDSOnce(T, p.getSourceAddress()).stream())
+                .flatMap(p -> requestDSOnce(T, createRequestPacket(requestPacket.getPgn(), p.getSourceAddress()))
+                        .stream())
                 .collect(Collectors.toList());
         results.addAll(list);
         return new RequestResult<>(retry, results);
     }
 
-    /**
-     * Sends a Request for the given packet. The request will repeat the given
-     * number of tries.
-     *
-     * @param <T>
-     *            the Type of Packet that will be returned
-     * @param packetToSend
-     *            the packet that will be sent
-     * @param T
-     *            the Class of packet that's expected to be returned
-     * @param destination
-     *            the address response should come from
-     * @param tries
-     *            the number of times to try the request
-     * @return {@link Optional} {@link Packet} This may not contain a value if
-     *         there was an exception
-     */
-    @Deprecated // use BusResult version instead
-    public <T extends ParsedPacket> Optional<Either<T, AcknowledgmentPacket>> requestPacket(Packet packetToSend,
-            Class<T> T,
-            int destination,
-            int tries) {
-        return requestPacket(packetToSend, T, destination, tries, DEFAULT_TIMEOUT).getPacket();
-    }
-
+    @SuppressWarnings("unchecked")
     public <T extends ParsedPacket> BusResult<T> requestPacket(Packet requestPacket,
-            Class<T> clas,
-            int destination, // FIXME this arg is redundant. Remove.
-            int tries,
-            long timeout) {
-        return requestPacket.getPgn() == DM7CommandTestsPacket.PGN ? (BusResult<T>) requestDm7(requestPacket)
-                : requestDS(clas, destination);
+            Class<T> clas) {
+        return requestPacket.getPgn() == DM7CommandTestsPacket.PGN
+                ? (BusResult<T>) requestDm7(requestPacket)
+                : requestDS(clas, requestPacket);
     }
 
     /**
@@ -628,7 +600,7 @@ public class J1939 {
     public <T extends ParsedPacket> RequestResult<T> requestResult(Class<T> clazz, Packet request) {
         return (request.getDestination() == 0xFF)
                 ? requestGlobalResult(clazz, request)
-                : requestDS(clazz, request.getDestination()).requestResult();
+                : requestDS(clazz, request).requestResult();
     }
 
     private void sleep(int time) {

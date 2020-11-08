@@ -16,7 +16,6 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
-import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -27,7 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -91,50 +89,40 @@ public class OBDTestsModuleTest {
                 0xFB,
                 0x00));
 
-        when(j1939.requestPacket(dm24RequestPacket1, DM24SPNSupportPacket.class, 0x00, 3, 15000))
+        when(j1939.requestPacket(dm24RequestPacket1, DM24SPNSupportPacket.class))
                 .thenReturn((new BusResult<>(false, engineDm24Packet)));
 
         DM30ScaledTestResultsPacket engineDm30PacketSpn102 = new DM30ScaledTestResultsPacket(
                 Packet.create(0xA400, 0x00, 0xF7, 0x66, 0x00, 0x12, 0xD0, 0x00, 0x00, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF));
-        when(j1939.requestPacket(Packet.create(0xE300, BUS_ADDR, true, 0xF7, 0x66, 0x00, 0x1F, 0xFF, 0xFF, 0xFF, 0xFF),
-                DM30ScaledTestResultsPacket.class,
-                0x0,
-                3)).thenReturn(Optional.of(new Either<>(engineDm30PacketSpn102, null)));
+        when(j1939.requestDm7(Packet.create(0xE300, BUS_ADDR, true, 0xF7, 0x66, 0x00, 0x1F, 0xFF, 0xFF, 0xFF, 0xFF)))
+                .thenReturn(new BusResult<>(false, engineDm30PacketSpn102));
 
         DM30ScaledTestResultsPacket engineDm30PacketSpn512 = new DM30ScaledTestResultsPacket(
                 Packet.create(0xA400, 0x00, 0xF7, 0x00, 0x02, 0x12, 0xD0, 0x00, 0x00, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF));
-        when(j1939.requestPacket(Packet.create(0xE300, BUS_ADDR, true, 0xF7, 0x00, 0x02, 0x1F, 0xFF, 0xFF, 0xFF, 0xFF),
-                DM30ScaledTestResultsPacket.class,
-                0x00,
-                3)).thenReturn(Optional.of(new Either<>(engineDm30PacketSpn512, null)));
+        when(j1939.requestDm7(Packet.create(0xE300, BUS_ADDR, true, 0xF7, 0x00, 0x02, 0x1F, 0xFF, 0xFF, 0xFF, 0xFF)))
+                .thenReturn(new BusResult<>(false, engineDm30PacketSpn512));
 
         DM30ScaledTestResultsPacket engineDm30PacketSpn520348 = new DM30ScaledTestResultsPacket(
                 Packet.create(0xA400, 0x00, 0xF7, 0x9C, 0xF0, 0xFF, 0xD0, 0x00, 0x00, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF));
-        when(j1939.requestPacket(Packet.create(0xE300, BUS_ADDR, true, 0xF7, 0x9C, 0xF0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF),
-                DM30ScaledTestResultsPacket.class,
-                0x00,
-                3)).thenReturn(Optional.of(new Either<>(engineDm30PacketSpn520348, null)));
+        when(j1939.requestDm7(Packet.create(0xE300, BUS_ADDR, true, 0xF7, 0x9C, 0xF0, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)))
+                .thenReturn(new BusResult<>(false, engineDm30PacketSpn520348));
 
         Packet dm24RequestPacket2 = Packet.create(0xEA55, BUS_ADDR, true, 0xB6, 0xFD, 0x00);
         when(j1939.createRequestPacket(64950, 0x55)).thenReturn(dm24RequestPacket2);
         DM24SPNSupportPacket atDm24Packet = new DM24SPNSupportPacket(
                 Packet.create(64950, 0x55, 0xA7, 0x13, 0x1C, 0x00, 0x0C, 0x11, 0x18, 0x00, 0x9A, 0x0C, 0x18, 0x00));
-        when(j1939.requestPacket(dm24RequestPacket2, DM24SPNSupportPacket.class, 0x55, 3, 15000))
-                .thenReturn((new BusResult<>(false, atDm24Packet)));
+        when(j1939.requestPacket(dm24RequestPacket2, DM24SPNSupportPacket.class))
+                .thenReturn(new BusResult<>(false, atDm24Packet));
 
         DM30ScaledTestResultsPacket atDm30PacketSpn4364 = new DM30ScaledTestResultsPacket(
                 Packet.create(0xA400, 0x55, 0xF7, 0x0C, 0x11, 0x00, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF));
-        when(j1939.requestPacket(Packet.create(0xE355, BUS_ADDR, true, 0xF7, 0x0C, 0x11, 0x1F, 0xFF, 0xFF, 0xFF, 0xFF),
-                DM30ScaledTestResultsPacket.class,
-                0x55,
-                3)).thenReturn(Optional.of(new Either<>(atDm30PacketSpn4364, null)));
+        when(j1939.requestDm7(Packet.create(0xE355, BUS_ADDR, true, 0xF7, 0x0C, 0x11, 0x1F, 0xFF, 0xFF, 0xFF, 0xFF)))
+                .thenReturn(new BusResult<>(false, atDm30PacketSpn4364));
 
         DM30ScaledTestResultsPacket atDm30PacketSpn3226 = new DM30ScaledTestResultsPacket(
                 Packet.create(0xA400, 0x55, 0xF7, 0x9A, 0x0C, 0x0A, 0x00, 0x01, 0x00, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF));
-        when(j1939.requestPacket(Packet.create(0xE355, BUS_ADDR, true, 0xF7, 0x9A, 0x0C, 0x1F, 0xFF, 0xFF, 0xFF, 0xFF),
-                DM30ScaledTestResultsPacket.class,
-                0x55,
-                3)).thenReturn(Optional.of(new Either<>(atDm30PacketSpn3226, null)));
+        when(j1939.requestDm7(Packet.create(0xE355, BUS_ADDR, true, 0xF7, 0x9A, 0x0C, 0x1F, 0xFF, 0xFF, 0xFF, 0xFF)))
+                .thenReturn(new BusResult<>(false, atDm30PacketSpn3226));
 
         List<Integer> obdModules = Arrays.asList(new Integer[] { 0x00, 0x55 });
         instance.requestSupportedSpnPackets(listener, obdModules);
@@ -202,18 +190,17 @@ public class OBDTestsModuleTest {
         verify(j1939, times(5)).getBusAddress();
         verify(j1939).createRequestPacket(64950, 0x00);
         verify(j1939).createRequestPacket(64950, 0x55);
-        verify(j1939).requestPacket(dm24RequestPacket1, DM24SPNSupportPacket.class, 0x00, 3, 15000);
-        verify(j1939).requestPacket(dm24RequestPacket2, DM24SPNSupportPacket.class, 0x55, 3, 15000);
-        verify(j1939, times(5))
-                .requestPacket(any(Packet.class), eq(DM30ScaledTestResultsPacket.class), any(int.class), eq(3));
+        verify(j1939).requestPacket(dm24RequestPacket1, DM24SPNSupportPacket.class);
+        verify(j1939).requestPacket(dm24RequestPacket2, DM24SPNSupportPacket.class);
+        verify(j1939, times(5)).requestDm7(any(Packet.class));
     }
 
     @Test
     public void testReportOBDTestsNoResponse() {
         final Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, 0xB6, 0xFD, 0x00);
         when(j1939.createRequestPacket(64950, 0x00)).thenReturn(requestPacket);
-        when(j1939.requestPacket(any(Packet.class), eq(DM24SPNSupportPacket.class), eq(0x00), ArgumentMatchers.anyInt(),
-                ArgumentMatchers.anyLong()))
+        when(j1939.requestPacket(any(Packet.class), eq(
+                DM24SPNSupportPacket.class)))
                         .thenReturn(new BusResult<>(true, Optional.empty()));
         List<Integer> obdModules = Arrays.asList(new Integer[] { 0x00 });
 
@@ -228,7 +215,7 @@ public class OBDTestsModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(64950, 0x00);
-        verify(j1939).requestPacket(requestPacket, DM24SPNSupportPacket.class, 0, 3, 15000);
+        verify(j1939).requestPacket(requestPacket, DM24SPNSupportPacket.class);
     }
 
     @Test
@@ -240,12 +227,12 @@ public class OBDTestsModuleTest {
         DM30ScaledTestResultsPacket engineDm30Packet = new DM30ScaledTestResultsPacket(
                 Packet.create(0xA400, 0x00, 0xF7, 0x66, 0x00, 0x12, 0xD0, 0x00, 0x00, 0xFA, 0xFF, 0xFF, 0xFF, 0xFF));
 
-        when(j1939.requestPacket(any(Packet.class), eq(DM30ScaledTestResultsPacket.class), eq(0x00), eq(3)))
-                .thenReturn(Optional.of(new Either<>(engineDm30Packet, null)));
+        when(j1939.requestDm7(any(Packet.class)))
+                .thenReturn(new BusResult<>(false, engineDm30Packet));
 
         DM24SPNSupportPacket engineDm24Packet = new DM24SPNSupportPacket(
                 Packet.create(64950, 0x00, 0x66, 0x00, 0x1B, 0x01));
-        when(j1939.requestPacket(dm24RequestPacket, DM24SPNSupportPacket.class, 0, 3, 15000))
+        when(j1939.requestPacket(dm24RequestPacket, DM24SPNSupportPacket.class))
                 .thenReturn((new BusResult<>(false, engineDm24Packet)));
         List<Integer> obdModules = Arrays.asList(new Integer[] { 0x00 });
         instance.requestSupportedSpnPackets(listener, obdModules);
@@ -271,8 +258,8 @@ public class OBDTestsModuleTest {
 
         verify(j1939).getBusAddress();
         verify(j1939).createRequestPacket(64950, 0x00);
-        verify(j1939).requestPacket(dm24RequestPacket, DM24SPNSupportPacket.class, 0, 3, 15000);
-        verify(j1939).requestPacket(any(Packet.class), eq(DM30ScaledTestResultsPacket.class), eq(0x00), eq(3));
+        verify(j1939).requestPacket(dm24RequestPacket, DM24SPNSupportPacket.class);
+        verify(j1939).requestDm7(any(Packet.class));
     }
 
     @Test
@@ -282,11 +269,11 @@ public class OBDTestsModuleTest {
         when(j1939.createRequestPacket(64950, 0x00)).thenReturn(requestPacket);
         DM24SPNSupportPacket engineDm24Packet = new DM24SPNSupportPacket(
                 Packet.create(64950, 0x00, 0x66, 0x00, 0x1B, 0x01));
-        when(j1939.requestPacket(requestPacket, DM24SPNSupportPacket.class, 0, 3, 15000))
+        when(j1939.requestPacket(requestPacket, DM24SPNSupportPacket.class))
                 .thenReturn((new BusResult<>(false, engineDm24Packet)));
 
-        when(j1939.requestPacket(any(Packet.class), eq(DM30ScaledTestResultsPacket.class), eq(0x00), eq(3)))
-                .thenReturn(Optional.empty());
+        when(j1939.requestDm7(any(Packet.class)))
+                .thenReturn(BusResult.empty());
 
         List<Integer> obdModules = Arrays.asList(new Integer[] { 0x00 });
         instance.requestSupportedSpnPackets(listener, obdModules);
@@ -313,8 +300,8 @@ public class OBDTestsModuleTest {
 
         verify(j1939).getBusAddress();
         verify(j1939).createRequestPacket(64950, 0x00);
-        verify(j1939).requestPacket(requestPacket, DM24SPNSupportPacket.class, 0, 3, 15000);
-        verify(j1939).requestPacket(any(Packet.class), eq(DM30ScaledTestResultsPacket.class), eq(0x00), eq(3));
+        verify(j1939).requestPacket(requestPacket, DM24SPNSupportPacket.class);
+        verify(j1939).requestDm7(any(Packet.class));
     }
 
     @Test
@@ -323,7 +310,7 @@ public class OBDTestsModuleTest {
         when(j1939.createRequestPacket(64950, 0x00)).thenReturn(requestPacket);
         DM24SPNSupportPacket engineDm24Packet = new DM24SPNSupportPacket(
                 Packet.create(64950, 0x00, 0x66, 0x00, 0x1C, 0x01));
-        when(j1939.requestPacket(requestPacket, DM24SPNSupportPacket.class, 0, 3, 15000))
+        when(j1939.requestPacket(requestPacket, DM24SPNSupportPacket.class))
                 .thenReturn((new BusResult<>(false, engineDm24Packet)));
 
         List<Integer> obdModules = Arrays.asList(new Integer[] { 0x00 });
@@ -347,7 +334,7 @@ public class OBDTestsModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(64950, 0x00);
-        verify(j1939).requestPacket(requestPacket, DM24SPNSupportPacket.class, 0, 3, 15000);
+        verify(j1939).requestPacket(requestPacket, DM24SPNSupportPacket.class);
     }
 
 }

@@ -18,7 +18,7 @@ import org.etools.j1939_84.model.RequestResult;
 public class BusResult<T extends ParsedPacket> {
 
     public static <T extends ParsedPacket> BusResult<T> empty() {
-        return new BusResult(false);
+        return new BusResult<>(false);
     }
 
     private final Optional<Either<T, AcknowledgmentPacket>> packet;

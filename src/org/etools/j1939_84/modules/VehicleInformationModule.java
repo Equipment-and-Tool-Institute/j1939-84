@@ -333,7 +333,7 @@ public class VehicleInformationModule extends FunctionalModule {
     }
 
     /**
-     * Requests the maximum Total Vehicle Distance from the vehicle and
+     * Waits for the maximum Total Vehicle Distance from the vehicle and
      * generates a {@link String} that's suitable for inclusion in the report
      *
      * @param listener

@@ -10,7 +10,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.Packet;
@@ -229,13 +228,12 @@ public class OBDTestsModule extends FunctionalModule {
      * @return {@link List} of {@link DM24SPNSupportPacket}s
      */
     public BusResult<DM24SPNSupportPacket> requestDM24(ResultsListener listener,
-            int obdModuleAddress, int tries, int timeOutInMillis) {
+            int obdModuleAddress) {
 
         Packet request = getJ1939().createRequestPacket(DM24SPNSupportPacket.PGN, obdModuleAddress);
         listener.onResult(getTime() + " Direct DM24 Request to " + Lookup.getAddressName(obdModuleAddress));
         listener.onResult(getTime() + " " + request.toString());
-        return getJ1939().requestPacket(request, DM24SPNSupportPacket.class, obdModuleAddress, tries,
-                timeOutInMillis);
+        return getJ1939().requestPacket(request, DM24SPNSupportPacket.class);
 
     }
 
@@ -290,8 +288,7 @@ public class OBDTestsModule extends FunctionalModule {
     private List<ScaledTestResult> requestScaledTestResultsForSpn(ResultsListener listener, int destination, int spn) {
         Packet request = createDM7Packet(destination, spn);
         listener.onResult(getTime() + " " + request.toString());
-        DM30ScaledTestResultsPacket packet = getJ1939()
-                .requestPacket(request, DM30ScaledTestResultsPacket.class, destination, 3)
+        DM30ScaledTestResultsPacket packet = getJ1939().requestDm7(request).getPacket()
                 .flatMap(br -> br.left)
                 .orElse(null);
         if (packet == null) {
@@ -352,8 +349,7 @@ public class OBDTestsModule extends FunctionalModule {
             listener.onResult(getTime() + " Direct DM24 Request to " + Lookup.getAddressName(address));
             listener.onResult(getTime() + " " + request.toString());
             // FIXME, this should be 220 ms, not 3 s. 6.1.4.1.b
-            BusResult<DM24SPNSupportPacket> busResult = getJ1939()
-                    .requestPacket(request, DM24SPNSupportPacket.class, address, 3, TimeUnit.SECONDS.toMillis(15));
+            BusResult<DM24SPNSupportPacket> busResult = getJ1939().requestPacket(request, DM24SPNSupportPacket.class);
             retryUsed |= busResult.isRetryUsed();
             busResult
                     .getPacket()

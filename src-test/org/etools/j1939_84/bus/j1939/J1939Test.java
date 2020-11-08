@@ -109,8 +109,7 @@ public class J1939Test {
         }).start();
 
         long start = System.currentTimeMillis();
-        Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = j1939.requestPacket(
-                j1939.createRequestPacket(DM24SPNSupportPacket.PGN, 0), DM30ScaledTestResultsPacket.class, 0, 3);
+        Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = j1939.requestDm7(j1939.createRequestPacket(DM24SPNSupportPacket.PGN, 0)).getPacket();
 
         assertTrue(result.isPresent());
         Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket> e = result.get();
@@ -127,8 +126,7 @@ public class J1939Test {
         Bus bus = new EchoBus(0xF9);
         J1939 j1939 = new J1939(bus);
         long start = System.currentTimeMillis();
-        Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = j1939.requestPacket(
-                j1939.createRequestPacket(DM24SPNSupportPacket.PGN, 0), DM30ScaledTestResultsPacket.class, 0, 3);
+        Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = j1939.requestDm7(j1939.createRequestPacket(DM24SPNSupportPacket.PGN, 0)).getPacket();
         assertFalse(result.isPresent());
         assertEquals(220 * 3, System.currentTimeMillis() - start, 20);
     }
@@ -193,8 +191,7 @@ public class J1939Test {
         Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN
                 | 0x00, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
 
-        DM30ScaledTestResultsPacket packet = instance
-                .requestPacket(requestPacket, DM30ScaledTestResultsPacket.class, 0x00, 4)
+        DM30ScaledTestResultsPacket packet = instance.requestDm7(requestPacket).getPacket()
                 .flatMap(e -> e.left)
                 .orElse(null);
         assertNotNull(packet);
@@ -220,8 +217,7 @@ public class J1939Test {
         Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN
                 | 0x00, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
 
-        Object packet = instance
-                .requestPacket(requestPacket, DM30ScaledTestResultsPacket.class, 0x00, 3).orElse(null);
+        Object packet = instance.requestDm7(requestPacket).getPacket().orElse(null);
         assertNull(packet);
 
         verify(bus, times(3)).send(sendPacketCaptor.capture());
@@ -247,8 +243,7 @@ public class J1939Test {
         Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN
                 | 0x00, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
 
-        Object packet = instance
-                .requestPacket(requestPacket, DM30ScaledTestResultsPacket.class, 0x00, 3).orElse(null);
+        Object packet = instance.requestDm7(requestPacket).getPacket().orElse(null);
         assertNotNull(packet);
 
         verify(bus, times(3)).send(sendPacketCaptor.capture());

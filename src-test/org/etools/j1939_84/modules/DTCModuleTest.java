@@ -2138,9 +2138,7 @@ public class DTCModuleTest {
         AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
                 Packet.create(0xE800, 0x00, 0x01, 0xFF, 0xFF, 0xFF, 0xF9, 0xD3, 0xFE, 0x00));
 
-        when(j1939.requestPacket(requestPacket,
-                DM25ExpandedFreezeFrame.class, 0x00, 3,
-                TimeUnit.SECONDS.toMillis(15)))
+        when(j1939.requestPacket(requestPacket, DM25ExpandedFreezeFrame.class))
                         .thenReturn((new BusResult<>(false,
                                 new Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket>(null, packet1))));
 
@@ -2158,8 +2156,7 @@ public class DTCModuleTest {
         assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
-                TimeUnit.SECONDS.toMillis(15));
+        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class);
     }
 
     @Test
@@ -2168,9 +2165,7 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
 
-        when(j1939.requestPacket(requestPacket,
-                DM25ExpandedFreezeFrame.class, 0x00, 3,
-                TimeUnit.SECONDS.toMillis(15)))
+        when(j1939.requestPacket(requestPacket, DM25ExpandedFreezeFrame.class))
                         .thenReturn(new BusResult<DM25ExpandedFreezeFrame>(false, Optional.empty()));
         String expected = "10:15:30.000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.000 18EA00A5 B7 FD 00 (TX)" + NL;
@@ -2184,8 +2179,7 @@ public class DTCModuleTest {
         assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
-                TimeUnit.SECONDS.toMillis(15));
+        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class);
     }
 
     @Test
@@ -2284,8 +2278,7 @@ public class DTCModuleTest {
                 0xFA };
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(pgn, 0x00, realData));
-        when(j1939.requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
-                TimeUnit.SECONDS.toMillis(15)))
+        when(j1939.requestPacket(requestPacket, DM25ExpandedFreezeFrame.class))
                         .thenReturn((new BusResult<>(false, packet)));
 
         String expected = "10:15:30.000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
@@ -2308,8 +2301,7 @@ public class DTCModuleTest {
         assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class, 0x00, 3,
-                TimeUnit.SECONDS.toMillis(15));
+        verify(j1939).requestPacket(requestPacket, DM25ExpandedFreezeFrame.class);
     }
 
     @Test

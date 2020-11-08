@@ -178,7 +178,7 @@ public class Step04ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModules()).thenReturn(Collections.emptyList());
         when(dataRepository.getObdModule(0)).thenReturn(null);
 
-        when(obdTestsModule.requestDM24(any(), eq(0), eq(3), eq(220)))
+        when(obdTestsModule.requestDM24(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet1));
 
         List<SupportedSPN> expectedSPNs = new ArrayList<>();
@@ -195,7 +195,7 @@ public class Step04ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(obdTestsModule).setJ1939(j1939);
-        verify(obdTestsModule).requestDM24(any(), eq(0), eq(3), eq(220));
+        verify(obdTestsModule).requestDM24(any(), eq(0));
 
         verify(dataRepository).getObdModule(0);
         verify(dataRepository, atLeastOnce()).getObdModules();
@@ -261,9 +261,9 @@ public class Step04ControllerTest extends AbstractControllerTest {
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
         when(packet4.toString()).thenReturn("Ack.toString()");
 
-        when(obdTestsModule.requestDM24(any(), eq(0), eq(3), eq(220)))
+        when(obdTestsModule.requestDM24(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet1));
-        when(obdTestsModule.requestDM24(any(), eq(1), eq(3), eq(220)))
+        when(obdTestsModule.requestDM24(any(), eq(1)))
                 .thenReturn(new BusResult<>(true, packet4));
 
         List<SupportedSPN> expectedSPNs = new ArrayList<>();
@@ -280,8 +280,8 @@ public class Step04ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(obdTestsModule).setJ1939(j1939);
-        verify(obdTestsModule).requestDM24(any(), eq(0), eq(3), eq(220));
-        verify(obdTestsModule).requestDM24(any(), eq(1), eq(3), eq(220));
+        verify(obdTestsModule).requestDM24(any(), eq(0));
+        verify(obdTestsModule).requestDM24(any(), eq(1));
 
         verify(dataRepository).getObdModule(0);
 
@@ -853,9 +853,9 @@ public class Step04ControllerTest extends AbstractControllerTest {
         packets.add(packet4);
 
         BusResult<DM24SPNSupportPacket> result1 = new BusResult<>(false, packet1);
-        when(obdTestsModule.requestDM24(any(), eq(0), eq(3), eq(220))).thenReturn(result1);
+        when(obdTestsModule.requestDM24(any(), eq(0))).thenReturn(result1);
         BusResult<DM24SPNSupportPacket> result4 = new BusResult<>(false, packet4);
-        when(obdTestsModule.requestDM24(any(), eq(1), eq(3), eq(220))).thenReturn(result4);
+        when(obdTestsModule.requestDM24(any(), eq(1))).thenReturn(result4);
 
         VehicleInformation vehicleInfo = mock(VehicleInformation.class);
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInfo);
@@ -873,8 +873,8 @@ public class Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.4.2.c");
 
         verify(obdTestsModule).setJ1939(j1939);
-        verify(obdTestsModule).requestDM24(any(), eq(0), eq(3), eq(220));
-        verify(obdTestsModule).requestDM24(any(), eq(1), eq(3), eq(220));
+        verify(obdTestsModule).requestDM24(any(), eq(0));
+        verify(obdTestsModule).requestDM24(any(), eq(1));
 
         verify(dataRepository).getObdModule(0);
         verify(dataRepository).getObdModule(1);

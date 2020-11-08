@@ -1,8 +1,5 @@
 package org.etools.j1939_84.controllers.part1;
 
-import static org.etools.j1939_84.bus.j1939.J1939.DEFAULT_NUMBER_OF_TRIES;
-import static org.etools.j1939_84.bus.j1939.J1939.DEFAULT_TIMEOUT;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -73,7 +70,7 @@ public class Step04Controller extends StepController {
         // [Do not attempt retry for NACKs that indicate not supported].
         dataRepository.getObdModules().forEach(module -> {
             BusResult<DM24SPNSupportPacket> result = obdTestsModule.requestDM24(getListener(),
-                    module.getSourceAddress(), DEFAULT_NUMBER_OF_TRIES, DEFAULT_TIMEOUT);
+                    module.getSourceAddress());
 
             result.getPacket().ifPresentOrElse(packet -> {
                 packet.left.ifPresent(p -> {
