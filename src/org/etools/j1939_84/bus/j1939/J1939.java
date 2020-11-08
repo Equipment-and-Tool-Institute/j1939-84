@@ -60,15 +60,9 @@ import org.etools.j1939_84.model.RequestResult;
 public class J1939 {
 
     /**
-     * The default number of times to retry sending a message if response isn't
-     * received with in the specified timeout period
-     */
-    public static final int DEFAULT_NUMBER_OF_TRIES = 3;
-
-    /**
      * The default time to wait for a response
      */
-    public static final int DEFAULT_TIMEOUT = 220;
+    private static final int DEFAULT_TIMEOUT = 220;
 
     /**
      * The default time unit for responses
@@ -93,7 +87,7 @@ public class J1939 {
     /**
      * The default time to wait for a response when requesting from global
      */
-    public static final int GLOBAL_TIMEOUT = 1250;
+    private static final int GLOBAL_TIMEOUT = 1250;
 
     public static final int REQUEST_PGN = 0xEA00;
 
@@ -440,7 +434,7 @@ public class J1939 {
         try {
             for (int i = 0; i < 3; i++) {
                 Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = bus
-                        .read(220, TimeUnit.MILLISECONDS)
+                        .read(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
                         .filter(dsFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(), TOOL_ADDRESS))
                         .map(p -> process(p));
                 bus.send(request);
@@ -489,8 +483,12 @@ public class J1939 {
 
     private <T extends ParsedPacket> Optional<Either<T, AcknowledgmentPacket>> requestDSOnce(Class<T> packetClass,
             Packet request) {
+        if (request.getDestination() == 0xFF) {
+            throw new IllegalArgumentException("Request to global.");
+        }
+
         try {
-            Stream<Either<T, AcknowledgmentPacket>> stream = bus.read(220, TimeUnit.MILLISECONDS)
+            Stream<Either<T, AcknowledgmentPacket>> stream = bus.read(DEFAULT_TIMEOUT, TimeUnit.MILLISECONDS)
                     .filter(dsFilter(getPgn(packetClass), request.getDestination(), TOOL_ADDRESS))
                     .map(p -> process(p));
             bus.send(request);
@@ -545,7 +543,7 @@ public class J1939 {
             busyNACKs = results.stream().flatMap(e -> e.right.stream()).filter(p -> p.getResponse() == Response.BUSY)
                     .collect(Collectors.toList());
         }
-        // now try the DA request
+        // now try the DS request
         Collection<Either<T, AcknowledgmentPacket>> list = busyNACKs.stream()
                 .flatMap(p -> requestDSOnce(T, createRequestPacket(requestPacket.getPgn(), p.getSourceAddress()))
                         .stream())
