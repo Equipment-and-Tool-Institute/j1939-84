@@ -174,7 +174,7 @@ public class Step10ControllerTest extends AbstractControllerTest {
         when(dtcModule.requestDM11(any()))
                 .thenReturn(new RequestResult<>(false, Collections.emptyList(),
                         acknowledgmentPackets));
-        when(dtcModule.requestDM28(any()))
+        when(dtcModule.requestDM28(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm28Packet), Collections.emptyList()));
         when(dtcModule.requestDM33(any(), eq(0x00)))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm33Packet), Collections.emptyList()));
@@ -198,7 +198,7 @@ public class Step10ControllerTest extends AbstractControllerTest {
 
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM11(any());
-        verify(dtcModule).requestDM28(any());
+        verify(dtcModule).requestDM28(any(), eq(true));
         verify(dtcModule).requestDM33(any(), eq(0x00));
         verify(dtcModule).requestDM33(any(), eq(0x17));
         verify(dtcModule).requestDM33(any(), eq(0x21));
@@ -206,10 +206,7 @@ public class Step10ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1, 10, WARN, "6.1.10.3.a - The request for DM11 was NACK'ed");
         verify(mockListener).addOutcome(1, 10, WARN, "6.1.10.3.a - The request for DM11 was ACK'ed");
         StringBuilder expectedMessage6b = new StringBuilder(
-                "6.1.10.3.b - Fail if any diagnostic information in any ECU is not reset or starts out with unexpected values."
-                        + NL);
-        expectedMessage6b
-                .append("Diagnostic information is defined in section A.5, Diagnostic Information Definition.");
+                "6.1.10.3.b - Fail if any diagnostic information in any ECU is not reset or starts out with unexpected values.");
         verify(mockListener).addOutcome(1, 10, FAIL, expectedMessage6b.toString());
 
         verify(obdTestsModule).setJ1939(j1939);
@@ -223,8 +220,6 @@ public class Step10ControllerTest extends AbstractControllerTest {
         expectedResults.append(
                 "FAIL: 6.1.10.3.b - Fail if any diagnostic information in any ECU is not reset or starts out with unexpected values."
                         + NL);
-        expectedResults
-                .append("Diagnostic information is defined in section A.5, Diagnostic Information Definition." + NL);
         expectedResults.append("WARN: 6.1.10.3.a - The request for DM11 was ACK'ed" + NL);
         assertEquals(expectedResults.toString(), listener.getResults());
         assertEquals("", listener.getMessages());
@@ -266,7 +261,7 @@ public class Step10ControllerTest extends AbstractControllerTest {
         when(dtcModule.requestDM11(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm11Packet),
                         Collections.singletonList(acknowledgmentPacket)));
-        when(dtcModule.requestDM28(any()))
+        when(dtcModule.requestDM28(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm28Packet), Collections.emptyList()));
 
         when(sectionA5Verifier.verify(any(), any(), any(), any(), any())).thenReturn(true);
@@ -284,7 +279,7 @@ public class Step10ControllerTest extends AbstractControllerTest {
 
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM11(any());
-        verify(dtcModule).requestDM28(any());
+        verify(dtcModule).requestDM28(any(), eq(true));
 
         verify(obdTestsModule).setJ1939(j1939);
 

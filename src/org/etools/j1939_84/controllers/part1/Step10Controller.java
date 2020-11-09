@@ -75,7 +75,7 @@ public class Step10Controller extends StepController {
 
         // Collect our values for comparison after Diagnostic Data Clear/Reset
         // message is sent
-        List<DM28PermanentEmissionDTCPacket> previousDM28Packets = dtcModule.requestDM28(getListener())
+        List<DM28PermanentEmissionDTCPacket> previousDM28Packets = dtcModule.requestDM28(getListener(), true)
                 .getPackets()
                 .stream()
                 .filter(t -> !t.getDtcs().isEmpty())

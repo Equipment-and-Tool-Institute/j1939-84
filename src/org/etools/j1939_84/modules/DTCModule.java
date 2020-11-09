@@ -92,6 +92,18 @@ public class DTCModule extends FunctionalModule {
         return new RequestResult<>(false, packets, Collections.emptyList());
     }
 
+    public RequestResult<DM28PermanentEmissionDTCPacket> reportDM28(ResultsListener listener, int address) {
+        Packet request = getJ1939().createRequestPacket(DM28PermanentEmissionDTCPacket.PGN, address);
+
+        String title = address == GLOBAL_ADDR ? "Global DM28 Request"
+                : "Destination Specific DM28 Request to " + Lookup.getAddressName(address);
+
+        return generateReport(listener,
+                title,
+                DM28PermanentEmissionDTCPacket.class,
+                request);
+    }
+
     /**
      * Send Global DM11 Request and generates a {@link String} that's suitable
      * for inclusion in the report
@@ -363,8 +375,11 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener) {
-        return requestDM28(listener, GLOBAL_ADDR);
+    public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener, boolean fullString) {
+        String title = "Global DM28 Request";
+
+        return getPacketsFromGlobal(title, DM28PermanentEmissionDTCPacket.PGN, DM28PermanentEmissionDTCPacket.class,
+                listener, fullString);
     }
 
     /**
@@ -375,16 +390,14 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener, int address) {
-        Packet request = getJ1939().createRequestPacket(DM28PermanentEmissionDTCPacket.PGN, address);
-
-        String title = address == GLOBAL_ADDR ? "Global DM28 Request"
-                : "Destination Specific DM28 Request to " + Lookup.getAddressName(address);
-
-        return generateReport(listener,
-                title,
+    public BusResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener, boolean fullString,
+            int address) {
+        return getPacket("Destination Specific DM28 Request to " + Lookup.getAddressName(address),
+                DM28PermanentEmissionDTCPacket.PGN,
                 DM28PermanentEmissionDTCPacket.class,
-                request);
+                listener,
+                fullString,
+                address);
     }
 
     /**
