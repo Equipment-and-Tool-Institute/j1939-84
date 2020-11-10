@@ -77,67 +77,67 @@ public class SectionA5Verifier {
             List<EngineHoursPacket> previousEngineHoursPackets,
             ResultsListener listener) {
 
-        boolean[] passed = { true };
+        boolean passed = true;
 
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses().stream()
                 .collect(Collectors.toList());
 
         if (!verifyDM6(listener)) {
-            passed[0] = false;
+            passed = false;
         }
 
         if (!verifyDM12(listener)) {
-            passed[0] = false;
+            passed = false;
         }
 
         if (!verifyDM23(listener)) {
-            passed[0] = false;
+            passed = false;
         }
 
         if (!verifyDM29(listener)) {
-            passed[0] = false;
+            passed = false;
         }
 
         if (!verifyDM25(listener, obdModuleAddresses)) {
-            passed[0] = false;
+            passed = false;
         }
 
         if (!verifyDM31(listener)) {
-            passed[0] = false;
+            passed = false;
         }
 
         if (!verifyDM21(listener)) {
-            passed[0] = false;
+            passed = false;
         }
 
         if (!verifyDM5(listener)) {
-            passed[0] = false;
+            passed = false;
         }
 
         if (!verifyDM26(listener)) {
-            passed[0] = false;
+            passed = false;
         }
 
         if (!verifyDM7DM30(listener, obdModuleAddresses)) {
-            passed[0] = false;
+            passed = false;
         }
 
         if (!verifyDM20(previousDM20Packets, listener)) {
-            passed[0] = false;
+            passed = false;
         }
 
         if (!verifyDM28(previousDM28Packets, listener)) {
-            passed[0] = false;
+            passed = false;
         }
 
         if (!verifyDM33(previousDM33Packets, listener, obdModuleAddresses)) {
-            passed[0] = false;
+            passed = false;
         }
 
         if (!verifyEngineHours(previousEngineHoursPackets, listener)) {
-            passed[0] = false;
+            passed = false;
         }
-        return passed[0];
+        return passed;
     }
 
     /**
