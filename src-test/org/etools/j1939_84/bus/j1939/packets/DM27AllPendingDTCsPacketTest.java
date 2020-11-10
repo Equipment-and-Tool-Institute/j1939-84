@@ -26,8 +26,8 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetAmberWarningLampStatusFastFlash() {
         int[] data = new int[] { 0x04, 0x04, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
-        DiagnosticTroubleCodePacket instance = new DiagnosticTroubleCodePacket(packet);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
+        DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.FAST_FLASH, instance.getAmberWarningLampStatus());
         assertEquals(LampStatus.FAST_FLASH, instance.getAmberWarningLampStatus());
@@ -36,7 +36,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetAmberWarningLampStatusOff() {
         int[] data = new int[] { 0x00, 0x0C, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.OFF, instance.getAmberWarningLampStatus());
@@ -46,7 +46,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetAmberWarningLampStatusOn() {
         int[] data = new int[] { 0x04, 0x0C, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.ON, instance.getAmberWarningLampStatus());
@@ -56,7 +56,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetAmberWarningLampStatusSlowFlash() {
         int[] data = new int[] { 0x04, 0x00, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.SLOW_FLASH, instance.getAmberWarningLampStatus());
@@ -70,7 +70,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetDtcsEmptyWithEightBytes() {
         int[] data = new int[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(0, instance.getDtcs().size());
@@ -79,7 +79,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetDtcsEmptyWithGrandfathered() {
         int[] data = new int[] { 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
         assertEquals(0, instance.getDtcs().size());
     }
@@ -87,7 +87,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetDtcsEmptyWithSixBytes() {
         int[] data = new int[] { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(0, instance.getDtcs().size());
@@ -96,7 +96,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetDtcsOneWithEightBytes() {
         int[] data = new int[] { 0x00, 0xFF, 0x61, 0x02, 0x13, 0x00, 0xFF, 0xFF };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         final List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
@@ -107,7 +107,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetDtcsOneWithSixBytes() {
         int[] data = new int[] { 0x00, 0xFF, 0x61, 0x02, 0x13, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         final List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
@@ -118,7 +118,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetDtcsThree() {
         int[] data = new int[] { 0x00, 0xFF, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06, 0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         final List<DiagnosticTroubleCode> dtcs = instance.getDtcs();
@@ -135,7 +135,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetMalfunctionIndicatorLampStatusFastFlash() {
         int[] data = new int[] { 0x40, 0x40, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.FAST_FLASH, instance.getMalfunctionIndicatorLampStatus());
@@ -145,7 +145,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetMalfunctionIndicatorLampStatusOff() {
         int[] data = new int[] { 0x00, 0x0C0, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.OFF, instance.getMalfunctionIndicatorLampStatus());
@@ -155,7 +155,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetMalfunctionIndicatorLampStatusOn() {
         int[] data = new int[] { 0x40, 0xC0, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.ON, instance.getMalfunctionIndicatorLampStatus());
@@ -165,7 +165,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetMalfunctionIndicatorLampStatusSlowFlash() {
         int[] data = new int[] { 0x40, 0x00, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.SLOW_FLASH, instance.getMalfunctionIndicatorLampStatus());
@@ -179,7 +179,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetName() {
         int[] data = new int[] { 0x04, 0x04, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals("DM27", instance.getName());
@@ -192,7 +192,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetProtectLampStatusFastFlash() {
         int[] data = new int[] { 0x01, 0x01, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.FAST_FLASH, instance.getProtectLampStatus());
@@ -202,7 +202,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetProtectLampStatusOff() {
         int[] data = new int[] { 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.OFF, instance.getProtectLampStatus());
@@ -212,7 +212,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetProtectLampStatusOn() {
         int[] data = new int[] { 0x01, 0x03, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.ON, instance.getProtectLampStatus());
@@ -222,7 +222,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetProtectLampStatusSlowFlash() {
         int[] data = new int[] { 0x01, 0x00, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.SLOW_FLASH, instance.getProtectLampStatus());
@@ -236,7 +236,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetRedStopLampStatusFastFlash() {
         int[] data = new int[] { 0x10, 0x10, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.FAST_FLASH, instance.getRedStopLampStatus());
@@ -246,7 +246,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetRedStopLampStatusOn() {
         int[] data = new int[] { 0x10, 0x30, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.ON, instance.getRedStopLampStatus());
@@ -256,7 +256,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testGetRedStopLampStatusSlowFlash() {
         int[] data = new int[] { 0x10, 0x00, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x00, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
 
         assertEquals(LampStatus.SLOW_FLASH, instance.getRedStopLampStatus());
@@ -270,7 +270,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testToString() {
         int[] data = new int[] { 0x54, 0x4F, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06, 0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00 };
-        Packet packet = Packet.create(0x123456, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
         String expected = "DM27 from Engine #1 (0): MIL: fast flash, RSL: slow flash, AWL: on, PL: off" + NL
                 + "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL
@@ -282,7 +282,7 @@ public class DM27AllPendingDTCsPacketTest {
     @Test
     public void testToStringNoDtcs() {
         int[] data = new int[] { 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00 };
-        Packet packet = Packet.create(0x123456, 0x00, data);
+        Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
         String expected = "DM27 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs";
         assertEquals(expected, instance.toString());
