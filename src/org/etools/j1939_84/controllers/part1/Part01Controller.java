@@ -52,7 +52,7 @@ public class Part01Controller extends Controller {
                 new Step14Controller(dataRepository), new Step15Controller(dataRepository),
                 new Step16Controller(dataRepository), new Step17Controller(dataRepository),
                 new Step18Controller(dataRepository), new Step19Controller(dataRepository),
-                new Step20Controller(dataRepository));
+                new Step20Controller(dataRepository), new Step21Controller(dataRepository));
     }
 
     /**
@@ -110,6 +110,8 @@ public class Part01Controller extends Controller {
      *            the {@link step19Controller} for Part1Controller
      * @param step20Controller
      *            the {@link step20Controller} for Part1Controller
+     * @param step21Controller
+     *            the {@link step21Controller} for Part1Controller
      */
     public Part01Controller(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
@@ -119,7 +121,8 @@ public class Part01Controller extends Controller {
             Step09Controller step09Controller, Step10Controller step10Controller, Step11Controller step11Controller,
             Step12Controller step12Controller, Step13Controller step13Controller, Step14Controller step14Controller,
             Step15Controller step15Controller, Step16Controller step16Controller, Step17Controller step17Controller,
-            Step18Controller step18Controller, Step19Controller step19Controller, Step20Controller step20Controller) {
+            Step18Controller step18Controller, Step19Controller step19Controller, Step20Controller step20Controller,
+            Step21Controller step21Controller) {
         super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
 
         stepControllers.add(step01Controller);
@@ -142,6 +145,7 @@ public class Part01Controller extends Controller {
         stepControllers.add(step18Controller);
         stepControllers.add(step19Controller);
         stepControllers.add(step20Controller);
+        stepControllers.add(step21Controller);
     }
 
     private void executeStep(StepController controller) throws InterruptedException {

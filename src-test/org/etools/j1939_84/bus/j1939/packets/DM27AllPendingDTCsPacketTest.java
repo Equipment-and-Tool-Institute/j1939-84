@@ -265,6 +265,16 @@ public class DM27AllPendingDTCsPacketTest {
 
     /**
      * Test method for
+     * {@link org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket#PGN()}.
+     */
+    @Test
+    public void testPGN() {
+
+        assertEquals(64898, DM27AllPendingDTCsPacket.PGN);
+    }
+
+    /**
+     * Test method for
      * {@link org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket#toString()}.
      */
     @Test

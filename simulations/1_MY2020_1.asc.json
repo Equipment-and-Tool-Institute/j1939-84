@@ -1101,6 +1101,33 @@
       }
     ]
   },
+  
+  
+   {
+    "PGN": "FD82",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FD8201 03 FF 00 00 00 00 FF FF"
+      },
+      {
+        "packet": "18FD8201 43 FF 44 15 01 01 FF FF"
+      }
+    ]
+  },
+  {
+    "PGN": "FD82",
+    "SA": "3D",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FD823D 03 FF 00 00 00 00 FF FF"
+      }
+    ]
+  },
+  
+  
   {
     "PGN": "FEE0",
     "SA": "00",
