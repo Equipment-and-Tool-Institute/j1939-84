@@ -13,9 +13,11 @@ import java.util.concurrent.TimeUnit;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
+import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
@@ -172,9 +174,13 @@ public class Engine implements AutoCloseable {
         // DM6
         sim.response(p -> isRequestFor(65231, p), () -> Packet.create(65231, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
         // DM12
-        sim.response(p -> isRequestFor(65236, p), () -> Packet.create(65236, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
+        sim.response(p -> isRequestFor(DM12MILOnEmissionDTCPacket.PGN, p),
+                () -> Packet.create(DM12MILOnEmissionDTCPacket.PGN, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
         // DM23
         sim.response(p -> isRequestFor(64949, p), () -> Packet.create(64949, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
+        // DM27
+        sim.response(p -> isRequestFor(DM27AllPendingDTCsPacket.PGN, p),
+                () -> Packet.create(DM27AllPendingDTCsPacket.PGN, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
         // DM28
         sim.response(p -> isRequestFor(DM28PermanentEmissionDTCPacket.PGN, p),
                 () -> Packet.create(DM28PermanentEmissionDTCPacket.PGN,

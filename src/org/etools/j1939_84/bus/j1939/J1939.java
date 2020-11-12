@@ -31,6 +31,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacke
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
@@ -193,6 +194,9 @@ public class J1939 {
 
         case DM26TripDiagnosticReadinessPacket.PGN:
             return new DM26TripDiagnosticReadinessPacket(packet);
+
+        case DM27AllPendingDTCsPacket.PGN:
+            return new DM27AllPendingDTCsPacket(packet);
 
         case DM28PermanentEmissionDTCPacket.PGN:
             return new DM28PermanentEmissionDTCPacket(packet);
