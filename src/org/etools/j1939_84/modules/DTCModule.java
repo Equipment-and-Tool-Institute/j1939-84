@@ -25,6 +25,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
@@ -365,6 +366,39 @@ public class DTCModule extends FunctionalModule {
                 title,
                 DM26TripDiagnosticReadinessPacket.class,
                 request);
+    }
+
+    /**
+     * Requests global DM27 and generates a {@link String} that's suitable for
+     * inclusion in the report
+     *
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<DM27AllPendingDTCsPacket> requestDM27(ResultsListener listener, boolean fullString) {
+        String title = "Global DM27 Request";
+
+        return getPacketsFromGlobal(title, DM27AllPendingDTCsPacket.PGN, DM27AllPendingDTCsPacket.class,
+                listener, fullString);
+    }
+
+    /**
+     * Requests destination specific DM27 and generates a {@link String} that's
+     * suitable for inclusion in the report
+     *
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public BusResult<DM27AllPendingDTCsPacket> requestDM27(ResultsListener listener, boolean fullString,
+            int address) {
+        return getPacket("Destination Specific DM27 Request to " + Lookup.getAddressName(address),
+                DM27AllPendingDTCsPacket.PGN,
+                DM27AllPendingDTCsPacket.class,
+                listener,
+                fullString,
+                address);
     }
 
     /**

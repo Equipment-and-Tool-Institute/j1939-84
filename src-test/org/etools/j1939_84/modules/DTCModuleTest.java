@@ -33,6 +33,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
@@ -1250,6 +1251,221 @@ public class DTCModuleTest {
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939).requestMultiple(DM26TripDiagnosticReadinessPacket.class, requestPacket);
+    }
+
+    @Test
+    public void testRequestDM27DestinationSpecific() {
+        final int pgn = DM27AllPendingDTCsPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
+                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+        when(j1939.requestRaw(DM27AllPendingDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM27 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 18EA00A5 82 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FD8200 00 FF 00 00 00 00 00 00" + NL;
+        expected += "DM27 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+
+        BusResult<DM27AllPendingDTCsPacket> expectedResult = new BusResult<>(false, packet1);
+        assertEquals(expectedResult, instance.requestDM27(listener, true, 0x00));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestRaw(DM27AllPendingDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM27DestinationSpecificWithDTCs() {
+        final int pgn = DM27AllPendingDTCsPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
+
+        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(Packet.create(pgn,
+                0x00,
+                0x00,
+                0xFF,
+                0x61,
+                0x02,
+                0x13,
+                0x00,
+                0x21,
+                0x06,
+                0x1F,
+                0x00,
+                0xEE,
+                0x10,
+                0x04,
+                0x00));
+        when(j1939.requestRaw(DM27AllPendingDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM27 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.000 18EA00A5 82 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FD8200 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "DM27 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
+        expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL;
+        expected += "DTC:  (4334) Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        BusResult<DM27AllPendingDTCsPacket> expectedResult = new BusResult<>(false, packet1);
+
+        assertEquals(expectedResult, instance.requestDM27(listener, true, 0x00));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).requestRaw(DM27AllPendingDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM27DestinationSpecificWithNoResponses() {
+        final int pgn = DM27AllPendingDTCsPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | 0x17, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, 0x17)).thenReturn(requestPacket);
+
+        when(j1939.requestRaw(DM27AllPendingDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.empty()).thenReturn(Stream.empty()).thenReturn(Stream.empty());
+
+        String expected = "";
+        expected += "10:15:30.000 Destination Specific DM27 Request to Instrument Cluster #1 (23)" + NL;
+        expected += "10:15:30.000 18EA17A5 82 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        BusResult<DM27AllPendingDTCsPacket> expectedResult = new BusResult<>(true, Optional.empty());
+        assertEquals(expectedResult, instance.requestDM27(listener, true, 0x17));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0x17);
+        verify(j1939, times(3)).requestRaw(DM27AllPendingDTCsPacket.class, requestPacket, 5500,
+                TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM27Global() {
+        final int pgn = DM27AllPendingDTCsPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
+                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+        DM27AllPendingDTCsPacket packet2 = new DM27AllPendingDTCsPacket(
+                Packet.create(pgn, 0x17, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+        DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
+                Packet.create(pgn, 0x21, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+        when(j1939.requestRaw(DM27AllPendingDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM27 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 82 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FD8200 00 FF 00 00 00 00 00 00" + NL;
+        expected += "DM27 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
+        expected += "10:15:30.000 18FD8217 00 FF 00 00 00 00 00 00" + NL;
+        expected += "DM27 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
+        expected += "10:15:30.000 18FD8221 00 FF 00 00 00 00 00 00" + NL;
+        expected += "DM27 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        List<DM27AllPendingDTCsPacket> expectedPackets = new ArrayList<>() {
+            {
+                add(packet1);
+                add(packet2);
+                add(packet3);
+            }
+        };
+        RequestResult<DM27AllPendingDTCsPacket> expectedResult = new RequestResult<>(false, expectedPackets,
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM27(listener, true));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestRaw(DM27AllPendingDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM27GlobalWithDTCs() {
+        final int pgn = DM27AllPendingDTCsPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(Packet.create(pgn,
+                0x00,
+                0x00,
+                0xFF,
+                0x61,
+                0x02,
+                0x13,
+                0x00,
+                0x21,
+                0x06,
+                0x1F,
+                0x00,
+                0xEE,
+                0x10,
+                0x04,
+                0x00));
+        when(j1939.requestRaw(DM27AllPendingDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM27 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 82 FD 00 (TX)" + NL;
+        expected += "10:15:30.000 18FD8200 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "DM27 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
+        expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
+        expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL;
+        expected += "DTC:  (4334) Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM27AllPendingDTCsPacket> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet1), Collections.emptyList());
+
+        assertEquals(expectedResult, instance.requestDM27(listener, true));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).requestRaw(DM27AllPendingDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+    }
+
+    @Test
+    public void testRequestDM27GlobalWithNoResponses() {
+        final int pgn = DM27AllPendingDTCsPacket.PGN;
+
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
+
+        when(j1939.requestRaw(DM27AllPendingDTCsPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+                .thenReturn(Stream.empty()).thenReturn(Stream.empty()).thenReturn(Stream.empty());
+
+        String expected = "";
+        expected += "10:15:30.000 Global DM27 Request" + NL;
+        expected += "10:15:30.000 18EAFFA5 82 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM27AllPendingDTCsPacket> expectedResult = new RequestResult<>(true, Collections.emptyList(),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM27(listener, true));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939, times(3)).requestRaw(DM27AllPendingDTCsPacket.class, requestPacket, 5500,
+                TimeUnit.MILLISECONDS);
     }
 
     @Test
