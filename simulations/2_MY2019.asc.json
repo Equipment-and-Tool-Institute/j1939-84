@@ -1164,5 +1164,18 @@
         "packet": "18FEE500 CB 02 00 00 3A 08 00 00"
       }
     ]
+  },
+   {
+    "PGN": "FD82",
+    "SA": "01",
+    "onRequest": "true",
+    "packets": [
+      {
+        "packet": "18FD8200 03 FF 00 00 00 00 FF FF"
+      },
+      {
+        "packet": "18FD8200 43 FF 66 00 04 01 FF FF"
+      }
+    ]
   }
 ]
