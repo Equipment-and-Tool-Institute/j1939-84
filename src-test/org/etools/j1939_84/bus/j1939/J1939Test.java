@@ -436,7 +436,7 @@ public class J1939Test {
                 response10));
 
         Packet request = instance.createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
-        List<?> packets = instance.requestRaw(DM11ClearActiveDTCsPacket.class, request, 5500, TimeUnit.MILLISECONDS)
+        List<?> packets = instance.requestRaw(DM11ClearActiveDTCsPacket.class, request)
                 .collect(Collectors.toList());
 
         assertEquals(8, packets.size());

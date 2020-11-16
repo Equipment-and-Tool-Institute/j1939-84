@@ -386,7 +386,7 @@ public class VehicleInformationModuleTest {
         DM19CalibrationInformationPacket packet3 = new DM19CalibrationInformationPacket(
                 Packet.create(pgn, 0x21, new byte[] {}));
 
-        when(j1939.requestRaw(DM19CalibrationInformationPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+        when(j1939.requestRaw(DM19CalibrationInformationPacket.class, requestPacket))
                 .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
@@ -400,7 +400,7 @@ public class VehicleInformationModuleTest {
         instance.reportCalibrationInformation(listener, 0x00);
         assertEquals(expected, listener.getResults());
         verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).requestRaw(DM19CalibrationInformationPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+        verify(j1939).requestRaw(DM19CalibrationInformationPacket.class, requestPacket);
     }
 
     @Test
@@ -410,7 +410,7 @@ public class VehicleInformationModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
 
-        when(j1939.requestRaw(DM19CalibrationInformationPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS))
+        when(j1939.requestRaw(DM19CalibrationInformationPacket.class, requestPacket))
                 .thenReturn(Stream.empty())
                 .thenReturn(Stream.empty())
                 .thenReturn(Stream.empty());
@@ -426,7 +426,7 @@ public class VehicleInformationModuleTest {
         assertEquals(expected, listener.getResults());
         verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939, times(3))
-                .requestRaw(DM19CalibrationInformationPacket.class, requestPacket, 5500, TimeUnit.MILLISECONDS);
+                .requestRaw(DM19CalibrationInformationPacket.class, requestPacket);
     }
 
     @Test

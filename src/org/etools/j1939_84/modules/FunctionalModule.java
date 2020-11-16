@@ -8,7 +8,6 @@ import static org.etools.j1939_84.J1939_84.NL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -133,7 +132,7 @@ public abstract class FunctionalModule {
         // Try three times to get packets and ensure there's one from the module
         Optional<Either<T, AcknowledgmentPacket>> packet = Optional.empty();
         for (int i = 0; i < 3; i++) {
-            packet = getJ1939().requestRaw(clazz, request, 5500, TimeUnit.MILLISECONDS).findFirst();
+            packet = getJ1939().requestRaw(clazz, request).findFirst();
             if (packet
                     .map(o -> o.resolve(
                             // there was a packet
@@ -201,7 +200,7 @@ public abstract class FunctionalModule {
         // Try three times to get packets and ensure there's one from the engine
         List<Either<T, AcknowledgmentPacket>> packets = new ArrayList<>();
         for (int i = 0; i < 3; i++) {
-            packets = getJ1939().requestRaw(clazz, request, 5500, TimeUnit.MILLISECONDS).collect(Collectors.toList());
+            packets = getJ1939().requestRaw(clazz, request).collect(Collectors.toList());
             if (packets.isEmpty()) {
                 retryUsed = true;
             } else {

@@ -131,6 +131,12 @@ public class Part01ControllerTest {
     private Step19Controller step19Controller;
 
     @Mock
+    private Step20Controller step20Controller;
+
+    @Mock
+    private Step21Controller step21Controller;
+
+    @Mock
     private VehicleInformationModule vehicleInformationModule;
 
     @Before
@@ -162,7 +168,9 @@ public class Part01ControllerTest {
                 step16Controller,
                 step17Controller,
                 step18Controller,
-                step19Controller);
+                step19Controller,
+                step20Controller,
+                step21Controller);
     }
 
     @After
@@ -190,7 +198,9 @@ public class Part01ControllerTest {
                 step16Controller,
                 step17Controller,
                 step18Controller,
-                step19Controller);
+                step19Controller,
+                step20Controller,
+                step21Controller);
     }
 
     /**
@@ -223,7 +233,7 @@ public class Part01ControllerTest {
         when(partResult.toString()).thenReturn("Part 1");
         when(partResultFactory.create(1)).thenReturn(partResult);
 
-        int[] steps = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19 };
+        int[] steps = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21 };
 
         for (int i : steps) {
             StepResult stepResult = mock(StepResult.class);
@@ -270,6 +280,8 @@ public class Part01ControllerTest {
         when(step17Controller.getStepNumber()).thenReturn(17);
         when(step18Controller.getStepNumber()).thenReturn(18);
         when(step19Controller.getStepNumber()).thenReturn(19);
+        when(step20Controller.getStepNumber()).thenReturn(20);
+        when(step21Controller.getStepNumber()).thenReturn(21);
 
         instance.execute(listener, j1939, reportFileModule);
 
@@ -295,7 +307,9 @@ public class Part01ControllerTest {
                 step16Controller,
                 step17Controller,
                 step18Controller,
-                step19Controller);
+                step19Controller,
+                step20Controller,
+                step21Controller);
         inOrder.verify(step01Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step02Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step03Controller).run(any(ResultsListener.class), eq(j1939));
@@ -315,6 +329,8 @@ public class Part01ControllerTest {
         inOrder.verify(step17Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step18Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step19Controller).run(any(ResultsListener.class), eq(j1939));
+        inOrder.verify(step20Controller).run(any(ResultsListener.class), eq(j1939));
+        inOrder.verify(step21Controller).run(any(ResultsListener.class), eq(j1939));
 
         verify(partResultFactory).create(1);
         verify(vehicleInformationModule).setJ1939(j1939);
@@ -339,6 +355,8 @@ public class Part01ControllerTest {
         verify(step17Controller).getStepNumber();
         verify(step18Controller).getStepNumber();
         verify(step19Controller).getStepNumber();
+        verify(step20Controller).getStepNumber();
+        verify(step21Controller).getStepNumber();
 
         assertEquals(expectedMilestones.toString(), listener.getMilestones());
         assertEquals(expectedMessages.toString(), listener.getMessages());

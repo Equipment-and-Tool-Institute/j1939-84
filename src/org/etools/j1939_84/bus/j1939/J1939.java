@@ -33,6 +33,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacke
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
@@ -195,6 +196,9 @@ public class J1939 {
 
         case DM26TripDiagnosticReadinessPacket.PGN:
             return new DM26TripDiagnosticReadinessPacket(packet);
+
+        case DM27AllPendingDTCsPacket.PGN:
+            return new DM27AllPendingDTCsPacket(packet);
 
         case DM28PermanentEmissionDTCPacket.PGN:
             return new DM28PermanentEmissionDTCPacket(packet);
@@ -563,16 +567,10 @@ public class J1939 {
      *            PGN for the packet to be requested
      * @param requestPacket
      *            the {@link Packet} to send that will generate the responses
-     * @param timeout
-     *            the maximum time to wait for responses
-     * @param unit
-     *            the {@link TimeUnit} of the timeout
      * @return a {@link Stream} containing {@link ParsedPacket}
      */
     public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> requestRaw(Class<T> T,
-            Packet requestPacket,
-            long timeout,
-            TimeUnit unit) {
+            Packet requestPacket) {
         return requestResult(T, requestPacket).getEither().stream();
     }
 

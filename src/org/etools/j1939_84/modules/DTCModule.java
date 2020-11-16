@@ -25,6 +25,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
@@ -92,6 +93,18 @@ public class DTCModule extends FunctionalModule {
         return new RequestResult<>(false, packets, Collections.emptyList());
     }
 
+    public RequestResult<DM28PermanentEmissionDTCPacket> reportDM28(ResultsListener listener, int address) {
+        Packet request = getJ1939().createRequestPacket(DM28PermanentEmissionDTCPacket.PGN, address);
+
+        String title = address == GLOBAL_ADDR ? "Global DM28 Request"
+                : "Destination Specific DM28 Request to " + Lookup.getAddressName(address);
+
+        return generateReport(listener,
+                title,
+                DM28PermanentEmissionDTCPacket.class,
+                request);
+    }
+
     /**
      * Send Global DM11 Request and generates a {@link String} that's suitable
      * for inclusion in the report
@@ -132,9 +145,7 @@ public class DTCModule extends FunctionalModule {
         // FIXME, where did 5.5 s come from?
         List<Either<DM11ClearActiveDTCsPacket, AcknowledgmentPacket>> results = getJ1939()
                 .requestRaw(DM11ClearActiveDTCsPacket.class,
-                        requestPacket,
-                        5500,
-                        TimeUnit.MILLISECONDS)
+                        requestPacket)
                 .collect(Collectors.toList());
 
         listener.onResult(results.stream().map(e -> e.right)
@@ -351,6 +362,39 @@ public class DTCModule extends FunctionalModule {
     }
 
     /**
+     * Requests global DM27 and generates a {@link String} that's suitable for
+     * inclusion in the report
+     *
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public RequestResult<DM27AllPendingDTCsPacket> requestDM27(ResultsListener listener, boolean fullString) {
+        String title = "Global DM27 Request";
+
+        return getPacketsFromGlobal(title, DM27AllPendingDTCsPacket.PGN, DM27AllPendingDTCsPacket.class,
+                listener, fullString);
+    }
+
+    /**
+     * Requests destination specific DM27 and generates a {@link String} that's
+     * suitable for inclusion in the report
+     *
+     * @param listener
+     *            the {@link ResultsListener} that will be given the report
+     * @return true if there were any DTCs returned
+     */
+    public BusResult<DM27AllPendingDTCsPacket> requestDM27(ResultsListener listener, boolean fullString,
+            int address) {
+        return getPacketDS("Destination Specific DM27 Request to " + Lookup.getAddressName(address),
+                DM27AllPendingDTCsPacket.PGN,
+                DM27AllPendingDTCsPacket.class,
+                listener,
+                fullString,
+                address);
+    }
+
+    /**
      * Requests global DM28 and generates a {@link String} that's suitable for
      * inclusion in the report
      *
@@ -358,8 +402,11 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener) {
-        return requestDM28(listener, GLOBAL_ADDR);
+    public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener, boolean fullString) {
+        String title = "Global DM28 Request";
+
+        return getPacketsFromGlobal(title, DM28PermanentEmissionDTCPacket.PGN, DM28PermanentEmissionDTCPacket.class,
+                listener, fullString);
     }
 
     /**
@@ -370,16 +417,14 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener, int address) {
-        Packet request = getJ1939().createRequestPacket(DM28PermanentEmissionDTCPacket.PGN, address);
-
-        String title = address == GLOBAL_ADDR ? "Global DM28 Request"
-                : "Destination Specific DM28 Request to " + Lookup.getAddressName(address);
-
-        return generateReport(listener,
-                title,
+    public BusResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener, boolean fullString,
+            int address) {
+        return getPacketDS("Destination Specific DM28 Request to " + Lookup.getAddressName(address),
+                DM28PermanentEmissionDTCPacket.PGN,
                 DM28PermanentEmissionDTCPacket.class,
-                request);
+                listener,
+                fullString,
+                address);
     }
 
     /**
@@ -518,9 +563,7 @@ public class DTCModule extends FunctionalModule {
 
         RequestResult<DM6PendingEmissionDTCPacket> result = new RequestResult<>(false, getJ1939()
                 .requestRaw(DM6PendingEmissionDTCPacket.class,
-                        request,
-                        5500,
-                        TimeUnit.MILLISECONDS)
+                        request)
                 .collect(Collectors.toList()));
         listener.onResult(result.getPackets().stream().map(getPacketMapperFunction()).collect(Collectors.toList()));
 

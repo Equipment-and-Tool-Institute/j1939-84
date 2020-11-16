@@ -13,7 +13,7 @@ import org.etools.j1939_84.bus.Packet;
  *
  */
 public class DM12MILOnEmissionDTCPacket extends DiagnosticTroubleCodePacket {
-    public static final int PGN = 65236;
+    public static final int PGN = 65236; // 0x00FED4
 
     public DM12MILOnEmissionDTCPacket(Packet packet) {
         super(packet);
