@@ -178,9 +178,14 @@ public class Engine implements AutoCloseable {
                 () -> Packet.create(DM12MILOnEmissionDTCPacket.PGN, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
         // DM23
         sim.response(p -> isRequestFor(64949, p), () -> Packet.create(64949, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
+
         // DM27
         sim.response(p -> isRequestFor(DM27AllPendingDTCsPacket.PGN, p),
-                () -> Packet.create(DM27AllPendingDTCsPacket.PGN, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                () -> Packet.create(DM27AllPendingDTCsPacket.PGN, ADDR, 0x03, 0xFF, 0x66, 0x00, 0x04, 0x01, 0xFF,
+                        0xFF));
+        sim.response(p -> isRequestFor(DM27AllPendingDTCsPacket.PGN, p),
+                () -> Packet.create(DM27AllPendingDTCsPacket.PGN, ADDR, 0x43, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF,
+                        0xFF));
         // DM28
         sim.response(p -> isRequestFor(DM28PermanentEmissionDTCPacket.PGN, p),
                 () -> Packet.create(DM28PermanentEmissionDTCPacket.PGN,
