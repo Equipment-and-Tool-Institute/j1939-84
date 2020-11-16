@@ -5,8 +5,6 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -132,7 +130,7 @@ public abstract class FunctionalModule {
         // Try three times to get packets and ensure there's one from the module
         Optional<Either<T, AcknowledgmentPacket>> packet = Optional.empty();
         for (int i = 0; i < 3; i++) {
-            packet = getJ1939().requestRaw(clazz, request).findFirst();
+            packet = getJ1939().requestResult(clazz, request).getEither().stream().findFirst();
             if (packet
                     .map(o -> o.resolve(
                             // there was a packet
@@ -195,25 +193,13 @@ public abstract class FunctionalModule {
             listener.onResult(getTime() + " " + request.toString());
         }
 
-        boolean retryUsed = false;
-
-        // Try three times to get packets and ensure there's one from the engine
-        List<Either<T, AcknowledgmentPacket>> packets = new ArrayList<>();
-        for (int i = 0; i < 3; i++) {
-            packets = getJ1939().requestRaw(clazz, request).collect(Collectors.toList());
-            if (packets.isEmpty()) {
-                retryUsed = true;
-            } else {
-                // The something responded, report the results
-                break;
-            }
-        }
+        RequestResult<T> result = getJ1939().requestGlobal(clazz, request);
 
         if (listener != null) {
-            if (packets.isEmpty()) {
+            if (result.getEither().isEmpty()) {
                 listener.onResult(TIMEOUT_MESSAGE);
             } else {
-                for (Either<T, AcknowledgmentPacket> packet : packets) {
+                for (Either<T, AcknowledgmentPacket> packet : result.getEither()) {
                     ParsedPacket pp = packet.resolve();
                     listener.onResult(pp.getPacket().toString(getDateTimeModule().getTimeFormatter()));
                     if (fullString) {
@@ -222,7 +208,7 @@ public abstract class FunctionalModule {
                 }
             }
         }
-        return new RequestResult<>(retryUsed, packets);
+        return result;
     }
 
     /**

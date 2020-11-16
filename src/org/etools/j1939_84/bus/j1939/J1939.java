@@ -522,10 +522,10 @@ public class J1939 {
     }
 
     public <T extends ParsedPacket> RequestResult<T> requestGlobalResult(Class<T> clas) {
-        return requestGlobalResult(clas, createRequestPacket(getPgn(clas), GLOBAL_ADDR));
+        return requestGlobal(clas, createRequestPacket(getPgn(clas), GLOBAL_ADDR));
     }
 
-    public <T extends ParsedPacket> RequestResult<T> requestGlobalResult(Class<T> T,
+    public <T extends ParsedPacket> RequestResult<T> requestGlobal(Class<T> T,
             Packet requestPacket) {
         if (requestPacket.getDestination() != 0xFF) {
             throw new IllegalArgumentException("Request not to global.");
@@ -568,15 +568,18 @@ public class J1939 {
      * @param requestPacket
      *            the {@link Packet} to send that will generate the responses
      * @return a {@link Stream} containing {@link ParsedPacket}
+     * @deprecated
      */
+    @Deprecated
     public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> requestRaw(Class<T> T,
             Packet requestPacket) {
         return requestResult(T, requestPacket).getEither().stream();
     }
 
+    /** Should we encourage this or requestGlobal and requestDS?? */
     public <T extends ParsedPacket> RequestResult<T> requestResult(Class<T> clazz, Packet request) {
         return (request.getDestination() == 0xFF)
-                ? requestGlobalResult(clazz, request)
+                ? requestGlobal(clazz, request)
                 : requestDS(clazz, request).requestResult();
     }
 

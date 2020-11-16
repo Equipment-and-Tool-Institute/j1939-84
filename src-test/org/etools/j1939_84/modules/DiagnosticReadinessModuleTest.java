@@ -19,9 +19,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
-import java.util.stream.Stream;
 
-import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
@@ -32,6 +30,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.RequestResult;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -122,8 +121,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM20MonitorPerformanceRatioPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM20 Request" + NL;
@@ -136,7 +135,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM20MonitorPerformanceRatioPacket.class, requestPacket);
     }
 
     @Test
@@ -146,10 +145,8 @@ public class DiagnosticReadinessModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
-        when(j1939.requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket))
-                .thenReturn(Stream.empty())
-                .thenReturn(Stream.empty())
-                .thenReturn(Stream.empty());
+        when(j1939.requestGlobal(DM20MonitorPerformanceRatioPacket.class, requestPacket))
+                .thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Global DM20 Request" + NL;
@@ -159,8 +156,8 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939, times(3))
-                .requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket);
+        verify(j1939)
+                .requestGlobal(DM20MonitorPerformanceRatioPacket.class, requestPacket);
     }
 
     @Test
@@ -176,8 +173,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM20MonitorPerformanceRatioPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM20 Request" + NL;
@@ -205,7 +202,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM20MonitorPerformanceRatioPacket.class, requestPacket);
     }
 
     @Test
@@ -221,8 +218,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM20MonitorPerformanceRatioPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM20 Request" + NL;
@@ -250,7 +247,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM20MonitorPerformanceRatioPacket.class, requestPacket);
     }
 
     @Test
@@ -266,14 +263,14 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM20MonitorPerformanceRatioPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         List<DM20MonitorPerformanceRatioPacket> packets = instance.getDM20Packets(null, false);
         assertEquals(3, packets.size());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM20MonitorPerformanceRatioPacket.class, requestPacket);
     }
 
     @Test
@@ -285,8 +282,8 @@ public class DiagnosticReadinessModuleTest {
 
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestResult(DM21DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM21 Request" + NL;
@@ -297,7 +294,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0x21);
-        verify(j1939).requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestResult(DM21DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -307,9 +304,8 @@ public class DiagnosticReadinessModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0x17, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0x17)).thenReturn(requestPacket);
 
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.empty())
-                .thenReturn(Stream.empty()).thenReturn(Stream.empty());
+        when(j1939.requestResult(DM21DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM21 Request" + NL;
@@ -320,7 +316,7 @@ public class DiagnosticReadinessModuleTest {
 
         verify(j1939).createRequestPacket(pgn, 0x17);
         verify(j1939, times(3))
-                .requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket);
+                .requestResult(DM21DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -332,8 +328,8 @@ public class DiagnosticReadinessModuleTest {
 
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestResult(DM21DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Destination Specific DM21 Request" + NL;
@@ -350,7 +346,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0x21);
-        verify(j1939).requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestResult(DM21DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -366,8 +362,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM26TripDiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM26 Request" + NL;
@@ -379,7 +375,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM26TripDiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -388,9 +384,8 @@ public class DiagnosticReadinessModuleTest {
 
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
-        when(j1939.requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.empty())
-                .thenReturn(Stream.empty()).thenReturn(Stream.empty());
+        when(j1939.requestGlobal(DM26TripDiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Global DM26 Request" + NL;
@@ -400,8 +395,8 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939, times(3))
-                .requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939)
+                .requestGlobal(DM26TripDiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -417,8 +412,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM26TripDiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM26 Request" + NL;
@@ -434,7 +429,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM26TripDiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -450,8 +445,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM26TripDiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM26 Request" + NL;
@@ -467,7 +462,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM26TripDiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -483,14 +478,14 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM26TripDiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         List<DM26TripDiagnosticReadinessPacket> packets = instance.getDM26Packets(null, false);
         assertEquals(3, packets.size());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM26TripDiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -506,8 +501,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM5 Request" + NL;
@@ -526,7 +521,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -542,8 +537,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM5 Request" + NL;
@@ -556,7 +551,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -566,9 +561,8 @@ public class DiagnosticReadinessModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
-        when(j1939.requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.empty())
-                .thenReturn(Stream.empty()).thenReturn(Stream.empty());
+        when(j1939.requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Global DM5 Request" + NL;
@@ -578,8 +572,8 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939, times(3))
-                .requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939)
+                .requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -595,8 +589,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM5 Request" + NL;
@@ -615,7 +609,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -631,14 +625,14 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         List<DM5DiagnosticReadinessPacket> packets = instance.getDM5Packets(null, false);
         assertEquals(3, packets.size());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -732,8 +726,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 19, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet11, packet2, packet22, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet11, packet2, packet22, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM5 Request" + NL;
@@ -754,7 +748,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -844,8 +838,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM20MonitorPerformanceRatioPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM20 Request" + NL;
@@ -873,7 +867,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM20MonitorPerformanceRatioPacket.class, requestPacket);
     }
 
     @Test
@@ -882,9 +876,8 @@ public class DiagnosticReadinessModuleTest {
 
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
-        when(j1939.requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket))
-                .thenReturn(Stream.empty())
-                .thenReturn(Stream.empty()).thenReturn(Stream.empty());
+        when(j1939.requestGlobal(DM20MonitorPerformanceRatioPacket.class, requestPacket))
+                .thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Global DM20 Request" + NL;
@@ -894,8 +887,8 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939, times(3))
-                .requestRaw(DM20MonitorPerformanceRatioPacket.class, requestPacket);
+        verify(j1939)
+                .requestGlobal(DM20MonitorPerformanceRatioPacket.class, requestPacket);
     }
 
     @Test
@@ -911,8 +904,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x77, 0x88));
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x77, 0x88));
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM21 Request" + NL;
@@ -943,7 +936,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -955,8 +948,8 @@ public class DiagnosticReadinessModuleTest {
 
         DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
         expected += "10:15:30.000 Global DM21 Request" + NL;
@@ -974,7 +967,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, message);
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM21DiagnosticReadinessPacket.class,
+        verify(j1939).requestGlobal(DM21DiagnosticReadinessPacket.class,
                 requestPacket);
     }
 
@@ -987,8 +980,8 @@ public class DiagnosticReadinessModuleTest {
 
         DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
         expected += "10:15:30.000 Global DM21 Request" + NL;
@@ -1005,7 +998,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -1014,9 +1007,8 @@ public class DiagnosticReadinessModuleTest {
 
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.empty())
-                .thenReturn(Stream.empty()).thenReturn(Stream.empty());
+        when(j1939.requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Global DM21 Request" + NL;
@@ -1026,8 +1018,8 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939, times(3))
-                .requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939)
+                .requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -1039,13 +1031,13 @@ public class DiagnosticReadinessModuleTest {
 
         DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x00, 0x00));
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1));
 
         instance.reportDM21(listener);
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -1061,8 +1053,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM26TripDiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM26 Request" + NL;
@@ -1096,7 +1088,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM26TripDiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -1105,9 +1097,8 @@ public class DiagnosticReadinessModuleTest {
 
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-        when(j1939.requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.empty())
-                .thenReturn(Stream.empty()).thenReturn(Stream.empty());
+        when(j1939.requestGlobal(DM26TripDiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Global DM26 Request" + NL;
@@ -1117,8 +1108,8 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(3))
-                .requestRaw(DM26TripDiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939)
+                .requestGlobal(DM26TripDiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -1134,8 +1125,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM5 Request" + NL;
@@ -1172,7 +1163,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -1181,9 +1172,8 @@ public class DiagnosticReadinessModuleTest {
 
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-        when(j1939.requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.empty())
-                .thenReturn(Stream.empty()).thenReturn(Stream.empty());
+        when(j1939.requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Global DM5 Request" + NL;
@@ -1193,8 +1183,8 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(3))
-                .requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939)
+                .requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -1399,8 +1389,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM21 Request" + NL;
@@ -1413,7 +1403,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -1423,9 +1413,8 @@ public class DiagnosticReadinessModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
 
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.empty())
-                .thenReturn(Stream.empty()).thenReturn(Stream.empty());
+        when(j1939.requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Global DM21 Request" + NL;
@@ -1435,8 +1424,8 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(3))
-                .requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939)
+                .requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -1452,8 +1441,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM21 Request" + NL;
@@ -1484,7 +1473,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -1500,8 +1489,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM21 Request" + NL;
@@ -1532,7 +1521,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).requestRaw(DM21DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM21DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -1548,8 +1537,8 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(j1939.requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket))
-                .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
+        when(j1939.requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
         expected += "10:15:30.000 Global DM5 Request" + NL;
@@ -1586,7 +1575,7 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM5DiagnosticReadinessPacket.class, requestPacket);
+        verify(j1939).requestGlobal(DM5DiagnosticReadinessPacket.class, requestPacket);
     }
 
     @Test
@@ -1595,10 +1584,9 @@ public class DiagnosticReadinessModuleTest {
 
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0xFF)).thenReturn(requestPacket);
-        when(j1939.requestRaw(DM5DiagnosticReadinessPacket.class,
+        when(j1939.requestGlobal(DM5DiagnosticReadinessPacket.class,
                 requestPacket))
-                        .thenReturn(Stream.empty())
-                        .thenReturn(Stream.empty()).thenReturn(Stream.empty());
+                        .thenReturn(RequestResult.empty());
 
         String expected = "";
         expected += "10:15:30.000 Global DM5 Request" + NL;
@@ -1608,8 +1596,8 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(3))
-                .requestRaw(DM5DiagnosticReadinessPacket.class,
+        verify(j1939)
+                .requestGlobal(DM5DiagnosticReadinessPacket.class,
                         requestPacket);
     }
 }

@@ -322,7 +322,7 @@ public class J1939Test {
                 .thenReturn(Stream.empty()).thenReturn(Stream.empty());
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
         Stream<VehicleIdentificationPacket> response = instance
-                .requestGlobalResult(VehicleIdentificationPacket.class, request).getEither().stream()
+                .requestGlobal(VehicleIdentificationPacket.class, request).getEither().stream()
                 .flatMap(e -> e.left.stream());
         assertEquals(0, response.count());
         verify(bus, times(1)).send(request);
@@ -342,7 +342,7 @@ public class J1939Test {
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
 
         Stream<VehicleIdentificationPacket> response = instance
-                .requestGlobalResult(VehicleIdentificationPacket.class, request).getEither().stream()
+                .requestGlobal(VehicleIdentificationPacket.class, request).getEither().stream()
                 .flatMap(e -> e.left.stream());
         List<VehicleIdentificationPacket> packets = response.collect(Collectors.toList());
         assertEquals(1, packets.size());
@@ -363,7 +363,7 @@ public class J1939Test {
         Packet requestPacket = instance.createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
 
         List<AcknowledgmentPacket> responses = instance
-                .requestGlobalResult(DM11ClearActiveDTCsPacket.class, requestPacket).getEither().stream()
+                .requestGlobal(DM11ClearActiveDTCsPacket.class, requestPacket).getEither().stream()
                 .map(e -> (AcknowledgmentPacket) e.resolve())
                 .collect(Collectors.toList());
         assertEquals(2, responses.size());
@@ -390,7 +390,7 @@ public class J1939Test {
 
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
         Stream<VehicleIdentificationPacket> response = instance
-                .requestGlobalResult(VehicleIdentificationPacket.class, request).getEither().stream()
+                .requestGlobal(VehicleIdentificationPacket.class, request).getEither().stream()
                 .flatMap(e -> e.left.stream());
         List<VehicleIdentificationPacket> packets = response.collect(Collectors.toList());
         assertEquals(3, packets.size());
