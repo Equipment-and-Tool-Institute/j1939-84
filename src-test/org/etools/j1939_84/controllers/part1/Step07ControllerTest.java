@@ -5,7 +5,6 @@ package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.PASS;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -63,11 +62,6 @@ public class Step07ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 1;
 
     private static final int STEP_NUMBER = 7;
-
-    private static DM19CalibrationInformationPacket createDM19(int sourceAddress, String calId, String cvn)
-            throws UnsupportedEncodingException {
-        return createDM19(sourceAddress, calId, cvn, 1);
-    }
 
     private static DM19CalibrationInformationPacket createDM19(int sourceAddress, String calId, String cvn, int count)
             throws UnsupportedEncodingException {
@@ -171,7 +165,7 @@ public class Step07ControllerTest extends AbstractControllerTest {
     public void testRunHappyPath() throws Throwable {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
-        DM19CalibrationInformationPacket dm19 = createDM19(0, "CALID", "1234");
+        DM19CalibrationInformationPacket dm19 = createDM19(0, "CALID", "1234", 0);
 
         globalDM19s.add(dm19);
         when(vehicleInformationModule.reportCalibrationInformation(any())).thenReturn(globalDM19s);
@@ -180,6 +174,8 @@ public class Step07ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
 
         VehicleInformation vehicleInformation = new VehicleInformation();
+        System.out.println("vehicleInformation.getCalIds()" + vehicleInformation.getCalIds());
+        System.out.println("dm19.getCalibrationInformation().size()" + dm19.getCalibrationInformation().size());
         vehicleInformation.setEmissionUnits(1);
 
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
@@ -195,36 +191,11 @@ public class Step07ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.7.3.a" + NL);
-        expectedResults.append("PASS: 6.1.7.3.b" + NL)
-                .append("PASS: 6.1.7.2.b.i" + NL)
-                .append("PASS: 6.1.7.2.b.ii" + NL)
-                .append("PASS: 6.1.7.2.b.iii" + NL)
-                .append("PASS: 6.1.7.3.c.i" + NL)
-                .append("PASS: 6.1.7.3.c.ii" + NL)
-                .append("PASS: 6.1.7.3.c.iii" + NL)
-                .append("PASS: 6.1.7.3.c.iv" + NL)
-                .append("PASS: 6.1.7.5.a" + NL)
-                .append("PASS: 6.1.7.5.b" + NL)
-                .append("PASS: 6.1.7.5.c" + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(dataRepository, times(2)).getObdModule(0);
         verify(dataRepository).getVehicleInformation();
         verify(dataRepository).getObdModuleAddresses();
-
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.3.a");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.3.b");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.2.b.i");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.2.b.ii");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.2.b.iii");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.3.c.i");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.3.c.ii");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.3.c.iii");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.3.c.iv");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.5.a");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.5.b");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.5.c");
 
         verify(moduleInfo).setCalibrationInformation(dm19.getCalibrationInformation());
 
@@ -244,6 +215,7 @@ public class Step07ControllerTest extends AbstractControllerTest {
         when(vehicleInformationModule.reportCalibrationInformation(any())).thenReturn(globalDM19s);
 
         VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setCalIds(5);
         vehicleInformation.setEmissionUnits(1);
 
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
@@ -258,32 +230,10 @@ public class Step07ControllerTest extends AbstractControllerTest {
         StringBuilder expectedResults = new StringBuilder(
                 "FAIL: 6.1.7.2.a Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units"
                         + NL);
-        expectedResults.append("PASS: 6.1.7.3.b" + NL)
-                .append("PASS: 6.1.7.2.b.i" + NL)
-                .append("PASS: 6.1.7.2.b.ii" + NL)
-                .append("PASS: 6.1.7.2.b.iii" + NL)
-                .append("PASS: 6.1.7.3.c.i" + NL)
-                .append("PASS: 6.1.7.3.c.ii" + NL)
-                .append("PASS: 6.1.7.3.c.iii" + NL)
-                .append("PASS: 6.1.7.3.c.iv" + NL)
-                .append("PASS: 6.1.7.5.a" + NL)
-                .append("PASS: 6.1.7.5.b" + NL)
-                .append("PASS: 6.1.7.5.c" + NL);
         assertEquals(expectedResults.toString(), listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.7.2.a Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.3.b");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.2.b.i");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.2.b.ii");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.2.b.iii");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.3.c.i");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.3.c.ii");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.3.c.iii");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.3.c.iv");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.5.a");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.5.b");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.7.5.c");
 
         verify(vehicleInformationModule).reportCalibrationInformation(any());
         verify(dataRepository).getVehicleInformation();
@@ -314,29 +264,29 @@ public class Step07ControllerTest extends AbstractControllerTest {
         globalDM19s.add(dm190A);
 
         // Module 0B - Missing CalId and Different DS value as OBD Module
-        DM19CalibrationInformationPacket dm190B = createDM19(0x0B, "", "1234");
+        DM19CalibrationInformationPacket dm190B = createDM19(0x0B, "", "1234", 1);
         globalDM19s.add(dm190B);
 
         // Module 1B - Missing CVN as non-OBD Module
-        DM19CalibrationInformationPacket dm191B = createDM19(0x1B, "", "1234");
+        DM19CalibrationInformationPacket dm191B = createDM19(0x1B, "", "1234", 1);
         globalDM19s.add(dm191B);
 
         // Module 0C - Missing CVN as OBD Module
-        DM19CalibrationInformationPacket dm190C = createDM19(0x0C, "CALID", "");
+        DM19CalibrationInformationPacket dm190C = createDM19(0x0C, "CALID", "", 1);
         globalDM19s.add(dm190C);
 
         // Module 1C - Missing CVN as non-OBD Module
-        DM19CalibrationInformationPacket dm191C = createDM19(0x1C, "CALID", "");
+        DM19CalibrationInformationPacket dm191C = createDM19(0x1C, "CALID", "", 1);
         globalDM19s.add(dm191C);
 
         // Module 0D - NonPrintable Chars, padded incorrectly in CalId as OBD
         // Module Also reports BUSY with DS
-        DM19CalibrationInformationPacket dm190D = createDM19(0x0D, "CALID\u0000F", "1234");
+        DM19CalibrationInformationPacket dm190D = createDM19(0x0D, "CALID\u0000F", "1234", 1);
         globalDM19s.add(dm190D);
 
         // Module 1D - Non-Printable Chars, padded incorrectly in CalId as
         // non-OBD Module
-        DM19CalibrationInformationPacket dm191D = createDM19(0x1D, "CALID\u0000F", "1234");
+        DM19CalibrationInformationPacket dm191D = createDM19(0x1D, "CALID\u0000F", "1234", 1);
         globalDM19s.add(dm191D);
 
         Packet packet0E = Packet.create(0,
@@ -416,7 +366,7 @@ public class Step07ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0A)))
                 .thenReturn(new BusResult<>(true, dm190A));
-        DM19CalibrationInformationPacket dm190B2 = createDM19(0x0B, "ABCD", "1234");
+        DM19CalibrationInformationPacket dm190B2 = createDM19(0x0B, "ABCD", "1234", 1);
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0B)))
                 .thenReturn(new BusResult<>(false, dm190B2));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1B)))
@@ -433,7 +383,7 @@ public class Step07ControllerTest extends AbstractControllerTest {
                 .thenReturn(new BusResult<>(false, dm190E));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1E)))
                 .thenReturn(new BusResult<>(false, dm191E));
-        DM19CalibrationInformationPacket dm190F = createDM19(0x0F, "ABCD", "1234");
+        DM19CalibrationInformationPacket dm190F = createDM19(0x0F, "ABCD", "1234", 1);
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0F)))
                 .thenReturn(new BusResult<>(false, dm190F));
 
