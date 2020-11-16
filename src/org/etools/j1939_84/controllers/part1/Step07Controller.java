@@ -72,29 +72,17 @@ public class Step07Controller extends StepController {
         } else if (calIds.size() > expectedCalIdCount) {
             addWarning(PART_NUMBER, STEP_NUMBER,
                     "6.1.7.3.a Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units");
-        } else {
-            addPass(PART_NUMBER, STEP_NUMBER, "6.1.7.3.a");
         }
 
-        boolean passed6172bi = true;
-        boolean passed6172bii = true;
-        boolean passed6172biii = true;
-        boolean passed6173b = true;
-        boolean passed6173ci = true;
-        boolean passed6173cii = true;
-        boolean passed6173ciii = true;
-        boolean passed6173civ = true;
         for (DM19CalibrationInformationPacket packet : globalDM19s) {
             boolean isObdModule = dataRepository.getObdModule(packet.getSourceAddress()) != null;
             List<CalibrationInformation> calInfoList = packet.getCalibrationInformation();
             if (calInfoList.size() > 1) {
                 addWarning(PART_NUMBER, STEP_NUMBER,
                         "6.1.7.3.b More than one CAL ID and CVN pair is provided in a single DM19 message");
-                passed6173b = false;
             }
             if (!isObdModule && calInfoList.size() > 0) {
                 addWarning(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.i Warn if any non-OBD ECU provides CAL ID");
-                passed6173ci = false;
             }
 
             for (CalibrationInformation calInfo : calInfoList) {
@@ -103,21 +91,17 @@ public class Step07Controller extends StepController {
                 if (calId.isEmpty() || cvn.isEmpty()) {
                     if (isObdModule) {
                         addFailure(PART_NUMBER, STEP_NUMBER, "6.1.7.2.b.i <> 1 CVN for every CAL ID");
-                        passed6172bi = false;
                     } else {
                         addWarning(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.ii <> 1 CVN for every CAL ID");
-                        passed6173cii = false;
                     }
                 }
                 if (StringUtils.containsNonPrintableAsciiCharacter(calId)) {
                     if (isObdModule) {
                         addFailure(PART_NUMBER, STEP_NUMBER,
                                 "6.1.7.2.b.ii CAL ID not formatted correctly (contains non-printable ASCII)");
-                        passed6172bii = false;
                     } else {
                         addWarning(PART_NUMBER, STEP_NUMBER,
                                 "6.1.7.3.c.iii Warn if CAL ID not formatted correctly (contains non-printable ASCII)");
-                        passed6173ciii = false;
                     }
                 }
 
@@ -130,11 +114,9 @@ public class Step07Controller extends StepController {
                         if (isObdModule) {
                             addFailure(PART_NUMBER, STEP_NUMBER,
                                     "6.1.7.2.b.ii CAL ID not formatted correctly (padded incorrectly)");
-                            passed6172bii = false;
                         } else {
                             addWarning(PART_NUMBER, STEP_NUMBER,
                                     "6.1.7.3.c.iii CAL ID not formatted correctly (padded incorrectly)");
-                            passed6173ciii = false;
                         }
                         break;
                     }
@@ -150,10 +132,8 @@ public class Step07Controller extends StepController {
                 if (allFF) {
                     if (isObdModule) {
                         addFailure(PART_NUMBER, STEP_NUMBER, "6.1.7.2.b.iii Received CAL ID is all 0xFF");
-                        passed6172biii = false;
                     } else {
                         addWarning(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.iv Received CAL ID is all 0xFF");
-                        passed6173civ = false;
                     }
                 }
                 byte[] rawCvn = calInfo.getRawCvn();
@@ -167,10 +147,8 @@ public class Step07Controller extends StepController {
                 if (allZeros) {
                     if (isObdModule) {
                         addFailure(PART_NUMBER, STEP_NUMBER, "6.1.7.2.b.iii Received CVN is all 0x00");
-                        passed6172biii = false;
                     } else {
                         addFailure(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.iv Received CVN is all 0x00");
-                        passed6173civ = false;
                     }
                 }
                 // TODO 6.1.7.2.b.iv. Fail if CVN padded incorrectly (must use
@@ -179,30 +157,7 @@ public class Step07Controller extends StepController {
                 // 0x00 in MSB for unused bytes)
             }
         }
-        if (passed6173b) {
-            addPass(PART_NUMBER, STEP_NUMBER, "6.1.7.3.b");
-        }
-        if (passed6172bi) {
-            addPass(PART_NUMBER, STEP_NUMBER, "6.1.7.2.b.i");
-        }
-        if (passed6172bii) {
-            addPass(PART_NUMBER, STEP_NUMBER, "6.1.7.2.b.ii");
-        }
-        if (passed6172biii) {
-            addPass(PART_NUMBER, STEP_NUMBER, "6.1.7.2.b.iii");
-        }
-        if (passed6173ci) {
-            addPass(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.i");
-        }
-        if (passed6173cii) {
-            addPass(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.ii");
-        }
-        if (passed6173ciii) {
-            addPass(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.iii");
-        }
-        if (passed6173civ) {
-            addPass(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.iv");
-        }
+
         // 6.1.7.4.a. Destination Specific (DS) DM19 to each OBD ECU (plus all
         // ECUs that responded to global DM19).
         boolean[] passed6175a = { true };
@@ -232,18 +187,11 @@ public class Step07Controller extends StepController {
                 passed6175b[0] = false;
             }
         });
-        if (passed6175a[0]) {
-            addPass(PART_NUMBER, STEP_NUMBER, "6.1.7.5.a");
-        }
-        if (passed6175b[0]) {
-            addPass(PART_NUMBER, STEP_NUMBER, "6.1.7.5.b");
-        }
 
         Set<Integer> globalAddresses = globalDM19s.stream().map(p -> p.getSourceAddress()).collect(Collectors.toSet());
         List<Integer> obdAddresses = dataRepository.getObdModuleAddresses();
         obdAddresses.removeAll(globalAddresses);
 
-        boolean passed6175c = true;
         for (int address : obdAddresses) {
             BusResult<DM19CalibrationInformationPacket> results = getVehicleInformationModule()
                     .reportCalibrationInformation(
@@ -256,10 +204,6 @@ public class Step07Controller extends StepController {
                             7,
                             Outcome.FAIL,
                             "6.1.7.5.c NACK not received from OBD ECU that did not respond to global query"));
-            passed6175c = false;
-        }
-        if (passed6175c) {
-            addPass(PART_NUMBER, STEP_NUMBER, "6.1.7.5.c");
         }
     }
 }
