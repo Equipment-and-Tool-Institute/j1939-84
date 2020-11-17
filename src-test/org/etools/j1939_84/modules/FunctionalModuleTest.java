@@ -22,7 +22,7 @@ public class FunctionalModuleTest {
 
     @Before
     public void setUp() throws Exception {
-        instance = new FunctionalModule(new TestDateTimeModule()) {
+        instance = new FunctionalModule() {
         };
     }
 
@@ -35,7 +35,7 @@ public class FunctionalModuleTest {
 
     @Test
     public void testGetTime() {
-        assertEquals("10:15:30.000", instance.getTime());
+        assertEquals("10:15:30.0000", instance.getTime());
     }
 
     @Test

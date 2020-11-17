@@ -28,11 +28,9 @@ import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
-import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.junit.After;
@@ -95,8 +93,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
     @Mock
     private DataRepository dataRepository;
 
-    private DateTimeModule dateTimeModule;
-
     @Mock
     private DiagnosticReadinessModule diagnosticReadinessModule;
 
@@ -131,12 +127,10 @@ public class Step11ControllerTest extends AbstractControllerTest {
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
-        dateTimeModule = new TestDateTimeModule();
 
         instance = new Step11Controller(executor,
                 engineSpeedModule,
                 bannerModule,
-                dateTimeModule,
                 diagnosticReadinessModule,
                 vehicleInformationModule,
                 partResultFactory,

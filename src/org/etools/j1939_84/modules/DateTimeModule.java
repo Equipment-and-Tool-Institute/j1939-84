@@ -22,8 +22,21 @@ import java.util.concurrent.TimeUnit;
  *
  */
 public class DateTimeModule {
+    private static DateTimeModule instance = new DateTimeModule();
+
+    public static DateTimeModule getInstance() {
+        return instance;
+    }
+
+    /** Only used by tests. */
+    public static void setInstance(DateTimeModule instance) {
+        DateTimeModule.instance = instance == null ? new DateTimeModule() : instance;
+    }
 
     private DateTimeFormatter timeFormatter;
+
+    protected DateTimeModule() {
+    }
 
     /**
      * Formats the given {@link TemporalAccessor} as a {@link String}

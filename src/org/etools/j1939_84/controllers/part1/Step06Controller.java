@@ -8,7 +8,6 @@ import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -22,13 +21,13 @@ public class Step06Controller extends StepController {
 
     Step06Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(), dataRepository);
+                new VehicleInformationModule(), new PartResultFactory(), dataRepository);
     }
 
     Step06Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-            DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
+            VehicleInformationModule vehicleInformationModule,
             PartResultFactory partResultFactory, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
                 PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }
@@ -60,12 +59,15 @@ public class Step06Controller extends StepController {
                 addFailure(1, 6, "6.1.6.2.c - Not formatted correctly");
             }
 
-            // TODO: See the citation for Karl Simon’s manufacturer guidance in 2.1.3.
-            // The description of the coding for engine model year is defined in CSID-07-03,
+            // TODO: See the citation for Karl Simon’s manufacturer guidance in
+            // 2.1.3.
+            // The description of the coding for engine model year is defined in
+            // CSID-07-03,
             // a manufacturer letter that is available from US EPA at
             // http://iaspub.epa.gov/otaqpub/publist_gl.jsp?guideyear=2007
             //
-            // d. Fail if MY designation in engine family (1st digit) does not match user MY
+            // d. Fail if MY designation in engine family (1st digit) does not
+            // match user MY
             // input.11
 
             String familyName = packet.getFamilyName();

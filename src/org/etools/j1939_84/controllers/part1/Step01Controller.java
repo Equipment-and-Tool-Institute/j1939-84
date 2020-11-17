@@ -11,7 +11,6 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -24,13 +23,13 @@ public class Step01Controller extends StepController {
 
     Step01Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(), dataRepository);
+                new VehicleInformationModule(), new PartResultFactory(), dataRepository);
     }
 
     Step01Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-            DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
+            VehicleInformationModule vehicleInformationModule,
             PartResultFactory partResultFactory, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
                 PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }
@@ -81,10 +80,11 @@ public class Step01Controller extends StepController {
     }
 
     /**
-     * Ensures the Key is on with the Engine Off and prompts the user to make the
-     * proper adjustments.
+     * Ensures the Key is on with the Engine Off and prompts the user to make
+     * the proper adjustments.
      *
-     * @throws InterruptedException if the user cancels the operation
+     * @throws InterruptedException
+     *             if the user cancels the operation
      */
     private void ensureKeyOnEngineOff() throws InterruptedException {
         try {

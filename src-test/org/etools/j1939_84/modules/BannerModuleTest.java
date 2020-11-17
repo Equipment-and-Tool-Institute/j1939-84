@@ -32,37 +32,38 @@ public class BannerModuleTest {
                 return "1.2.0";
             }
         };
+        DateTimeModule.setInstance(new TestDateTimeModule());
     }
 
     @Test
     public void testAborted() {
-        instance = new BannerModule(new TestDateTimeModule(), buildNumber);
-        String expected = "10:15:30.000 J1939-84 Tool Aborted" + NL;
+        instance = new BannerModule(buildNumber);
+        String expected = "10:15:30.0000 J1939-84 Tool Aborted" + NL;
         instance.reportAborted(listener);
         assertEquals(expected, listener.getResults());
     }
 
     @Test
     public void testFooter() {
-        instance = new BannerModule(new TestDateTimeModule(), buildNumber);
-        String expected = "10:15:30.000 J1939-84 Tool END OF REPORT" + NL;
+        instance = new BannerModule(buildNumber);
+        String expected = "10:15:30.0000 J1939-84 Tool END OF REPORT" + NL;
         instance.reportFooter(listener);
         assertEquals(expected, listener.getResults());
     }
 
     @Test
     public void testHeader() {
-        instance = new BannerModule(new TestDateTimeModule(), buildNumber);
+        instance = new BannerModule(buildNumber);
         String expected = "";
-        expected += "10:15:30.000 J1939-84 Tool version 1.2.0" + NL;
+        expected += "10:15:30.0000 J1939-84 Tool version 1.2.0" + NL;
         instance.reportHeader(listener);
         assertEquals(expected, listener.getResults());
     }
 
     @Test
     public void testStopped() {
-        instance = new BannerModule(new TestDateTimeModule(), buildNumber);
-        String expected = "10:15:30.000 J1939-84 Tool Stopped" + NL;
+        instance = new BannerModule(buildNumber);
+        String expected = "10:15:30.0000 J1939-84 Tool Stopped" + NL;
         instance.reportStopped(listener);
         assertEquals(expected, listener.getResults());
     }

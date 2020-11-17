@@ -36,13 +36,13 @@ public class Part01Controller extends Controller {
      */
     public Part01Controller() {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(), new DataRepository());
+                new VehicleInformationModule(), new PartResultFactory(), new DataRepository());
     }
 
     private Part01Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
+            BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
             PartResultFactory partResultFactory, DataRepository dataRepository) {
-        this(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+        this(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
                 new Step01Controller(dataRepository), new Step02Controller(), new Step03Controller(dataRepository),
                 new Step04Controller(dataRepository), new Step05Controller(dataRepository),
                 new Step06Controller(dataRepository), new Step07Controller(dataRepository),
@@ -114,7 +114,7 @@ public class Part01Controller extends Controller {
      *            the {@link step21Controller} for Part1Controller
      */
     public Part01Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
+            BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
             PartResultFactory partResultFactory, Step01Controller step01Controller, Step02Controller step02Controller,
             Step03Controller step03Controller, Step04Controller step04Controller, Step05Controller step05Controller,
             Step06Controller step06Controller, Step07Controller step07Controller, Step08Controller step08Controller,
@@ -123,7 +123,7 @@ public class Part01Controller extends Controller {
             Step15Controller step15Controller, Step16Controller step16Controller, Step17Controller step17Controller,
             Step18Controller step18Controller, Step19Controller step19Controller, Step20Controller step20Controller,
             Step21Controller step21Controller) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory);
 
         stepControllers.add(step01Controller);
         stepControllers.add(step02Controller);

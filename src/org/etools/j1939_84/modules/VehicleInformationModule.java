@@ -67,17 +67,7 @@ public class VehicleInformationModule extends FunctionalModule {
      * Constructor
      */
     public VehicleInformationModule() {
-        this(new DateTimeModule());
-    }
-
-    /**
-     * Constructor exposed for testing
-     *
-     * @param dateTimeModule
-     *            the {@link DateTimeModule} to use
-     */
-    public VehicleInformationModule(DateTimeModule dateTimeModule) {
-        super(dateTimeModule);
+        super();
     }
 
     /**
@@ -90,7 +80,9 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public List<CalibrationInformation> getCalibrations() throws IOException {
         if (calibrations == null) {
-            Collection<Either<DM19CalibrationInformationPacket, AcknowledgmentPacket>> raw = getJ1939().requestGlobalResult(DM19CalibrationInformationPacket.class).getEither().stream().collect(Collectors.toList());
+            Collection<Either<DM19CalibrationInformationPacket, AcknowledgmentPacket>> raw = getJ1939()
+                    .requestGlobalResult(DM19CalibrationInformationPacket.class).getEither().stream()
+                    .collect(Collectors.toList());
             calibrations = raw.stream()
                     // flatten an Optional<Either<packetWithAList>>
                     .flatMap(t -> t.left.stream()
@@ -179,7 +171,9 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public String getVin() throws IOException {
         if (vin == null) {
-            Collection<Either<VehicleIdentificationPacket, AcknowledgmentPacket>> all = getJ1939().requestGlobalResult(VehicleIdentificationPacket.class).getEither().stream().collect(Collectors.toList());
+            Collection<Either<VehicleIdentificationPacket, AcknowledgmentPacket>> all = getJ1939()
+                    .requestGlobalResult(VehicleIdentificationPacket.class).getEither().stream()
+                    .collect(Collectors.toList());
             Set<String> vins = all.stream()
                     .flatMap(e -> e.left.stream())
                     .map(t -> t.getVin())

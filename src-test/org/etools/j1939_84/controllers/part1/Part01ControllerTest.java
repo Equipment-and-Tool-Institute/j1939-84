@@ -21,10 +21,8 @@ import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
-import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.junit.After;
 import org.junit.Before;
@@ -48,8 +46,6 @@ public class Part01ControllerTest {
 
     @Mock
     private BannerModule bannerModule;
-
-    private DateTimeModule dateTimeModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -142,12 +138,10 @@ public class Part01ControllerTest {
     @Before
     public void setUp() {
         listener = new TestResultsListener(mockListener);
-        dateTimeModule = new TestDateTimeModule();
 
         instance = new Part01Controller(executor,
                 engineSpeedModule,
                 bannerModule,
-                dateTimeModule,
                 vehicleInformationModule,
                 partResultFactory,
                 step01Controller,

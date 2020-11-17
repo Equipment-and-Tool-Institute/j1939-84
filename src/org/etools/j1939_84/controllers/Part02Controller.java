@@ -32,28 +32,37 @@ public class Part02Controller extends Controller {
      */
     public Part02Controller() {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(),
+                new VehicleInformationModule(), new PartResultFactory(),
                 new DiagnosticReadinessModule(), new OBDTestsModule(), new SupportedSpnModule());
     }
 
     /**
      * Constructor exposed for testing
      *
-     * @param executor                  the {@link Executor}
-     * @param engineSpeedModule         the {@link EngineSpeedModule}
-     * @param bannerModule              the {@link BannerModule}
-     * @param dateTimeModule            the {@link DateTimeModule}
-     * @param vehicleInformationModule  the {@link VehicleInformationModule}
-     * @param partResultFactory         the {@link PartResultFactory}
-     * @param diagnosticReadinessModule the {@link DiagnosticReadinessModule}
-     * @param obdTestsModule            the {@link OBDTestsModule}
-     * @param supportedSpnModule        the {@link SupportedSpnModule}
+     * @param executor
+     *            the {@link Executor}
+     * @param engineSpeedModule
+     *            the {@link EngineSpeedModule}
+     * @param bannerModule
+     *            the {@link BannerModule}
+     * @param dateTimeModule
+     *            the {@link DateTimeModule}
+     * @param vehicleInformationModule
+     *            the {@link VehicleInformationModule}
+     * @param partResultFactory
+     *            the {@link PartResultFactory}
+     * @param diagnosticReadinessModule
+     *            the {@link DiagnosticReadinessModule}
+     * @param obdTestsModule
+     *            the {@link OBDTestsModule}
+     * @param supportedSpnModule
+     *            the {@link SupportedSpnModule}
      */
     public Part02Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
+            BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
             PartResultFactory partResultFactory, DiagnosticReadinessModule diagnosticReadinessModule,
             OBDTestsModule obdTestsModule, SupportedSpnModule supportedSpnModule) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory);
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.obdTestsModule = obdTestsModule;
     }

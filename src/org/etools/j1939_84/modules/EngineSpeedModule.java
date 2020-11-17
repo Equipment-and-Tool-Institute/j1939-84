@@ -18,7 +18,7 @@ import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
 public class EngineSpeedModule extends FunctionalModule {
 
     public EngineSpeedModule() {
-        super(new DateTimeModule());
+        super();
     }
 
     private EngineSpeedPacket getEngineSpeedPacket() {

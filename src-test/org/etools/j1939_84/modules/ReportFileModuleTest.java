@@ -10,7 +10,6 @@ import static org.mockito.Mockito.when;
 
 import java.io.File;
 import java.nio.file.Files;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Logger;
@@ -41,18 +40,11 @@ public class ReportFileModuleTest {
         file = File.createTempFile("test", ".j1939_84");
         file.deleteOnExit();
         listener = new TestResultsListener();
-
-        TestDateTimeModule dateTimeModule = new TestDateTimeModule() {
-            @Override
-            public DateTimeFormatter getTimeFormatter() {
-                return getSuperTimeFormatter();
-            }
-        };
-
+        DateTimeModule.setInstance(new TestDateTimeModule());
         logger = mock(Logger.class);
         summaryModule = mock(SummaryModule.class);
         bannerModule = mock(BannerModule.class);
-        instance = new ReportFileModule(dateTimeModule, logger, summaryModule, bannerModule);
+        instance = new ReportFileModule(logger, summaryModule, bannerModule);
     }
 
     @After

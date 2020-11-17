@@ -24,10 +24,8 @@ import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
-import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
@@ -57,8 +55,6 @@ public class Step01ControllerTest {
     @Mock
     private DataRepository dataRepository;
 
-    private DateTimeModule dateTimeModule;
-
     @Mock
     private EngineSpeedModule engineSpeedModule;
 
@@ -87,12 +83,10 @@ public class Step01ControllerTest {
     @Before
     public void setUp() {
         listener = new TestResultsListener(mockListener);
-        dateTimeModule = new TestDateTimeModule();
 
         instance = new Step01Controller(executor,
                 engineSpeedModule,
                 bannerModule,
-                dateTimeModule,
                 vehicleInformationModule,
                 partResultFactory,
                 dataRepository);

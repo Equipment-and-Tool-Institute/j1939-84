@@ -8,7 +8,6 @@ import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
@@ -24,14 +23,14 @@ public class Step05Controller extends StepController {
 
     Step05Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(), new VinDecoder(),
+                new VehicleInformationModule(), new PartResultFactory(), new VinDecoder(),
                 dataRepository);
     }
 
     Step05Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-            DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
+            VehicleInformationModule vehicleInformationModule,
             PartResultFactory partResultFactory, VinDecoder vinDecoder, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
                 PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.vinDecoder = vinDecoder;
         this.dataRepository = dataRepository;

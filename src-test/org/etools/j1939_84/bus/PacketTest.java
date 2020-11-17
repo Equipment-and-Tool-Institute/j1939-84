@@ -8,10 +8,8 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
-import org.junit.Test;
-
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
+import org.junit.Test;
 
 /**
  * Unit tests for the {@link Packet} class
@@ -210,12 +208,12 @@ public class PacketTest {
 
     @Test
     public void testToStringWithFormatter() {
-        DateTimeModule dateTimeModule = new TestDateTimeModule();
+        new TestDateTimeModule();
         Packet instance = Packet
                 .parse("18FEEC00 33 48 41 4D 4B 53 54 4E 30 46 4C 35 37 35 30 31 32 2A");
 
-        String expected = "10:15:30.000 18FEEC00 33 48 41 4D 4B 53 54 4E 30 46 4C 35 37 35 30 31 32 2A";
-        String actual = instance.toString(dateTimeModule.getTimeFormatter());
+        String expected = "10:15:30.0000 18FEEC00 33 48 41 4D 4B 53 54 4E 30 46 4C 35 37 35 30 31 32 2A";
+        String actual = instance.toTimeString();
         assertEquals(expected, actual);
     }
 

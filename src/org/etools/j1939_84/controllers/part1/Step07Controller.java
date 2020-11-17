@@ -18,7 +18,6 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.StringUtils;
@@ -33,14 +32,14 @@ public class Step07Controller extends StepController {
 
     Step07Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(), dataRepository);
+                new VehicleInformationModule(), new PartResultFactory(), dataRepository);
     }
 
     Step07Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, DateTimeModule dateTimeModule,
+            BannerModule bannerModule,
             VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory,
             DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
                 PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }

@@ -21,7 +21,6 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -46,16 +45,16 @@ public class Step13Controller extends StepController {
 
     Step13Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(),
+                new VehicleInformationModule(), new PartResultFactory(),
                 new DiagnosticReadinessModule(), dataRepository, new SectionA6Validator(dataRepository));
     }
 
     Step13Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, DateTimeModule dateTimeModule,
+            BannerModule bannerModule,
             VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory,
             DiagnosticReadinessModule diagnosticReadinessModule, DataRepository dataRepository,
             SectionA6Validator sectionaA6Validator) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
                 PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dataRepository = dataRepository;

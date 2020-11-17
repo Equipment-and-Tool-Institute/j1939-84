@@ -54,14 +54,12 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      * Constructor
      */
     public ReportFileModule() {
-        this(new DateTimeModule(), J1939_84.getLogger(), new SummaryModule(), new BannerModule());
+        this(J1939_84.getLogger(), new SummaryModule(), new BannerModule());
     }
 
     /**
      * Constructor exposed for testing
      *
-     * @param dateTimeModule
-     *            The {@link DateTimeModule}
      * @param logger
      *            The {@link Logger} to use for logging
      * @param summaryModule
@@ -69,9 +67,9 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      * @param bannerModule
      *            The {@link BannerModule}
      */
-    public ReportFileModule(DateTimeModule dateTimeModule, Logger logger, SummaryModule summaryModule,
+    public ReportFileModule(Logger logger, SummaryModule summaryModule,
             BannerModule bannerModule) {
-        super(dateTimeModule);
+        super();
         this.logger = logger;
         this.summaryModule = summaryModule;
         this.bannerModule = bannerModule;

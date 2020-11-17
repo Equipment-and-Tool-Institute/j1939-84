@@ -32,7 +32,7 @@ public class BannerModule extends FunctionalModule {
      * Constructor
      */
     public BannerModule() {
-        this(new DateTimeModule(), new BuildNumber());
+        this(new BuildNumber());
     }
 
     /**
@@ -43,8 +43,8 @@ public class BannerModule extends FunctionalModule {
      * @param buildNumber
      *            the {@link BuildNumber}
      */
-    public BannerModule(DateTimeModule dateTimeModule, BuildNumber buildNumber) {
-        super(dateTimeModule);
+    public BannerModule(BuildNumber buildNumber) {
+        super();
         this.buildNumber = buildNumber;
     }
 

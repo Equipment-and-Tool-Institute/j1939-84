@@ -16,19 +16,19 @@ import java.time.temporal.ChronoField;
  */
 public class TestDateTimeModule extends DateTimeModule {
 
-    private long[] timesAsLong = {0};
-    private int timeIndex = 0;
-    
-    public long pauseFor =-1;
-
+    public long pauseFor = -1;
     /**
      * The {@link DateTimeFormatter} used for testing that will return a static
      * value.
      */
-    private final DateTimeFormatter timeFormatter = new DateTimeFormatterBuilder().appendLiteral("10:15:30.000")
+    private final DateTimeFormatter timeFormatter = new DateTimeFormatterBuilder().appendLiteral("10:15:30.0000")
             .parseDefaulting(ChronoField.HOUR_OF_DAY, 10).parseDefaulting(ChronoField.MINUTE_OF_HOUR, 15)
             .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 30).parseDefaulting(ChronoField.YEAR_OF_ERA, 2016)
             .parseDefaulting(ChronoField.DAY_OF_YEAR, 1).toFormatter();
+
+    private int timeIndex = 0;
+
+    private long[] timesAsLong = { 0 };
 
     /**
      * Method returns the actual {@link DateTimeFormatter} used in production
@@ -52,17 +52,17 @@ public class TestDateTimeModule extends DateTimeModule {
 
     @Override
     protected LocalDateTime now() {
-        return LocalDateTime.parse("2007-12-03T10:15:30.000");
+        return LocalDateTime.parse("2007-12-03T10:15:30.0000");
     }
 
-    public void setTimesAsLong(long... timesAsLong) {
-        this.timesAsLong = timesAsLong;
-        this.timeIndex = 0;
-    }
-    
     @Override
     public void pauseFor(long milliseconds) {
         pauseFor = milliseconds;
     }
-   
+
+    public void setTimesAsLong(long... timesAsLong) {
+        this.timesAsLong = timesAsLong;
+        timeIndex = 0;
+    }
+
 }

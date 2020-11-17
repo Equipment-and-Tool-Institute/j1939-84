@@ -14,6 +14,7 @@ import java.util.stream.Stream;
 
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.modules.DateTimeModule;
 
 /**
  * Sends a Packet containing an id with data from a source onto the bus
@@ -402,7 +403,11 @@ public class Packet {
 
     @Override
     public String toString() {
-        return toString(null);
+        return String.format("%06X%02X %s",
+                priority << 18 | id,
+                source,
+                Arrays.stream(data).mapToObj(x -> String.format("%02X", x)).collect(Collectors.joining(" "))
+                        + (transmitted ? TX : ""));
     }
 
     /**
@@ -414,12 +419,8 @@ public class Packet {
      *            the {@link DateTimeFormatter} to format the time received
      * @return a {@link String}
      */
-    public String toString(DateTimeFormatter formatter) {
-        return (formatter == null ? "" : (formatter.format(timestamp) + " "))
-                + String.format("%06X%02X %s",
-                        priority << 18 | id,
-                        source,
-                        Arrays.stream(data).mapToObj(x -> String.format("%02X", x)).collect(Collectors.joining(" "))
-                                + (transmitted ? TX : ""));
+    public String toTimeString() {
+        return DateTimeModule.getInstance()
+                .getTimeFormatter().format(timestamp) + " " + toString();
     }
 }

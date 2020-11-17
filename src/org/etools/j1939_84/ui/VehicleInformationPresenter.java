@@ -67,11 +67,6 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * The value the user has entered for the certification intent
      */
     private String certificationIntent;
-
-    /**
-     * The module used to retrieve the Date/Time
-     */
-    private final DateTimeModule dateTimeModule;
     /**
      * The module used to gather information about the module readiness
      */
@@ -149,7 +144,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      */
     public VehicleInformationPresenter(VehicleInformationContract.View view, VehicleInformationListener listener,
             J1939 j1939) {
-        this(view, listener, j1939, new DateTimeModule(), new VehicleInformationModule(),
+        this(view, listener, j1939, new VehicleInformationModule(),
                 new DiagnosticReadinessModule(), new VinDecoder());
     }
 
@@ -161,8 +156,6 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * @param listener
      *            the {@link VehicleInformationListener} that will be given the
      *            {@link VehicleInformation}
-     * @param dateTimeModule
-     *            the {@link DateTimeModule}
      * @param vehicleInformationModule
      *            the {@link VehicleInformationModule}
      * @param vinDecoder
@@ -171,11 +164,10 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      *            the vehicle interface
      */
     public VehicleInformationPresenter(VehicleInformationContract.View view, VehicleInformationListener listener,
-            J1939 j1939, DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule,
+            J1939 j1939, VehicleInformationModule vehicleInformationModule,
             DiagnosticReadinessModule diagnosticReadinessModule, VinDecoder vinDecoder) {
         this.view = swingProxy(view, VehicleInformationContract.View.class);
         this.listener = listener;
-        this.dateTimeModule = dateTimeModule;
         this.vehicleInformationModule = vehicleInformationModule;
         this.vehicleInformationModule.setJ1939(j1939);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
@@ -224,7 +216,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
 
         int modelYear = vinDecoder.getModelYear(vin);
         if (!vinDecoder.isModelYearValid(modelYear)) {
-            modelYear = dateTimeModule.getYear();
+            modelYear = DateTimeModule.getInstance().getYear();
         }
         view.setVehicleModelYear(modelYear);
 

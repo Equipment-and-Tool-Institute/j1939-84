@@ -64,7 +64,6 @@ public class VehicleInformationPresenterTest {
         instance = new VehicleInformationPresenter(view,
                 listener,
                 j1939,
-                dateTimeModule,
                 vehicleInformationModule,
                 diagnosticReadinessModule,
                 vinDecoder);
@@ -110,6 +109,7 @@ public class VehicleInformationPresenterTest {
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
                         justification = "The method is called just to get some exception.")
     public void testInitializeWithError() throws IOException {
+        DateTimeModule.setInstance(dateTimeModule);
         when(vehicleInformationModule.getVin()).thenThrow(new IOException());
         when(vinDecoder.getModelYear(null)).thenReturn(-1);
         when(vinDecoder.isModelYearValid(-1)).thenReturn(false);

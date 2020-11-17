@@ -14,7 +14,6 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.OBDTestsModule;
@@ -39,15 +38,15 @@ public class Step10Controller extends StepController {
 
     Step10Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), new DTCModule(), new PartResultFactory(),
+                new VehicleInformationModule(), new DTCModule(), new PartResultFactory(),
                 new DiagnosticReadinessModule(), new OBDTestsModule(), dataRepository);
     }
 
     protected Step10Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-            DateTimeModule dateTimeModule, VehicleInformationModule vehicleInformationModule, DTCModule dtcModule,
+            VehicleInformationModule vehicleInformationModule, DTCModule dtcModule,
             PartResultFactory partResultFactory, DiagnosticReadinessModule diagnosticReadinessModule,
             OBDTestsModule obdTestsModule, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
                 PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.dataRepository = dataRepository;
         this.dtcModule = dtcModule;

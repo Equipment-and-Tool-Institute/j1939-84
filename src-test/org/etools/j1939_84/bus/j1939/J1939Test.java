@@ -131,7 +131,7 @@ public class J1939Test {
         Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = j1939
                 .requestDm7(j1939.createRequestPacket(DM24SPNSupportPacket.PGN, 0)).getPacket();
         assertFalse(result.isPresent());
-        assertEquals(220 * 3, System.currentTimeMillis() - start, 20);
+        assertEquals(220 * 3, System.currentTimeMillis() - start, 40);
     }
 
     /**

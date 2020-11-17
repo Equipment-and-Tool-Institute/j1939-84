@@ -32,10 +32,8 @@ import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
-import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.junit.After;
@@ -62,8 +60,6 @@ public class Step17ControllerTest extends AbstractControllerTest {
 
     @Mock
     private DataRepository dataRepository;
-
-    private DateTimeModule dateTimeModule;
 
     @Mock
     private DTCModule dtcModule;
@@ -106,13 +102,11 @@ public class Step17ControllerTest extends AbstractControllerTest {
     public void setUp() throws Exception {
 
         listener = new TestResultsListener(mockListener);
-        dateTimeModule = new TestDateTimeModule();
 
         instance = new Step17Controller(
                 executor,
                 engineSpeedModule,
                 bannerModule,
-                dateTimeModule,
                 vehicleInformationModule,
                 partResultFactory,
                 dtcModule, dataRepository);

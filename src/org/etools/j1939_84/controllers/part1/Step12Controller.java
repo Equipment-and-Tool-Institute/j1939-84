@@ -21,7 +21,6 @@ import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.OBDTestsModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -43,15 +42,15 @@ public class Step12Controller extends StepController {
 
     Step12Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), dataRepository, new VehicleInformationModule(), new OBDTestsModule(),
+                dataRepository, new VehicleInformationModule(), new OBDTestsModule(),
                 new PartResultFactory(), new TableA7Validator());
     }
 
     Step12Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-            DateTimeModule dateTimeModule, DataRepository dataRepository,
+            DataRepository dataRepository,
             VehicleInformationModule vehicleInformationModule,
             OBDTestsModule obdTestsModule, PartResultFactory partResultFactory, TableA7Validator tableA7Validator) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
                 PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.dataRepository = dataRepository;
         this.obdTestsModule = obdTestsModule;

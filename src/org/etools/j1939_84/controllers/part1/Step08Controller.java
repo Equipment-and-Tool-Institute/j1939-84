@@ -17,7 +17,6 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -38,15 +37,15 @@ public class Step08Controller extends StepController {
 
     Step08Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DateTimeModule(), new VehicleInformationModule(), new PartResultFactory(),
+                new VehicleInformationModule(), new PartResultFactory(),
                 new DiagnosticReadinessModule(), dataRepository);
     }
 
     Step08Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, DateTimeModule dateTimeModule,
+            BannerModule bannerModule,
             VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory,
             DiagnosticReadinessModule diagnosticReadinessModule, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, dateTimeModule, vehicleInformationModule, partResultFactory,
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
                 PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dataRepository = dataRepository;
@@ -65,9 +64,9 @@ public class Step08Controller extends StepController {
      *
      * 6.1.8.2 Fail criteria:
      *
-     * a. Fail if minimum expected SPNs are not supported (in the aggregate response
-     * for the vehicle) per section A.4, Criteria for Monitor Performance Ratio
-     * Evaluation.
+     * a. Fail if minimum expected SPNs are not supported (in the aggregate
+     * response for the vehicle) per section A.4, Criteria for Monitor
+     * Performance Ratio Evaluation.
      *
      */
 
@@ -102,7 +101,8 @@ public class Step08Controller extends StepController {
 
     /**
      * This method verifies that the minimum expected SPNs are supported per the
-     * "Criteria for Monitor Performance Ratio Evaluation" section A.4 of J1939_84
+     * "Criteria for Monitor Performance Ratio Evaluation" section A.4 of
+     * J1939_84
      *
      * @param dm20Spns
      *
@@ -121,7 +121,8 @@ public class Step08Controller extends StepController {
                 addFailure(1, 8, "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
             }
         } else if (fuelType.isSparkIgnition()) {
-            // TODO Add the Outlet Oxygen Sensor Banks in Table A-3-2 (pg.111) with
+            // TODO Add the Outlet Oxygen Sensor Banks in Table A-3-2 (pg.111)
+            // with
             // non-integer variables i.e. New1, New2 at the end of the table.
             int SPNsi[] = { 3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057 };
             if (!IntStream.of(SPNsi).allMatch(spn -> dm20Spns.contains(spn))) {

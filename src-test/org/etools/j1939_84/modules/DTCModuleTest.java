@@ -74,7 +74,8 @@ public class DTCModuleTest {
 
     @Before
     public void setUp() throws Exception {
-        instance = new DTCModule(new TestDateTimeModule());
+        DateTimeModule.setInstance(new TestDateTimeModule());
+        instance = new DTCModule();
         instance.setJ1939(j1939);
     }
 
@@ -103,7 +104,7 @@ public class DTCModuleTest {
                 Collections.emptyList());
         assertEquals(expectedResult, instance.readDM1(listener, true));
 
-        String expected = "10:15:30.000 Reading the bus for published DM1 messages" + NL;
+        String expected = "10:15:30.0000 Reading the bus for published DM1 messages" + NL;
         expected += "DM1 from Engine #1 (0): MIL: alternate off, RSL: slow flash, AWL: alternate off, PL: fast flash"
                 + NL;
         expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
@@ -130,8 +131,8 @@ public class DTCModuleTest {
                 Collections.emptyList());
         assertEquals(expectedResult, instance.readDM1(listener, true));
 
-        String expected = "10:15:30.000 Reading the bus for published DM1 messages" + NL;
-        expected += "10:15:30.000 No published DM1 messages were identified" + NL;
+        String expected = "10:15:30.0000 Reading the bus for published DM1 messages" + NL;
+        expected += "10:15:30.0000 No published DM1 messages were identified" + NL;
         assertEquals(expected, listener.getResults());
         verify(j1939).read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS);
     }
@@ -161,7 +162,7 @@ public class DTCModuleTest {
                 Collections.emptyList());
         assertEquals(expectedResult, instance.readDM1(listener, true));
 
-        String expected = "10:15:30.000 Reading the bus for published DM1 messages" + NL;
+        String expected = "10:15:30.0000 Reading the bus for published DM1 messages" + NL;
         expected += "DM1 from Engine #1 (0): MIL: alternate off, RSL: slow flash, AWL: alternate off, PL: fast flash"
                 + NL;
         expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
@@ -192,9 +193,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM28 Request to Body Controller (33)" + NL;
-        expected += "10:15:30.000 18EA21A5 80 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FD8021 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 Destination Specific DM28 Request to Body Controller (33)" + NL;
+        expected += "10:15:30.0000 18EA21A5 80 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FD8021 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM28 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -237,9 +238,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM28 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 80 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FD8000 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "10:15:30.0000 Destination Specific DM28 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 80 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FD8000 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
         expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL;
@@ -275,13 +276,13 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM28 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 80 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FD8000 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 Global DM28 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 80 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FD8000 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FD8017 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 18FD8017 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM28 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FD8021 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 18FD8021 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM28 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -307,9 +308,9 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of());
 
         String expected = "";
-        expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.000 Destination Specific DM11 Request to Engine #2 (1)" + NL;
-        expected += "10:15:30.000 18EA01A5 D3 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
+        expected += "10:15:30.0000 Destination Specific DM11 Request to Engine #2 (1)" + NL;
+        expected += "10:15:30.0000 18EA01A5 D3 FE 00 (TX)" + NL;
         expected += "Diagnostic Trouble Codes were successfully cleared." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -332,9 +333,9 @@ public class DTCModuleTest {
                 .thenReturn(Stream.empty());
 
         String expected = "";
-        expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.000 Destination Specific DM11 Request to Instrument Cluster #1 (23)" + NL;
-        expected += "10:15:30.000 18EA17A5 D3 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
+        expected += "10:15:30.0000 Destination Specific DM11 Request to Instrument Cluster #1 (23)" + NL;
+        expected += "10:15:30.0000 18EA17A5 D3 FE 00 (TX)" + NL;
         expected += "Diagnostic Trouble Codes were successfully cleared." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -361,10 +362,10 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(null, p)));
 
         String expected = "";
-        expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.000 Destination Specific DM11 Request to Engine #2 (1)" + NL;
-        expected += "10:15:30.000 18EA01A5 D3 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18E80000 00 FF FF FF F9 D3 FE 00" + NL;
+        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
+        expected += "10:15:30.0000 Destination Specific DM11 Request to Engine #2 (1)" + NL;
+        expected += "10:15:30.0000 18EA01A5 D3 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18E80000 00 FF FF FF F9 D3 FE 00" + NL;
         expected += "DM11 from Engine #1 (0): Response is Acknowledged" + NL;
         expected += "Diagnostic Trouble Codes were successfully cleared." + NL;
 
@@ -391,10 +392,10 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(null, p)));
 
         String expected = "";
-        expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.000 Destination Specific DM11 Request to Engine #2 (1)" + NL;
-        expected += "10:15:30.000 18EA01A5 D3 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18E80000 01 FF FF FF F9 D3 FE 00" + NL;
+        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
+        expected += "10:15:30.0000 Destination Specific DM11 Request to Engine #2 (1)" + NL;
+        expected += "10:15:30.0000 18EA01A5 D3 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18E80000 01 FF FF FF F9 D3 FE 00" + NL;
         expected += "Acknowledgment from Engine #1 (0): Response: NACK, Group Function: 255, Address Acknowledged: 249, PGN Requested: 65235"
                 + NL;
         expected += "ERROR: Clearing Diagnostic Trouble Codes failed." + NL;
@@ -422,10 +423,10 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(null, p)));
 
         String expected = "";
-        expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.000 Destination Specific DM11 Request to Engine #2 (1)" + NL;
-        expected += "10:15:30.000 18EA01A5 D3 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18E80021 01 FF FF FF F9 D3 FE 00" + NL;
+        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
+        expected += "10:15:30.0000 Destination Specific DM11 Request to Engine #2 (1)" + NL;
+        expected += "10:15:30.0000 18EA01A5 D3 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18E80021 01 FF FF FF F9 D3 FE 00" + NL;
         expected += "Acknowledgment from Body Controller (33): Response: NACK, Group Function: 255, Address Acknowledged: 249, PGN Requested: 65235"
                 + NL;
         expected += "ERROR: Clearing Diagnostic Trouble Codes failed." + NL;
@@ -452,9 +453,9 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of());
 
         String expected = "";
-        expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.000 Global DM11 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 D3 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
+        expected += "10:15:30.0000 Global DM11 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 D3 FE 00 (TX)" + NL;
         expected += "Diagnostic Trouble Codes were successfully cleared." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -477,9 +478,9 @@ public class DTCModuleTest {
                 .thenReturn(Stream.empty());
 
         String expected = "";
-        expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.000 Global DM11 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 D3 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
+        expected += "10:15:30.0000 Global DM11 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 D3 FE 00 (TX)" + NL;
         expected += "Diagnostic Trouble Codes were successfully cleared." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -506,10 +507,10 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(null, p)));
 
         String expected = "";
-        expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.000 Global DM11 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 D3 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18E80000 00 FF FF FF F9 D3 FE 00" + NL;
+        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
+        expected += "10:15:30.0000 Global DM11 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 D3 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18E80000 00 FF FF FF F9 D3 FE 00" + NL;
         expected += "DM11 from Engine #1 (0): Response is Acknowledged" + NL;
         expected += "Diagnostic Trouble Codes were successfully cleared." + NL;
 
@@ -536,10 +537,10 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(null, p)));
 
         String expected = "";
-        expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.000 Global DM11 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 D3 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18E80000 01 FF FF FF F9 D3 FE 00" + NL;
+        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
+        expected += "10:15:30.0000 Global DM11 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 D3 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18E80000 01 FF FF FF F9 D3 FE 00" + NL;
         expected += "Acknowledgment from Engine #1 (0): Response: NACK, Group Function: 255, Address Acknowledged: 249, PGN Requested: 65235"
                 + NL;
         expected += "ERROR: Clearing Diagnostic Trouble Codes failed." + NL;
@@ -570,14 +571,14 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(null, p)));
 
         String expected = "";
-        expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.000 Global DM11 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 D3 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18E80000 00 FF FF FF F9 D3 FE 00" + NL;
+        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
+        expected += "10:15:30.0000 Global DM11 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 D3 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18E80000 00 FF FF FF F9 D3 FE 00" + NL;
         expected += "DM11 from Engine #1 (0): Response is Acknowledged" + NL;
-        expected += "10:15:30.000 18E80017 00 FF FF FF F9 D3 FE 00" + NL;
+        expected += "10:15:30.0000 18E80017 00 FF FF FF F9 D3 FE 00" + NL;
         expected += "DM11 from Instrument Cluster #1 (23): Response is Acknowledged" + NL;
-        expected += "10:15:30.000 18E80021 00 FF FF FF F9 D3 FE 00" + NL;
+        expected += "10:15:30.0000 18E80021 00 FF FF FF F9 D3 FE 00" + NL;
         expected += "DM11 from Body Controller (33): Response is Acknowledged" + NL;
         expected += "Diagnostic Trouble Codes were successfully cleared." + NL;
 
@@ -608,16 +609,16 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(null, p)));
 
         String expected = "";
-        expected += "10:15:30.000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.000 Global DM11 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 D3 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18E80000 01 FF FF FF F9 D3 FE 00" + NL;
+        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
+        expected += "10:15:30.0000 Global DM11 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 D3 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18E80000 01 FF FF FF F9 D3 FE 00" + NL;
         expected += "Acknowledgment from Engine #1 (0): Response: NACK, Group Function: 255, Address Acknowledged: 249, PGN Requested: 65235"
                 + NL;
-        expected += "10:15:30.000 18E80017 00 FF FF FF F9 D3 FE 00" + NL;
+        expected += "10:15:30.0000 18E80017 00 FF FF FF F9 D3 FE 00" + NL;
         expected += "Acknowledgment from Instrument Cluster #1 (23): Response: ACK, Group Function: 255, Address Acknowledged: 249, PGN Requested: 65235"
                 + NL;
-        expected += "10:15:30.000 18E80021 00 FF FF FF F9 D3 FE 00" + NL;
+        expected += "10:15:30.0000 18E80021 00 FF FF FF F9 D3 FE 00" + NL;
         expected += "Acknowledgment from Body Controller (33): Response: ACK, Group Function: 255, Address Acknowledged: 249, PGN Requested: 65235"
                 + NL;
         expected += "ERROR: Clearing Diagnostic Trouble Codes failed." + NL;
@@ -645,9 +646,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM12 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 D4 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FED400 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 Destination Specific DM12 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 D4 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FED400 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -687,9 +688,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM12 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 D4 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FED400 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "10:15:30.0000 Destination Specific DM12 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 D4 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FED400 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
         expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL;
@@ -717,8 +718,8 @@ public class DTCModuleTest {
                 .thenReturn(RequestResult.empty());
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM12 Request to Instrument Cluster #1 (23)" + NL;
-        expected += "10:15:30.000 18EA17A5 D4 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 Destination Specific DM12 Request to Instrument Cluster #1 (23)" + NL;
+        expected += "10:15:30.0000 18EA17A5 D4 FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -747,13 +748,13 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM12 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 D4 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FED400 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 Global DM12 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 D4 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FED400 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FED417 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 18FED417 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM12 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FED421 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 18FED421 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM12 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -800,9 +801,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM12 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 D4 FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FED400 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "10:15:30.0000 Global DM12 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 D4 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FED400 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
         expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL;
@@ -831,8 +832,8 @@ public class DTCModuleTest {
                 .thenReturn(RequestResult.empty());
 
         String expected = "";
-        expected += "10:15:30.000 Global DM12 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 D4 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 Global DM12 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 D4 FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -858,9 +859,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM23 Request to Body Controller (33)" + NL;
-        expected += "10:15:30.000 18EA21A5 B5 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FDB521 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 Destination Specific DM23 Request to Body Controller (33)" + NL;
+        expected += "10:15:30.0000 18EA21A5 B5 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FDB521 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM23 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -900,9 +901,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM23 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 B5 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FDB500 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "10:15:30.0000 Destination Specific DM23 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 B5 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FDB500 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM23 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
         expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL;
@@ -927,8 +928,8 @@ public class DTCModuleTest {
         when(j1939.requestResult(DM23PreviouslyMILOnEmissionDTCPacket.class, requestPacket))
                 .thenReturn(RequestResult.empty());
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM23 Request to Instrument Cluster #1 (23)" + NL;
-        expected += "10:15:30.000 18EA17A5 B5 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 Destination Specific DM23 Request to Instrument Cluster #1 (23)" + NL;
+        expected += "10:15:30.0000 18EA17A5 B5 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -957,13 +958,13 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM23 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 B5 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FDB500 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 Global DM23 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 B5 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FDB500 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM23 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FDB517 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 18FDB517 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM23 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FDB521 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 18FDB521 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM23 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1003,9 +1004,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM23 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 B5 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FDB500 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "10:15:30.0000 Global DM23 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 B5 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FDB500 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM23 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
         expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL;
@@ -1033,8 +1034,8 @@ public class DTCModuleTest {
                 .thenReturn(RequestResult.empty());
 
         String expected = "";
-        expected += "10:15:30.000 Global DM23 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 B5 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 Global DM23 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 B5 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1062,9 +1063,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM26 Request to Body Controller (33)" + NL;
-        expected += "10:15:30.000 18EA21A5 B8 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FDB821 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 Destination Specific DM26 Request to Body Controller (33)" + NL;
+        expected += "10:15:30.0000 18EA21A5 B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FDB821 00 00 00 00 00 00 00 00" + NL;
         expected += "DM26 from Body Controller (33): Warm-ups: 0, Time Since Engine Start: 0 seconds" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1105,9 +1106,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM26 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 B8 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FDB800 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "10:15:30.0000 Destination Specific DM26 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FDB800 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM26 from Engine #1 (0): Warm-ups: 97, Time Since Engine Start: not available" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1133,8 +1134,8 @@ public class DTCModuleTest {
                 .thenReturn(RequestResult.empty());
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM26 Request to Instrument Cluster #1 (23)" + NL;
-        expected += "10:15:30.000 18EA17A5 B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 Destination Specific DM26 Request to Instrument Cluster #1 (23)" + NL;
+        expected += "10:15:30.0000 18EA17A5 B8 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1166,13 +1167,13 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM26 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 B8 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FDB800 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 Global DM26 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FDB800 00 00 00 00 00 00 00 00" + NL;
         expected += "DM26 from Engine #1 (0): Warm-ups: 0, Time Since Engine Start: 0 seconds" + NL;
-        expected += "10:15:30.000 18FDB817 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 18FDB817 00 00 00 00 00 00 00 00" + NL;
         expected += "DM26 from Instrument Cluster #1 (23): Warm-ups: 0, Time Since Engine Start: 0 seconds" + NL;
-        expected += "10:15:30.000 18FDB821 00 00 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 18FDB821 00 00 00 00 00 00 00 00" + NL;
         expected += "DM26 from Body Controller (33): Warm-ups: 0, Time Since Engine Start: 0 seconds" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1208,9 +1209,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM26 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 B8 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FDB811 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 Global DM26 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FDB811 22 33 44 55 66 77 88" + NL;
         expected += "DM26 from Cruise Control (17): Warm-ups: 68, Time Since Engine Start: 13,090 seconds" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1234,8 +1235,8 @@ public class DTCModuleTest {
         when(j1939.requestResult(DM26TripDiagnosticReadinessPacket.class, requestPacket))
                 .thenReturn(RequestResult.empty());
         String expected = "";
-        expected += "10:15:30.000 Global DM26 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 Global DM26 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1263,9 +1264,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM27 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 82 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FD8200 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 Destination Specific DM27 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 82 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FD8200 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM27 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1307,9 +1308,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM27 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 82 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FD8200 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "10:15:30.0000 Destination Specific DM27 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 82 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FD8200 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM27 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
         expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL;
@@ -1339,8 +1340,8 @@ public class DTCModuleTest {
                 .thenReturn(RequestResult.empty());
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM27 Request to Instrument Cluster #1 (23)" + NL;
-        expected += "10:15:30.000 18EA17A5 82 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 Destination Specific DM27 Request to Instrument Cluster #1 (23)" + NL;
+        expected += "10:15:30.0000 18EA17A5 82 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1371,13 +1372,13 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM27 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 82 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FD8200 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 Global DM27 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 82 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FD8200 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM27 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FD8217 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 18FD8217 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM27 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FD8221 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 18FD8221 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM27 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1424,9 +1425,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM27 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 82 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FD8200 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "10:15:30.0000 Global DM27 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 82 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FD8200 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM27 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
         expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL;
@@ -1455,8 +1456,8 @@ public class DTCModuleTest {
                 .thenReturn(RequestResult.empty()).thenReturn(RequestResult.empty()).thenReturn(RequestResult.empty());
 
         String expected = "";
-        expected += "10:15:30.000 Global DM27 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 82 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 Global DM27 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 82 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1478,8 +1479,8 @@ public class DTCModuleTest {
         when(j1939.requestResult(DM28PermanentEmissionDTCPacket.class, requestPacket))
                 .thenReturn(RequestResult.empty());
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM28 Request to Instrument Cluster #1 (23)" + NL;
-        expected += "10:15:30.000 18EA17A5 80 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 Destination Specific DM28 Request to Instrument Cluster #1 (23)" + NL;
+        expected += "10:15:30.0000 18EA17A5 80 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1522,9 +1523,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM28 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 80 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FD8000 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "10:15:30.0000 Global DM28 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 80 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FD8000 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
         expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL;
@@ -1554,8 +1555,8 @@ public class DTCModuleTest {
                 .thenReturn(RequestResult.empty());
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM2 Request to Instrument Cluster #1 (23)" + NL;
-        expected += "10:15:30.000 18EA17A5 CB FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 Destination Specific DM2 Request to Instrument Cluster #1 (23)" + NL;
+        expected += "10:15:30.0000 18EA17A5 CB FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1581,9 +1582,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM2 Request to Engine #2 (1)" + NL;
-        expected += "10:15:30.000 18EA01A5 CB FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FECB01 22 DD 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 Destination Specific DM2 Request to Engine #2 (1)" + NL;
+        expected += "10:15:30.0000 18EA01A5 CB FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FECB01 22 DD 33 44 55 66 77 88" + NL;
         expected += "DM2 from Engine #2 (1): MIL: off, RSL: other, AWL: off, PL: other" + NL;
         expected += "DTC:  (148531) Unknown Data Drifted Low (21) 102 times" + NL;
 
@@ -1615,15 +1616,15 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM2 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 CB FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FECB00 22 DD 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 Global DM2 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 CB FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FECB00 22 DD 33 44 55 66 77 88" + NL;
         expected += "DM2 from Engine #1 (0): MIL: off, RSL: other, AWL: off, PL: other" + NL;
         expected += "DTC:  (148531) Unknown Data Drifted Low (21) 102 times" + NL;
-        expected += "10:15:30.000 18FECB17 02 FD 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18FECB17 02 FD 03 04 05 06 07 08" + NL;
         expected += "DM2 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: other" + NL;
         expected += "DTC:  (1027) Trip Time in Derate by Engine Current Below Normal Or Open Circuit (5) 6 times" + NL;
-        expected += "10:15:30.000 18FECB21 20 DF 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18FECB21 20 DF 30 40 50 60 70 80" + NL;
         expected += "DM2 from Body Controller (33): MIL: off, RSL: other, AWL: off, PL: off" + NL;
         expected += "DTC:  (147504) Unknown Data Valid But Above Normal Operating Range - Moderately Severe Level (16) 96 times"
                 + NL;
@@ -1663,11 +1664,11 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM2 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 CB FE 00" + NL;
-        expected += "10:15:30.000 18FECB00 11 22 33 44 55 66 77 88" + NL;
-        expected += "10:15:30.000 18FECB17 01 02 03 04 05 06 07 08" + NL;
-        expected += "10:15:30.000 18FECB21 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 Global DM2 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 CB FE 00" + NL;
+        expected += "10:15:30.0000 18FECB00 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18FECB17 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18FECB21 10 20 30 40 50 60 70 80" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         List<DM2PreviouslyActiveDTC> expectedPackets = new ArrayList<>() {
@@ -1713,9 +1714,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM2 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 CB FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FECB00 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "10:15:30.0000 Global DM2 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 CB FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FECB00 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM2 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
         expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL;
@@ -1751,8 +1752,8 @@ public class DTCModuleTest {
                 .thenReturn(RequestResult.empty());
 
         String expected = "";
-        expected += "10:15:30.000 Global DM2 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 CB FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 Global DM2 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 CB FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1789,9 +1790,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM33 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 A1 00 (TX)" + NL;
-        expected += "10:15:30.000 18A10000 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
+        expected += "10:15:30.0000 Global DM33 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 A1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18A10000 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
                 + NL;
         expected += "DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime" + NL;
         expected += "EngineHoursTimer" + NL;
@@ -1836,8 +1837,8 @@ public class DTCModuleTest {
                 .thenReturn(RequestResult.empty());
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM33 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 00 A1 00 (TX)" + NL;
+        expected += "10:15:30.0000 Destination Specific DM33 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 00 A1 00 (TX)" + NL;
         expected += "Error: Timeout - No Response."
                 + NL;
 
@@ -1880,9 +1881,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM33 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 A1 00 (TX)" + NL;
-        expected += "10:15:30.000 18A100FF 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
+        expected += "10:15:30.0000 Global DM33 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 A1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18A100FF 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
                 + NL;
         expected += "DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime" + NL;
         expected += "EngineHoursTimer" + NL;
@@ -1940,9 +1941,9 @@ public class DTCModuleTest {
                 .thenReturn(new RequestResult<>(false, packet1));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM33 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 A1 00 (TX)" + NL;
-        expected += "10:15:30.000 18A10000 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
+        expected += "10:15:30.0000 Global DM33 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 A1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18A10000 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
                 + NL;
         expected += "DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime" + NL;
         expected += "EngineHoursTimer" + NL;
@@ -1989,9 +1990,9 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM6 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 CF FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FECF00 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 Destination Specific DM6 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 CF FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FECF00 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -2039,9 +2040,9 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM6 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 CF FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FECF00 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "10:15:30.0000 Destination Specific DM6 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 CF FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FECF00 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
         expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL;
@@ -2071,8 +2072,8 @@ public class DTCModuleTest {
                 .thenReturn(Stream.empty());
 
         String expected = "";
-        expected += "10:15:30.000 Destination Specific DM6 Request to Body Controller (33)" + NL;
-        expected += "10:15:30.000 18EA21A5 CF FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 Destination Specific DM6 Request to Body Controller (33)" + NL;
+        expected += "10:15:30.0000 18EA21A5 CF FE 00 (TX)" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM6PendingEmissionDTCPacket> result = new RequestResult<>(false,
@@ -2104,13 +2105,13 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1, packet2, packet3).map(p -> new Either<>(p, null)));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM6 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 CF FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FECF00 00 FF 61" + NL;
+        expected += "10:15:30.0000 Global DM6 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 CF FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FECF00 00 FF 61" + NL;
         expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FECF17 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 18FECF17 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM6 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.000 18FECF21 00 FF 00 00 00 00 00 00" + NL;
+        expected += "10:15:30.0000 18FECF21 00 FF 00 00 00 00 00 00" + NL;
         expected += "DM6 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -2160,9 +2161,9 @@ public class DTCModuleTest {
                 .thenReturn(Stream.of(packet1).map(p -> new Either<>(p, null)));
 
         String expected = "";
-        expected += "10:15:30.000 Global DM6 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 CF FE 00 (TX)" + NL;
-        expected += "10:15:30.000 18FECF00 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
+        expected += "10:15:30.0000 Global DM6 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 CF FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FECF00 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL;
         expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL;
@@ -2191,8 +2192,8 @@ public class DTCModuleTest {
         when(j1939.requestRaw(DM6PendingEmissionDTCPacket.class, requestPacket))
                 .thenReturn(Stream.empty());
 
-        String expected = "10:15:30.000 Global DM6 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 CF FE 00 (TX)" + NL;
+        String expected = "10:15:30.0000 Global DM6 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 CF FE 00 (TX)" + NL;
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM6PendingEmissionDTCPacket> result = new RequestResult<>(false,
@@ -2216,8 +2217,8 @@ public class DTCModuleTest {
         when(j1939.requestResult(DM21DiagnosticReadinessPacket.class, requestPacket))
                 .thenReturn(RequestResult.empty());
 
-        String expected = "10:15:30.000 Destination Specific DM21 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 00 C1 00 (TX)" + NL;
+        String expected = "10:15:30.0000 Destination Specific DM21 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 00 C1 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -2251,9 +2252,9 @@ public class DTCModuleTest {
                 Collections.singletonList(packet1),
                 Collections.emptyList());
 
-        String expected = "10:15:30.000 Destination Specific DM21 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.000 18000000 10 27 20 4E 30 75 40 9C" + NL;
+        String expected = "10:15:30.0000 Destination Specific DM21 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18000000 10 27 20 4E 30 75 40 9C" + NL;
         expected += "DM21 from Engine #1 (0): [" + NL;
         expected += "  Distance Traveled While MIL is Activated:     10,000 km (6,213.712 mi)" + NL;
         expected += "  Time Run by Engine While MIL is Activated:    30,000 minutes" + NL;
@@ -2286,9 +2287,9 @@ public class DTCModuleTest {
                 Collections.singletonList(packet1),
                 Collections.emptyList());
 
-        String expected = "10:15:30.000 Global DM21 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.000 18000000 10 27 20 4E 30 75 40 9C" + NL;
+        String expected = "10:15:30.0000 Global DM21 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18000000 10 27 20 4E 30 75 40 9C" + NL;
         expected += "DM21 from Engine #1 (0): [" + NL;
         expected += "  Distance Traveled While MIL is Activated:     10,000 km (6,213.712 mi)" + NL;
         expected += "  Time Run by Engine While MIL is Activated:    30,000 minutes" + NL;
@@ -2321,9 +2322,9 @@ public class DTCModuleTest {
                 Collections.singletonList(packet1),
                 Collections.emptyList());
 
-        String expected = "10:15:30.000 Global DM21 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.000 18000000 10 27 20 4E 30 75 40 9C" + NL;
+        String expected = "10:15:30.0000 Global DM21 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18000000 10 27 20 4E 30 75 40 9C" + NL;
         expected += "DM21 from Engine #1 (0): [" + NL;
         expected += "  Distance Traveled While MIL is Activated:     10,000 km (6,213.712 mi)" + NL;
         expected += "  Time Run by Engine While MIL is Activated:    30,000 minutes" + NL;
@@ -2352,9 +2353,9 @@ public class DTCModuleTest {
                 .thenReturn((new BusResult<>(false,
                         new Either<DM25ExpandedFreezeFrame, AcknowledgmentPacket>(null, packet1))));
 
-        String expected = "10:15:30.000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 B7 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18E80000 01 FF FF FF F9 D3 FE 00" + NL;
+        String expected = "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 B7 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18E80000 01 FF FF FF F9 D3 FE 00" + NL;
         expected += "Acknowledgment from Engine #1 (0): Response: NACK, Group Function: 255, Address Acknowledged: 249, PGN Requested: 65235"
                 + NL;
 
@@ -2377,8 +2378,8 @@ public class DTCModuleTest {
 
         when(j1939.requestDS(DM25ExpandedFreezeFrame.class, requestPacket))
                 .thenReturn(new BusResult<DM25ExpandedFreezeFrame>(false, Optional.empty()));
-        String expected = "10:15:30.000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 B7 FD 00 (TX)" + NL;
+        String expected = "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 B7 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -2491,9 +2492,9 @@ public class DTCModuleTest {
         when(j1939.requestDS(DM25ExpandedFreezeFrame.class, requestPacket))
                 .thenReturn((new BusResult<>(false, packet)));
 
-        String expected = "10:15:30.000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 B7 FD 00 (TX)" + NL;
-        expected += "10:15:30.000 18FDB700 56 9D 00 07 7F 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
+        String expected = "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 B7 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FDB700 56 9D 00 07 7F 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
                 + NL;
         expected += "DM25 from Engine #1 (0): " + NL;
         expected += "Freeze Frames: [" + NL;
@@ -2520,8 +2521,8 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
 
-        String expected = "10:15:30.000 Desination Specific DM29 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 00 9E 00 (TX)" + NL;
+        String expected = "10:15:30.0000 Desination Specific DM29 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 00 9E 00 (TX)" + NL;
         expected += "Error: Timeout - No Response."
                 + NL;
 
@@ -2548,9 +2549,9 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
 
-        String expected = "10:15:30.000 Desination Specific DM29 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 00 9E 00 (TX)" + NL;
-        expected += "10:15:30.000 189E0000 09 20 47 31 01 FF FF FF" + NL;
+        String expected = "10:15:30.0000 Desination Specific DM29 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 00 9E 00 (TX)" + NL;
+        expected += "10:15:30.0000 189E0000 09 20 47 31 01 FF FF FF" + NL;
         expected += "DM29 from Engine #1 (0): " + NL;
         expected += "Emission-Related Pending DTC Count                               9" + NL;
         expected += "All Pending DTC Count                                           32" + NL;
@@ -2591,8 +2592,8 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
-        String expected = "10:15:30.000 Global DM29 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 9E 00 (TX)" + NL;
+        String expected = "10:15:30.0000 Global DM29 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 9E 00 (TX)" + NL;
         expected += "Error: Timeout - No Response."
                 + NL;
 
@@ -2619,9 +2620,9 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
-        String expected = "10:15:30.000 Global DM29 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 9E 00 (TX)" + NL;
-        expected += "10:15:30.000 189E0000 09 20 47 31 01 FF FF FF" + NL;
+        String expected = "10:15:30.0000 Global DM29 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 9E 00 (TX)" + NL;
+        expected += "10:15:30.0000 189E0000 09 20 47 31 01 FF FF FF" + NL;
         expected += "DM29 from Engine #1 (0): " + NL;
         expected += "Emission-Related Pending DTC Count                               9" + NL;
         expected += "All Pending DTC Count                                           32" + NL;
@@ -2662,8 +2663,8 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0x00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0x00)).thenReturn(requestPacket);
 
-        String expected = "10:15:30.000 Destination Specific DM31 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.000 18EA00A5 00 A3 00 (TX)" + NL;
+        String expected = "10:15:30.0000 Destination Specific DM31 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 00 A3 00 (TX)" + NL;
         expected += "Error: Timeout - No Response."
                 + NL;
 
@@ -2690,9 +2691,9 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0x21, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, 0x21)).thenReturn(requestPacket);
 
-        String expected = "10:15:30.000 Destination Specific DM31 Request to Body Controller (33)" + NL;
-        expected += "10:15:30.000 18EA21A5 00 A3 00 (TX)" + NL;
-        expected += "10:15:30.000 18A30021 61 02 13 81 62 1D 21 06 1F 23 22 DD EE 10 04 00 AA 55"
+        String expected = "10:15:30.0000 Destination Specific DM31 Request to Body Controller (33)" + NL;
+        expected += "10:15:30.0000 18EA21A5 00 A3 00 (TX)" + NL;
+        expected += "10:15:30.0000 18A30021 61 02 13 81 62 1D 21 06 1F 23 22 DD EE 10 04 00 AA 55"
                 + NL;
         expected += "DM31 from Body Controller (33): " + NL;
         expected += "DTC Lamp Statuses: [" + NL;
@@ -2750,8 +2751,8 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
-        String expected = "10:15:30.000 Global DM31 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 A3 00 (TX)" + NL;
+        String expected = "10:15:30.0000 Global DM31 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 A3 00 (TX)" + NL;
         expected += "Error: Timeout - No Response."
                 + NL;
 
@@ -2778,9 +2779,9 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         when(j1939.createRequestPacket(pgn, GLOBAL_ADDR)).thenReturn(requestPacket);
 
-        String expected = "10:15:30.000 Global DM31 Request" + NL;
-        expected += "10:15:30.000 18EAFFA5 00 A3 00 (TX)" + NL;
-        expected += "10:15:30.000 18A30021 61 02 13 81 62 1D 21 06 1F 23 22 DD EE 10 04 00 AA 55"
+        String expected = "10:15:30.0000 Global DM31 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 A3 00 (TX)" + NL;
+        expected += "10:15:30.0000 18A30021 61 02 13 81 62 1D 21 06 1F 23 22 DD EE 10 04 00 AA 55"
                 + NL;
         expected += "DM31 from Body Controller (33): " + NL;
         expected += "DTC Lamp Statuses: [" + NL;

@@ -181,17 +181,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * Constructor
      */
     public DiagnosticReadinessModule() {
-        this(new DateTimeModule());
-    }
-
-    /**
-     * Constructor exposed for testing
-     *
-     * @param dateTimeModule
-     *            the {@link DateTimeModule} to use
-     */
-    public DiagnosticReadinessModule(DateTimeModule dateTimeModule) {
-        super(dateTimeModule);
+        super();
         obdModuleAddresses.add(J1939.ENGINE_ADDR);
         obdModuleAddresses.add(J1939.ENGINE_ADDR_1);
     }

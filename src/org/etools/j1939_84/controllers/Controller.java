@@ -163,12 +163,6 @@ public abstract class Controller {
     private int currentStep;
 
     /**
-     * The {@link DateTimeModule} used to generate the date/time stamp for the
-     * report
-     */
-    private final DateTimeModule dateTimeModule;
-
-    /**
      * How the execution ended
      */
     private Ending ending;
@@ -234,12 +228,11 @@ public abstract class Controller {
      *            the {@link PartResultFactory} for the report
      */
     protected Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, DateTimeModule dateTimeModule,
+            BannerModule bannerModule,
             VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory) {
         this.executor = executor;
         this.engineSpeedModule = engineSpeedModule;
         this.bannerModule = bannerModule;
-        this.dateTimeModule = dateTimeModule;
         this.vehicleInformationModule = vehicleInformationModule;
         this.partResultFactory = partResultFactory;
     }
@@ -405,7 +398,7 @@ public abstract class Controller {
      * @return {@link DateTimeModule}
      */
     protected DateTimeModule getDateTimeModule() {
-        return dateTimeModule;
+        return DateTimeModule.getInstance();
     }
 
     public abstract String getDisplayName();

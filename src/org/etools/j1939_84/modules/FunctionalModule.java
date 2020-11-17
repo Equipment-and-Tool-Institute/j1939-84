@@ -29,8 +29,6 @@ public abstract class FunctionalModule {
 
     public static final String TIMEOUT_MESSAGE = "Error: Timeout - No Response.";
 
-    private final DateTimeModule dateTimeModule;
-
     private J1939 j1939;
 
     /**
@@ -39,8 +37,7 @@ public abstract class FunctionalModule {
      * @param dateTimeModule
      *            the {@link DateTimeModule} that generates the date/time
      */
-    protected FunctionalModule(DateTimeModule dateTimeModule) {
-        this.dateTimeModule = dateTimeModule;
+    protected FunctionalModule() {
     }
 
     /**
@@ -104,7 +101,7 @@ public abstract class FunctionalModule {
      * @return {@link DateTimeModule}
      */
     protected DateTimeModule getDateTimeModule() {
-        return dateTimeModule;
+        return DateTimeModule.getInstance();
     }
 
     /**
@@ -151,7 +148,7 @@ public abstract class FunctionalModule {
             listener.onResult(TIMEOUT_MESSAGE);
         } else {
             ParsedPacket pp = packet.get().resolve();
-            listener.onResult(pp.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+            listener.onResult(pp.getPacket().toTimeString());
             if (fullString) {
                 listener.onResult(pp.toString());
             }
@@ -160,7 +157,7 @@ public abstract class FunctionalModule {
     }
 
     protected Function<ParsedPacket, String> getPacketMapperFunction() {
-        return t -> t.getPacket().toString(getDateTimeModule().getTimeFormatter()) + NL + t.toString();
+        return t -> t.getPacket().toTimeString() + NL + t.toString();
     }
 
     /**
@@ -201,7 +198,7 @@ public abstract class FunctionalModule {
             } else {
                 for (Either<T, AcknowledgmentPacket> packet : result.getEither()) {
                     ParsedPacket pp = packet.resolve();
-                    listener.onResult(pp.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+                    listener.onResult(pp.getPacket().toTimeString());
                     if (fullString) {
                         listener.onResult(pp.toString());
                     }

@@ -38,17 +38,7 @@ public class OBDTestsModule extends FunctionalModule {
      * Constructor
      */
     public OBDTestsModule() {
-        this(new DateTimeModule());
-    }
-
-    /**
-     * Constructor exposed for testing
-     *
-     * @param dateTimeModule
-     *            the {@link DateTimeModule} to use
-     */
-    public OBDTestsModule(DateTimeModule dateTimeModule) {
-        super(dateTimeModule);
+        super();
     }
 
     /**
@@ -97,7 +87,7 @@ public class OBDTestsModule extends FunctionalModule {
     private void reportDM30Results(ResultsListener listener, List<DM30ScaledTestResultsPacket> requestedPackets) {
 
         requestedPackets.stream().forEach(packet -> {
-            listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+            listener.onResult(packet.getPacket().toTimeString());
         });
 
     }
@@ -259,7 +249,7 @@ public class OBDTestsModule extends FunctionalModule {
             listener.onResult("");
             return new RequestResult<>(true, Collections.emptyList());
         } else {
-            listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+            listener.onResult(packet.getPacket().toTimeString());
             listener.onResult(packet.toString());
             listener.onResult("");
             return new RequestResult<>(false, Collections.singletonList(packet), Collections.emptyList());
@@ -296,7 +286,7 @@ public class OBDTestsModule extends FunctionalModule {
             listener.onResult("");
             return Collections.emptyList();
         } else {
-            listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+            listener.onResult(packet.getPacket().toTimeString());
             listener.onResult(packet.toString());
             listener.onResult("");
             return packet.getTestResults();
@@ -356,7 +346,7 @@ public class OBDTestsModule extends FunctionalModule {
                     .ifPresentOrElse(packet -> {
                         // log DM24 or ACK
                         ParsedPacket pp = packet.resolve();
-                        listener.onResult(pp.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+                        listener.onResult(pp.getPacket().toTimeString());
                         listener.onResult(pp.toString());
                         // only return DM24s
                         packet.left.ifPresent(p -> packets.add(p));

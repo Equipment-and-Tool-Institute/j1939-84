@@ -54,17 +54,7 @@ public class DTCModule extends FunctionalModule {
      * Constructor
      */
     public DTCModule() {
-        this(new DateTimeModule());
-    }
-
-    /**
-     * Constructor exposed for testing
-     *
-     * @param dateTimeModule
-     *            the {@link DateTimeModule}
-     */
-    public DTCModule(DateTimeModule dateTimeModule) {
-        super(dateTimeModule);
+        super();
     }
 
     public RequestResult<DM1ActiveDTCsPacket> readDM1(ResultsListener listener, boolean fullString) {
@@ -321,7 +311,7 @@ public class DTCModule extends FunctionalModule {
         result.getPacket().ifPresentOrElse(either -> {
             // report
             ParsedPacket packet = either.resolve();
-            listener.onResult(packet.getPacket().toString(getDateTimeModule().getTimeFormatter()));
+            listener.onResult(packet.getPacket().toTimeString());
             listener.onResult(packet.toString());
         }, // report missing response
                 () -> listener.onResult(TIMEOUT_MESSAGE));
