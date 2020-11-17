@@ -21,6 +21,8 @@ import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.EchoBus;
 import org.etools.j1939_84.bus.Packet;
 
+// this was written before packet.getPgn() et. al.
+@SuppressWarnings("deprecation")
 public class J1939TP implements Bus {
     /**
      * Used to jump out of internal predicaments that should not be exposed to

@@ -61,7 +61,7 @@ import org.etools.j1939_84.model.RequestResult;
 public class J1939 {
 
     /**
-     * The default time to wait for a response
+     * The default time to wait for a response (200 ms + 10%)
      */
     private static final int DEFAULT_TIMEOUT = 220;
 
@@ -86,13 +86,9 @@ public class J1939 {
     public static final int GLOBAL_ADDR = 0xFF;
 
     /**
-     * The default time to wait for a response when requesting from global
+     * PGN for J1939 requests
      */
-    private static final int GLOBAL_TIMEOUT = 1250;
-
     public static final int REQUEST_PGN = 0xEA00;
-
-    private static final int TOOL_ADDRESS = 0xF9;
 
     /**
      * Helper to create a packet to request a packet with the given PGN be sent
@@ -110,7 +106,16 @@ public class J1939 {
         return Packet.create(REQUEST_PGN | addr, tool, true, pgn, pgn >> 8, pgn >> 16);
     }
 
-    private static <T extends ParsedPacket> int getPgn(Class<T> cls) {
+    static private Logger getLogger() {
+        return J1939_84.getLogger();
+    }
+
+    /**
+     *
+     * @param cls
+     * @return PGN number based on ParsedPacket class
+     */
+    static private <T extends ParsedPacket> int getPgn(Class<T> cls) {
         try {
             return cls.getField("PGN").getInt(null);
         } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
@@ -118,27 +123,9 @@ public class J1939 {
         }
     }
 
-    private static Predicate<Packet> pgnFilter(int pgn) {
+    /** filter by pgn */
+    static private Predicate<Packet> pgnFilter(int pgn) {
         return response -> response.getPgn() == pgn;
-    }
-
-    /**
-     * Returns a Subclass of {@link ParsedPacket} that corresponds to the id
-     *
-     * @param id
-     *            the id to match
-     * @param packet
-     *            the {@link Packet} to process
-     * @return a subclass of {@link ParsedPacket}
-     */
-    @SuppressWarnings("unchecked")
-    private static <T extends ParsedPacket> Either<T, AcknowledgmentPacket> process(int id, Packet packet) {
-        ParsedPacket pp = processRaw(id, packet);
-        if (pp instanceof AcknowledgmentPacket) {
-            return new Either<>(null, (AcknowledgmentPacket) pp);
-        } else {
-            return new Either<>((T) pp, null);
-        }
     }
 
     /**
@@ -149,11 +136,17 @@ public class J1939 {
      *            the {@link Packet} to process
      * @return a subclass of {@link ParsedPacket}
      */
-    private static <T extends ParsedPacket> Either<T, AcknowledgmentPacket> process(Packet packet) {
-        return process(packet.getPgn(), packet);
+    @SuppressWarnings("unchecked")
+    static private <T extends ParsedPacket> Either<T, AcknowledgmentPacket> process(Packet packet) {
+        ParsedPacket pp = processRaw(packet.getPgn(), packet);
+        if (pp instanceof AcknowledgmentPacket) {
+            return new Either<>(null, (AcknowledgmentPacket) pp);
+        } else {
+            return new Either<>((T) pp, null);
+        }
     }
 
-    private static ParsedPacket processRaw(int id, Packet packet) {
+    static private ParsedPacket processRaw(int id, Packet packet) {
         switch (id) {
         case DM1ActiveDTCsPacket.PGN:
             return new DM1ActiveDTCsPacket(packet);
@@ -264,7 +257,19 @@ public class J1939 {
         }
     }
 
-    private static Predicate<Packet> sourceFilter(int addr) {
+    static private void sleep(int time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            // not expected
+            e.printStackTrace();
+        }
+    }
+
+    static private Predicate<Packet> sourceFilter(int addr) {
+        if (addr == GLOBAL_ADDR) {
+            throw new IllegalArgumentException("Invalid use of global source.");
+        }
         return response -> response.getSource() == addr;
     }
 
@@ -318,6 +323,9 @@ public class J1939 {
     }
 
     private Predicate<Packet> dsFilter(int pgn, int requestDestination, int requestSource) {
+        if (requestDestination == GLOBAL_ADDR || requestSource == GLOBAL_ADDR) {
+            throw new IllegalArgumentException("Invalid use of global.");
+        }
         return globalFilter(pgn)
                 // did it come from the right module or any if addressed to all
                 .and(sourceFilter(requestDestination));
@@ -342,20 +350,15 @@ public class J1939 {
         return bus.getAddress();
     }
 
-    private Logger getLogger() {
-        return J1939_84.getLogger();
-    }
-
     private Predicate<Packet> globalFilter(int pgn) {
         return
         // does the packet have the right ID
         (pgnFilter(pgn).or(ackNackFilter(pgn)))
                 // is it addressed to us or all
-                .and(((Predicate<Packet>) response -> response.getDestination() == bus.getAddress())
-                        .or(p -> p.getDestination() == GLOBAL_ADDR)
-                        // A TP message to broadcase will have a destination of
-                        // 0
-                        .or(p -> p.getDestination() == 0 && p.getLength() > 8));
+                .and((p -> p.getDestination() == bus.getAddress()
+                        || p.getDestination() == GLOBAL_ADDR
+                        // A TP message to global will have a destination of 0
+                        || (p.getDestination() == 0 && p.getLength() > 8)));
     }
 
     /**
@@ -390,6 +393,10 @@ public class J1939 {
     public <T extends ParsedPacket> Optional<Either<T, AcknowledgmentPacket>> read(Class<T> T, int addr,
             long timeout,
             TimeUnit unit) {
+        if (addr == GLOBAL_ADDR) {
+            throw new IllegalArgumentException("Invalid read from global.");
+        }
+
         int pgn = getPgn(T);
         try (Stream<Packet> stream = read(timeout, unit)) {
             return stream
@@ -430,27 +437,44 @@ public class J1939 {
     }
 
     private Stream<Packet> read(long timeout, TimeUnit unit) throws BusException {
-        Stream<Packet> stream = bus.read(timeout, unit);
-        return stream.peek(packet -> getLogger().log(Level.FINE, "P->" + packet.toString()));
+        return bus.read(timeout, unit)
+                .peek(packet -> getLogger().log(Level.FINE, "P->" + packet.toString()));
     }
 
+    /**
+     * Request DM30 with DM7
+     *
+     * @param request
+     * @return
+     */
     public BusResult<DM30ScaledTestResultsPacket> requestDm7(Packet request) {
+        if (request.getDestination() == GLOBAL_ADDR) {
+            throw new IllegalArgumentException("DM7 request to global.");
+        }
         try {
-            for (int i = 0; i < 3; i++) {
+            BusResult<DM30ScaledTestResultsPacket> result;
+            for (int i = 0; true; i++) {
                 Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = bus
                         .read(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS)
-                        .filter(dsFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(), TOOL_ADDRESS))
+                        .filter(dsFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(), getBusAddress()))
                         .map(p -> process(p));
                 bus.send(request);
-                Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = stream.findFirst();
-                if (result.isPresent()) {
-                    return new BusResult<>(i > 0, result);
+                result = new BusResult<>(i > 0, stream.findFirst());
+                // if there is a valid response or a non-busy NACK, return it.
+                if (i == 2 || result.getPacket()
+                        // valid packet
+                        .map(e -> e.resolve(p -> true,
+                                // non-busy NACK
+                                p -> !p.getResponse().equals(Response.BUSY)))
+                        .orElse(false)) {
+                    break;
                 }
             }
+            return result;
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, "Error requesting DS packet", e);
+            return new BusResult<>(true);
         }
-        return new BusResult<>(true);
     }
 
     /**
@@ -485,15 +509,22 @@ public class J1939 {
         }
     }
 
+    /**
+     * Make a single DS request with no retries.
+     *
+     * @param packetClass
+     * @param request
+     * @return
+     */
     private <T extends ParsedPacket> Optional<Either<T, AcknowledgmentPacket>> requestDSOnce(Class<T> packetClass,
             Packet request) {
-        if (request.getDestination() == 0xFF) {
+        if (request.getDestination() == GLOBAL_ADDR) {
             throw new IllegalArgumentException("Request to global.");
         }
 
         try {
             Stream<Either<T, AcknowledgmentPacket>> stream = bus.read(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS)
-                    .filter(dsFilter(getPgn(packetClass), request.getDestination(), TOOL_ADDRESS))
+                    .filter(dsFilter(getPgn(packetClass), request.getDestination(), getBusAddress()))
                     .map(p -> process(p));
             bus.send(request);
             return stream.findFirst();
@@ -503,34 +534,18 @@ public class J1939 {
         }
     }
 
-    @SuppressWarnings("unchecked")
-    private <T extends ParsedPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
-            Packet request) {
-        List<Either<T, AcknowledgmentPacket>> result;
-        try {
-            Stream<Packet> stream = read(GLOBAL_TIMEOUT, DEFAULT_TIMEOUT_UNITS);
-            bus.send(request);
-            result = stream
-                    .filter(globalFilter(pgn))
-                    .map(rawPacket -> (Either<T, AcknowledgmentPacket>) process(rawPacket))
-                    .collect(Collectors.toList());
-        } catch (BusException e) {
-            getLogger().log(Level.SEVERE, "Error requesting packet", e);
-            result = Collections.emptyList();
-        }
-        return result;
-    }
-
-    public <T extends ParsedPacket> RequestResult<T> requestGlobalResult(Class<T> clas) {
-        return requestGlobal(clas, createRequestPacket(getPgn(clas), GLOBAL_ADDR));
-    }
-
-    public <T extends ParsedPacket> RequestResult<T> requestGlobal(Class<T> T,
+    /**
+     * See J1939-84 6.II. Essentially if there is busy NACK to a global request,
+     * than the request is repeated once. If there is still a busy response,
+     * then a DS request is made.
+     *
+     * @param clas
+     * @param requestPacket
+     * @return
+     */
+    public <T extends ParsedPacket> RequestResult<T> requestGlobal(Class<T> clas,
             Packet requestPacket) {
-        if (requestPacket.getDestination() != 0xFF) {
-            throw new IllegalArgumentException("Request not to global.");
-        }
-        int pgn = getPgn(T);
+        int pgn = getPgn(clas);
         List<Either<T, AcknowledgmentPacket>> results = requestGlobalOnce(pgn, requestPacket);
         List<AcknowledgmentPacket> busyNACKs = results.stream().flatMap(e -> e.right.stream())
                 .filter(p -> p.getResponse() == Response.BUSY)
@@ -549,7 +564,7 @@ public class J1939 {
         }
         // now try the DS request
         Collection<Either<T, AcknowledgmentPacket>> list = busyNACKs.stream()
-                .flatMap(p -> requestDSOnce(T, createRequestPacket(requestPacket.getPgn(), p.getSourceAddress()))
+                .flatMap(p -> requestDSOnce(clas, createRequestPacket(requestPacket.getPgn(), p.getSourceAddress()))
                         .stream())
                 .collect(Collectors.toList());
         results.addAll(list);
@@ -557,39 +572,68 @@ public class J1939 {
     }
 
     /**
-     * Sends a request for a Packet. T will provide the PGN for the response.
-     * NACKs will NOT be ignored.
+     * Request from global only once.
      *
-     * @param <T>
-     *            the Type of Packet to request
-     * @param T
-     *            the class that extends {@link ParsedPacket} that provides the
-     *            PGN for the packet to be requested
-     * @param requestPacket
-     *            the {@link Packet} to send that will generate the responses
-     * @return a {@link Stream} containing {@link ParsedPacket}
-     * @deprecated
+     * @param pgn
+     * @param request
+     * @return
      */
-    @Deprecated
-    public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> requestRaw(Class<T> T,
-            Packet requestPacket) {
-        return requestResult(T, requestPacket).getEither().stream();
-    }
-
-    /** Should we encourage this or requestGlobal and requestDS?? */
-    public <T extends ParsedPacket> RequestResult<T> requestResult(Class<T> clazz, Packet request) {
-        return (request.getDestination() == 0xFF)
-                ? requestGlobal(clazz, request)
-                : requestDS(clazz, request).requestResult();
-    }
-
-    private void sleep(int time) {
-        try {
-            Thread.sleep(time);
-        } catch (InterruptedException e) {
-            // not expected
-            e.printStackTrace();
+    @SuppressWarnings("unchecked")
+    private <T extends ParsedPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
+            Packet request) {
+        if (request.getDestination() != GLOBAL_ADDR) {
+            throw new IllegalArgumentException("Request not to global.");
         }
+
+        List<Either<T, AcknowledgmentPacket>> result;
+        try {
+            Stream<Packet> stream = read(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS);
+            bus.send(request);
+            result = stream
+                    .filter(globalFilter(pgn))
+                    .map(rawPacket -> (Either<T, AcknowledgmentPacket>) process(rawPacket))
+                    .collect(Collectors.toList());
+        } catch (BusException e) {
+            getLogger().log(Level.SEVERE, "Error requesting packet", e);
+            result = Collections.emptyList();
+        }
+        return result;
     }
 
+    public <T extends ParsedPacket> RequestResult<T> requestGlobalResult(Class<T> clas) {
+        return requestGlobal(clas, createRequestPacket(getPgn(clas), GLOBAL_ADDR));
+    }
+
+    /**
+     * Avoid using for new development. This is redundant with
+     * requestResult(...)
+     *
+     * @param clas
+     *            ParsedPacket class expected.
+     * @param requestPacket
+     *            The SAE request.
+     * @return Stream of results.
+     */
+    public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> requestRaw(Class<T> clas,
+            Packet requestPacket) {
+        return requestResult(clas, requestPacket).getEither().stream();
+    }
+
+    /**
+     * Should we encourage this or requestGlobal and requestDS??
+     *
+     * @param clazz
+     *            expected ParsedPacket response.
+     * @param request
+     *            The SAE request.
+     * @return Results including ACKs and retry flag.
+     */
+    @SuppressWarnings("unchecked")
+    public <T extends ParsedPacket> RequestResult<T> requestResult(Class<T> clazz, Packet request) {
+        return (request.getDestination() == GLOBAL_ADDR)
+                ? requestGlobal(clazz, request)
+                : request.getPgn() == REQUEST_PGN
+                        ? requestDS(clazz, request).requestResult()
+                        : (RequestResult<T>) requestDm7(request).requestResult();
+    }
 }
