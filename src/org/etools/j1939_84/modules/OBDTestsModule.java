@@ -18,7 +18,6 @@ import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult.TestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
@@ -77,19 +76,9 @@ public class OBDTestsModule extends FunctionalModule {
      *            the {@link ResultsListener}
      * @return {@link List} of {@link DM30ScaledTestResultsPacket}s
      */
-    public List<DM30ScaledTestResultsPacket> getDM30Packets(ResultsListener listener, int address, SupportedSPN spn) {
-        List<DM30ScaledTestResultsPacket> dm30Packets = requestDM30Packets(listener, address, spn.getSpn())
-                .getPackets();
-        reportDM30Results(listener, dm30Packets);
-        return dm30Packets;
-    }
-
-    private void reportDM30Results(ResultsListener listener, List<DM30ScaledTestResultsPacket> requestedPackets) {
-
-        requestedPackets.stream().forEach(packet -> {
-            listener.onResult(packet.getPacket().toTimeString());
-        });
-
+    public List<DM30ScaledTestResultsPacket> getDM30Packets(String title, ResultsListener listener, int address,
+            SupportedSPN spn) {
+        return requestDM30Packets(title, listener, address, spn.getSpn()).getPackets();
     }
 
     private void reportObdTests(ResultsListener listener, List<DM24SPNSupportPacket> requestedPackets) {
@@ -221,10 +210,8 @@ public class OBDTestsModule extends FunctionalModule {
             int obdModuleAddress) {
 
         Packet request = getJ1939().createRequestPacket(DM24SPNSupportPacket.PGN, obdModuleAddress);
-        listener.onResult(getTime() + " Direct DM24 Request to " + Lookup.getAddressName(obdModuleAddress));
-        listener.onResult(getTime() + " " + request.toString());
-        return getJ1939().requestDS(DM24SPNSupportPacket.class, request);
-
+        return getJ1939().requestDS("Direct DM24 Request to " + Lookup.getAddressName(obdModuleAddress), listener,
+                DM24SPNSupportPacket.class, request);
     }
 
     /**
@@ -235,25 +222,16 @@ public class OBDTestsModule extends FunctionalModule {
      *            the {@link ResultsListener}
      * @return {@link List} of {@link DM30ScaledTestResultsPacket}s
      */
-    public RequestResult<DM30ScaledTestResultsPacket> requestDM30Packets(ResultsListener listener, int address,
+    public RequestResult<DM30ScaledTestResultsPacket> requestDM30Packets(String title, ResultsListener listener,
+            int address,
             int spn) {
         Packet request = createDM7Packet(address, spn);
-        listener.onResult(getTime() + " " + request.toString());
+        BusResult<DM30ScaledTestResultsPacket> result = getJ1939()
+                .requestDm7(title, listener, request);
+        result.getPacket().flatMap(e -> e.left).ifPresent(packet -> listener.onResult(packet.toString()));
 
-        DM30ScaledTestResultsPacket packet = getJ1939()
-                .requestDm7(request).getPacket()
-                .flatMap(e -> e.left)
-                .orElse(null);
-        if (packet == null) {
-            listener.onResult(TIMEOUT_MESSAGE);
-            listener.onResult("");
-            return new RequestResult<>(true, Collections.emptyList());
-        } else {
-            listener.onResult(packet.getPacket().toTimeString());
-            listener.onResult(packet.toString());
-            listener.onResult("");
-            return new RequestResult<>(false, Collections.singletonList(packet), Collections.emptyList());
-        }
+        listener.onResult("");
+        return result.requestResult();
     }
 
     public RequestResult<DM24SPNSupportPacket> requestObdTests(ResultsListener listener,
@@ -275,22 +253,15 @@ public class OBDTestsModule extends FunctionalModule {
      *            the SPN for which the Scaled Test Results are being requested
      * @return the {@link List} of {@link DM30ScaledTestResultsPacket} returned.
      */
-    private List<ScaledTestResult> requestScaledTestResultsForSpn(ResultsListener listener, int destination, int spn) {
+    private List<ScaledTestResult> requestScaledTestResultsForSpn(String title, ResultsListener listener,
+            int destination, int spn) {
         Packet request = createDM7Packet(destination, spn);
-        listener.onResult(getTime() + " " + request.toString());
-        DM30ScaledTestResultsPacket packet = getJ1939().requestDm7(request).getPacket()
-                .flatMap(br -> br.left)
-                .orElse(null);
-        if (packet == null) {
-            listener.onResult(TIMEOUT_MESSAGE);
-            listener.onResult("");
-            return Collections.emptyList();
-        } else {
-            listener.onResult(packet.getPacket().toTimeString());
-            listener.onResult(packet.toString());
-            listener.onResult("");
-            return packet.getTestResults();
-        }
+        var results = getJ1939().requestDm7(title, listener, request);
+        results.getPacket().flatMap(e -> e.left).ifPresent(packet -> listener.onResult(packet.toString()));
+        listener.onResult("");
+        return results.getPacket()
+                .flatMap(br -> br.left.map(p -> p.getTestResults()))
+                .orElse(Collections.emptyList());
     }
 
     /**
@@ -312,9 +283,9 @@ public class OBDTestsModule extends FunctionalModule {
             String moduleName,
             List<Integer> spns) {
         List<ScaledTestResult> scaledTestResults = new ArrayList<>();
-        listener.onResult(getTime() + " Direct DM30 Requests to " + moduleName);
         for (int spn : spns) {
-            List<ScaledTestResult> results = requestScaledTestResultsForSpn(listener, destination, spn);
+            List<ScaledTestResult> results = requestScaledTestResultsForSpn("Direct DM30 Requests to " + moduleName,
+                    listener, destination, spn);
             scaledTestResults.addAll(results);
         }
         return scaledTestResults;
@@ -336,23 +307,20 @@ public class OBDTestsModule extends FunctionalModule {
 
         for (int address : obdModuleAddresses) {
             Packet request = getJ1939().createRequestPacket(DM24SPNSupportPacket.PGN, address);
-            listener.onResult(getTime() + " Direct DM24 Request to " + Lookup.getAddressName(address));
-            listener.onResult(getTime() + " " + request.toString());
-            // FIXME, this should be 220 ms, not 3 s. 6.1.4.1.b
-            BusResult<DM24SPNSupportPacket> busResult = getJ1939().requestDS(DM24SPNSupportPacket.class, request);
+            BusResult<DM24SPNSupportPacket> busResult = getJ1939().requestDS(
+                    "Direct DM24 Request to " + Lookup.getAddressName(address), listener, DM24SPNSupportPacket.class,
+                    request);
             retryUsed |= busResult.isRetryUsed();
             busResult
                     .getPacket()
-                    .ifPresentOrElse(packet -> {
-                        // log DM24 or ACK
-                        ParsedPacket pp = packet.resolve();
-                        listener.onResult(pp.getPacket().toTimeString());
-                        listener.onResult(pp.toString());
+                    .ifPresent(packet -> {
+                        packet.resolve();
                         // only return DM24s
-                        packet.left.ifPresent(p -> packets.add(p));
-                    },
-                            // log missing responses
-                            () -> listener.onResult(TIMEOUT_MESSAGE));
+                        packet.left.ifPresent(p -> {
+                            listener.onResult(p.toString());
+                            packets.add(p);
+                        });
+                    });
             listener.onResult("");
         }
         reportObdTests(listener, packets);

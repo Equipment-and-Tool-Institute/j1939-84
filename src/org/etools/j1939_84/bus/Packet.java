@@ -419,6 +419,7 @@ public class Packet {
      *            the {@link DateTimeFormatter} to format the time received
      * @return a {@link String}
      */
+    // FIXME This is inlined some places and not others.
     public String toTimeString() {
         return DateTimeModule.getInstance()
                 .getTimeFormatter().format(timestamp) + " " + toString();

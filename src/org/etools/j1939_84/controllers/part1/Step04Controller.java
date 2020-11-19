@@ -71,16 +71,13 @@ public class Step04Controller extends StepController {
             BusResult<DM24SPNSupportPacket> result = obdTestsModule.requestDM24(getListener(),
                     module.getSourceAddress());
 
-            result.getPacket().ifPresentOrElse(packet -> {
+            result.getPacket().ifPresent(packet -> {
                 packet.left.ifPresent(p -> {
                     destinationSpecifcPackets.add(p);
-                    getListener().onResult(p.toString());
                 });
                 packet.right.ifPresent(a -> {
                     destinationSpecifcAcks.add(a);
-                    getListener().onResult(a.toString());
                 });
-            }, () -> {
             });
             // 6.1.4.2 Fail criteria:7
             // a. Fail if retry was required to obtain DM24 response.

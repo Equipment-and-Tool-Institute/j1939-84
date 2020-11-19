@@ -9,6 +9,7 @@ import static org.junit.Assert.assertFalse;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.bus.simulated.Sim;
+import org.etools.j1939_84.controllers.ResultsListener;
 import org.junit.Test;
 
 public class EchoTest {
@@ -17,7 +18,8 @@ public class EchoTest {
 
     public void failVin() throws BusException {
         Bus bus = new EchoBus(0xF9);
-        assertFalse(new J1939(bus).requestGlobalResult(VehicleIdentificationPacket.class).getEither().stream().findFirst().isPresent());
+        assertFalse(new J1939(bus).requestGlobalResult(null, ResultsListener.NOOP, VehicleIdentificationPacket.class)
+                .getEither().stream().findFirst().isPresent());
     }
 
     @Test
@@ -29,7 +31,8 @@ public class EchoTest {
                     () -> Packet.create(65260, 0x0, VIN.getBytes()));
 
             assertEquals(VIN,
-                    new J1939(bus).requestGlobalResult(VehicleIdentificationPacket.class).getEither().stream()
+                    new J1939(bus).requestGlobalResult(null, ResultsListener.NOOP, VehicleIdentificationPacket.class)
+                            .getEither().stream()
                             .flatMap(e -> e.left.stream())
                             .findFirst()
                             .map(p1 -> new String(p1.getPacket().getBytes())).get());

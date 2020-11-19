@@ -23,6 +23,7 @@ import java.util.stream.Stream;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
+import org.etools.j1939_84.controllers.ResultsListener;
 import org.ini4j.InvalidFileFormatException;
 import org.junit.After;
 import org.junit.Test;
@@ -61,7 +62,8 @@ public class RP1210Test {
         RP1210Bus bus = new RP1210Bus(adapter.get(), 0xF9, true);
         long start = System.currentTimeMillis();
         Stream<Packet> read = bus.read(365, TimeUnit.DAYS);
-        new J1939(bus).requestGlobalResult(VehicleIdentificationPacket.class).getEither().stream()
+        new J1939(bus).requestGlobalResult(null, ResultsListener.NOOP, VehicleIdentificationPacket.class).getEither()
+                .stream()
                 .flatMap(pa -> pa.left.stream())
                 .map(pa -> pa.getVin())
                 .findAny()

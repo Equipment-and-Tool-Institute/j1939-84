@@ -5,7 +5,6 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -14,7 +13,6 @@ import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
@@ -41,29 +39,6 @@ public abstract class FunctionalModule {
     }
 
     /**
-     * Helper Method that will parse the results send them to the
-     * {@link ResultsListener}
-     *
-     * @param <T>
-     *            the class of the Packets
-     * @param listener
-     *            the {@link ResultsListener} to add the results to
-     * @param results
-     *            the response packets to parse
-     * @return a List of the Packets
-     */
-    protected <T extends ParsedPacket> RequestResult<T> addToReport(ResultsListener listener,
-            RequestResult<T> results) {
-        if (results.isRetryUsed()) {
-            listener.onResult(TIMEOUT_MESSAGE);
-        } else {
-            listener.onResult(results.getEither().stream().map(e -> (ParsedPacket) e.resolve())
-                    .map(getPacketMapperFunction()).collect(Collectors.toList()));
-        }
-        return results;
-    }
-
-    /**
      * Helper method to generate a report
      *
      * @param <T>
@@ -86,9 +61,9 @@ public abstract class FunctionalModule {
             String title,
             Class<T> clazz,
             Packet request) {
-        listener.onResult(getTime() + " " + title);
-        listener.onResult(getTime() + " " + request.toString());
-        return addToReport(listener, getJ1939().requestResult(clazz, request));
+        RequestResult<T> results = getJ1939().requestResult(title, listener, clazz, request);
+        listener.onResult(results.getEither().stream().map(e -> e.resolve().toString()).collect(Collectors.toList()));
+        return results;
     }
 
     protected String getDate() {
@@ -120,40 +95,14 @@ public abstract class FunctionalModule {
             boolean fullString,
             int address) {
         Packet request = getJ1939().createRequestPacket(pgn, address);
-        listener.onResult(getTime() + " " + title);
-        listener.onResult(getTime() + " " + request.toString());
 
-        boolean retryUsed = false;
-        // Try three times to get packets and ensure there's one from the module
-        Optional<Either<T, AcknowledgmentPacket>> packet = Optional.empty();
-        for (int i = 0; i < 3; i++) {
-            packet = getJ1939().requestResult(clazz, request).getEither().stream().findFirst();
-            if (packet
-                    .map(o -> o.resolve(
-                            // there was a packet
-                            p -> true,
-                            // there was a terminal error
-                            ack -> ack.getResponse() != Response.BUSY))
-                    // there was no response
-                    .orElse(false)) {
-                break;
-            } else {
-                retryUsed = true;
-                // FIXME wait for a delay. Should it be 200 ms? It should be
-                // specified in the requirements somewhere.
-            }
-        }
+        BusResult<T> result = getJ1939().requestDS(title, listener, clazz, request);
 
-        if (packet.isEmpty()) {
-            listener.onResult(TIMEOUT_MESSAGE);
-        } else {
-            ParsedPacket pp = packet.get().resolve();
-            listener.onResult(pp.getPacket().toTimeString());
-            if (fullString) {
-                listener.onResult(pp.toString());
-            }
+        // FIXME is this right?
+        if (fullString) {
+            result.getPacket().ifPresent(p -> listener.onResult(p.toString()));
         }
-        return new BusResult<>(retryUsed, packet);
+        return result;
     }
 
     protected Function<ParsedPacket, String> getPacketMapperFunction() {
@@ -185,24 +134,13 @@ public abstract class FunctionalModule {
             ResultsListener listener,
             boolean fullString) {
         Packet request = getJ1939().createRequestPacket(pgn, J1939.GLOBAL_ADDR);
-        if (listener != null) {
-            listener.onResult(getTime() + " " + title);
-            listener.onResult(getTime() + " " + request.toString());
-        }
 
-        RequestResult<T> result = getJ1939().requestGlobal(clazz, request);
+        RequestResult<T> result = getJ1939().requestGlobal(title, listener, clazz, request);
 
-        if (listener != null) {
-            if (result.getEither().isEmpty()) {
-                listener.onResult(TIMEOUT_MESSAGE);
-            } else {
-                for (Either<T, AcknowledgmentPacket> packet : result.getEither()) {
-                    ParsedPacket pp = packet.resolve();
-                    listener.onResult(pp.getPacket().toTimeString());
-                    if (fullString) {
-                        listener.onResult(pp.toString());
-                    }
-                }
+        for (Either<T, AcknowledgmentPacket> packet : result.getEither()) {
+            ParsedPacket pp = packet.resolve();
+            if (fullString) {
+                listener.onResult(pp.toString());
             }
         }
         return result;
