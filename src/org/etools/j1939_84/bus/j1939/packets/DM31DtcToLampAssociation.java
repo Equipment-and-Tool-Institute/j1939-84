@@ -18,12 +18,12 @@ import org.etools.j1939_84.bus.Packet;
  *
  *         DTC to Lamp Association
  */
-public class DM31ScaledTestResults extends ParsedPacket {
+public class DM31DtcToLampAssociation extends ParsedPacket {
     // Hex value of PGN = 00A300
     public static final int PGN = 41728;
     private List<DTCLampStatus> dtcLampStatuses;
 
-    public DM31ScaledTestResults(Packet packet) {
+    public DM31DtcToLampAssociation(Packet packet) {
         super(packet);
     }
 

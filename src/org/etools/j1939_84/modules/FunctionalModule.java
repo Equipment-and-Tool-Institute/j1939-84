@@ -91,7 +91,7 @@ public abstract class FunctionalModule {
             int address) {
         Packet request = getJ1939().createRequestPacket(pgn, address);
 
-        return getJ1939().requestDS(title, listener, clazz, request);
+        return getJ1939().requestDS(title, listener, fullString, clazz, request);
     }
 
     protected Function<ParsedPacket, String> getPacketMapperFunction() {

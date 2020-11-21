@@ -59,7 +59,7 @@ public class DiagnosticTroubleCodeTest {
         DiagnosticTroubleCode instance2 = new DiagnosticTroubleCode(data);
         int[] data2 = new int[] { 0x13, 0x81, 0x61, 0x02 };
         DiagnosticTroubleCode instance3 = new DiagnosticTroubleCode(data2);
-        DM31ScaledTestResults instance4 = new DM31ScaledTestResults(
+        DM31DtcToLampAssociation instance4 = new DM31DtcToLampAssociation(
                 Packet.create(0, 0, new int[] { 0x61, 0x02, 0x13, 0x81 }));
         assertTrue(instance.equals(instance2));
         assertFalse(instance.equals(instance3));

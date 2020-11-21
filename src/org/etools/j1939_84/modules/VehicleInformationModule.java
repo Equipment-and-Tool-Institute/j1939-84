@@ -177,13 +177,9 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public String getVin() throws IOException {
         if (vin == null) {
-            Collection<Either<VehicleIdentificationPacket, AcknowledgmentPacket>> all = getJ1939()
-                    .requestGlobalResult(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class)
-                    .getEither()
-                    .stream()
-                    .collect(Collectors.toList());
-            Set<String> vins = all.stream()
-                    .flatMap(e -> e.left.stream())
+            var all = getJ1939().requestGlobalResult(null, ResultsListener.NOOP, false,
+                    VehicleIdentificationPacket.class);
+            Set<String> vins = all.getPackets().stream()
                     .map(t -> t.getVin())
                     .collect(Collectors.toSet());
             // FIXME what about NACKS

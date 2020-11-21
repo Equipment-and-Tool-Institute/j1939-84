@@ -210,7 +210,7 @@ public class OBDTestsModule extends FunctionalModule {
             int obdModuleAddress) {
 
         Packet request = getJ1939().createRequestPacket(DM24SPNSupportPacket.PGN, obdModuleAddress);
-        return getJ1939().requestDS("Direct DM24 Request to " + Lookup.getAddressName(obdModuleAddress), listener,
+        return getJ1939().requestDS("Direct DM24 Request to " + Lookup.getAddressName(obdModuleAddress), listener, true,
                 DM24SPNSupportPacket.class, request);
     }
 
@@ -308,7 +308,8 @@ public class OBDTestsModule extends FunctionalModule {
         for (int address : obdModuleAddresses) {
             Packet request = getJ1939().createRequestPacket(DM24SPNSupportPacket.PGN, address);
             BusResult<DM24SPNSupportPacket> busResult = getJ1939().requestDS(
-                    "Direct DM24 Request to " + Lookup.getAddressName(address), listener, DM24SPNSupportPacket.class,
+                    "Direct DM24 Request to " + Lookup.getAddressName(address), listener, true,
+                    DM24SPNSupportPacket.class,
                     request);
             retryUsed |= busResult.isRetryUsed();
             busResult

@@ -89,7 +89,7 @@ public class OBDTestsModuleTest {
                 0xFB,
                 0x00));
 
-        when(j1939.requestDS("Direct DM24 Request to Engine #1 (0)", listener, DM24SPNSupportPacket.class,
+        when(j1939.requestDS("Direct DM24 Request to Engine #1 (0)", listener, true, DM24SPNSupportPacket.class,
                 dm24RequestPacket1))
                         .thenReturn((new BusResult<>(false, engineDm24Packet)));
 
@@ -115,7 +115,7 @@ public class OBDTestsModuleTest {
         when(j1939.createRequestPacket(64950, 0x55)).thenReturn(dm24RequestPacket2);
         DM24SPNSupportPacket atDm24Packet = new DM24SPNSupportPacket(
                 Packet.create(64950, 0x55, 0xA7, 0x13, 0x1C, 0x00, 0x0C, 0x11, 0x18, 0x00, 0x9A, 0x0C, 0x18, 0x00));
-        when(j1939.requestDS("Direct DM24 Request to Diesel Particulate Filter Controller (85)", listener,
+        when(j1939.requestDS("Direct DM24 Request to Diesel Particulate Filter Controller (85)", listener, true,
                 DM24SPNSupportPacket.class,
                 dm24RequestPacket2))
                         .thenReturn(new BusResult<>(false, atDm24Packet));
@@ -214,9 +214,9 @@ public class OBDTestsModuleTest {
         verify(j1939, times(5)).getBusAddress();
         verify(j1939).createRequestPacket(64950, 0x00);
         verify(j1939).createRequestPacket(64950, 0x55);
-        verify(j1939).requestDS("Direct DM24 Request to Engine #1 (0)", listener, DM24SPNSupportPacket.class,
+        verify(j1939).requestDS("Direct DM24 Request to Engine #1 (0)", listener, true, DM24SPNSupportPacket.class,
                 dm24RequestPacket1);
-        verify(j1939).requestDS("Direct DM24 Request to Diesel Particulate Filter Controller (85)", listener,
+        verify(j1939).requestDS("Direct DM24 Request to Diesel Particulate Filter Controller (85)", listener, true,
                 DM24SPNSupportPacket.class, dm24RequestPacket2);
         verify(j1939, times(5)).requestDm7(any(), eq(listener), any(Packet.class));
     }
@@ -225,7 +225,7 @@ public class OBDTestsModuleTest {
     public void testReportOBDTestsNoResponse() {
         final Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, 0xB6, 0xFD, 0x00);
         when(j1939.createRequestPacket(64950, 0x00)).thenReturn(requestPacket);
-        when(j1939.requestDS("Direct DM24 Request to Engine #1 (0)", listener,
+        when(j1939.requestDS("Direct DM24 Request to Engine #1 (0)", listener, true,
                 DM24SPNSupportPacket.class, requestPacket))
                         .thenReturn(new BusResult<>(true, Optional.empty()));
         List<Integer> obdModules = Arrays.asList(new Integer[] { 0x00 });
@@ -242,7 +242,7 @@ public class OBDTestsModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(64950, 0x00);
-        verify(j1939).requestDS("Direct DM24 Request to Engine #1 (0)", listener,
+        verify(j1939).requestDS("Direct DM24 Request to Engine #1 (0)", listener, true,
                 DM24SPNSupportPacket.class, requestPacket);
     }
 
@@ -260,7 +260,7 @@ public class OBDTestsModuleTest {
 
         DM24SPNSupportPacket engineDm24Packet = new DM24SPNSupportPacket(
                 Packet.create(64950, 0x00, 0x66, 0x00, 0x1B, 0x01));
-        when(j1939.requestDS("Direct DM24 Request to Engine #1 (0)", listener, DM24SPNSupportPacket.class,
+        when(j1939.requestDS("Direct DM24 Request to Engine #1 (0)", listener, true, DM24SPNSupportPacket.class,
                 dm24RequestPacket))
                         .thenReturn((new BusResult<>(false, engineDm24Packet)));
         List<Integer> obdModules = Arrays.asList(new Integer[] { 0x00 });
@@ -291,7 +291,7 @@ public class OBDTestsModuleTest {
 
         verify(j1939).getBusAddress();
         verify(j1939).createRequestPacket(64950, 0x00);
-        verify(j1939).requestDS("Direct DM24 Request to Engine #1 (0)", listener, DM24SPNSupportPacket.class,
+        verify(j1939).requestDS("Direct DM24 Request to Engine #1 (0)", listener, true, DM24SPNSupportPacket.class,
                 dm24RequestPacket);
         verify(j1939).requestDm7(eq("Direct DM30 Requests to Engine #1 (0)"), eq(listener), any(Packet.class));
     }
@@ -303,7 +303,7 @@ public class OBDTestsModuleTest {
         when(j1939.createRequestPacket(64950, 0x00)).thenReturn(requestPacket);
         DM24SPNSupportPacket engineDm24Packet = new DM24SPNSupportPacket(
                 Packet.create(64950, 0x00, 0x66, 0x00, 0x1B, 0x01));
-        when(j1939.requestDS("Direct DM24 Request to Engine #1 (0)", listener, DM24SPNSupportPacket.class,
+        when(j1939.requestDS("Direct DM24 Request to Engine #1 (0)", listener, true, DM24SPNSupportPacket.class,
                 requestPacket))
                         .thenReturn((new BusResult<>(false, engineDm24Packet)));
 
@@ -338,7 +338,7 @@ public class OBDTestsModuleTest {
 
         verify(j1939).getBusAddress();
         verify(j1939).createRequestPacket(64950, 0x00);
-        verify(j1939).requestDS("Direct DM24 Request to Engine #1 (0)", listener, DM24SPNSupportPacket.class,
+        verify(j1939).requestDS("Direct DM24 Request to Engine #1 (0)", listener, true, DM24SPNSupportPacket.class,
                 requestPacket);
         verify(j1939).requestDm7(eq("Direct DM30 Requests to Engine #1 (0)"), eq(listener), any(Packet.class));
     }
@@ -349,7 +349,7 @@ public class OBDTestsModuleTest {
         when(j1939.createRequestPacket(64950, 0x00)).thenReturn(requestPacket);
         DM24SPNSupportPacket engineDm24Packet = new DM24SPNSupportPacket(
                 Packet.create(64950, 0x00, 0x66, 0x00, 0x1C, 0x01));
-        when(j1939.requestDS("Direct DM24 Request to Engine #1 (0)", listener, DM24SPNSupportPacket.class,
+        when(j1939.requestDS("Direct DM24 Request to Engine #1 (0)", listener, true, DM24SPNSupportPacket.class,
                 requestPacket))
                         .thenReturn((new BusResult<>(false, engineDm24Packet)));
 
@@ -375,7 +375,7 @@ public class OBDTestsModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(64950, 0x00);
-        verify(j1939).requestDS("Direct DM24 Request to Engine #1 (0)", listener, DM24SPNSupportPacket.class,
+        verify(j1939).requestDS("Direct DM24 Request to Engine #1 (0)", listener, true, DM24SPNSupportPacket.class,
                 requestPacket);
     }
 

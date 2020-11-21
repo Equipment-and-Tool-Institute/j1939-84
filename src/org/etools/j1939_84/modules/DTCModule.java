@@ -27,7 +27,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
-import org.etools.j1939_84.bus.j1939.packets.DM31ScaledTestResults;
+import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
@@ -99,36 +99,16 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @param obdModules
      *            the source address for the OBD Modules
-     * @return true if there are no NACKs from the OBD Modules; false if an OBD
-     *         Module NACK'd the request or didn't respond
      */
     public <T extends ParsedPacket> RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener) {
-        return requestDM11(listener, GLOBAL_ADDR);
-    }
-
-    /**
-     * Requests DM11 from OBD modules and generates a {@link String} that's
-     * suitable for inclusion in the report
-     *
-     * @param listener
-     *            the {@link ResultsListener} that will be given the report
-     * @param obdModules
-     *            the source address for the OBD Modules
-     * @return true if there are no NACKs from the OBD Modules; false if an OBD
-     *         Module NACK'd the request or didn't respond
-     */
-    public <T extends ParsedPacket> RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener,
-            Integer address) {
+        final int address = GLOBAL_ADDR;
         listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
         Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN, address);
 
-        String title = address == GLOBAL_ADDR ? "Global DM11 Request"
-                : "Destination Specific DM11 Request to " + Lookup.getAddressName(address);
-
         var results = getJ1939()
-                .requestResult(title, listener, false, DM11ClearActiveDTCsPacket.class, requestPacket);
+                .requestResult("Global DM11 Request", listener, false, DM11ClearActiveDTCsPacket.class, requestPacket);
 
-        if (results.getAcks().stream().allMatch(t -> t.getResponse() == Response.ACK)) {
+        if (!results.getAcks().isEmpty() && results.getAcks().stream().allMatch(t -> t.getResponse() == Response.ACK)) {
             listener.onResult(DTCS_CLEARED);
         } else {
             listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
@@ -284,8 +264,8 @@ public class DTCModule extends FunctionalModule {
             int moduleAddress) {
 
         Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, moduleAddress);
-        String message = " Destination Specific DM25 Request to " + Lookup.getAddressName(moduleAddress);
-        BusResult<DM25ExpandedFreezeFrame> result = getJ1939().requestDS(message, listener,
+        String message = "Destination Specific DM25 Request to " + Lookup.getAddressName(moduleAddress);
+        BusResult<DM25ExpandedFreezeFrame> result = getJ1939().requestDS(message, listener, true,
                 DM25ExpandedFreezeFrame.class, request);
 
         return result;
@@ -435,7 +415,7 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM31ScaledTestResults> requestDM31(ResultsListener listener) {
+    public RequestResult<DM31DtcToLampAssociation> requestDM31(ResultsListener listener) {
         return requestDM31(listener, GLOBAL_ADDR);
     }
 
@@ -447,15 +427,15 @@ public class DTCModule extends FunctionalModule {
      *            the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM31ScaledTestResults> requestDM31(ResultsListener listener, int address) {
-        Packet request = getJ1939().createRequestPacket(DM31ScaledTestResults.PGN, address);
+    public RequestResult<DM31DtcToLampAssociation> requestDM31(ResultsListener listener, int address) {
+        Packet request = getJ1939().createRequestPacket(DM31DtcToLampAssociation.PGN, address);
 
         String title = address == GLOBAL_ADDR ? "Global DM31 Request"
                 : "Destination Specific DM31 Request to " + Lookup.getAddressName(address);
 
         return generateReport(listener,
                 title,
-                DM31ScaledTestResults.class,
+                DM31DtcToLampAssociation.class,
                 request);
     }
 

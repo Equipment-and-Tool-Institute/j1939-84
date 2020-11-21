@@ -13,7 +13,7 @@ import org.etools.j1939_84.bus.Packet;
 import org.junit.Test;
 
 /**
- * Unit tests the {@link DM31ScaledTestResults} class
+ * Unit tests the {@link DM31DtcToLampAssociation} class
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
@@ -22,9 +22,9 @@ public class DM31ScaledTestResultTest {
 
     @Test
     public void testEmptyDTCs() {
-        Packet packet = Packet.create(DM31ScaledTestResults.PGN,
+        Packet packet = Packet.create(DM31DtcToLampAssociation.PGN,
                 0);
-        DM31ScaledTestResults instance = new DM31ScaledTestResults(packet);
+        DM31DtcToLampAssociation instance = new DM31DtcToLampAssociation(packet);
         assertEquals("DM31", instance.getName());
         assertTrue(instance.getDtcLampStatuses().isEmpty());
         assertEquals(0, instance.getPacket().getBytes().length);
@@ -40,10 +40,10 @@ public class DM31ScaledTestResultTest {
                 0x62, // Lamp Status/Support
                 0x1D, // Lamp Status/State
         };
-        Packet packet = Packet.create(DM31ScaledTestResults.PGN,
+        Packet packet = Packet.create(DM31DtcToLampAssociation.PGN,
                 0,
                 data);
-        DM31ScaledTestResults instance = new DM31ScaledTestResults(packet);
+        DM31DtcToLampAssociation instance = new DM31DtcToLampAssociation(packet);
         assertEquals(1, instance.getDtcLampStatuses().size());
         String expected = "DM31 from Engine #1 (0): " + NL;
         expected += "DTC Lamp Statuses: [" + NL;
@@ -66,12 +66,12 @@ public class DM31ScaledTestResultTest {
 
     @Test
     public void testPGN() {
-        assertEquals(41728, DM31ScaledTestResults.PGN);
+        assertEquals(41728, DM31DtcToLampAssociation.PGN);
     }
 
     @Test
     public void testThreeDTCs() {
-        Packet packet = Packet.create(DM31ScaledTestResults.PGN,
+        Packet packet = Packet.create(DM31DtcToLampAssociation.PGN,
                 0,
                 0x61, // SPN least significant bit
                 0x02, // SPN most significant bit
@@ -94,7 +94,7 @@ public class DM31ScaledTestResultTest {
                 0xAA, // Lamp Status/Support
                 0x55);// Lamp Status/State
 
-        DM31ScaledTestResults instance = new DM31ScaledTestResults(packet);
+        DM31DtcToLampAssociation instance = new DM31DtcToLampAssociation(packet);
         assertEquals("DM31", instance.getName());
         List<DTCLampStatus> lampStatuses = instance.getDtcLampStatuses();
         assertEquals(0x03, lampStatuses.size());

@@ -85,4 +85,9 @@ public class BusResult<T extends ParsedPacket> {
     public RequestResult<T> requestResult() {
         return new RequestResult<>(isRetryUsed(), getPacket().stream().collect(Collectors.toList()));
     }
+
+    @Override
+    public String toString() {
+        return requestResult().toString();
+    }
 }

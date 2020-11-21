@@ -20,7 +20,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM31ScaledTestResults;
+import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
@@ -442,8 +442,8 @@ public class SectionA5Verifier {
         // 3. MIL information
         // a. DM31 lamp status shall report no DTCs causing MIL on (if
         // supported, see section 6 provisions before section 6.1).
-        List<DM31ScaledTestResults> dm31Packets = dtcModule.requestDM31(listener).getPackets().stream()
-                .filter(packet -> packet instanceof DM31ScaledTestResults).map(p -> p)
+        List<DM31DtcToLampAssociation> dm31Packets = dtcModule.requestDM31(listener).getPackets().stream()
+                .filter(packet -> packet instanceof DM31DtcToLampAssociation).map(p -> p)
                 .filter(t -> !t.getDtcLampStatuses().isEmpty())
                 .collect(Collectors.toList());
         if (!dm31Packets.isEmpty()) {

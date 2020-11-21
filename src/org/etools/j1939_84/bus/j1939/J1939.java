@@ -39,6 +39,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
@@ -205,6 +206,9 @@ public class J1939 {
 
         case DM30ScaledTestResultsPacket.PGN:
             return new DM30ScaledTestResultsPacket(packet);
+
+        case DM31DtcToLampAssociation.PGN:
+            return new DM31DtcToLampAssociation(packet);
 
         case DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN:
             return new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(packet);
@@ -476,7 +480,8 @@ public class J1939 {
                 // FIXME log the timestamp from the echo, not the creation TS
                 listener.onResult(DateTimeModule.getInstance().getTime() + " " + request.toString());
                 bus.send(request);
-                result = new BusResult<>(i > 0, stream.findFirst());
+                Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> first = stream.findFirst();
+                result = new BusResult<>(i > 0, first);
                 result.getPacket().ifPresentOrElse(p -> listener.onResult(p.resolve().toString()),
                         () -> listener.onResult(FunctionalModule.TIMEOUT_MESSAGE));
                 // if there is a valid response or a non-busy NACK, return it.
@@ -506,35 +511,33 @@ public class J1939 {
      * @return
      * @throws BusException
      */
-    public <T extends ParsedPacket> BusResult<T> requestDS(String title, ResultsListener listener,
+    public <T extends ParsedPacket> BusResult<T> requestDS(String title, ResultsListener listener, boolean fullString,
             Class<T> packetClass,
             Packet request) {
-        boolean fullString = true; // FIXME does this ever need to be false?
-
         if (title != null) {
             listener.onResult(DateTimeModule.getInstance().getTime() + " " + title);
         }
 
         long end = System.currentTimeMillis() + 1200;
-        int noResponse = 0;
-        while (true) {
+        boolean retry = false;
+        for (int noResponse = 0; System.currentTimeMillis() < end; noResponse++) {
             Optional<Either<T, AcknowledgmentPacket>> result = requestDSOnce(listener, fullString, packetClass,
                     request);
             if (result.isPresent()) {
-                if (System.currentTimeMillis() < end
-                        && result.get().right.map(a -> a.getResponse() == Response.BUSY).orElse(false)) {
+                if (result.get().right.map(a -> a.getResponse() == Response.BUSY).orElse(false)) {
                     // busy. wait 200 ms and try again
                     sleep(200);
+                    retry = true;
                 } else {
                     // either the packet or a permanent NACK, give up
                     return new BusResult<>(noResponse > 0, result);
                 }
             } else {
-                if (noResponse++ >= 2) {
-                    return new BusResult<>(true);
-                }
+                return new BusResult<>(retry);
             }
         }
+        return new BusResult<>(retry);
+
     }
 
     /**
@@ -563,7 +566,9 @@ public class J1939 {
             result.ifPresentOrElse(p -> {
                 ParsedPacket pp = (ParsedPacket) p.resolve();
                 listener.onResult(pp.getPacket().toTimeString());
-                listener.onResult(pp.toString());
+                if (fullString) {
+                    listener.onResult(pp.toString());
+                }
             },
                     () -> listener.onResult(FunctionalModule.TIMEOUT_MESSAGE));
 
@@ -705,7 +710,7 @@ public class J1939 {
         return (request.getDestination() == GLOBAL_ADDR)
                 ? requestGlobal(title, listener, fullString, clazz, request)
                 : request.getPgn() == REQUEST_PGN
-                        ? requestDS(title, listener, clazz, request).requestResult()
+                        ? requestDS(title, listener, fullString, clazz, request).requestResult()
                         : (RequestResult<T>) requestDm7(title, listener, request).requestResult();
     }
 }

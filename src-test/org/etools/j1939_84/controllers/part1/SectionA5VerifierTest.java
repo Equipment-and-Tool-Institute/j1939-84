@@ -33,7 +33,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM31ScaledTestResults;
+import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
@@ -1049,7 +1049,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
      */
     @Test
     public void testVerifyDM31() {
-        DM31ScaledTestResults dm31Packet = mock(DM31ScaledTestResults.class);
+        DM31DtcToLampAssociation dm31Packet = mock(DM31DtcToLampAssociation.class);
         when(dm31Packet.getDtcLampStatuses()).thenReturn(Collections.emptyList());
 
         when(dtcModule.requestDM31(any()))
@@ -1081,7 +1081,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
      */
     @Test
     public void testVerifyDM31Fail() {
-        DM31ScaledTestResults dm31Packet = mock(DM31ScaledTestResults.class);
+        DM31DtcToLampAssociation dm31Packet = mock(DM31DtcToLampAssociation.class);
         DTCLampStatus dm31DtcLampStatus = mock(DTCLampStatus.class);
         when(dm31Packet.getDtcLampStatuses()).thenReturn(Collections.singletonList(dm31DtcLampStatus));
 
@@ -1931,7 +1931,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM30ScaledTestResultsPacket dm30Packet21 = mock(DM30ScaledTestResultsPacket.class);
         when(dm30Packet21.getSourceAddress()).thenReturn(0x21);
 
-        DM31ScaledTestResults dm31Packet = mock(DM31ScaledTestResults.class);
+        DM31DtcToLampAssociation dm31Packet = mock(DM31DtcToLampAssociation.class);
         DTCLampStatus dtcLampStatusDM31 = mock(DTCLampStatus.class);
         when(dm31Packet.getDtcLampStatuses()).thenReturn(Collections.singletonList(dtcLampStatusDM31));
 
@@ -2345,7 +2345,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm30Packet17.getSourceAddress()).thenReturn(0x17);
         DM30ScaledTestResultsPacket dm30Packet21 = mock(DM30ScaledTestResultsPacket.class);
 
-        DM31ScaledTestResults dm31Packet = mock(DM31ScaledTestResults.class);
+        DM31DtcToLampAssociation dm31Packet = mock(DM31DtcToLampAssociation.class);
 
         DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet0 = mock(
                 DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
@@ -2712,7 +2712,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM30ScaledTestResultsPacket dm30Packet17 = mock(DM30ScaledTestResultsPacket.class);
         DM30ScaledTestResultsPacket dm30Packet21 = mock(DM30ScaledTestResultsPacket.class);
 
-        DM31ScaledTestResults dm31Packet = mock(DM31ScaledTestResults.class);
+        DM31DtcToLampAssociation dm31Packet = mock(DM31DtcToLampAssociation.class);
 
         DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet0 = mock(
                 DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
@@ -2968,7 +2968,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM30ScaledTestResultsPacket dm30Packet21 = mock(DM30ScaledTestResultsPacket.class);
         when(dm30Packet21.getTestResults()).thenReturn(new ArrayList<>());
 
-        DM31ScaledTestResults dm31Packet = mock(DM31ScaledTestResults.class);
+        DM31DtcToLampAssociation dm31Packet = mock(DM31DtcToLampAssociation.class);
 
         DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet0 = mock(
                 DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
