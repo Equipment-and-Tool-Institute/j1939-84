@@ -76,9 +76,9 @@ public class OBDTestsModule extends FunctionalModule {
      *            the {@link ResultsListener}
      * @return {@link List} of {@link DM30ScaledTestResultsPacket}s
      */
-    public List<DM30ScaledTestResultsPacket> getDM30Packets(String title, ResultsListener listener, int address,
+    public List<DM30ScaledTestResultsPacket> getDM30Packets(ResultsListener listener, int address,
             SupportedSPN spn) {
-        return requestDM30Packets(title, listener, address, spn.getSpn()).getPackets();
+        return requestDM30Packets(listener, address, spn.getSpn()).getPackets();
     }
 
     private void reportObdTests(ResultsListener listener, List<DM24SPNSupportPacket> requestedPackets) {
@@ -222,12 +222,12 @@ public class OBDTestsModule extends FunctionalModule {
      *            the {@link ResultsListener}
      * @return {@link List} of {@link DM30ScaledTestResultsPacket}s
      */
-    public RequestResult<DM30ScaledTestResultsPacket> requestDM30Packets(String title, ResultsListener listener,
+    public RequestResult<DM30ScaledTestResultsPacket> requestDM30Packets(ResultsListener listener,
             int address,
             int spn) {
         Packet request = createDM7Packet(address, spn);
         BusResult<DM30ScaledTestResultsPacket> result = getJ1939()
-                .requestDm7(title, listener, request);
+                .requestDm7(null, listener, request);
         result.getPacket().flatMap(e -> e.left).ifPresent(packet -> listener.onResult(packet.toString()));
 
         listener.onResult("");

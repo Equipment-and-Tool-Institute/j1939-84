@@ -81,7 +81,8 @@ public class VehicleInformationModule extends FunctionalModule {
     public List<CalibrationInformation> getCalibrations() throws IOException {
         if (calibrations == null) {
             Collection<Either<DM19CalibrationInformationPacket, AcknowledgmentPacket>> raw = getJ1939()
-                    .requestGlobalResult(null, ResultsListener.NOOP, DM19CalibrationInformationPacket.class).getEither()
+                    .requestGlobalResult(null, ResultsListener.NOOP, false, DM19CalibrationInformationPacket.class)
+                    .getEither()
                     .stream()
                     .collect(Collectors.toList());
             calibrations = raw.stream()
@@ -123,7 +124,7 @@ public class VehicleInformationModule extends FunctionalModule {
     public String getEngineFamilyName() throws IOException {
         if (engineFamilyName == null) {
             Set<String> results = getJ1939()
-                    .requestGlobalResult(null, ResultsListener.NOOP, DM56EngineFamilyPacket.class)
+                    .requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class)
                     .getEither().stream()
                     .flatMap(e -> e.left.stream())
                     .map(t -> t.getFamilyName())
@@ -150,7 +151,7 @@ public class VehicleInformationModule extends FunctionalModule {
     public int getEngineModelYear() throws IOException {
         if (engineModelYear == null) {
             Set<Integer> results = getJ1939()
-                    .requestGlobalResult(null, ResultsListener.NOOP, DM56EngineFamilyPacket.class)
+                    .requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class)
                     .getEither().stream()
                     .flatMap(e -> e.left.stream())
                     .map(t -> t.getEngineModelYear())
@@ -177,7 +178,8 @@ public class VehicleInformationModule extends FunctionalModule {
     public String getVin() throws IOException {
         if (vin == null) {
             Collection<Either<VehicleIdentificationPacket, AcknowledgmentPacket>> all = getJ1939()
-                    .requestGlobalResult(null, ResultsListener.NOOP, VehicleIdentificationPacket.class).getEither()
+                    .requestGlobalResult(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class)
+                    .getEither()
                     .stream()
                     .collect(Collectors.toList());
             Set<String> vins = all.stream()

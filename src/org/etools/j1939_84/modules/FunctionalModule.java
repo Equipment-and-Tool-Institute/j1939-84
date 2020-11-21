@@ -6,13 +6,10 @@ package org.etools.j1939_84.modules;
 import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
@@ -61,9 +58,7 @@ public abstract class FunctionalModule {
             String title,
             Class<T> clazz,
             Packet request) {
-        RequestResult<T> results = getJ1939().requestResult(title, listener, clazz, request);
-        listener.onResult(results.getEither().stream().map(e -> e.resolve().toString()).collect(Collectors.toList()));
-        return results;
+        return getJ1939().requestResult(title, listener, true, clazz, request);
     }
 
     protected String getDate() {
@@ -96,13 +91,7 @@ public abstract class FunctionalModule {
             int address) {
         Packet request = getJ1939().createRequestPacket(pgn, address);
 
-        BusResult<T> result = getJ1939().requestDS(title, listener, clazz, request);
-
-        // FIXME is this right?
-        if (fullString) {
-            result.getPacket().ifPresent(p -> listener.onResult(p.toString()));
-        }
-        return result;
+        return getJ1939().requestDS(title, listener, clazz, request);
     }
 
     protected Function<ParsedPacket, String> getPacketMapperFunction() {
@@ -132,18 +121,10 @@ public abstract class FunctionalModule {
             int pgn,
             Class<T> clazz,
             ResultsListener listener,
-            boolean fullString) {
+            boolean fullString) { // FIXME is full
         Packet request = getJ1939().createRequestPacket(pgn, J1939.GLOBAL_ADDR);
 
-        RequestResult<T> result = getJ1939().requestGlobal(title, listener, clazz, request);
-
-        for (Either<T, AcknowledgmentPacket> packet : result.getEither()) {
-            ParsedPacket pp = packet.resolve();
-            if (fullString) {
-                listener.onResult(pp.toString());
-            }
-        }
-        return result;
+        return getJ1939().requestGlobal(title, listener, fullString, clazz, request);
     }
 
     /**

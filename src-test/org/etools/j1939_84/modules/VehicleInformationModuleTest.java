@@ -84,21 +84,21 @@ public class VehicleInformationModuleTest {
     public void testGetEngineFamilyName() throws Exception {
         DM56EngineFamilyPacket response = mock(DM56EngineFamilyPacket.class);
         when(response.getFamilyName()).thenReturn("family");
-        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, DM56EngineFamilyPacket.class))
+        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class))
                 .thenReturn(new RequestResult<>(false, response));
 
         String actual = instance.getEngineFamilyName();
         instance.getEngineFamilyName(); // Make sure it's cached
         assertEquals("family", actual);
 
-        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, DM56EngineFamilyPacket.class);
+        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class);
     }
 
     @Test
     @TestDoc(description = "Verify that engine family from a missing DM56 is correctly not detected.",
              dependsOn = "DM56EngineFamilyPacketTest")
     public void testGetEngineFamilyNameNoResponse() throws Exception {
-        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, DM56EngineFamilyPacket.class))
+        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class))
                 .thenReturn(RequestResult.empty());
 
         try {
@@ -108,7 +108,7 @@ public class VehicleInformationModuleTest {
             assertEquals("Timeout Error Reading Engine Family", e.getMessage());
         }
 
-        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, DM56EngineFamilyPacket.class);
+        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class);
     }
 
     @Test
@@ -119,7 +119,7 @@ public class VehicleInformationModuleTest {
         when(response1.getFamilyName()).thenReturn("name1");
         DM56EngineFamilyPacket response2 = mock(DM56EngineFamilyPacket.class);
         when(response2.getFamilyName()).thenReturn("name2");
-        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, DM56EngineFamilyPacket.class))
+        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class))
                 .thenReturn(new RequestResult<>(false, response1, response2));
 
         try {
@@ -129,7 +129,7 @@ public class VehicleInformationModuleTest {
             assertEquals("Different Engine Families Received", e.getMessage());
         }
 
-        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, DM56EngineFamilyPacket.class);
+        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class);
     }
 
     @Test
@@ -138,20 +138,20 @@ public class VehicleInformationModuleTest {
     public void testGetEngineModelYear() throws Exception {
         DM56EngineFamilyPacket response = mock(DM56EngineFamilyPacket.class);
         when(response.getEngineModelYear()).thenReturn(123);
-        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, DM56EngineFamilyPacket.class))
+        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class))
                 .thenReturn(new RequestResult<>(false, response));
 
         Integer actual = instance.getEngineModelYear();
         instance.getEngineModelYear(); // Make sure it's cached
         assertEquals(Integer.valueOf(123), actual);
 
-        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, DM56EngineFamilyPacket.class);
+        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class);
     }
 
     @Test
     @TestDoc(description = "Verify that a failure is generated when there is no response to the request for DM56.")
     public void testGetEngineModelYearNoResponse() throws Exception {
-        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, DM56EngineFamilyPacket.class))
+        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class))
                 .thenReturn(RequestResult.empty());
 
         try {
@@ -161,7 +161,7 @@ public class VehicleInformationModuleTest {
             assertEquals("Timeout Error Reading Engine Model Year", e.getMessage());
         }
 
-        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, DM56EngineFamilyPacket.class);
+        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class);
     }
 
     @Test
@@ -172,7 +172,7 @@ public class VehicleInformationModuleTest {
         when(response1.getEngineModelYear()).thenReturn(123);
         DM56EngineFamilyPacket response2 = mock(DM56EngineFamilyPacket.class);
         when(response2.getEngineModelYear()).thenReturn(456);
-        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, DM56EngineFamilyPacket.class))
+        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class))
                 .thenReturn(new RequestResult<>(false, response1, response2));
 
         try {
@@ -182,7 +182,7 @@ public class VehicleInformationModuleTest {
             assertEquals("Different Engine Model Years Received", e.getMessage());
         }
 
-        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, DM56EngineFamilyPacket.class);
+        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class);
     }
 
     @Test
@@ -192,14 +192,14 @@ public class VehicleInformationModuleTest {
     public void testGetVin() throws Exception {
         VehicleIdentificationPacket response = mock(VehicleIdentificationPacket.class);
         when(response.getVin()).thenReturn("vin");
-        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, VehicleIdentificationPacket.class))
+        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class))
                 .thenReturn(new RequestResult<>(false, response));
 
         String vin = instance.getVin();
         instance.getVin(); // Make sure it's cached
         assertEquals("vin", vin);
 
-        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, VehicleIdentificationPacket.class);
+        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class);
     }
 
     @Test
@@ -207,7 +207,7 @@ public class VehicleInformationModuleTest {
                        description = "Verify if a VIN request is not answered, error is thrown.",
                        dependsOn = "VehicleIdentificationPacketTest"))
     public void testGetVinNoResponse() throws Exception {
-        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, VehicleIdentificationPacket.class))
+        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class))
                 .thenReturn(RequestResult.empty());
 
         try {
@@ -217,7 +217,7 @@ public class VehicleInformationModuleTest {
             assertEquals("Timeout Error Reading VIN", e.getMessage());
         }
 
-        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, VehicleIdentificationPacket.class);
+        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class);
     }
 
     @Test
@@ -229,7 +229,7 @@ public class VehicleInformationModuleTest {
         when(response1.getVin()).thenReturn("vin1");
         VehicleIdentificationPacket response2 = mock(VehicleIdentificationPacket.class);
         when(response2.getVin()).thenReturn("vin2");
-        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, VehicleIdentificationPacket.class))
+        when(j1939.requestGlobalResult(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class))
                 .thenReturn(new RequestResult<>(false, response1, response2));
 
         try {
@@ -239,7 +239,7 @@ public class VehicleInformationModuleTest {
             assertEquals("Different VINs Received", e.getMessage());
         }
 
-        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, VehicleIdentificationPacket.class);
+        verify(j1939).requestGlobalResult(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class);
     }
 
     @Test

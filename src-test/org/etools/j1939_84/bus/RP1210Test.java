@@ -62,7 +62,8 @@ public class RP1210Test {
         RP1210Bus bus = new RP1210Bus(adapter.get(), 0xF9, true);
         long start = System.currentTimeMillis();
         Stream<Packet> read = bus.read(365, TimeUnit.DAYS);
-        new J1939(bus).requestGlobalResult(null, ResultsListener.NOOP, VehicleIdentificationPacket.class).getEither()
+        new J1939(bus).requestGlobalResult(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class)
+                .getEither()
                 .stream()
                 .flatMap(pa -> pa.left.stream())
                 .map(pa -> pa.getVin())

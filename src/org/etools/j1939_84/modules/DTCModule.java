@@ -12,11 +12,9 @@ import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
@@ -63,9 +61,7 @@ public class DTCModule extends FunctionalModule {
 
         Collection<DM1ActiveDTCsPacket> allPackets = getJ1939()
                 .read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS)
-                .map(r -> r.left)
-                .filter(o -> o.isPresent())
-                .map(o -> o.get())
+                .flatMap(r -> r.left.stream())
                 .collect(Collectors.toMap(p -> p.getSourceAddress(), p -> p, (address, packet) -> address))
                 .values();
 
@@ -126,31 +122,19 @@ public class DTCModule extends FunctionalModule {
         listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
         Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN, address);
 
-        String title = address == GLOBAL_ADDR ? " Global DM11 Request"
-                : " Destination Specific DM11 Request to " + Lookup.getAddressName(address);
+        String title = address == GLOBAL_ADDR ? "Global DM11 Request"
+                : "Destination Specific DM11 Request to " + Lookup.getAddressName(address);
 
-        listener.onResult(getTime() + title);
-        listener.onResult(getTime() + " " + requestPacket);
+        var results = getJ1939()
+                .requestResult(title, listener, false, DM11ClearActiveDTCsPacket.class, requestPacket);
 
-        // FIXME, where did 5.5 s come from?
-        List<Either<DM11ClearActiveDTCsPacket, AcknowledgmentPacket>> results = getJ1939()
-                .requestRaw(DM11ClearActiveDTCsPacket.class,
-                        requestPacket)
-                .collect(Collectors.toList());
-
-        listener.onResult(results.stream().map(e -> e.right)
-                .filter(o -> o.isPresent()).map(o -> o.get())
-                .map(getPacketMapperFunction())
-                .collect(Collectors.toList()));
-
-        if (results.stream().map(e -> e.right).filter(o -> o.isPresent()).map(o -> o.get())
-                .allMatch(t -> t.getResponse() == Response.ACK)) {
+        if (results.getAcks().stream().allMatch(t -> t.getResponse() == Response.ACK)) {
             listener.onResult(DTCS_CLEARED);
         } else {
             listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
         }
 
-        return new RequestResult<>(false, results);
+        return results;
     }
 
     /**
@@ -300,21 +284,9 @@ public class DTCModule extends FunctionalModule {
             int moduleAddress) {
 
         Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, moduleAddress);
-
         String message = " Destination Specific DM25 Request to " + Lookup.getAddressName(moduleAddress);
-
-        listener.onResult(getTime() + message);
-        listener.onResult(getTime() + " " + request.toString());
-
-        BusResult<DM25ExpandedFreezeFrame> result = getJ1939().requestDS(DM25ExpandedFreezeFrame.class, request);
-
-        result.getPacket().ifPresentOrElse(either -> {
-            // report
-            ParsedPacket packet = either.resolve();
-            listener.onResult(packet.getPacket().toTimeString());
-            listener.onResult(packet.toString());
-        }, // report missing response
-                () -> listener.onResult(TIMEOUT_MESSAGE));
+        BusResult<DM25ExpandedFreezeFrame> result = getJ1939().requestDS(message, listener,
+                DM25ExpandedFreezeFrame.class, request);
 
         return result;
     }
