@@ -418,6 +418,9 @@ public class Engine implements AutoCloseable {
         // DM29 response
         sim.response(p -> isRequestFor(DM29DtcCounts.PGN, p),
                 () -> Packet.create(DM29DtcCounts.PGN, ADDR, 0x00, 0x00, 0x01, 0x00, 0x01, 0xFF, 0xFF, 0xFF));
+        sim.response(p -> isRequestFor(DM29DtcCounts.PGN, p),
+                () -> Packet.create(DM29DtcCounts.PGN, 0x33, 0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF));
+
         // DM30 response for DM7 Request for SPN 102
         sim.response(p -> isDM7For(102, p),
                 () -> Packet.create(0xA4F9,

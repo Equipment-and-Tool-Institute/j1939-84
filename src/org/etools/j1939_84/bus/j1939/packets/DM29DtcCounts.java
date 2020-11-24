@@ -86,6 +86,10 @@ public class DM29DtcCounts extends ParsedPacket {
         return "DM29";
     }
 
+    public boolean isDM27Supported() {
+        return getPacket().get(1) != 0xFF;
+    }
+
     /**
      * Parses the packet to populate all the member variables
      */

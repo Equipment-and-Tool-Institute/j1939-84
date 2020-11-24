@@ -381,7 +381,13 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM29DtcCounts> requestDM29(ResultsListener listener) {
-        return requestDM29(listener, GLOBAL_ADDR);
+
+        Packet request = getJ1939().createRequestPacket(DM29DtcCounts.PGN, GLOBAL_ADDR);
+
+        return generateReport(listener,
+                "Global DM29 Request",
+                DM29DtcCounts.class,
+                request);
     }
 
     /**
@@ -395,16 +401,13 @@ public class DTCModule extends FunctionalModule {
      *            requested
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM29DtcCounts> requestDM29(ResultsListener listener, int obdAddress) {
-        Packet request = getJ1939().createRequestPacket(DM29DtcCounts.PGN, obdAddress);
-
-        String title = obdAddress == GLOBAL_ADDR ? "Global DM29 Request"
-                : "Desination Specific DM29 Request to " + Lookup.getAddressName(obdAddress);
-
-        return generateReport(listener,
-                title,
+    public BusResult<DM29DtcCounts> requestDM29(ResultsListener listener, int obdAddress) {
+        return getPacketDS("Desination Specific DM29 Request to " + Lookup.getAddressName(obdAddress),
+                DM29DtcCounts.PGN,
                 DM29DtcCounts.class,
-                request);
+                listener,
+                true,
+                obdAddress);
     }
 
     /**
