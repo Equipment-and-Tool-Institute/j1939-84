@@ -79,10 +79,10 @@ public class Sim implements AutoCloseable {
      *            the {@link Supplier} of the {@link Packet}
      * @return this
      */
-    public Sim response(Predicate<Packet> predicate, Supplier<Packet> supplier) {
+    public Sim response(Predicate<Packet> predicate, Function<Packet, Packet> supplier) {
         responses.add(request -> {
             if (predicate.test(request)) {
-                Packet response = supplier.get();
+                Packet response = supplier.apply(request);
                 send(response);
                 // if request is not to broadcast, only accept first
                 // response
@@ -91,6 +91,14 @@ public class Sim implements AutoCloseable {
             return false;
         });
         return this;
+    }
+
+    /**
+     * Same as response(Predicate, Function), but ignore the request when
+     * constructing the response.
+     */
+    public Sim response(Predicate<Packet> predicate, Supplier<Packet> supplier) {
+        return response(predicate, p -> supplier.get());
     }
 
     /**
