@@ -58,5 +58,10 @@
 	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/org.jacoco.report-0.8.5.201910111838.jar"/>
 	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/jacocoagent.jar"/>
 	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/jacococli.jar"/>
+	<classpathentry kind="src" path=".apt_generated">
+		<attributes>
+			<attribute name="optional" value="true"/>
+		</attributes>
+	</classpathentry>
 	<classpathentry kind="output" path="bin"/>
 </classpath>
