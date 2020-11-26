@@ -20,6 +20,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
+import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
 
 /**
@@ -469,6 +470,12 @@ public class Engine implements AutoCloseable {
                 p -> Packet
                         .create(0xA400 | p.getSource(), ADDR, 0xF7, 0x95, 0x04, 0x10, 0x66, 0x01, 0x00, 0xFB, 0xFF,
                                 0xFF, 0xFF, 0xFF));
+
+        // DM31 response
+        sim.response(p -> isRequestFor(DM31DtcToLampAssociation.PGN, p),
+                () -> Packet.create(DM31DtcToLampAssociation.PGN | 0xFF, ADDR, 0x61, 0x02, 0x13, 0x81, 0x62, 0x1D));
+        sim.response(p -> isRequestFor(DM31DtcToLampAssociation.PGN, p),
+                () -> Packet.create(DM31DtcToLampAssociation.PGN | 0xFF, 0x33, 0x21, 0x06, 0x1F, 0x23, 0x22, 0xDD));
 
         // DM33 response for DM33 Global Request for PGN 41216
         sim.response(p -> isRequestFor(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, p),

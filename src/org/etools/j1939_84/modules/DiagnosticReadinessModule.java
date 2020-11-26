@@ -265,7 +265,6 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      */
     public List<DM5DiagnosticReadinessPacket> getDM5Packets(ResultsListener listener, boolean fullString) {
         return getPacketsFromGlobal("Global DM5 Request",
-                DM5DiagnosticReadinessPacket.PGN,
                 DM5DiagnosticReadinessPacket.class,
                 listener,
                 fullString).getPackets();
@@ -618,7 +617,6 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     public RequestResult<DM21DiagnosticReadinessPacket> requestDM21Packets(ResultsListener listener,
             boolean fullString) {
         return getPacketsFromGlobal("Global DM21 Request",
-                DM21DiagnosticReadinessPacket.PGN,
                 DM21DiagnosticReadinessPacket.class,
                 listener,
                 fullString);
@@ -639,7 +637,6 @@ public class DiagnosticReadinessModule extends FunctionalModule {
             boolean fullString) {
 
         return getPacketsFromGlobal("Global DM5 Request",
-                DM5DiagnosticReadinessPacket.PGN,
                 DM5DiagnosticReadinessPacket.class,
                 listener,
                 fullString);
@@ -683,7 +680,6 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      */
     public RequestResult<DM5DiagnosticReadinessPacket> requestDM5Packets(ResultsListener listener, boolean fullString) {
         List<DM5DiagnosticReadinessPacket> parsedPackets = getPacketsFromGlobal("Global DM5 Request",
-                DM5DiagnosticReadinessPacket.PGN,
                 DM5DiagnosticReadinessPacket.class,
                 listener,
                 fullString)
