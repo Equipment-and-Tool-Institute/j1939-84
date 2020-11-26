@@ -52,9 +52,6 @@ public class Step23ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DataRepository dataRepository;
-
-    @Mock
     private DTCModule dtcModule;
 
     @Mock
@@ -72,9 +69,6 @@ public class Step23ControllerTest extends AbstractControllerTest {
 
     @Mock
     private ResultsListener mockListener;
-
-    @Mock
-    private OBDModuleInformation obdModuleInformation;
 
     @Mock
     private PartResultFactory partResultFactory;
