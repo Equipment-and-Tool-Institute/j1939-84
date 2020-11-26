@@ -18,7 +18,7 @@ import org.junit.Test;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
  */
-public class DM31ScaledTestResultTest {
+public class DM31DtcToLampAssociationTest {
 
     @Test
     public void testEmptyDTCs() {
