@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -66,15 +66,14 @@ public class Slot {
     /**
      * Helper method to convert from the given {@link String} to an int
      *
-     * @param string       the {@link String} to convert
-     * @param defaultValue the int value if the string cannot be converted
+     * @param string the {@link String} to convert
      * @return int
      */
-    private static int intValue(String string, int defaultValue) {
+    private static int intValue(String string) {
         try {
             return Integer.parseInt(string);
         } catch (NumberFormatException e) {
-            return defaultValue;
+            return -1;
         }
     }
 
@@ -97,7 +96,7 @@ public class Slot {
                 final Double scaling = doubleValue(values[3]);
                 final String unit = values[4];
                 final Double offset = doubleValue(values[5]);
-                final int length = intValue(values[6], -1);
+                final int length = intValue(values[6]);
                 Slot slot = new Slot(id, name, type, scaling, offset, unit, length);
                 slots.put(id, slot);
             }
@@ -201,13 +200,48 @@ public class Slot {
      * @return double
      */
     public double scale(double value) {
-        if (getScaling() != null && getOffset() != null) {
-            return value * getScaling() + getOffset();
+        double result = value;
+        if (getScaling() != null) {
+            result *= getScaling();
         }
-        return value;
+        if (getOffset() != null) {
+            result += getOffset();
+        }
+        return result;
     }
 
-    public String convert(byte[] data) {
+    /**
+     * Returns the data in a scaled value.
+     * If the type is ASCII or the value is NOT_AVAILABLE or ERROR, null is returned
+     *
+     * @param data the byte array containing the data from the packet
+     * @return the scaled value or null
+     */
+    public Double asValue(byte[] data) {
+        if (isAscii()) {
+            return null;
+        }
+
+        long value = toValue(data);
+
+        if (isBitField()) {
+            return Long.valueOf(value).doubleValue();
+        }
+
+        if (isNotAvailable(data) || isError(data)) {
+            return null;
+        }
+
+        return scale(value);
+    }
+
+    /**
+     * Returns the data as a scaled value include the units of measure (if applicable)
+     *
+     * @param data the byte array containing the data from the packet
+     * @return a String of the value with units of measure
+     */
+    public String asString(byte[] data) {
         if (isAscii()) {
             String result = new String(data, StandardCharsets.UTF_8);
             if (type.contains("variable, ")) {
@@ -305,31 +339,7 @@ public class Slot {
     }
 
     private long mask() {
-        long mask = 0L;
-        if (length == 32) {
-            mask = 0xFFFFFFFFL;
-        } else {
-            for (int i = 0; i < length; i++) {
-                mask = mask | (1 << i);
-            }
-        }
-        return mask;
+        return ~0L >>> (64 - length);
     }
 
-    /**
-     * Finds and returns the index of the asterisk in the data
-     *
-     * @param data the data of interest
-     * @return the index of the asterisk, -1 if there is no asterisk
-     */
-    private static int getIndexOf(byte[] data, char value) {
-        int index = -1;
-        for (int i = 0; i < data.length; i++) {
-            if (data[i] == value) {
-                index = i;
-                break;
-            }
-        }
-        return index;
-    }
 }

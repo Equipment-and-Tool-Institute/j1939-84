@@ -314,17 +314,14 @@ public class Packet {
     /**
      * Returns the destination address
      *
-     * @param requestPacket
-     *            the request
      * @return the destination specific address or GLOBAL_ADDR
      */
     public int getDestination() {
         return getId(0xFFFF) < 0xF000 ? getId(0xFF) : J1939.GLOBAL_ADDR;
     }
 
-    @Deprecated
     public int getId() {
-        return id;
+        return getId(0xFFFF) < 0xF000 ? getId(0xFF00) : getId(0xFFFF);
     }
 
     /**
@@ -415,8 +412,6 @@ public class Packet {
      * formatted by the {@link DateTimeFormatter}. If the formatter is null, the
      * time is not included
      *
-     * @param formatter
-     *            the {@link DateTimeFormatter} to format the time received
      * @return a {@link String}
      */
     // FIXME This is inlined some places and not others.

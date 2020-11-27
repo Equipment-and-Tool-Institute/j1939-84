@@ -1,0 +1,168 @@
+/*
+ * Copyright (c) 2020. Equipment & Tool Institute
+ */
+package org.etools.j1939_84.bus.j1939.packets.model;
+
+import org.junit.Before;
+import org.junit.Test;
+
+import static org.junit.Assert.*;
+
+public class SpnDataParserTest {
+
+    private SpnDataParser instance;
+
+    @Before
+    public void setUp() {
+        instance = new SpnDataParser();
+    }
+
+    @Test
+    public void test1Bit() {
+        byte[] data = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88};
+        SpnDefinition definition = new SpnDefinition();
+        definition.startByte = 1;
+        definition.startBit = 1;
+        definition.bitLength = 1;
+
+        byte[] resultData = instance.parse(data, definition);
+
+        assertEquals(1, resultData.length);
+        assertEquals(1, resultData[0]);
+    }
+
+    @Test
+    public void test2Bits() {
+        byte[] data = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88};
+        SpnDefinition definition = new SpnDefinition();
+        definition.startByte = 2;
+        definition.startBit = 5;
+        definition.bitLength = 2;
+
+        byte[] resultData = instance.parse(data, definition);
+
+        assertEquals(1, resultData.length);
+        assertEquals(2, resultData[0]);
+    }
+
+    @Test
+    public void test21Bits() {
+        byte[] data = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88};
+        SpnDefinition definition = new SpnDefinition();
+        definition.startByte = 4;
+        definition.startBit = 1;
+        definition.bitLength = 21;
+
+        byte[] resultData = instance.parse(data, definition);
+
+        assertEquals(3, resultData.length);
+        assertEquals(0x44, resultData[0]);
+        assertEquals(0x55, resultData[1]);
+        assertEquals(0b0110, resultData[2]);
+    }
+
+    @Test
+    public void test1Byte() {
+        byte[] data = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88};
+        SpnDefinition definition = new SpnDefinition();
+        definition.startByte = 8;
+        definition.startBit = 1;
+        definition.bitLength = 8;
+
+        byte[] resultData = instance.parse(data, definition);
+
+        assertEquals(1, resultData.length);
+        assertEquals((byte) 0x88, resultData[0]);
+    }
+
+    @Test
+    public void test2Bytes() {
+        byte[] data = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88};
+        SpnDefinition definition = new SpnDefinition();
+        definition.startByte = 1;
+        definition.startBit = 1;
+        definition.bitLength = 16;
+
+        byte[] resultData = instance.parse(data, definition);
+
+        assertEquals(2, resultData.length);
+        assertEquals(0x11, resultData[0]);
+        assertEquals(0x22, resultData[1]);
+    }
+
+    @Test
+    public void test3Bytes() {
+        byte[] data = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88};
+        SpnDefinition definition = new SpnDefinition();
+        definition.startByte = 3;
+        definition.startBit = 1;
+        definition.bitLength = 24;
+
+        byte[] resultData = instance.parse(data, definition);
+
+        assertEquals(3, resultData.length);
+        assertEquals(0x33, resultData[0]);
+        assertEquals(0x44, resultData[1]);
+        assertEquals(0x55, resultData[2]);
+    }
+
+    @Test
+    public void test4Bytes() {
+        byte[] data = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88};
+        SpnDefinition definition = new SpnDefinition();
+        definition.startByte = 5;
+        definition.startBit = 1;
+        definition.bitLength = 32;
+
+        byte[] resultData = instance.parse(data, definition);
+
+        assertEquals(4, resultData.length);
+        assertEquals(0x55, resultData[0]);
+        assertEquals(0x66, resultData[1]);
+        assertEquals(0x77, resultData[2]);
+        assertEquals((byte) 0x88, resultData[3]);
+    }
+
+    @Test
+    public void test8Bytes() {
+        byte[] data = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88};
+        SpnDefinition definition = new SpnDefinition();
+        definition.startByte = 1;
+        definition.startBit = 1;
+        definition.bitLength = 64;
+
+        byte[] resultData = instance.parse(data, definition);
+
+        assertEquals(8, resultData.length);
+        assertEquals(0x11, resultData[0]);
+        assertEquals(0x22, resultData[1]);
+        assertEquals(0x33, resultData[2]);
+        assertEquals(0x44, resultData[3]);
+        assertEquals(0x55, resultData[4]);
+        assertEquals(0x66, resultData[5]);
+        assertEquals(0x77, resultData[6]);
+        assertEquals((byte) 0x88, resultData[7]);
+    }
+
+    @Test
+    public void testNBytes() {
+        byte[] data = {0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88};
+        SpnDefinition definition = new SpnDefinition();
+        definition.startByte = 1;
+        definition.startBit = 1;
+        definition.bitLength = -1;
+
+        byte[] resultData = instance.parse(data, definition);
+
+        assertEquals(8, resultData.length);
+        assertEquals(0x11, resultData[0]);
+        assertEquals(0x22, resultData[1]);
+        assertEquals(0x33, resultData[2]);
+        assertEquals(0x44, resultData[3]);
+        assertEquals(0x55, resultData[4]);
+        assertEquals(0x66, resultData[5]);
+        assertEquals(0x77, resultData[6]);
+        assertEquals((byte) 0x88, resultData[7]);
+    }
+
+}
