@@ -3,10 +3,10 @@
  */
 package org.etools.j1939_84.bus.j1939.packets.model;
 
+import static org.junit.Assert.assertEquals;
+
 import org.junit.Before;
 import org.junit.Test;
-
-import static org.junit.Assert.*;
 
 public class SpnDataParserTest {
 
@@ -23,9 +23,8 @@ public class SpnDataParserTest {
         SpnDefinition definition = new SpnDefinition();
         definition.startByte = 1;
         definition.startBit = 1;
-        definition.bitLength = 1;
 
-        byte[] resultData = instance.parse(data, definition);
+        byte[] resultData = instance.parse(data, definition, 1);
 
         assertEquals(1, resultData.length);
         assertEquals(1, resultData[0]);
@@ -37,9 +36,8 @@ public class SpnDataParserTest {
         SpnDefinition definition = new SpnDefinition();
         definition.startByte = 2;
         definition.startBit = 5;
-        definition.bitLength = 2;
 
-        byte[] resultData = instance.parse(data, definition);
+        byte[] resultData = instance.parse(data, definition, 2);
 
         assertEquals(1, resultData.length);
         assertEquals(2, resultData[0]);
@@ -51,9 +49,8 @@ public class SpnDataParserTest {
         SpnDefinition definition = new SpnDefinition();
         definition.startByte = 4;
         definition.startBit = 1;
-        definition.bitLength = 21;
 
-        byte[] resultData = instance.parse(data, definition);
+        byte[] resultData = instance.parse(data, definition, 21);
 
         assertEquals(3, resultData.length);
         assertEquals(0x44, resultData[0]);
@@ -67,9 +64,8 @@ public class SpnDataParserTest {
         SpnDefinition definition = new SpnDefinition();
         definition.startByte = 8;
         definition.startBit = 1;
-        definition.bitLength = 8;
 
-        byte[] resultData = instance.parse(data, definition);
+        byte[] resultData = instance.parse(data, definition, 8);
 
         assertEquals(1, resultData.length);
         assertEquals((byte) 0x88, resultData[0]);
@@ -81,9 +77,8 @@ public class SpnDataParserTest {
         SpnDefinition definition = new SpnDefinition();
         definition.startByte = 1;
         definition.startBit = 1;
-        definition.bitLength = 16;
 
-        byte[] resultData = instance.parse(data, definition);
+        byte[] resultData = instance.parse(data, definition, 16);
 
         assertEquals(2, resultData.length);
         assertEquals(0x11, resultData[0]);
@@ -96,9 +91,8 @@ public class SpnDataParserTest {
         SpnDefinition definition = new SpnDefinition();
         definition.startByte = 3;
         definition.startBit = 1;
-        definition.bitLength = 24;
 
-        byte[] resultData = instance.parse(data, definition);
+        byte[] resultData = instance.parse(data, definition, 24);
 
         assertEquals(3, resultData.length);
         assertEquals(0x33, resultData[0]);
@@ -112,9 +106,8 @@ public class SpnDataParserTest {
         SpnDefinition definition = new SpnDefinition();
         definition.startByte = 5;
         definition.startBit = 1;
-        definition.bitLength = 32;
 
-        byte[] resultData = instance.parse(data, definition);
+        byte[] resultData = instance.parse(data, definition, 32);
 
         assertEquals(4, resultData.length);
         assertEquals(0x55, resultData[0]);
@@ -129,9 +122,8 @@ public class SpnDataParserTest {
         SpnDefinition definition = new SpnDefinition();
         definition.startByte = 1;
         definition.startBit = 1;
-        definition.bitLength = 64;
 
-        byte[] resultData = instance.parse(data, definition);
+        byte[] resultData = instance.parse(data, definition, 64);
 
         assertEquals(8, resultData.length);
         assertEquals(0x11, resultData[0]);
@@ -150,9 +142,8 @@ public class SpnDataParserTest {
         SpnDefinition definition = new SpnDefinition();
         definition.startByte = 1;
         definition.startBit = 1;
-        definition.bitLength = -1;
 
-        byte[] resultData = instance.parse(data, definition);
+        byte[] resultData = instance.parse(data, definition, -1);
 
         assertEquals(8, resultData.length);
         assertEquals(0x11, resultData[0]);

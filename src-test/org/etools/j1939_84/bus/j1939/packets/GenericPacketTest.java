@@ -1,18 +1,15 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
-import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
+import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
-import org.etools.j1939_84.bus.j1939.packets.model.SpnDataParser;
-import org.junit.After;
-import org.junit.Before;
 import org.junit.Test;
 
-import java.time.LocalDateTime;
 import java.util.List;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
 
 public class GenericPacketTest {
 
@@ -20,7 +17,8 @@ public class GenericPacketTest {
     public void testPgn0() {
         byte[] data = new byte[]{0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88};
         Packet packet = Packet.create(0, 0, 0, false, data);
-        GenericPacket instance = new GenericPacket(packet);
+        PgnDefinition pgnDefinition = new J1939DaRepository().getPgnDefinition(0);
+        GenericPacket instance = new GenericPacket(packet, pgnDefinition);
 
         List<Spn> spns = instance.getSpns();
         assertEquals(10, spns.size());

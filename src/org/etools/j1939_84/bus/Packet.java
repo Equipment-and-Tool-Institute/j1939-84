@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus;
@@ -118,7 +118,7 @@ public class Packet {
     }
 
     public static Collection<Packet> parseCollection(String string) {
-        return Stream.of(string.split("\n")).map(p -> parsePacket(p)).collect(Collectors.toList());
+        return Stream.of(string.split("\n")).map(Packet::parsePacket).collect(Collectors.toList());
     }
 
     public static Packet parsePacket(String p) {
@@ -320,8 +320,12 @@ public class Packet {
         return getId(0xFFFF) < 0xF000 ? getId(0xFF) : J1939.GLOBAL_ADDR;
     }
 
+    /**
+     * @deprecated use getPgn() instead.
+     */
+    @Deprecated
     public int getId() {
-        return getId(0xFFFF) < 0xF000 ? getId(0xFF00) : getId(0xFFFF);
+        return id;
     }
 
     /**

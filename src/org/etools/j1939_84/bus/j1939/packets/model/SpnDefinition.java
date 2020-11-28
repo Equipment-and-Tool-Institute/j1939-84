@@ -4,7 +4,6 @@
 package org.etools.j1939_84.bus.j1939.packets.model;
 
 public class SpnDefinition {
-    public int bitLength;
     public int slotNumber;
     public int spnId;
     public int startBit;

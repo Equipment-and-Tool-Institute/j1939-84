@@ -7,10 +7,9 @@ import java.util.Arrays;
 
 public class SpnDataParser {
 
-    public byte[] parse(byte[] data, SpnDefinition definition) {
+    public byte[] parse(byte[] data, SpnDefinition definition, int bitLength) {
         int startByte = definition.startByte - 1;
         int startBit = definition.startBit;
-        int bitLength = definition.bitLength;
 
         int byteLength;
         if (bitLength == -1) {
