@@ -3,17 +3,16 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static org.etools.j1939_84.J1939_84.NL;
+
+import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDataParser;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
-
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
-import static org.etools.j1939_84.J1939_84.NL;
 
 public class GenericPacket extends ParsedPacket {
 
@@ -52,7 +51,7 @@ public class GenericPacket extends ParsedPacket {
             for (SpnDefinition definition : spnDefinitions) {
                 Slot slot = Slot.findSlot(definition.slotNumber);
                 byte[] data = parser.parse(bytes, definition, slot.getLength());
-                spns.add(new Spn(definition.spnId, slot, data));
+                spns.add(new Spn(definition.spnId, definition.spnLabel, slot, data));
             }
         }
         return spns;
