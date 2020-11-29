@@ -5,6 +5,7 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -49,20 +50,19 @@ public class J1939DaRepository {
             final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
             try (CSVReader reader = new CSVReaderBuilder(isReader).withSkipLines(2).build()) {
                 // collect spns under the pgn
-                pgnLut = StreamSupport.stream(reader.spliterator(), false)
-                        // filter out all the lines that don't have at least a
-                        // slot and a pgn
-                        .filter(line -> !line[7].isBlank() && !line[0].isBlank())
-                        // map line to one pgn with one spn
-                        .map((Function<String[], PgnDefinition>) line -> {
-                            String slot = line[7];
-                            String idStr = line[0];
+                Collection<Object[]> table = StreamSupport.stream(reader.spliterator(), false)
+                        // map line to [pgn,spn] where pgn may be null
+                        .map((Function<String[], Object[]>) line -> {
                             try {
                                 String position = line[4];
                                 int startByte;
                                 int startBit;
                                 position = position.toLowerCase();
-                                if (position.matches("[a-z]|")) {
+                                if (position.isBlank()) {
+                                    // must be a non-pgn spn
+                                    startByte = -1;
+                                    startBit = -1;
+                                } else if (position.matches("[a-z]")) {
                                     startByte = position.charAt(0) - 'a' + 1;
                                     startBit = 1;
                                 } else if (position.matches("\\d+((,|-| to ).*)?")) {
@@ -79,14 +79,22 @@ public class J1939DaRepository {
                                     throw new ParseError("Unable to parse position: " + position);
                                 }
 
-                                SpnDefinition spnDef = new SpnDefinition(Integer.parseInt(line[5]), line[6], startByte,
-                                        startBit,
-                                        Integer.parseInt(slot));
-
-                                int id = Integer.parseInt(idStr);
-                                int b = parseTransmissionRate(line[3]);
-                                return new PgnDefinition(id, line[1], line[2], b < 0, b,
-                                        Collections.singletonList(spnDef));
+                                SpnDefinition spnDef = null;
+                                String spnIdStr = line[5];
+                                if (!spnIdStr.isBlank()) {
+                                    spnDef = new SpnDefinition(Integer.parseInt(spnIdStr), line[6], startByte,
+                                            startBit,
+                                            line[7].isBlank() ? -1 : Integer.parseInt(line[7]));
+                                }
+                                String pgnIdStr = line[0];
+                                PgnDefinition pgnDef = null;
+                                if (!pgnIdStr.isBlank()) {
+                                    int transmissionRate = parseTransmissionRate(line[3]);
+                                    pgnDef = new PgnDefinition(Integer.parseInt(pgnIdStr), line[1], line[2],
+                                            transmissionRate == 0, transmissionRate < 0, Math.abs(transmissionRate),
+                                            Collections.singletonList(spnDef));
+                                }
+                                return new Object[] { pgnDef, spnDef };
                             } catch (ParseError e) {
                                 System.err.format("%d %s \n\t%s%n", reader.getLinesRead(), e.getMessage(),
                                         Arrays.asList(line));
@@ -94,14 +102,19 @@ public class J1939DaRepository {
                             }
                         })
                         .filter(p -> p != null)
+                        .collect(Collectors.toList());
+                pgnLut = table.stream()
+                        .flatMap(o -> o[0] == null ? Stream.empty() : Stream.of((PgnDefinition) o[0]))
                         .collect(Collectors.toMap(p -> p.id, p -> p,
-                                (a, b) -> new PgnDefinition(a.id, a.label, a.acronym, a.isOnRequest, a.broadcastPeriod,
+                                (a, b) -> new PgnDefinition(a.id, a.label, a.acronym, a.isOnRequest,
+                                        a.isVariableBroadcast, a.broadcastPeriod,
                                         Stream.concat(a.spnDefinitions.stream(), b.spnDefinitions.stream())
                                                 .sorted(Comparator.comparing(s -> s.startByte * 8 + s.startBit))
                                                 .collect(Collectors.toList()))));
-                spnLut = pgnLut.values().stream()
-                        .flatMap(p -> p.spnDefinitions.stream())
-                        .collect(Collectors.toMap(s -> s.spnId, s -> s));
+                spnLut = table.stream()
+                        .map(o -> ((SpnDefinition) o[1]))
+                        .filter(s -> s != null)
+                        .collect(Collectors.toMap(s -> s.spnId, s -> s, (a, b) -> a));
             } catch (Exception e) {
                 J1939_84.getLogger().log(Level.SEVERE, "Error loading J1939DA data.", e);
             }
@@ -122,10 +135,10 @@ public class J1939DaRepository {
     }
 
     static private int parseTransmissionRate(String transmissionRate) throws ParseError {
-        int broadcastPeriod;
         switch (transmissionRate) {
 
         // variety of ways to describe on request
+        case "":
         case "As needed":
         case "On request":
         case "On Request":
@@ -135,64 +148,56 @@ public class J1939DaRepository {
         case "As required but no more often than 500 ms":
         case "When needed":
         case "On request then 1 s until key off":
-            broadcastPeriod = -1;
-            break;
+            return 0;
 
+        // 10 ms
         case "To engine: Control Purpose dependent or 10 ms\n"
                 + "To retarder: 50 ms":
-            broadcastPeriod = 10;
-            break;
+            return 10;
 
+        // 20 ms
         case "Manufacturer defined, not faster than 20 ms":
         case "Default broadcast rate of 20 ms unless the sending device has received Engine Start Control Message Rate (SPN 7752) from the engine start arbitrator indicating a switch to 250 ms and on change, but no faster than 20 ms.":
         case "Default broadcast rate of 20 ms unless the arbitrator is transmitting Engine Start Control Message Rate (SPN 7752) indicating a switch to 250 ms or on change, but no faster than 20 ms.":
-            broadcastPeriod = 20;
-            break;
+            return 20;
 
+        // 50 ms
         case "System dependent; either 50 ms as needed for active control, or as a continuous 50 ms periodic broadcast.":
+            return 50;
+
+        // < 50 ms
         case "Fixed rate of 10 to 50 ms or engine speed dependent":
         case "Every 50ms and on change of \"AEBS state\" or change of \"Collision warning level\" but no faster than every 10 ms":
         case "Every 50ms and on change of \"Blind Spot Detection state\" or change of \"Collision Warning Level\" but no faster than every 10 ms":
-            broadcastPeriod = 50;
-            break;
+            return -50;
 
         case "Engine speed dependent": // Got a better guess?
         case "manufacturer defined, not faster than 100 ms":
         case "Manufacturer defined, not faster than 100 ms":
-        case "Application dependent, but no faster than 10 ms and no slower than 100 ms.":
-        case "Engine speed dependent when active, otherwise every 100 ms":
         case "100 ms\n"
                 + "\n"
                 + "Note: Systems developed to the standard published before January, 2015 transmit at a 1s rate.":
         case "100 ms\n"
                 + "\n"
                 + "Note: Systems developed to the standard published before May, 2016 might not be transmitted at a 100 ms rate, but be transmitted on request":
-            broadcastPeriod = 100;
-            break;
+            return 100;
+
+        case "Application dependent, but no faster than 10 ms and no slower than 100 ms.":
+        case "Engine speed dependent when active, otherwise every 100 ms":
+            return -100;
 
         case "When active: 20 ms; else 200 ms":
-            broadcastPeriod = 200;
-            break;
+            return -200;
 
         case "Fixed rate of 10 to 250 ms or engine speed dependent":
-            broadcastPeriod = 250;
-            break;
+            return -250;
 
         case "Devices developed to the standard published after June 2019 will transmit this message at a rate of 500 ms.  Additionally, these devices will also transmit this message every 20 ms for at least 3 s when a crash is detected.\n"
                 + "\n"
                 + "Devices developed to the standard published before June 2019 will only transmit this message in case of a crash event every 20 msec for the first 100 ms and then broadcast every 1 s for 10 s in case of a crash event.":
-            broadcastPeriod = 500;
-            break;
+            return 500;
 
         case "1 s, See PGN description for information on message instance timing.":
-        case "Engine speed dependent when active, otherwise every 1 s.":
-        case "Once per engine combustion cycle when running, otherwise every 1 s":
-        case "On detection of each attack event and, after the initial attack event detection, every 1 s for the remainder of the current ECU power cycle.":
-        case "Manufacturer-specific fixed rate; every 1 second recommended.\n"
-                + "\n"
-                + "May be sent on change if necessary to convey an instantaneous peak twist value above some threshold has occurred.":
-        case "Transmitted only if DC EVSE is connected.\n"
-                + "Every 1 s and on change of state but no faster than every 100 ms.":
         case "1 s \n"
                 + "\n"
                 + "See PGN description for information on message instance timing.":
@@ -209,27 +214,33 @@ public class J1939DaRepository {
         case "1 s\n"
                 + "\n"
                 + "Note: Systems developed to the standard published before SEP2015 transmit at a 5s rate.":
-            broadcastPeriod = 1000;
-            break;
+            return 1000;
+
+        case "Engine speed dependent when active, otherwise every 1 s.":
+        case "Once per engine combustion cycle when running, otherwise every 1 s":
+        case "On detection of each attack event and, after the initial attack event detection, every 1 s for the remainder of the current ECU power cycle.":
+        case "Manufacturer-specific fixed rate; every 1 second recommended.\n"
+                + "\n"
+                + "May be sent on change if necessary to convey an instantaneous peak twist value above some threshold has occurred.":
+        case "Transmitted only if DC EVSE is connected.\n"
+                + "Every 1 s and on change of state but no faster than every 100 ms.":
+            return -1000;
 
         case "Engine speed dependent when there is no combustion, once every 5 s otherwise.":
         case "Engine speed dependent when knock present, once every 5 s otherwise.":
         case "Transmitted every 5 s and on change of PGN 64791 but no faster than every 250 ms":
-            broadcastPeriod = 5000;
-            break;
+            return -5000;
 
         case "10 s and on change but no faster than 1 s\n"
                 + "\n"
                 + "Note: Systems developed to the standard published before December, 2016 may be transmitted on request.":
         case "Cycles through all available axle groups once every ten seconds, with at least a 20 ms gap and at most a 200 ms gap between the transmission of each of the available axle groups.":
-            broadcastPeriod = 10000;
-            break;
+            return -10000;
 
         // no clue what to do with these
         case "On event":
         case "Transmission of this message is interrupt driven.  This message is also transmitted upon power-up of the interfacing device sending this message.":
-            broadcastPeriod = 1000;
-            break;
+            return -30000;
 
         // oddball on request descriptions
         case "As required but no faster than once every 100 ms.":
@@ -249,8 +260,7 @@ public class J1939DaRepository {
         case "On request.  Upon request, will be broadcast as many times as required to transmit all available axle groups.":
         case "As needed.  Broadcast whenever an axle group equipped with an on-board scale joined or left the on-board scale subset.":
         case "On request or sender may transmit every 5 s until acknowledged by reception of the engine configuration message PGN 65251 SPN 7828.":
-            broadcastPeriod = -1;
-            break;
+            return 0;
 
         default:
             if (transmissionRate.startsWith("Every ")) {
@@ -266,14 +276,13 @@ public class J1939DaRepository {
 
             var m = Pattern.compile("(\\d+) ?s.*").matcher(transmissionRate);
             if (m.matches()) {
-                broadcastPeriod = Integer.parseInt(m.group(1)) * 1000;
+                return Integer.parseInt(m.group(1)) * 1000;
             } else if ((m = Pattern.compile("(\\d+) ?ms.*").matcher(transmissionRate)).matches()) {
-                broadcastPeriod = Integer.parseInt(m.group(1));
+                return Integer.parseInt(m.group(1));
             } else {
                 throw new ParseError("Unknown transmission rate unit: " + transmissionRate);
             }
         }
-        return broadcastPeriod;
     }
 
     public PgnDefinition findPgnDefinition(int pgn) {

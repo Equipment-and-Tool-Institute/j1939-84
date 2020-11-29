@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.etools.j1939_84.J1939_84;
+import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.resources.Resources;
 
 import com.opencsv.CSVReader;
@@ -133,7 +134,8 @@ public class Lookup {
      * @return The name as defined by SAE or "Unknown" if it's not defined
      */
     public static String getSpnName(int spn) {
-        return new J1939DaRepository().findSpnDefinition(spn).label;
+        SpnDefinition spnDef = new J1939DaRepository().findSpnDefinition(spn);
+        return spnDef == null ? "Unknown" : spnDef.label;
     }
 
     private static Map<Integer, String> getStepMap(int partNumber) {

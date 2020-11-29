@@ -3,32 +3,24 @@
  */
 package org.etools.j1939_84.bus.j1939.packets.model;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.Slot;
 
 public class Spn {
 
-    private final byte[] data;
     private final int id;
-
+    private final String label;
     private final Slot slot;
-    private String name;
+    private final byte[] data;
 
-    public Spn(int id, Slot slot, byte[] data) {
+    public Spn(int id, String label, Slot slot, byte[] data) {
         this.id = id;
+        this.label = label;
         this.slot = slot;
         this.data = data;
     }
 
     public int getId() {
         return id;
-    }
-
-    private String getName() {
-        if (name == null) {
-            name = Lookup.getSpnName(id);
-        }
-        return name;
     }
 
     /**
@@ -54,8 +46,8 @@ public class Spn {
     @Override
     public String toString() {
         return String.format("SPN %1$5s, %2$s: %3$s",
-                             getId(),
-                             getName(),
+                             id,
+                             label,
                              slot == null ? "" : slot.asString(data));
     }
 

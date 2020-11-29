@@ -18,7 +18,6 @@ public class GenericPacket extends ParsedPacket {
 
     private final SpnDataParser parser;
     private final PgnDefinition pgnDefinition;
-    // FIXME this should be final
     private List<Spn> spns;
 
     public GenericPacket(Packet packet, PgnDefinition pgnDefinition) {
@@ -53,7 +52,7 @@ public class GenericPacket extends ParsedPacket {
             for (SpnDefinition definition : spnDefinitions) {
                 Slot slot = Slot.findSlot(definition.slotNumber);
                 byte[] data = parser.parse(bytes, definition, slot.getLength());
-                spns.add(new Spn(definition.spnId, slot, data));
+                spns.add(new Spn(definition.spnId, definition.label, slot, data));
             }
         }
         return spns;

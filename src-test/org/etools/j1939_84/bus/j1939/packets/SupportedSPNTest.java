@@ -36,7 +36,7 @@ public class SupportedSPNTest {
         assertEquals(false, instance.supportsDataStream());
         assertEquals(true, instance.supportsExpandedFreezeFrame());
         assertEquals(false, instance.supportsScaledTestResults());
-        String expected = "SPN 524030 - Manufacturer Assignable SPN 524030";
+        String expected = "SPN 524030 - Manufacturer Assignable SPN";
         assertEquals(expected, instance.toString());
     }
 
@@ -55,7 +55,7 @@ public class SupportedSPNTest {
         assertEquals(false, instance.supportsDataStream());
         assertEquals(false, instance.supportsExpandedFreezeFrame());
         assertEquals(false, instance.supportsScaledTestResults());
-        String expected = "SPN 524287 - Manufacturer Assignable SPN 524287";
+        String expected = "SPN 524287 - Manufacturer Assignable SPN (last entry)";
         assertEquals(expected, instance.toString());
     }
 
@@ -79,7 +79,7 @@ public class SupportedSPNTest {
         assertEquals(false, instance.supportsDataStream());
         assertEquals(false, instance.supportsExpandedFreezeFrame());
         assertEquals(false, instance.supportsScaledTestResults());
-        String expected = "SPN 524287 - Manufacturer Assignable SPN 524287";
+        String expected = "SPN 524287 - Manufacturer Assignable SPN (last entry)";
         assertEquals(expected, instance.toString());
     }
 
