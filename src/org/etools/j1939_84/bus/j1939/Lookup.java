@@ -46,11 +46,6 @@ public class Lookup {
      */
     private static Map<Integer, String> parts = loadMap("parts.csv");
 
-    /**
-     * The Map that holds the values for the Suspect Parameter Numbers
-     */
-    private static Map<Integer, String> spns = loadMap("spns.csv");
-
     private static List<Map<Integer, String>> steps = new ArrayList<>();
 
     static {
@@ -87,7 +82,7 @@ public class Lookup {
      * Translates the given sourceAddress into a name as defined by SAE
      *
      * @param sourceAddress
-     *                      the sourceAddress of the module that sent the packet
+     *            the sourceAddress of the module that sent the packet
      * @return The name as defined by SAE or "Unknown" if it's not defined
      */
     public static String getAddressName(int sourceAddress) {
@@ -111,7 +106,7 @@ public class Lookup {
      * by SAE
      *
      * @param manufacturerId
-     *                       the ID of the manufacturer
+     *            the ID of the manufacturer
      * @return the manufacturer as defined by SAE or "Unknown" if it's not
      *         defined
      */
@@ -122,7 +117,8 @@ public class Lookup {
     /**
      * Returns the Name of the given Test Part
      *
-     * @param partNumber the test part number
+     * @param partNumber
+     *            the test part number
      * @return the name of the Test Part or "Unknown" if not defined
      */
     public static String getPartName(int partNumber) {
@@ -137,7 +133,7 @@ public class Lookup {
      * @return The name as defined by SAE or "Unknown" if it's not defined
      */
     public static String getSpnName(int spn) {
-        return find(spns, spn);
+        return new J1939DaRepository().findSpnDefinition(spn).label;
     }
 
     private static Map<Integer, String> getStepMap(int partNumber) {
@@ -157,7 +153,7 @@ public class Lookup {
      * integer (key) and the second column being the String (value)
      *
      * @param fileName
-     *                 the name of the file to read
+     *            the name of the file to read
      * @return a Map of Integers to Strings
      */
     private static Map<Integer, String> loadMap(String fileName) {

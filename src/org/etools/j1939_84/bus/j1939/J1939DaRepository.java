@@ -1,0 +1,298 @@
+package org.etools.j1939_84.bus.j1939;
+
+import java.io.InputStream;
+import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.Comparator;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+import java.util.function.Function;
+import java.util.logging.Level;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import java.util.stream.StreamSupport;
+
+import org.etools.j1939_84.J1939_84;
+import org.etools.j1939_84.bus.j1939.packets.Slot;
+import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
+import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
+import org.etools.j1939_84.resources.Resources;
+
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
+
+public class J1939DaRepository {
+    static class ParseError extends Exception {
+        public ParseError(String string) {
+            super(string);
+        }
+
+    }
+
+    private static Map<Integer, PgnDefinition> pgnLut;
+
+    static private Map<Integer, SpnDefinition> spnLut;
+
+    static private void loadLookUpTables() {
+        if (pgnLut == null) {
+            new HashMap<>();
+            // parse the selected columns from J1939DA. The source data is
+            // unaltered, so some procesing is required to convert byte.bit
+            // specifications into ints.
+            final InputStream is = Resources.class.getResourceAsStream("j1939da-extract.csv");
+            final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
+            try (CSVReader reader = new CSVReaderBuilder(isReader).withSkipLines(2).build()) {
+                // collect spns under the pgn
+                pgnLut = StreamSupport.stream(reader.spliterator(), false)
+                        // filter out all the lines that don't have at least a
+                        // slot and a pgn
+                        .filter(line -> !line[7].isBlank() && !line[0].isBlank())
+                        // map line to one pgn with one spn
+                        .map((Function<String[], PgnDefinition>) line -> {
+                            String slot = line[7];
+                            String idStr = line[0];
+                            try {
+                                String position = line[4];
+                                int startByte;
+                                int startBit;
+                                position = position.toLowerCase();
+                                if (position.matches("[a-z]|")) {
+                                    startByte = position.charAt(0) - 'a' + 1;
+                                    startBit = 1;
+                                } else if (position.matches("\\d+((,|-| to ).*)?")) {
+                                    startByte = Integer.parseInt(position.split("[^\\d]")[0]);
+                                    startBit = 1;
+                                } else if (position.matches("\\d+\\.\\d+((,|-| to ).*)?")) {
+                                    String[] a = position.split("[^\\d]");
+                                    startByte = Integer.parseInt(a[0]);
+                                    startBit = Integer.parseInt(a[1]);
+                                } else if ("a (starts at byte 10)".equals(position)) {
+                                    startByte = 10;
+                                    startBit = 1;
+                                } else {
+                                    throw new ParseError("Unable to parse position: " + position);
+                                }
+
+                                SpnDefinition spnDef = new SpnDefinition(Integer.parseInt(line[5]), line[6], startByte,
+                                        startBit,
+                                        Integer.parseInt(slot));
+
+                                int id = Integer.parseInt(idStr);
+                                int b = parseTransmissionRate(line[3]);
+                                return new PgnDefinition(id, line[1], line[2], b < 0, b,
+                                        Collections.singletonList(spnDef));
+                            } catch (ParseError e) {
+                                System.err.format("%d %s \n\t%s%n", reader.getLinesRead(), e.getMessage(),
+                                        Arrays.asList(line));
+                                return null;
+                            }
+                        })
+                        .filter(p -> p != null)
+                        .collect(Collectors.toMap(p -> p.id, p -> p,
+                                (a, b) -> new PgnDefinition(a.id, a.label, a.acronym, a.isOnRequest, a.broadcastPeriod,
+                                        Stream.concat(a.spnDefinitions.stream(), b.spnDefinitions.stream())
+                                                .sorted(Comparator.comparing(s -> s.startByte * 8 + s.startBit))
+                                                .collect(Collectors.toList()))));
+                spnLut = pgnLut.values().stream()
+                        .flatMap(p -> p.spnDefinitions.stream())
+                        .collect(Collectors.toMap(s -> s.spnId, s -> s));
+            } catch (Exception e) {
+                J1939_84.getLogger().log(Level.SEVERE, "Error loading J1939DA data.", e);
+            }
+        }
+    }
+
+    static public void main(String... a) {
+        loadLookUpTables();
+        List<PgnDefinition> pgns = new ArrayList<>(pgnLut.values());
+        Collections.sort(pgns, Comparator.comparing(d -> d.id));
+        for (PgnDefinition d : pgns) {
+            System.err.format("PGN: %6d: %6d %s%n", d.id, d.broadcastPeriod, d.label);
+            for (SpnDefinition s : d.spnDefinitions) {
+                System.err.format("  SPN: %6d: %3d.%-3d %3d %6d %s%n", s.spnId, s.startByte, s.startBit,
+                        Slot.findSlot(s.slotNumber).getLength(), s.slotNumber, s.label);
+            }
+        }
+    }
+
+    static private int parseTransmissionRate(String transmissionRate) throws ParseError {
+        int broadcastPeriod;
+        switch (transmissionRate) {
+
+        // variety of ways to describe on request
+        case "As needed":
+        case "On request":
+        case "On Request":
+        case "As requested":
+        case "As required":
+        case "On powerup and on request":
+        case "As required but no more often than 500 ms":
+        case "When needed":
+        case "On request then 1 s until key off":
+            broadcastPeriod = -1;
+            break;
+
+        case "To engine: Control Purpose dependent or 10 ms\n"
+                + "To retarder: 50 ms":
+            broadcastPeriod = 10;
+            break;
+
+        case "Manufacturer defined, not faster than 20 ms":
+        case "Default broadcast rate of 20 ms unless the sending device has received Engine Start Control Message Rate (SPN 7752) from the engine start arbitrator indicating a switch to 250 ms and on change, but no faster than 20 ms.":
+        case "Default broadcast rate of 20 ms unless the arbitrator is transmitting Engine Start Control Message Rate (SPN 7752) indicating a switch to 250 ms or on change, but no faster than 20 ms.":
+            broadcastPeriod = 20;
+            break;
+
+        case "System dependent; either 50 ms as needed for active control, or as a continuous 50 ms periodic broadcast.":
+        case "Fixed rate of 10 to 50 ms or engine speed dependent":
+        case "Every 50ms and on change of \"AEBS state\" or change of \"Collision warning level\" but no faster than every 10 ms":
+        case "Every 50ms and on change of \"Blind Spot Detection state\" or change of \"Collision Warning Level\" but no faster than every 10 ms":
+            broadcastPeriod = 50;
+            break;
+
+        case "Engine speed dependent": // Got a better guess?
+        case "manufacturer defined, not faster than 100 ms":
+        case "Manufacturer defined, not faster than 100 ms":
+        case "Application dependent, but no faster than 10 ms and no slower than 100 ms.":
+        case "Engine speed dependent when active, otherwise every 100 ms":
+        case "100 ms\n"
+                + "\n"
+                + "Note: Systems developed to the standard published before January, 2015 transmit at a 1s rate.":
+        case "100 ms\n"
+                + "\n"
+                + "Note: Systems developed to the standard published before May, 2016 might not be transmitted at a 100 ms rate, but be transmitted on request":
+            broadcastPeriod = 100;
+            break;
+
+        case "When active: 20 ms; else 200 ms":
+            broadcastPeriod = 200;
+            break;
+
+        case "Fixed rate of 10 to 250 ms or engine speed dependent":
+            broadcastPeriod = 250;
+            break;
+
+        case "Devices developed to the standard published after June 2019 will transmit this message at a rate of 500 ms.  Additionally, these devices will also transmit this message every 20 ms for at least 3 s when a crash is detected.\n"
+                + "\n"
+                + "Devices developed to the standard published before June 2019 will only transmit this message in case of a crash event every 20 msec for the first 100 ms and then broadcast every 1 s for 10 s in case of a crash event.":
+            broadcastPeriod = 500;
+            break;
+
+        case "1 s, See PGN description for information on message instance timing.":
+        case "Engine speed dependent when active, otherwise every 1 s.":
+        case "Once per engine combustion cycle when running, otherwise every 1 s":
+        case "On detection of each attack event and, after the initial attack event detection, every 1 s for the remainder of the current ECU power cycle.":
+        case "Manufacturer-specific fixed rate; every 1 second recommended.\n"
+                + "\n"
+                + "May be sent on change if necessary to convey an instantaneous peak twist value above some threshold has occurred.":
+        case "Transmitted only if DC EVSE is connected.\n"
+                + "Every 1 s and on change of state but no faster than every 100 ms.":
+        case "1 s \n"
+                + "\n"
+                + "See PGN description for information on message instance timing.":
+        case "1 s\n"
+                + "\n"
+                + "Note: Systems developed to the standard published before June, 2014 might not be transmitted at a 1 s rate, but be transmitted on request.":
+        case "1 s\n"
+                + "\n"
+                + "Note: Systems developed to the standard published before June, 2015 might not be transmitted at a 1 s rate, but be transmitted on request.":
+        case "On start-up, and every 1 s until the dewpoint signal state = 1 (SPN 3240) has been received by the transmitter":
+        case "On start-up, and every 1 s until the dewpoint signal state = 1 (SPN 3239) has been received by the transmitter":
+        case "On start-up, and every 1 s until the dewpoint signal state = 1 (SPN 3238) has been received by the transmitter":
+        case "On start-up, and every 1 s until the dewpoint signal state = 1 (SPN 3237) has been received by the transmitter":
+        case "1 s\n"
+                + "\n"
+                + "Note: Systems developed to the standard published before SEP2015 transmit at a 5s rate.":
+            broadcastPeriod = 1000;
+            break;
+
+        case "Engine speed dependent when there is no combustion, once every 5 s otherwise.":
+        case "Engine speed dependent when knock present, once every 5 s otherwise.":
+        case "Transmitted every 5 s and on change of PGN 64791 but no faster than every 250 ms":
+            broadcastPeriod = 5000;
+            break;
+
+        case "10 s and on change but no faster than 1 s\n"
+                + "\n"
+                + "Note: Systems developed to the standard published before December, 2016 may be transmitted on request.":
+        case "Cycles through all available axle groups once every ten seconds, with at least a 20 ms gap and at most a 200 ms gap between the transmission of each of the available axle groups.":
+            broadcastPeriod = 10000;
+            break;
+
+        // no clue what to do with these
+        case "On event":
+        case "Transmission of this message is interrupt driven.  This message is also transmitted upon power-up of the interfacing device sending this message.":
+            broadcastPeriod = 1000;
+            break;
+
+        // oddball on request descriptions
+        case "As required but no faster than once every 100 ms.":
+        case "One or more message instances transmitted monthly, on request via PGN 59904 or PGN 51456, or at the transmitters discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.":
+        case "One or more message instances transmitted weekly, on request via PGN 59904 or PGN 51456, or at the transmitters discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.":
+        case "One or more message instances transmitted daily, on request via PGN 59904 or PGN 51456, or at the transmitters discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.":
+        case "This message is transmitted in response to an Anti-Theft Request message. This message is also sent when the component has an abnormal power interruption.  In this situation the Anti-Theft Status Report is sent without the Anti-Theft Request.":
+        case "Transmitted only after requested.  After request, broadcast rate is engine speed dependent.  Update stopped after key switch cycle.":
+        case "As needed\n"
+                + "\n"
+                + "In response to receiving the Configurable Receive SPNs Command (PGN 28160) message.":
+        case "Not defined":
+        case "As needed\n"
+                + "\n"
+                + "In response to receiving the Configurable Transmit PGNs Command (PGN 28928) message.":
+        case "Transmitted only after requested.  After request, broadcast rate is 1 s.  Update stopped after key switch cycle.":
+        case "On request.  Upon request, will be broadcast as many times as required to transmit all available axle groups.":
+        case "As needed.  Broadcast whenever an axle group equipped with an on-board scale joined or left the on-board scale subset.":
+        case "On request or sender may transmit every 5 s until acknowledged by reception of the engine configuration message PGN 65251 SPN 7828.":
+            broadcastPeriod = -1;
+            break;
+
+        default:
+            if (transmissionRate.startsWith("Every ")) {
+                try {
+                    Matcher matcher = Pattern.compile("Every (\\d+ \\w+)")
+                            .matcher(transmissionRate);
+                    matcher.lookingAt();
+                    transmissionRate = matcher.group(1);
+                } catch (IllegalStateException e) {
+                    throw new ParseError("Unable to parse transmission rate:" + transmissionRate);
+                }
+            }
+
+            var m = Pattern.compile("(\\d+) ?s.*").matcher(transmissionRate);
+            if (m.matches()) {
+                broadcastPeriod = Integer.parseInt(m.group(1)) * 1000;
+            } else if ((m = Pattern.compile("(\\d+) ?ms.*").matcher(transmissionRate)).matches()) {
+                broadcastPeriod = Integer.parseInt(m.group(1));
+            } else {
+                throw new ParseError("Unknown transmission rate unit: " + transmissionRate);
+            }
+        }
+        return broadcastPeriod;
+    }
+
+    public PgnDefinition findPgnDefinition(int pgn) {
+        loadLookUpTables();
+        return pgnLut.get(pgn);
+    }
+
+    public SpnDefinition findSpnDefinition(int spn) {
+        loadLookUpTables();
+        return spnLut.get(spn);
+    }
+
+    public Map<Integer, PgnDefinition> getPgnDefinitions() {
+        loadLookUpTables();
+        return Collections.unmodifiableMap(pgnLut);
+    }
+
+    public Map<Integer, SpnDefinition> getSpnDefinitions() {
+        loadLookUpTables();
+        return Collections.unmodifiableMap(spnLut);
+    }
+}

@@ -8,11 +8,21 @@ import java.util.List;
 
 public class PgnDefinition {
 
-    public int id = -1;
-    public String label = "";
-    public String acronym = "";
-    public int broadcastPeriod = -1; // in milliseconds
-    public boolean isOnRequest = false;
-    public List<SpnDefinition> spnDefinitions = Collections.emptyList();
+    final public String acronym;
 
+    final public int broadcastPeriod;
+    final public int id;
+    final public boolean isOnRequest;
+    final public String label;
+    final public List<SpnDefinition> spnDefinitions;
+
+    public PgnDefinition(int id, String pgnLabel, String pgnAcronym, boolean isOnRequest, int broadcastPeriod,
+            List<SpnDefinition> spns) {
+        this.id = id;
+        label = pgnLabel;
+        acronym = pgnAcronym;
+        this.isOnRequest = isOnRequest;
+        this.broadcastPeriod = broadcastPeriod;
+        spnDefinitions = Collections.unmodifiableList(spns);
+    }
 }

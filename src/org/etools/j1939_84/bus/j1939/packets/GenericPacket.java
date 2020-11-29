@@ -3,23 +3,23 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static org.etools.j1939_84.J1939_84.NL;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDataParser;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-
-import static org.etools.j1939_84.J1939_84.NL;
-
 public class GenericPacket extends ParsedPacket {
 
-    private List<Spn> spns;
-    private final PgnDefinition pgnDefinition;
     private final SpnDataParser parser;
+    private final PgnDefinition pgnDefinition;
+    // FIXME this should be final
+    private List<Spn> spns;
 
     public GenericPacket(Packet packet, PgnDefinition pgnDefinition) {
         this(packet, pgnDefinition, new SpnDataParser());
@@ -40,14 +40,15 @@ public class GenericPacket extends ParsedPacket {
         return getPgnDefinition().label;
     }
 
+    public PgnDefinition getPgnDefinition() {
+        return pgnDefinition;
+    }
+
     public List<Spn> getSpns() {
         if (spns == null) {
             spns = new ArrayList<>();
 
-            //Sort so these are in the order they are on the packet.
             List<SpnDefinition> spnDefinitions = getPgnDefinition().spnDefinitions;
-            spnDefinitions.sort(Comparator.comparing(d -> (d.startByte << 8) + d.startBit));
-
             byte[] bytes = getPacket().getBytes();
             for (SpnDefinition definition : spnDefinitions) {
                 Slot slot = Slot.findSlot(definition.slotNumber);
@@ -66,10 +67,6 @@ public class GenericPacket extends ParsedPacket {
             result.append("  ").append(spn.toString()).append(NL);
         }
         return result.toString();
-    }
-
-    public PgnDefinition getPgnDefinition() {
-        return pgnDefinition;
     }
 
 }
