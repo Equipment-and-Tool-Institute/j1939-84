@@ -121,6 +121,30 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     }
 
     /**
+     * Sends a destination specific request for DM20 Packets. The request and
+     * results will be returned to the {@link ResultsListener}
+     *
+     * @param listener
+     *            the {@link ResultsListener} for the results
+     * @param fullString
+     *            true to include the full string of the results in the report;
+     *            false to only include the returned raw packet in the report
+     * @return the {@link List} of {@link DM20MonitorPerformanceRatioPacket}s
+     */
+    public BusResult<DM20MonitorPerformanceRatioPacket> requestDM20(ResultsListener listener,
+            boolean fullString, int obdAddress) {
+
+        return getPacketDS("Destination Specific DM20 Request to " + getAddressName(obdAddress),
+                DM20MonitorPerformanceRatioPacket.PGN,
+                DM20MonitorPerformanceRatioPacket.class,
+                listener,
+                fullString,
+                obdAddress);
+    }
+
+
+
+    /**
      * Helper method to get the Number of Ignition Cycles from the packets. The
      * maximum value is returned.
      *
@@ -265,6 +289,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      */
     public List<DM5DiagnosticReadinessPacket> getDM5Packets(ResultsListener listener, boolean fullString) {
         return getPacketsFromGlobal("Global DM5 Request",
+                DM5DiagnosticReadinessPacket.PGN,
                 DM5DiagnosticReadinessPacket.class,
                 listener,
                 fullString).getPackets();
@@ -297,7 +322,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     }
 
     /**
-     * Helper method to return the {@link Status} of the {@link MonitoredSystem}
+     * Helper method to return the {@link MonitoredSystem}
      * padded with extra space on the right if necessary
      *
      * @param system
@@ -617,6 +642,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     public RequestResult<DM21DiagnosticReadinessPacket> requestDM21Packets(ResultsListener listener,
             boolean fullString) {
         return getPacketsFromGlobal("Global DM21 Request",
+                DM21DiagnosticReadinessPacket.PGN,
                 DM21DiagnosticReadinessPacket.class,
                 listener,
                 fullString);
@@ -637,6 +663,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
             boolean fullString) {
 
         return getPacketsFromGlobal("Global DM5 Request",
+                DM5DiagnosticReadinessPacket.PGN,
                 DM5DiagnosticReadinessPacket.class,
                 listener,
                 fullString);
@@ -680,6 +707,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      */
     public RequestResult<DM5DiagnosticReadinessPacket> requestDM5Packets(ResultsListener listener, boolean fullString) {
         List<DM5DiagnosticReadinessPacket> parsedPackets = getPacketsFromGlobal("Global DM5 Request",
+                DM5DiagnosticReadinessPacket.PGN,
                 DM5DiagnosticReadinessPacket.class,
                 listener,
                 fullString)

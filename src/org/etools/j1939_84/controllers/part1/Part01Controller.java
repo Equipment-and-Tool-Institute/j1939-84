@@ -53,7 +53,8 @@ public class Part01Controller extends Controller {
                 new Step16Controller(dataRepository), new Step17Controller(dataRepository),
                 new Step18Controller(dataRepository), new Step19Controller(dataRepository),
                 new Step20Controller(dataRepository), new Step21Controller(dataRepository),
-                new Step22Controller(dataRepository), new Step23Controller(dataRepository));
+                new Step22Controller(dataRepository), new Step23Controller(dataRepository),
+                new Step24Controller(dataRepository));
     }
 
     /**
@@ -65,8 +66,6 @@ public class Part01Controller extends Controller {
      *            the {@link EngineSpeedModule}
      * @param bannerModule
      *            the {@link BannerModule}
-     * @param dateTimeModule
-     *            the {@link DateTimeModule}
      * @param vehicleInformationModule
      *            the {@link VehicleInformationModule}
      * @param partResultFactory
@@ -96,27 +95,29 @@ public class Part01Controller extends Controller {
      * @param step12Controller
      *            the {@link Step12Controller} for Part1Controller
      * @param step13Controller
-     *            the {@link step13Controller} for Part1Controller
+     *            the {@link Step13Controller} for Part1Controller
      * @param step14Controller
-     *            the {@link step14Controller} for Part1Controller
+     *            the {@link Step14Controller} for Part1Controller
      * @param step15Controller
-     *            the {@link step15Controller} for Part1Controller
+     *            the {@link Step15Controller} for Part1Controller
      * @param step16Controller
-     *            the {@link step16Controller} for Part1Controller
+     *            the {@link Step16Controller} for Part1Controller
      * @param step17Controller
-     *            the {@link step17Controller} for Part1Controller
+     *            the {@link Step17Controller} for Part1Controller
      * @param step18Controller
-     *            the {@link step18Controller} for Part1Controller
+     *            the {@link Step18Controller} for Part1Controller
      * @param step19Controller
-     *            the {@link step19Controller} for Part1Controller
+     *            the {@link Step19Controller} for Part1Controller
      * @param step20Controller
-     *            the {@link step20Controller} for Part1Controller
+     *            the {@link Step20Controller} for Part1Controller
      * @param step21Controller
-     *            the {@link step21Controller} for Part1Controller
+     *            the {@link Step21Controller} for Part1Controller
      * @param step22Controller
-     *            the {@link step22Controller} for Part1Controller
+     *            the {@link Step22Controller} for Part1Controller
      * @param step23Controller
-     *            the {@link step23Controller} for Part1Controller
+     *            the {@link Step23Controller} for Part1Controller
+     * @param step24Controller
+     *            the {@link Step24Controller} for Part1Controller
      */
     public Part01Controller(Executor executor, EngineSpeedModule engineSpeedModule,
             BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
@@ -127,7 +128,8 @@ public class Part01Controller extends Controller {
             Step12Controller step12Controller, Step13Controller step13Controller, Step14Controller step14Controller,
             Step15Controller step15Controller, Step16Controller step16Controller, Step17Controller step17Controller,
             Step18Controller step18Controller, Step19Controller step19Controller, Step20Controller step20Controller,
-            Step21Controller step21Controller, Step22Controller step22Controller, Step23Controller step23Controller) {
+            Step21Controller step21Controller, Step22Controller step22Controller, Step23Controller step23Controller,
+            Step24Controller step24Controller) {
         super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory);
 
         stepControllers.add(step01Controller);
@@ -153,6 +155,7 @@ public class Part01Controller extends Controller {
         stepControllers.add(step21Controller);
         stepControllers.add(step22Controller);
         stepControllers.add(step23Controller);
+        stepControllers.add(step24Controller);
     }
 
     private void executeStep(StepController controller) throws InterruptedException {
