@@ -88,7 +88,9 @@ public class J1939DaRepository {
                                 }
                                 String pgnIdStr = line[0];
                                 PgnDefinition pgnDef = null;
-                                if (!pgnIdStr.isBlank()) {
+                                // we don't care about the PGN that have no
+                                // SPNs.
+                                if (spnDef != null && !pgnIdStr.isBlank()) {
                                     int transmissionRate = parseTransmissionRate(line[3]);
                                     pgnDef = new PgnDefinition(Integer.parseInt(pgnIdStr), line[1], line[2],
                                             transmissionRate == 0, transmissionRate < 0, Math.abs(transmissionRate),
@@ -104,19 +106,20 @@ public class J1939DaRepository {
                         .filter(p -> p != null)
                         .collect(Collectors.toList());
                 pgnLut = table.stream()
-                        .flatMap(o -> o[0] == null ? Stream.empty() : Stream.of((PgnDefinition) o[0]))
-                        .collect(Collectors.toMap(p -> p.id, p -> p,
+                        .flatMap(row -> row[0] == null ? Stream.empty() : Stream.of((PgnDefinition) row[0]))
+                        .collect(Collectors.toMap(pgnDef -> pgnDef.id, pgnDef -> pgnDef,
                                 (a, b) -> new PgnDefinition(a.id, a.label, a.acronym, a.isOnRequest,
                                         a.isVariableBroadcast, a.broadcastPeriod,
                                         Stream.concat(a.spnDefinitions.stream(), b.spnDefinitions.stream())
                                                 .sorted(Comparator.comparing(s -> s.startByte * 8 + s.startBit))
                                                 .collect(Collectors.toList()))));
                 spnLut = table.stream()
-                        .map(o -> ((SpnDefinition) o[1]))
-                        .filter(s -> s != null)
+                        .map(row -> ((SpnDefinition) row[1]))
+                        .filter(spnDef -> spnDef != null)
                         .collect(Collectors.toMap(s -> s.spnId, s -> s, (a, b) -> a));
             } catch (Exception e) {
                 J1939_84.getLogger().log(Level.SEVERE, "Error loading J1939DA data.", e);
+                throw new RuntimeException("Unable to load J1939DA", e);
             }
         }
     }

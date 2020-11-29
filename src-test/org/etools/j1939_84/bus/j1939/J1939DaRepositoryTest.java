@@ -13,10 +13,13 @@ public class J1939DaRepositoryTest {
                 .forEach(p -> {
                     int offset = -1;
                     for (var spn : p.spnDefinitions) {
-                        int spnOffset = spn.startByte * 8 + spn.startBit;
-                        assertTrue("Spn " + spn.spnId + " " + spn.label + " is out of order.",
-                                spnOffset >= offset);
-                        offset = spnOffset;
+                        // don't worry about the weird SPNs with no positions.
+                        if (spn.startByte >= 0) {
+                            int spnOffset = spn.startByte * 8 + spn.startBit;
+                            assertTrue("Spn " + spn.spnId + " " + spn.label + " is out of order.",
+                                    spnOffset >= offset);
+                            offset = spnOffset;
+                        }
                     }
                 });
     }
