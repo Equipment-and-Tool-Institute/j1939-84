@@ -90,9 +90,9 @@ public class LookupTest {
 
     @Test
     public void testGetSpnName() {
-        assertEquals("Engine Fuel Pressure", Lookup.getSpnName(18));
+        assertEquals("Engine Fuel Pressure (Extended Range)", Lookup.getSpnName(18));
         assertEquals("Engine Fuel Supply Pump Actuator", Lookup.getSpnName(931));
-        assertEquals("Manufacturer Assignable SPN 524287", Lookup.getSpnName(524287));
+        assertEquals("Manufacturer Assignable SPN (last entry)", Lookup.getSpnName(524287));
         assertEquals("Unknown", Lookup.getSpnName(-1));
     }
 

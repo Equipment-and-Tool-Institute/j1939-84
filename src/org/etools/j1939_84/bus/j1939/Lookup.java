@@ -13,6 +13,7 @@ import java.util.Map;
 import java.util.logging.Level;
 
 import org.etools.j1939_84.J1939_84;
+import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.resources.Resources;
 
 import com.opencsv.CSVReader;
@@ -45,11 +46,6 @@ public class Lookup {
      * The Map that holds the values for the Test Parts
      */
     private static Map<Integer, String> parts = loadMap("parts.csv");
-
-    /**
-     * The Map that holds the values for the Suspect Parameter Numbers
-     */
-    private static Map<Integer, String> spns = loadMap("spns.csv");
 
     private static List<Map<Integer, String>> steps = new ArrayList<>();
 
@@ -87,7 +83,7 @@ public class Lookup {
      * Translates the given sourceAddress into a name as defined by SAE
      *
      * @param sourceAddress
-     *                      the sourceAddress of the module that sent the packet
+     *            the sourceAddress of the module that sent the packet
      * @return The name as defined by SAE or "Unknown" if it's not defined
      */
     public static String getAddressName(int sourceAddress) {
@@ -111,7 +107,7 @@ public class Lookup {
      * by SAE
      *
      * @param manufacturerId
-     *                       the ID of the manufacturer
+     *            the ID of the manufacturer
      * @return the manufacturer as defined by SAE or "Unknown" if it's not
      *         defined
      */
@@ -122,7 +118,8 @@ public class Lookup {
     /**
      * Returns the Name of the given Test Part
      *
-     * @param partNumber the test part number
+     * @param partNumber
+     *            the test part number
      * @return the name of the Test Part or "Unknown" if not defined
      */
     public static String getPartName(int partNumber) {
@@ -137,7 +134,8 @@ public class Lookup {
      * @return The name as defined by SAE or "Unknown" if it's not defined
      */
     public static String getSpnName(int spn) {
-        return find(spns, spn);
+        SpnDefinition spnDef = new J1939DaRepository().findSpnDefinition(spn);
+        return spnDef == null ? "Unknown" : spnDef.label;
     }
 
     private static Map<Integer, String> getStepMap(int partNumber) {
@@ -157,7 +155,7 @@ public class Lookup {
      * integer (key) and the second column being the String (value)
      *
      * @param fileName
-     *                 the name of the file to read
+     *            the name of the file to read
      * @return a Map of Integers to Strings
      */
     private static Map<Integer, String> loadMap(String fileName) {

@@ -121,30 +121,6 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     }
 
     /**
-     * Sends a destination specific request for DM20 Packets. The request and
-     * results will be returned to the {@link ResultsListener}
-     *
-     * @param listener
-     *            the {@link ResultsListener} for the results
-     * @param fullString
-     *            true to include the full string of the results in the report;
-     *            false to only include the returned raw packet in the report
-     * @return the {@link List} of {@link DM20MonitorPerformanceRatioPacket}s
-     */
-    public BusResult<DM20MonitorPerformanceRatioPacket> requestDM20(ResultsListener listener,
-            boolean fullString, int obdAddress) {
-
-        return getPacketDS("Destination Specific DM20 Request to " + getAddressName(obdAddress),
-                DM20MonitorPerformanceRatioPacket.PGN,
-                DM20MonitorPerformanceRatioPacket.class,
-                listener,
-                fullString,
-                obdAddress);
-    }
-
-
-
-    /**
      * Helper method to get the Number of Ignition Cycles from the packets. The
      * maximum value is returned.
      *
@@ -207,7 +183,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     public DiagnosticReadinessModule() {
         super();
         obdModuleAddresses.add(J1939.ENGINE_ADDR);
-        obdModuleAddresses.add(J1939.ENGINE_ADDR_1);
+        obdModuleAddresses.add(1);
     }
 
     /**
@@ -322,8 +298,8 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     }
 
     /**
-     * Helper method to return the {@link MonitoredSystem}
-     * padded with extra space on the right if necessary
+     * Helper method to return the {@link MonitoredSystem} padded with extra
+     * space on the right if necessary
      *
      * @param system
      *            the {@link MonitoredSystem} to pad
@@ -626,6 +602,28 @@ public class DiagnosticReadinessModule extends FunctionalModule {
                 DM20MonitorPerformanceRatioPacket.class,
                 listener,
                 fullString);
+    }
+
+    /**
+     * Sends a destination specific request for DM20 Packets. The request and
+     * results will be returned to the {@link ResultsListener}
+     *
+     * @param listener
+     *            the {@link ResultsListener} for the results
+     * @param fullString
+     *            true to include the full string of the results in the report;
+     *            false to only include the returned raw packet in the report
+     * @return the {@link List} of {@link DM20MonitorPerformanceRatioPacket}s
+     */
+    public BusResult<DM20MonitorPerformanceRatioPacket> requestDM20(ResultsListener listener,
+            boolean fullString, int obdAddress) {
+
+        return getPacketDS("Destination Specific DM20 Request to " + getAddressName(obdAddress),
+                DM20MonitorPerformanceRatioPacket.PGN,
+                DM20MonitorPerformanceRatioPacket.class,
+                listener,
+                fullString,
+                obdAddress);
     }
 
     /**

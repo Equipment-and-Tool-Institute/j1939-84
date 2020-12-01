@@ -8,27 +8,40 @@ import java.util.List;
 
 public class PgnDefinition {
 
-    public int id = -1;
-    public String label = "";
-    public String acronym = "";
+    final public String acronym;
+    /**
+     * The broadcast period for the Parameter Group, in milliseconds. If this is
+     * on request, this value should be ignored. If the broadcast period if
+     * variable, this indicates the maximum period.
+     */
+    final public int broadcastPeriod; // in milliseconds
+    final public int id;
 
     /**
-     * The broadcast period for the Parameter Group, in milliseconds.
-     * If this is on request, this value should be ignored.
-     * If the broadcast period if variable, this indicates the maximum period.
+     * This indicates the Parameter Group will only be transmitted when
+     * requested.
      */
-    public int broadcastPeriod = -1; // in milliseconds
+    final public boolean isOnRequest;
 
     /**
-     * Indicates the packet may be received more often that the broadcastPeriod indicates
+     * Indicates the packet may be received more often that the broadcastPeriod
+     * indicates
      */
-    public boolean isVariableBroadcast = false;
+    final public boolean isVariableBroadcast;
 
-    /**
-     * This indicates the Parameter Group will only be transmitted when requested.
-     */
-    public boolean isOnRequest = false;
+    final public String label;
 
-    public List<SpnDefinition> spnDefinitions = Collections.emptyList();
+    final public List<SpnDefinition> spnDefinitions;
 
+    public PgnDefinition(int id, String pgnLabel, String pgnAcronym, boolean isOnRequest, boolean isVariableBroadcast,
+            int broadcastPeriod,
+            List<SpnDefinition> spns) {
+        this.id = id;
+        label = pgnLabel;
+        acronym = pgnAcronym;
+        this.isOnRequest = isOnRequest;
+        this.isVariableBroadcast = isVariableBroadcast;
+        this.broadcastPeriod = broadcastPeriod;
+        spnDefinitions = Collections.unmodifiableList(spns);
+    }
 }
