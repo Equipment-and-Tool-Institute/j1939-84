@@ -28,6 +28,7 @@ import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
@@ -359,7 +360,7 @@ public class Step25ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.StepController#getDisplayName()}.
+     * {@link StepController#getDisplayName()}.
      */
     @Test
     public void testGetDisplayName() {
@@ -369,7 +370,7 @@ public class Step25ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.StepController#getPartNumber()}.
+     * {@link StepController#getPartNumber()}.
      */
     @Test
     public void testGetPartNumber() {
@@ -378,7 +379,7 @@ public class Step25ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.StepController#getStepNumber()}.
+     * {@link StepController#getStepNumber()}.
      */
     @Test
     public void testGetStepNumber() {
@@ -387,7 +388,7 @@ public class Step25ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.StepController#getTotalSteps()}.
+     * {@link StepController#getTotalSteps()}.
      */
     @Test
     public void testGetTotalSteps() {
