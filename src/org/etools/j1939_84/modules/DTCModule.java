@@ -260,15 +260,12 @@ public class DTCModule extends FunctionalModule {
      *            the address to send the request to
      * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
      */
-    public BusResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener,
-            int moduleAddress) {
+    public BusResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener, int moduleAddress) {
 
         Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, moduleAddress);
         String message = "Destination Specific DM25 Request to " + Lookup.getAddressName(moduleAddress);
-        BusResult<DM25ExpandedFreezeFrame> result = getJ1939().requestDS(message, listener, true,
-                DM25ExpandedFreezeFrame.class, request);
 
-        return result;
+        return getJ1939().requestDS(message, listener, true, DM25ExpandedFreezeFrame.class, request);
     }
 
     /**
