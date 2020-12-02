@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus;
@@ -118,7 +118,7 @@ public class Packet {
     }
 
     public static Collection<Packet> parseCollection(String string) {
-        return Stream.of(string.split("\n")).map(p -> parsePacket(p)).collect(Collectors.toList());
+        return Stream.of(string.split("\n")).map(Packet::parsePacket).collect(Collectors.toList());
     }
 
     public static Packet parsePacket(String p) {
@@ -314,14 +314,15 @@ public class Packet {
     /**
      * Returns the destination address
      *
-     * @param requestPacket
-     *            the request
      * @return the destination specific address or GLOBAL_ADDR
      */
     public int getDestination() {
         return getId(0xFFFF) < 0xF000 ? getId(0xFF) : J1939.GLOBAL_ADDR;
     }
 
+    /**
+     * @deprecated use getPgn() instead.
+     */
     @Deprecated
     public int getId() {
         return id;
@@ -415,8 +416,6 @@ public class Packet {
      * formatted by the {@link DateTimeFormatter}. If the formatter is null, the
      * time is not included
      *
-     * @param formatter
-     *            the {@link DateTimeFormatter} to format the time received
      * @return a {@link String}
      */
     // FIXME This is inlined some places and not others.

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939;
@@ -47,6 +47,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
+import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.HighResVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.TotalVehicleDistancePacket;
@@ -61,7 +62,6 @@ import org.etools.j1939_84.modules.FunctionalModule;
  * J1939
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class J1939 {
 
@@ -79,11 +79,6 @@ public class J1939 {
      * The source address of the engine
      */
     public static final int ENGINE_ADDR = 0x00;
-
-    /**
-     * The 'other' address for an engine
-     */
-    public static final int ENGINE_ADDR_1 = 0x01;
 
     /**
      * The global source address for broadcast
@@ -116,21 +111,137 @@ public class J1939 {
     }
 
     /**
+     * Reads the static field PGN from the given class. Returns null if the PGN
+     * can't be read.
      *
      * @param cls
+     *            the class of interest
      * @return PGN number based on ParsedPacket class
      */
-    static private <T extends ParsedPacket> int getPgn(Class<T> cls) {
+    static private <T extends ParsedPacket> Integer getPgn(Class<T> cls) {
         try {
             return cls.getField("PGN").getInt(null);
-        } catch (IllegalArgumentException | IllegalAccessException | NoSuchFieldException | SecurityException e) {
-            throw new IllegalStateException("Unexpected error occured.", e);
+        } catch (Exception e) {
+            return null;
         }
     }
 
-    /** filter by pgn */
-    static private Predicate<Packet> pgnFilter(int pgn) {
-        return response -> response.getPgn() == pgn;
+    /**
+     * filter by pgn
+     */
+    static private Predicate<Packet> pgnFilter(Integer pgn) {
+        return response -> pgn == null || response.getPgn() == pgn;
+    }
+
+    static private void sleep(int time) {
+        try {
+            Thread.sleep(time);
+        } catch (InterruptedException e) {
+            // not expected
+            e.printStackTrace();
+        }
+    }
+
+    static private Predicate<Packet> sourceFilter(int addr) {
+        if (addr == GLOBAL_ADDR) {
+            throw new IllegalArgumentException("Invalid use of global source.");
+        }
+        return response -> response.getSource() == addr;
+    }
+
+    /**
+     * The bus used to communicate with the vehicle
+     */
+    private final Bus bus;
+
+    /**
+     * For Mockito
+     */
+    public J1939() {
+        this(new EchoBus(0xA5));
+    }
+
+    /**
+     * Constructor
+     *
+     * @param bus
+     *            the {@link Bus} used to communicate with the vehicle
+     */
+    public J1939(Bus bus) {
+        this.bus = bus;
+    }
+
+    /**
+     * Filter to find acknowledgement/nack packets
+     *
+     * @param pgn
+     *            the pgn that's being requested
+     * @return true if the message is an Acknowledgement/Nack for the given pgn
+     */
+    private Predicate<Packet> ackNackFilter(int pgn) {
+        return response -> {
+            return // ID is Acknowledgment
+            response.getPgn() == 0xE800
+                    // There are enough bytes
+                    && response.getLength() == 8
+            // Accepting 0xFF as "Address Acknowledged" is to handle Cummins
+                    && (response.get(4) == getBusAddress() || response.get(4) == 0xFF)
+            // The Acknowledged PGN matches
+                    && response.get24(5) == pgn;
+        };
+    }
+
+    /**
+     * Helper to create a packet to request a packet with the given PGN be sent
+     * by modules on the bus that support it
+     *
+     * @param pgn
+     *            the PGN of the packet that's being request
+     * @param addr
+     *            the address the request is being directed at
+     * @return a {@link Packet}
+     */
+    public Packet createRequestPacket(int pgn, int addr) {
+        return createRequestPacket(pgn, addr, getBusAddress());
+    }
+
+    private Predicate<Packet> dsFilter(Integer pgn, int requestDestination, int requestSource) {
+        if (requestDestination == GLOBAL_ADDR || requestSource == GLOBAL_ADDR) {
+            throw new IllegalArgumentException("Invalid use of global.");
+        }
+        return globalFilter(pgn)
+                // did it come from the right module or any if addressed to all
+                .and(sourceFilter(requestDestination));
+    }
+
+    /**
+     * Exposed for system testing purposes. Calling classes should interact
+     * directly with the bus
+     *
+     * @return the {@link Bus} that backs this class
+     */
+    public Bus getBus() {
+        return bus;
+    }
+
+    /**
+     * Returns the address of this tool on the bus
+     *
+     * @return the address of the tool
+     */
+    public int getBusAddress() {
+        return bus.getAddress();
+    }
+
+    private Predicate<Packet> globalFilter(Integer pgn) {
+        return
+        // does the packet have the right ID
+        (pgnFilter(pgn).or(ackNackFilter(pgn)))
+                // is it addressed to us or all
+                .and((p -> p.getDestination() == bus.getAddress()
+                        || p.getDestination() == GLOBAL_ADDR
+                        // A TP message to global will have a destination of 0
+                        || (p.getDestination() == 0 && p.getLength() > 8)));
     }
 
     /**
@@ -142,7 +253,7 @@ public class J1939 {
      * @return a subclass of {@link ParsedPacket}
      */
     @SuppressWarnings("unchecked")
-    static private <T extends ParsedPacket> Either<T, AcknowledgmentPacket> process(Packet packet) {
+    private <T extends ParsedPacket> Either<T, AcknowledgmentPacket> process(Packet packet) {
         ParsedPacket pp = processRaw(packet.getPgn(), packet);
         if (pp instanceof AcknowledgmentPacket) {
             return new Either<>(null, (AcknowledgmentPacket) pp);
@@ -151,8 +262,9 @@ public class J1939 {
         }
     }
 
-    static private ParsedPacket processRaw(int id, Packet packet) {
-        switch (id) {
+    private ParsedPacket processRaw(int pgn, Packet packet) {
+        switch (pgn) {
+
         case DM1ActiveDTCsPacket.PGN:
             return new DM1ActiveDTCsPacket(packet);
 
@@ -213,6 +325,15 @@ public class J1939 {
         case DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN:
             return new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(packet);
 
+        case DM56EngineFamilyPacket.PGN:
+            return new DM56EngineFamilyPacket(packet);
+
+        case AcknowledgmentPacket.PGN:
+            return new AcknowledgmentPacket(packet);
+
+        case AddressClaimPacket.PGN:
+            return new AddressClaimPacket(packet);
+
         case ComponentIdentificationPacket.PGN:
             return new ComponentIdentificationPacket(packet);
 
@@ -231,147 +352,14 @@ public class J1939 {
         case VehicleIdentificationPacket.PGN:
             return new VehicleIdentificationPacket(packet);
 
-        case AddressClaimPacket.PGN:
-            return new AddressClaimPacket(packet);
-
-        case DM56EngineFamilyPacket.PGN:
-            return new DM56EngineFamilyPacket(packet);
-
         case REQUEST_PGN:
             // Request; just return a wrapped packet
             return new UnknownParsedPacket(packet);
 
-        default:
-            // FIXME why blindly mask off lower byte?
-            int maskedId = id & 0xFF00;
-
-            switch (maskedId) {
-            case AcknowledgmentPacket.PGN:
-                // Acknowledgement, return the packet that was requested
-                return new AcknowledgmentPacket(packet);
-
-            case DM7CommandTestsPacket.PGN:
-            case DM19CalibrationInformationPacket.PGN:
-            case DM20MonitorPerformanceRatioPacket.PGN:
-            case DM21DiagnosticReadinessPacket.PGN:
-            case DM30ScaledTestResultsPacket.PGN:
-            case AddressClaimPacket.PGN:
-                return processRaw(maskedId, packet);
-
-            default:
-                // IDK
-                return new UnknownParsedPacket(packet);
-            }
+        default: {
+            return new GenericPacket(packet, new J1939DaRepository().findPgnDefinition(pgn));
         }
-    }
-
-    static private void sleep(int time) {
-        try {
-            Thread.sleep(time);
-        } catch (InterruptedException e) {
-            // not expected
-            e.printStackTrace();
         }
-    }
-
-    static private Predicate<Packet> sourceFilter(int addr) {
-        if (addr == GLOBAL_ADDR) {
-            throw new IllegalArgumentException("Invalid use of global source.");
-        }
-        return response -> response.getSource() == addr;
-    }
-
-    /**
-     * The bus used to communicate with the vehicle
-     */
-    private final Bus bus;
-
-    /** For Mockito */
-    public J1939() {
-        bus = new EchoBus(0xA5);
-    }
-
-    /**
-     * Constructor
-     *
-     * @param bus
-     *            the {@link Bus} used to communicate with the vehicle
-     */
-    public J1939(Bus bus) {
-        this.bus = bus;
-    }
-
-    /**
-     * Filter to find acknowledgement/nack packets
-     *
-     * @param pgn
-     *            the pgn that's being requested
-     * @return true if the message is an Acknowledgement/Nack for the given pgn
-     */
-    private Predicate<Packet> ackNackFilter(int pgn) {
-        return response -> {
-            return // ID is Acknowledgment
-            response.getPgn() == 0xE800
-                    // There are enough bytes
-                    && response.getLength() == 8
-            // Accepting 0xFF as "Address Acknowledged" is to handle Cummins
-                    && (response.get(4) == getBusAddress() || response.get(4) == 0xFF)
-            // The Acknowledged PGN matches
-                    && response.get24(5) == pgn;
-        };
-    }
-
-    /**
-     * Helper to create a packet to request a packet with the given PGN be sent
-     * by modules on the bus that support it
-     *
-     * @param pgn
-     *            the PGN of the packet that's being request
-     * @param addr
-     *            the address the request is being directed at
-     * @return a {@link Packet}
-     */
-    public Packet createRequestPacket(int pgn, int addr) {
-        return createRequestPacket(pgn, addr, getBusAddress());
-    }
-
-    private Predicate<Packet> dsFilter(int pgn, int requestDestination, int requestSource) {
-        if (requestDestination == GLOBAL_ADDR || requestSource == GLOBAL_ADDR) {
-            throw new IllegalArgumentException("Invalid use of global.");
-        }
-        return globalFilter(pgn)
-                // did it come from the right module or any if addressed to all
-                .and(sourceFilter(requestDestination));
-    }
-
-    /**
-     * Exposed for system testing purposes. Calling classes should interact
-     * directly with the bus
-     *
-     * @return the {@link Bus} that backs this class
-     */
-    public Bus getBus() {
-        return bus;
-    }
-
-    /**
-     * Returns the address of this tool on the bus
-     *
-     * @return the address of the tool
-     */
-    public int getBusAddress() {
-        return bus.getAddress();
-    }
-
-    private Predicate<Packet> globalFilter(int pgn) {
-        return
-        // does the packet have the right ID
-        (pgnFilter(pgn).or(ackNackFilter(pgn)))
-                // is it addressed to us or all
-                .and((p -> p.getDestination() == bus.getAddress()
-                        || p.getDestination() == GLOBAL_ADDR
-                        // A TP message to global will have a destination of 0
-                        || (p.getDestination() == 0 && p.getLength() > 8)));
     }
 
     /**
@@ -382,7 +370,7 @@ public class J1939 {
      *             if there is a problem reading the bus
      */
     public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> read() throws BusException {
-        return read(365, TimeUnit.DAYS).map(t -> process(t));
+        return read(365, TimeUnit.DAYS).map(this::process);
     }
 
     /**
@@ -391,7 +379,6 @@ public class J1939 {
      *
      * @param <T>
      *            the Type of Packet to expect back
-     *
      * @param T
      *            the class of interest
      * @param addr
@@ -410,12 +397,12 @@ public class J1939 {
             throw new IllegalArgumentException("Invalid read from global.");
         }
 
-        int pgn = getPgn(T);
+        Integer pgn = getPgn(T);
         try (Stream<Packet> stream = read(timeout, unit)) {
             return stream
                     .filter(sourceFilter(addr).and(pgnFilter(pgn)))
                     .findFirst()
-                    .map(t -> process(t));
+                    .map(this::process);
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, "Error reading packets", e);
         }
@@ -436,13 +423,14 @@ public class J1939 {
      *            the {@link TimeUnit} for the timeout
      * @return the resulting packets in a Stream
      */
-    public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> read(Class<T> T, long timeout,
+    public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> read(Class<T> T,
+            long timeout,
             TimeUnit unit) {
-        int pgn = getPgn(T);
+        Integer pgn = getPgn(T);
         try {
             return read(timeout, unit)
                     .filter(pgnFilter(pgn))
-                    .map(t -> process(t));
+                    .map(this::process);
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, "Error reading packets", e);
         }
@@ -457,11 +445,9 @@ public class J1939 {
 
     /**
      * Request DM30 with DM7
-     *
-     * @param request
-     * @return
      */
-    public BusResult<DM30ScaledTestResultsPacket> requestDm7(String title, ResultsListener listener,
+    public BusResult<DM30ScaledTestResultsPacket> requestDm7(String title,
+            ResultsListener listener,
             Packet request) {
         if (request.getDestination() == GLOBAL_ADDR) {
             throw new IllegalArgumentException("DM7 request to global.");
@@ -476,7 +462,7 @@ public class J1939 {
                         DEFAULT_TIMEOUT_UNITS)
                                 .filter(dsFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(),
                                         getBusAddress()))
-                                .map(p -> process(p));
+                                .map(this::process);
                 // FIXME log the timestamp from the echo, not the creation TS
                 listener.onResult(DateTimeModule.getInstance().getTime() + " " + request.toString());
                 bus.send(request);
@@ -504,14 +490,10 @@ public class J1939 {
     /**
      * Request a packet from a specific address. As long as the module responds
      * "busy", retry for up to 1.2s. Fail after 3 non-responses.
-     *
-     * @param <T>
-     * @param packetClass
-     * @param address
-     * @return
-     * @throws BusException
      */
-    public <T extends ParsedPacket> BusResult<T> requestDS(String title, ResultsListener listener, boolean fullString,
+    public <T extends ParsedPacket> BusResult<T> requestDS(String title,
+            ResultsListener listener,
+            boolean fullString,
             Class<T> packetClass,
             Packet request) {
         if (title != null) {
@@ -521,7 +503,9 @@ public class J1939 {
         long end = System.currentTimeMillis() + 1200;
         boolean retry = false;
         for (int noResponse = 0; System.currentTimeMillis() < end; noResponse++) {
-            Optional<Either<T, AcknowledgmentPacket>> result = requestDSOnce(listener, fullString, packetClass,
+            Optional<Either<T, AcknowledgmentPacket>> result = requestDSOnce(listener,
+                    fullString,
+                    packetClass,
                     request);
             if (result.isPresent()) {
                 if (result.get().right.map(a -> a.getResponse() == Response.BUSY).orElse(false)) {
@@ -542,10 +526,6 @@ public class J1939 {
 
     /**
      * Make a single DS request with no retries.
-     *
-     * @param packetClass
-     * @param request
-     * @return
      */
     private <T extends ParsedPacket> Optional<Either<T, AcknowledgmentPacket>> requestDSOnce(ResultsListener listener,
             boolean fullString,
@@ -556,15 +536,16 @@ public class J1939 {
         }
 
         try {
+            Integer pgn = getPgn(packetClass);
             Stream<Either<T, AcknowledgmentPacket>> stream = read(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS)
-                    .filter(dsFilter(getPgn(packetClass), request.getDestination(), getBusAddress()))
-                    .map(p -> process(p));
+                    .filter(dsFilter(pgn, request.getDestination(), getBusAddress()))
+                    .map(this::process);
             // FIXME log the timestamp from the echo, not the creation TS
             listener.onResult(DateTimeModule.getInstance().getTime() + " " + request.toString());
             bus.send(request);
             Optional<Either<T, AcknowledgmentPacket>> result = stream.findFirst();
             result.ifPresentOrElse(p -> {
-                ParsedPacket pp = (ParsedPacket) p.resolve();
+                ParsedPacket pp = p.resolve();
                 listener.onResult(pp.getPacket().toTimeString());
                 if (fullString) {
                     listener.onResult(pp.toString());
@@ -583,14 +564,11 @@ public class J1939 {
      * See J1939-84 6.II. Essentially if there is busy NACK to a global request,
      * than the request is repeated once. If there is still a busy response,
      * then a DS request is made.
-     *
-     * @param clas
-     * @param requestPacket
-     * @return
      */
     // FIXME this listener needs to be a different listener to interleave
     // parsedpacket results
-    public <T extends ParsedPacket> RequestResult<T> requestGlobal(String title, ResultsListener listener,
+    public <T extends ParsedPacket> RequestResult<T> requestGlobal(String title,
+            ResultsListener listener,
             boolean fullString,
             Class<T> clas,
             Packet requestPacket) {
@@ -598,7 +576,11 @@ public class J1939 {
             listener.onResult(DateTimeModule.getInstance().getTime() + " " + title);
         }
 
-        int pgn = getPgn(clas);
+        Integer pgn = getPgn(clas);
+        if (pgn == null) {
+            throw new IllegalArgumentException("The static field PGN can't be found in class " + clas.getName());
+        }
+
         List<Either<T, AcknowledgmentPacket>> results = requestGlobalOnce(pgn, requestPacket, listener, fullString);
         List<AcknowledgmentPacket> busyNACKs = results.stream().flatMap(e -> e.right.stream())
                 .filter(p -> p.getResponse() == Response.BUSY)
@@ -628,14 +610,11 @@ public class J1939 {
 
     /**
      * Request from global only once.
-     *
-     * @param pgn
-     * @param request
-     * @return
      */
     @SuppressWarnings("unchecked")
     private <T extends ParsedPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
-            Packet request, ResultsListener listener,
+            Packet request,
+            ResultsListener listener,
             boolean fullString) {
         if (request.getDestination() != GLOBAL_ADDR) {
             throw new IllegalArgumentException("Request not to global.");
@@ -667,10 +646,15 @@ public class J1939 {
         return result;
     }
 
-    public <T extends ParsedPacket> RequestResult<T> requestGlobalResult(String title, ResultsListener listener,
+    public <T extends ParsedPacket> RequestResult<T> requestGlobalResult(String title,
+            ResultsListener listener,
             boolean fullString,
             Class<T> clas) {
-        return requestGlobal(title, listener, fullString, clas, createRequestPacket(getPgn(clas), GLOBAL_ADDR));
+        Integer pgn = getPgn(clas);
+        if (pgn == null) {
+            throw new IllegalArgumentException("The static field PGN can't be found in class " + clas.getName());
+        }
+        return requestGlobal(title, listener, fullString, clas, createRequestPacket(pgn, GLOBAL_ADDR));
     }
 
     /**

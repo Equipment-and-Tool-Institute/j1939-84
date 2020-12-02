@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -6,13 +6,16 @@ package org.etools.j1939_84.bus.j1939.packets;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.*;
+import java.util.HashMap;
+import java.util.Locale;
+import java.util.Map;
 import java.util.logging.Level;
 
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.resources.Resources;
 
 import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 /**
  * Defines an SAE SLOT (Scaling, Limit, Offset, and Transfer Function)
@@ -29,7 +32,8 @@ public class Slot {
     /**
      * Helper method to convert from the given {@link String} to a double
      *
-     * @param string the {@link String} to convert
+     * @param string
+     *            the {@link String} to convert
      * @return Double or null if the string cannot be converted
      */
     private static Double doubleValue(String string) {
@@ -43,7 +47,8 @@ public class Slot {
     /**
      * Finds a SLOT given the Identifier of the SLOT
      *
-     * @param id the Identifier of the SLOT
+     * @param id
+     *            the Identifier of the SLOT
      * @return a SLOT or null if not found
      */
     public static Slot findSlot(int id) {
@@ -66,15 +71,15 @@ public class Slot {
     /**
      * Helper method to convert from the given {@link String} to an int
      *
-     * @param string       the {@link String} to convert
-     * @param defaultValue the int value if the string cannot be converted
+     * @param string
+     *            the {@link String} to convert
      * @return int
      */
-    private static int intValue(String string, int defaultValue) {
+    private static int intValue(String string) {
         try {
             return Integer.parseInt(string);
         } catch (NumberFormatException e) {
-            return defaultValue;
+            return -1;
         }
     }
 
@@ -87,9 +92,9 @@ public class Slot {
         Map<Integer, Slot> slots = new HashMap<>();
         String[] values;
 
-        final InputStream is = Resources.class.getResourceAsStream("slots.csv");
+        final InputStream is = Resources.class.getResourceAsStream("j1939da-slots.csv");
         final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
-        try (CSVReader reader = new CSVReader(isReader)) {
+        try (CSVReader reader = new CSVReaderBuilder(isReader).withSkipLines(2).build()) {
             while ((values = reader.readNext()) != null) {
                 final int id = Integer.parseInt(values[0]);
                 final String name = values[1];
@@ -97,7 +102,7 @@ public class Slot {
                 final Double scaling = doubleValue(values[3]);
                 final String unit = values[4];
                 final Double offset = doubleValue(values[5]);
-                final int length = intValue(values[6], -1);
+                final int length = intValue(values[6]);
                 Slot slot = new Slot(id, name, type, scaling, offset, unit, length);
                 slots.put(id, slot);
             }
@@ -129,6 +134,83 @@ public class Slot {
         this.offset = offset;
         this.unit = unit;
         this.length = length;
+    }
+
+    /**
+     * Returns the data as a scaled value include the units of measure (if
+     * applicable)
+     *
+     * @param data
+     *            the byte array containing the data from the packet
+     * @return a String of the value with units of measure
+     */
+    public String asString(byte[] data) {
+        if (isAscii()) {
+            String result = new String(data, StandardCharsets.UTF_8);
+            if (type.contains("variable, ")) {
+                if (type.contains("*")) {
+                    return result.split("\\*")[0];
+                } else if (type.contains("NULL")) {
+                    return result.split(Character.toString(0))[0];
+                }
+            }
+            return result;
+        }
+
+        long value = toValue(data);
+
+        if (isBitField()) {
+            return String.format("%" + length + "s", Long.toBinaryString(value)).replace(' ', '0');
+        }
+
+        if (isNotAvailable(data)) {
+            return "Not Available";
+        }
+
+        if (isError(data)) {
+            return "Error";
+        }
+
+        String printedValue = String.format("%f", scale(value));
+        if (unit != null) {
+            return printedValue + " " + unit;
+        } else {
+            return printedValue;
+        }
+    }
+
+    /**
+     * Returns the data in a scaled value. If the type is ASCII or the value is
+     * NOT_AVAILABLE or ERROR, null is returned
+     *
+     * @param data
+     *            the byte array containing the data from the packet
+     * @return the scaled value or null
+     */
+    public Double asValue(byte[] data) {
+        if (isAscii()) {
+            return null;
+        }
+
+        long value = toValue(data);
+
+        if (isBitField()) {
+            return Long.valueOf(value).doubleValue();
+        }
+
+        if (isNotAvailable(data) || isError(data)) {
+            return null;
+        }
+
+        return scale(value);
+    }
+
+    private long flipBytes(byte[] data, int byteLength) {
+        long value = 0;
+        for (int i = 0; i < byteLength; i++) {
+            value += ((long) (data[i] & 0xFF)) << i * 8;
+        }
+        return value;
     }
 
     /**
@@ -194,69 +276,12 @@ public class Slot {
         return unit;
     }
 
-    /**
-     * Returns a scaled value. That is result = value * scaling + offset
-     *
-     * @param value the value to scale
-     * @return double
-     */
-    public double scale(double value) {
-        if (getScaling() != null && getOffset() != null) {
-            return value * getScaling() + getOffset();
-        }
-        return value;
+    private boolean isAscii() {
+        return type.toUpperCase(Locale.ROOT).contains("ASCII");
     }
 
-    public String convert(byte[] data) {
-        if (isAscii()) {
-            String result = new String(data, StandardCharsets.UTF_8);
-            if (type.contains("variable, ")) {
-                if (type.contains("*")) {
-                    return result.split("\\*")[0];
-                } else if (type.contains("NULL")) {
-                    return result.split(Character.toString(0))[0];
-                }
-            }
-            return result;
-        }
-
-        long value = toValue(data);
-
-        if (isBitField()) {
-            return String.format("%" + length + "s", Long.toBinaryString(value)).replace(' ', '0');
-        }
-
-        if (isNotAvailable(data)) {
-            return "Not Available";
-        }
-
-        if (isError(data)) {
-            return "Error";
-        }
-
-        String printedValue = String.format("%f", scale(value));
-        if (unit != null) {
-            return printedValue + " " + unit;
-        } else {
-            return printedValue;
-        }
-    }
-
-    public boolean isNotAvailable(byte[] data) {
-        if (length == 1 || isAscii()) {
-            return false;
-        }
-
-        long value = toValue(data);
-        if (isBitField()) {
-            long mask = mask();
-            long maskedValue = value & mask;
-            return maskedValue == mask;
-        }
-
-        long mask = ((long) 0xFF) << (length - 8);
-        long maskedValue = value & mask;
-        return maskedValue == mask;
+    private boolean isBitField() {
+        return type.toUpperCase(Locale.ROOT).startsWith("BIT");
     }
 
     public boolean isError(byte[] data) {
@@ -276,12 +301,43 @@ public class Slot {
         return maskedValue == error;
     }
 
-    private boolean isAscii() {
-        return type.toUpperCase(Locale.ROOT).contains("ASCII");
+    public boolean isNotAvailable(byte[] data) {
+        if (length == 1 || isAscii()) {
+            return false;
+        }
+
+        long value = toValue(data);
+        if (isBitField()) {
+            long mask = mask();
+            long maskedValue = value & mask;
+            return maskedValue == mask;
+        }
+
+        long mask = ((long) 0xFF) << (length - 8);
+        long maskedValue = value & mask;
+        return maskedValue == mask;
     }
 
-    private boolean isBitField() {
-        return type.toUpperCase(Locale.ROOT).startsWith("BIT");
+    private long mask() {
+        return ~0L >>> (64 - length);
+    }
+
+    /**
+     * Returns a scaled value. That is result = value * scaling + offset
+     *
+     * @param value
+     *            the value to scale
+     * @return double
+     */
+    public double scale(double value) {
+        double result = value;
+        if (getScaling() != null) {
+            result *= getScaling();
+        }
+        if (getOffset() != null) {
+            result += getOffset();
+        }
+        return result;
     }
 
     private long toValue(byte[] data) {
@@ -296,40 +352,4 @@ public class Slot {
         return flipBytes(data, byteLength) & mask();
     }
 
-    private long flipBytes(byte[] data, int byteLength) {
-        long value = 0;
-        for (int i = 0; i < byteLength; i++) {
-            value += ((long) (data[i] & 0xFF)) << i * 8;
-        }
-        return value;
-    }
-
-    private long mask() {
-        long mask = 0L;
-        if (length == 32) {
-            mask = 0xFFFFFFFFL;
-        } else {
-            for (int i = 0; i < length; i++) {
-                mask = mask | (1 << i);
-            }
-        }
-        return mask;
-    }
-
-    /**
-     * Finds and returns the index of the asterisk in the data
-     *
-     * @param data the data of interest
-     * @return the index of the asterisk, -1 if there is no asterisk
-     */
-    private static int getIndexOf(byte[] data, char value) {
-        int index = -1;
-        for (int i = 0; i < data.length; i++) {
-            if (data[i] == value) {
-                index = i;
-                break;
-            }
-        }
-        return index;
-    }
 }
