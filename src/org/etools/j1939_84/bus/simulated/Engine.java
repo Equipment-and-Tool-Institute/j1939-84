@@ -15,6 +15,7 @@ import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
@@ -108,7 +109,11 @@ public class Engine implements AutoCloseable {
     }
 
     private static boolean isRequestFor(int pgn, Packet packet) {
-        return (packet.getId() == (0xEA00 | ADDR) || packet.getId() == 0xEAFF) && packet.get24(0) == pgn;
+        return isRequestFor(pgn, ADDR, packet);
+    }
+
+    private static boolean isRequestFor(int pgn, int address, Packet packet) {
+        return (packet.getId() == (0xEA00 | address) || packet.getId() == 0xEAFF) && packet.get24(0) == pgn;
     }
 
     private int demCount;
@@ -307,8 +312,8 @@ public class Engine implements AutoCloseable {
         sim.response(p -> isRequestFor(0xFDB8, p),
                 () -> Packet.create(0xFDB8, ADDR, 0x00, 0x00, 0x00, 0x37, 0xC0, 0x1E, 0xC0, 0x1E));
         // DM20
-        sim.response(p -> isRequestFor(0xC200, p),
-                p -> Packet.create(0xC200 | p.getSource(),
+        sim.response(p -> isRequestFor(DM20MonitorPerformanceRatioPacket.PGN, 0x01, p),
+                p -> Packet.create(DM20MonitorPerformanceRatioPacket.PGN | p.getSource(),
                         0x01,
                         0x0C,
                         0x00, // Ignition Cycles
@@ -373,9 +378,9 @@ public class Engine implements AutoCloseable {
                         (demCount >> 8) & 0xFF));
 
         // DM 20 from second module
-        sim.response(p -> isRequestFor(0xC200, p),
-                p -> Packet.create(0xC200 | p.getSource(),
-                        61,
+        sim.response(p -> isRequestFor(DM20MonitorPerformanceRatioPacket.PGN, 0x61, p),
+                p -> Packet.create(DM20MonitorPerformanceRatioPacket.PGN | p.getSource(),
+                        0x61,
                         0x54,
                         0x00, // Ignition Cycles
                         0x19,
@@ -408,6 +413,44 @@ public class Engine implements AutoCloseable {
                         0x00,
                         0x19,
                         0x00));
+
+        // DM 20 from third module
+        sim.response(p -> isRequestFor(DM20MonitorPerformanceRatioPacket.PGN, ADDR, p),
+                     p -> Packet.create(DM20MonitorPerformanceRatioPacket.PGN | p.getSource(),
+                                        ADDR,
+                                        0x54,
+                                        0x00, // Ignition Cycles
+                                        0x19,
+                                        0x00, // OBD Counts
+                                        0xCA,
+                                        0x14,
+                                        0xF8,
+                                        0x03,
+                                        0x00,
+                                        0x04,
+                                        0x00,
+                                        0xB8,
+                                        0x12,
+                                        0xF8,
+                                        0x07,
+                                        0x00,
+                                        0x19,
+                                        0x00,
+                                        0xC6,
+                                        0x14,
+                                        0xF8,
+                                        0x02,
+                                        0x00,
+                                        0x19,
+                                        0x00,
+                                        0xF8,
+                                        0x0B,
+                                        0xF8,
+                                        0x11,
+                                        0x00,
+                                        0x19,
+                                        0x00));
+
         // DM21
         sim.response(p -> isRequestFor(49408, p),
                 p -> Packet.create(49408 | p.getSource(), ADDR, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,

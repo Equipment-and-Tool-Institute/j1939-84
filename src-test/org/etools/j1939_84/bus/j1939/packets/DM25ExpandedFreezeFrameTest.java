@@ -13,7 +13,7 @@ import org.etools.j1939_84.bus.Packet;
 import org.junit.Test;
 
 /**
- * Unit tests the {@link DM25ExpandedFreezeFrameTest} class
+ * Unit tests the {@link DM25ExpandedFreezeFrame} class
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *

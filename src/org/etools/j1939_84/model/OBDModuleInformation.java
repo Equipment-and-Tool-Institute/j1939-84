@@ -29,6 +29,16 @@ public class OBDModuleInformation implements Cloneable {
 
     private int function;
 
+    public int getIgnitionCycleCounterValue() {
+        return ignitionCycleCounterValue;
+    }
+
+    public void setIgnitionCycleCounterValue(int ignitionCycleCounterValue) {
+        this.ignitionCycleCounterValue = ignitionCycleCounterValue;
+    }
+
+    private int ignitionCycleCounterValue;
+
     private final Set<MonitoredSystem> monitoredSystems = new HashSet<>();
 
     private byte obdCompliance;
@@ -175,7 +185,7 @@ public class OBDModuleInformation implements Cloneable {
     }
 
     /**
-     * @param calibrationInformation
+     * @param monitoredSystems
      *            the calibrationInformation to set
      */
     public void setMontioredSystems(Set<MonitoredSystem> monitoredSystems) {

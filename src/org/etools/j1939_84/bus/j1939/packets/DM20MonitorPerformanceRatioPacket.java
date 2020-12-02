@@ -19,7 +19,7 @@ import org.etools.j1939_84.bus.Packet;
  */
 public class DM20MonitorPerformanceRatioPacket extends ParsedPacket {
 
-    public static final int PGN = 49664;
+    public static final int PGN = 49664; // Hex value: 0xC200
 
     private List<PerformanceRatio> ratios;
 
