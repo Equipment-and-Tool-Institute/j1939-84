@@ -28,13 +28,11 @@ public class DM24SPNSupportPacket extends ParsedPacket {
     }
 
     private String createListingOfSpnForReporting(List<SupportedSPN> supportedSPNs, String reportTitle) {
-
         StringBuilder sb = new StringBuilder();
         sb.append("(").append(reportTitle).append(")").append(" [").append(NL);
         supportedSPNs.forEach(supportedSPN -> sb.append("  ").append(supportedSPN).append(NL));
-        sb.append("]");
+        sb.append("]").append(NL);
         return sb.toString();
-
     }
 
     @Override
@@ -71,8 +69,6 @@ public class DM24SPNSupportPacket extends ParsedPacket {
     /**
      * Parses a portion of the packet to create a {@link SupportedSPN}
      *
-     * @param bytes
-     *              the bytes to parse
      * @param index
      *              the index at which the parsing starts
      * @return a {@link SupportedSPN}
@@ -85,24 +81,24 @@ public class DM24SPNSupportPacket extends ParsedPacket {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(getStringPrefix());
+        sb.append(getStringPrefix()).append(NL);
         List<SupportedSPN> scaledResults = getSupportedSpns()
                 .stream()
-                .filter(spn -> spn.supportsScaledTestResults() == true)
+                .filter(SupportedSPN::supportsScaledTestResults)
                 .collect(Collectors.toList());
 
         sb.append(createListingOfSpnForReporting(scaledResults, "Supporting Scaled Test Results"));
 
         List<SupportedSPN> supportsDataStreamsResults = getSupportedSpns()
                 .stream()
-                .filter(spn -> spn.supportsDataStream() == true)
+                .filter(SupportedSPN::supportsDataStream)
                 .collect(Collectors.toList());
 
         sb.append(createListingOfSpnForReporting(supportsDataStreamsResults, "Supports Data Stream Results"));
 
         List<SupportedSPN> supportsFreezeFrameResults = getSupportedSpns()
                 .stream()
-                .filter(spn -> spn.supportsExpandedFreezeFrame() == true)
+                .filter(SupportedSPN::supportsExpandedFreezeFrame)
                 .collect(Collectors.toList());
 
         sb.append(createListingOfSpnForReporting(supportsFreezeFrameResults, "Supports Freeze Frame Results"));
