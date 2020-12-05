@@ -1,8 +1,11 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939;
 
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.PASS;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -11,7 +14,6 @@ import org.junit.Test;
  * Unit Tests the {@link Lookup} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class LookupTest {
 
@@ -42,10 +44,10 @@ public class LookupTest {
         assertEquals("Special Instructions", Lookup.getFmiDescription(14));
         assertEquals("Data Valid But Above Normal Operating Range - Least Severe Level", Lookup.getFmiDescription(15));
         assertEquals("Data Valid But Above Normal Operating Range - Moderately Severe Level",
-                Lookup.getFmiDescription(16));
+                     Lookup.getFmiDescription(16));
         assertEquals("Data Valid But Below Normal Operating Range - Least Severe Level", Lookup.getFmiDescription(17));
         assertEquals("Data Valid But Below Normal Operating Range - Moderately Severe Level",
-                Lookup.getFmiDescription(18));
+                     Lookup.getFmiDescription(18));
         assertEquals("Received Network Data In Error", Lookup.getFmiDescription(19));
         assertEquals("Data Drifted High", Lookup.getFmiDescription(20));
         assertEquals("Data Drifted Low", Lookup.getFmiDescription(21));
@@ -82,7 +84,7 @@ public class LookupTest {
         assertEquals("Part 8 Verify fault B for general denominator demonstration", Lookup.getPartName(8));
         assertEquals("Part 9 verify deletion of fault B with DM11", Lookup.getPartName(9));
         assertEquals("Part 10 Prime diagnostic executive for general denominator demonstration",
-                Lookup.getPartName(10));
+                     Lookup.getPartName(10));
         assertEquals("Part 11 Exercise general denominator", Lookup.getPartName(11));
         assertEquals("Part 12 Verify deletion of fault B from DM28", Lookup.getPartName(12));
         assertEquals("Unknown", Lookup.getPartName(13));
@@ -104,6 +106,23 @@ public class LookupTest {
         assertEquals("Test vehicle data collection", Lookup.getStepName(1, 1));
         assertEquals("DM5: Diagnostic readiness 1", Lookup.getStepName(11, 10));
         assertEquals("DM7/DM30: Command non-continuously monitored test/scaled test results",
-                Lookup.getStepName(12, 10));
+                     Lookup.getStepName(12, 10));
+    }
+
+    @Test
+    public void testGetOutcomeForDuplicateSpn() {
+        assertEquals(PASS, Lookup.getOutcomeForDuplicateSpn(123)); //Unknown
+        assertEquals(WARN, Lookup.getOutcomeForDuplicateSpn(84)); //WARN
+        assertEquals(PASS, Lookup.getOutcomeForDuplicateSpn(2848)); //PASS
+        assertEquals(FAIL, Lookup.getOutcomeForDuplicateSpn(102)); //FAIL
+    }
+
+    @Test
+    public void testGetOutcomeForNonObdModuleProvidingSpn() {
+        assertEquals(PASS, Lookup.getOutcomeForNonObdModuleProvidingSpn(123)); //Unknown
+        assertEquals(WARN, Lookup.getOutcomeForNonObdModuleProvidingSpn(3226)); //WARN
+        assertEquals(PASS, Lookup.getOutcomeForNonObdModuleProvidingSpn(168)); //PASS
+        assertEquals(FAIL, Lookup.getOutcomeForNonObdModuleProvidingSpn(183)); //FAIL
+
     }
 }
