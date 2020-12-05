@@ -4,8 +4,8 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import java.util.Arrays;
-
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * Parses the Vehicle Identification Packet (PGN 65260)
@@ -13,7 +13,7 @@ import org.etools.j1939_84.bus.Packet;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class VehicleIdentificationPacket extends ParsedPacket {
+public class VehicleIdentificationPacket extends GenericPacket {
 
     public static final String NAME = "Vehicle Identification";
 
@@ -22,7 +22,7 @@ public class VehicleIdentificationPacket extends ParsedPacket {
     private String vin = null;
 
     public VehicleIdentificationPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     /**

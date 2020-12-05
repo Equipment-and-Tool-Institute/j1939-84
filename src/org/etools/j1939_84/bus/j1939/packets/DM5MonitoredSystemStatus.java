@@ -7,12 +7,13 @@ package org.etools.j1939_84.bus.j1939.packets;
  * The Monitored System Status for DM5 Systems
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public enum DM5MonitoredSystemStatus implements MonitoredSystemStatus {
 
-    NOT_SUPPORTED_COMPLETE(false, true), NOT_SUPPORTED_NOT_COMPLETE(false, false), SUPPORTED_COMPLETE(true,
-            true), SUPPORTED_NOT_COMPLETE(true, false);
+    NOT_SUPPORTED_COMPLETE(false, true),
+    NOT_SUPPORTED_NOT_COMPLETE(false, false),
+    SUPPORTED_COMPLETE(true, true),
+    SUPPORTED_NOT_COMPLETE(true, false);
 
     /**
      * Flag to indicate if this monitor is complete
@@ -28,9 +29,9 @@ public enum DM5MonitoredSystemStatus implements MonitoredSystemStatus {
      * Constructor
      *
      * @param enabled
-     *            true if the monitor is enabled
+     *         true if the monitor is enabled
      * @param complete
-     *            true if the monitor is complete
+     *         true if the monitor is complete
      */
     private DM5MonitoredSystemStatus(boolean enabled, boolean complete) {
         this.enabled = enabled;

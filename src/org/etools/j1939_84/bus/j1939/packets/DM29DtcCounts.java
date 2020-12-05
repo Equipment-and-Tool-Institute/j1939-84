@@ -6,8 +6,8 @@ package org.etools.j1939_84.bus.j1939.packets;
 import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.Arrays;
-
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} for Diagnostic Trouble Code Counts Codes (DM29)
@@ -17,7 +17,7 @@ import org.etools.j1939_84.bus.Packet;
  *         This DM conveys the number of regulated DTC counts (Pending,
  *         Permanent, MIL- On, PMIL-On)
  */
-public class DM29DtcCounts extends ParsedPacket {
+public class DM29DtcCounts extends GenericPacket {
     // Hex value of PGN = 009E00
     public static final int PGN = 40448;
 
@@ -28,7 +28,7 @@ public class DM29DtcCounts extends ParsedPacket {
     private int emissionRelatedPreviouslyMILOnDTCCount = -1;
 
     public DM29DtcCounts(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     /**

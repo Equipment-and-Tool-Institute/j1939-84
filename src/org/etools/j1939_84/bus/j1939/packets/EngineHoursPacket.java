@@ -4,6 +4,7 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} responsible for translating Engine Hours (SPN 247)
@@ -11,14 +12,14 @@ import org.etools.j1939_84.bus.Packet;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class EngineHoursPacket extends ParsedPacket {
+public class EngineHoursPacket extends GenericPacket {
 
     public static final int PGN = 65253;
 
     private final double engineHours;
 
     public EngineHoursPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
         engineHours = getScaledIntValue(0, 20.0);
     }
 

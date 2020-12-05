@@ -4,6 +4,7 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} for Emission-Related Previously Malfunction
@@ -16,7 +17,7 @@ public class DM23PreviouslyMILOnEmissionDTCPacket extends DiagnosticTroubleCodeP
     public static final int PGN = 64949;
 
     public DM23PreviouslyMILOnEmissionDTCPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     @Override

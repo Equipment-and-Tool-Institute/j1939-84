@@ -4,6 +4,7 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} for the Emission Related Pending Diagnostic Trouble
@@ -16,7 +17,7 @@ public class DM6PendingEmissionDTCPacket extends DiagnosticTroubleCodePacket {
     public static final int PGN = 65231;
 
     public DM6PendingEmissionDTCPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     @Override

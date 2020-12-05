@@ -8,8 +8,8 @@ import static org.etools.j1939_84.J1939_84.NL;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * Parses the SPN Support (DM24) Packet
@@ -17,14 +17,14 @@ import org.etools.j1939_84.bus.Packet;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class DM24SPNSupportPacket extends ParsedPacket {
+public class DM24SPNSupportPacket extends GenericPacket {
 
     public static final int PGN = 64950;
 
     private List<SupportedSPN> spns;
 
     public DM24SPNSupportPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     private String createListingOfSpnForReporting(List<SupportedSPN> supportedSPNs, String reportTitle) {

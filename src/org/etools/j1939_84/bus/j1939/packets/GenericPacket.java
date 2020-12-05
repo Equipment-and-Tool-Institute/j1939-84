@@ -7,7 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
-
+import java.util.Optional;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
@@ -51,11 +51,17 @@ public class GenericPacket extends ParsedPacket {
             byte[] bytes = getPacket().getBytes();
             for (SpnDefinition definition : spnDefinitions) {
                 Slot slot = Slot.findSlot(definition.slotNumber);
-                byte[] data = parser.parse(bytes, definition, slot.getLength());
-                spns.add(new Spn(definition.spnId, definition.label, slot, data));
+                if (slot != null) {
+                    byte[] data = parser.parse(bytes, definition, slot.getLength());
+                    spns.add(new Spn(definition.spnId, definition.label, slot, data));
+                }
             }
         }
         return spns;
+    }
+
+    public Optional<Spn> getSpn(int spnId) {
+        return getSpns().stream().filter(s -> s.getId() == spnId).findFirst();
     }
 
     @Override

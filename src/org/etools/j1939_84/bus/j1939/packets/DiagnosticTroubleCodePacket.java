@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 
 /**
  * Class that represents a packet that contains Diagnostic Trouble Codes
@@ -17,7 +18,7 @@ import org.etools.j1939_84.bus.Packet;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class DiagnosticTroubleCodePacket extends ParsedPacket {
+public class DiagnosticTroubleCodePacket extends GenericPacket {
 
     private LampStatus awlStatus;
     private List<DiagnosticTroubleCode> dtcs;
@@ -31,8 +32,8 @@ public class DiagnosticTroubleCodePacket extends ParsedPacket {
      * @param packet
      *            the {@link Packet} to parse
      */
-    public DiagnosticTroubleCodePacket(Packet packet) {
-        super(packet);
+    public DiagnosticTroubleCodePacket(Packet packet, PgnDefinition pgnDefinition) {
+        super(packet, pgnDefinition);
     }
 
     /**
@@ -124,8 +125,6 @@ public class DiagnosticTroubleCodePacket extends ParsedPacket {
     /**
      * Parses the data to create a {@link List} of {@link DiagnosticTroubleCode}
      *
-     * @param data
-     *            the {@link Packet} data to parse
      * @return List
      */
     private List<DiagnosticTroubleCode> parseDTCs() {

@@ -6,6 +6,7 @@ package org.etools.j1939_84.bus.j1939.packets;
 import static org.etools.j1939_84.J1939_84.NL;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * Parses the DM21 Diagnostic Readiness Packet
@@ -13,14 +14,14 @@ import org.etools.j1939_84.bus.Packet;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class DM21DiagnosticReadinessPacket extends ParsedPacket {
+public class DM21DiagnosticReadinessPacket extends GenericPacket {
 
     public static final int PGN = 49408;
 
     public static final String TSCC_LINE = "Time Since DTCs Cleared:";
 
     public DM21DiagnosticReadinessPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     private String getDistanceSinceDTCsClearedAsString() {

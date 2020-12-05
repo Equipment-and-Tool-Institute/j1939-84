@@ -7,8 +7,8 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * Parses the DM30 Scaled Test Results packet
@@ -16,14 +16,14 @@ import org.etools.j1939_84.bus.Packet;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class DM30ScaledTestResultsPacket extends ParsedPacket {
+public class DM30ScaledTestResultsPacket extends GenericPacket {
 
     public static final int PGN = 41984;
 
     private List<ScaledTestResult> testResults;
 
     public DM30ScaledTestResultsPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     @Override

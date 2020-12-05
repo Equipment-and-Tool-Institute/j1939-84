@@ -7,8 +7,8 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} for Diagnostic Trouble Code to Lamp Associations
@@ -18,13 +18,13 @@ import org.etools.j1939_84.bus.Packet;
  *
  *         DTC to Lamp Association
  */
-public class DM31DtcToLampAssociation extends ParsedPacket {
+public class DM31DtcToLampAssociation extends GenericPacket {
     // Hex value of PGN = 00A300
     public static final int PGN = 41728;
     private List<DTCLampStatus> dtcLampStatuses;
 
     public DM31DtcToLampAssociation(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     /**

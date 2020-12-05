@@ -1,11 +1,11 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import java.util.Arrays;
-
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
-public class DM56EngineFamilyPacket extends ParsedPacket {
+public class DM56EngineFamilyPacket extends GenericPacket {
 
     public static final String NAME = "Model Year and Certification Engine Family";
 
@@ -16,7 +16,7 @@ public class DM56EngineFamilyPacket extends ParsedPacket {
     private String modelYear = null;
 
     public DM56EngineFamilyPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     public Integer getEngineModelYear() {

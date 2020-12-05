@@ -4,6 +4,7 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} for Emission-Related Permanent Diagnostic Trouble
@@ -17,7 +18,7 @@ public class DM28PermanentEmissionDTCPacket extends DiagnosticTroubleCodePacket 
     public static final int PGN = 64896;
 
     public DM28PermanentEmissionDTCPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     @Override

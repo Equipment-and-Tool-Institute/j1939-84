@@ -7,12 +7,13 @@ package org.etools.j1939_84.bus.j1939.packets;
  * The Monitored System Status for DM26 Systems
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public enum DM26MonitoredSystemStatus implements MonitoredSystemStatus {
 
-    ENABLED_COMPLETE(true, true), ENABLED_NOT_COMPLETE(true,
-            false), NOT_ENABLED_COMPLETE(false, true), NOT_ENABLED_NOT_COMPLETE(false, false);
+    ENABLED_COMPLETE(true, true),
+    ENABLED_NOT_COMPLETE(true, false),
+    NOT_ENABLED_COMPLETE(false, true),
+    NOT_ENABLED_NOT_COMPLETE(false, false);
 
     /**
      * Flag to indicate this monitor is complete
@@ -28,9 +29,9 @@ public enum DM26MonitoredSystemStatus implements MonitoredSystemStatus {
      * Constructor
      *
      * @param enabled
-     *            true if the monitor is enabled
+     *         true if the monitor is enabled
      * @param complete
-     *            true if the monitor is complete
+     *         true if the monitor is complete
      */
     private DM26MonitoredSystemStatus(boolean enabled, boolean complete) {
         this.enabled = enabled;

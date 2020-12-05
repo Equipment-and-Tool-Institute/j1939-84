@@ -7,9 +7,9 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.etools.j1939_84.NumberFormatter;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The Parsed DM20 {@link Packet}
@@ -17,14 +17,14 @@ import org.etools.j1939_84.bus.Packet;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class DM20MonitorPerformanceRatioPacket extends ParsedPacket {
+public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
 
     public static final int PGN = 49664; // Hex value: 0xC200
 
     private List<PerformanceRatio> ratios;
 
     public DM20MonitorPerformanceRatioPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     /**

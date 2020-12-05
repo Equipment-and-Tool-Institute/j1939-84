@@ -4,12 +4,13 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class AcknowledgmentPacket extends ParsedPacket {
+public class AcknowledgmentPacket extends GenericPacket {
 
     /**
      * The possible responses
@@ -49,7 +50,7 @@ public class AcknowledgmentPacket extends ParsedPacket {
      * @param packet acknowledgement packet to be returned
      */
     public AcknowledgmentPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     public int getAddressAcknowledged() {

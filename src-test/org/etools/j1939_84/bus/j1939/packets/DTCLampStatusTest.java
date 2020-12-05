@@ -19,7 +19,6 @@ public class DTCLampStatusTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.bus.j1939.packets.DTCLampStatus#getData()}. *
      * {@link org.etools.j1939_84.bus.j1939.packets.DTCLampStatus#getRedStopLampStatus()}.
      */
     @Test
@@ -89,10 +88,6 @@ public class DTCLampStatusTest {
         assertEquals(LampStatus.SLOW_FLASH, instance.getProtectLampStatus());
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.bus.j1939.packets.DTCLampStatus#equals()}.
-     */
     @Test
     public void testEquals() {
 
@@ -123,16 +118,12 @@ public class DTCLampStatusTest {
                 0x13, // Failure mode indicator
                 0x81, // SPN Conversion Occurrence Count
                 0xAA, // Lamp Status/Support
-                0x55));
+                0x55), null);
         assertEquals(true, instance.equals(instance2));
         assertEquals(false, instance.equals(instance3));
         assertEquals(false, instance.equals(instance4));
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.bus.j1939.packets.DTCLampStatus#getDtc()}.
-     */
     @Test
     public void testGetDtcs() {
         int[] data = new int[] { 0x61, // SPN least significant bit

@@ -8,8 +8,8 @@ import static org.etools.j1939_84.J1939_84.NL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} for Emission Increasing Auxiliary Emission Control
@@ -20,14 +20,14 @@ import org.etools.j1939_84.bus.Packet;
  *         The total engine run time while each of the Emission Increasing
  *         Auxiliary Emission Control Devices (EI-AECDs) is active.
  */
-public class DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime extends ParsedPacket {
+public class DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime extends GenericPacket {
     // Hex value of PGN = 00A100
     public static final int PGN = 41216;
 
     private List<EngineHoursTimer> eiAecdEngineHoursTimers;
 
     public DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     public List<EngineHoursTimer> getEiAecdEngineHoursTimers() {

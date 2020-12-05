@@ -4,8 +4,8 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import java.util.Objects;
-
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} for Trip Diagnostic Readiness (DM26)
@@ -21,7 +21,7 @@ public class DM26TripDiagnosticReadinessPacket extends DiagnosticReadinessPacket
     private final byte warmUps;
 
     public DM26TripDiagnosticReadinessPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
         warmUps = getByte(2);
         timeRunning = getScaledShortValue(0, 1.0);
     }

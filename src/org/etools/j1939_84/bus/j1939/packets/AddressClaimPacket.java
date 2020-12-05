@@ -8,8 +8,8 @@ import static org.etools.j1939_84.J1939_84.NL;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.Lookup;
 
 /**
@@ -18,7 +18,7 @@ import org.etools.j1939_84.bus.j1939.Lookup;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class AddressClaimPacket extends ParsedPacket {
+public class AddressClaimPacket extends GenericPacket {
 
     /**
      * Class that parses the industry group, vehicle system and function into an
@@ -555,7 +555,7 @@ public class AddressClaimPacket extends ParsedPacket {
      *            the {@link Packet} to parse
      */
     public AddressClaimPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
 
         source = Lookup.getAddressName(getSourceAddress());
         int identityNumber = (packet.get(0) & 0xFF) + ((packet.get(1) & 0xFF) << 8) + ((packet.get(2) & 0x1F) << 16);

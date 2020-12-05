@@ -4,6 +4,7 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} responsible for translating Engine Speed (SPN 190)
@@ -11,14 +12,14 @@ import org.etools.j1939_84.bus.Packet;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class EngineSpeedPacket extends ParsedPacket {
+public class EngineSpeedPacket extends GenericPacket {
 
     public static final int PGN = 61444;
 
     private final double engineSpeed;
 
     public EngineSpeedPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
         engineSpeed = getScaledShortValue(3, 8.0);
     }
 

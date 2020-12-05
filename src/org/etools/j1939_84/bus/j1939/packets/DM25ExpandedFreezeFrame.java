@@ -8,8 +8,8 @@ import static org.etools.j1939_84.J1939_84.NL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} for Expanded Freeze Frame Codes (DM25)
@@ -17,14 +17,14 @@ import org.etools.j1939_84.bus.Packet;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
  */
-public class DM25ExpandedFreezeFrame extends ParsedPacket {
+public class DM25ExpandedFreezeFrame extends GenericPacket {
     // Hex value of PGN = 00FDB7
     public static final int PGN = 64951;
 
     private List<FreezeFrame> freezeFrames;
 
     public DM25ExpandedFreezeFrame(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     /**

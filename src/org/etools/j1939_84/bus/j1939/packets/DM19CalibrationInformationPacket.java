@@ -9,8 +9,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
-
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * Parses the Calibration Information Packet (DM19)
@@ -18,7 +18,7 @@ import org.etools.j1939_84.bus.Packet;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-public class DM19CalibrationInformationPacket extends ParsedPacket {
+public class DM19CalibrationInformationPacket extends GenericPacket {
     /**
      * Contains the Calibration Identification and Calibration Verification
      * Number
@@ -103,7 +103,7 @@ public class DM19CalibrationInformationPacket extends ParsedPacket {
     private List<CalibrationInformation> info;
 
     public DM19CalibrationInformationPacket(Packet packet) {
-        super(packet);
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     @Override
