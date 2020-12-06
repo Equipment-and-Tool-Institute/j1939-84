@@ -21,8 +21,8 @@ public class SpnDataParserTest {
     public void test1Bit() {
         byte[] data = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88 };
         SpnDefinition definition = new SpnDefinition(0, null, 1, 1, 0);
-        assertEquals(1, definition.startByte);
-        assertEquals(1, definition.startBit);
+        assertEquals(1, definition.getStartByte());
+        assertEquals(1, definition.getStartBit());
 
         byte[] resultData = instance.parse(data, definition, 1);
 
@@ -34,8 +34,8 @@ public class SpnDataParserTest {
     public void test1Byte() {
         byte[] data = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88 };
         SpnDefinition definition = new SpnDefinition(0, null, 8, 1, 0);
-        assertEquals(8, definition.startByte);
-        assertEquals(1, definition.startBit);
+        assertEquals(8, definition.getStartByte());
+        assertEquals(1, definition.getStartBit());
 
         byte[] resultData = instance.parse(data, definition, 8);
 
@@ -48,8 +48,8 @@ public class SpnDataParserTest {
         byte[] data = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88 };
 
         SpnDefinition definition = new SpnDefinition(0, null, 4, 1, 0);
-        assertEquals(4, definition.startByte);
-        assertEquals(1, definition.startBit);
+        assertEquals(4, definition.getStartByte());
+        assertEquals(1, definition.getStartBit());
         byte[] resultData = instance.parse(data, definition, 21);
 
         assertEquals(3, resultData.length);
@@ -62,8 +62,8 @@ public class SpnDataParserTest {
     public void test2Bits() {
         byte[] data = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88 };
         SpnDefinition definition = new SpnDefinition(0, null, 2, 5, 0);
-        assertEquals(2, definition.startByte);
-        assertEquals(5, definition.startBit);
+        assertEquals(2, definition.getStartByte());
+        assertEquals(5, definition.getStartBit());
 
         byte[] resultData = instance.parse(data, definition, 2);
 
@@ -75,8 +75,8 @@ public class SpnDataParserTest {
     public void test2Bytes() {
         byte[] data = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88 };
         SpnDefinition definition = new SpnDefinition(0, null, 1, 1, 0);
-        assertEquals(1, definition.startByte);
-        assertEquals(1, definition.startBit);
+        assertEquals(1, definition.getStartByte());
+        assertEquals(1, definition.getStartBit());
 
         byte[] resultData = instance.parse(data, definition, 16);
 
@@ -89,8 +89,8 @@ public class SpnDataParserTest {
     public void test3Bytes() {
         byte[] data = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88 };
         SpnDefinition definition = new SpnDefinition(0, null, 3, 1, 0);
-        assertEquals(3, definition.startByte);
-        assertEquals(1, definition.startBit);
+        assertEquals(3, definition.getStartByte());
+        assertEquals(1, definition.getStartBit());
 
         byte[] resultData = instance.parse(data, definition, 24);
 
@@ -104,8 +104,8 @@ public class SpnDataParserTest {
     public void test4Bytes() {
         byte[] data = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88 };
         SpnDefinition definition = new SpnDefinition(0, null, 5, 1, 0);
-        assertEquals(5, definition.startByte);
-        assertEquals(1, definition.startBit);
+        assertEquals(5, definition.getStartByte());
+        assertEquals(1, definition.getStartBit());
 
         byte[] resultData = instance.parse(data, definition, 32);
 
@@ -120,8 +120,8 @@ public class SpnDataParserTest {
     public void test8Bytes() {
         byte[] data = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88 };
         SpnDefinition definition = new SpnDefinition(0, null, 1, 1, 0);
-        assertEquals(1, definition.startByte);
-        assertEquals(1, definition.startBit);
+        assertEquals(1, definition.getStartByte());
+        assertEquals(1, definition.getStartBit());
 
         byte[] resultData = instance.parse(data, definition, 64);
 
@@ -140,8 +140,8 @@ public class SpnDataParserTest {
     public void testNBytes() {
         byte[] data = { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88 };
         SpnDefinition definition = new SpnDefinition(0, null, 1, 1, 0);
-        assertEquals(1, definition.startByte);
-        assertEquals(1, definition.startBit);
+        assertEquals(1, definition.getStartByte());
+        assertEquals(1, definition.getStartBit());
 
         byte[] resultData = instance.parse(data, definition, -1);
 

@@ -137,7 +137,7 @@ public class Lookup {
      */
     public static String getSpnName(int spn) {
         SpnDefinition spnDef = new J1939DaRepository().findSpnDefinition(spn);
-        return spnDef == null ? "Unknown" : spnDef.label;
+        return spnDef == null ? "Unknown" : spnDef.getLabel();
     }
 
     private static Map<Integer, String> getStepMap(int partNumber) {

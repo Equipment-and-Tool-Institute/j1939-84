@@ -31,12 +31,12 @@ public class GenericPacket extends ParsedPacket {
     }
 
     public String getAcronym() {
-        return getPgnDefinition().acronym;
+        return getPgnDefinition().getAcronym();
     }
 
     @Override
     public String getName() {
-        return getPgnDefinition().label;
+        return getPgnDefinition().getLabel();
     }
 
     public PgnDefinition getPgnDefinition() {
@@ -47,13 +47,13 @@ public class GenericPacket extends ParsedPacket {
         if (spns == null) {
             spns = new ArrayList<>();
 
-            List<SpnDefinition> spnDefinitions = getPgnDefinition().spnDefinitions;
+            List<SpnDefinition> spnDefinitions = getPgnDefinition().getSpnDefinitions();
             byte[] bytes = getPacket().getBytes();
             for (SpnDefinition definition : spnDefinitions) {
-                Slot slot = Slot.findSlot(definition.slotNumber);
+                Slot slot = Slot.findSlot(definition.getSlotNumber());
                 if (slot != null) {
                     byte[] data = parser.parse(bytes, definition, slot.getLength());
-                    spns.add(new Spn(definition.spnId, definition.label, slot, data));
+                    spns.add(new Spn(definition.getSpnId(), definition.getLabel(), slot, data));
                 }
             }
         }

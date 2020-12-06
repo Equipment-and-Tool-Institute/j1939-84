@@ -5,19 +5,37 @@ package org.etools.j1939_84.bus.j1939.packets.model;
 
 public class SpnDefinition {
 
-    final public String label;
-    final public int slotNumber;
-    final public int spnId;
+    private final String label;
+    private final int slotNumber;
+    private final int spnId;
+    private final int startBit;
+    private final int startByte;
 
-    final public int startBit;
-
-    final public int startByte;
-
-    public SpnDefinition(int spn, String spnLabel, int startByte, int startBit, int slot) {
-        spnId = spn;
-        label = spnLabel;
-        slotNumber = slot;
+    public SpnDefinition(int spnId, String label, int startByte, int startBit, int slotNumber) {
+        this.spnId = spnId;
+        this.label = label;
+        this.slotNumber = slotNumber;
         this.startByte = startByte;
         this.startBit = startBit;
+    }
+
+    public String getLabel() {
+        return label;
+    }
+
+    public int getSlotNumber() {
+        return slotNumber;
+    }
+
+    public int getSpnId() {
+        return spnId;
+    }
+
+    public int getStartBit() {
+        return startBit;
+    }
+
+    public int getStartByte() {
+        return startByte;
     }
 }

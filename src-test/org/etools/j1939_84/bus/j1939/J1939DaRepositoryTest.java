@@ -12,11 +12,11 @@ public class J1939DaRepositoryTest {
                 .values()
                 .forEach(p -> {
                     int offset = -1;
-                    for (var spn : p.spnDefinitions) {
+                    for (var spn : p.getSpnDefinitions()) {
                         // don't worry about the weird SPNs with no positions.
-                        if (spn.startByte >= 0) {
-                            int spnOffset = spn.startByte * 8 + spn.startBit;
-                            assertTrue("Spn " + spn.spnId + " " + spn.label + " is out of order.",
+                        if (spn.getStartByte() >= 0) {
+                            int spnOffset = spn.getStartByte() * 8 + spn.getStartBit();
+                            assertTrue("Spn " + spn.getSpnId() + " " + spn.getLabel() + " is out of order.",
                                     spnOffset >= offset);
                             offset = spnOffset;
                         }

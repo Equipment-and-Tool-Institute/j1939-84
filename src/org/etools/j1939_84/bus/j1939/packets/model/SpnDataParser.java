@@ -8,8 +8,8 @@ import java.util.Arrays;
 public class SpnDataParser {
 
     public byte[] parse(byte[] data, SpnDefinition definition, int bitLength) {
-        int startByte = definition.startByte - 1;
-        int startBit = definition.startBit;
+        int startByte = definition.getStartByte() - 1;
+        int startBit = definition.getStartBit();
 
         int byteLength;
         if (bitLength == -1) {

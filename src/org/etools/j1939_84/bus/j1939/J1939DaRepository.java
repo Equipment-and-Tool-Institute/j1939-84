@@ -1,5 +1,7 @@
 package org.etools.j1939_84.bus.j1939;
 
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -11,22 +13,18 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Function;
+import java.util.Objects;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
-
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.packets.Slot;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.resources.Resources;
-
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
 
 public class J1939DaRepository {
     static class ParseError extends Exception {
@@ -38,7 +36,9 @@ public class J1939DaRepository {
 
     private static Map<Integer, PgnDefinition> pgnLut;
 
-    static private Map<Integer, SpnDefinition> spnLut;
+    private static Map<Integer, SpnDefinition> spnLut;
+
+    private static Map<Integer, Integer> spnToPgnMap = null;
 
     static private void loadLookUpTables() {
         if (pgnLut == null) {
@@ -52,7 +52,7 @@ public class J1939DaRepository {
                 // collect spns under the pgn
                 Collection<Object[]> table = StreamSupport.stream(reader.spliterator(), false)
                         // map line to [pgn,spn] where pgn may be null
-                        .map((Function<String[], Object[]>) line -> {
+                        .map(line -> {
                             try {
                                 String position = line[4];
                                 int startByte;
@@ -103,20 +103,33 @@ public class J1939DaRepository {
                                 return null;
                             }
                         })
-                        .filter(p -> p != null)
+                        .filter(Objects::nonNull)
                         .collect(Collectors.toList());
                 pgnLut = table.stream()
                         .flatMap(row -> row[0] == null ? Stream.empty() : Stream.of((PgnDefinition) row[0]))
-                        .collect(Collectors.toMap(pgnDef -> pgnDef.id, pgnDef -> pgnDef,
-                                (a, b) -> new PgnDefinition(a.id, a.label, a.acronym, a.isOnRequest,
-                                        a.isVariableBroadcast, a.broadcastPeriod,
-                                        Stream.concat(a.spnDefinitions.stream(), b.spnDefinitions.stream())
-                                                .sorted(Comparator.comparing(s -> s.startByte * 8 + s.startBit))
+                        .collect(Collectors.toMap(pgnDef -> pgnDef.getId(), pgnDef -> pgnDef,
+                                                  (a, b) -> new PgnDefinition(a.getId(),
+                                                                              a.getLabel(),
+                                                                              a.getAcronym(),
+                                                                              a.isOnRequest(),
+                                                                              a.isVariableBroadcast(),
+                                                                              a.getBroadcastPeriod(),
+                                                                              Stream.concat(a.getSpnDefinitions().stream(), b
+                                                                                      .getSpnDefinitions()
+                                                                                      .stream())
+                                                .sorted(Comparator.comparing(s -> s.getStartByte() * 8 + s.getStartBit()))
                                                 .collect(Collectors.toList()))));
                 spnLut = table.stream()
                         .map(row -> ((SpnDefinition) row[1]))
-                        .filter(spnDef -> spnDef != null)
-                        .collect(Collectors.toMap(s -> s.spnId, s -> s, (a, b) -> a));
+                        .filter(Objects::nonNull)
+                        .collect(Collectors.toMap(s -> s.getSpnId(), s -> s, (a, b) -> a));
+
+                spnToPgnMap = new HashMap<>();
+                for (PgnDefinition pgnDefinition : pgnLut.values()) {
+                    for (SpnDefinition spnDefinition : pgnDefinition.getSpnDefinitions()) {
+                        spnToPgnMap.put(spnDefinition.getSpnId(), pgnDefinition.getId());
+                    }
+                }
             } catch (Exception e) {
                 J1939_84.getLogger().log(Level.SEVERE, "Error loading J1939DA data.", e);
                 throw new RuntimeException("Unable to load J1939DA", e);
@@ -127,12 +140,12 @@ public class J1939DaRepository {
     static public void main(String... a) {
         loadLookUpTables();
         List<PgnDefinition> pgns = new ArrayList<>(pgnLut.values());
-        Collections.sort(pgns, Comparator.comparing(d -> d.id));
+        Collections.sort(pgns, Comparator.comparing(d -> d.getId()));
         for (PgnDefinition d : pgns) {
-            System.err.format("PGN: %6d: %6d %s%n", d.id, d.broadcastPeriod, d.label);
-            for (SpnDefinition s : d.spnDefinitions) {
-                System.err.format("  SPN: %6d: %3d.%-3d %3d %6d %s%n", s.spnId, s.startByte, s.startBit,
-                        Slot.findSlot(s.slotNumber).getLength(), s.slotNumber, s.label);
+            System.err.format("PGN: %6d: %6d %s%n", d.getId(), d.getBroadcastPeriod(), d.getLabel());
+            for (SpnDefinition s : d.getSpnDefinitions()) {
+                System.err.format("  SPN: %6d: %3d.%-3d %3d %6d %s%n", s.getSpnId(), s.getStartByte(), s.getStartBit(),
+                                  Slot.findSlot(s.getSlotNumber()).getLength(), s.getSlotNumber(), s.getLabel());
             }
         }
     }
@@ -307,4 +320,10 @@ public class J1939DaRepository {
         loadLookUpTables();
         return Collections.unmodifiableMap(spnLut);
     }
+
+    public Integer getPgnForSpn(int spn) {
+        loadLookUpTables();
+        return spnToPgnMap.get(spn);
+    }
+
 }
