@@ -67,6 +67,7 @@ public class GenericPacket extends ParsedPacket {
     @Override
     public String toString() {
         StringBuilder result = new StringBuilder();
+        result.append(getPacket().toTimeString()).append(NL);
         result.append(getStringPrefix()).append(NL);
         for (Spn spn : getSpns()) {
             result.append("  ").append(spn.toString()).append(NL);

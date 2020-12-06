@@ -4,14 +4,27 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.TestDateTimeModule;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 public class GenericPacketTest {
+
+    @Before
+    public void setUp() {
+        DateTimeModule.setInstance(new TestDateTimeModule());
+    }
+
+    @After
+    public void tearDown() {
+        DateTimeModule.setInstance(null);
+    }
 
     @Test
     public void testPgn0() {
@@ -23,6 +36,7 @@ public class GenericPacketTest {
         List<Spn> spns = instance.getSpns();
         assertEquals(10, spns.size());
         String expected = "";
+        expected +="10:15:30.0000 00000000 11 22 33 44 55 66 77 88" + NL;
         expected += "Torque/Speed Control 1 from Engine #1 (0): " + NL;
         expected += "  SPN   695, Engine Override Control Mode: 01" + NL;
         expected += "  SPN   696, Engine Requested Speed Control Conditions: 00" + NL;

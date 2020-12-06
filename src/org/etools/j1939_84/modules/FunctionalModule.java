@@ -28,9 +28,6 @@ public abstract class FunctionalModule {
 
     /**
      * Constructor
-     *
-     * @param dateTimeModule
-     *            the {@link DateTimeModule} that generates the date/time
      */
     protected FunctionalModule() {
     }

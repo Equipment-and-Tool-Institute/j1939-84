@@ -1,21 +1,33 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.TestDateTimeModule;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 /**
  * Unit tests for the {@link EngineHoursPacket} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class EngineHoursPacketTest {
+
+    @Before
+    public void setUp() {
+        DateTimeModule.setInstance(new TestDateTimeModule());
+    }
+
+    @After
+    public void tearDown() {
+        DateTimeModule.setInstance(null);
+    }
 
     @Test
     public void testGetEngineHoursAndToStringAtError() {
