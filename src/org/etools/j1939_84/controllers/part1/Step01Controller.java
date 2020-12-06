@@ -5,11 +5,10 @@ import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNIN
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -22,15 +21,17 @@ public class Step01Controller extends StepController {
     private final DataRepository dataRepository;
 
     Step01Controller(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), new PartResultFactory(), dataRepository);
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             dataRepository);
     }
 
     Step01Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-            VehicleInformationModule vehicleInformationModule,
-            PartResultFactory partResultFactory, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
-                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+                     VehicleInformationModule vehicleInformationModule, DataRepository dataRepository) {
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule,
+              PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }
 
@@ -38,7 +39,7 @@ public class Step01Controller extends StepController {
      * Sends the request to the UI to gather vehicle information from the user.
      *
      * @throws InterruptedException
-     *             if the cancelled the operation
+     *         if the cancelled the operation
      */
     private void collectVehicleInformation() throws InterruptedException {
         getListener().onVehicleInformationNeeded(vehInfo -> {
@@ -56,10 +57,10 @@ public class Step01Controller extends StepController {
         while (dataRepository.getVehicleInformation() == null) {
             Thread.sleep(500);
             updateProgress("Part 1, Step 1 e Collecting Vehicle Information"); // To
-                                                                               // check
-                                                                               // for
-                                                                               // test
-                                                                               // aborted
+            // check
+            // for
+            // test
+            // aborted
         }
 
         getListener().onResult("User provided " + dataRepository.getVehicleInformation());
@@ -77,6 +78,8 @@ public class Step01Controller extends StepController {
                 + NL;
 
         getListener().onUrgentMessage(message, "Start Part 1", MessageType.WARNING);
+
+        getListener().addOutcome(1, 1, Outcome.FAIL, "Testing");
     }
 
     /**
@@ -84,12 +87,12 @@ public class Step01Controller extends StepController {
      * the proper adjustments.
      *
      * @throws InterruptedException
-     *             if the user cancels the operation
+     *         if the user cancels the operation
      */
     private void ensureKeyOnEngineOff() throws InterruptedException {
         try {
             if (!getEngineSpeedModule().isEngineNotRunning()) {
-                getListener().onUrgentMessage("Please turn the Engine OFF with Key ON.", "Adjust Key Switch", WARNING);
+                getListener().onUrgentMessage("Please turn the Engine OFF with Key ON", "Adjust Key Switch", WARNING);
                 while (!getEngineSpeedModule().isEngineNotRunning()) {
                     updateProgress("Waiting for Key ON, Engine OFF...");
                     Thread.sleep(500);

@@ -20,17 +20,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
@@ -49,7 +47,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  * The unit test for {@link Step20Controller}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Step20ControllerTest extends AbstractControllerTest {
@@ -83,12 +80,6 @@ public class Step20ControllerTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private OBDModuleInformation obdModuleInformation;
-
-    @Mock
-    private PartResultFactory partResultFactory;
-
-    @Mock
     private ReportFileModule reportFileModule;
 
     @Mock
@@ -102,13 +93,12 @@ public class Step20ControllerTest extends AbstractControllerTest {
 
         listener = new TestResultsListener(mockListener);
 
-        instance = new Step20Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                partResultFactory,
-                dtcModule, dataRepository);
+        instance = new Step20Controller(executor,
+                                        engineSpeedModule,
+                                        bannerModule,
+                                        vehicleInformationModule,
+                                        dtcModule,
+                                        dataRepository);
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -119,13 +109,12 @@ public class Step20ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                partResultFactory,
-                dataRepository,
-                dtcModule,
-                mockListener);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 dataRepository,
+                                 dtcModule,
+                                 mockListener);
     }
 
     /**
@@ -151,11 +140,11 @@ public class Step20ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM28(any(), eq(true), eq(0x01));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.20.2.c - Fail if no OBD ECU provides DM28");
+                                        "6.1.20.2.c - Fail if no OBD ECU provides DM28");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.20.3 OBD module Engine #2 (1) did not return a response to a destination specific request");
+                                        "6.1.20.3 OBD module Engine #2 (1) did not return a response to a destination specific request");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.20.3.a Destination Specific DM28 requests to OBD modules did not return any responses");
+                                        "6.1.20.3.a Destination Specific DM28 requests to OBD modules did not return any responses");
 
         verify(reportFileModule).onProgress(0, 1, "");
 
@@ -213,11 +202,11 @@ public class Step20ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM28(any(), eq(true), eq(0x03));
 
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.20.2.a - Fail if any ECU reports active DTCs");
+                                                  "6.1.20.2.a - Fail if any ECU reports active DTCs");
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.20.2.b - Fail if any ECU does not report MIL off");
+                                                  "6.1.20.2.b - Fail if any ECU does not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.20.4.a Fail if any difference compared to data received during global request");
+                                        "6.1.20.4.a Fail if any difference compared to data received during global request");
 
         verify(reportFileModule).onProgress(0, 1, "");
 
@@ -273,7 +262,7 @@ public class Step20ControllerTest extends AbstractControllerTest {
                 Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
         DM28PermanentEmissionDTCPacket packet3 = new DM28PermanentEmissionDTCPacket(
                 Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77,
-                        0x88));
+                              0x88));
 
         List<Integer> obdModuleAddresses = Arrays.asList(0x01, 0x03);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
@@ -283,7 +272,7 @@ public class Step20ControllerTest extends AbstractControllerTest {
 
         when(dtcModule.requestDM28(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet3),
-                        Collections.singletonList(ackPacket)));
+                                                Collections.singletonList(ackPacket)));
         when(dtcModule.requestDM28(any(), eq(true), eq(0x01)))
                 .thenReturn(new BusResult<>(false, packet1));
         when(dtcModule.requestDM28(any(), eq(true), eq(0x03)))
@@ -298,13 +287,13 @@ public class Step20ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM28(any(), eq(true), eq(0x03));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.20.2.a - Fail if any ECU reports active DTCs");
+                                        "6.1.20.2.a - Fail if any ECU reports active DTCs");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.20.2.b - Fail if any ECU does not report MIL off");
+                                        "6.1.20.2.b - Fail if any ECU does not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.20.4.a Fail if any difference compared to data received during global request");
+                                        "6.1.20.4.a Fail if any difference compared to data received during global request");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.20.4.b Fail if NACK not received from OBD ECUs that did not respond to global query");
+                                        "6.1.20.4.b Fail if NACK not received from OBD ECUs that did not respond to global query");
 
         verify(reportFileModule).onProgress(0, 1, "");
 

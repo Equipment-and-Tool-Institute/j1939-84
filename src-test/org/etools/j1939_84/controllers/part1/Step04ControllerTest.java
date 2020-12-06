@@ -32,6 +32,7 @@ import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -90,9 +91,6 @@ public class Step04ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticReadinessModule diagnosticReadinessModule;
-
-    @Mock
     private EngineSpeedModule engineSpeedModule;
 
     @Mock
@@ -112,9 +110,6 @@ public class Step04ControllerTest extends AbstractControllerTest {
     private OBDTestsModule obdTestsModule;
 
     @Mock
-    private PartResultFactory partResultFactory;
-
-    @Mock
     private ReportFileModule reportFileModule;
 
     @Mock
@@ -132,7 +127,6 @@ public class Step04ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
                 obdTestsModule,
                 supportedSpnModule,
                 dataRepository);
@@ -146,7 +140,6 @@ public class Step04ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
                 obdTestsModule,
                 dataRepository,
                 mockListener,

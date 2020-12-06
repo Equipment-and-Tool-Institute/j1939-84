@@ -10,6 +10,7 @@ import javax.swing.JDialog;
 
 import org.etools.j1939_84.bus.Adapter;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.ReportFileModule;
 
@@ -133,6 +134,8 @@ public interface UserInterfaceContract {
 		 *                forget"
 		 */
 		void displayDialog(String message, String title, int type, boolean modal);
+
+		void displayDialog(String message, String title, int type, boolean modal, QuestionListener questionListener);
 
 		/**
 		 * Shows the File Chooser

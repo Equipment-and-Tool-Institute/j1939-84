@@ -3,10 +3,9 @@ package org.etools.j1939_84.controllers.part1;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -22,16 +21,27 @@ public class Step05Controller extends StepController {
     private final VinDecoder vinDecoder;
 
     Step05Controller(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), new PartResultFactory(), new VinDecoder(),
-                dataRepository);
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new VinDecoder(),
+             dataRepository);
     }
 
-    Step05Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-            VehicleInformationModule vehicleInformationModule,
-            PartResultFactory partResultFactory, VinDecoder vinDecoder, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
-                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+    Step05Controller(Executor executor,
+                     EngineSpeedModule engineSpeedModule,
+                     BannerModule bannerModule,
+                     VehicleInformationModule vehicleInformationModule,
+                     VinDecoder vinDecoder,
+                     DataRepository dataRepository) {
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.vinDecoder = vinDecoder;
         this.dataRepository = dataRepository;
     }
@@ -62,8 +72,8 @@ public class Step05Controller extends StepController {
 
         if (!vinDecoder.isVinValid(vin)) {
             addFailure(1,
-                    5,
-                    "6.1.5.2.e - VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence");
+                       5,
+                       "6.1.5.2.e - VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence");
         }
 
         long nonObdResponses = packets.stream()

@@ -14,8 +14,8 @@ import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -41,17 +41,27 @@ public class Step25Controller extends StepController {
     private final DiagnosticReadinessModule diagnosticReadinessModule;
 
     Step25Controller(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-             new VehicleInformationModule(), new PartResultFactory(), new DiagnosticReadinessModule(),
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new DiagnosticReadinessModule(),
              dataRepository);
     }
 
-    Step25Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-                     BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
-                     PartResultFactory partResultFactory,
-                     DiagnosticReadinessModule diagnosticReadinessModule, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
-              PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+    Step25Controller(Executor executor,
+                     EngineSpeedModule engineSpeedModule,
+                     BannerModule bannerModule,
+                     VehicleInformationModule vehicleInformationModule,
+                     DiagnosticReadinessModule diagnosticReadinessModule,
+                     DataRepository dataRepository) {
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dataRepository = dataRepository;
     }

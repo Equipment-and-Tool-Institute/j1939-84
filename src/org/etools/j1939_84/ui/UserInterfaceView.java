@@ -16,7 +16,6 @@ import java.awt.event.WindowEvent;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -37,11 +36,11 @@ import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.DefaultCaret;
-
 import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Adapter;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.resources.Resources;
 import org.etools.j1939_84.ui.UserInterfaceContract.Presenter;
@@ -49,11 +48,10 @@ import org.etools.j1939_84.ui.widgets.SmartScroller;
 
 /**
  * The View for the User Interface.
- *
+ * <p>
  * NOTE: Logic is not present in the class as it will be difficult to unit test.
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class UserInterfaceView implements UserInterfaceContract.View {
 
@@ -130,12 +128,12 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      * Constructor exposed for testing
      *
      * @param controller
-     *            The {@link UserInterfacePresenter} that will control the UI
+     *         The {@link UserInterfacePresenter} that will control the UI
      * @param buildNumber
-     *            The {@link BuildNumber} that will return the build number
+     *         The {@link BuildNumber} that will return the build number
      * @param swingExecutor
-     *            The {@link SwingExecutor} used to make updates to the UI on
-     *            the Swing Thread
+     *         The {@link Executor} used to make updates to the UI on
+     *         the Swing Thread
      */
     UserInterfaceView(Presenter controller, BuildNumber buildNumber, Executor swingExecutor) {
         this.controller = controller;
@@ -155,6 +153,11 @@ public class UserInterfaceView implements UserInterfaceContract.View {
         refreshUI(() -> getReportTextArea().append(result));
     }
 
+    @Override
+    public void displayDialog(String message, String title, int type, boolean modal) {
+        displayDialog(message, title, type, modal, null);
+    }
+
     /*
      * (non-Javadoc)
      *
@@ -162,12 +165,18 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      * String, java.lang.String, int)
      */
     @Override
-    public void displayDialog(String message, String title, int type, boolean modal) {
+    public void displayDialog(String message,
+                              String title,
+                              int type,
+                              boolean modal,
+                              QuestionListener questionListener) {
         if (modal) {
             try {
                 SwingUtilities.invokeAndWait(() -> {
-                    Object[] options = { "OK" };
-                    JOptionPane.showOptionDialog(getFrame(), message, title, type, type, null, options, options[0]);
+                    int result = JOptionPane.showOptionDialog(getFrame(), message, title, type, type, null, null, null);
+                    if (questionListener != null) {
+                        questionListener.answered(QuestionListener.AnswerType.getType(result));
+                    }
                 });
             } catch (InvocationTargetException | InterruptedException e) {
                 J1939_84.getLogger().log(Level.SEVERE, "Error displaying dialog", e);
@@ -305,7 +314,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
         if (fileChooser == null) {
             fileChooser = new JFileChooser();
             final FileNameExtensionFilter filter = new FileNameExtensionFilter("J1939-84 Data Files",
-                    UserInterfacePresenter.FILE_SUFFIX);
+                                                                               UserInterfacePresenter.FILE_SUFFIX);
             fileChooser.setFileFilter(filter);
             fileChooser.setDialogTitle("Create Report File");
 
@@ -383,10 +392,10 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             reportControlPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
 
             GridBagLayout layout = new GridBagLayout();
-            layout.columnWidths = new int[] { 0, 0 };
-            layout.rowHeights = new int[] { 0, 0 };
-            layout.columnWeights = new double[] { 1.0, 1.0 };
-            layout.rowWeights = new double[] { 1.0, 1.0 };
+            layout.columnWidths = new int[]{0, 0};
+            layout.rowHeights = new int[]{0, 0};
+            layout.columnWeights = new double[]{1.0, 1.0};
+            layout.rowWeights = new double[]{1.0, 1.0};
             reportControlPanel.setLayout(layout);
 
             GridBagConstraints gbc1 = new GridBagConstraints();
@@ -436,10 +445,10 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             reportSetupPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
 
             GridBagLayout layout = new GridBagLayout();
-            layout.columnWidths = new int[] { 0, 0, 0 };
-            layout.rowHeights = new int[] { 0, 0 };
-            layout.columnWeights = new double[] { 0.0, Double.MIN_VALUE, 0.0 };
-            layout.rowWeights = new double[] { 0, 0 };
+            layout.columnWidths = new int[]{0, 0, 0};
+            layout.rowHeights = new int[]{0, 0};
+            layout.columnWeights = new double[]{0.0, Double.MIN_VALUE, 0.0};
+            layout.rowWeights = new double[]{0, 0};
             reportSetupPanel.setLayout(layout);
 
             GridBagConstraints adapterLabelGbc = new GridBagConstraints();
@@ -577,10 +586,10 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             topPanel = new JPanel();
             topPanel.setBorder(BorderFactory.createEmptyBorder());
             GridBagLayout layout = new GridBagLayout();
-            layout.columnWidths = new int[] { 0, 0 };
-            layout.rowHeights = new int[] { 0, 0, 0, 0, };
-            layout.columnWeights = new double[] { 1.0, 1.0 };
-            layout.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE, 0.0 };
+            layout.columnWidths = new int[]{0, 0};
+            layout.rowHeights = new int[]{0, 0, 0, 0,};
+            layout.columnWeights = new double[]{1.0, 1.0};
+            layout.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE, 0.0};
             topPanel.setLayout(layout);
 
             GridBagConstraints reportSetupPanelGbc = new GridBagConstraints();
@@ -637,10 +646,10 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             vehicleInfoPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
 
             GridBagLayout panelLayout = new GridBagLayout();
-            panelLayout.columnWidths = new int[] { 0, 0, 0 };
-            panelLayout.rowHeights = new int[] { 0, 30 };
-            panelLayout.columnWeights = new double[] { 0.0, Double.MIN_VALUE, 0.0 };
-            panelLayout.rowWeights = new double[] { 0.0, 1.0 };
+            panelLayout.columnWidths = new int[]{0, 0, 0};
+            panelLayout.rowHeights = new int[]{0, 30};
+            panelLayout.columnWeights = new double[]{0.0, Double.MIN_VALUE, 0.0};
+            panelLayout.rowWeights = new double[]{0.0, 1.0};
             vehicleInfoPanel.setLayout(panelLayout);
 
             GridBagConstraints vinLabelGbc = new GridBagConstraints();
@@ -733,7 +742,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      * update the UI
      *
      * @param runnable
-     *            the {@link Runnable} to execute
+     *         the {@link Runnable} to execute
      */
     private void refreshUI(Runnable runnable) {
         swingExecutor.execute(runnable);

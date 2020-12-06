@@ -24,6 +24,7 @@ import java.util.List;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.RequestResult;
@@ -203,7 +204,7 @@ public class SectionA6ValidatorTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.SectionA6Validator#SectionA6Validator(org.etools.j1939_84.controllers.part1.DataRepository, org.etools.j1939_84.modules.DiagnosticReadinessModule, org.etools.j1939_84.modules.DTCModule, org.etools.j1939_84.modules.OBDTestsModule, org.etools.j1939_84.controllers.part1.TableA6Validator, org.etools.j1939_84.modules.VehicleInformationModule)}.
+     * {@link org.etools.j1939_84.controllers.part1.SectionA6Validator#SectionA6Validator(DataRepository, org.etools.j1939_84.modules.DiagnosticReadinessModule, org.etools.j1939_84.modules.DTCModule, org.etools.j1939_84.modules.OBDTestsModule, org.etools.j1939_84.controllers.part1.TableA6Validator, org.etools.j1939_84.modules.VehicleInformationModule)}.
      */
     @Test
     public void testNoObdResponse() {
@@ -259,7 +260,7 @@ public class SectionA6ValidatorTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.SectionA6Validator#SectionA6Validator(org.etools.j1939_84.controllers.part1.DataRepository)}.
+     * {@link org.etools.j1939_84.controllers.part1.SectionA6Validator#SectionA6Validator(DataRepository)}.
      */
     @Test
     public void testSupportedSystem() {

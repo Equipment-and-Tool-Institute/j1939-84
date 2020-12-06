@@ -71,9 +71,6 @@ public class Step23ControllerTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private PartResultFactory partResultFactory;
-
-    @Mock
     private ReportFileModule reportFileModule;
 
     @Mock
@@ -91,7 +88,6 @@ public class Step23ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
                 dtcModule);
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
@@ -106,7 +102,6 @@ public class Step23ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
                 dtcModule,
                 mockListener);
     }

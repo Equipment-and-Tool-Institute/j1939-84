@@ -17,6 +17,7 @@ import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.Outcome;
@@ -71,9 +72,6 @@ public class Step05ControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private PartResultFactory partResultFactory;
-
-    @Mock
     private ReportFileModule reportFileModule;
 
     @Mock
@@ -100,7 +98,6 @@ public class Step05ControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
                 vinDecoder,
                 dataRepository);
     }
@@ -112,7 +109,6 @@ public class Step05ControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
                 vinDecoder,
                 dataRepository,
                 mockListener);

@@ -12,12 +12,11 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
@@ -27,8 +26,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
- *         The controller for 6.1.14 DM26: Diagnostic readiness 3
+ * <p>
+ * The controller for 6.1.14 DM26: Diagnostic readiness 3
  */
 
 public class Step14Controller extends StepController {
@@ -45,17 +44,29 @@ public class Step14Controller extends StepController {
     private final DTCModule dtcModule;
 
     Step14Controller(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), new PartResultFactory(),
-                new DiagnosticReadinessModule(), new DTCModule(), dataRepository);
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new DiagnosticReadinessModule(),
+             new DTCModule(),
+             dataRepository);
     }
 
-    Step14Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule,
-            VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory,
-            DiagnosticReadinessModule diagnosticReadinessModule, DTCModule dtcModule, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
-                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+    Step14Controller(Executor executor,
+                     EngineSpeedModule engineSpeedModule,
+                     BannerModule bannerModule,
+                     VehicleInformationModule vehicleInformationModule,
+                     DiagnosticReadinessModule diagnosticReadinessModule,
+                     DTCModule dtcModule,
+                     DataRepository dataRepository) {
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dtcModule = dtcModule;
         this.dataRepository = dataRepository;
@@ -84,13 +95,16 @@ public class Step14Controller extends StepController {
                         return obdModuleAddresses.contains(p.getSourceAddress());
                     }).collect(Collectors.toList()), false);
             getListener().onResult(dm26Systems.stream().sorted().map(system -> system.toString())
-                    .collect(Collectors.toList()));
+                                           .collect(Collectors.toList()));
 
             // 6.1.14.2 Fail criteria:
             DiagnosticReadinessModule.getCompositeSystems(dataRepository.getObdModules().stream()
-                    .flatMap(module -> module.getMonitoredSystems().stream())
-                    .sorted()
-                    .collect(Collectors.toList()), true).stream().forEach(system -> {
+                                                                  .flatMap(module -> module.getMonitoredSystems()
+                                                                          .stream())
+                                                                  .sorted()
+                                                                  .collect(Collectors.toList()), true)
+                    .stream()
+                    .forEach(system -> {
                         // a. Fail if any response for any monitor supported in
                         // DM5 by a given ECU is reported as '0=monitor complete
                         // this cycle or not supported' in SPN 3303 bits 1-4 and
@@ -113,7 +127,7 @@ public class Step14Controller extends StepController {
                                             + NL + system.toString());
                             if (system.getId() == CompositeSystem.COMPREHENSIVE_COMPONENT
                                     && !system.getStatus().isEnabled() && dm26Systems.stream()
-                                            .anyMatch(s -> s.getId() == system.getId() && s.getStatus().isEnabled())) {
+                                    .anyMatch(s -> s.getId() == system.getId() && s.getStatus().isEnabled())) {
                                 // c. Fail if any response from an ECU
                                 // indicating
                                 // support for CCM monitor in DM5 reports

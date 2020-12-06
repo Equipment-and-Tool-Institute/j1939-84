@@ -7,11 +7,10 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
@@ -21,9 +20,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
- *         6.1.10 DM11: Diagnostic Data Clear/Reset for Active DTCs
- *
+ * <p>
+ * 6.1.10 DM11: Diagnostic Data Clear/Reset for Active DTCs
  */
 public class Step10Controller extends StepController {
 
@@ -37,17 +35,31 @@ public class Step10Controller extends StepController {
     private final OBDTestsModule obdTestsModule;
 
     Step10Controller(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), new DTCModule(), new PartResultFactory(),
-                new DiagnosticReadinessModule(), new OBDTestsModule(), dataRepository);
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new DTCModule(),
+             new DiagnosticReadinessModule(),
+             new OBDTestsModule(),
+             dataRepository);
     }
 
-    protected Step10Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-            VehicleInformationModule vehicleInformationModule, DTCModule dtcModule,
-            PartResultFactory partResultFactory, DiagnosticReadinessModule diagnosticReadinessModule,
-            OBDTestsModule obdTestsModule, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
-                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+    protected Step10Controller(Executor executor,
+                               EngineSpeedModule engineSpeedModule,
+                               BannerModule bannerModule,
+                               VehicleInformationModule vehicleInformationModule,
+                               DTCModule dtcModule,
+                               DiagnosticReadinessModule diagnosticReadinessModule,
+                               OBDTestsModule obdTestsModule,
+                               DataRepository dataRepository) {
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.dataRepository = dataRepository;
         this.dtcModule = dtcModule;
         this.obdTestsModule = obdTestsModule;

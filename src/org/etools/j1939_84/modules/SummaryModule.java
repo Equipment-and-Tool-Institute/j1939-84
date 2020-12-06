@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
+import org.etools.j1939_84.controllers.PartResultRepository;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.IResult;
 import org.etools.j1939_84.model.Outcome;
@@ -29,12 +30,16 @@ public class SummaryModule {
         return new String(charArray);
     }
 
-    private final List<PartResult> partResults = new ArrayList<>();
+    private final PartResultRepository partResultRepository;
 
+    private List<PartResult> getPartResults() {
+        return partResultRepository.getPartResults();
+    }
     /**
      *
      */
     public SummaryModule() {
+        this.partResultRepository = PartResultRepository.getInstance();
     }
 
     public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
@@ -47,7 +52,7 @@ public class SummaryModule {
      *            {@link PartResult} to be added to partResults
      */
     public void beginPart(PartResult partResult) {
-        partResults.add(partResult);
+        getPartResults().add(partResult);
     }
 
     public void endStep(StepResult stepResult) {
@@ -58,7 +63,7 @@ public class SummaryModule {
 
     public String generateSummary() {
         StringBuilder sb = new StringBuilder();
-        for (PartResult partResult : partResults) {
+        for (PartResult partResult : getPartResults()) {
             sb.append(println(partResult));
             sb.append(NL);
             for (StepResult stepResult : partResult.getStepResults()) {
@@ -70,7 +75,7 @@ public class SummaryModule {
     }
 
     public long getFailures() {
-        return partResults.stream()
+        return getPartResults().stream()
                 .flatMap(p -> p.getStepResults().stream())
                 .flatMap(s -> s.getOutcomes().stream())
                 .filter(o -> o.getOutcome() == Outcome.FAIL)
@@ -78,12 +83,7 @@ public class SummaryModule {
     }
 
     private StepResult getStepResult(int partNumber, int stepNumber) {
-        for (PartResult partResult : partResults) {
-            if (partResult.getPartNumber() == partNumber) {
-                return partResult.getStepResult(stepNumber);
-            }
-        }
-        return null;
+        return partResultRepository.getStepResult(partNumber, stepNumber);
     }
 
     public long getTiming() {
@@ -97,7 +97,7 @@ public class SummaryModule {
     }
 
     public long getWarnings() {
-        return partResults.stream()
+        return getPartResults().stream()
                 .flatMap(p -> p.getStepResults().stream())
                 .flatMap(s -> s.getOutcomes().stream())
                 .filter(o -> o.getOutcome() == Outcome.WARN)

@@ -6,13 +6,12 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.OBDTestsModule;
@@ -21,8 +20,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
- *
- *         The controller for DM24: SPN support
+ * <p>
+ * The controller for DM24: SPN support
  */
 public class Step04Controller extends StepController {
 
@@ -35,17 +34,29 @@ public class Step04Controller extends StepController {
     private final SupportedSpnModule supportedSpnModule;
 
     Step04Controller(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), new PartResultFactory(), new OBDTestsModule(),
-                new SupportedSpnModule(), dataRepository);
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new OBDTestsModule(),
+             new SupportedSpnModule(),
+             dataRepository);
     }
 
-    Step04Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
-            PartResultFactory partResultFactory, OBDTestsModule obdTestsModule, SupportedSpnModule supportedSpnModule,
-            DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
-                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+    Step04Controller(Executor executor,
+                     EngineSpeedModule engineSpeedModule,
+                     BannerModule bannerModule,
+                     VehicleInformationModule vehicleInformationModule,
+                     OBDTestsModule obdTestsModule,
+                     SupportedSpnModule supportedSpnModule,
+                     DataRepository dataRepository) {
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.obdTestsModule = obdTestsModule;
         this.supportedSpnModule = supportedSpnModule;
         this.dataRepository = dataRepository;
@@ -69,7 +80,7 @@ public class Step04Controller extends StepController {
         // [Do not attempt retry for NACKs that indicate not supported].
         dataRepository.getObdModules().forEach(module -> {
             BusResult<DM24SPNSupportPacket> result = obdTestsModule.requestDM24(getListener(),
-                    module.getSourceAddress());
+                                                                                module.getSourceAddress());
 
             result.getPacket().ifPresent(packet -> {
                 packet.left.ifPresent(p -> {
@@ -108,7 +119,7 @@ public class Step04Controller extends StepController {
                 .map(s -> s.getSpn())
                 .collect(Collectors.toSet());
         boolean freezeFrameOk = supportedSpnModule.validateFreezeFrameSpns(getListener(),
-                freezeFrameSpns);
+                                                                           freezeFrameSpns);
         // c. Fail if one or more minimum expected SPNs for freeze frame not
         // supported per section A.2, Criteria for Freeze Frame Evaluation, from
         // the OBD ECU(s).
@@ -128,8 +139,8 @@ public class Step04Controller extends StepController {
 
         boolean dataStreamOk = supportedSpnModule
                 .validateDataStreamSpns(getListener(),
-                        dataStreamSpns,
-                        dataRepository.getVehicleInformation().getFuelType());
+                                        dataStreamSpns,
+                                        dataRepository.getVehicleInformation().getFuelType());
         // 6.1.4.2.b. Fail if one or more minimum expected SPNs for data stream
         // not supported per section A.1, Minimum Support Table, from the OBD
         // ECU(s).

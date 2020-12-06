@@ -27,6 +27,7 @@ import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -83,12 +84,6 @@ public class Step22ControllerTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private OBDModuleInformation obdModuleInformation;
-
-    @Mock
-    private PartResultFactory partResultFactory;
-
-    @Mock
     private ReportFileModule reportFileModule;
 
     @Mock
@@ -107,7 +102,6 @@ public class Step22ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
                 dtcModule,
                 dataRepository);
 
@@ -123,7 +117,6 @@ public class Step22ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
                 dataRepository,
                 dtcModule,
                 mockListener);

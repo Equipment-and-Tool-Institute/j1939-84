@@ -27,6 +27,7 @@ import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -82,9 +83,6 @@ public class Step25ControllerTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private PartResultFactory partResultFactory;
-
-    @Mock
     private ReportFileModule reportFileModule;
 
     @Mock
@@ -97,13 +95,12 @@ public class Step25ControllerTest extends AbstractControllerTest {
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
 
-        instance = new Step25Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                partResultFactory,
-                diagnosticReadinessModule, dataRepository);
+        instance = new Step25Controller(executor,
+                                        engineSpeedModule,
+                                        bannerModule,
+                                        vehicleInformationModule,
+                                        diagnosticReadinessModule,
+                                        dataRepository);
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -117,7 +114,6 @@ public class Step25ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 partResultFactory,
                                  dataRepository,
                                  diagnosticReadinessModule,
                                  mockListener);
@@ -131,7 +127,7 @@ public class Step25ControllerTest extends AbstractControllerTest {
     public void testObdInfoDifferentFail() {
 
 
-        int[] data = new int[] {
+        int[] data = new int[]{
                 0xA5, // Ignition Cycle Counter
                 0xA5, // Ignition Cycle Counter
                 0x5A, // OBD Monitoring Conditions Encountered

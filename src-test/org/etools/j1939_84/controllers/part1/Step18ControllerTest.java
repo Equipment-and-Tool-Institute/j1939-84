@@ -26,6 +26,7 @@ import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -82,16 +83,7 @@ public class Step18ControllerTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private OBDModuleInformation obdModuleInformation;
-
-    @Mock
-    private PartResultFactory partResultFactory;
-
-    @Mock
     private ReportFileModule reportFileModule;
-
-    @Mock
-    private SectionA6Validator sectionA6Validator;
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
@@ -109,8 +101,8 @@ public class Step18ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
-                dtcModule, dataRepository);
+                dtcModule,
+                dataRepository);
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -124,7 +116,6 @@ public class Step18ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
                 dataRepository,
                 dtcModule,
                 mockListener);

@@ -13,12 +13,11 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
@@ -27,9 +26,9 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
- *         The controller for 6.1.13 DM5: Diagnostic Readiness 1: Monitor
- *         Readiness
+ * <p>
+ * The controller for 6.1.13 DM5: Diagnostic Readiness 1: Monitor
+ * Readiness
  */
 
 public class Step13Controller extends StepController {
@@ -44,18 +43,29 @@ public class Step13Controller extends StepController {
     private final SectionA6Validator sectionA6Validator;
 
     Step13Controller(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), new PartResultFactory(),
-                new DiagnosticReadinessModule(), dataRepository, new SectionA6Validator(dataRepository));
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new DiagnosticReadinessModule(),
+             dataRepository,
+             new SectionA6Validator(dataRepository));
     }
 
-    Step13Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule,
-            VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory,
-            DiagnosticReadinessModule diagnosticReadinessModule, DataRepository dataRepository,
-            SectionA6Validator sectionaA6Validator) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
-                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+    Step13Controller(Executor executor,
+                     EngineSpeedModule engineSpeedModule,
+                     BannerModule bannerModule,
+                     VehicleInformationModule vehicleInformationModule,
+                     DiagnosticReadinessModule diagnosticReadinessModule,
+                     DataRepository dataRepository,
+                     SectionA6Validator sectionaA6Validator) {
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dataRepository = dataRepository;
         sectionA6Validator = sectionaA6Validator;
@@ -75,9 +85,9 @@ public class Step13Controller extends StepController {
                 displayReportBuilder
                         .append(NL + String.format("%-35s", "    " + system.getName()))
                         .append(system.getStatus().isEnabled() ? String.format("%15s", "supported, ")
-                                : String.format("%15s", "not supported, "))
+                                        : String.format("%15s", "not supported, "))
                         .append(system.getStatus().isComplete() ? String.format("%15s", "completed")
-                                : String.format("%15s", "not completed"));
+                                        : String.format("%15s", "not completed"));
             });
         });
         return displayReportBuilder;
@@ -93,7 +103,7 @@ public class Step13Controller extends StepController {
         // a. Global DM5 (send Request (PGN 59904) for PGN 65230 (SPNs
         // 1218-1223)).
         RequestResult<DM5DiagnosticReadinessPacket> response = diagnosticReadinessModule.requestDM5(getListener(),
-                true);
+                                                                                                    true);
         List<DM5DiagnosticReadinessPacket> obdGlobalPackets = response.getPackets().stream()
                 .filter(packet -> !packet.isObd())
                 .collect(Collectors.toList());
@@ -117,7 +127,7 @@ public class Step13Controller extends StepController {
         }
         // b. Fail if any OBD ECU reports active/previously active fault
         // DTCs count not = 0/0.
-        boolean[] passed2b = { true };
+        boolean[] passed2b = {true};
         obdGlobalPackets.forEach(pack -> {
             if (pack.getActiveCodeCount() != 0 || pack.getPreviouslyActiveCodeCount() != 0) {
                 addFailure(
@@ -186,7 +196,7 @@ public class Step13Controller extends StepController {
                         }
                     }, () -> {
                         addWarning("6.1.13.3 OBD module " + getAddressName(address)
-                                + " did not return a response to a destination specific request");
+                                           + " did not return a response to a destination specific request");
                     });
         });
         if (destinationSpecificPackets.isEmpty()) {

@@ -13,11 +13,9 @@ import static org.mockito.Mockito.when;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -36,7 +34,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  * The unit test for {@link Step02Controller}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 @TestDoc(value = @TestItem(verifies = "Part 1 Step 2", description = "Verify engine operation"))
@@ -62,9 +59,6 @@ public class Step02ControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private PartResultFactory partResultFactory;
-
-    @Mock
     private ReportFileModule reportFileModule;
 
     @Mock
@@ -75,20 +69,18 @@ public class Step02ControllerTest {
         listener = new TestResultsListener(mockListener);
 
         instance = new Step02Controller(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                partResultFactory);
+                                        engineSpeedModule,
+                                        bannerModule,
+                                        vehicleInformationModule);
     }
 
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                partResultFactory,
-                mockListener);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 mockListener);
     }
 
     @Test
@@ -105,8 +97,8 @@ public class Step02ControllerTest {
 
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.2.1.a",
-                               description = "Verify if the engine is running that there are no messages when already KOEO.",
-                               dependsOn = { "EngineSpeedModuleTest" }))
+            description = "Verify if the engine is running that there are no messages when already KOEO.",
+            dependsOn = {"EngineSpeedModuleTest"}))
     public void testRun() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
 
@@ -131,8 +123,8 @@ public class Step02ControllerTest {
 
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.2.1.a",
-                               description = "Verify user is requested to turn KOEO when engine is not KOEO.",
-                               dependsOn = { "EngineSpeedModuleTest" }))
+            description = "Verify user is requested to turn KOEO when engine is not KOEO.",
+            dependsOn = {"EngineSpeedModuleTest"}))
     public void testWaitForKeyOn() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
 

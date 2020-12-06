@@ -22,6 +22,7 @@ import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.Outcome;
@@ -113,9 +114,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private PartResultFactory partResultFactory;
-
-    @Mock
     private ReportFileModule reportFileModule;
 
     @Mock
@@ -133,7 +131,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
                 bannerModule,
                 diagnosticReadinessModule,
                 vehicleInformationModule,
-                partResultFactory,
                 dataRepository);
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -148,7 +145,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
                 bannerModule,
                 diagnosticReadinessModule,
                 vehicleInformationModule,
-                partResultFactory,
                 mockListener,
                 reportFileModule,
                 dataRepository);

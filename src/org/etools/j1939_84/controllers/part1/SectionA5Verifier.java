@@ -29,6 +29,7 @@ import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
@@ -443,7 +444,7 @@ public class SectionA5Verifier {
         // a. DM31 lamp status shall report no DTCs causing MIL on (if
         // supported, see section 6 provisions before section 6.1).
         List<DM31DtcToLampAssociation> dm31Packets = dtcModule.requestDM31(listener).getPackets().stream()
-                .filter(packet -> packet instanceof DM31DtcToLampAssociation).map(p -> p)
+                .filter(packet -> packet instanceof DM31DtcToLampAssociation)
                 .filter(t -> !t.getDtcLampStatuses().isEmpty())
                 .collect(Collectors.toList());
         if (!dm31Packets.isEmpty()) {
