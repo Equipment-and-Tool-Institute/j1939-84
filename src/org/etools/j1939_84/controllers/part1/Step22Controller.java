@@ -11,14 +11,13 @@ import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
@@ -27,8 +26,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
- *         The controller for 6.1.22 DM29: Regulated DTC counts
+ * <p>
+ * The controller for 6.1.22 DM29: Regulated DTC counts
  */
 
 public class Step22Controller extends StepController {
@@ -44,16 +43,27 @@ public class Step22Controller extends StepController {
     private final DTCModule dtcModule;
 
     Step22Controller(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), new PartResultFactory(), new DTCModule(), dataRepository);
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new DTCModule(),
+             dataRepository);
     }
 
-    Step22Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
-            PartResultFactory partResultFactory,
-            DTCModule dtcModule, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
-                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+    Step22Controller(Executor executor,
+                     EngineSpeedModule engineSpeedModule,
+                     BannerModule bannerModule,
+                     VehicleInformationModule vehicleInformationModule,
+                     DTCModule dtcModule,
+                     DataRepository dataRepository) {
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.dtcModule = dtcModule;
         this.dataRepository = dataRepository;
     }
@@ -82,7 +92,7 @@ public class Step22Controller extends StepController {
                     || packet.get(2) != 0
                     || packet.get(3) != 0)) {
                 addFailure("6.1.22.2.a - For ECUs that support DM27, fail if any ECU does "
-                        + "not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
+                                   + "not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
             }
 
             // b. For ECUs that do not support DM27, fail if any ECU does not
@@ -92,18 +102,18 @@ public class Step22Controller extends StepController {
                     || packet.get(2) != 0
                     || packet.get(3) != 0)) {
                 addFailure("6.1.22.2.b - For ECUs that do not support DM27, fail if any ECU does "
-                        + "not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
+                                   + "not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
             }
 
             // c. For non-OBD ECUs, fail if any ECU reports pending, MIL-on,
             // previously MIL-on or permanent DTC count greater than 0
             if (!obdModuleAddresses.contains(dm29.getSourceAddress())
                     && (packet.get(0) > 0
-                            || packet.get(1) > 0
-                            || packet.get(2) > 0
-                            || packet.get(3) > 0)) {
+                    || packet.get(1) > 0
+                    || packet.get(2) > 0
+                    || packet.get(3) > 0)) {
                 addFailure("6.1.22.2.c - For non-OBD ECUs, fail if any ECU reports pending, MIL-on, "
-                        + "previously MIL-on or permanent DTC count greater than 0");
+                                   + "previously MIL-on or permanent DTC count greater than 0");
 
             }
         });
@@ -136,7 +146,7 @@ public class Step22Controller extends StepController {
                         }
                     }, () -> {
                         addWarning("6.1.22.3 - OBD module " + getAddressName(address)
-                                + " did not return a response to a destination specific request");
+                                           + " did not return a response to a destination specific request");
                     });
         });
         if (destinationSpecificPackets.isEmpty()) {

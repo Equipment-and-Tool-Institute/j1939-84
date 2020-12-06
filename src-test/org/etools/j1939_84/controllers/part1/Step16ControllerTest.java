@@ -30,6 +30,7 @@ import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.Outcome;
@@ -58,18 +59,11 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class Step16ControllerTest extends AbstractControllerTest {
 
-    private static final int PART_NUMBER = 1;
-
-    private static final int STEP_NUMBER = 16;
-
     @Mock
     private BannerModule bannerModule;
 
     @Mock
     private DataRepository dataRepository;
-
-    @Mock
-    private DiagnosticTroubleCodePacket diagnosticTroubleCodePacket;
 
     @Mock
     private DTCModule dtcModule;
@@ -89,9 +83,6 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
     @Mock
     private ResultsListener mockListener;
-
-    @Mock
-    private PartResultFactory partResultFactory;
 
     @Mock
     private ReportFileModule reportFileModule;
@@ -114,7 +105,6 @@ public class Step16ControllerTest extends AbstractControllerTest {
                 bannerModule,
                 vehicleInformationModule,
                 dtcModule,
-                partResultFactory,
                 dataRepository);
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
@@ -127,7 +117,6 @@ public class Step16ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
                 mockListener,
                 reportFileModule,
                 dtcModule);

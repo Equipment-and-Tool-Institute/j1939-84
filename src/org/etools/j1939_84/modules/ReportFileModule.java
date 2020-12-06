@@ -20,6 +20,7 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import org.etools.j1939_84.J1939_84;
+import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
@@ -168,6 +169,11 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     @Override
     public void onUrgentMessage(String message, String title, MessageType type) {
         // Don't care
+    }
+
+    @Override
+    public void onUrgentMessage(String message, String title, MessageType type, QuestionListener listener) {
+        //Don't care
     }
 
     @Override

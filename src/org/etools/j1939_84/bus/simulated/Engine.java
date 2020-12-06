@@ -137,11 +137,13 @@ public class Engine implements AutoCloseable {
                 TimeUnit.MILLISECONDS,
                 () -> Packet.create(61444, ADDR, combine(NA3, engineOn[0] ? ENGINE_SPEED : ENGINE_SPEED_ZERO, NA3)));
         sim.schedule(100, 100, TimeUnit.MILLISECONDS, () -> Packet.create(65248, ADDR, combine(NA4, DISTANCE)));
-        sim.response(p -> isRequestFor(65259, p), () -> {
-            // Start a timer to turn the engine off
-            executor.schedule(() -> engineOn[0] = false, 10, TimeUnit.SECONDS);
-            return Packet.create(65259, ADDR, COMPONENT_ID);
+        sim.response(p -> isRequestFor(65259, p), () -> Packet.create(65259, ADDR, COMPONENT_ID));
+        sim.response(p -> isRequestFor(DM20MonitorPerformanceRatioPacket.PGN, ADDR, p), () -> {
+            // Start a timer to turn the engine on
+            executor.schedule(() -> engineOn[0] = true, 20, TimeUnit.SECONDS);
+            return Packet.create(0, ADDR, new byte[8]);
         });
+
         sim.response(p -> isRequestFor(65253, p),
                 () -> {
                     // Start a timer that will increment the numerators and

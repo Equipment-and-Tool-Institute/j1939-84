@@ -24,6 +24,7 @@ import org.etools.j1939_84.bus.RP1210;
 import org.etools.j1939_84.bus.RP1210Bus;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.OverallController;
+import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
@@ -78,7 +79,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     private final VehicleInformationModule vehicleInformationModule;
 
     /**
-     * The {@link IUserInterfaceView} that is being controlled
+     * The {@link UserInterfacePresenter} that is being controlled
      */
     private final UserInterfaceContract.View view;
 
@@ -276,7 +277,12 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
             @Override
             public void onUrgentMessage(String message, String title, MessageType type) {
-                getView().displayDialog(message, title, type.getValue(), true);
+                getView().displayDialog(message, title, type.getValue(), true, null);
+            }
+
+            @Override
+            public void onUrgentMessage(String message, String title, MessageType type, QuestionListener questionListener) {
+                getView().displayDialog(message, title, type.getValue(), true, questionListener);
             }
 
             @Override

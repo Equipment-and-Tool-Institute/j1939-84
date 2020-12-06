@@ -18,6 +18,7 @@ import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.PartResultFactory;
@@ -78,9 +79,6 @@ public class Step10ControllerTest extends AbstractControllerTest {
     private OBDTestsModule obdTestsModule;
 
     @Mock
-    private PartResultFactory partResultFactory;
-
-    @Mock
     private ReportFileModule reportFileModule;
 
     @Mock
@@ -95,7 +93,6 @@ public class Step10ControllerTest extends AbstractControllerTest {
                 bannerModule,
                 vehicleInformationModule,
                 dtcModule,
-                partResultFactory,
                 diagnosticReadinessModule,
                 obdTestsModule,
                 dataRepository);
@@ -109,7 +106,6 @@ public class Step10ControllerTest extends AbstractControllerTest {
                 bannerModule,
                 vehicleInformationModule,
                 dtcModule,
-                partResultFactory,
                 obdTestsModule,
                 dataRepository,
                 diagnosticReadinessModule,

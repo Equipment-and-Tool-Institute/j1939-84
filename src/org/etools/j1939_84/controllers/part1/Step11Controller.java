@@ -8,22 +8,20 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
- *         The controller for 6.1.11 DM21: Diagnostic readiness 2
+ * <p>
+ * The controller for 6.1.11 DM21: Diagnostic readiness 2
  */
 
 public class Step11Controller extends StepController {
@@ -36,17 +34,27 @@ public class Step11Controller extends StepController {
     private final DiagnosticReadinessModule diagnosticReadinessModule;
 
     Step11Controller(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new DiagnosticReadinessModule(), new VehicleInformationModule(),
-                new PartResultFactory(), dataRepository);
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new DiagnosticReadinessModule(),
+             new VehicleInformationModule(),
+             dataRepository);
     }
 
-    Step11Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-            DiagnosticReadinessModule diagnositcReadinessModule,
-            VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory,
-            DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
-                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+    Step11Controller(Executor executor,
+                     EngineSpeedModule engineSpeedModule,
+                     BannerModule bannerModule,
+                     DiagnosticReadinessModule diagnositcReadinessModule,
+                     VehicleInformationModule vehicleInformationModule,
+                     DataRepository dataRepository) {
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         diagnosticReadinessModule = diagnositcReadinessModule;
         this.dataRepository = dataRepository;
     }
@@ -66,29 +74,29 @@ public class Step11Controller extends StepController {
             // zero.
             if (packet.getKmSinceDTCsCleared() != 0 || packet.getMilesSinceDTCsCleared() != 0) {
                 addFailure(1,
-                        11,
-                        "6.1.11.1.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
+                           11,
+                           "6.1.11.1.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
             }
             // b. Fail if any ECU reports distance SCC (SPN 3294) is not zero.
             if (packet.getKmWhileMILIsActivated() != 0 || packet.getMilesWhileMILIsActivated() != 0) {
                 addFailure(1,
-                        11,
-                        "6.1.11.1.b - Fail if any ECU reports distance SCC (SPN 3294) is not zero");
+                           11,
+                           "6.1.11.1.b - Fail if any ECU reports distance SCC (SPN 3294) is not zero");
             }
             // c. Fail if any ECU reports time with MIL on (SPN 3295) is not
             // zero (if
             // supported).17
             if (packet.getMinutesWhileMILIsActivated() != 0) {
                 addFailure(1,
-                        11,
-                        "6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
+                           11,
+                           "6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
             }
             // d. Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if
             // supported).
             if (packet.getMinutesSinceDTCsCleared() > 1) {
                 addFailure(1,
-                        11,
-                        "6.1.11.1.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)");
+                           11,
+                           "6.1.11.1.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)");
             }
         });
         // e. Fail if no OBD ECU provides a DM21 message.
@@ -115,30 +123,30 @@ public class Step11Controller extends StepController {
                     // 3069) is not zero.
                     if (packet.getKmSinceDTCsCleared() != 0 || packet.getMilesSinceDTCsCleared() != 0) {
                         addFailure(1,
-                                11,
-                                "6.1.11.4.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
+                                   11,
+                                   "6.1.11.4.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
                     }
                     // b. Fail if any ECU reports distance SCC (SPN 3294) is not
                     // zero.
                     if (packet.getKmWhileMILIsActivated() != 0 || packet.getMilesWhileMILIsActivated() != 0) {
                         addFailure(1,
-                                11,
-                                "6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero");
+                                   11,
+                                   "6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero");
                     }
                     // c. Fail if any ECU reports time with MIL on (SPN 3295) is
                     // not zero (if
                     // supported)
                     if (packet.getMinutesWhileMILIsActivated() != 0) {
                         addFailure(1,
-                                11,
-                                "6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
+                                   11,
+                                   "6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
                     }
                     // d. Fail if any ECU reports time SCC (SPN 3296) > 1 minute
                     // (if supported).
                     if (packet.getMinutesSinceDTCsCleared() != 0) {
                         addFailure(1,
-                                11,
-                                "6.1.11.4.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)");
+                                   11,
+                                   "6.1.11.4.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)");
                     }
                 });
 
@@ -155,8 +163,8 @@ public class Step11Controller extends StepController {
 
         if (!results.isEmpty()) {
             addFailure(1,
-                    11,
-                    "6.1.11.4.e - Fail if any responses differ from global responses");
+                       11,
+                       "6.1.11.4.e - Fail if any responses differ from global responses");
         }
 
         // f. Fail if NACK not received from OBD ECUs that did not respond to
@@ -176,8 +184,8 @@ public class Step11Controller extends StepController {
 
         if (!globalDm21Packets.isEmpty()) {
             addFailure(1,
-                    11,
-                    "6.1.11.4.f - Fail if NACK not received from OBD ECUs that did not respond to global query");
+                       11,
+                       "6.1.11.4.f - Fail if NACK not received from OBD ECUs that did not respond to global query");
         }
 
     }

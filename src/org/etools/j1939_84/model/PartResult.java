@@ -18,12 +18,11 @@ public class PartResult implements IResult {
     private final String name;
     private Outcome outcome;
     private final int partNumber;
-    private final StepResultFactory stepResultFactory;
 
     private final Map<Integer, StepResult> stepResults = new HashMap<>();
 
     public PartResult(int partNumber, String name) {
-        stepResultFactory = new StepResultFactory();
+        StepResultFactory stepResultFactory = new StepResultFactory();
         this.partNumber = partNumber;
         this.name = name;
 

@@ -5,20 +5,16 @@ package org.etools.j1939_84.controllers;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.OBDTestsModule;
-import org.etools.j1939_84.modules.SupportedSpnModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * The {@link Controller} for the Part 1 Tests
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class Part12Controller extends Controller {
 
@@ -30,36 +26,37 @@ public class Part12Controller extends Controller {
      * Constructor
      */
     public Part12Controller() {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), new PartResultFactory(),
-                new DiagnosticReadinessModule(), new OBDTestsModule(), new SupportedSpnModule());
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new DiagnosticReadinessModule(),
+             new OBDTestsModule());
     }
 
     /**
      * Constructor exposed for testing
      *
      * @param executor
-     *            the {@link Executor}
+     *         the {@link Executor}
      * @param engineSpeedModule
-     *            the {@link EngineSpeedModule}
+     *         the {@link EngineSpeedModule}
      * @param bannerModule
-     *            the {@link BannerModule}
+     *         the {@link BannerModule}
      * @param vehicleInformationModule
-     *            the {@link VehicleInformationModule}
-     * @param partResultFactory
-     *            the {@link PartResultFactory}
+     *         the {@link VehicleInformationModule}
      * @param diagnosticReadinessModule
-     *            the {@link DiagnosticReadinessModule}
+     *         the {@link DiagnosticReadinessModule}
      * @param obdTestsModule
-     *            the {@link OBDTestsModule}
-     * @param supportedSpnModule
-     *            the {@link SupportedSpnModule}
+     *         the {@link OBDTestsModule}
      */
-    public Part12Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
-            PartResultFactory partResultFactory, DiagnosticReadinessModule diagnosticReadinessModule,
-            OBDTestsModule obdTestsModule, SupportedSpnModule supportedSpnModule) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory);
+    public Part12Controller(Executor executor,
+                            EngineSpeedModule engineSpeedModule,
+                            BannerModule bannerModule,
+                            VehicleInformationModule vehicleInformationModule,
+                            DiagnosticReadinessModule diagnosticReadinessModule,
+                            OBDTestsModule obdTestsModule) {
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.obdTestsModule = obdTestsModule;
     }

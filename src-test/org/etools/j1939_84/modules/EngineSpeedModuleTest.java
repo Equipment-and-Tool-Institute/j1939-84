@@ -8,6 +8,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
+import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -65,7 +66,7 @@ public class EngineSpeedModuleTest {
     public void tearDown() {
         // verify that isEngineCommunicating() and isEngineNotRunning() are both
         // called
-        verify(j1939, VerificationModeFactory.times(2)).read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS);
+        verify(j1939, times(3)).read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS);
         verifyNoMoreInteractions(j1939);
     }
 
@@ -76,6 +77,7 @@ public class EngineSpeedModuleTest {
         EngineSpeedPacket packet = getEngineSpeedPacket(0);
         when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS))
                 .thenReturn(Optional.of(new Either<>(packet, null)));
+        assertFalse(instance.isEngineRunning());
         assertTrue(instance.isEngineCommunicating());
         assertTrue(instance.isEngineNotRunning());
     }
@@ -87,6 +89,7 @@ public class EngineSpeedModuleTest {
         EngineSpeedPacket packet = getEngineSpeedPacket(300 * 8);
         when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS))
                 .thenReturn(Optional.of(new Either<>(packet, null)));
+        assertTrue(instance.isEngineRunning());
         assertTrue(instance.isEngineCommunicating());
         assertTrue(instance.isEngineNotRunning());
     }
@@ -97,6 +100,7 @@ public class EngineSpeedModuleTest {
         EngineSpeedPacket packet = getEngineSpeedPacket(301 * 8);
         when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS))
                 .thenReturn(Optional.of(new Either<>(packet, null)));
+        assertTrue(instance.isEngineRunning());
         assertTrue(instance.isEngineCommunicating());
         assertFalse(instance.isEngineNotRunning());
     }
@@ -108,6 +112,7 @@ public class EngineSpeedModuleTest {
         when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS)).thenReturn(Optional.empty());
         assertFalse(instance.isEngineCommunicating());
         assertFalse(instance.isEngineNotRunning());
+        assertFalse(instance.isEngineRunning());
     }
 
     @Test
@@ -118,6 +123,7 @@ public class EngineSpeedModuleTest {
                 .thenReturn(Optional.of(new Either<>(packet, null)));
         assertTrue(instance.isEngineCommunicating());
         assertFalse(instance.isEngineNotRunning());
+        assertTrue(instance.isEngineRunning());
     }
 
     @Test
@@ -130,6 +136,7 @@ public class EngineSpeedModuleTest {
                 .thenReturn(Optional.of(new Either<>(packet, null)));
         assertTrue(instance.isEngineCommunicating());
         assertFalse(instance.isEngineNotRunning());
+        assertFalse(instance.isEngineRunning());
     }
 
     @Test
@@ -142,6 +149,20 @@ public class EngineSpeedModuleTest {
                 .thenReturn(Optional.of(new Either<>(packet, null)));
         assertTrue(instance.isEngineCommunicating());
         assertFalse(instance.isEngineNotRunning());
+        assertFalse(instance.isEngineRunning());
     }
 
+    /**
+     * Test method for
+     * {@link EngineSpeedModule#isEngineRunning()} ()}.
+     */
+    @Test
+    public void testIsEngineRunning() {
+        EngineSpeedPacket packet = getEngineSpeedPacket(0xFFFF);
+        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS))
+                .thenReturn(Optional.of(new Either<>(packet, null)));
+        assertFalse(instance.isEngineRunning());
+        assertTrue(instance.isEngineCommunicating());
+        assertFalse(instance.isEngineNotRunning());
+    }
 }

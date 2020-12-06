@@ -143,6 +143,11 @@ public class TestResultsListener implements ResultsListener {
     }
 
     @Override
+    public void onUrgentMessage(String message, String title, MessageType type, QuestionListener listener) {
+        mockListener.onUrgentMessage(message, title, type, listener);
+    }
+
+    @Override
     public void onVehicleInformationNeeded(VehicleInformationListener listener) {
         mockListener.onVehicleInformationNeeded(listener);
     }

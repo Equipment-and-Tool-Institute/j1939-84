@@ -18,7 +18,6 @@ import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.PartResult;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -59,9 +58,6 @@ public class Part01ControllerTest {
 
     @Mock
     private ResultsListener mockListener;
-
-    @Mock
-    private PartResultFactory partResultFactory;
 
     @Mock
     private ReportFileModule reportFileModule;
@@ -142,6 +138,9 @@ public class Part01ControllerTest {
     private Step25Controller step25Controller;
 
     @Mock
+    private Step27Controller step27Controller;
+
+    @Mock
     private VehicleInformationModule vehicleInformationModule;
 
     @Before
@@ -152,7 +151,6 @@ public class Part01ControllerTest {
                                         engineSpeedModule,
                                         bannerModule,
                                         vehicleInformationModule,
-                                        partResultFactory,
                                         step01Controller,
                                         step02Controller,
                                         step03Controller,
@@ -177,7 +175,8 @@ public class Part01ControllerTest {
                                         step22Controller,
                                         step23Controller,
                                         step24Controller,
-                                        step25Controller);
+                                        step25Controller,
+                                        step27Controller);
     }
 
     @After
@@ -186,7 +185,6 @@ public class Part01ControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 partResultFactory,
                                  step01Controller,
                                  step02Controller,
                                  step03Controller,
@@ -211,12 +209,13 @@ public class Part01ControllerTest {
                                  step22Controller,
                                  step23Controller,
                                  step24Controller,
-                                 step25Controller);
+                                 step25Controller,
+                                 step27Controller);
     }
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Part01Controller#getDisplayName()}.
+     * {@link Part01Controller#getDisplayName()}.
      */
     @Test
     public void testGetDisplayName() {
@@ -225,7 +224,7 @@ public class Part01ControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Part01Controller#getTotalSteps()}.
+     * {@link Part01Controller#getTotalSteps()}.
      */
     @Test
     public void testGetTotalSteps() {
@@ -234,7 +233,7 @@ public class Part01ControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Part01Controller#Part01Controller()}.
+     * {@link Part01Controller#Part01Controller()}.
      */
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
@@ -242,9 +241,8 @@ public class Part01ControllerTest {
     public void testPart01Controller() {
         PartResult partResult = mock(PartResult.class);
         when(partResult.toString()).thenReturn("Part 1");
-        when(partResultFactory.create(1)).thenReturn(partResult);
 
-        int[] steps = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25};
+        int[] steps = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27};
 
         for (int i : steps) {
             StepResult stepResult = mock(StepResult.class);
@@ -297,6 +295,7 @@ public class Part01ControllerTest {
         when(step23Controller.getStepNumber()).thenReturn(23);
         when(step24Controller.getStepNumber()).thenReturn(24);
         when(step25Controller.getStepNumber()).thenReturn(25);
+        when(step27Controller.getStepNumber()).thenReturn(27);
 
         instance.execute(listener, j1939, reportFileModule);
 
@@ -328,7 +327,8 @@ public class Part01ControllerTest {
                                   step22Controller,
                                   step23Controller,
                                   step24Controller,
-                                  step25Controller);
+                                  step25Controller,
+                                  step27Controller);
         inOrder.verify(step01Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step02Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step03Controller).run(any(ResultsListener.class), eq(j1939));
@@ -354,8 +354,8 @@ public class Part01ControllerTest {
         inOrder.verify(step23Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step24Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step25Controller).run(any(ResultsListener.class), eq(j1939));
+        inOrder.verify(step27Controller).run(any(ResultsListener.class), eq(j1939));
 
-        verify(partResultFactory).create(1);
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -384,6 +384,7 @@ public class Part01ControllerTest {
         verify(step23Controller).getStepNumber();
         verify(step24Controller).getStepNumber();
         verify(step25Controller).getStepNumber();
+        verify(step27Controller).getStepNumber();
 
         assertEquals(expectedMilestones.toString(), listener.getMilestones());
         assertEquals(expectedMessages.toString(), listener.getMessages());

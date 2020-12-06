@@ -9,12 +9,11 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
@@ -36,38 +35,46 @@ public class Step08Controller extends StepController {
     private final DiagnosticReadinessModule diagnosticReadinessModule;
 
     Step08Controller(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), new PartResultFactory(),
-                new DiagnosticReadinessModule(), dataRepository);
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new DiagnosticReadinessModule(),
+             dataRepository);
     }
 
-    Step08Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule,
-            VehicleInformationModule vehicleInformationModule, PartResultFactory partResultFactory,
-            DiagnosticReadinessModule diagnosticReadinessModule, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
-                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+    Step08Controller(Executor executor,
+                     EngineSpeedModule engineSpeedModule,
+                     BannerModule bannerModule,
+                     VehicleInformationModule vehicleInformationModule,
+                     DiagnosticReadinessModule diagnosticReadinessModule,
+                     DataRepository dataRepository) {
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dataRepository = dataRepository;
     }
 
     /**
-     *
      * 6.1.8 DM20: Monitor Performance Ratio
-     *
+     * <p>
      * 6.1.8.1 Actions:
-     *
+     * <p>
      * a. Global DM20 (send Request (PGN 59904) for PGN 49664 (SPNs 3048, 3049,
      * 3066-3068).
-     *
+     * <p>
      * i. Create list by ECU address of all data for use later in the test.
-     *
+     * <p>
      * 6.1.8.2 Fail criteria:
-     *
+     * <p>
      * a. Fail if minimum expected SPNs are not supported (in the aggregate
      * response for the vehicle) per section A.4, Criteria for Monitor
      * Performance Ratio Evaluation.
-     *
      */
 
     @Override
@@ -77,7 +84,7 @@ public class Step08Controller extends StepController {
 
         // 6.1.8.1.a. Global DM20 (send Request (PGN 59904) for PGN 49664
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = diagnosticReadinessModule.getDM20Packets(getListener(),
-                true);
+                                                                                                       true);
 
         // 6.1.8.1 Actions:
         // 6.1.8.1.a.i. Create list of ECU address
@@ -105,7 +112,6 @@ public class Step08Controller extends StepController {
      * J1939_84
      *
      * @param dm20Spns
-     *
      */
     private void verifyMinimumExpectedSpnSupported(Set<Integer> dm20Spns) {
         VehicleInformation vehicleInfo = dataRepository.getVehicleInformation();
@@ -113,8 +119,8 @@ public class Step08Controller extends StepController {
 
         if (fuelType.isCompressionIgnition()) {
 
-            int SPNa[] = { 5322, 5318, 3058, 3064, 5321, 3055 };
-            int SPNn[] = { 4792, 5308, 4364 };
+            int SPNa[] = {5322, 5318, 3058, 3064, 5321, 3055};
+            int SPNn[] = {4792, 5308, 4364};
 
             if (!(IntStream.of(SPNa).allMatch(spn -> dm20Spns.contains(spn)))
                     || !(IntStream.of(SPNn).anyMatch(spn -> dm20Spns.contains(spn)))) {
@@ -124,7 +130,7 @@ public class Step08Controller extends StepController {
             // TODO Add the Outlet Oxygen Sensor Banks in Table A-3-2 (pg.111)
             // with
             // non-integer variables i.e. New1, New2 at the end of the table.
-            int SPNsi[] = { 3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057 };
+            int SPNsi[] = {3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057};
             if (!IntStream.of(SPNsi).allMatch(spn -> dm20Spns.contains(spn))) {
                 addFailure(1, 8, "6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.");
             }

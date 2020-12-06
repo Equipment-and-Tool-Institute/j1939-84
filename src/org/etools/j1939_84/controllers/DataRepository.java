@@ -1,4 +1,8 @@
-package org.etools.j1939_84.controllers.part1;
+/*
+ * Copyright (c) 2020. Electronic Tools Institute
+ */
+
+package org.etools.j1939_84.controllers;
 
 import java.util.ArrayList;
 import java.util.Collection;

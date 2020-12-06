@@ -20,6 +20,7 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.FuelType;
@@ -289,7 +290,6 @@ public class Step08ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
                 diagnosticReadinessModule,
                 dataRepository);
 
@@ -304,7 +304,6 @@ public class Step08ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
                 diagnosticReadinessModule);
     }
 

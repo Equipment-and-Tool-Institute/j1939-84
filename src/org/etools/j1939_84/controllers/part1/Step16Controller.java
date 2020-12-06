@@ -8,15 +8,14 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
@@ -25,7 +24,6 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Garrison Garland {garrison@soliddesign.net)
- *
  */
 
 public class Step16Controller extends StepController {
@@ -39,16 +37,27 @@ public class Step16Controller extends StepController {
     private final DTCModule dtcModule;
 
     Step16Controller(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), new DTCModule(),
-                new PartResultFactory(), dataRepository);
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new DTCModule(),
+             dataRepository);
     }
 
-    protected Step16Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-            VehicleInformationModule vehicleInformationModule, DTCModule dtcModule,
-            PartResultFactory partResultFactory, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
-                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+    protected Step16Controller(Executor executor,
+                               EngineSpeedModule engineSpeedModule,
+                               BannerModule bannerModule,
+                               VehicleInformationModule vehicleInformationModule,
+                               DTCModule dtcModule,
+                               DataRepository dataRepository) {
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
 
         this.dtcModule = dtcModule;
         this.dataRepository = dataRepository;
@@ -62,7 +71,7 @@ public class Step16Controller extends StepController {
         // a. Global DM2 (send Request (PGN 59904) for PGN 65227 (SPNs
         // 1213-1215, 3038, 1706)).
         RequestResult<DM2PreviouslyActiveDTC> globalDiagnosticTroubleCodePackets = dtcModule.requestDM2(getListener(),
-                true);
+                                                                                                        true);
 
         // Get DM2PrevisoulyActiveDTC so we can get DTCs and report accordingly
         List<DM2PreviouslyActiveDTC> globalDM2s = globalDiagnosticTroubleCodePackets.getPackets();
@@ -70,9 +79,9 @@ public class Step16Controller extends StepController {
         // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC.
         if (globalDM2s.stream().flatMap(packet -> packet.getDtcs().stream()).findAny().isPresent()) {
             getListener().addOutcome(1,
-                    16,
-                    Outcome.FAIL,
-                    "6.1.16.2.a - OBD ECU reported a previously active DTC");
+                                     16,
+                                     Outcome.FAIL,
+                                     "6.1.16.2.a - OBD ECU reported a previously active DTC");
         }
 
         // 6.1.16.2.b Fail if any OBD ECU does not report MIL (Malfunction
@@ -80,9 +89,9 @@ public class Step16Controller extends StepController {
         if (globalDM2s.stream().filter(packet -> packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF).findAny()
                 .isPresent()) {
             getListener().addOutcome(1,
-                    16,
-                    Outcome.FAIL,
-                    "6.1.16.2.b - OBD ECU does not report MIL off");
+                                     16,
+                                     Outcome.FAIL,
+                                     "6.1.16.2.b - OBD ECU does not report MIL off");
         }
 
         // 6.1.16.2.c Fail if any non-OBD ECU does not report MIL off or not
@@ -95,9 +104,9 @@ public class Step16Controller extends StepController {
                 .findAny()
                 .isPresent()) {
             getListener().addOutcome(1,
-                    16,
-                    Outcome.FAIL,
-                    "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported");
+                                     16,
+                                     Outcome.FAIL,
+                                     "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported");
         }
 
         // 6.1.16.3.a DS DM2 to each OBD ECU
@@ -115,9 +124,9 @@ public class Step16Controller extends StepController {
         // 6.1.16.4.a Fail if any responses differ from global responses
         if (!unmatchedPackets.isEmpty()) {
             getListener().addOutcome(1,
-                    16,
-                    Outcome.FAIL,
-                    "6.1.16.4.a DS DM2 responses differ from global responses");
+                                     16,
+                                     Outcome.FAIL,
+                                     "6.1.16.4.a DS DM2 responses differ from global responses");
         }
 
         Collection<Integer> responseAddresses = globalDM2s.stream().map(p -> p.getSourceAddress())
@@ -135,9 +144,9 @@ public class Step16Controller extends StepController {
 
         if (!obdAddresses.isEmpty()) {
             getListener().addOutcome(1,
-                    16,
-                    Outcome.FAIL,
-                    "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
+                                     16,
+                                     Outcome.FAIL,
+                                     "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
         }
     }
 }

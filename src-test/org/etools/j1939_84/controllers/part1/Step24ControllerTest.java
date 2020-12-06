@@ -16,16 +16,15 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -43,7 +42,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  * The unit test for {@link Step24Controller}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Step24ControllerTest extends AbstractControllerTest {
@@ -77,9 +75,6 @@ public class Step24ControllerTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private PartResultFactory partResultFactory;
-
-    @Mock
     private ReportFileModule reportFileModule;
 
     @Mock
@@ -92,13 +87,12 @@ public class Step24ControllerTest extends AbstractControllerTest {
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
 
-        instance = new Step24Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                partResultFactory,
-                dtcModule, dataRepository);
+        instance = new Step24Controller(executor,
+                                        engineSpeedModule,
+                                        bannerModule,
+                                        vehicleInformationModule,
+                                        dtcModule,
+                                        dataRepository);
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -109,13 +103,12 @@ public class Step24ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                partResultFactory,
-                dataRepository,
-                dtcModule,
-                mockListener);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 dataRepository,
+                                 dtcModule,
+                                 mockListener);
     }
 
     /**
@@ -151,8 +144,10 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM25(any(), eq(0x00));
 
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
+                                                       STEP_NUMBER,
+                                                       FAIL,
+                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
 
         verify(reportFileModule).onProgress(0, 1, "");
 
@@ -171,15 +166,15 @@ public class Step24ControllerTest extends AbstractControllerTest {
     public void testFailByteEight() {
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                0,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0xFF,
-                0xFF,
-                0x00));
+                                                                                   0,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0xFF,
+                                                                                   0xFF,
+                                                                                   0x00));
 
         when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
@@ -195,8 +190,10 @@ public class Step24ControllerTest extends AbstractControllerTest {
 
         verify(dtcModule).setJ1939(j1939);
 
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
+                                                       STEP_NUMBER,
+                                                       FAIL,
+                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
 
         String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
                 + NL;
@@ -213,15 +210,15 @@ public class Step24ControllerTest extends AbstractControllerTest {
     public void testFailByteFive() {
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                0,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0xFF,
-                0xFF));
+                                                                                   0,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0xFF,
+                                                                                   0xFF));
 
         when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
@@ -237,8 +234,10 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM25(any(), eq(0x00));
 
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
+                                                       STEP_NUMBER,
+                                                       FAIL,
+                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
 
         String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
                 + NL;
@@ -255,15 +254,15 @@ public class Step24ControllerTest extends AbstractControllerTest {
     public void testFailByteFour() {
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                0,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x0E,
-                0xFF,
-                0xFF,
-                0xFF));
+                                                                                   0,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x0E,
+                                                                                   0xFF,
+                                                                                   0xFF,
+                                                                                   0xFF));
 
         when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
@@ -279,8 +278,10 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM25(any(), eq(0x00));
 
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
+                                                       STEP_NUMBER,
+                                                       FAIL,
+                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
 
         String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
                 + NL;
@@ -297,15 +298,15 @@ public class Step24ControllerTest extends AbstractControllerTest {
     public void testFailByteOne() {
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                0,
-                0x00,
-                0x0B,
-                0x00,
-                0x00,
-                0x00,
-                0xFF,
-                0xFF,
-                0xFF));
+                                                                                   0,
+                                                                                   0x00,
+                                                                                   0x0B,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0xFF,
+                                                                                   0xFF,
+                                                                                   0xFF));
 
         when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
@@ -321,8 +322,10 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM25(any(), eq(0x00));
 
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
+                                                       STEP_NUMBER,
+                                                       FAIL,
+                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
 
         String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
                 + NL;
@@ -339,15 +342,15 @@ public class Step24ControllerTest extends AbstractControllerTest {
     public void testFailByteSeven() {
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                0,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0xFF,
-                0xFF,
-                0x00));
+                                                                                   0,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0xFF,
+                                                                                   0xFF,
+                                                                                   0x00));
 
         when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
@@ -363,8 +366,10 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM25(any(), eq(0x00));
 
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
+                                                       STEP_NUMBER,
+                                                       FAIL,
+                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
 
         String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
                 + NL;
@@ -381,15 +386,15 @@ public class Step24ControllerTest extends AbstractControllerTest {
     public void testFailByteSix() {
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                0,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0xFF,
-                0x00,
-                0xFF));
+                                                                                   0,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0xFF,
+                                                                                   0x00,
+                                                                                   0xFF));
 
         when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
@@ -405,8 +410,10 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM25(any(), eq(0x00));
 
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
+                                                       STEP_NUMBER,
+                                                       FAIL,
+                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
 
         String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
                 + NL;
@@ -423,15 +430,15 @@ public class Step24ControllerTest extends AbstractControllerTest {
     public void testFailByteThree() {
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                0,
-                0x00,
-                0x00,
-                0x00,
-                0x0D,
-                0x00,
-                0xFF,
-                0xFF,
-                0xFF));
+                                                                                   0,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x0D,
+                                                                                   0x00,
+                                                                                   0xFF,
+                                                                                   0xFF,
+                                                                                   0xFF));
 
         when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
@@ -447,8 +454,10 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM25(any(), eq(0x00));
 
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
+                                                       STEP_NUMBER,
+                                                       FAIL,
+                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
 
         String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
                 + NL;
@@ -465,15 +474,15 @@ public class Step24ControllerTest extends AbstractControllerTest {
     public void testFailByteTwo() {
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                0,
-                0x00,
-                0x00,
-                0x0C,
-                0x00,
-                0x00,
-                0xFF,
-                0xFF,
-                0xFF));
+                                                                                   0,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x0C,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0xFF,
+                                                                                   0xFF,
+                                                                                   0xFF));
 
         when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
@@ -489,8 +498,10 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM25(any(), eq(0x00));
 
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
+                                                       STEP_NUMBER,
+                                                       FAIL,
+                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
 
         String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
                 + NL;
@@ -507,15 +518,15 @@ public class Step24ControllerTest extends AbstractControllerTest {
     public void testFailByteZero() {
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                0,
-                0x0A,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0xFF,
-                0xFF,
-                0xFF));
+                                                                                   0,
+                                                                                   0x0A,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0xFF,
+                                                                                   0xFF,
+                                                                                   0xFF));
 
         when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
@@ -531,8 +542,10 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM25(any(), eq(0x00));
 
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
+                                                       STEP_NUMBER,
+                                                       FAIL,
+                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
 
         String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
                 + NL;
@@ -586,15 +599,15 @@ public class Step24ControllerTest extends AbstractControllerTest {
     public void testRun() {
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                0,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0xFF,
-                0xFF,
-                0xFF));
+                                                                                   0,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0xFF,
+                                                                                   0xFF,
+                                                                                   0xFF));
 
         when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
@@ -621,15 +634,15 @@ public class Step24ControllerTest extends AbstractControllerTest {
     public void testRunTwo() {
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                0,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0xFF,
-                0xFF,
-                0xFF));
+                                                                                   0,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0x00,
+                                                                                   0xFF,
+                                                                                   0xFF,
+                                                                                   0xFF));
 
         when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 

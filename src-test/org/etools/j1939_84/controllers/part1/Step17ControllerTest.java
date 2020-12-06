@@ -25,6 +25,7 @@ import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -81,16 +82,7 @@ public class Step17ControllerTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private OBDModuleInformation obdModuleInformation;
-
-    @Mock
-    private PartResultFactory partResultFactory;
-
-    @Mock
     private ReportFileModule reportFileModule;
-
-    @Mock
-    private SectionA6Validator sectionA6Validator;
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
@@ -108,8 +100,8 @@ public class Step17ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
-                dtcModule, dataRepository);
+                dtcModule,
+                dataRepository);
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -123,7 +115,6 @@ public class Step17ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
                 dataRepository,
                 dtcModule,
                 mockListener);
@@ -131,7 +122,7 @@ public class Step17ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step17Controller#Step17Controller(org.etools.j1939_84.controllers.part1.DataRepository)}.
+     * {@link org.etools.j1939_84.controllers.part1.Step17Controller#Step17Controller(DataRepository)}.
      */
     @Test
     public void testEmptyPacketFailure() {
@@ -166,7 +157,7 @@ public class Step17ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step17Controller#Step17Controller(org.etools.j1939_84.controllers.part1.DataRepository)}.
+     * {@link org.etools.j1939_84.controllers.part1.Step17Controller#Step17Controller(DataRepository)}.
      */
     @Test
     public void testFailures() {
@@ -254,7 +245,7 @@ public class Step17ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step17Controller#Step17Controller(org.etools.j1939_84.controllers.part1.DataRepository)}.
+     * {@link org.etools.j1939_84.controllers.part1.Step17Controller#Step17Controller(DataRepository)}.
      */
     @Test
     public void testMoreFailures() {

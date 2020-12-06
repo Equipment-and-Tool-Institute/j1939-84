@@ -7,10 +7,9 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -18,8 +17,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
- *         The controller for 6.1.23 DM31: DTC to Lamp Association
+ * <p>
+ * The controller for 6.1.23 DM31: DTC to Lamp Association
  */
 
 public class Step24Controller extends StepController {
@@ -35,17 +34,27 @@ public class Step24Controller extends StepController {
     private final DTCModule dtcModule;
 
     Step24Controller(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), new PartResultFactory(),
-                new DTCModule(), dataRepository);
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new DTCModule(),
+             dataRepository);
     }
 
-    Step24Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
-            PartResultFactory partResultFactory,
-            DTCModule dtcModule, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
-                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+    Step24Controller(Executor executor,
+                     EngineSpeedModule engineSpeedModule,
+                     BannerModule bannerModule,
+                     VehicleInformationModule vehicleInformationModule,
+                     DTCModule dtcModule,
+                     DataRepository dataRepository) {
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.dtcModule = dtcModule;
         this.dataRepository = dataRepository;
     }

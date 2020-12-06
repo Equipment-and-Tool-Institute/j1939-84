@@ -3,10 +3,9 @@ package org.etools.j1939_84.controllers.part1;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -20,15 +19,25 @@ public class Step06Controller extends StepController {
     private final DataRepository dataRepository;
 
     Step06Controller(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), new PartResultFactory(), dataRepository);
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             dataRepository);
     }
 
-    Step06Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-            VehicleInformationModule vehicleInformationModule,
-            PartResultFactory partResultFactory, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, partResultFactory,
-                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+    Step06Controller(Executor executor,
+                     EngineSpeedModule engineSpeedModule,
+                     BannerModule bannerModule,
+                     VehicleInformationModule vehicleInformationModule,
+                     DataRepository dataRepository) {
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }
 
@@ -78,13 +87,13 @@ public class Step06Controller extends StepController {
             if ((-1 < asteriskIndex && asteriskIndex <= 12)
                     || (char13 != Character.MIN_VALUE && char13 != '*' && familyName.contains("*"))) {
                 addFailure(1,
-                        6,
-                        "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
+                           6,
+                           "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
             } else if ((familyName.length() < 13 && char13 == Character.MIN_VALUE)
                     || (familyName.indexOf("*") == -1 && char13 != Character.MIN_VALUE)) {
                 addFailure(1,
-                        6,
-                        "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+                           6,
+                           "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
             }
         }
     }

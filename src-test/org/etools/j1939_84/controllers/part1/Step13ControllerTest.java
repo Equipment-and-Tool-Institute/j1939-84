@@ -25,6 +25,7 @@ import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -89,9 +90,6 @@ public class Step13ControllerTest extends AbstractControllerTest {
     private OBDModuleInformation obdModuleInformation;
 
     @Mock
-    private PartResultFactory partResultFactory;
-
-    @Mock
     private ReportFileModule reportFileModule;
 
     @Mock
@@ -113,7 +111,6 @@ public class Step13ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                partResultFactory,
                 diagnosticReadinessModule,
                 dataRepository,
                 sectionA6Validator);
@@ -132,7 +129,6 @@ public class Step13ControllerTest extends AbstractControllerTest {
                 bannerModule,
                 obdModuleInformation,
                 vehicleInformationModule,
-                partResultFactory,
                 dataRepository,
                 mockListener,
                 reportFileModule,
