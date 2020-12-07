@@ -472,7 +472,7 @@ public class J1939 {
                 Packet sent = bus.send(request);
                 if (sent != null) {
                     listener.onResult(
-                            DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + request.toString());
+                            DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + sent.toString());
                 } else {// failed to send
                 }
                 Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> first = stream.findFirst();
@@ -564,7 +564,7 @@ public class J1939 {
                     .map(this::process);
             Packet sent = bus.send(request);
             if (sent != null) {
-                listener.onResult(DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + request.toString());
+                listener.onResult(DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + sent.toString());
             } else {// failed to send
             }
             Optional<Either<T, AcknowledgmentPacket>> result = stream.findFirst();
