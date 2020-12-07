@@ -120,7 +120,7 @@ public class RP1210 {
                         } catch (Throwable t) {
                             J1939_84.getLogger().log(Level.SEVERE,
                                     "Error Parsing TimeStampWeight from ini file.  Assuming 1000 (ms resolution).", t);
-                            timeStampWeight = 1;
+                            timeStampWeight = 1000;
                         }
 
                         // loop through protocols to find J1939

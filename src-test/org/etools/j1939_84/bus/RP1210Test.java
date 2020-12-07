@@ -60,7 +60,6 @@ public class RP1210Test {
             throw new IllegalArgumentException("Unknown RP1210 Adapter");
         }
         RP1210Bus bus = new RP1210Bus(adapter.get(), 0xF9, true);
-        System.currentTimeMillis();
         try (Stream<Packet> read = bus.read(2000, TimeUnit.MILLISECONDS);) {
             new J1939(bus)
                     .requestGlobalResult("Request VIN", new TestResultsListener() {
@@ -76,8 +75,7 @@ public class RP1210Test {
                     .map(pa -> pa.getVin())
                     .findAny()
                     .ifPresent(vin -> System.err.format("%n%nVIN:%s%n%n", vin));
-            read.forEach(p -> System.err.format("%8s %s%n", p.isTransmitted() ? "echoed" : "",
-                    p.toTimeString()));
+            read.forEach(p -> System.err.format("%8s %s%n", p.isTransmitted() ? "echoed" : "", p.toTimeString()));
         }
     }
 

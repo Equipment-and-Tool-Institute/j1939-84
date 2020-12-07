@@ -17,8 +17,9 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -243,19 +244,18 @@ public class RP1210Bus implements Bus {
         try {
             while (true) {
                 short rtn = rp1210Library.RP1210_ReadMessage(clientId, data, (short) data.length, BLOCKING_NONE);
-                if (rtn == 139) {
-                    // RX queue full, remedy to to reread.
-                    byte[] buffer = new byte[256];
-                    rtn = rp1210Library.RP1210_ReadMessage(clientId, data, (short) data.length, BLOCKING_NONE);
-                    getLogger().log(Level.SEVERE,
-                            "Error (" + rtn + "): " + new String(buffer, StandardCharsets.UTF_8).trim());
-                }
                 if (rtn > 0) {
                     Packet packet = decode(data, rtn);
                     if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
                         getLogger().log(Level.WARNING, "Another module is using this address");
                     }
                     queue.add(packet);
+                } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
+                    // RX queue full, remedy is to reread.
+                    byte[] buffer = new byte[256];
+                    rp1210Library.RP1210_GetErrorMsg(rtn, buffer);
+                    getLogger().log(Level.SEVERE,
+                            "Error (" + rtn + "): " + new String(buffer, StandardCharsets.UTF_8).trim());
                 } else {
                     verify(rtn);
                     break;
@@ -284,16 +284,21 @@ public class RP1210Bus implements Bus {
     public Packet send(Packet tx) throws BusException {
         try {
             byte[] data = encode(tx);
-            try (Stream<Packet> stream = read(10, TimeUnit.SECONDS);) {
-                Future<Short> rtn = exec.submit(() -> rp1210Library.RP1210_SendMessage(clientId,
-                        data,
-                        (short) data.length,
-                        NOTIFICATION_NONE,
-                        BLOCKING_NONE));
-                verify(rtn.get());
-                return stream.filter(rx -> tx.getId(0xFFFF) == rx.getId(0xFFFF)).findFirst().orElse(null);
-            }
-        } catch (Exception e) {
+            return CompletableFuture.supplyAsync(() -> {
+                try (Stream<Packet> stream = read(10, TimeUnit.SECONDS);) {
+                    short rtn = rp1210Library.RP1210_SendMessage(clientId,
+                            data,
+                            (short) data.length,
+                            NOTIFICATION_NONE,
+                            BLOCKING_NONE);
+                    verify(rtn);
+                    return stream.filter(rx -> tx.getId(0xFFFF) == rx.getId(0xFFFF) && rx.getSource() == getAddress())
+                            .findFirst().orElse(null);
+                } catch (BusException e) {
+                    throw new CompletionException(e);
+                }
+            }).get();
+        } catch (Throwable e) {
             throw new BusException("Failed to send: " + tx, e);
         }
     }
