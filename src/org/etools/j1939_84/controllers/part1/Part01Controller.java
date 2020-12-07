@@ -52,72 +52,11 @@ public class Part01Controller extends Controller {
              new Step20Controller(dataRepository), new Step21Controller(dataRepository),
              new Step22Controller(dataRepository), new Step23Controller(),
              new Step24Controller(dataRepository), new Step25Controller(dataRepository),
-             new Step27Controller(dataRepository));
+             new Step26Controller(dataRepository), new Step27Controller(dataRepository));
     }
 
     /**
      * Constructor exposed for testing
-     *
-     * @param executor
-     *         the {@link Executor}
-     * @param engineSpeedModule
-     *         the {@link EngineSpeedModule}
-     * @param bannerModule
-     *         the {@link BannerModule}
-     * @param vehicleInformationModule
-     *         the {@link VehicleInformationModule}
-     * @param step01Controller
-     *         the {@link Step01Controller} for Part1Controller
-     * @param step02Controller
-     *         the {@link Step02Controller} for Part1Controller
-     * @param step03Controller
-     *         the {@link Step03Controller} for Part1Controller
-     * @param step04Controller
-     *         the {@link Step04Controller} for Part1Controller
-     * @param step05Controller
-     *         the {@link Step05Controller} for Part1Controller
-     * @param step06Controller
-     *         the {@link Step06Controller} for Part1Controller
-     * @param step07Controller
-     *         the {@link Step07Controller} for Part1Controller
-     * @param step08Controller
-     *         the {@link Step08Controller} for Part1Controller
-     * @param step09Controller
-     *         the {@link Step09Controller} for Part1Controller
-     * @param step10Controller
-     *         the {@link Step10Controller} for Part1Controller
-     * @param step11Controller
-     *         the {@link Step11Controller} for Part1Controller
-     * @param step12Controller
-     *         the {@link Step12Controller} for Part1Controller
-     * @param step13Controller
-     *         the {@link Step13Controller} for Part1Controller
-     * @param step14Controller
-     *         the {@link Step14Controller} for Part1Controller
-     * @param step15Controller
-     *         the {@link Step15Controller} for Part1Controller
-     * @param step16Controller
-     *         the {@link Step16Controller} for Part1Controller
-     * @param step17Controller
-     *         the {@link Step17Controller} for Part1Controller
-     * @param step18Controller
-     *         the {@link Step18Controller} for Part1Controller
-     * @param step19Controller
-     *         the {@link Step19Controller} for Part1Controller
-     * @param step20Controller
-     *         the {@link Step20Controller} for Part1Controller
-     * @param step21Controller
-     *         the {@link Step21Controller} for Part1Controller
-     * @param step22Controller
-     *         the {@link Step22Controller} for Part1Controller
-     * @param step23Controller
-     *         the {@link Step23Controller} for Part1Controller
-     * @param step24Controller
-     *         the {@link Step24Controller} for Part1Controller
-     * @param step25Controller
-     *         the {@link Step25Controller} for Part1Controller
-     * @param step27Controller
-     *         the {@link Step27Controller} for Part1Controller
      */
     public Part01Controller(Executor executor,
                             EngineSpeedModule engineSpeedModule,
@@ -148,6 +87,7 @@ public class Part01Controller extends Controller {
                             Step23Controller step23Controller,
                             Step24Controller step24Controller,
                             Step25Controller step25Controller,
+                            Step26Controller step26Controller,
                             Step27Controller step27Controller) {
         super(executor, engineSpeedModule, bannerModule, vehicleInformationModule);
 
@@ -176,6 +116,7 @@ public class Part01Controller extends Controller {
         stepControllers.add(step23Controller);
         stepControllers.add(step24Controller);
         stepControllers.add(step25Controller);
+        stepControllers.add(step26Controller);
         stepControllers.add(step27Controller);
     }
 
