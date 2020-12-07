@@ -329,6 +329,11 @@ public class Step04ControllerTest extends AbstractControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.4.2.a,b,c"),
             description = "Verify that step completes without errors when none of the fail criteria are met.")
     public void testGoodObjects() {
+        List<DM24SPNSupportPacket> packets = new ArrayList<>();
+        DM24SPNSupportPacket packet1 = new DM24SPNSupportPacket(
+                Packet.create(DM24SPNSupportPacket.PGN, 0x00, 0x5C, 0x00, 0x1B, 0x01, 0x00, 0x02, 0x1B, 0x01, 0x01,
+                        0x02, 0x1B, 0x01));
+        packets.add(packet1);
 
         OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
         OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
