@@ -178,9 +178,9 @@ public class RP1210Bus implements Bus {
             timeStampStartMicroseconds = 1000 * System.currentTimeMillis() - timestamp * timeStampWeight;
         }
         long microseconds = timestamp * timeStampWeight + timeStampStartMicroseconds;
-
         LocalDateTime time = LocalDateTime.ofInstant(Instant.ofEpochSecond(
-                microseconds / 1000000, microseconds % 1000000),
+                /* seconds */ microseconds / 1000000,
+                /* nanoseconds */(microseconds % 1000000) * 1000),
                 ZoneId.systemDefault());
 
         return Packet.create(
