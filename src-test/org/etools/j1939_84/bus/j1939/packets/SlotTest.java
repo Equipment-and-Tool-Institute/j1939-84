@@ -16,7 +16,6 @@ import org.junit.Test;
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 public class SlotTest {
-
     @Test
     public void test10BitsAsPercent() {
         Slot slot = Slot.findSlot(205);
@@ -523,6 +522,17 @@ public class SlotTest {
         assertEquals("1234567890", slot.asString(data));
         assertFalse(slot.isNotAvailable(data));
         assertFalse(slot.isError(data));
+    }
+
+    @Test
+    public void verifySpecialCharacters() {
+        assertEquals("km²/h²", Slot.findSlot(469).getUnit());
+        assertEquals("m/s²", Slot.findSlot(140).getUnit());
+        assertEquals("(kPa•s)/m³", Slot.findSlot(359).getUnit());
+        assertEquals("µSiemens/mm", Slot.findSlot(255).getUnit());
+        assertEquals("MJ/Nm³", Slot.findSlot(323).getUnit());
+        assertEquals("µA", Slot.findSlot(403).getUnit());
+
     }
 
 }

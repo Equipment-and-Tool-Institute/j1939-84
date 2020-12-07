@@ -93,8 +93,10 @@ public class Slot {
         String[] values;
 
         final InputStream is = Resources.class.getResourceAsStream("j1939da-slots.csv");
-        final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
-        try (CSVReader reader = new CSVReaderBuilder(isReader).withSkipLines(2).build()) {
+        final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
+        try (CSVReader reader = new CSVReaderBuilder(isReader)
+                .withSkipLines(2)
+                .build()) {
             while ((values = reader.readNext()) != null) {
                 final int id = Integer.parseInt(values[0]);
                 final String name = values[1];
