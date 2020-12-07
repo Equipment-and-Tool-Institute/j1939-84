@@ -26,6 +26,8 @@ public class Adapter {
      */
     private final String name;
 
+    private final long timeStampWeight;
+
     /**
      * Constructor
      *
@@ -37,9 +39,24 @@ public class Adapter {
      *            the device ID
      */
     public Adapter(String name, String dllName, short deviceId) {
+        this(name, dllName, deviceId, 1);
+    }
+
+    /**
+     * Constructor
+     *
+     * @param name
+     *            the display name for the adapter
+     * @param dllName
+     *            the DLL/INI file for the adapter
+     * @param deviceId
+     *            the device ID
+     */
+    public Adapter(String name, String dllName, short deviceId, long timeStampWeight) {
         this.name = name;
         this.dllName = dllName;
         this.deviceId = deviceId;
+        this.timeStampWeight = timeStampWeight;
     }
 
     /**
@@ -67,6 +84,10 @@ public class Adapter {
      */
     public String getName() {
         return name;
+    }
+
+    public long getTimeStampWeight() {
+        return timeStampWeight;
     }
 
 }

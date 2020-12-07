@@ -88,7 +88,8 @@ public interface Bus extends AutoCloseable {
      *
      * @throws BusException
      *             if there is a problem sending the packet
+     * @return The echo of the packet sent. Useful for the timestamp.
      */
-    void send(Packet packet) throws BusException;
+    Packet send(Packet packet) throws BusException;
 
 }
