@@ -470,7 +470,10 @@ public class J1939 {
                                         getBusAddress()))
                                 .map(this::process);
                 Packet sent = bus.send(request);
-                listener.onResult(DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + request.toString());
+                if (sent != null) {
+                    listener.onResult(
+                            DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + request.toString());
+                }
                 Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> first = stream.findFirst();
                 result = new BusResult<>(i > 0, first);
                 result.getPacket().ifPresentOrElse(p -> listener.onResult(p.resolve().toString()),
@@ -559,7 +562,9 @@ public class J1939 {
                     .filter(dsFilter(pgn, request.getDestination(), getBusAddress()))
                     .map(this::process);
             Packet sent = bus.send(request);
-            listener.onResult(DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + request.toString());
+            if (sent != null) {
+                listener.onResult(DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + request.toString());
+            }
             Optional<Either<T, AcknowledgmentPacket>> result = stream.findFirst();
             result.ifPresentOrElse(p -> {
                 ParsedPacket pp = p.resolve();
@@ -657,7 +662,9 @@ public class J1939 {
         try {
             Stream<Packet> stream = read(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS);
             Packet sent = bus.send(request);
-            listener.onResult(DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + request.toString());
+            if (sent != null) {
+                listener.onResult(DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + sent.toString());
+            }
             result = stream
                     .filter(globalFilter(pgn))
                     .peek(p -> listener.onResult(p.toTimeString()))
