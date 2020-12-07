@@ -19,6 +19,8 @@ import org.etools.j1939_84.model.VehicleInformation;
 
 public class DataRepository {
 
+    private double koeoEngineReferenceTorque;
+
     private boolean isAfterCodeClear;
 
     /**
@@ -68,4 +70,11 @@ public class DataRepository {
         this.vehicleInformation = vehicleInformation;
     }
 
+    public double getKoeoEngineReferenceTorque() {
+        return koeoEngineReferenceTorque;
+    }
+
+    public void setKoeoEngineReferenceTorque(double koeoEngineReferenceTorque) {
+        this.koeoEngineReferenceTorque = koeoEngineReferenceTorque;
+    }
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -7,7 +7,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -15,10 +14,9 @@ import static org.mockito.Mockito.when;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.PartResult;
-import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -138,6 +136,9 @@ public class Part01ControllerTest {
     private Step25Controller step25Controller;
 
     @Mock
+    private Step26Controller step26Controller;
+
+    @Mock
     private Step27Controller step27Controller;
 
     @Mock
@@ -176,6 +177,7 @@ public class Part01ControllerTest {
                                         step23Controller,
                                         step24Controller,
                                         step25Controller,
+                                        step26Controller,
                                         step27Controller);
     }
 
@@ -210,6 +212,7 @@ public class Part01ControllerTest {
                                  step23Controller,
                                  step24Controller,
                                  step25Controller,
+                                 step26Controller,
                                  step27Controller);
     }
 
@@ -239,36 +242,26 @@ public class Part01ControllerTest {
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
             justification = "The method is called just to get some exception.")
     public void testPart01Controller() {
-        PartResult partResult = mock(PartResult.class);
-        when(partResult.toString()).thenReturn("Part 1");
+        int[] steps = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27 };
 
-        int[] steps = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 27};
-
+        StringBuilder expectedMessages = new StringBuilder();
         for (int i : steps) {
-            StepResult stepResult = mock(StepResult.class);
-            when(stepResult.toString()).thenReturn("Step " + i);
-            when(partResult.getStepResult(i)).thenReturn(stepResult);
+            expectedMessages.append("\nStep 1.").append(i).append(". ").append(Lookup.getStepName(1, i));
         }
 
-        StringBuffer expectedMessages = new StringBuffer();
+        StringBuilder expectedMilestones = new StringBuilder("Begin Part: " + Lookup.getPartName(1) + "\n");
         for (int i : steps) {
-            expectedMessages.append("\nStep ").append(i);
+            expectedMilestones.append("Begin Step: Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i)).append("\n");
+            expectedMilestones.append("End Step: Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i)).append("\n");
         }
+        expectedMilestones.append("End Part: ").append(Lookup.getPartName(1));
 
-        StringBuffer expectedMilestones = new StringBuffer("Begin Part: Part 1\n");
+        StringBuilder expectedResults = new StringBuilder("Start "+ Lookup.getPartName(1)+"\n");
         for (int i : steps) {
-            expectedMilestones.append("Begin Step: Step ").append(i).append("\n");
-            expectedMilestones.append("End Step: Step ").append(i).append("\n");
+            expectedResults.append("\n\nStart Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i)).append("\n");
+            expectedResults.append("End Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i)).append("\n");
         }
-        expectedMilestones.append("End Part: Part 1");
-
-        StringBuffer expectedResults = new StringBuffer("Start Part 1\n");
-
-        for (int i : steps) {
-            expectedResults.append("\n\nStart Step ").append(i).append("\n");
-            expectedResults.append("End Step ").append(i).append("\n");
-        }
-        expectedResults.append("End Part 1\n");
+        expectedResults.append("End ").append(Lookup.getPartName(1)).append("\n");
 
         when(step01Controller.getStepNumber()).thenReturn(1);
         when(step02Controller.getStepNumber()).thenReturn(2);
@@ -295,6 +288,7 @@ public class Part01ControllerTest {
         when(step23Controller.getStepNumber()).thenReturn(23);
         when(step24Controller.getStepNumber()).thenReturn(24);
         when(step25Controller.getStepNumber()).thenReturn(25);
+        when(step26Controller.getStepNumber()).thenReturn(26);
         when(step27Controller.getStepNumber()).thenReturn(27);
 
         instance.execute(listener, j1939, reportFileModule);
@@ -328,6 +322,7 @@ public class Part01ControllerTest {
                                   step23Controller,
                                   step24Controller,
                                   step25Controller,
+                                  step26Controller,
                                   step27Controller);
         inOrder.verify(step01Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step02Controller).run(any(ResultsListener.class), eq(j1939));
@@ -354,6 +349,7 @@ public class Part01ControllerTest {
         inOrder.verify(step23Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step24Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step25Controller).run(any(ResultsListener.class), eq(j1939));
+        inOrder.verify(step26Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step27Controller).run(any(ResultsListener.class), eq(j1939));
 
         verify(vehicleInformationModule).setJ1939(j1939);
@@ -384,6 +380,7 @@ public class Part01ControllerTest {
         verify(step23Controller).getStepNumber();
         verify(step24Controller).getStepNumber();
         verify(step25Controller).getStepNumber();
+        verify(step26Controller).getStepNumber();
         verify(step27Controller).getStepNumber();
 
         assertEquals(expectedMilestones.toString(), listener.getMilestones());
