@@ -34,11 +34,11 @@ public class DM30ScaledTestResultsPacketTest {
         assertEquals(1, testResults.size());
         {
             ScaledTestResult testResult = testResults.get(0);
-            String expected = "SPN 3362 FMI 31 Result: Test Passed. Min: 800, Value: 951, Max: 1,000";
+            String expected = "SPN 3362 FMI 31 Result: Test Passed. Min: 800, Value: 951, Max: 1,000 count";
             assertEquals(expected, testResult.toString());
         }
 
-        String expected = "DM30 from 0: SPN 3362 FMI 31 Result: Test Passed. Min: 800, Value: 951, Max: 1,000";
+        String expected = "DM30 from 0: SPN 3362 FMI 31 Result: Test Passed. Min: 800, Value: 951, Max: 1,000 count";
         assertEquals(expected, instance.toString());
     }
 

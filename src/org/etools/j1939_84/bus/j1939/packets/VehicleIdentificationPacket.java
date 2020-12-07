@@ -56,4 +56,8 @@ public class VehicleIdentificationPacket extends GenericPacket {
         return vin;
     }
 
+    @Override
+    public String toString() {
+        return getStringPrefix() + getVin();
+    }
 }

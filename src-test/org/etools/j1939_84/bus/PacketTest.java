@@ -8,7 +8,10 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -18,6 +21,16 @@ import org.junit.Test;
  *
  */
 public class PacketTest {
+
+    @Before
+    public void setUp() {
+        DateTimeModule.setInstance(new TestDateTimeModule());
+    }
+
+    @After
+    public void tearDown() {
+        DateTimeModule.setInstance(null);
+    }
 
     @Test
     public void testCreateWithBytes() {

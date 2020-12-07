@@ -13,7 +13,6 @@ import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
@@ -67,7 +66,7 @@ public class Step15Controller extends StepController {
         // 6.1.15.1 Actions:
         // a. Gather broadcast DM1 data from all ECUs (PGN 65226 (SPNs
         // 1213-1215, 1706, and 3038)).
-        RequestResult<DM1ActiveDTCsPacket> results = dtcModule.readDM1(getListener(), true);
+        RequestResult<DM1ActiveDTCsPacket> results = dtcModule.readDM1(getListener());
 
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
         // 6.1.15.2 Fail criteria:

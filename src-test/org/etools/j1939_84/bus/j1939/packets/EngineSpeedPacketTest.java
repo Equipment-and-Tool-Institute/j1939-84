@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 
 import org.etools.j1939_84.bus.Packet;
@@ -39,7 +40,18 @@ public class EngineSpeedPacketTest {
         Packet packet = Packet.create(0, 0, data);
         EngineSpeedPacket instance = new EngineSpeedPacket(packet);
         assertEquals(300, instance.getEngineSpeed(), 0.0);
-        assertEquals("Engine Speed from Engine #1 (0): 300 RPM", instance.toString());
+        String expected = "";
+        expected += "10:15:30.0000 18000000 11 22 33 60 09 66 77 88" + NL;
+        expected += "Engine Speed from Engine #1 (0): " + NL;
+        expected += "  SPN   899, Engine Torque Mode: 0001" + NL;
+        expected += "  SPN  4154, Actual Engine - Percent Torque (Fractional): 0.125000 %" + NL;
+        expected += "  SPN   512, Driver's Demand Engine - Percent Torque: -91.000000 %" + NL;
+        expected += "  SPN   513, Actual Engine - Percent Torque: -74.000000 %" + NL;
+        expected += "  SPN   190, Engine Speed: 300.000000 rpm" + NL;
+        expected += "  SPN  1483, Source Address of Controlling Device for Engine Control: 102.000000 source address" + NL;
+        expected += "  SPN  1675, Engine Starter Mode: 0111" + NL;
+        expected += "  SPN  2432, Engine Demand - Percent Torque: 11.000000 %" + NL;
+        assertEquals(expected, instance.toString());
     }
 
     @Test
@@ -50,7 +62,18 @@ public class EngineSpeedPacketTest {
         Packet packet = Packet.create(0, 0, data);
         EngineSpeedPacket instance = new EngineSpeedPacket(packet);
         assertEquals(ParsedPacket.ERROR, instance.getEngineSpeed(), 0.0);
-        assertEquals("Engine Speed from Engine #1 (0): error", instance.toString());
+        String expected = "";
+        expected += "10:15:30.0000 18000000 11 22 33 FF FE 66 77 88" + NL;
+        expected += "Engine Speed from Engine #1 (0): " + NL;
+        expected += "  SPN   899, Engine Torque Mode: 0001" + NL;
+        expected += "  SPN  4154, Actual Engine - Percent Torque (Fractional): 0.125000 %" + NL;
+        expected += "  SPN   512, Driver's Demand Engine - Percent Torque: -91.000000 %" + NL;
+        expected += "  SPN   513, Actual Engine - Percent Torque: -74.000000 %" + NL;
+        expected += "  SPN   190, Engine Speed: Error" + NL;
+        expected += "  SPN  1483, Source Address of Controlling Device for Engine Control: 102.000000 source address" + NL;
+        expected += "  SPN  1675, Engine Starter Mode: 0111" + NL;
+        expected += "  SPN  2432, Engine Demand - Percent Torque: 11.000000 %" + NL;
+        assertEquals(expected, instance.toString());
     }
 
     @Test
@@ -61,7 +84,18 @@ public class EngineSpeedPacketTest {
         Packet packet = Packet.create(0, 0, data);
         EngineSpeedPacket instance = new EngineSpeedPacket(packet);
         assertEquals(ParsedPacket.NOT_AVAILABLE, instance.getEngineSpeed(), 0.0);
-        assertEquals("Engine Speed from Engine #1 (0): not available", instance.toString());
+        String expected = "";
+        expected += "10:15:30.0000 18000000 11 22 33 FF FF 66 77 88" + NL;
+        expected += "Engine Speed from Engine #1 (0): " + NL;
+        expected += "  SPN   899, Engine Torque Mode: 0001" + NL;
+        expected += "  SPN  4154, Actual Engine - Percent Torque (Fractional): 0.125000 %" + NL;
+        expected += "  SPN   512, Driver's Demand Engine - Percent Torque: -91.000000 %" + NL;
+        expected += "  SPN   513, Actual Engine - Percent Torque: -74.000000 %" + NL;
+        expected += "  SPN   190, Engine Speed: Not Available" + NL;
+        expected += "  SPN  1483, Source Address of Controlling Device for Engine Control: 102.000000 source address" + NL;
+        expected += "  SPN  1675, Engine Starter Mode: 0111" + NL;
+        expected += "  SPN  2432, Engine Demand - Percent Torque: 11.000000 %" + NL;
+        assertEquals(expected, instance.toString());
     }
 
     @Test

@@ -1,8 +1,9 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 
 import org.etools.j1939_84.bus.Packet;
@@ -16,7 +17,6 @@ import org.junit.Test;
  * Unit tests for the {@link TotalVehicleDistancePacket} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class TotalVehicleDistancePacketTest {
 
@@ -36,7 +36,13 @@ public class TotalVehicleDistancePacketTest {
         Packet packet = Packet.create(0, 0, data);
         TotalVehicleDistancePacket instance = new TotalVehicleDistancePacket(packet);
         assertEquals(49808.0, instance.getTotalVehicleDistance(), 0.0);
-        assertEquals("Total Vehicle Distance from Engine #1 (0): 49,808 km (30,949.256 mi)", instance.toString());
+
+        String expected = "";
+        expected += "10:15:30.0000 18000000 11 22 33 44 80 14 06 00" + NL;
+        expected += "Total Vehicle Distance from Engine #1 (0): " + NL;
+        expected += "  SPN   244, Trip Distance: 143025218.125000 km" + NL;
+        expected += "  SPN   245, Total Vehicle Distance: 49808.000000 km" + NL;
+        assertEquals(expected, instance.toString());
     }
 
     @Test
@@ -45,7 +51,13 @@ public class TotalVehicleDistancePacketTest {
         Packet packet = Packet.create(0, 0, data);
         TotalVehicleDistancePacket instance = new TotalVehicleDistancePacket(packet);
         assertEquals(ParsedPacket.ERROR, instance.getTotalVehicleDistance(), 0.0);
-        assertEquals("Total Vehicle Distance from Engine #1 (0): error", instance.toString());
+
+        String expected = "";
+        expected += "10:15:30.0000 18000000 11 22 33 44 00 00 00 FE" + NL;
+        expected += "Total Vehicle Distance from Engine #1 (0): " + NL;
+        expected += "  SPN   244, Trip Distance: 143025218.125000 km" + NL;
+        expected += "  SPN   245, Total Vehicle Distance: Error" + NL;
+        assertEquals(expected, instance.toString());
     }
 
     @Test
@@ -54,7 +66,13 @@ public class TotalVehicleDistancePacketTest {
         Packet packet = Packet.create(0, 0, data);
         TotalVehicleDistancePacket instance = new TotalVehicleDistancePacket(packet);
         assertEquals(ParsedPacket.NOT_AVAILABLE, instance.getTotalVehicleDistance(), 0.0);
-        assertEquals("Total Vehicle Distance from Engine #1 (0): not available", instance.toString());
+
+        String expected = "";
+        expected += "10:15:30.0000 18000000 11 22 33 44 FF FF FF FF" + NL;
+        expected += "Total Vehicle Distance from Engine #1 (0): " + NL;
+        expected += "  SPN   244, Trip Distance: 143025218.125000 km" + NL;
+        expected += "  SPN   245, Total Vehicle Distance: Not Available" + NL;
+        assertEquals(expected, instance.toString());
     }
 
     @Test

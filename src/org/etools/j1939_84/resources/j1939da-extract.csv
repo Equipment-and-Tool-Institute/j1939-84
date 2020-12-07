@@ -458,21 +458,21 @@ To retarder: 50 ms",8.5,4207,Message Checksum,220
 20224,Data Transfer Support,DTS,On request,3-4,12994,Total Daily Message Instances,208
 20224,Data Transfer Support,DTS,On request,5-7,12995,Longest Daily Message Instance,207
 20224,Data Transfer Support,DTS,On request,8-11,12996,Total Daily Message Bytes,209
-20480,Monthly Data Transfer,MDT,"One or more message instances transmitted monthly, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",1-2,12983,Monthly Message Instance,208
-20480,Monthly Data Transfer,MDT,"One or more message instances transmitted monthly, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",3-4,12984,Monthly Message Instances Remaining,208
-20480,Monthly Data Transfer,MDT,"One or more message instances transmitted monthly, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",5-6.1,12985,Monthly Data Manufacturer ID,218
-20480,Monthly Data Transfer,MDT,"One or more message instances transmitted monthly, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",7-8,12986,Monthly Data Set ID,456
-20480,Monthly Data Transfer,MDT,"One or more message instances transmitted monthly, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",9-n,12987,Monthly Data,283
-20736,Weekly Data Transfer,WDT,"One or more message instances transmitted weekly, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",1-2,12978,Weekly Message Instance,208
-20736,Weekly Data Transfer,WDT,"One or more message instances transmitted weekly, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",3-4,12979,Weekly Message Instances Remaining,208
-20736,Weekly Data Transfer,WDT,"One or more message instances transmitted weekly, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",5-6.1,12980,Weekly Data Manufacturer ID,218
-20736,Weekly Data Transfer,WDT,"One or more message instances transmitted weekly, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",7-8,12981,Weekly Data Set ID,456
-20736,Weekly Data Transfer,WDT,"One or more message instances transmitted weekly, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",9-n,12982,Weekly Data,283
-20992,Daily Data Transfer,DDT,"One or more message instances transmitted daily, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",1-2,12973,Daily Message Instance,208
-20992,Daily Data Transfer,DDT,"One or more message instances transmitted daily, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",3-4,12974,Daily Message Instances Remaining,208
-20992,Daily Data Transfer,DDT,"One or more message instances transmitted daily, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",5-6.1,12975,Daily Data Manufacturer ID,218
-20992,Daily Data Transfer,DDT,"One or more message instances transmitted daily, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",7-8,12976,Daily Data Set ID,456
-20992,Daily Data Transfer,DDT,"One or more message instances transmitted daily, on request via PGN 59904 or PGN 51456, or at the transmitter’s discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",9-n,12977,Daily Data,283
+20480,Monthly Data Transfer,MDT,"One or more message instances transmitted monthly, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",1-2,12983,Monthly Message Instance,208
+20480,Monthly Data Transfer,MDT,"One or more message instances transmitted monthly, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",3-4,12984,Monthly Message Instances Remaining,208
+20480,Monthly Data Transfer,MDT,"One or more message instances transmitted monthly, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",5-6.1,12985,Monthly Data Manufacturer ID,218
+20480,Monthly Data Transfer,MDT,"One or more message instances transmitted monthly, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",7-8,12986,Monthly Data Set ID,456
+20480,Monthly Data Transfer,MDT,"One or more message instances transmitted monthly, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",9-n,12987,Monthly Data,283
+20736,Weekly Data Transfer,WDT,"One or more message instances transmitted weekly, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",1-2,12978,Weekly Message Instance,208
+20736,Weekly Data Transfer,WDT,"One or more message instances transmitted weekly, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",3-4,12979,Weekly Message Instances Remaining,208
+20736,Weekly Data Transfer,WDT,"One or more message instances transmitted weekly, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",5-6.1,12980,Weekly Data Manufacturer ID,218
+20736,Weekly Data Transfer,WDT,"One or more message instances transmitted weekly, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",7-8,12981,Weekly Data Set ID,456
+20736,Weekly Data Transfer,WDT,"One or more message instances transmitted weekly, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",9-n,12982,Weekly Data,283
+20992,Daily Data Transfer,DDT,"One or more message instances transmitted daily, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",1-2,12973,Daily Message Instance,208
+20992,Daily Data Transfer,DDT,"One or more message instances transmitted daily, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",3-4,12974,Daily Message Instances Remaining,208
+20992,Daily Data Transfer,DDT,"One or more message instances transmitted daily, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",5-6.1,12975,Daily Data Manufacturer ID,218
+20992,Daily Data Transfer,DDT,"One or more message instances transmitted daily, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",7-8,12976,Daily Data Set ID,456
+20992,Daily Data Transfer,DDT,"One or more message instances transmitted daily, on request via PGN 59904 or PGN 51456, or at the transmitter's discretion. See Appendix D for further requirements. Global requests are not recommended due to the potential response volume. When a series of message instances are broadcast, transmitters are advised to space these instances at least 1 minute apart.",9-n,12977,Daily Data,283
 21248,EVSE 1 Control 1,EVSE1C1,100 ms,1.1,12864,EVSE1 Connector Lock Command,89
 21504,Winch Information 3,WINCH3,Every 1 s and on change but no faster than 20 ms,1.1,12312,Winch Position Reset,87
 21760,Air Suspension Control 8,ASC8,100 ms,1.1,12300,Lift Axle 3 Position Command,87
@@ -1338,7 +1338,7 @@ The time between each message shall be 100 ms or greater.",5,9774,On Board Progr
 61444,Electronic Engine Controller 1,EEC1,Fixed rate of 10 to 50 ms or engine speed dependent,4-5,190,Engine Speed,76
 61444,Electronic Engine Controller 1,EEC1,Fixed rate of 10 to 50 ms or engine speed dependent,6,1483,Source Address of Controlling Device for Engine Control,35
 61444,Electronic Engine Controller 1,EEC1,Fixed rate of 10 to 50 ms or engine speed dependent,7.1,1675,Engine Starter Mode,89
-61444,Electronic Engine Controller 1,EEC1,Fixed rate of 10 to 50 ms or engine speed dependent,8,2432,Engine Demand – Percent Torque,45
+61444,Electronic Engine Controller 1,EEC1,Fixed rate of 10 to 50 ms or engine speed dependent,8,2432,Engine Demand - Percent Torque,45
 61445,Electronic Transmission Controller 2,ETC2,100 ms,1,524,Transmission Selected Gear,24
 61445,Electronic Transmission Controller 2,ETC2,100 ms,2-3,526,Transmission Actual Gear Ratio,32
 61445,Electronic Transmission Controller 2,ETC2,100 ms,4,523,Transmission Current Gear,24
@@ -9969,7 +9969,7 @@ Systems 2",EFS2,500 ms,6,9648,Engine Fuel Pump Intake Oil Pressure,47
 64769,Low Voltage Disconnect  Status,LVDS,500 ms,4,5148,Low Voltage Disconnect Temperature,67
 64770,All Implements Stop Operations Switch State,AISO,,,7443,Stop All Implement Operations Transition Number,
 64770,All Implements Stop Operations Switch State,AISO,,,5140,All Implement Stop Operations Switch State,
-64771,Implement Operating State Command,IOS,,,5139,Implement operating state – command,
+64771,Implement Operating State Command,IOS,,,5139,Implement operating state ï¿½ command,
 64772,Direct Lamp Control Data 2,DLCD2,1 s,1.1,5104,Vehicle Battery Voltage Low Lamp Data,87
 64772,Direct Lamp Control Data 2,DLCD2,1 s,1.3,5105,Vehicle Fuel Level Low Lamp Data,87
 64772,Direct Lamp Control Data 2,DLCD2,1 s,1.5,5106,Vehicle Air Pressure Low Lamp Data,87
@@ -10736,19 +10736,19 @@ Systems 2",EFS2,500 ms,6,9648,Engine Fuel Pump Intake Oil Pressure,47
 64834,ISOBUS compliance certification,ICC,,,4314,ISOBUS compliance certificate revision,
 64834,ISOBUS compliance certification,ICC,,,4315,ISOBUS compliance certificate laboratory type,
 64834,ISOBUS compliance certification,ICC,,,4316,ISOBUS Compliance certification laboratory ID,
-64834,ISOBUS compliance certification,ICC,,,4324,ISOBUS Compliance certification type – VT working set member,
-64834,ISOBUS compliance certification,ICC,,,4323,ISOBUS Compliance certification type – VT working set master,
-64834,ISOBUS compliance certification,ICC,,,4322,ISOBUS Compliance certification type – Virtual terminal,
-64834,ISOBUS compliance certification,ICC,,,4321,ISOBUS Compliance certification type – Class 3 ECU,
-64834,ISOBUS compliance certification,ICC,,,4320,ISOBUS Compliance certification type – TECU Class 3,
-64834,ISOBUS compliance certification,ICC,,,4319,ISOBUS Compliance certification type – TECU Class 2,
-64834,ISOBUS compliance certification,ICC,,,4318,ISOBUS Compliance certification type – TECU Class 1,
-64834,ISOBUS compliance certification,ICC,,,4317,ISOBUS Compliance certification type – Minimum ECU,
-64834,ISOBUS compliance certification,ICC,,,4329,ISOBUS Compliance certification type – GPS receiver,
-64834,ISOBUS compliance certification,ICC,,,4328,ISOBUS Compliance certification type – File server,
-64834,ISOBUS compliance certification,ICC,,,4327,ISOBUS Compliance certification type – TC working set member,
-64834,ISOBUS compliance certification,ICC,,,4326,ISOBUS Compliance certification type – TC working set master,
-64834,ISOBUS compliance certification,ICC,,,4325,ISOBUS Compliance certification type – Task Controller,
+64834,ISOBUS compliance certification,ICC,,,4324,ISOBUS Compliance certification type ï¿½ VT working set member,
+64834,ISOBUS compliance certification,ICC,,,4323,ISOBUS Compliance certification type ï¿½ VT working set master,
+64834,ISOBUS compliance certification,ICC,,,4322,ISOBUS Compliance certification type ï¿½ Virtual terminal,
+64834,ISOBUS compliance certification,ICC,,,4321,ISOBUS Compliance certification type ï¿½ Class 3 ECU,
+64834,ISOBUS compliance certification,ICC,,,4320,ISOBUS Compliance certification type ï¿½ TECU Class 3,
+64834,ISOBUS compliance certification,ICC,,,4319,ISOBUS Compliance certification type ï¿½ TECU Class 2,
+64834,ISOBUS compliance certification,ICC,,,4318,ISOBUS Compliance certification type ï¿½ TECU Class 1,
+64834,ISOBUS compliance certification,ICC,,,4317,ISOBUS Compliance certification type ï¿½ Minimum ECU,
+64834,ISOBUS compliance certification,ICC,,,4329,ISOBUS Compliance certification type ï¿½ GPS receiver,
+64834,ISOBUS compliance certification,ICC,,,4328,ISOBUS Compliance certification type ï¿½ File server,
+64834,ISOBUS compliance certification,ICC,,,4327,ISOBUS Compliance certification type ï¿½ TC working set member,
+64834,ISOBUS compliance certification,ICC,,,4326,ISOBUS Compliance certification type ï¿½ TC working set master,
+64834,ISOBUS compliance certification,ICC,,,4325,ISOBUS Compliance certification type ï¿½ Task Controller,
 64834,ISOBUS compliance certification,ICC,,,7446,ISOBUS Compliance Certification Message Revision,
 64834,ISOBUS compliance certification,ICC,,,4330,ISOBUS Compliance certification reference number,
 64835,Machine Selected Speed Command,MSSC,,,4310,Machine selected speed setpoint command,
@@ -10945,14 +10945,14 @@ Systems 2",EFS2,500 ms,6,9648,Engine Fuel Pump Intake Oil Pressure,47
 64864,Harmonized B1 Failure Counts,DM40,,,1214,Suspect Parameter Number,
 64864,Harmonized B1 Failure Counts,DM40,,,1215,Failure Mode Identifier,
 64864,Harmonized B1 Failure Counts,DM40,,,4147,Failure Specific B1 Counter,
-64865,Harmonized Cumulative Continuous Malfunction Indicator – System,DM39,,,4145,System Cumulative Continuous MI Time,
-64865,Harmonized Cumulative Continuous Malfunction Indicator – System,DM39,,,4146,System Greatest B1 Counter,
+64865,Harmonized Cumulative Continuous Malfunction Indicator ï¿½ System,DM39,,,4145,System Cumulative Continuous MI Time,
+64865,Harmonized Cumulative Continuous Malfunction Indicator ï¿½ System,DM39,,,4146,System Greatest B1 Counter,
 64866,Harmonized Global Regulation Description,DM38,,,4144,Global Technical Regulation Description,
-64867,Harmonized Roadworthiness – System,DM37,,,4139,System Non-Roadworthy Component Count,
-64867,Harmonized Roadworthiness – System,DM37,,,4142,System Malfunction Indicator Activation Mode,
-64867,Harmonized Roadworthiness – System,DM37,,,4141,System Malfunction Indicator Display Strategy,
-64867,Harmonized Roadworthiness – System,DM37,,,4140,System Continuous Malfunction Indicator,
-64867,Harmonized Roadworthiness – System,DM37,,,4143,System Incomplete Monitor Count,
+64867,Harmonized Roadworthiness ï¿½ System,DM37,,,4139,System Non-Roadworthy Component Count,
+64867,Harmonized Roadworthiness ï¿½ System,DM37,,,4142,System Malfunction Indicator Activation Mode,
+64867,Harmonized Roadworthiness ï¿½ System,DM37,,,4141,System Malfunction Indicator Display Strategy,
+64867,Harmonized Roadworthiness ï¿½ System,DM37,,,4140,System Continuous Malfunction Indicator,
+64867,Harmonized Roadworthiness ï¿½ System,DM37,,,4143,System Incomplete Monitor Count,
 64868,Harmonized Roadworthiness - Vehicle,DM36,,,4138,Vehicle Current Malfunction Indicator Accumulated Time,
 64869,Aftertreatment 1 Fuel Control 2,AT1FC2,500 ms,1-2,4077,Aftertreatment 1 Fuel Pressure 2,85
 64869,Aftertreatment 1 Fuel Control 2,AT1FC2,500 ms,3.1,5423,Aftertreatment 1 Fuel Pump Relay Control,87
@@ -11329,24 +11329,24 @@ Systems 2",EFS2,500 ms,6,9648,Engine Fuel Pump Intake Oil Pressure,47
 64931,Electronic Engine Controller 6,EEC6,100 ms (preferred) or Engine Speed Dependent (if required by application),7,5366,Engine Turbocharger Compressor Bypass Actuator 1 Desired Position,44
 64931,Electronic Engine Controller 6,EEC6,100 ms (preferred) or Engine Speed Dependent (if required by application),8.1,5367,Engine Turbocharger Compressor Bypass Actuator 1 Preliminary FMI,215
 64931,Electronic Engine Controller 6,EEC6,100 ms (preferred) or Engine Speed Dependent (if required by application),8.6,5368,Engine Turbocharger Compressor Bypass Actuator 1 Temperature Status,88
-64932,PTO Drive Engagement,PTODE,100 ms,1.1,3455,Enable Switch – Transfer case output shaft PTO,87
-64932,PTO Drive Engagement,PTODE,100 ms,1.3,3454,Enable Switch – Transmission output shaft PTO,87
-64932,PTO Drive Engagement,PTODE,100 ms,1.5,3453,Enable Switch – Transmission input shaft PTO 2,87
-64932,PTO Drive Engagement,PTODE,100 ms,1.7,3452,Enable Switch – Transmission input shaft PTO 1,87
+64932,PTO Drive Engagement,PTODE,100 ms,1.1,3455,Enable Switch ï¿½ Transfer case output shaft PTO,87
+64932,PTO Drive Engagement,PTODE,100 ms,1.3,3454,Enable Switch ï¿½ Transmission output shaft PTO,87
+64932,PTO Drive Engagement,PTODE,100 ms,1.5,3453,Enable Switch ï¿½ Transmission input shaft PTO 2,87
+64932,PTO Drive Engagement,PTODE,100 ms,1.7,3452,Enable Switch ï¿½ Transmission input shaft PTO 1,87
 64932,PTO Drive Engagement,PTODE,100 ms,2.1,3939,Enable Switch - PTO Engine Flywheel,87
 64932,PTO Drive Engagement,PTODE,100 ms,2.3,3942,Enable Switch - PTO Engine Accessory Drive 1,87
 64932,PTO Drive Engagement,PTODE,100 ms,2.5,3945,Enable Switch - PTO Engine Accessory Drive 2,87
-64932,PTO Drive Engagement,PTODE,100 ms,3.1,3459,Engagement Consent – Transfer case output shaft PTO,87
-64932,PTO Drive Engagement,PTODE,100 ms,3.3,3458,Engagement Consent – Transmission output shaft PTO,87
-64932,PTO Drive Engagement,PTODE,100 ms,3.5,3457,Engagement Consent – Transmission input shaft PTO 2,87
-64932,PTO Drive Engagement,PTODE,100 ms,3.7,3456,Engagement Consent – Transmission input shaft PTO 1,87
+64932,PTO Drive Engagement,PTODE,100 ms,3.1,3459,Engagement Consent ï¿½ Transfer case output shaft PTO,87
+64932,PTO Drive Engagement,PTODE,100 ms,3.3,3458,Engagement Consent ï¿½ Transmission output shaft PTO,87
+64932,PTO Drive Engagement,PTODE,100 ms,3.5,3457,Engagement Consent ï¿½ Transmission input shaft PTO 2,87
+64932,PTO Drive Engagement,PTODE,100 ms,3.7,3456,Engagement Consent ï¿½ Transmission input shaft PTO 1,87
 64932,PTO Drive Engagement,PTODE,100 ms,4.1,3940,Engagement Consent - PTO Engine Flywheel,87
 64932,PTO Drive Engagement,PTODE,100 ms,4.3,3943,Engagement Consent - PTO Engine Accessory Drive 1,87
 64932,PTO Drive Engagement,PTODE,100 ms,4.5,3946,Engagement Consent - PTO Engine Accessory Drive 2,87
-64932,PTO Drive Engagement,PTODE,100 ms,5.1,3463,Engagement Status – Transfer case output shaft PTO,87
-64932,PTO Drive Engagement,PTODE,100 ms,5.3,3462,Engagement Status – Transmission output shaft PTO,87
-64932,PTO Drive Engagement,PTODE,100 ms,5.5,3461,Engagement Status – Transmission input shaft PTO 2,87
-64932,PTO Drive Engagement,PTODE,100 ms,5.7,3460,Engagement Status – Transmission input shaft PTO 1,87
+64932,PTO Drive Engagement,PTODE,100 ms,5.1,3463,Engagement Status ï¿½ Transfer case output shaft PTO,87
+64932,PTO Drive Engagement,PTODE,100 ms,5.3,3462,Engagement Status ï¿½ Transmission output shaft PTO,87
+64932,PTO Drive Engagement,PTODE,100 ms,5.5,3461,Engagement Status ï¿½ Transmission input shaft PTO 2,87
+64932,PTO Drive Engagement,PTODE,100 ms,5.7,3460,Engagement Status ï¿½ Transmission input shaft PTO 1,87
 64932,PTO Drive Engagement,PTODE,100 ms,6.1,3941,Engagement Status - PTO Engine Flywheel,87
 64932,PTO Drive Engagement,PTODE,100 ms,6.3,3944,Engagement Status - PTO Engine Accessory Drive 1,87
 64932,PTO Drive Engagement,PTODE,100 ms,6.5,3947,Engagement Status - PTO Engine Accessory Drive 2,87
@@ -15308,7 +15308,7 @@ Note: Systems developed to the standard published before SEP2015 transmit at a 5
 ,,,,,4793,Aftertreatment 1 Warm Up Diesel Oxidation Catalyst Missing,202
 ,,,,,4794,Aftertreatment 1 SCR System Missing,202
 ,,,,,4795,Aftertreatment 1 Diesel Particulate Filter Missing,202
-,,,,,4796,Aftertreatment 1 Diesel Oxidation Catalyst Missing  ,202
+,,,,,4796,Aftertreatment 1 Diesel Oxidation Catalyst Missing,202
 ,,,,,4797,Engine Fuel 1 Injector Cylinder 9 Actuator 2,202
 ,,,,,4798,Engine Fuel 1 Injector Cylinder 10 Actuator 2,202
 ,,,,,4799,Engine Fuel 1 Injector Cylinder 11 Actuator 2,202
@@ -15441,12 +15441,12 @@ Note: Systems developed to the standard published before SEP2015 transmit at a 5
 ,,,,,5222,Tractor control draft force set point value response ,
 ,,,,,5223,Tractor Control draft force limit set point ,
 ,,,,,5224,Tractor Control PTO torque limit set point,
-,,,,,5225,Tractor Control Absolute maximum PTO torque limit set point 540 rpm,
+,,,,,5225,Tractor Control Absolute maximum PTO torque limit set point 540 rpm,
 ,,,,,5226,Tractor Control auxiliary valve flow limit set point,
 ,,,,,5227,Tractor Control limit status ,
 ,,,,,5228,Tractor control draft force limit set point command,
 ,,,,,5229,Tractor control PTO torque limit set point command,
-,,,,,5230,Tractor control absolute maximum PTO torque limit set point 540 rpm command,
+,,,,,5230,Tractor control absolute maximum PTO torque limit set point 540 rpm command,
 ,,,,,5231,Tractor control auxiliary valve flow limit set point command,
 ,,,,,5232,Tractor ECU class request,
 ,,,,,5234,Tractor ECU class response,
