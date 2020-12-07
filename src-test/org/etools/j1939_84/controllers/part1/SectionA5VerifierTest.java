@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -19,7 +19,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -52,11 +51,14 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DateTimeModuleTest;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.FunctionalModule;
 import org.etools.j1939_84.modules.OBDTestsModule;
 import org.etools.j1939_84.modules.ReportFileModule;
+import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.junit.After;
@@ -76,12 +78,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class SectionA5VerifierTest extends AbstractControllerTest {
 
     @Mock
-    private AcknowledgmentPacket acknowledgmentPacket;
-
-    @Mock
-    private FunctionalModule bannerModule;
-
-    @Mock
     private DataRepository dataRepository;
 
     @Mock
@@ -89,12 +85,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
     @Mock
     private DTCModule dtcModule;
-
-    @Mock
-    private EngineSpeedModule engineSpeedModule;
-
-    @Mock
-    private Executor executor;
 
     private SectionA5Verifier instance;
 
@@ -110,19 +100,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     private OBDTestsModule obdTestsModule;
 
     @Mock
-    private PartResultFactory partResultFactory;
-
-    @Mock
-    private ReportFileModule reportFileModule;
-
-    @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
     public void setUp() throws Exception {
+        DateTimeModule.setInstance(new TestDateTimeModule());
         listener = new TestResultsListener(mockListener);
 
         instance = new SectionA5Verifier(
@@ -133,11 +115,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 vehicleInformationModule);
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
     @After
     public void tearDown() throws Exception {
+        DateTimeModule.setInstance(null);
         verifyNoMoreInteractions(
                 dataRepository,
                 diagnosticReadinessModule,
@@ -165,10 +145,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(vehicleInformationModule).setJ1939(j1939);
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.SectionA5Verifier#verifyEngineHours(java.util.List, org.etools.j1939_84.bus.j1939.J1939)}.
-     */
     @Test
     public void testVerifyDM12() {
 
@@ -182,13 +158,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         instance.setJ1939(j1939);
 
-        assertTrue(instance.verifyDM12(
-                listener));
+        assertTrue(instance.verifyDM12(listener));
 
-        StringBuilder expectedMessages = new StringBuilder();
-        expectedMessages.append("PASS: Section A.5 Step 1.b DM12 Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("PASS: Section A.5 Step 1.b DM12 Verification", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -202,10 +174,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(vehicleInformationModule).setJ1939(j1939);
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.SectionA5Verifier#verifyEngineHours(java.util.List, org.etools.j1939_84.bus.j1939.J1939)}.
-     */
     @Test
     public void testVerifyDM12Fail() {
 
@@ -222,14 +190,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         assertFalse(instance.verifyDM12(
                 listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM12 check done at table step 1.b");
-        expectedMessages.append(NL)
-                .append("Modules with source address 0, reported 0 DTCs.")
-                .append(NL)
-                .append("MIL status is : fast flash.");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM12 check done at table step 1.b" + NL +
+                "Modules with source address 0, reported 0 DTCs." +
+                NL +
+                "MIL status is : fast flash.";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -243,10 +208,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(vehicleInformationModule).setJ1939(j1939);
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.SectionA5Verifier#verifyEngineHours(java.util.List, org.etools.j1939_84.bus.j1939.J1939)}.
-     */
     @Test
     public void testVerifyDM12FailTwo() {
 
@@ -264,14 +225,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         assertFalse(instance.verifyDM12(
                 listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM12 check done at table step 1.b");
-        expectedMessages.append(NL)
-                .append("Modules with source address 0, reported 1 DTCs.")
-                .append(NL)
-                .append("MIL status is : fast flash.");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM12 check done at table step 1.b" + NL +
+                "Modules with source address 0, reported 1 DTCs." +
+                NL +
+                "MIL status is : fast flash.";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -301,9 +259,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         assertTrue(instance.verifyDM20(Collections.singletonList(dm20Packet),
                 listener));
 
-        StringBuilder expectedMessages = new StringBuilder("PASS: Section A.5 Step 7.a DM20 Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("PASS: Section A.5 Step 7.a DM20 Verification", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -334,12 +290,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         assertFalse(instance.verifyDM20(Collections.emptyList(),
                 listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM20 check done at table step 7.a");
-        expectedMessages.append(NL).append("Previous Monitor Performance Ratio (DM20):").append(NL)
-                .append("Post Monitor Performance Ratio (DM20):").append(NL).append("dm20Packet.toString()").append(NL);
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM20 check done at table step 7.a" + NL + "Previous Monitor Performance Ratio (DM20):" + NL +
+                "Post Monitor Performance Ratio (DM20):" + NL + "dm20Packet.toString()" + NL;
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -366,9 +319,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertTrue(instance.verifyDM21(listener));
 
-        StringBuilder expectedMessages = new StringBuilder("PASS: Section A.5 Step 3.b & 5.b DM21 Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("PASS: Section A.5 Step 3.b & 5.b DM21 Verification", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -396,14 +347,12 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM21(listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM21 check done at table step 3.b & 5.b");
-        expectedMessages.append(NL).append("Modules with source address 0, reported :").append(NL)
-                .append("0.0 km(s) for distance with the MIL on").append(NL)
-                .append("15.0 minute(s) run with the MIL on").append(NL).append("15.0 minute(s) while MIL is activated")
-                .append(NL).append("0.0 km(s) since DTC code clear sent").append(NL)
-                .append("0.0 minute(s) since the DTC code clear sent");
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM21 check done at table step 3.b & 5.b" + NL + "Modules with source address 0, reported :" + NL +
+                "0.0 km(s) for distance with the MIL on" + NL +
+                "15.0 minute(s) run with the MIL on" + NL + "15.0 minute(s) while MIL is activated" +
+                NL + "0.0 km(s) since DTC code clear sent" + NL +
+                "0.0 minute(s) since the DTC code clear sent";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -431,14 +380,12 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM21(listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM21 check done at table step 3.b & 5.b");
-        expectedMessages.append(NL).append("Modules with source address 0, reported :").append(NL)
-                .append("15.0 km(s) for distance with the MIL on").append(NL)
-                .append("0.0 minute(s) run with the MIL on").append(NL).append("0.0 minute(s) while MIL is activated")
-                .append(NL).append("0.0 km(s) since DTC code clear sent").append(NL)
-                .append("0.0 minute(s) since the DTC code clear sent");
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM21 check done at table step 3.b & 5.b" + NL + "Modules with source address 0, reported :" + NL +
+                "15.0 km(s) for distance with the MIL on" + NL +
+                "0.0 minute(s) run with the MIL on" + NL + "0.0 minute(s) while MIL is activated" +
+                NL + "0.0 km(s) since DTC code clear sent" + NL +
+                "0.0 minute(s) since the DTC code clear sent";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -466,14 +413,12 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM21(listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM21 check done at table step 3.b & 5.b");
-        expectedMessages.append(NL).append("Modules with source address 0, reported :").append(NL)
-                .append("0.0 km(s) for distance with the MIL on").append(NL)
-                .append("0.0 minute(s) run with the MIL on").append(NL).append("0.0 minute(s) while MIL is activated")
-                .append(NL).append("0.0 km(s) since DTC code clear sent").append(NL)
-                .append("15.0 minute(s) since the DTC code clear sent");
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM21 check done at table step 3.b & 5.b" + NL + "Modules with source address 0, reported :" + NL +
+                "0.0 km(s) for distance with the MIL on" + NL +
+                "0.0 minute(s) run with the MIL on" + NL + "0.0 minute(s) while MIL is activated" +
+                NL + "0.0 km(s) since DTC code clear sent" + NL +
+                "15.0 minute(s) since the DTC code clear sent";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -504,9 +449,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertTrue(instance.verifyDM23(listener));
 
-        StringBuilder expectedMessages = new StringBuilder("PASS: Section A.5 Step 1.c DM23 Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("PASS: Section A.5 Step 1.c DM23 Verification", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -537,12 +480,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM23(listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM23 check done at table step 1.c");
-        expectedMessages.append(NL).append("Module with source address 0, reported 0 DTCs.").append(NL)
-                .append("MIL status is : on.");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM23 check done at table step 1.c" + NL + "Module with source address 0, reported 0 DTCs." + NL +
+                "MIL status is : on.";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -592,9 +532,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertTrue(instance.verifyDM25(listener, obdModuleAddresses));
 
-        StringBuilder expectedMessages = new StringBuilder("PASS: Section A.5 Step 2.a DM25 Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("PASS: Section A.5 Step 2.a DM25 Verification", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -648,12 +586,10 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM25(listener, obdModuleAddresses));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM25 check done at table step 2.a");
-        expectedMessages.append(NL).append("Module with source address 0, has 1 supported SPNs").append(NL)
-                .append("Module with source address 0, has 1 supported SPNs").append(NL)
-                .append("Module with source address 33, has 1 supported SPNs");
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM25 check done at table step 2.a" + NL + "Module with source address 0, has 1 supported SPNs" + NL +
+                "Module with source address 0, has 1 supported SPNs" + NL +
+                "Module with source address 33, has 1 supported SPNs";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -707,12 +643,10 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM25(listener, obdModuleAddresses));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM25 check done at table step 2.a");
-        expectedMessages.append(NL).append("Module with source address 0, has 1 supported SPNs").append(NL)
-                .append("Module with source address 23, has 1 supported SPNs").append(NL)
-                .append("Module with source address 33, has 1 supported SPNs");
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM25 check done at table step 2.a" + NL + "Module with source address 0, has 1 supported SPNs" + NL +
+                "Module with source address 23, has 1 supported SPNs" + NL +
+                "Module with source address 33, has 1 supported SPNs";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -742,9 +676,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         instance.setJ1939(j1939);
         assertTrue(instance.verifyDM26(listener));
 
-        StringBuilder expectedMessages = new StringBuilder("PASS: Section A.5 Step 5.a DM26 Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("PASS: Section A.5 Step 5.a DM26 Verification", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -773,11 +705,10 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         instance.setJ1939(j1939);
         assertFalse(instance.verifyDM26(listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM26 check done at table step 5.a").append(NL)
-                        .append("Modules with source address 0, reported 2 warm-ups since code clear");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM26 check done at table step 5.a" +
+                NL +
+                "Modules with source address 0, reported 2 warm-ups since code clear";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -791,10 +722,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(vehicleInformationModule).setJ1939(j1939);
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.SectionA5Verifier#verifyDM28(java.util.List, java.util.List, java.util.List, java.util.List, org.etools.j1939_84.controllers.ResultsListener)}.
-     */
     @Test
     public void testVerifyDM28() {
         DM28PermanentEmissionDTCPacket dm28Packet = mock(DM28PermanentEmissionDTCPacket.class);
@@ -807,9 +734,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         assertTrue(instance.verifyDM28(Collections.singletonList(dm28Packet),
                 listener));
 
-        StringBuilder expectedMessages = new StringBuilder("PASS: Section A.5 Step 8.a DM28 Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("PASS: Section A.5 Step 8.a DM28 Verification", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -842,15 +767,13 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         assertFalse(instance.verifyDM28(Collections.singletonList(previousDM28Packet),
                 listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM28 check done at table step 8.a");
-        expectedMessages.append(NL).append("Pre DTC all clear code sent retrieved the DM28 packet :").append(NL)
-                .append("DM28 from Engine #1 (0): MIL: alternate off, RSL: alternate off, AWL: alternate off, PL: alternate off, No DTCs")
-                .append(NL).append("Post DTC all clear code sent retrieved the DM28 packet :").append(NL)
-                .append("DM28 from Engine #1 (0): MIL: on, RSL: off, AWL: off, PL: other").append(NL)
-                .append("DTC:  (157) Engine Fuel 1 Injector Metering Rail 1 Pressure Mechanical System Not Responding Or Out Of Adjustment (7) 1 times");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM28 check done at table step 8.a" + NL + "Pre DTC all clear code sent retrieved the DM28 packet :" + NL +
+                "DM28 from Engine #1 (0): MIL: alternate off, RSL: alternate off, AWL: alternate off, PL: alternate off, No DTCs" +
+                NL + "Post DTC all clear code sent retrieved the DM28 packet :" + NL +
+                "DM28 from Engine #1 (0): MIL: on, RSL: off, AWL: off, PL: other" + NL +
+                "DTC:  (157) Engine Fuel 1 Injector Metering Rail 1 Pressure Mechanical System Not Responding Or Out Of Adjustment (7) 1 times";
+        assertEquals(
+                expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -891,9 +814,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         instance.setJ1939(j1939);
         assertTrue(instance.verifyDM29(listener));
 
-        StringBuilder expectedMessages = new StringBuilder("PASS: Section A.5 Step 1.d DM29 Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("PASS: Section A.5 Step 1.d DM29 Verification", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -932,12 +853,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         instance.setJ1939(j1939);
         assertFalse(instance.verifyDM29(listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM29 check done at table step 1.d");
-        expectedMessages.append(NL)
-                .append("Modules with source address 0, dm29Packet.toString() ");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM29 check done at table step 1.d" + NL +
+                "Modules with source address 0, dm29Packet.toString() ";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -979,12 +897,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         instance.setJ1939(j1939);
         assertFalse(instance.verifyDM29(listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM29 check done at table step 1.d");
-        expectedMessages.append(NL)
-                .append("Modules with source address 0, dm29Packet.toString() ");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM29 check done at table step 1.d" + NL +
+                "Modules with source address 0, dm29Packet.toString() ";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1025,12 +940,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         instance.setJ1939(j1939);
         assertFalse(instance.verifyDM29(listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM29 check done at table step 1.d");
-        expectedMessages.append(NL)
-                .append("Modules with source address 0, dm29Packet.toString() ");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM29 check done at table step 1.d" + NL +
+                "Modules with source address 0, dm29Packet.toString() ";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1044,10 +956,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(vehicleInformationModule).setJ1939(j1939);
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.SectionA5Verifier#VerifyDM31(java.util.List, java.util.List, java.util.List, java.util.List, org.etools.j1939_84.controllers.ResultsListener)}.
-     */
     @Test
     public void testVerifyDM31() {
         DM31DtcToLampAssociation dm31Packet = mock(DM31DtcToLampAssociation.class);
@@ -1060,9 +968,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertTrue(instance.verifyDM31(listener));
 
-        StringBuilder expectedMessages = new StringBuilder("PASS: Section A.5 Step 3.a DM31 Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("PASS: Section A.5 Step 3.a DM31 Verification", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1093,12 +999,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM31(listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM31 check done at table step 3.a");
-        expectedMessages.append(NL)
-                .append("Modules with source address 0, is reporting 1 with DTC lamp status(es) causing MIL on.");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM31 check done at table step 3.a" + NL +
+                "Modules with source address 0, is reporting 1 with DTC lamp status(es) causing MIL on.";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1144,8 +1047,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
 
-        mock(EngineHoursPacket.class);
-
         List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> dm33Packets = new ArrayList<>() {
             {
                 add(dm33Packet0);
@@ -1166,9 +1067,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertTrue(instance.verifyDM33(dm33Packets, listener, obdModuleAddresses));
 
-        StringBuilder expectedMessages = new StringBuilder("PASS: Section A.5 Step 9.a DM33 Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("PASS: Section A.5 Step 9.a DM33 Verification", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1228,17 +1127,15 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM33(dm33Packets, listener, obdModuleAddresses));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM33 check done at table step 9.a");
-        expectedMessages.append(NL).append("Pre DTC all clear code sent retrieved the DM33 packet :").append(NL)
-                .append("   dm33Packet17.toString()").append(NL).append("   dm33Packet21.toString()").append(NL)
-                .append("Post DTC all clear code sent retrieved the DM33 packet :").append(NL)
-                .append("   DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime").append(NL)
-                .append("EngineHoursTimer").append(NL).append("  EI-AECD Number = 1").append(NL)
-                .append("  EI-AECD Engine Hours Timer 1 = 0 minutes").append(NL)
-                .append("  EI-AECD Engine Hours Timer 2 = n/a").append(NL).append("   dm33Packet17.toString()")
-                .append(NL).append("   dm33Packet21.toString()");
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM33 check done at table step 9.a" + NL + "Pre DTC all clear code sent retrieved the DM33 packet :" + NL +
+                "   dm33Packet17.toString()" + NL + "   dm33Packet21.toString()" + NL +
+                "Post DTC all clear code sent retrieved the DM33 packet :" + NL +
+                "   DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime" + NL +
+                "EngineHoursTimer" + NL + "  EI-AECD Number = 1" + NL +
+                "  EI-AECD Engine Hours Timer 1 = 0 minutes" + NL +
+                "  EI-AECD Engine Hours Timer 2 = n/a" + NL + "   dm33Packet17.toString()" +
+                NL + "   dm33Packet21.toString()";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1298,17 +1195,14 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM33(dm33Packets, listener, obdModuleAddresses));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM33 check done at table step 9.a");
-        expectedMessages.append(NL).append("Pre DTC all clear code sent retrieved the DM33 packet :").append(NL)
-                .append("   dm33Packet17.toString()").append(NL).append("   dm33Packet21.toString()").append(NL)
-                .append("Post DTC all clear code sent retrieved the DM33 packet :").append(NL)
-                .append("   DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime").append(NL)
-                .append("EngineHoursTimer").append(NL).append("  EI-AECD Number = 1").append(NL)
-                .append("  EI-AECD Engine Hours Timer 1 = 0 minutes").append(NL)
-                .append("  EI-AECD Engine Hours Timer 2 = n/a").append(NL).append("   dm33Packet17.toString()");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM33 check done at table step 9.a" + NL + "Pre DTC all clear code sent retrieved the DM33 packet :" + NL +
+                "   dm33Packet17.toString()" + NL + "   dm33Packet21.toString()" + NL +
+                "Post DTC all clear code sent retrieved the DM33 packet :" + NL +
+                "   DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime" + NL +
+                "EngineHoursTimer" + NL + "  EI-AECD Number = 1" + NL +
+                "  EI-AECD Engine Hours Timer 1 = 0 minutes" + NL +
+                "  EI-AECD Engine Hours Timer 2 = n/a" + NL + "   dm33Packet17.toString()";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1341,12 +1235,10 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertTrue(instance.verifyDM5(listener));
 
-        StringBuilder expectedMessages = new StringBuilder();
-        expectedMessages.append("PASS: Section A.5 Step 1.e DM5 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 4.a DM5 Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "PASS: Section A.5 Step 1.e DM5 Verification" +
+                NL +
+                "PASS: Section A.5 Step 4.a DM5 Verification";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1384,14 +1276,12 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM5(listener));
 
-        StringBuilder expectedMessages = new StringBuilder();
-        expectedMessages.append("Section A.5 verification failed during DM5 check done at table step 1.e")
-                .append(NL)
-                .append("Modules with source address 0, reported 2 active DTCs and 0 previously acitve DTCs").append(NL)
-                .append("Section A.5 verification failed during DM5 check done at table step 4.a").append(NL)
-                .append("Module address 0 :").append(NL).append("dm5Packet.toString()");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM5 check done at table step 1.e" +
+                NL +
+                "Modules with source address 0, reported 2 active DTCs and 0 previously acitve DTCs" + NL +
+                "Section A.5 verification failed during DM5 check done at table step 4.a" + NL +
+                "Module address 0 :" + NL + "dm5Packet.toString()";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1428,13 +1318,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM5(listener));
 
-        StringBuilder expectedMessages = new StringBuilder();
-        expectedMessages.append("Section A.5 verification failed during DM5 check done at table step 1.e")
-                .append(NL)
-                .append("Modules with source address 0, reported 2 active DTCs and 0 previously acitve DTCs").append(NL)
-                .append("PASS: Section A.5 Step 4.a DM5 Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM5 check done at table step 1.e" +
+                NL +
+                "Modules with source address 0, reported 2 active DTCs and 0 previously acitve DTCs" + NL +
+                "PASS: Section A.5 Step 4.a DM5 Verification";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1465,9 +1353,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertTrue(instance.verifyDM6(listener));
 
-        StringBuilder expectedMessages = new StringBuilder("PASS: Section A.5 Step 1.a DM6 Verfication");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("PASS: Section A.5 Step 1.a DM6 Verfication", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1499,12 +1385,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM6(listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed at DM6 check done at table step 1.a").append(NL);
-        expectedMessages.append("Modules with source address 0, reported 1 DTCs.").append(NL)
-                .append("MIL status is : slow flash.");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed at DM6 check done at table step 1.a" +
+                NL +
+                "Modules with source address 0, reported 1 DTCs." + NL +
+                "MIL status is : slow flash.";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1581,16 +1466,12 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(obdTestsModule.requestDM30Packets(any(), eq(0x21), eq(spn)))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(dm30Packet21),
                         Collections.emptyList()));
-        boolean[] passed = { true };
 
         instance.setJ1939(j1939);
 
         assertTrue(instance.verifyDM7DM30(listener, obdModuleAddresses));
-        assertEquals(true, passed[0]);
 
-        StringBuilder expectedMessages = new StringBuilder("PASS: Section A.5 Step 6.a DM7/DM30 Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("PASS: Section A.5 Step 6.a DM7/DM30 Verification", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1678,16 +1559,13 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM7DM30(listener, obdModuleAddresses));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed during DM7/DM30 check done at table step 6.a");
-        expectedMessages.append(NL)
-                .append("DM30 Scaled Test Results for")
-                .append(NL).append("source address 0 are : [").append(NL)
-                .append("  TestResult failed and the value returned was : 136")
-                .append(NL).append("]").append(NL).append("source address 0 are : [").append(NL)
-                .append("  TestResult failed and the value returned was : 85").append(NL).append("]");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed during DM7/DM30 check done at table step 6.a" + NL +
+                "DM30 Scaled Test Results for" +
+                NL + "source address 0 are : [" + NL +
+                "  TestResult failed and the value returned was : 136" +
+                NL + "]" + NL + "source address 0 are : [" + NL +
+                "  TestResult failed and the value returned was : 85" + NL + "]";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1707,10 +1585,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(vehicleInformationModule).setJ1939(j1939);
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.SectionA5Verifier#verifyEngineHours(java.util.List, org.etools.j1939_84.bus.j1939.J1939)}.
-     */
     @Test
     public void testVerifyEngineHours() {
 
@@ -1726,10 +1600,8 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 Collections.singletonList(engineHoursPacket),
                 listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "PASS: Section A.5 Step 9.b Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle time (PGN 65244 (SPN 235)) Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals(
+                "PASS: Section A.5 Step 9.b Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle time (PGN 65244 (SPN 235)) Verification", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1743,10 +1615,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(vehicleInformationModule).requestEngineHours(any());
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.SectionA5Verifier#verifyEngineHours(java.util.List, org.etools.j1939_84.bus.j1939.J1939)}.
-     */
     @Test
     public void testVerifyEngineHoursEmptyPackets() {
 
@@ -1765,17 +1633,24 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 Collections.emptyList(),
                 listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed Cumulative engine runtime (PGN 65253 (SPN 247))").append(NL);
-        expectedMessages.append(" and engine idletime (PGN 65244 (SPN 235)) shall not be reset/cleared for any")
-                .append(NL).append(" non-zero values present before code clear check done at table step 9.b").append(NL)
-                .append("Previous packet(s) was/were:").append(NL)
-                .append("   EMPTY").append(NL)
-                .append("Current packet(s) was/were:").append(NL)
-                .append("   Engine Hours from Engine #1 (0): 57,210,087.25 hours")
-                .append(NL).append("   Engine Hours from Transmission #1 (3): 71,638,931.6 hours").append(NL);
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expected = "";
+        expected+="Section A.5 verification failed Cumulative engine runtime (PGN 65253 (SPN 247))" + NL;
+        expected+=" and engine idletime (PGN 65244 (SPN 235)) shall not be reset/cleared for any" + NL;
+        expected+=" non-zero values present before code clear check done at table step 9.b" + NL;
+        expected+="Previous packet(s) was/were:" + NL ;
+        expected+="   EMPTY" + NL ;
+        expected+="Current packet(s) was/were:" + NL ;
+        expected+="   10:15:30.0000 18FEE500 11 22 33 44 55 66 77 88"+NL;
+        expected+="Engine Hours from Engine #1 (0): "+NL;
+        expected+="  SPN   247, Engine Total Hours of Operation: 57210087.250000 h"+NL;
+        expected+="  SPN   249, Engine Total Revolutions: 2289526357000.000000 r"+NL;
+        expected+=""+NL;
+        expected+="   10:15:30.0000 18FEE503 88 77 66 55 44 33 22 11"+NL;
+        expected+="Engine Hours from Transmission #1 (3): "+NL;
+        expected+="  SPN   247, Engine Total Hours of Operation: 71638931.600000 h"+NL;
+        expected+="  SPN   249, Engine Total Revolutions: 287454020000.000000 r"+NL;
+        expected+=NL;
+        assertEquals(expected, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1789,10 +1664,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(vehicleInformationModule).requestEngineHours(any());
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.SectionA5Verifier#verifyEngineHours(java.util.List, org.etools.j1939_84.bus.j1939.J1939)}.
-     */
     @Test
     public void testVerifyEngineHoursFail() {
 
@@ -1811,17 +1682,28 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 Collections.singletonList(engineHoursPacket),
                 listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed Cumulative engine runtime (PGN 65253 (SPN 247))").append(NL);
-        expectedMessages.append(" and engine idletime (PGN 65244 (SPN 235)) shall not be reset/cleared for any")
-                .append(NL).append(" non-zero values present before code clear check done at table step 9.b").append(NL)
-                .append("Previous packet(s) was/were:").append(NL)
-                .append("   Engine Hours from Engine #1 (0): 57,210,087.25 hours").append(NL)
-                .append("Current packet(s) was/were:").append(NL)
-                .append("   Engine Hours from Engine #1 (0): 57,210,087.25 hours")
-                .append(NL).append("   Engine Hours from Transmission #1 (3): 71,638,931.6 hours").append(NL);
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expected ="";
+        expected+="Section A.5 verification failed Cumulative engine runtime (PGN 65253 (SPN 247))"+NL;
+        expected+=" and engine idletime (PGN 65244 (SPN 235)) shall not be reset/cleared for any"+NL;
+        expected+=" non-zero values present before code clear check done at table step 9.b"+NL;
+        expected+="Previous packet(s) was/were:"+NL;
+        expected+="   10:15:30.0000 18FEE500 11 22 33 44 55 66 77 88"+NL;
+        expected+="Engine Hours from Engine #1 (0): "+NL;
+        expected+="  SPN   247, Engine Total Hours of Operation: 57210087.250000 h"+NL;
+        expected+="  SPN   249, Engine Total Revolutions: 2289526357000.000000 r"+NL;
+        expected+=""+NL;
+        expected+="Current packet(s) was/were:"+NL;
+        expected+="   10:15:30.0000 18FEE500 11 22 33 44 55 66 77 88"+NL;
+        expected+="Engine Hours from Engine #1 (0): "+NL;
+        expected+="  SPN   247, Engine Total Hours of Operation: 57210087.250000 h"+NL;
+        expected+="  SPN   249, Engine Total Revolutions: 2289526357000.000000 r"+NL;
+        expected+=""+NL;
+        expected+="   10:15:30.0000 18FEE503 88 77 66 55 44 33 22 11"+NL;
+        expected+="Engine Hours from Transmission #1 (3): "+NL;
+        expected+="  SPN   247, Engine Total Hours of Operation: 71638931.600000 h"+NL;
+        expected+="  SPN   249, Engine Total Revolutions: 287454020000.000000 r"+NL;
+        expected+=NL;
+        assertEquals(expected, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1901,29 +1783,27 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         DM28PermanentEmissionDTCPacket dm28Packet = mock(DM28PermanentEmissionDTCPacket.class);
         DiagnosticTroubleCode diagnosticTroubleCode28 = mock(DiagnosticTroubleCode.class);
-        StringBuilder expectedDM28String = new StringBuilder(
-                "DM28 from Engine #1 (0): MIL: on, RSL: off, AWL: off, PL: other");
-        expectedDM28String.append(NL)
-                .append("DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 1 times");
-        when(dm28Packet.toString()).thenReturn(expectedDM28String.toString());
+        String expectedDM28String = "DM28 from Engine #1 (0): MIL: on, RSL: off, AWL: off, PL: other" + NL +
+                "DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 1 times";
+        when(dm28Packet.toString()).thenReturn(
+                expectedDM28String);
         when(dm28Packet.getDtcs()).thenReturn(Collections.singletonList(diagnosticTroubleCode28));
 
         DM29DtcCounts dm29Packet = mock(DM29DtcCounts.class);
         when(dm29Packet.getAllPendingDTCCount()).thenReturn(0);
         when(dm29Packet.getEmissionRelatedPendingDTCCount()).thenReturn(-1);
 
-        StringBuilder expectedDM29String = new StringBuilder("DM29 from Engine #1 (0): ");
-        expectedDM29String.append(NL)
-                .append("Emission-Related Pending DTC Count 9")
-                .append(NL)
-                .append("All Pending DTC Count 32")
-                .append(NL)
-                .append("Emission-Related MIL-On DTC Count 71")
-                .append(NL)
-                .append("Emission-Related Previously MIL-On DTC Count 49")
-                .append(NL)
-                .append("Emission-Related Permanent DTC Count 1");
-        when(dm29Packet.toString()).thenReturn(expectedDM29String.toString());
+        String expectedDM29String = "DM29 from Engine #1 (0): " + NL +
+                "Emission-Related Pending DTC Count 9" +
+                NL +
+                "All Pending DTC Count 32" +
+                NL +
+                "Emission-Related MIL-On DTC Count 71" +
+                NL +
+                "Emission-Related Previously MIL-On DTC Count 49" +
+                NL +
+                "Emission-Related Permanent DTC Count 1";
+        when(dm29Packet.toString()).thenReturn(expectedDM29String);
 
         DM30ScaledTestResultsPacket dm30Packet0 = mock(DM30ScaledTestResultsPacket.class);
         when(dm30Packet0.getSourceAddress()).thenReturn(0x00);
@@ -2073,153 +1953,146 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 Collections.emptyList(),
                 listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed at DM6 check done at table step 1.a");
-        expectedMessages.append(NL)
-                .append("Modules with source address 0, reported 1 DTCs.")
-                .append(NL)
-                .append("MIL status is : fast flash.")
-                .append(NL)
-                .append("Section A.5 verification failed during DM12 check done at table step 1.b")
-                .append(NL)
-                .append("Modules with source address 0, reported 1 DTCs.")
-                .append(NL)
-                .append("MIL status is : slow flash.")
-                .append(NL)
-                .append("Section A.5 verification failed during DM23 check done at table step 1.c")
-                .append(NL)
-                .append("Module with source address 0, reported 1 DTCs.")
-                .append(NL)
-                .append("MIL status is : on.")
-                .append(NL)
-                .append("Section A.5 verification failed during DM29 check done at table step 1.d")
-                .append(NL)
-                .append("Modules with source address 0, DM29 from Engine #1 (0): ")
-                .append(NL)
-                .append("Emission-Related Pending DTC Count 9")
-                .append(NL)
-                .append("All Pending DTC Count 32")
-                .append(NL)
-                .append("Emission-Related MIL-On DTC Count 71")
-                .append(NL)
-                .append("Emission-Related Previously MIL-On DTC Count 49")
-                .append(NL)
-                .append("Emission-Related Permanent DTC Count 1 ")
-                .append(NL)
-                .append("Section A.5 verification failed during DM25 check done at table step 2.a")
-                .append(NL)
-                .append("Module with source address 0, has 1 supported SPNs")
-                .append(NL)
-                .append("Module with source address 23, has 1 supported SPNs")
-                .append(NL)
-                .append("Module with source address 33, has 1 supported SPNs")
-                .append(NL)
-                .append("Section A.5 verification failed during DM31 check done at table step 3.a")
-                .append(NL)
-                .append("Modules with source address 0, is reporting 1 with DTC lamp status(es) causing MIL on.")
-                .append(NL)
-                .append("Section A.5 verification failed during DM21 check done at table step 3.b & 5.b")
-                .append(NL)
-                .append("Modules with source address 0, reported :")
-                .append(NL)
-                .append("0.0 km(s) for distance with the MIL on")
-                .append(NL)
-                .append("0.0 minute(s) run with the MIL on")
-                .append(NL)
-                .append("0.0 minute(s) while MIL is activated")
-                .append(NL)
-                .append("2453.3 km(s) since DTC code clear sent")
-                .append(NL)
-                .append("0.0 minute(s) since the DTC code clear sent")
-                .append(NL)
-                .append("Section A.5 verification failed during DM5 check done at table step 1.e")
-                .append(NL)
-                .append("Modules with source address 0, reported 2 active DTCs and 0 previously acitve DTCs")
-                .append(NL)
-                .append("Section A.5 verification failed during DM5 check done at table step 4.a")
-                .append(NL)
-                .append("Module address 0 :")
-                .append(NL)
-                .append("DM5 from Engine #1 (0): OBD Compliance: HD OBD (20), Active Codes: 11, Previously Active Codes: 22")
-                .append(NL)
-                .append("Section A.5 verification failed during DM26 check done at table step 5.a")
-                .append(NL)
-                .append("Modules with source address 0, reported 2 warm-ups since code clear")
-                .append(NL)
-                .append("Section A.5 verification failed during DM7/DM30 check done at table step 6.a")
-                .append(NL)
-                .append("DM30 Scaled Test Results for")
-                .append(NL)
-                .append("source address 0 are : [")
-                .append(NL)
-                .append("  TestMaximum failed and the value returned was : 65282")
-                .append(NL)
-                .append("]")
-                .append(NL)
-                .append("source address 23 are : [")
-                .append(NL)
-                .append("  TestResult failed and the value returned was : 65302")
-                .append(NL)
-                .append("]")
-                .append(NL)
-                .append("source address 33 are : [")
-                .append(NL)
-                .append("  TestMinimum failed and the value returned was : 22")
-                .append(NL)
-                .append("]")
-                .append(NL)
-
-                .append("Section A.5 verification failed during DM20 check done at table step 7.a")
-                .append(NL)
-                .append("Previous Monitor Performance Ratio (DM20):")
-                .append(NL)
-                .append("Post Monitor Performance Ratio (DM20):")
-                .append(NL)
-                .append("DM20 from Engine #1 (0): [")
-                .append(NL)
-                .append(" Num'r / Den'r")
-                .append(NL)
-                .append("Ignition Cycles 42,405")
-                .append(NL)
-                .append("OBD Monitoring Conditions Encountered 23,130")
-                .append(NL)
-                .append("SPN 524287 Manufacturer Assignable SPN 524287 65,279/65,535")
-                .append(NL)
-                .append("]")
-                .append(NL)
-                .append(NL)
-
-                .append("Section A.5 verification failed during DM28 check done at table step 8.a")
-                .append(NL)
-                .append("Pre DTC all clear code sent retrieved the DM28 packet :")
-                .append(NL)
-                .append(NL)
-                .append("Post DTC all clear code sent retrieved the DM28 packet :")
-                .append(NL)
-                .append("DM28 from Engine #1 (0): MIL: on, RSL: off, AWL: off, PL: other")
-                .append(NL)
-                .append("DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 1 times")
-                .append(NL)
-
-                .append("PASS: Section A.5 Step 9.a DM33 Verification")
-                .append(NL)
-
-                .append("Section A.5 verification failed Cumulative engine runtime (PGN 65253 (SPN 247))")
-                .append(NL)
-                .append(" and engine idletime (PGN 65244 (SPN 235)) shall not be reset/cleared for any")
-                .append(NL)
-                .append(" non-zero values present before code clear check done at table step 9.b")
-                .append(NL)
-                .append("Previous packet(s) was/were:")
-                .append(NL)
-                .append("   EMPTY")
-                .append(NL)
-                .append("Current packet(s) was/were:")
-                .append(NL)
-                .append("   Engine Hours from Engine #1 (0): 210,554,060.75 hours")
-                .append(NL);
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed at DM6 check done at table step 1.a" + NL +
+                "Modules with source address 0, reported 1 DTCs." +
+                NL +
+                "MIL status is : fast flash." +
+                NL +
+                "Section A.5 verification failed during DM12 check done at table step 1.b" +
+                NL +
+                "Modules with source address 0, reported 1 DTCs." +
+                NL +
+                "MIL status is : slow flash." +
+                NL +
+                "Section A.5 verification failed during DM23 check done at table step 1.c" +
+                NL +
+                "Module with source address 0, reported 1 DTCs." +
+                NL +
+                "MIL status is : on." +
+                NL +
+                "Section A.5 verification failed during DM29 check done at table step 1.d" +
+                NL +
+                "Modules with source address 0, DM29 from Engine #1 (0): " +
+                NL +
+                "Emission-Related Pending DTC Count 9" +
+                NL +
+                "All Pending DTC Count 32" +
+                NL +
+                "Emission-Related MIL-On DTC Count 71" +
+                NL +
+                "Emission-Related Previously MIL-On DTC Count 49" +
+                NL +
+                "Emission-Related Permanent DTC Count 1 " +
+                NL +
+                "Section A.5 verification failed during DM25 check done at table step 2.a" +
+                NL +
+                "Module with source address 0, has 1 supported SPNs" +
+                NL +
+                "Module with source address 23, has 1 supported SPNs" +
+                NL +
+                "Module with source address 33, has 1 supported SPNs" +
+                NL +
+                "Section A.5 verification failed during DM31 check done at table step 3.a" +
+                NL +
+                "Modules with source address 0, is reporting 1 with DTC lamp status(es) causing MIL on." +
+                NL +
+                "Section A.5 verification failed during DM21 check done at table step 3.b & 5.b" +
+                NL +
+                "Modules with source address 0, reported :" +
+                NL +
+                "0.0 km(s) for distance with the MIL on" +
+                NL +
+                "0.0 minute(s) run with the MIL on" +
+                NL +
+                "0.0 minute(s) while MIL is activated" +
+                NL +
+                "2453.3 km(s) since DTC code clear sent" +
+                NL +
+                "0.0 minute(s) since the DTC code clear sent" +
+                NL +
+                "Section A.5 verification failed during DM5 check done at table step 1.e" +
+                NL +
+                "Modules with source address 0, reported 2 active DTCs and 0 previously acitve DTCs" +
+                NL +
+                "Section A.5 verification failed during DM5 check done at table step 4.a" +
+                NL +
+                "Module address 0 :" +
+                NL +
+                "DM5 from Engine #1 (0): OBD Compliance: HD OBD (20), Active Codes: 11, Previously Active Codes: 22" +
+                NL +
+                "Section A.5 verification failed during DM26 check done at table step 5.a" +
+                NL +
+                "Modules with source address 0, reported 2 warm-ups since code clear" +
+                NL +
+                "Section A.5 verification failed during DM7/DM30 check done at table step 6.a" +
+                NL +
+                "DM30 Scaled Test Results for" +
+                NL +
+                "source address 0 are : [" +
+                NL +
+                "  TestMaximum failed and the value returned was : 65282" +
+                NL +
+                "]" +
+                NL +
+                "source address 23 are : [" +
+                NL +
+                "  TestResult failed and the value returned was : 65302" +
+                NL +
+                "]" +
+                NL +
+                "source address 33 are : [" +
+                NL +
+                "  TestMinimum failed and the value returned was : 22" +
+                NL +
+                "]" +
+                NL +
+                "Section A.5 verification failed during DM20 check done at table step 7.a" +
+                NL +
+                "Previous Monitor Performance Ratio (DM20):" +
+                NL +
+                "Post Monitor Performance Ratio (DM20):" +
+                NL +
+                "DM20 from Engine #1 (0): [" +
+                NL +
+                " Num'r / Den'r" +
+                NL +
+                "Ignition Cycles 42,405" +
+                NL +
+                "OBD Monitoring Conditions Encountered 23,130" +
+                NL +
+                "SPN 524287 Manufacturer Assignable SPN 524287 65,279/65,535" +
+                NL +
+                "]" +
+                NL +
+                NL +
+                "Section A.5 verification failed during DM28 check done at table step 8.a" +
+                NL +
+                "Pre DTC all clear code sent retrieved the DM28 packet :" +
+                NL +
+                NL +
+                "Post DTC all clear code sent retrieved the DM28 packet :" +
+                NL +
+                "DM28 from Engine #1 (0): MIL: on, RSL: off, AWL: off, PL: other" +
+                NL +
+                "DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 1 times" +
+                NL +
+                "PASS: Section A.5 Step 9.a DM33 Verification" +
+                NL +
+                "Section A.5 verification failed Cumulative engine runtime (PGN 65253 (SPN 247))" +
+                NL +
+                " and engine idletime (PGN 65244 (SPN 235)) shall not be reset/cleared for any" +
+                NL +
+                " non-zero values present before code clear check done at table step 9.b" +
+                NL +
+                "Previous packet(s) was/were:" +
+                NL +
+                "   EMPTY" +
+                NL +
+                "Current packet(s) was/were:" +
+                NL +
+                "   Engine Hours from Engine #1 (0): 210,554,060.75 hours" +
+                NL;
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -2302,7 +2175,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         DM21DiagnosticReadinessPacket dm21Packet = mock(DM21DiagnosticReadinessPacket.class);
         DM23PreviouslyMILOnEmissionDTCPacket dm23Packet = mock(DM23PreviouslyMILOnEmissionDTCPacket.class);
-        when(dm23Packet.getDtcs()).thenReturn(new ArrayList<DiagnosticTroubleCode>());
+        when(dm23Packet.getDtcs()).thenReturn(new ArrayList<>());
         when(dm23Packet.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.SLOW_FLASH);
 
         byte[] dm25bytes = { 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0xFF, (byte) 0x1C, (byte) 0xFF };
@@ -2318,27 +2191,25 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM28PermanentEmissionDTCPacket dm28Packet = mock(DM28PermanentEmissionDTCPacket.class);
         DiagnosticTroubleCode dm28DTC = mock(DiagnosticTroubleCode.class);
         when(dm28Packet.getDtcs()).thenReturn(Collections.singletonList(dm28DTC));
-        StringBuilder expectedDM28String = new StringBuilder(
-                "DM28 from Engine #1 (0): MIL: on, RSL: off, AWL: off, PL: other");
-        expectedDM28String.append(NL)
-                .append("DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 1 times");
-        when(dm28Packet.toString()).thenReturn(expectedDM28String.toString());
+        String expectedDM28String = "DM28 from Engine #1 (0): MIL: on, RSL: off, AWL: off, PL: other" + NL +
+                "DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 1 times";
+        when(dm28Packet.toString()).thenReturn(
+                expectedDM28String);
 
         DM29DtcCounts dm29Packet = mock(DM29DtcCounts.class);
         when(dm29Packet.getAllPendingDTCCount()).thenReturn(-1);
 
-        StringBuilder expectedDM29String = new StringBuilder("DM29 from Engine #1 (0): ");
-        expectedDM29String.append(NL)
-                .append("Emission-Related Pending DTC Count 9")
-                .append(NL)
-                .append("All Pending DTC Count 32")
-                .append(NL)
-                .append("Emission-Related MIL-On DTC Count 71")
-                .append(NL)
-                .append("Emission-Related Previously MIL-On DTC Count 49")
-                .append(NL)
-                .append("Emission-Related Permanent DTC Count 1");
-        when(dm29Packet.toString()).thenReturn(expectedDM29String.toString());
+        String expectedDM29String = "DM29 from Engine #1 (0): " + NL +
+                "Emission-Related Pending DTC Count 9" +
+                NL +
+                "All Pending DTC Count 32" +
+                NL +
+                "Emission-Related MIL-On DTC Count 71" +
+                NL +
+                "Emission-Related Previously MIL-On DTC Count 49" +
+                NL +
+                "Emission-Related Permanent DTC Count 1";
+        when(dm29Packet.toString()).thenReturn(expectedDM29String);
 
         DM30ScaledTestResultsPacket dm30Packet0 = mock(DM30ScaledTestResultsPacket.class);
         when(dm30Packet0.getSourceAddress()).thenReturn(0x00);
@@ -2486,143 +2357,138 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 Collections.singletonList(engineHoursPacket),
                 listener));
 
-        StringBuilder expectedMessages = new StringBuilder(
-                "Section A.5 verification failed at DM6 check done at table step 1.a");
-        expectedMessages.append(NL)
-                .append("Modules with source address 0, reported 0 DTCs.")
-                .append(NL)
-                .append("MIL status is : on.")
-                .append(NL)
-                .append("Section A.5 verification failed during DM12 check done at table step 1.b")
-                .append(NL)
-                .append("Modules with source address 0, reported 0 DTCs.")
-                .append(NL)
-                .append("MIL status is : other.")
-                .append(NL)
-                .append("Section A.5 verification failed during DM23 check done at table step 1.c")
-                .append(NL)
-                .append("Module with source address 0, reported 0 DTCs.")
-                .append(NL)
-                .append("MIL status is : slow flash.")
-                .append(NL)
-                .append("Section A.5 verification failed during DM29 check done at table step 1.d")
-                .append(NL)
-                .append("Modules with source address 0, DM29 from Engine #1 (0): ")
-                .append(NL)
-                .append("Emission-Related Pending DTC Count 9")
-                .append(NL)
-                .append("All Pending DTC Count 32")
-                .append(NL)
-                .append("Emission-Related MIL-On DTC Count 71")
-                .append(NL)
-                .append("Emission-Related Previously MIL-On DTC Count 49")
-                .append(NL)
-                .append("Emission-Related Permanent DTC Count 1 ")
-                .append(NL)
-                .append("Section A.5 verification failed during DM25 check done at table step 2.a")
-                .append(NL)
-                .append("Module with source address 0, has 1 supported SPNs")
-                .append(NL)
-                .append("Module with source address 23, has 1 supported SPNs")
-                .append(NL)
-                .append("Module with source address 33, has 1 supported SPNs")
-                .append(NL)
-                .append("PASS: Section A.5 Step 3.a DM31 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 3.b & 5.b DM21 Verification")
-                .append(NL)
-                .append("Section A.5 verification failed during DM5 check done at table step 1.e")
-                .append(NL)
-                .append("Modules with source address 0, reported 0 active DTCs and 2 previously acitve DTCs")
-                .append(NL)
-                .append("PASS: Section A.5 Step 4.a DM5 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 5.a DM26 Verification")
-                .append(NL)
-                .append("Section A.5 verification failed during DM7/DM30 check done at table step 6.a")
-                .append(NL)
-                .append("DM30 Scaled Test Results for")
-                .append(NL)
-                .append("source address 0 are : [")
-                .append(NL)
-                .append("  TestMaximum failed and the value returned was : 54")
-                .append(NL)
-                .append("  TestResult failed and the value returned was : 64258")
-                .append(NL)
-                .append("  TestMinimum failed and the value returned was : 25")
-                .append(NL)
-                .append("]")
-                .append(NL)
-                .append("source address 23 are : [")
-                .append(NL)
-                .append("  TestResult failed and the value returned was : 65280")
-                .append(NL)
-                .append("]")
-                .append(NL)
-                .append("Section A.5 verification failed during DM20 check done at table step 7.a")
-                .append(NL)
-                .append("Previous Monitor Performance Ratio (DM20):")
-                .append(NL)
-                .append("DM20 from Engine #1 (0): [")
-                .append(NL)
-                .append(" Num'r / Den'r")
-                .append(NL)
-                .append("Ignition Cycles 42,405")
-                .append(NL)
-                .append("OBD Monitoring Conditions Encountered 23,130")
-                .append(NL)
-                .append("SPN 524287 Manufacturer Assignable SPN 524287 65,279/65,535")
-                .append(NL)
-                .append("]")
-                .append(NL)
-                .append("Post Monitor Performance Ratio (DM20):")
-                .append(NL)
-                .append(NL)
-                .append("Section A.5 verification failed during DM28 check done at table step 8.a")
-                .append(NL)
-                .append("Pre DTC all clear code sent retrieved the DM28 packet :")
-                .append(NL)
-                .append("DM28 from Engine #1 (0): MIL: on, RSL: off, AWL: off, PL: other")
-                .append(NL)
-                .append("DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 1 times")
-                .append(NL)
-
-                .append("Post DTC all clear code sent retrieved the DM28 packet :")
-                .append(NL)
-                .append(NL)
-                .append("Section A.5 verification failed during DM33 check done at table step 9.a")
-                .append(NL)
-                .append("Pre DTC all clear code sent retrieved the DM33 packet :")
-                .append(NL)
-                .append("   DM33 from source address 0")
-                .append(NL)
-                .append("   DM33 from source address 21")
-                .append(NL)
-                .append("Post DTC all clear code sent retrieved the DM33 packet :")
-                .append(NL)
-                .append("   DM33 from source address 0")
-                .append(NL)
-                .append("   DM33 from source address 17")
-                .append(NL)
-                .append("   DM33 from source address 21")
-                .append(NL)
-
-                .append("Section A.5 verification failed Cumulative engine runtime (PGN 65253 (SPN 247))")
-                .append(NL)
-                .append(" and engine idletime (PGN 65244 (SPN 235)) shall not be reset/cleared for any")
-                .append(NL)
-                .append(" non-zero values present before code clear check done at table step 9.b")
-                .append(NL)
-                .append("Previous packet(s) was/were:")
-                .append(NL)
-                .append("   Engine Hours from Engine #1 (0): 210,554,060.75 hours")
-                .append(NL)
-                .append("Current packet(s) was/were:")
-                .append(NL)
-                .append("   EMPTY")
-                .append(NL);
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "Section A.5 verification failed at DM6 check done at table step 1.a" + NL +
+                "Modules with source address 0, reported 0 DTCs." +
+                NL +
+                "MIL status is : on." +
+                NL +
+                "Section A.5 verification failed during DM12 check done at table step 1.b" +
+                NL +
+                "Modules with source address 0, reported 0 DTCs." +
+                NL +
+                "MIL status is : other." +
+                NL +
+                "Section A.5 verification failed during DM23 check done at table step 1.c" +
+                NL +
+                "Module with source address 0, reported 0 DTCs." +
+                NL +
+                "MIL status is : slow flash." +
+                NL +
+                "Section A.5 verification failed during DM29 check done at table step 1.d" +
+                NL +
+                "Modules with source address 0, DM29 from Engine #1 (0): " +
+                NL +
+                "Emission-Related Pending DTC Count 9" +
+                NL +
+                "All Pending DTC Count 32" +
+                NL +
+                "Emission-Related MIL-On DTC Count 71" +
+                NL +
+                "Emission-Related Previously MIL-On DTC Count 49" +
+                NL +
+                "Emission-Related Permanent DTC Count 1 " +
+                NL +
+                "Section A.5 verification failed during DM25 check done at table step 2.a" +
+                NL +
+                "Module with source address 0, has 1 supported SPNs" +
+                NL +
+                "Module with source address 23, has 1 supported SPNs" +
+                NL +
+                "Module with source address 33, has 1 supported SPNs" +
+                NL +
+                "PASS: Section A.5 Step 3.a DM31 Verification" +
+                NL +
+                "PASS: Section A.5 Step 3.b & 5.b DM21 Verification" +
+                NL +
+                "Section A.5 verification failed during DM5 check done at table step 1.e" +
+                NL +
+                "Modules with source address 0, reported 0 active DTCs and 2 previously acitve DTCs" +
+                NL +
+                "PASS: Section A.5 Step 4.a DM5 Verification" +
+                NL +
+                "PASS: Section A.5 Step 5.a DM26 Verification" +
+                NL +
+                "Section A.5 verification failed during DM7/DM30 check done at table step 6.a" +
+                NL +
+                "DM30 Scaled Test Results for" +
+                NL +
+                "source address 0 are : [" +
+                NL +
+                "  TestMaximum failed and the value returned was : 54" +
+                NL +
+                "  TestResult failed and the value returned was : 64258" +
+                NL +
+                "  TestMinimum failed and the value returned was : 25" +
+                NL +
+                "]" +
+                NL +
+                "source address 23 are : [" +
+                NL +
+                "  TestResult failed and the value returned was : 65280" +
+                NL +
+                "]" +
+                NL +
+                "Section A.5 verification failed during DM20 check done at table step 7.a" +
+                NL +
+                "Previous Monitor Performance Ratio (DM20):" +
+                NL +
+                "DM20 from Engine #1 (0): [" +
+                NL +
+                " Num'r / Den'r" +
+                NL +
+                "Ignition Cycles 42,405" +
+                NL +
+                "OBD Monitoring Conditions Encountered 23,130" +
+                NL +
+                "SPN 524287 Manufacturer Assignable SPN 524287 65,279/65,535" +
+                NL +
+                "]" +
+                NL +
+                "Post Monitor Performance Ratio (DM20):" +
+                NL +
+                NL +
+                "Section A.5 verification failed during DM28 check done at table step 8.a" +
+                NL +
+                "Pre DTC all clear code sent retrieved the DM28 packet :" +
+                NL +
+                "DM28 from Engine #1 (0): MIL: on, RSL: off, AWL: off, PL: other" +
+                NL +
+                "DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 1 times" +
+                NL +
+                "Post DTC all clear code sent retrieved the DM28 packet :" +
+                NL +
+                NL +
+                "Section A.5 verification failed during DM33 check done at table step 9.a" +
+                NL +
+                "Pre DTC all clear code sent retrieved the DM33 packet :" +
+                NL +
+                "   DM33 from source address 0" +
+                NL +
+                "   DM33 from source address 21" +
+                NL +
+                "Post DTC all clear code sent retrieved the DM33 packet :" +
+                NL +
+                "   DM33 from source address 0" +
+                NL +
+                "   DM33 from source address 17" +
+                NL +
+                "   DM33 from source address 21" +
+                NL +
+                "Section A.5 verification failed Cumulative engine runtime (PGN 65253 (SPN 247))" +
+                NL +
+                " and engine idletime (PGN 65244 (SPN 235)) shall not be reset/cleared for any" +
+                NL +
+                " non-zero values present before code clear check done at table step 9.b" +
+                NL +
+                "Previous packet(s) was/were:" +
+                NL +
+                "   Engine Hours from Engine #1 (0): 210,554,060.75 hours" +
+                NL +
+                "Current packet(s) was/were:" +
+                NL +
+                "   EMPTY" +
+                NL;
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -2844,38 +2710,37 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 Collections.singletonList(engineHoursPacket),
                 listener));
 
-        StringBuilder expectedMessages = new StringBuilder();
-        expectedMessages.append("PASS: Section A.5 Step 1.a DM6 Verfication")
-                .append(NL)
-                .append("PASS: Section A.5 Step 1.b DM12 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 1.c DM23 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 1.d DM29 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 2.a DM25 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 3.a DM31 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 3.b & 5.b DM21 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 1.e DM5 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 4.a DM5 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 5.a DM26 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 6.a DM7/DM30 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 7.a DM20 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 8.a DM28 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 9.a DM33 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 9.b Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle time (PGN 65244 (SPN 235)) Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "PASS: Section A.5 Step 1.a DM6 Verfication" +
+                NL +
+                "PASS: Section A.5 Step 1.b DM12 Verification" +
+                NL +
+                "PASS: Section A.5 Step 1.c DM23 Verification" +
+                NL +
+                "PASS: Section A.5 Step 1.d DM29 Verification" +
+                NL +
+                "PASS: Section A.5 Step 2.a DM25 Verification" +
+                NL +
+                "PASS: Section A.5 Step 3.a DM31 Verification" +
+                NL +
+                "PASS: Section A.5 Step 3.b & 5.b DM21 Verification" +
+                NL +
+                "PASS: Section A.5 Step 1.e DM5 Verification" +
+                NL +
+                "PASS: Section A.5 Step 4.a DM5 Verification" +
+                NL +
+                "PASS: Section A.5 Step 5.a DM26 Verification" +
+                NL +
+                "PASS: Section A.5 Step 6.a DM7/DM30 Verification" +
+                NL +
+                "PASS: Section A.5 Step 7.a DM20 Verification" +
+                NL +
+                "PASS: Section A.5 Step 8.a DM28 Verification" +
+                NL +
+                "PASS: Section A.5 Step 9.a DM33 Verification" +
+                NL +
+                "PASS: Section A.5 Step 9.b Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle time (PGN 65244 (SPN 235)) Verification";
+        assertEquals(
+                expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -3084,38 +2949,37 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 Collections.singletonList(engineHoursPacket),
                 listener));
 
-        StringBuilder expectedMessages = new StringBuilder();
-        expectedMessages.append("PASS: Section A.5 Step 1.a DM6 Verfication")
-                .append(NL)
-                .append("PASS: Section A.5 Step 1.b DM12 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 1.c DM23 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 1.d DM29 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 2.a DM25 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 3.a DM31 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 3.b & 5.b DM21 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 1.e DM5 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 4.a DM5 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 5.a DM26 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 6.a DM7/DM30 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 7.a DM20 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 8.a DM28 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 9.a DM33 Verification")
-                .append(NL)
-                .append("PASS: Section A.5 Step 9.b Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle time (PGN 65244 (SPN 235)) Verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        String expectedMessages = "PASS: Section A.5 Step 1.a DM6 Verfication" +
+                NL +
+                "PASS: Section A.5 Step 1.b DM12 Verification" +
+                NL +
+                "PASS: Section A.5 Step 1.c DM23 Verification" +
+                NL +
+                "PASS: Section A.5 Step 1.d DM29 Verification" +
+                NL +
+                "PASS: Section A.5 Step 2.a DM25 Verification" +
+                NL +
+                "PASS: Section A.5 Step 3.a DM31 Verification" +
+                NL +
+                "PASS: Section A.5 Step 3.b & 5.b DM21 Verification" +
+                NL +
+                "PASS: Section A.5 Step 1.e DM5 Verification" +
+                NL +
+                "PASS: Section A.5 Step 4.a DM5 Verification" +
+                NL +
+                "PASS: Section A.5 Step 5.a DM26 Verification" +
+                NL +
+                "PASS: Section A.5 Step 6.a DM7/DM30 Verification" +
+                NL +
+                "PASS: Section A.5 Step 7.a DM20 Verification" +
+                NL +
+                "PASS: Section A.5 Step 8.a DM28 Verification" +
+                NL +
+                "PASS: Section A.5 Step 9.a DM33 Verification" +
+                NL +
+                "PASS: Section A.5 Step 9.b Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle time (PGN 65244 (SPN 235)) Verification";
+        assertEquals(
+                expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 

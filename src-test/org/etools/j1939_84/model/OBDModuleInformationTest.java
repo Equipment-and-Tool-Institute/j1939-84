@@ -158,7 +158,7 @@ public class OBDModuleInformationTest {
         expectedObd += "obdCompliance is : " + 4 + "\n";
         expectedObd += "function is : " + 0 + "\n";
         expectedObd += "Supported SPNs: \n";
-        expectedObd += "SPN 513 - Actual Engine - Percent Torque,SPN 0 - Unknown,SPN 524030 - Manufacturer Assignable SPN 524030";
+        expectedObd += "SPN 513 - Actual Engine - Percent Torque,SPN 0 - Unknown,SPN 524030 - Manufacturer Assignable SPN";
         assertEquals(expectedObd, instance.toString());
     }
 

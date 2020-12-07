@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.modules;
@@ -8,10 +8,10 @@ import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
@@ -55,18 +55,18 @@ public class DTCModule extends FunctionalModule {
         super();
     }
 
-    public RequestResult<DM1ActiveDTCsPacket> readDM1(ResultsListener listener, boolean fullString) {
+    public RequestResult<DM1ActiveDTCsPacket> readDM1(ResultsListener listener) {
         String title = " Reading the bus for published DM1 messages";
         listener.onResult(getTime() + title);
 
         Collection<DM1ActiveDTCsPacket> allPackets = getJ1939()
                 .read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS)
                 .flatMap(r -> r.left.stream())
-                .collect(Collectors.toMap(p -> p.getSourceAddress(), p -> p, (address, packet) -> address))
+                .collect(Collectors.toMap(ParsedPacket::getSourceAddress, p -> p, (address, packet) -> address))
                 .values();
 
         List<DM1ActiveDTCsPacket> packets = new ArrayList<>(allPackets);
-        packets.sort((o1, o2) -> o1.getPacket().getTimestamp().compareTo(o2.getPacket().getTimestamp()));
+        packets.sort(Comparator.comparing(o -> o.getPacket().getTimestamp()));
 
         if (packets.isEmpty()) {
             listener.onResult(getTime() + " No published DM1 messages were identified");
@@ -97,13 +97,10 @@ public class DTCModule extends FunctionalModule {
      *
      * @param listener
      *            the {@link ResultsListener} that will be given the report
-     * @param obdModules
-     *            the source address for the OBD Modules
      */
-    public <T extends ParsedPacket> RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener) {
-        final int address = GLOBAL_ADDR;
+    public RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener) {
         listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
-        Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN, address);
+        Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
 
         var results = getJ1939()
                 .requestResult("Global DM11 Request", listener, false, DM11ClearActiveDTCsPacket.class, requestPacket);
@@ -372,9 +369,6 @@ public class DTCModule extends FunctionalModule {
      *
      * @param listener
      *            the {@link ResultsListener} that will be given the report
-     * @param obdAddress
-     *            the address of the module from which the DM29 is to be
-     *            requested
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM29DtcCounts> requestDM29(ResultsListener listener) {
@@ -399,7 +393,7 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public BusResult<DM29DtcCounts> requestDM29(ResultsListener listener, int obdAddress) {
-        return getPacketDS("Desination Specific DM29 Request to " + Lookup.getAddressName(obdAddress),
+        return getPacketDS("Destination Specific DM29 Request to " + Lookup.getAddressName(obdAddress),
                 DM29DtcCounts.PGN,
                 DM29DtcCounts.class,
                 listener,
@@ -507,7 +501,7 @@ public class DTCModule extends FunctionalModule {
                 .requestRaw(DM6PendingEmissionDTCPacket.class,
                         request)
                 .collect(Collectors.toList()));
-        listener.onResult(result.getPackets().stream().map(getPacketMapperFunction()).collect(Collectors.toList()));
+        listener.onResult(result.getPackets().stream().map(ParsedPacket::toString).collect(Collectors.toList()));
 
         return result;
     }

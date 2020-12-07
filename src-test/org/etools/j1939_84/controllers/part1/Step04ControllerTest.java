@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -25,7 +25,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -36,10 +35,8 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.OBDTestsModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -59,7 +56,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  * The unit test for {@link Step04Controller}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 @TestDoc(value = @TestItem(verifies = "Part 1 Step 4", description = "DM24: SPN support"))
@@ -253,11 +249,6 @@ public class Step04ControllerTest extends AbstractControllerTest {
         when(obdTestsModule.requestDM24(any(), eq(1)))
                 .thenReturn(new BusResult<>(true, packet4));
 
-        List<SupportedSPN> expectedSPNs = new ArrayList<>();
-        SupportedSPN supportedSpn = new SupportedSPN(new int[] { 0x00, 0x00, 0x00, 0x00 });
-        SupportedSPN supportedSpn2 = new SupportedSPN(new int[] { 0xFE, 0xFE, 0xFE, 0xFE });
-        expectedSPNs.add(supportedSpn);
-        expectedSPNs.add(supportedSpn2);
         when(dataRepository.getObdModules()).thenReturn(obdInfoList);
 
         VehicleInformation vehicleInfo = mock(VehicleInformation.class);
@@ -336,13 +327,8 @@ public class Step04ControllerTest extends AbstractControllerTest {
     @Test
     // Testing object without any errors.
     @TestDoc(value = @TestItem(verifies = "6.1.4.2.a,b,c"),
-             description = "Verify that step completes without errors when none of the fail criteria are met.")
+            description = "Verify that step completes without errors when none of the fail criteria are met.")
     public void testGoodObjects() {
-        List<DM24SPNSupportPacket> packets = new ArrayList<>();
-        DM24SPNSupportPacket packet1 = new DM24SPNSupportPacket(
-                Packet.create(DM24SPNSupportPacket.PGN, 0x00, 0x5C, 0x00, 0x1B, 0x01, 0x00, 0x02, 0x1B, 0x01, 0x01,
-                        0x02, 0x1B, 0x01));
-        packets.add(packet1);
 
         OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
         OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
@@ -361,158 +347,61 @@ public class Step04ControllerTest extends AbstractControllerTest {
                 0x00,
                 0x1C,
                 0x01,
-                0x00,
-                0x02,
-                0x1C,
-                0x01,
+                0x00, 0x02, 0x1C, 0x01,
                 0x01,
                 0x02,
                 0x1C,
-                0x01,
-                0x20,
-                0x02,
+                0x01, 0x20, 0x02,
                 0x1C,
-                0x02,
-                0x1B,
-                0x02,
-                0x1C,
-                0x01,
-                0x1C,
-                0x02,
-                0x1C,
-                0x01,
+                0x02, 0x1B, 0x02, 0x1C, 0x01, 0x1C, 0x02,
+                0x1C, 0x01,
                 0x1D,
-                0x02,
-                0x1C,
+                0x02, 0x1C, 0x01, 0x1E, 0x02, 0x1C,
+                0x01, 0x1F,
+                0x02, 0x1C,
                 0x01,
-                0x1E,
-                0x02,
+                0x6E, 0x00, 0x1C, 0x01,
+                0xAF, 0x00, 0x1C, 0x02,
+                0xBE, 0x00, 0x1C,
+                0x02, 0x54, 0x00, 0x1C, 0x02,
+                0x1C, 0x01,
+                0x9E, 0x00,
                 0x1C,
-                0x01,
-                0x1F,
-                0x02,
-                0x1C,
-                0x01,
-                0x6E,
-                0x00,
-                0x1C,
-                0x01,
-                0xAF,
-                0x00,
-                0x1C,
-                0x02,
-                0xBE,
-                0x00,
-                0x1C,
-                0x02,
-                0x54,
-                0x00,
-                0x1C,
-                0x02,
-                0x6C,
-                0x00,
-                0x1C,
-                0x01,
-                0x9E,
-                0x00,
-                0x1C,
-                0x02,
-                0x33,
-                0x00,
-                0x1C,
-                0x01,
-                0x5E,
-                0x00,
-                0x1C,
-                0x01,
-                0xAC,
-                0x00,
-                0x1C,
-                0x01,
-                0x69,
-                0x00,
-                0x1C,
-                0x01,
-                0x84,
-                0x00,
-                0x1C,
-                0x02,
-                0xD0,
-                0x03,
-                0x1C,
-                0x01,
-                0x5B,
-                0x00,
-                0x1C,
-                0x01,
-                0xB7,
-                0x00,
-                0x1C,
-                0x02,
-                0x66,
-                0x00,
-                0x18,
-                0x01,
-                0xAD,
-                0x00,
-                0x1C,
-                0x02,
-                0xB3,
-                0x0C,
-                0x1C,
-                0x02,
-                0x9B,
-                0x0D,
-                0x1C,
-                0x01,
-                0xCD,
-                0x16,
-                0x1C,
-                0x01,
-                0xE5,
-                0x0C,
-                0x1C,
-                0x02,
-                0x5A,
-                0x15,
-                0x1C,
-                0x02,
-                0xCB,
-                0x14,
-                0x1C,
-                0x01,
-                0x88,
-                0x0D,
-                0x1C,
-                0x02,
-                0xB9,
-                0x04,
-                0x1C,
-                0x02,
-                0xA5,
-                0x15,
+                0x02, 0x33,
+                0x00, 0x1C,
+                0x01, 0x5E, 0x00,
+                0x1C, 0x01,
+                0xAC, 0x00, 0x1C, 0x01,
+                0x69, 0x00,
+                0x1C, 0x01,
+                0x84, 0x00, 0x1C,
+                0x02, 0xD0, 0x03, 0x1C, 0x01, 0x5B,
+                0x00, 0x1C,
+                0x01, 0xB7,
+                0x00, 0x1C,
+                0x02, 0x66,
+                0x00, 0x18, 0x01,
+                0xAD, 0x00, 0x1C, 0x02, 0xB3, 0x0C,
+                0x1C, 0x02, 0x9B, 0x0D,
+                0x1C, 0x01, 0xCD, 0x16, 0x1C,
+                0x01, 0xE5, 0x0C, 0x1C, 0x02,
+                0x5A, 0x15, 0x1C, 0x02, 0xCB, 0x14, 0x1C, 0x01,
+                0x88, 0x0D, 0x1C, 0x02, 0xB9,
+                0x04, 0x1C, 0x02, 0xA5, 0x15,
                 0x1C,
                 0x01,
                 0xA4,
                 0x00,
                 0x18,
-                0x02,
-                0xE7,
+                0x02, 0xE7,
                 0x0A,
-                0x1C,
-                0x02,
+                0x1C, 0x02,
                 0x85,
-                0x05,
-                0x1C,
-                0x02,
-                0x86,
-                0x05,
-                0x1C,
-                0x02,
-                0x87,
-                0x05,
-                0x1C,
-                0x02,
+                0x05, 0x1C,
+                0x02, 0x86,
+                0x05, 0x1C,
+                0x02, 0x87, 0x05,
+                0x1C, 0x02,
                 0x88,
                 0x05,
                 0x1C,
@@ -543,8 +432,6 @@ public class Step04ControllerTest extends AbstractControllerTest {
                 0x02,
                 0x90,
                 0x0C,
-                0x18,
-                0x02,
                 0x39,
                 0x04,
                 0x1C,
@@ -646,15 +533,10 @@ public class Step04ControllerTest extends AbstractControllerTest {
                 0x1D,
                 0x01,
                 0x2B,
-                0x05,
-                0x1B,
-                0x01,
-                0x2C,
-                0x05,
-                0x1B,
-                0x01,
-                0x2D,
-                0x05,
+                0x05, 0x1B, 0x01,
+                0x2C, 0x05,
+                0x1B, 0x01,
+                0x2D, 0x05,
                 0x1B,
                 0x01,
                 0x2E,
@@ -683,158 +565,34 @@ public class Step04ControllerTest extends AbstractControllerTest {
                 0x01,
                 0x90,
                 0x12,
-                0x1B,
-                0x01,
-                0x9E,
-                0x12,
-                0x1F,
+                0x1B, 0x01, 0x9E, 0x12, 0x1F, 0x02, 0xC7, 0x14, 0x1F, 0x01, 0x8B,
                 0x02,
-                0xC7,
-                0x14,
-                0x1F,
-                0x01,
-                0x8B,
-                0x02,
-                0x1B,
-                0x01,
-                0x8C,
-                0x02,
-                0x1B,
-                0x01,
-                0x8D,
-                0x02,
-                0x1B,
-                0x01,
+                0x1B, 0x01, 0x8C, 0x02,
+                0x1B, 0x1B, 0x01,
                 0x8E,
                 0x02,
-                0x1B,
-                0x01,
-                0x8F,
-                0x02,
-                0x1B,
-                0x01,
-                0x90,
-                0x02,
-                0x1B,
-                0x01,
-                0x8F,
-                0x0D,
-                0x1B,
-                0x01,
-                0xE4,
-                0x0D,
-                0x1B,
-                0x01,
-                0x03,
-                0x09,
+                0x1B, 0x01, 0x01, 0x90,
+                0x02, 0x1B,
+                0x01, 0x8F, 0x0D, 0x1B,
+                0x01, 0xE4, 0x0D,
+                0x1B, 0x01, 0x03, 0x09,
                 0x1F,
-                0x01,
-                0x0A,
-                0x10,
-                0x1D,
-                0x01,
-                0xC0,
-                0x04,
-                0x1D,
-                0x01,
-                0xC4,
-                0x04,
-                0x1D,
-                0x01,
-                0x1F,
-                0x10,
-                0x1D,
-                0x01,
-                0x22,
-                0x10,
-                0x1D,
-                0x01,
-                0xAB,
-                0x00,
-                0x1D,
-                0x02,
-                0x9D,
-                0x00,
-                0x1F,
-                0x02,
-                0x3F,
-                0x0A,
-                0x1D,
-                0x01,
-                0xF7,
-                0x00,
-                0x1D,
-                0x04,
-                0xEB,
-                0x00,
-                0x1D,
-                0x04,
-                0xBD,
-                0x04,
-                0x1D,
-                0x01,
-                0xE7,
-                0x0C,
-                0x1D,
-                0x01,
-                0xE8,
-                0x0C,
-                0x1D,
-                0x01,
-                0x4E,
-                0x15,
-                0x1D,
-                0x04,
-                0x4C,
-                0x02,
-                0x1D,
-                0x11,
-                0xEF,
-                0x0B,
-                0x1F,
-                0x01,
-                0x57,
-                0x15,
-                0x1D,
-                0x01,
-                0xF8,
-                0x00,
-                0x1D,
-                0x04,
-                0x00,
-                0x00,
-                0x1F,
-                0x00,
-                0x00,
-                0x00,
-                0x1F,
-                0x00,
-                0x00,
-                0x00,
-                0x1F,
-                0x00,
-                0x00,
-                0x00,
-                0x1F,
-                0x00,
-                0x00,
-                0x00,
-                0x1F,
-                0x00,
-                0x00,
-                0x00,
-                0x1F,
-                0x00,
-                0x00,
-                0x00,
-                0x1F,
-                0x00,
-                0x00,
-                0x00,
-                0x1F,
-                0x00,
-                0x00,
-                0x00,
+                0x01, 0x0A, 0x10, 0x1D, 0x01, 0xC0, 0x04, 0x1D, 0x01,
+                0xC4, 0x04, 0x1D, 0x01, 0x1F, 0x10, 0x1D,
+               0x01, 0x22,
+                0x10, 0x1D, 0x01,
+                0xAB, 0x00, 0x1D, 0x02,
+                0x9D, 0x00, 0x1F, 0x02,
+                0x3F, 0x0A, 0x1D, 0x01,
+                0xF7, 0x00, 0x1D, 0x04, 0xEB, 0x00, 0x1D, 0x04,
+                0xBD, 0x04, 0x1D, 0x01, 0xE7, 0x0C, 0x1D, 0x01, 0xE8, 0x0C, 0x1D, 0x01, 0x4E, 0x15, 0x1D, 0x04,
+                0x4C, 0x02, 0x1D, 0x11, 0xEF, 0x0B, 0x1F,
+                0x01, 0x57, 0x15, 0x1D, 0x01, 0xF8, 0x00, 0x1D,
+                0x04, 0x00, 0x00,
+                0x1F, 0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00, 0x1F, 0x00, 0x00, 0x00,
+                0x1F, 0x00, 0x00, 0x00,
+                0x1F, 0x00, 0x00, 0x00, 0x1F, 0x00, 0x00,
+                0x00, 0x1F, 0x00, 0x00, 0x00,
                 0x1F,
                 0x00));
         packets.add(packet4);
@@ -881,187 +639,189 @@ public class Step04ControllerTest extends AbstractControllerTest {
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.4.2.b");
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.4.2.c");
 
-        StringBuilder expectedResultsPacket1 = new StringBuilder(
-                "DM24 from Engine #1 (0): (Supporting Scaled Test Results) [" + NL);
-        expectedResultsPacket1.append("  SPN 92 - Engine Percent Load At Current Speed" + NL)
-                .append("  SPN 512 - Driver's Demand Engine - Percent Torque" + NL)
-                .append("  SPN 513 - Actual Engine - Percent Torque" + NL)
-                .append("](Supports Data Stream Results) [" + NL)
-                .append("](Supports Freeze Frame Results) [" + NL)
-                .append("]");
-        verify(reportFileModule).onResult(expectedResultsPacket1.toString());
+        String expectedResultsPacket1 = "";
+        expectedResultsPacket1 += "DM24 from Engine #1 (0): " + NL;
+        expectedResultsPacket1 += "(Supporting Scaled Test Results) [" + NL;
+        expectedResultsPacket1 += "  SPN 92 - Engine Percent Load At Current Speed" + NL;
+        expectedResultsPacket1 += "  SPN 512 - Driver's Demand Engine - Percent Torque" + NL;
+        expectedResultsPacket1 += "  SPN 513 - Actual Engine - Percent Torque" + NL;
+        expectedResultsPacket1 += "]" + NL;
+        expectedResultsPacket1 += "(Supports Data Stream Results) [" + NL;
+        expectedResultsPacket1 += "]" + NL;
+        expectedResultsPacket1 += "(Supports Freeze Frame Results) [" + NL;
+        expectedResultsPacket1 += "]";
+        verify(reportFileModule).onResult(expectedResultsPacket1);
 
         // Create the expected report with title and the supporting scaled
         // testing results
-        StringBuilder expectedResultPacket4 = new StringBuilder(
-                "DM24 from Engine #2 (1): (Supporting Scaled Test Results) [" + NL);
-        expectedResultPacket4.append("  SPN 102 - Engine Intake Manifold #1 Pressure" + NL)
-                .append("  SPN 164 - Engine Fuel Injection Control Pressure" + NL)
-                .append("  SPN 3216 - Aftertreatment 1 SCR Intake NOx 1" + NL)
-                .append("  SPN 1173 - Engine Turbocharger 2 Compressor Intake Temperature" + NL)
-                .append("  SPN 4257 - Engine Fuel 1 Injector Group 3" + NL)
-                .append("  SPN 1323 - Engine Misfire Cylinder #1" + NL)
-                .append("  SPN 1324 - Engine Misfire Cylinder #2" + NL)
-                .append("  SPN 1325 - Engine Misfire Cylinder #3" + NL)
-                .append("  SPN 1326 - Engine Misfire Cylinder #4" + NL)
-                .append("  SPN 1327 - Engine Misfire Cylinder #5" + NL)
-                .append("  SPN 1328 - Engine Misfire Cylinder #6" + NL)
-                .append("  SPN 2630 - Engine Charge Air Cooler 1 Outlet Temperature" + NL)
-                .append("  SPN 2659 - Engine Exhaust Gas Recirculation 1 Mass Flow Rate" + NL)
-                .append("  SPN 1322 - Engine Misfire for Multiple Cylinders" + NL)
-                .append("  SPN 4752 - Engine Exhaust Gas Recirculation 1 Cooler Efficiency" + NL)
-                .append("  SPN 651 - Engine Fuel 1 Injector Cylinder 1" + NL)
-                .append("  SPN 652 - Engine Fuel 1 Injector Cylinder 2" + NL)
-                .append("  SPN 653 - Engine Fuel 1 Injector Cylinder 3" + NL)
-                .append("  SPN 654 - Engine Fuel 1 Injector Cylinder 4" + NL)
-                .append("  SPN 655 - Engine Fuel 1 Injector Cylinder 5" + NL)
-                .append("  SPN 656 - Engine Fuel 1 Injector Cylinder 6" + NL)
-                .append("  SPN 3471 - Aftertreatment 1 Fuel Pressure Control Actuator" + NL)
-                .append("  SPN 3556 - Aftertreatment 1 Hydrocarbon Doser 1" + NL)
-                // Add supports data stream expected results
-                .append("](Supports Data Stream Results) [" + NL)
-                .append("  SPN 92 - Engine Percent Load At Current Speed" + NL)
-                .append("  SPN 512 - Driver's Demand Engine - Percent Torque" + NL)
-                .append("  SPN 513 - Actual Engine - Percent Torque" + NL)
-                .append("  SPN 544 - Engine Reference Torque" + NL)
-                .append("  SPN 539 - Engine Percent Torque At Idle, Point 1" + NL)
-                .append("  SPN 540 - Engine Percent Torque At Point 2" + NL)
-                .append("  SPN 541 - Engine Percent Torque At Point 3" + NL)
-                .append("  SPN 542 - Engine Percent Torque At Point 4" + NL)
-                .append("  SPN 543 - Engine Percent Torque At Point 5" + NL)
-                .append("  SPN 110 - Engine Coolant Temperature" + NL)
-                .append("  SPN 175 - Engine Oil Temperature 1" + NL)
-                .append("  SPN 190 - Engine Speed" + NL)
-                .append("  SPN 84 - Wheel-Based Vehicle Speed" + NL)
-                .append("  SPN 108 - Barometric Pressure" + NL)
-                .append("  SPN 158 - Key Switch Battery Potential" + NL)
-                .append("  SPN 51 - Engine Throttle Valve 1 Position 1" + NL)
-                .append("  SPN 94 - Engine Fuel Delivery Pressure" + NL)
-                .append("  SPN 172 - Engine Intake 1 Air Temperature" + NL)
-                .append("  SPN 105 - Engine Intake Manifold 1 Temperature" + NL)
-                .append("  SPN 132 - Engine Intake Air Mass Flow Rate" + NL)
-                .append("  SPN 976 - PTO Governor State" + NL)
-                .append("  SPN 91 - Accelerator Pedal Position 1" + NL)
-                .append("  SPN 183 - Engine Fuel Rate" + NL)
-                .append("  SPN 102 - Engine Intake Manifold #1 Pressure" + NL)
-                .append("  SPN 173 - Engine Exhaust Temperature" + NL)
-                .append("  SPN 3251 - Aftertreatment 1 Diesel Particulate Filter Differential Pressure" + NL)
-                .append("  SPN 3483 - Aftertreatment 1 Regeneration Status" + NL)
-                .append("  SPN 5837 - Fuel Type" + NL)
-                .append("  SPN 3301 - Time Since Engine Start" + NL)
-                .append("  SPN 5466 - Aftertreatment 1 Diesel Particulate Filter Soot Load Regeneration Threshold" + NL)
-                .append("  SPN 5323 - Engine Fuel Control Mode" + NL)
-                .append("  SPN 3464 - Engine Throttle Actuator 1 Control Command" + NL)
-                .append("  SPN 1209 - Engine Exhaust Pressure 1" + NL)
-                .append("  SPN 5541 - Engine Turbocharger 1 Turbine Outlet Pressure" + NL)
-                .append("  SPN 164 - Engine Fuel Injection Control Pressure" + NL)
-                .append("  SPN 2791 - Engine Exhaust Gas Recirculation 1 Valve 1 Control 1" + NL)
-                .append("  SPN 1413 - Engine Cylinder 1 Ignition Timing" + NL)
-                .append("  SPN 1414 - Engine Cylinder 2 Ignition Timing" + NL)
-                .append("  SPN 1415 - Engine Cylinder 3 Ignition Timing" + NL)
-                .append("  SPN 1416 - Engine Cylinder 4 Ignition Timing" + NL)
-                .append("  SPN 1417 - Engine Cylinder 5 Ignition Timing" + NL)
-                .append("  SPN 1418 - Engine Cylinder 6 Ignition Timing" + NL)
-                .append("  SPN 3563 - Engine Intake Manifold #1 Absolute Pressure" + NL)
-                .append("  SPN 27 - Engine Exhaust Gas Recirculation 1 Valve Position" + NL)
-                .append("  SPN 3242 - Aftertreatment 1 Diesel Particulate Filter Intake Temperature" + NL)
-                .append("  SPN 3246 - Aftertreatment 1 Diesel Particulate Filter Outlet Temperature" + NL)
-                .append("  SPN 3216 - Aftertreatment 1 SCR Intake NOx 1" + NL)
-                .append("  SPN 1081 - Engine Wait to Start Lamp" + NL)
-                .append("  SPN 1189 - Engine Turbocharger Wastegate Actuator 2 Position" + NL)
-                .append("  SPN 5314 - Commanded Engine Fuel Injection Control Pressure" + NL)
-                .append("  SPN 3226 - Aftertreatment 1 Outlet NOx 1" + NL)
-                .append("  SPN 1761 - Aftertreatment 1 Diesel Exhaust Fluid Tank Volume" + NL)
-                .append("  SPN 1173 - Engine Turbocharger 2 Compressor Intake Temperature" + NL)
-                .append("  SPN 237 - Vehicle Identification Number" + NL)
-                .append("  SPN 899 - Engine Torque Mode" + NL)
-                .append("  SPN 3069 - Distance Travelled While MIL is Activated" + NL)
-                .append("  SPN 3294 - Distance Since Diagnostic Trouble Codes Cleared" + NL)
-                .append("  SPN 3295 - Minutes Run by Engine While MIL is Activated" + NL)
-                .append("  SPN 3296 - Time Since Diagnostic Trouble Codes Cleared" + NL)
-                .append("  SPN 3302 - Number of Warm-Ups Since Diagnostic Trouble Codes Cleared" + NL)
-                .append("  SPN 3719 - Aftertreatment 1 Diesel Particulate Filter Soot Load Percent" + NL)
-                .append("  SPN 4106 - MIL-On DTCs" + NL)
-                .append("  SPN 1216 - Occurrence Count" + NL)
-                .append("  SPN 1220 - OBD Compliance" + NL)
-                .append("  SPN 4127 - NOx NTE Control Area Status" + NL)
-                .append("  SPN 4130 - PM NTE Control Area Status" + NL)
-                .append("  SPN 171 - Ambient Air Temperature" + NL)
-                .append("  SPN 2623 - Accelerator Pedal #1 Channel 2" + NL)
-                .append("  SPN 247 - Engine Total Hours of Operation" + NL)
-                .append("  SPN 235 - Engine Total Idle Hours" + NL)
-                .append("  SPN 1213 - Malfunction Indicator Lamp" + NL)
-                .append("  SPN 3303 - Continuously Monitored Systems Enabled/Completed Status" + NL)
-                .append("  SPN 3304 - Non-Continuously Monitored Systems Enabled Status" + NL)
-                .append("  SPN 5454 - Aftertreatment 1 Diesel Particulate Filter Average Time Between Active Regenerations"
-                        + NL)
-                .append("  SPN 588 - Serial Number" + NL)
-                .append("  SPN 5463 - Aftertreatment SCR Operator Inducement Active Traveled Distance" + NL)
-                .append("  SPN 248 - Total Power Takeoff Hours" + NL)
-                // Add the freeze frame expected results
-                .append("](Supports Freeze Frame Results) [" + NL)
-                .append("  SPN 92 - Engine Percent Load At Current Speed" + NL)
-                .append("  SPN 512 - Driver's Demand Engine - Percent Torque" + NL)
-                .append("  SPN 513 - Actual Engine - Percent Torque" + NL)
-                .append("  SPN 544 - Engine Reference Torque" + NL)
-                .append("  SPN 539 - Engine Percent Torque At Idle, Point 1" + NL)
-                .append("  SPN 540 - Engine Percent Torque At Point 2" + NL)
-                .append("  SPN 541 - Engine Percent Torque At Point 3" + NL)
-                .append("  SPN 542 - Engine Percent Torque At Point 4" + NL)
-                .append("  SPN 543 - Engine Percent Torque At Point 5" + NL)
-                .append("  SPN 110 - Engine Coolant Temperature" + NL)
-                .append("  SPN 175 - Engine Oil Temperature 1" + NL)
-                .append("  SPN 190 - Engine Speed" + NL)
-                .append("  SPN 84 - Wheel-Based Vehicle Speed" + NL)
-                .append("  SPN 108 - Barometric Pressure" + NL)
-                .append("  SPN 158 - Key Switch Battery Potential" + NL)
-                .append("  SPN 51 - Engine Throttle Valve 1 Position 1" + NL)
-                .append("  SPN 94 - Engine Fuel Delivery Pressure" + NL)
-                .append("  SPN 172 - Engine Intake 1 Air Temperature" + NL)
-                .append("  SPN 105 - Engine Intake Manifold 1 Temperature" + NL)
-                .append("  SPN 132 - Engine Intake Air Mass Flow Rate" + NL)
-                .append("  SPN 976 - PTO Governor State" + NL)
-                .append("  SPN 91 - Accelerator Pedal Position 1" + NL)
-                .append("  SPN 183 - Engine Fuel Rate" + NL)
-                .append("  SPN 102 - Engine Intake Manifold #1 Pressure" + NL)
-                .append("  SPN 173 - Engine Exhaust Temperature" + NL)
-                .append("  SPN 3251 - Aftertreatment 1 Diesel Particulate Filter Differential Pressure" + NL)
-                .append("  SPN 3483 - Aftertreatment 1 Regeneration Status" + NL)
-                .append("  SPN 5837 - Fuel Type" + NL)
-                .append("  SPN 3301 - Time Since Engine Start" + NL)
-                .append("  SPN 5466 - Aftertreatment 1 Diesel Particulate Filter Soot Load Regeneration Threshold" + NL)
-                .append("  SPN 5323 - Engine Fuel Control Mode" + NL)
-                .append("  SPN 3464 - Engine Throttle Actuator 1 Control Command" + NL)
-                .append("  SPN 1209 - Engine Exhaust Pressure 1" + NL)
-                .append("  SPN 5541 - Engine Turbocharger 1 Turbine Outlet Pressure" + NL)
-                .append("  SPN 164 - Engine Fuel Injection Control Pressure" + NL)
-                .append("  SPN 2791 - Engine Exhaust Gas Recirculation 1 Valve 1 Control 1" + NL)
-                .append("  SPN 1413 - Engine Cylinder 1 Ignition Timing" + NL)
-                .append("  SPN 1414 - Engine Cylinder 2 Ignition Timing" + NL)
-                .append("  SPN 1415 - Engine Cylinder 3 Ignition Timing" + NL)
-                .append("  SPN 1416 - Engine Cylinder 4 Ignition Timing" + NL)
-                .append("  SPN 1417 - Engine Cylinder 5 Ignition Timing" + NL)
-                .append("  SPN 1418 - Engine Cylinder 6 Ignition Timing" + NL)
-                .append("  SPN 3563 - Engine Intake Manifold #1 Absolute Pressure" + NL)
-                .append("  SPN 27 - Engine Exhaust Gas Recirculation 1 Valve Position" + NL)
-                .append("  SPN 3242 - Aftertreatment 1 Diesel Particulate Filter Intake Temperature" + NL)
-                .append("  SPN 3246 - Aftertreatment 1 Diesel Particulate Filter Outlet Temperature" + NL)
-                .append("  SPN 3216 - Aftertreatment 1 SCR Intake NOx 1" + NL)
-                .append("  SPN 1081 - Engine Wait to Start Lamp" + NL)
-                .append("  SPN 1189 - Engine Turbocharger Wastegate Actuator 2 Position" + NL)
-                .append("  SPN 5314 - Commanded Engine Fuel Injection Control Pressure" + NL)
-                .append("  SPN 3609 - Aftertreatment 1 Diesel Particulate Filter Intake Pressure" + NL)
-                .append("  SPN 3480 - Aftertreatment 1 Fuel Pressure 1" + NL)
-                .append("  SPN 3226 - Aftertreatment 1 Outlet NOx 1" + NL)
-                .append("  SPN 1761 - Aftertreatment 1 Diesel Exhaust Fluid Tank Volume" + NL)
-                .append("  SPN 3482 - Aftertreatment 1 Fuel Enable Actuator" + NL)
-                .append("  SPN 3490 - Aftertreatment 1 Purge Air Actuator" + NL)
-                .append("  SPN 4360 - Aftertreatment 1 SCR Intake Temperature" + NL)
-                .append("  SPN 4363 - Aftertreatment 1 SCR Outlet Temperature" + NL)
-                .append("  SPN 3031 - Aftertreatment 1 Diesel Exhaust Fluid Tank Temperature 1" + NL)
-                .append("  SPN 1173 - Engine Turbocharger 2 Compressor Intake Temperature" + NL)
-                .append("]");
-        verify(reportFileModule).onResult(expectedResultPacket4.toString());
+        String expectedResultPacket4 = "DM24 from Engine #2 (1): " + NL;
+        expectedResultPacket4 += "(Supporting Scaled Test Results) [" + NL;
+        expectedResultPacket4 += "  SPN 102 - Engine Intake Manifold #1 Pressure" + NL;
+        expectedResultPacket4 += "  SPN 164 - Engine Fuel Injection Control Pressure" + NL;
+        expectedResultPacket4 += "  SPN 3216 - Aftertreatment 1 SCR Intake NOx 1" + NL;
+        expectedResultPacket4 += "  SPN 1173 - Engine Turbocharger 2 Compressor Intake Temperature" + NL;
+        expectedResultPacket4 += "  SPN 4257 - Engine Fuel 1 Injector Group 3" + NL;
+        expectedResultPacket4 += "  SPN 1323 - Engine Misfire Cylinder #1" + NL;
+        expectedResultPacket4 += "  SPN 1324 - Engine Misfire Cylinder #2" + NL;
+        expectedResultPacket4 += "  SPN 1325 - Engine Misfire Cylinder #3" + NL;
+        expectedResultPacket4 += "  SPN 1326 - Engine Misfire Cylinder #4" + NL;
+        expectedResultPacket4 += "  SPN 1327 - Engine Misfire Cylinder #5" + NL;
+        expectedResultPacket4 += "  SPN 1328 - Engine Misfire Cylinder #6" + NL;
+        expectedResultPacket4 += "  SPN 2630 - Engine Charge Air Cooler 1 Outlet Temperature" + NL;
+        expectedResultPacket4 += "  SPN 2659 - Engine Exhaust Gas Recirculation 1 Mass Flow Rate" + NL;
+        expectedResultPacket4 += "  SPN 1322 - Engine Misfire for Multiple Cylinders" + NL;
+        expectedResultPacket4 += "  SPN 4752 - Engine Exhaust Gas Recirculation 1 Cooler Efficiency" + NL;
+        expectedResultPacket4 += "  SPN 651 - Engine Fuel 1 Injector Cylinder 1" + NL;
+        expectedResultPacket4 += "  SPN 652 - Engine Fuel 1 Injector Cylinder 2" + NL;
+        expectedResultPacket4 += "  SPN 653 - Engine Fuel 1 Injector Cylinder 3" + NL;
+        expectedResultPacket4 += "  SPN 654 - Engine Fuel 1 Injector Cylinder 4" + NL;
+        expectedResultPacket4 += "  SPN 655 - Engine Fuel 1 Injector Cylinder 5" + NL;
+        expectedResultPacket4 += "  SPN 656 - Engine Fuel 1 Injector Cylinder 6" + NL;
+        expectedResultPacket4 += "  SPN 3471 - Aftertreatment 1 Fuel Pressure Control Actuator" + NL;
+        expectedResultPacket4 += "  SPN 3556 - Aftertreatment 1 Hydrocarbon Doser 1" + NL;
+        expectedResultPacket4 += "]" + NL;
+        expectedResultPacket4 += "(Supports Data Stream Results) [" + NL;
+        expectedResultPacket4 += "  SPN 92 - Engine Percent Load At Current Speed" + NL;
+        expectedResultPacket4 += "  SPN 512 - Driver's Demand Engine - Percent Torque" + NL;
+        expectedResultPacket4 += "  SPN 513 - Actual Engine - Percent Torque" + NL;
+        expectedResultPacket4 += "  SPN 544 - Engine Reference Torque" + NL;
+        expectedResultPacket4 += "  SPN 539 - Engine Percent Torque At Idle, Point 1" + NL;
+        expectedResultPacket4 += "  SPN 540 - Engine Percent Torque At Point 2" + NL;
+        expectedResultPacket4 += "  SPN 541 - Engine Percent Torque At Point 3" + NL;
+        expectedResultPacket4 += "  SPN 542 - Engine Percent Torque At Point 4" + NL;
+        expectedResultPacket4 += "  SPN 543 - Engine Percent Torque At Point 5" + NL;
+        expectedResultPacket4 += "  SPN 110 - Engine Coolant Temperature" + NL;
+        expectedResultPacket4 += "  SPN 175 - Engine Oil Temperature 1" + NL;
+        expectedResultPacket4 += "  SPN 190 - Engine Speed" + NL;
+        expectedResultPacket4 += "  SPN 84 - Wheel-Based Vehicle Speed" + NL;
+        expectedResultPacket4 += "  SPN 108 - Barometric Pressure" + NL;
+        expectedResultPacket4 += "  SPN 158 - Key Switch Battery Potential" + NL;
+        expectedResultPacket4 += "  SPN 51 - Engine Throttle Valve 1 Position 1" + NL;
+        expectedResultPacket4 += "  SPN 94 - Engine Fuel Delivery Pressure" + NL;
+        expectedResultPacket4 += "  SPN 172 - Engine Intake 1 Air Temperature" + NL;
+        expectedResultPacket4 += "  SPN 105 - Engine Intake Manifold 1 Temperature" + NL;
+        expectedResultPacket4 += "  SPN 132 - Engine Intake Air Mass Flow Rate" + NL;
+        expectedResultPacket4 += "  SPN 976 - PTO Governor State" + NL;
+        expectedResultPacket4 += "  SPN 91 - Accelerator Pedal Position 1" + NL;
+        expectedResultPacket4 += "  SPN 183 - Engine Fuel Rate" + NL;
+        expectedResultPacket4 += "  SPN 102 - Engine Intake Manifold #1 Pressure" + NL;
+        expectedResultPacket4 += "  SPN 173 - Engine Exhaust Temperature" + NL;
+        expectedResultPacket4 += "  SPN 3251 - Aftertreatment 1 Diesel Particulate Filter Differential Pressure" + NL;
+        expectedResultPacket4 += "  SPN 3483 - Aftertreatment 1 Regeneration Status" + NL;
+        expectedResultPacket4 += "  SPN 5837 - Fuel Type" + NL;
+        expectedResultPacket4 += "  SPN 3301 - Time Since Engine Start" + NL;
+        expectedResultPacket4 += "  SPN 5466 - Aftertreatment 1 Diesel Particulate Filter Soot Load Regeneration Threshold" + NL;
+        expectedResultPacket4 += "  SPN 5323 - Engine Fuel Control Mode" + NL;
+        expectedResultPacket4 += "  SPN 3464 - Engine Throttle Actuator 1 Control Command" + NL;
+        expectedResultPacket4 += "  SPN 1209 - Engine Exhaust Pressure 1" + NL;
+        expectedResultPacket4 += "  SPN 5541 - Engine Turbocharger 1 Turbine Outlet Pressure" + NL;
+        expectedResultPacket4 += "  SPN 164 - Engine Fuel Injection Control Pressure" + NL;
+        expectedResultPacket4 += "  SPN 2791 - Engine Exhaust Gas Recirculation 1 Valve 1 Control 1" + NL;
+        expectedResultPacket4 += "  SPN 1413 - Engine Cylinder 1 Ignition Timing" + NL;
+        expectedResultPacket4 += "  SPN 1414 - Engine Cylinder 2 Ignition Timing" + NL;
+        expectedResultPacket4 += "  SPN 1415 - Engine Cylinder 3 Ignition Timing" + NL;
+        expectedResultPacket4 += "  SPN 1416 - Engine Cylinder 4 Ignition Timing" + NL;
+        expectedResultPacket4 += "  SPN 1417 - Engine Cylinder 5 Ignition Timing" + NL;
+        expectedResultPacket4 += "  SPN 1418 - Engine Cylinder 6 Ignition Timing" + NL;
+        expectedResultPacket4 += "  SPN 3563 - Engine Intake Manifold #1 Absolute Pressure" + NL;
+        expectedResultPacket4 += "  SPN 27 - Engine Exhaust Gas Recirculation 1 Valve Position" + NL;
+        expectedResultPacket4 += "  SPN 3242 - Aftertreatment 1 Diesel Particulate Filter Intake Temperature" + NL;
+        expectedResultPacket4 += "  SPN 3246 - Aftertreatment 1 Diesel Particulate Filter Outlet Temperature" + NL;
+        expectedResultPacket4 += "  SPN 3216 - Aftertreatment 1 SCR Intake NOx 1" + NL;
+        expectedResultPacket4 += "  SPN 1081 - Engine Wait to Start Lamp" + NL;
+        expectedResultPacket4 += "  SPN 1189 - Engine Turbocharger Wastegate Actuator 2 Position" + NL;
+        expectedResultPacket4 += "  SPN 5314 - Commanded Engine Fuel Injection Control Pressure" + NL;
+        expectedResultPacket4 += "  SPN 3226 - Aftertreatment 1 Outlet NOx 1" + NL;
+        expectedResultPacket4 += "  SPN 1761 - Aftertreatment 1 Diesel Exhaust Fluid Tank Volume" + NL;
+        expectedResultPacket4 += "  SPN 1173 - Engine Turbocharger 2 Compressor Intake Temperature" + NL;
+        expectedResultPacket4 += "  SPN 237 - Vehicle Identification Number" + NL;
+        expectedResultPacket4 += "  SPN 899 - Engine Torque Mode" + NL;
+        expectedResultPacket4 += "  SPN 3069 - Distance Travelled While MIL is Activated" + NL;
+        expectedResultPacket4 += "  SPN 3294 - Distance Since Diagnostic Trouble Codes Cleared" + NL;
+        expectedResultPacket4 += "  SPN 3295 - Minutes Run by Engine While MIL is Activated" + NL;
+        expectedResultPacket4 += "  SPN 3296 - Time Since Diagnostic Trouble Codes Cleared" + NL;
+        expectedResultPacket4 += "  SPN 3302 - Number of Warm-Ups Since Diagnostic Trouble Codes Cleared" + NL;
+        expectedResultPacket4 += "  SPN 3719 - Aftertreatment 1 Diesel Particulate Filter Soot Load Percent" + NL;
+        expectedResultPacket4 += "  SPN 4106 - MIL-On DTCs" + NL;
+        expectedResultPacket4 += "  SPN 1216 - Occurrence Count" + NL;
+        expectedResultPacket4 += "  SPN 1220 - OBD Compliance" + NL;
+        expectedResultPacket4 += "  SPN 4127 - NOx NTE Control Area Status" + NL;
+        expectedResultPacket4 += "  SPN 4130 - PM NTE Control Area Status" + NL;
+        expectedResultPacket4 += "  SPN 171 - Ambient Air Temperature" + NL;
+        expectedResultPacket4 += "  SPN 2623 - Accelerator Pedal #1 Channel 2" + NL;
+        expectedResultPacket4 += "  SPN 247 - Engine Total Hours of Operation" + NL;
+        expectedResultPacket4 += "  SPN 235 - Engine Total Idle Hours" + NL;
+        expectedResultPacket4 += "  SPN 1213 - Malfunction Indicator Lamp" + NL;
+        expectedResultPacket4 += "  SPN 3303 - Continuously Monitored Systems Enabled/Completed Status" + NL;
+        expectedResultPacket4 += "  SPN 3304 - Non-Continuously Monitored Systems Enabled Status" + NL;
+        expectedResultPacket4 += "  SPN 5454 - Aftertreatment 1 Diesel Particulate Filter Average Time Between Active Regenerations" + NL;
+        expectedResultPacket4 += "  SPN 588 - Serial Number" + NL;
+        expectedResultPacket4 += "  SPN 5463 - Aftertreatment SCR Operator Inducement Active Traveled Distance" + NL;
+        expectedResultPacket4 += "  SPN 248 - Total Power Takeoff Hours" + NL;
+        expectedResultPacket4 += "]" + NL;
+        expectedResultPacket4 += "(Supports Freeze Frame Results) [" + NL;
+        expectedResultPacket4 += "  SPN 92 - Engine Percent Load At Current Speed" + NL;
+        expectedResultPacket4 += "  SPN 512 - Driver's Demand Engine - Percent Torque" + NL;
+        expectedResultPacket4 += "  SPN 513 - Actual Engine - Percent Torque" + NL;
+        expectedResultPacket4 += "  SPN 544 - Engine Reference Torque" + NL;
+        expectedResultPacket4 += "  SPN 539 - Engine Percent Torque At Idle, Point 1" + NL;
+        expectedResultPacket4 += "  SPN 540 - Engine Percent Torque At Point 2" + NL;
+        expectedResultPacket4 += "  SPN 541 - Engine Percent Torque At Point 3" + NL;
+        expectedResultPacket4 += "  SPN 542 - Engine Percent Torque At Point 4" + NL;
+        expectedResultPacket4 += "  SPN 543 - Engine Percent Torque At Point 5" + NL;
+        expectedResultPacket4 += "  SPN 110 - Engine Coolant Temperature" + NL;
+        expectedResultPacket4 += "  SPN 175 - Engine Oil Temperature 1" + NL;
+        expectedResultPacket4 += "  SPN 190 - Engine Speed" + NL;
+        expectedResultPacket4 += "  SPN 84 - Wheel-Based Vehicle Speed" + NL;
+        expectedResultPacket4 += "  SPN 108 - Barometric Pressure" + NL;
+        expectedResultPacket4 += "  SPN 158 - Key Switch Battery Potential" + NL;
+        expectedResultPacket4 += "  SPN 51 - Engine Throttle Valve 1 Position 1" + NL;
+        expectedResultPacket4 += "  SPN 94 - Engine Fuel Delivery Pressure" + NL;
+        expectedResultPacket4 += "  SPN 172 - Engine Intake 1 Air Temperature" + NL;
+        expectedResultPacket4 += "  SPN 105 - Engine Intake Manifold 1 Temperature" + NL;
+        expectedResultPacket4 += "  SPN 132 - Engine Intake Air Mass Flow Rate" + NL;
+        expectedResultPacket4 += "  SPN 976 - PTO Governor State" + NL;
+        expectedResultPacket4 += "  SPN 91 - Accelerator Pedal Position 1" + NL;
+        expectedResultPacket4 += "  SPN 183 - Engine Fuel Rate" + NL;
+        expectedResultPacket4 += "  SPN 102 - Engine Intake Manifold #1 Pressure" + NL;
+        expectedResultPacket4 += "  SPN 173 - Engine Exhaust Temperature" + NL;
+        expectedResultPacket4 += "  SPN 3251 - Aftertreatment 1 Diesel Particulate Filter Differential Pressure" + NL;
+        expectedResultPacket4 += "  SPN 3483 - Aftertreatment 1 Regeneration Status" + NL;
+        expectedResultPacket4 += "  SPN 5837 - Fuel Type" + NL;
+        expectedResultPacket4 += "  SPN 3301 - Time Since Engine Start" + NL;
+        expectedResultPacket4 += "  SPN 5466 - Aftertreatment 1 Diesel Particulate Filter Soot Load Regeneration Threshold" + NL;
+        expectedResultPacket4 += "  SPN 5323 - Engine Fuel Control Mode" + NL;
+        expectedResultPacket4 += "  SPN 3464 - Engine Throttle Actuator 1 Control Command" + NL;
+        expectedResultPacket4 += "  SPN 1209 - Engine Exhaust Pressure 1" + NL;
+        expectedResultPacket4 += "  SPN 5541 - Engine Turbocharger 1 Turbine Outlet Pressure" + NL;
+        expectedResultPacket4 += "  SPN 164 - Engine Fuel Injection Control Pressure" + NL;
+        expectedResultPacket4 += "  SPN 2791 - Engine Exhaust Gas Recirculation 1 Valve 1 Control 1" + NL;
+        expectedResultPacket4 += "  SPN 1413 - Engine Cylinder 1 Ignition Timing" + NL;
+        expectedResultPacket4 += "  SPN 1414 - Engine Cylinder 2 Ignition Timing" + NL;
+        expectedResultPacket4 += "  SPN 1415 - Engine Cylinder 3 Ignition Timing" + NL;
+        expectedResultPacket4 += "  SPN 1416 - Engine Cylinder 4 Ignition Timing" + NL;
+        expectedResultPacket4 += "  SPN 1417 - Engine Cylinder 5 Ignition Timing" + NL;
+        expectedResultPacket4 += "  SPN 1418 - Engine Cylinder 6 Ignition Timing" + NL;
+        expectedResultPacket4 += "  SPN 3563 - Engine Intake Manifold #1 Absolute Pressure" + NL;
+        expectedResultPacket4 += "  SPN 27 - Engine Exhaust Gas Recirculation 1 Valve Position" + NL;
+        expectedResultPacket4 += "  SPN 3242 - Aftertreatment 1 Diesel Particulate Filter Intake Temperature" + NL;
+        expectedResultPacket4 += "  SPN 3246 - Aftertreatment 1 Diesel Particulate Filter Outlet Temperature" + NL;
+        expectedResultPacket4 += "  SPN 3216 - Aftertreatment 1 SCR Intake NOx 1" + NL;
+        expectedResultPacket4 += "  SPN 1081 - Engine Wait to Start Lamp" + NL;
+        expectedResultPacket4 += "  SPN 1189 - Engine Turbocharger Wastegate Actuator 2 Position" + NL;
+        expectedResultPacket4 += "  SPN 5314 - Commanded Engine Fuel Injection Control Pressure" + NL;
+        expectedResultPacket4 += "  SPN 3609 - Aftertreatment 1 Diesel Particulate Filter Intake Pressure" + NL;
+        expectedResultPacket4 += "  SPN 3480 - Aftertreatment 1 Fuel Pressure 1" + NL;
+        expectedResultPacket4 += "  SPN 3226 - Aftertreatment 1 Outlet NOx 1" + NL;
+        expectedResultPacket4 += "  SPN 1761 - Aftertreatment 1 Diesel Exhaust Fluid Tank Volume" + NL;
+        expectedResultPacket4 += "  SPN 3482 - Aftertreatment 1 Fuel Enable Actuator" + NL;
+        expectedResultPacket4 += "  SPN 3490 - Aftertreatment 1 Purge Air Actuator" + NL;
+        expectedResultPacket4 += "  SPN 4360 - Aftertreatment 1 SCR Intake Temperature" + NL;
+        expectedResultPacket4 += "  SPN 4363 - Aftertreatment 1 SCR Outlet Temperature" + NL;
+        expectedResultPacket4 += "  SPN 3031 - Aftertreatment 1 Diesel Exhaust Fluid Tank Temperature 1" + NL;
+        expectedResultPacket4 += "  SPN 1173 - Engine Turbocharger 2 Compressor Intake Temperature" + NL;
+        expectedResultPacket4 += "]";
+        verify(reportFileModule).onResult(expectedResultPacket4);
         verify(reportFileModule, times(2)).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_6_1_4_1_C);
         verify(reportFileModule, times(2)).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_6_1_4_1_D);
         verify(reportFileModule, times(2)).onResult(PASS.toString() + COLON_SPACE + EXPECTED_PASS_6_1_4_2_A);

@@ -57,9 +57,4 @@ public class EngineSpeedPacket extends GenericPacket {
         return isNotAvailable(getEngineSpeed());
     }
 
-    @Override
-    public String toString() {
-        return getStringPrefix() + getValueWithUnits(getEngineSpeed(), "RPM");
-    }
-
 }

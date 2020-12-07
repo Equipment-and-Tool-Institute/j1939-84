@@ -6,10 +6,13 @@ package org.etools.j1939_84.bus.j1939.packets;
 import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.StandardCharsets;
-
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 
 /**
@@ -19,6 +22,16 @@ import org.junit.Test;
  *
  */
 public class VehicleIdentificationPacketTest {
+
+    @Before
+    public void setUp() {
+        DateTimeModule.setInstance(new TestDateTimeModule());
+    }
+
+    @After
+    public void tearDown() {
+        DateTimeModule.setInstance(null);
+    }
 
     @Test
     @TestDoc(description = "Verify packet is parsed and the report string is generated correctly.", value = {

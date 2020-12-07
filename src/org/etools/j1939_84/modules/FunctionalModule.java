@@ -3,10 +3,7 @@
  */
 package org.etools.j1939_84.modules;
 
-import static org.etools.j1939_84.J1939_84.NL;
-
 import java.util.function.Function;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -28,9 +25,6 @@ public abstract class FunctionalModule {
 
     /**
      * Constructor
-     *
-     * @param dateTimeModule
-     *            the {@link DateTimeModule} that generates the date/time
      */
     protected FunctionalModule() {
     }
@@ -92,10 +86,6 @@ public abstract class FunctionalModule {
         Packet request = getJ1939().createRequestPacket(pgn, address);
 
         return getJ1939().requestDS(title, listener, fullString, clazz, request);
-    }
-
-    protected Function<ParsedPacket, String> getPacketMapperFunction() {
-        return t -> t.getPacket().toTimeString() + NL + t.toString();
     }
 
     /**

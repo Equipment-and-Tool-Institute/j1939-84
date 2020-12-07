@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -36,24 +36,6 @@ public class TotalVehicleDistancePacket extends GenericPacket {
      */
     public double getTotalVehicleDistance() {
         return distance;
-    }
-
-    /**
-     * Returns the Total Vehicle Distance in miles
-     *
-     * @return the vehicle distance in miles
-     */
-    public double getTotalVehicleDistanceAsMiles() {
-        return getTotalVehicleDistance() * KM_TO_MILES_FACTOR;
-    }
-
-    private String getVehicleDistanceAsString() {
-        return getValuesWithUnits(getTotalVehicleDistance(), "km", getTotalVehicleDistanceAsMiles(), "mi");
-    }
-
-    @Override
-    public String toString() {
-        return getStringPrefix() + getVehicleDistanceAsString();
     }
 
 }

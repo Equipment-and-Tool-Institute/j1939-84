@@ -39,10 +39,10 @@ public class DM20MonitorPerformanceRatioPacketTest {
 
         String expected = "";
         expected += "DM20 from Engine #1 (0):  [" + NL;
-        expected += "                                                Num'r /  Den'r" + NL;
-        expected += "Ignition Cycles                                         42,405" + NL;
-        expected += "OBD Monitoring Conditions Encountered                   23,130" + NL;
-        expected += "SPN 524287 Manufacturer Assignable SPN 524287  65,279 / 65,535" + NL;
+        expected += "                                                      Num'r /  Den'r" + NL;
+        expected += "Ignition Cycles                                               42,405" + NL;
+        expected += "OBD Monitoring Conditions Encountered                         23,130" + NL;
+        expected += "SPN 524287 Manufacturer Assignable SPN (last entry)  65,279 / 65,535" + NL;
         expected += "]";
         assertEquals(expected, instance.toString());
     }

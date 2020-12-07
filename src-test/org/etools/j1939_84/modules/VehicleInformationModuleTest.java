@@ -595,7 +595,10 @@ public class VehicleInformationModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Vehicle Distance" + NL;
         expected += "10:15:30.0000 18FEC102 02 02 02 02 02 02 02 02" + NL;
-        expected += "High Resolution Vehicle Distance from Turbocharger (2): 168,430.09 km (104,657.605 mi)" + NL;
+        expected += "High Resolution Vehicle Distance from Turbocharger (2): " + NL;
+        expected += "  SPN   917, Total Vehicle Distance (High Resolution): 168430090.000000 m" + NL;
+        expected += "  SPN   918, Trip Distance (High Resolution): 168430090.000000 m" + NL;
+        expected+=NL;
 
         TestResultsListener listener = new TestResultsListener();
         instance.reportVehicleDistance(listener);
@@ -622,7 +625,10 @@ public class VehicleInformationModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Vehicle Distance" + NL;
         expected += "10:15:30.0000 18FEE002 02 02 02 02 02 02 02 02" + NL;
-        expected += "Total Vehicle Distance from Turbocharger (2): 4,210,752.25 km (2,616,440.136 mi)" + NL;
+        expected += "Total Vehicle Distance from Turbocharger (2): " + NL;
+        expected += "  SPN   244, Trip Distance: 4210752.250000 km" + NL;
+        expected += "  SPN   245, Total Vehicle Distance: 4210752.250000 km" + NL;
+        expected+=NL;
 
         TestResultsListener listener = new TestResultsListener();
         instance.reportVehicleDistance(listener);

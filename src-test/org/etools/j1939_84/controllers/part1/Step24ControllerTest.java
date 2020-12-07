@@ -598,19 +598,6 @@ public class Step24ControllerTest extends AbstractControllerTest {
     @Test
     public void testRun() {
 
-        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                                                                                   0,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0xFF,
-                                                                                   0xFF,
-                                                                                   0xFF));
-
-        when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
-
         OBDModuleInformation obdInfo = mock(OBDModuleInformation.class);
         when(obdInfo.getFreezeFrameSpns()).thenReturn(Collections.emptyList());
         when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));

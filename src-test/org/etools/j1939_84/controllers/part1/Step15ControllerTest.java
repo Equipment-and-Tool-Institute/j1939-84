@@ -8,7 +8,6 @@ import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -18,15 +17,12 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
@@ -127,14 +123,14 @@ public class Step15ControllerTest extends AbstractControllerTest {
         List<Integer> obdModuleAddresses = Collections.singletonList(0x01);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
-        when(dtcModule.readDM1(any(), eq(true)))
+        when(dtcModule.readDM1(any()))
                 .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.emptyList()));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
         verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).readDM1(any(), eq(true));
+        verify(dtcModule).readDM1(any());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.15.2 - Fail if no OBD ECU provides DM1");
 
@@ -169,7 +165,7 @@ public class Step15ControllerTest extends AbstractControllerTest {
         List<Integer> obdModuleAddresses = Arrays.asList(0x01, 0x03);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
-        when(dtcModule.readDM1(any(), eq(true)))
+        when(dtcModule.readDM1(any()))
                 .thenReturn(new RequestResult<>(false, Arrays.asList(packet1, packet2, packet3, packet4, packet5),
                         Collections.emptyList()));
 
@@ -177,7 +173,7 @@ public class Step15ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
 
         verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).readDM1(any(), eq(true));
+        verify(dtcModule).readDM1(any());
 
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.15.2.a - Fail if any OBD ECU reports an active DTC");
@@ -258,14 +254,14 @@ public class Step15ControllerTest extends AbstractControllerTest {
         List<Integer> obdModuleAddresses = Collections.singletonList(0x01);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
-        when(dtcModule.readDM1(any(), eq(true)))
+        when(dtcModule.readDM1(any()))
                 .thenReturn(new RequestResult<>(false, Arrays.asList(packet1, packet2), Collections.emptyList()));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
         verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).readDM1(any(), eq(true));
+        verify(dtcModule).readDM1(any());
 
         verify(reportFileModule).onProgress(0, 1, "");
 

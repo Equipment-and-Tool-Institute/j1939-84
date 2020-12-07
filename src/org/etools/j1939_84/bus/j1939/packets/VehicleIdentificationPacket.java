@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -60,5 +60,4 @@ public class VehicleIdentificationPacket extends GenericPacket {
     public String toString() {
         return getStringPrefix() + getVin();
     }
-
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -30,11 +30,6 @@ public class EngineHoursPacket extends GenericPacket {
     @Override
     public String getName() {
         return "Engine Hours";
-    }
-
-    @Override
-    public String toString() {
-        return getStringPrefix() + getValueWithUnits(getEngineHours(), "hours");
     }
 
 }

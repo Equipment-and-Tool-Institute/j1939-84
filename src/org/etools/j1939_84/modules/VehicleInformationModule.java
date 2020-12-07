@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.modules;
@@ -8,6 +8,7 @@ import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 
 import java.io.IOException;
 import java.text.NumberFormat;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
@@ -16,7 +17,6 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
@@ -80,11 +80,9 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public List<CalibrationInformation> getCalibrations() throws IOException {
         if (calibrations == null) {
-            Collection<Either<DM19CalibrationInformationPacket, AcknowledgmentPacket>> raw = getJ1939()
+            Collection<Either<DM19CalibrationInformationPacket, AcknowledgmentPacket>> raw = new ArrayList<>(getJ1939()
                     .requestGlobalResult(null, ResultsListener.NOOP, false, DM19CalibrationInformationPacket.class)
-                    .getEither()
-                    .stream()
-                    .collect(Collectors.toList());
+                    .getEither());
             calibrations = raw.stream()
                     // flatten an Optional<Either<packetWithAList>>
                     .flatMap(t -> t.left.stream()
@@ -110,7 +108,7 @@ public class VehicleInformationModule extends FunctionalModule {
      *             if there are no {@link CalibrationInformation} returned
      */
     public String getCalibrationsAsString() throws IOException {
-        return getCalibrations().stream().map(t -> t.toString()).collect(Collectors.joining(NL));
+        return getCalibrations().stream().map(CalibrationInformation::toString).collect(Collectors.joining(NL));
     }
 
     /**
@@ -127,7 +125,7 @@ public class VehicleInformationModule extends FunctionalModule {
                     .requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class)
                     .getEither().stream()
                     .flatMap(e -> e.left.stream())
-                    .map(t -> t.getFamilyName())
+                    .map(DM56EngineFamilyPacket::getFamilyName)
                     .collect(Collectors.toSet());
             // FIXME what about NACKS?
             if (results.size() == 0) {
@@ -154,7 +152,7 @@ public class VehicleInformationModule extends FunctionalModule {
                     .requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class)
                     .getEither().stream()
                     .flatMap(e -> e.left.stream())
-                    .map(t -> t.getEngineModelYear())
+                    .map(DM56EngineFamilyPacket::getEngineModelYear)
                     .collect(Collectors.toSet());
             // FIXME what about NACKS
             if (results.size() == 0) {
@@ -180,7 +178,7 @@ public class VehicleInformationModule extends FunctionalModule {
             var all = getJ1939().requestGlobalResult(null, ResultsListener.NOOP, false,
                     VehicleIdentificationPacket.class);
             Set<String> vins = all.getPackets().stream()
-                    .map(t -> t.getVin())
+                    .map(VehicleIdentificationPacket::getVin)
                     .collect(Collectors.toSet());
             // FIXME what about NACKS
             if (vins.size() == 0) {
@@ -199,7 +197,6 @@ public class VehicleInformationModule extends FunctionalModule {
      *
      * @param listener
      *            the {@link ResultsListener} that will be given the report
-     * @return
      */
     public RequestResult<AddressClaimPacket> reportAddressClaim(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(AddressClaimPacket.PGN, GLOBAL_ADDR);
@@ -208,7 +205,7 @@ public class VehicleInformationModule extends FunctionalModule {
                 AddressClaimPacket.class,
                 request);
         if (!responses.getPackets().isEmpty()
-                && !responses.getPackets().stream().filter(p -> p.getFunctionId() == 0).findAny().isPresent()) {
+                && responses.getPackets().stream().noneMatch(p -> p.getFunctionId() == 0)) {
             listener.onResult("Error: No module reported Function 0");
         }
         return responses;
@@ -340,7 +337,7 @@ public class VehicleInformationModule extends FunctionalModule {
                 .flatMap(e -> e.left.stream())
                 .filter(p -> p.getTotalVehicleDistance() != ParsedPacket.NOT_AVAILABLE
                         && p.getTotalVehicleDistance() != ParsedPacket.ERROR)
-                .max((p1, p2) -> Double.compare(p1.getTotalVehicleDistance(), p2.getTotalVehicleDistance()));
+                .max(Comparator.comparingDouble(HighResVehicleDistancePacket::getTotalVehicleDistance));
 
         Optional<? extends ParsedPacket> packet;
         if (hiResPacket.isPresent()) {
@@ -350,10 +347,10 @@ public class VehicleInformationModule extends FunctionalModule {
                     .flatMap(e -> e.left.stream())
                     .filter(p -> p.getTotalVehicleDistance() != ParsedPacket.NOT_AVAILABLE
                             && p.getTotalVehicleDistance() != ParsedPacket.ERROR)
-                    .max((p1, p2) -> Double.compare(p1.getTotalVehicleDistance(), p2.getTotalVehicleDistance()));
+                    .max(Comparator.comparingDouble(TotalVehicleDistancePacket::getTotalVehicleDistance));
         }
 
-        listener.onResult(packet.map(getPacketMapperFunction()).orElse(TIMEOUT_MESSAGE));
+        listener.onResult(packet.map(ParsedPacket::toString).orElse(TIMEOUT_MESSAGE));
     }
 
     /**
