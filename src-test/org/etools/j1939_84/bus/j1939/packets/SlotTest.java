@@ -526,12 +526,12 @@ public class SlotTest {
 
     @Test
     public void verifySpecialCharacters() {
-        assertEquals("km²/h²", Slot.findSlot(469).getUnit());
-        assertEquals("m/s²", Slot.findSlot(140).getUnit());
-        assertEquals("(kPa•s)/m³", Slot.findSlot(359).getUnit());
-        assertEquals("µSiemens/mm", Slot.findSlot(255).getUnit());
-        assertEquals("MJ/Nm³", Slot.findSlot(323).getUnit());
-        assertEquals("µA", Slot.findSlot(403).getUnit());
+        assertEquals("kmÂ²/hÂ²", Slot.findSlot(469).getUnit());
+        assertEquals("m/sÂ²", Slot.findSlot(140).getUnit());
+        assertEquals("(kPaâ€¢s)/mÂ³", Slot.findSlot(359).getUnit());
+        assertEquals("ÂµSiemens/mm", Slot.findSlot(255).getUnit());
+        assertEquals("MJ/NmÂ³", Slot.findSlot(323).getUnit());
+        assertEquals("ÂµA", Slot.findSlot(403).getUnit());
 
     }
 

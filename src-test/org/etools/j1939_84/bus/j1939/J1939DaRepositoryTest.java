@@ -1,10 +1,16 @@
 package org.etools.j1939_84.bus.j1939;
 
+import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import org.junit.Test;
 
 public class J1939DaRepositoryTest {
+    @Test
+    public void testMultiline() {
+        assertEquals("", new J1939DaRepository().findSpnDefinition(695).getLabel());
+    }
+
     @Test
     public void verifySpnOrder() {
         new J1939DaRepository()
