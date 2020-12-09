@@ -253,7 +253,7 @@ public class RP1210Bus implements Bus {
                 } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
                     // RX queue full, remedy is to reread.
                     byte[] buffer = new byte[256];
-                    rp1210Library.RP1210_GetErrorMsg(rtn, buffer);
+                    rp1210Library.RP1210_GetErrorMsg((short) Math.abs(rtn), buffer);
                     getLogger().log(Level.SEVERE,
                             "Error (" + rtn + "): " + new String(buffer, StandardCharsets.UTF_8).trim());
                 } else {

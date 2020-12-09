@@ -251,6 +251,10 @@ public class J1939 {
                         || (p.getDestination() == 0 && p.getLength() > 8)));
     }
 
+    private void log(String msg) {
+        getLogger().log(Level.WARNING, msg);
+    }
+
     /**
      * Returns a Subclass of {@link ParsedPacket} that corresponds to the given
      * {@link Packet}
@@ -610,8 +614,12 @@ public class J1939 {
         List<AcknowledgmentPacket> busyNACKs = results.stream().flatMap(e -> e.right.stream())
                 .filter(p -> p.getResponse() == Response.BUSY)
                 .collect(Collectors.toList());
-        boolean retry = !busyNACKs.isEmpty();
+        // FIXME no results is not supposed to be a rety, but Joe's A26 fails on
+        // the bench
+        boolean retry = !busyNACKs.isEmpty() || results.isEmpty();
         if (retry) {
+            log("busy NACK for request: " + requestPacket + " -> " + busyNACKs);
+
             // then rerequest from global and combine results
             List<Either<T, AcknowledgmentPacket>> secondResults = requestGlobalOnce(pgn, requestPacket, listener,
                     fullString);
@@ -622,13 +630,30 @@ public class J1939 {
             results = secondResults;
             busyNACKs = results.stream().flatMap(e -> e.right.stream()).filter(p -> p.getResponse() == Response.BUSY)
                     .collect(Collectors.toList());
+            if (!busyNACKs.isEmpty() || results.isEmpty()) {
+                log("second busy NACK for request: " + requestPacket + " -> " + busyNACKs);
+            }
         }
         // now try the DS request
         Collection<Either<T, AcknowledgmentPacket>> list = busyNACKs.stream()
-                .flatMap(p -> requestDSOnce(listener, fullString, clas, pgn,
-                        createRequestPacket(requestPacket.getPgn(), p.getSourceAddress()))
-                                .stream())
+                .flatMap(p -> {
+                    Packet dsRequest = createRequestPacket(pgnId, p.getSourceAddress());
+                    Optional<Either<T, AcknowledgmentPacket>> response = requestDSOnce(listener, fullString, clas, pgn,
+                            dsRequest);
+                    if (response.flatMap(e -> e.right.map(ack -> ack.getResponse() == Response.BUSY)).orElse(false)) {
+                        log("first DS request after global busy NACK: " + dsRequest + " -> " + response);
+                        response = requestDSOnce(listener, fullString, clas, pgn, dsRequest);
+                        if (response.flatMap(e -> e.right.map(ack -> ack.getResponse() == Response.BUSY))
+                                .orElse(false)) {
+                            log("second DS request after global busy NACK: " + dsRequest + " -> " + response);
+                        }
+                    }
+                    return response.stream();
+                })
                 .collect(Collectors.toList());
+        if (!list.isEmpty()) {
+            System.err.println("ds:" + list);
+        }
         results.addAll(list);
         return new RequestResult<>(retry, results);
     }
@@ -664,10 +689,7 @@ public class J1939 {
         try {
             Stream<Packet> stream = read(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS);
             Packet sent = bus.send(request);
-            if (sent != null) {
-                listener.onResult(DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + sent.toString());
-            } else {// failed to send
-            }
+            listener.onResult(DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + sent.toString());
             result = stream
                     .filter(globalFilter(pgn))
                     .peek(p -> listener.onResult(p.toTimeString()))
