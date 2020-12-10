@@ -129,6 +129,11 @@ public class MonitoredSystem implements Comparable<MonitoredSystem> {
 
     @Override
     public String toString() {
-        return getName() + " " + getStatus();
+        StringBuilder stringBuilder = new StringBuilder(String.format("%-35s", "    " + getName()));
+        stringBuilder.append(getStatus().isEnabled() ? String.format("%15s", "supported, ")
+                                        : String.format("%15s", "not supported, "))
+                .append(getStatus().isComplete() ? String.format("%15s", "completed")
+                                        : String.format("%15s", "not completed"));
+        return stringBuilder.toString();
     }
 }
