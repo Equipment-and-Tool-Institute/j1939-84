@@ -271,6 +271,20 @@ public class Step26ControllerTest extends AbstractControllerTest {
         expected += "FAIL: SPNs received as NOT AVAILABLE from Engine #1 (0): 666" + NL;
         expected += "FAIL: SPNs received as NOT AVAILABLE: 666" + NL;
         assertEquals(expected, listener.getResults());
+
+        String expectedMsg = NL;
+        expectedMsg +="Start Part 1 Step 26" + NL;
+        expectedMsg +="DS Request for 22222 to Engine #1 (0)" + NL;
+        expectedMsg +="Global Request for PGN 22222" + NL;
+        expectedMsg +="DS Request for 44444 to Engine #1 (0)" + NL;
+        expectedMsg +="DS Request for 55555 to Engine #1 (0)" + NL;
+        expectedMsg +="Global Request for PGN 55555" + NL;
+        expectedMsg +="DS Request for 66666 to Engine #1 (0)" + NL;
+        expectedMsg +="Global Request for PGN 66666" + NL;
+        expectedMsg +="End Part 1 Step 26";
+        assertEquals(expectedMsg, listener.getMessages());
+
+        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -351,6 +365,14 @@ public class Step26ControllerTest extends AbstractControllerTest {
 
         String expected = "";
         assertEquals(expected, listener.getResults());
+
+        String expectedMsg = NL;
+        expectedMsg +="Start Part 1 Step 26" + NL;
+        expectedMsg +="DS Request for 44444 to Engine #1 (0)" + NL;
+        expectedMsg +="End Part 1 Step 26" ;
+        assertEquals(expectedMsg, listener.getMessages());
+
+        assertEquals("", listener.getMilestones());
     }
 
     @Test

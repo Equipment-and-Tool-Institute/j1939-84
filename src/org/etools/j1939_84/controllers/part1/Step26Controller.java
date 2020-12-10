@@ -103,6 +103,7 @@ public class Step26Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
+        updateProgress("Start Part 1 Step 26");
 
         busService.setup(getJ1939(), getListener());
 
@@ -156,10 +157,12 @@ public class Step26Controller extends StepController {
             //Find SPNs sent a Not Available
             List<Integer> missingSpns = collectAndReportNotAvailableSPNs(obdModule, foundPackets, dataStreamSpns);
 
-            List<Integer> requestPgns = busService.getPgnsForDSRequest(missingSpns, supportedSpns);
-            requestPgns.forEach(pgn -> {
-                //DS Request for all SPNs that are sent on-request AND those were missed earlier
+            String moduleName = Lookup.getAddressName(moduleAddress);
 
+            //DS Request for all SPNs that are sent on-request AND those were missed earlier
+            List<Integer> requestPgns = busService.getPgnsForDSRequest(missingSpns, supportedSpns);
+            for (Integer pgn : requestPgns) {
+                updateProgress("DS Request for " + pgn + " to " + moduleName);
                 List<GenericPacket> dsResponse = busService.dsRequest(pgn, moduleAddress);
                 packets.addAll(dsResponse);
 
@@ -167,11 +170,12 @@ public class Step26Controller extends StepController {
 
                 if (needToRequestGlobally) {
                     //Re-request the missing SPNs globally
+                    updateProgress("Global Request for PGN " + pgn);
                     List<GenericPacket> globalPackets = busService.globalRequest(pgn);
                     packets.addAll(globalPackets);
                     checkForNotAvailableSPNs(supportedSpns, pgn, globalPackets, null);
                 }
-            });
+            }
 
             //Gather the PGNs which are sent on Broadcast and needed to be requested
             //There are some PGNs which are sent periodically once requested
@@ -231,6 +235,7 @@ public class Step26Controller extends StepController {
 
         // f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
         tableA1Validator.reportDuplicateSPNs(packets, getListener(), getPartNumber(), getStepNumber());
+        updateProgress("End Part 1 Step 26");
     }
 
     /**
