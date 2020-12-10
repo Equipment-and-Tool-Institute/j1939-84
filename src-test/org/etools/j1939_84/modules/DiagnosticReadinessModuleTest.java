@@ -1066,6 +1066,7 @@ public class DiagnosticReadinessModuleTest {
         expected += "    Catalyst                           supported,   not completed" + NL;
         expected += "    Cold start aid system          not supported,       completed" + NL;
         expected += "    Comprehensive component            supported,   not completed" + NL;
+        expected += "    Diesel Particulate Filter          supported,       completed" + NL;
         expected += "    EGR/VVT system                 not supported,       completed" + NL;
         expected += "    Evaporative system                 supported,   not completed" + NL;
         expected += "    Exhaust Gas Sensor             not supported,   not completed" + NL;
