@@ -359,10 +359,6 @@ public class J1939 {
         case VehicleIdentificationPacket.PGN:
             return new VehicleIdentificationPacket(packet);
 
-        case REQUEST_PGN:
-            // Request; just return a wrapped packet
-            return new UnknownParsedPacket(packet);
-
         default:
             return new GenericPacket(packet, j1939DaRepository.findPgnDefinition(pgn));
         }
