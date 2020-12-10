@@ -176,7 +176,6 @@ public class SectionA5Verifier {
     /**
      * @param previousDM20Packets
      * @param listener
-     * @param passed
      */
     public boolean verifyDM20(List<DM20MonitorPerformanceRatioPacket> previousDM20Packets, ResultsListener listener) {
         // 7. Monitor Performance data
@@ -210,7 +209,6 @@ public class SectionA5Verifier {
 
     /**
      * @param listener
-     * @param passed
      */
     public boolean verifyDM21(ResultsListener listener) {
         // b. DM21 diagnostic readiness 2 shall report 0 for distance with MIL
@@ -259,7 +257,6 @@ public class SectionA5Verifier {
 
     /**
      * @param listener
-     * @param passed
      */
     public boolean verifyDM23(ResultsListener listener) {
         // c. DM23 previously active shall report no DTCs and MIL off and not
@@ -288,7 +285,6 @@ public class SectionA5Verifier {
 
     /**
      * @param listener
-     * @param passed
      * @param obdModuleAddresses
      */
     public boolean verifyDM25(ResultsListener listener, List<Integer> obdModuleAddresses) {
@@ -333,7 +329,6 @@ public class SectionA5Verifier {
 
     /**
      * @param listener
-     * @param passed
      */
     public boolean verifyDM26(ResultsListener listener) {
         // 5. Activity since code clear
@@ -366,7 +361,6 @@ public class SectionA5Verifier {
     /**
      * @param previousDM28Packets
      * @param listener
-     * @param passed
      */
     public boolean verifyDM28(List<DM28PermanentEmissionDTCPacket> previousDM28Packets, ResultsListener listener) {
         // 8. Permanent DTCs
@@ -404,7 +398,6 @@ public class SectionA5Verifier {
 
     /**
      * @param listener
-     * @param passed
      */
     public boolean verifyDM29(ResultsListener listener) {
         // d. DM29 shall report zero for number of pending, active, and
@@ -437,7 +430,6 @@ public class SectionA5Verifier {
 
     /**
      * @param listener
-     * @param passed
      */
     public boolean verifyDM31(ResultsListener listener) {
         // 3. MIL information
@@ -466,7 +458,6 @@ public class SectionA5Verifier {
     /**
      * @param previousDM33Packets
      * @param listener
-     * @param passed
      * @param obdModuleAddresses
      */
     public boolean verifyDM33(List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> previousDM33Packets,
@@ -509,8 +500,6 @@ public class SectionA5Verifier {
 
     /**
      * @param listener
-     * @param passed
-     * @param dm5Packets
      */
     public boolean verifyDM5(ResultsListener listener) {
         // e. DM5 shall report zero for number of active and previously active
@@ -571,7 +560,6 @@ public class SectionA5Verifier {
 
     /**
      * @param listener
-     * @param passed
      */
     public boolean verifyDM6(ResultsListener listener) {
         // 1. Emission-related DTCs
@@ -602,7 +590,6 @@ public class SectionA5Verifier {
 
     /**
      * @param listener
-     * @param passed
      * @param obdModuleAddresses
      */
     public boolean verifyDM7DM30(ResultsListener listener, List<Integer> obdModuleAddresses) {
@@ -673,7 +660,6 @@ public class SectionA5Verifier {
     /**
      * @param previousEngineHoursPackets
      * @param listener
-     * @param passed
      */
     public boolean verifyEngineHours(List<EngineHoursPacket> previousEngineHoursPackets, ResultsListener listener) {
         // b. Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle

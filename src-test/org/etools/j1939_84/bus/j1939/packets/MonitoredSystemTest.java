@@ -111,7 +111,7 @@ public class MonitoredSystemTest {
     public void testToString() {
         MonitoredSystem instance = new MonitoredSystem("Name", findStatus(false, true, true), 0,
                 CompositeSystem.COLD_START_AID_SYSTEM);
-        assertEquals("Name     enabled,     complete", instance.toString());
+        assertEquals("    Name                               supported,       completed", instance.toString());
     }
 
 }
