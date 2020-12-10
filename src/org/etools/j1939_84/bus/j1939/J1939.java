@@ -68,7 +68,8 @@ public class J1939 {
     /**
      * The default time to wait for a response (200 ms + 10%)
      */
-    private static final int DEFAULT_TIMEOUT = 220;
+    // FIXME
+    private static final int DEFAULT_TIMEOUT = 1220;
 
     /**
      * The default time unit for responses
