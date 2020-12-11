@@ -33,5 +33,5 @@ public interface QuestionListener {
         }
     }
 
-    void answered(AnswerType answerType);
+    void answered(AnswerType answerType) throws InterruptedException;
 }

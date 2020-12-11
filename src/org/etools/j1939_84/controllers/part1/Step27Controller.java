@@ -33,8 +33,6 @@ public class Step27Controller extends StepController {
 
     private static final int TOTAL_STEPS = 1;
 
-    private final DataRepository dataRepository;
-
     Step27Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -55,7 +53,6 @@ public class Step27Controller extends StepController {
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
@@ -100,6 +97,7 @@ public class Step27Controller extends StepController {
                 // end test if user doesn't want to continue
                 if (answerType == NO) {
                     getListener().addOutcome(1, 27, ABORT, "Aborting - user ended test");
+                    setEnding(Ending.ABORTED);
                 }
             };
             //  a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on

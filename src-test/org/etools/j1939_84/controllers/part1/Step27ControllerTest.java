@@ -3,30 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
-import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.PASS;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
-import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.controllers.DataRepository;
-import org.etools.j1939_84.controllers.PartResultRepository;
-import org.etools.j1939_84.controllers.QuestionListener;
-import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.controllers.*;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.StepResult;
@@ -40,9 +18,22 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.concurrent.Executor;
+
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
+import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.PASS;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 /**
  * The unit test for {@link Step27Controller}
@@ -105,11 +96,11 @@ public class Step27ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                                 engineSpeedModule,
-                                 bannerModule,
-                                 vehicleInformationModule,
-                                 dataRepository,
-                                 mockListener);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                dataRepository,
+                mockListener);
     }
 
     /**
@@ -117,7 +108,7 @@ public class Step27ControllerTest extends AbstractControllerTest {
      * {@link Step27Controller#run()}.
      */
     @Test
-    public void testUserAbortForFail() {
+    public void testUserAbortForFail() throws InterruptedException {
         String expectedTitle = "Start Part 2";
         ResultsListener.MessageType expectedType = QUESTION;
         PartResultRepository partResultRepository = PartResultRepository.getInstance();
@@ -141,9 +132,9 @@ public class Step27ControllerTest extends AbstractControllerTest {
         urgentMessages += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
         urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
-                                             eq(expectedType),
-                                             questionCaptor.capture());
+                eq(expectedTitle),
+                eq(expectedType),
+                questionCaptor.capture());
         questionCaptor.getValue().answered(NO);
         String urgentMessages2 = "Please turn the Engine ON with Key ON";
         String expectedTitle2 = "Adjust Key Switch";
@@ -212,7 +203,7 @@ public class Step27ControllerTest extends AbstractControllerTest {
      * {@link Step27Controller#run()}.
      */
     @Test
-    public void testRun() {
+    public void testRun() throws InterruptedException {
         String expectedTitle = "Start Part 2";
         ResultsListener.MessageType expectedType = QUESTION;
         PartResultRepository partResultRepository = PartResultRepository.getInstance();
@@ -236,9 +227,9 @@ public class Step27ControllerTest extends AbstractControllerTest {
         urgentMessages += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
         urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
-                                             eq(expectedType),
-                                             questionCaptor.capture());
+                eq(expectedTitle),
+                eq(expectedType),
+                questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
         String urgentMessages2 = "Please turn the Engine ON with Key ON";
@@ -255,11 +246,7 @@ public class Step27ControllerTest extends AbstractControllerTest {
 
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
-
-        String expectedResults = "";//"User provided ";
-        //expectedResults += "\n";
-        assertEquals(expectedResults, listener.getResults());
-
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMilestones());
     }
 
@@ -275,7 +262,6 @@ public class Step27ControllerTest extends AbstractControllerTest {
         ResultsListener.MessageType expectedType = QUESTION;
         PartResultRepository partResultRepository = PartResultRepository.getInstance();
         StepResult stepResult = new StepResult(1, 3, "Testing Result");
-        stepResult.addResult(new ActionOutcome(PASS, "6.1.2.1.a - Pass for testing"));
         stepResult.addResult(new ActionOutcome(FAIL, "6.1.2.1.b - Fail for testing"));
 
         partResultRepository.setStepResult(1, stepResult);
@@ -296,9 +282,9 @@ public class Step27ControllerTest extends AbstractControllerTest {
         urgentMessages += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
         urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
-                                             eq(expectedType),
-                                             any());
+                eq(expectedTitle),
+                eq(expectedType),
+                any());
         //questionCaptor.getValue().answered(NO);
         String urgentMessages2 = "Please turn the Engine ON with Key ON";
         String expectedTitle2 = "Adjust Key Switch";
