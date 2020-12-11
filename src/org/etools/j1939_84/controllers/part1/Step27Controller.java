@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.Outcome;
@@ -25,7 +24,6 @@ import static org.etools.j1939_84.model.Outcome.ABORT;
  * <p>
  * The controller for 6.1.27 Part 1 to Part 2 Transition
  */
-
 public class Step27Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
@@ -34,19 +32,17 @@ public class Step27Controller extends StepController {
 
     private static final int TOTAL_STEPS = 1;
 
-    Step27Controller(DataRepository dataRepository) {
+    Step27Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
                 new EngineSpeedModule(),
                 new BannerModule(),
-                new VehicleInformationModule(),
-                dataRepository);
+                new VehicleInformationModule());
     }
 
     Step27Controller(Executor executor,
                      EngineSpeedModule engineSpeedModule,
                      BannerModule bannerModule,
-                     VehicleInformationModule vehicleInformationModule,
-                     DataRepository dataRepository) {
+                     VehicleInformationModule vehicleInformationModule) {
         super(executor,
                 engineSpeedModule,
                 bannerModule,
@@ -58,8 +54,7 @@ public class Step27Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-
-        incrementProgress("Part 1, Step 27 Part 1 to Part 2 Transition");
+        incrementProgress("Part 1, Step 27 - Part 1 to Part 2 Transition");
         //  6.1.27.1 Actions:
         //  a. Testing may be stopped for vehicles with failed tests and for
         //  vehicles with the MIL on or a non-emissions related fault displayed
@@ -71,22 +66,22 @@ public class Step27Controller extends StepController {
         //       ii. Or, an electric drive or hybrid drive system shall be placed in the operating
         //           mode used to provide power to the drive system without moving the vehicle, if not
         //           automatically provided during the initial key off to key on operation.
-        incrementProgress("Part 1, Step 27 b.i Ensuring Key On, Engine On");
+        incrementProgress("Part 1, Step 27 b.i - Ensuring Key On, Engine On");
         ensureKeyOnEngineOn();
 
         //      iii. The engine shall be allowed to idle one minute
-        incrementProgress("Part 1, Step 27 b.iii Allowing engine to idle one minute");
+        incrementProgress("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
         waitForOneMinute();
     }
 
     private void waitForOneMinute() throws InterruptedException {
         long secondsToGo = 60;
         getListener().onResult("Allowing engine to idle for " + secondsToGo + " seconds");
-        long stopTime = System.currentTimeMillis() + secondsToGo * 1000L;
+        long stopTime = getDateTimeModule().getTimeAsLong() + secondsToGo * 1000L;
         while (secondsToGo > 0) {
-            secondsToGo = (stopTime - System.currentTimeMillis()) / 1000;
+            secondsToGo = (stopTime - getDateTimeModule().getTimeAsLong()) / 1000;
             updateProgress("Allowing engine to idle for " + secondsToGo + " seconds");
-            Thread.sleep(1000);
+            getDateTimeModule().pauseFor(1000);
         }
     }
 
@@ -101,7 +96,6 @@ public class Step27Controller extends StepController {
         boolean hasFailure = getPartResult(PART_NUMBER).getStepResults()
                 .stream()
                 .anyMatch(s -> s.getOutcome() == Outcome.FAIL);
-
         if (hasFailure) {
             // We have a failure, display the question
             QuestionListener questionListener = answerType -> {
@@ -114,7 +108,6 @@ public class Step27Controller extends StepController {
                     }
                 }
             };
-
             //  a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on
             //  or a non-emissions related fault displayed in DM1. Vehicles with the MIL on will fail subsequent tests.
             String message = "Ready to transition from Part 1 to Part 2 of the test" + NL;
@@ -137,7 +130,7 @@ public class Step27Controller extends StepController {
                 getListener().onUrgentMessage("Please turn the Engine ON with Key ON", "Adjust Key Switch", WARNING);
                 while (!getEngineSpeedModule().isEngineRunning()) {
                     updateProgress("Waiting for Key ON, Engine ON...");
-                    Thread.sleep(500);
+                    getDateTimeModule().pauseFor(500);
                 }
             }
         } catch (InterruptedException e) {
@@ -145,5 +138,4 @@ public class Step27Controller extends StepController {
             throw e;
         }
     }
-
 }

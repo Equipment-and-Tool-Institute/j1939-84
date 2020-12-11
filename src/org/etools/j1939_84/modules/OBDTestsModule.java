@@ -200,10 +200,6 @@ public class OBDTestsModule extends FunctionalModule {
      *            {@link ResultsListener}
      * @param obdModuleAddress
      *            {@link Integer}
-     * @param tries
-     *            {@link Integer}
-     * @param timeOutInMillis
-     *            {@link Integer}
      * @return {@link List} of {@link DM24SPNSupportPacket}s
      */
     public BusResult<DM24SPNSupportPacket> requestDM24(ResultsListener listener,

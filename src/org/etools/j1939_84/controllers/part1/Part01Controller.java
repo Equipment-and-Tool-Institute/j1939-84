@@ -1,6 +1,5 @@
-/**
- * private final IndexGenerator indexGenerator = new IndexGenerator(new
- * DateTimeModule()); Copyright (c) 2019. Equipment & Tool Institute
+/*
+ * Copyright (c) 2019. Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
 
@@ -52,7 +51,7 @@ public class Part01Controller extends Controller {
              new Step20Controller(dataRepository), new Step21Controller(dataRepository),
              new Step22Controller(dataRepository), new Step23Controller(),
              new Step24Controller(dataRepository), new Step25Controller(dataRepository),
-             new Step26Controller(dataRepository), new Step27Controller(dataRepository));
+             new Step26Controller(dataRepository), new Step27Controller());
     }
 
     /**

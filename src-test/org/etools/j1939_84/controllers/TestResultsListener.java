@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers;
@@ -71,16 +71,16 @@ public class TestResultsListener implements ResultsListener {
     }
 
     public String getMessages() {
-        return messages.stream().collect(Collectors.joining(NL));
+        return String.join(NL, messages);
     }
 
     public String getMilestones() {
-        return milestones.stream().collect(Collectors.joining(NL));
+        return String.join(NL, milestones);
     }
 
     public String getResults() {
         StringBuilder sb = new StringBuilder();
-        results.stream().forEachOrdered(t -> sb.append(t).append(NL));
+        results.forEach(t -> sb.append(t).append(NL));
         return sb.toString();
     }
 
