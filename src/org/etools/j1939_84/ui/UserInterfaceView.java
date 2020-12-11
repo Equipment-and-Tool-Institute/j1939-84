@@ -179,11 +179,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
                 SwingUtilities.invokeAndWait(() -> {
                     int result = JOptionPane.showOptionDialog(getFrame(), message, title, type, type, null, null, null);
                     if (questionListener != null) {
-                        try {
-                            questionListener.answered(QuestionListener.AnswerType.getType(result));
-                        } catch (InterruptedException e) {
-                            e.printStackTrace();
-                        }
+                        questionListener.answered(QuestionListener.AnswerType.getType(result));
                     }
                 });
             } catch (InvocationTargetException | InterruptedException e) {
