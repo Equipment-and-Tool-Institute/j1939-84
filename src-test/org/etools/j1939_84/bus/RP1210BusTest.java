@@ -8,6 +8,7 @@ import static org.junit.Assert.assertSame;
 import static org.junit.Assert.fail;
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -526,6 +527,7 @@ public class RP1210BusTest {
                 eq((short) 14),
                 eq((short) 0),
                 eq((short) 0));
+        verify(queue).stream(anyLong(), any());
     }
 
     @Test
@@ -567,6 +569,7 @@ public class RP1210BusTest {
                 eq((short) 0),
                 eq((short) 0));
         verify(rp1210Library).RP1210_GetErrorMsg(eq((short) 99), any());
+        verify(queue).stream(anyLong(), any());
     }
 
     @Test

@@ -37,7 +37,8 @@ public class RP1210 {
     private static final Adapter LOOP_BACK_ADAPTER = new Adapter("Loop Back Adapter", "Simulated", FAKE_DEV_ID);
 
     /**
-     * The device Id used to indicate the adapter should play a scripted simulation.
+     * The device Id used to indicate the adapter should play a scripted
+     * simulation.
      */
     public static final short SIM_DEV_ID = (short) -2;
 
@@ -60,7 +61,7 @@ public class RP1210 {
      * Constructor exposed for testing
      *
      * @param basePath
-     *                 the base path where the RP121032.ini file is located
+     *            the base path where the RP121032.ini file is located
      */
     RP1210(String basePath) {
         base = basePath == null ? null : new File(basePath);
@@ -72,7 +73,7 @@ public class RP1210 {
      *
      * @return {@link List} of {@link Adapter}s
      * @throws BusException
-     *                      if there is a problem generating the list
+     *             if there is a problem generating the list
      */
     public List<Adapter> getAdapters() throws BusException {
         if (adapters == null) {
@@ -101,7 +102,7 @@ public class RP1210 {
      *
      * @return a {@link List} of {@link Adapter}s
      * @throws BusException
-     *                      if there is a problem reading the file system
+     *             if there is a problem reading the file system
      */
     private List<Adapter> parse() throws BusException {
         List<Adapter> list = new ArrayList<>();
@@ -113,6 +114,14 @@ public class RP1210 {
                         Ini driver = new Ini(new File(base, id + ".INI"));
                         Section vendorSection = driver.get("VendorInformation");
                         final String vendorName = vendorSection.getOrDefault("Name", "");
+                        long timeStampWeight;
+                        try {
+                            timeStampWeight = Long.parseLong(vendorSection.getOrDefault("TimeStampWeight", "1"));
+                        } catch (Throwable t) {
+                            J1939_84.getLogger().log(Level.SEVERE,
+                                    "Error Parsing TimeStampWeight from ini file.  Assuming 1000 (ms resolution).", t);
+                            timeStampWeight = 1000;
+                        }
 
                         // loop through protocols to find J1939
                         for (String protocolId : vendorSection.getOrDefault("Protocols", "").split("\\s*,\\s*")) {
@@ -123,7 +132,8 @@ public class RP1210 {
                                     final short deviceId = Short.parseShort(devId);
                                     final String deviceName = driver.get("DeviceInformation" + devId)
                                             .getOrDefault("DeviceDescription", "UNKNOWN");
-                                    list.add(new Adapter(vendorName + " - " + deviceName, id, deviceId));
+                                    list.add(new Adapter(vendorName + " - " + deviceName, id, deviceId,
+                                            timeStampWeight));
                                 }
                             }
                         }
@@ -144,12 +154,12 @@ public class RP1210 {
      * {@link Packet}s
      *
      * @param adapter
-     *                the {@link Adapter} to use for communications
+     *            the {@link Adapter} to use for communications
      * @param address
-     *                the source address of the tool
+     *            the source address of the tool
      * @return An {@link Bus}
      * @throws BusException
-     *                      if there is a problem setting the adapter
+     *             if there is a problem setting the adapter
      */
     public Bus setAdapter(Adapter adapter, int address) throws BusException {
         if (engine != null) {

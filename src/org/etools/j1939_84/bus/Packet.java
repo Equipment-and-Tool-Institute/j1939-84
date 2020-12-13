@@ -23,7 +23,6 @@ import org.etools.j1939_84.modules.DateTimeModule;
  *
  */
 public class Packet {
-
     static public class PacketException extends RuntimeException {
 
         public PacketException(String string) {
@@ -31,6 +30,9 @@ public class Packet {
         }
 
     }
+
+    // FIXME, eventually change to (RX)
+    public static final String RX = "";
 
     /**
      * The indication that a packet was transmitted
@@ -87,11 +89,16 @@ public class Packet {
      * @return Packet
      */
     public static Packet create(int priority, int id, int source, boolean transmitted, byte... bytes) {
+        return create(LocalDateTime.now(), priority, id, source, transmitted, bytes);
+    }
+
+    public static Packet create(LocalDateTime time, int priority, int id, int source, boolean transmitted,
+                                byte... bytes) {
         int[] data = new int[bytes.length];
         for (int i = 0; i < bytes.length; i++) {
             data[i] = 0xFF & bytes[i];
         }
-        return new Packet(LocalDateTime.now(), priority, id, source, transmitted, data);
+        return new Packet(time, priority, id, source, transmitted, data);
     }
 
     /**
@@ -187,6 +194,11 @@ public class Packet {
         this.source = source;
         this.transmitted = transmitted;
         this.data = data;
+        if (data != null) {
+            for (int i = 0; i < data.length; i++) {
+                data[i] &= 0xFF;
+            }
+        }
     }
 
     @Override
@@ -447,7 +459,7 @@ public class Packet {
                 priority << 18 | id,
                 source,
                 Arrays.stream(getData()).mapToObj(x -> String.format("%02X", x)).collect(Collectors.joining(" "))
-                        + (transmitted ? TX : ""));
+                        + (transmitted ? TX : RX));
     }
 
     /**

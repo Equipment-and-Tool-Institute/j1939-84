@@ -17,7 +17,7 @@ public class AdapterTest {
 
     @Test
     public void test() {
-        Adapter instance = new Adapter("Name", "DLL", (short) 55);
+        Adapter instance = new Adapter("Name", "DLL", (short) 55, 500);
         assertEquals("Name", instance.getName());
         assertEquals("DLL", instance.getDLLName());
         assertEquals((short) 55, instance.getDeviceId());

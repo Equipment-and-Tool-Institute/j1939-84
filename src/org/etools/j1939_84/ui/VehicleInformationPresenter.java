@@ -1,17 +1,14 @@
-/**
+/*
  * Copyright (c) 2019. Equipment & Tool Institute
  */
 package org.etools.j1939_84.ui;
 
-import java.lang.reflect.InvocationHandler;
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
-
 import javax.swing.SwingUtilities;
-
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
@@ -31,14 +28,13 @@ import org.etools.j1939_84.utils.VinDecoder;
  * {@link VehicleInformationDialog}
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class VehicleInformationPresenter implements VehicleInformationContract.Presenter {
 
     @SuppressWarnings("unchecked")
     public static <T> T swingProxy(T o, Class<T> cls) {
         return (T) Proxy.newProxyInstance(cls.getClassLoader(),
-                new Class<?>[] { cls }, (InvocationHandler) (proxy, method, args) -> {
+                new Class<?>[] { cls }, (proxy, method, args) -> {
                     if (SwingUtilities.isEventDispatchThread()) {
                         return method.invoke(o, args);
                     }
@@ -135,12 +131,12 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * Constructor
      *
      * @param view
-     *            the View to be controlled
+     *         the View to be controlled
      * @param listener
-     *            the {@link VehicleInformationListener} that will be given the
-     *            {@link VehicleInformation}
+     *         the {@link VehicleInformationListener} that will be given the
+     *         {@link VehicleInformation}
      * @param j1939
-     *            the vehicle bus
+     *         the vehicle bus
      */
     public VehicleInformationPresenter(VehicleInformationContract.View view, VehicleInformationListener listener,
             J1939 j1939) {
@@ -152,16 +148,16 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * Constructor exposed for testing
      *
      * @param view
-     *            the View to be controlled
+     *         the View to be controlled
      * @param listener
-     *            the {@link VehicleInformationListener} that will be given the
-     *            {@link VehicleInformation}
+     *         the {@link VehicleInformationListener} that will be given the
+     *         {@link VehicleInformation}
      * @param vehicleInformationModule
-     *            the {@link VehicleInformationModule}
+     *         the {@link VehicleInformationModule}
      * @param vinDecoder
-     *            the {@link VinDecoder}
+     *         the {@link VinDecoder}
      * @param j1939
-     *            the vehicle interface
+     *         the vehicle interface
      */
     public VehicleInformationPresenter(VehicleInformationContract.View view, VehicleInformationListener listener,
             J1939 j1939, VehicleInformationModule vehicleInformationModule,
@@ -179,21 +175,18 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     public void initialize() {
         addressClaim = vehicleInformationModule.reportAddressClaim(ResultsListener.NOOP);
 
-        view.setFuelType(FuelType.DSL); // Assuming this used mostly on Diesel
-                                        // engines
+        view.setFuelType(FuelType.DSL); // Assuming this used mostly on Diesel engines
         numberOfTripsForFaultBImplant = 1;
         view.setNumberOfTripsForFaultBImplant(numberOfTripsForFaultBImplant);
         try {
             List<Integer> obdModules = diagnosticReadinessModule.getOBDModules(ResultsListener.NOOP);
             emissionUnitsFound = new ArrayList<>();
-            obdModules.forEach(address -> {
-                emissionUnitsFound
-                        .add(vehicleInformationModule.reportComponentIdentification(ResultsListener.NOOP, address)
-                                .getPacket()
-                                .map(e -> e.resolve(p -> p,
-                                        ack -> ComponentIdentificationPacket.error(address, "ERROR")))
-                                .orElse(ComponentIdentificationPacket.error(address, "MISSING")));
-            });
+            obdModules.forEach(address -> emissionUnitsFound
+                    .add(vehicleInformationModule.reportComponentIdentification(ResultsListener.NOOP, address)
+                            .getPacket()
+                            .map(e -> e.resolve(p -> p,
+                                    ack -> ComponentIdentificationPacket.error(address, "ERROR")))
+                            .orElse(ComponentIdentificationPacket.error(address, "MISSING"))));
             view.setEmissionUnits(emissionUnitsFound.size());
         } catch (Exception e) {
             // Don't care
@@ -202,7 +195,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
 
         try {
             calIdsFound = vehicleInformationModule.reportCalibrationInformation(ResultsListener.NOOP);
-            view.setCalIds((int) calIdsFound.stream().flatMap(p -> p.getCalibrationInformation().stream()).count());
+            view.setCalIds((int) calIdsFound.stream().mapToLong(p -> p.getCalibrationInformation().size()).sum());
         } catch (Exception e) {
             // Don't care
         }
@@ -224,7 +217,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
             engineModelYear = vehicleInformationModule.getEngineModelYear();
             view.setEngineModelYear(engineModelYear);
         } catch (Exception e) {
-            // Don't care
+            view.setEngineModelYear(modelYear);
         }
 
         try {

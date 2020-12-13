@@ -150,7 +150,6 @@ public class CompositeMonitoredSystemTest {
         MonitoredSystem system1 = new MonitoredSystem("System", findStatus(false, true, true), 1,
                 CompositeSystem.BOOST_PRESSURE_CONTROL_SYS);
         CompositeMonitoredSystem instance = new CompositeMonitoredSystem(system1, false);
-        assertEquals("System     enabled,     complete", instance.toString());
+        assertEquals("    System                             supported,       completed", instance.toString());
     }
-
 }

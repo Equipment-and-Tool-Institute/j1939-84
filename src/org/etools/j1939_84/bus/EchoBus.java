@@ -76,7 +76,8 @@ public class EchoBus implements Bus {
     }
 
     @Override
-    public void send(Packet p) {
+    public Packet send(Packet p) {
         queue.add(p);
+        return p;
     }
 }

@@ -13,9 +13,12 @@ import java.awt.Toolkit;
 import java.awt.event.ItemEvent;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.File;
 import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
+import java.util.prefs.Preferences;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -36,6 +39,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.DefaultCaret;
+
 import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Adapter;
@@ -128,12 +132,12 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      * Constructor exposed for testing
      *
      * @param controller
-     *         The {@link UserInterfacePresenter} that will control the UI
+     *            The {@link UserInterfacePresenter} that will control the UI
      * @param buildNumber
-     *         The {@link BuildNumber} that will return the build number
+     *            The {@link BuildNumber} that will return the build number
      * @param swingExecutor
-     *         The {@link Executor} used to make updates to the UI on
-     *         the Swing Thread
+     *            The {@link Executor} used to make updates to the UI on the
+     *            Swing Thread
      */
     UserInterfaceView(Presenter controller, BuildNumber buildNumber, Executor swingExecutor) {
         this.controller = controller;
@@ -312,12 +316,21 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      */
     JFileChooser getFileChooser() {
         if (fileChooser == null) {
-            fileChooser = new JFileChooser();
+            final String KEY = "directory";
+            final String dir = Preferences.userNodeForPackage(getClass()).get(KEY, "");
+            fileChooser = new JFileChooser(dir);
             final FileNameExtensionFilter filter = new FileNameExtensionFilter("J1939-84 Data Files",
-                                                                               UserInterfacePresenter.FILE_SUFFIX);
+                    UserInterfacePresenter.FILE_SUFFIX);
             fileChooser.setFileFilter(filter);
             fileChooser.setDialogTitle("Create Report File");
-
+            fileChooser.addActionListener(
+                    e -> {
+                        final File file = fileChooser.getSelectedFile();
+                        if (file != null) {
+                            Preferences.userNodeForPackage(getClass()).put(KEY,
+                                    file.getParent());
+                        }
+                    });
         }
         return fileChooser;
     }
@@ -392,10 +405,10 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             reportControlPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
 
             GridBagLayout layout = new GridBagLayout();
-            layout.columnWidths = new int[]{0, 0};
-            layout.rowHeights = new int[]{0, 0};
-            layout.columnWeights = new double[]{1.0, 1.0};
-            layout.rowWeights = new double[]{1.0, 1.0};
+            layout.columnWidths = new int[] { 0, 0 };
+            layout.rowHeights = new int[] { 0, 0 };
+            layout.columnWeights = new double[] { 1.0, 1.0 };
+            layout.rowWeights = new double[] { 1.0, 1.0 };
             reportControlPanel.setLayout(layout);
 
             GridBagConstraints gbc1 = new GridBagConstraints();
@@ -445,10 +458,10 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             reportSetupPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
 
             GridBagLayout layout = new GridBagLayout();
-            layout.columnWidths = new int[]{0, 0, 0};
-            layout.rowHeights = new int[]{0, 0};
-            layout.columnWeights = new double[]{0.0, Double.MIN_VALUE, 0.0};
-            layout.rowWeights = new double[]{0, 0};
+            layout.columnWidths = new int[] { 0, 0, 0 };
+            layout.rowHeights = new int[] { 0, 0 };
+            layout.columnWeights = new double[] { 0.0, Double.MIN_VALUE, 0.0 };
+            layout.rowWeights = new double[] { 0, 0 };
             reportSetupPanel.setLayout(layout);
 
             GridBagConstraints adapterLabelGbc = new GridBagConstraints();
@@ -586,10 +599,10 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             topPanel = new JPanel();
             topPanel.setBorder(BorderFactory.createEmptyBorder());
             GridBagLayout layout = new GridBagLayout();
-            layout.columnWidths = new int[]{0, 0};
-            layout.rowHeights = new int[]{0, 0, 0, 0,};
-            layout.columnWeights = new double[]{1.0, 1.0};
-            layout.rowWeights = new double[]{0.0, 0.0, Double.MIN_VALUE, 0.0};
+            layout.columnWidths = new int[] { 0, 0 };
+            layout.rowHeights = new int[] { 0, 0, 0, 0, };
+            layout.columnWeights = new double[] { 1.0, 1.0 };
+            layout.rowWeights = new double[] { 0.0, 0.0, Double.MIN_VALUE, 0.0 };
             topPanel.setLayout(layout);
 
             GridBagConstraints reportSetupPanelGbc = new GridBagConstraints();
@@ -646,10 +659,10 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             vehicleInfoPanel.setBorder(new LineBorder(new Color(0, 0, 0)));
 
             GridBagLayout panelLayout = new GridBagLayout();
-            panelLayout.columnWidths = new int[]{0, 0, 0};
-            panelLayout.rowHeights = new int[]{0, 30};
-            panelLayout.columnWeights = new double[]{0.0, Double.MIN_VALUE, 0.0};
-            panelLayout.rowWeights = new double[]{0.0, 1.0};
+            panelLayout.columnWidths = new int[] { 0, 0, 0 };
+            panelLayout.rowHeights = new int[] { 0, 30 };
+            panelLayout.columnWeights = new double[] { 0.0, Double.MIN_VALUE, 0.0 };
+            panelLayout.rowWeights = new double[] { 0.0, 1.0 };
             vehicleInfoPanel.setLayout(panelLayout);
 
             GridBagConstraints vinLabelGbc = new GridBagConstraints();
@@ -742,7 +755,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      * update the UI
      *
      * @param runnable
-     *         the {@link Runnable} to execute
+     *            the {@link Runnable} to execute
      */
     private void refreshUI(Runnable runnable) {
         swingExecutor.execute(runnable);

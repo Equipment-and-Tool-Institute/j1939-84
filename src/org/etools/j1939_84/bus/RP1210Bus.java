@@ -13,9 +13,13 @@ import static org.etools.j1939_84.bus.RP1210Library.ECHO_ON;
 import static org.etools.j1939_84.bus.RP1210Library.NOTIFICATION_NONE;
 
 import java.nio.charset.StandardCharsets;
+import java.time.Instant;
+import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.Arrays;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executors;
-import java.util.concurrent.Future;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
@@ -61,21 +65,24 @@ public class RP1210Bus implements Bus {
      * The Queue of {@link Packet}s
      */
     private MultiQueue<Packet> queue = new MultiQueue<>();
-
     /**
      * The {@link RP1210Library}
      */
     private final RP1210Library rp1210Library;
 
+    private long timeStampStartMicroseconds;
+
+    final private long timeStampWeight;
+
     /**
      * Constructor
      *
      * @param adapter
-     *                the {@link Adapter} thats connected to the vehicle
+     *            the {@link Adapter} thats connected to the vehicle
      * @param address
-     *                the address of this branch on the bus
+     *            the address of this branch on the bus
      * @throws BusException
-     *                      if there is a problem connecting to the adapter
+     *             if there is a problem connecting to the adapter
      */
     public RP1210Bus(Adapter adapter, int address, boolean appPacketize) throws BusException {
         this(RP1210Library.load(adapter), Executors.newSingleThreadScheduledExecutor(), new MultiQueue<>(), adapter,
@@ -85,20 +92,26 @@ public class RP1210Bus implements Bus {
     /**
      * Constructor exposed for testing
      *
-     * @param rp1210Library the {@link RP1210Library} that connects to the adapter
+     * @param rp1210Library
+     *            the {@link RP1210Library} that connects to the adapter
      *
-     * @param exec          the {@link ScheduledExecutorService} that will execute
-     *                      tasks
+     * @param exec
+     *            the {@link ScheduledExecutorService} that will execute tasks
      *
-     * @param adapter       the {@link Adapter} thats connected to the vehicle
+     * @param adapter
+     *            the {@link Adapter} thats connected to the vehicle
      *
-     * @param address       the source address of this branch on the bus
+     * @param address
+     *            the source address of this branch on the bus
      *
-     * @param logger        the {@link Logger} for logging errors
+     * @param logger
+     *            the {@link Logger} for logging errors
      *
-     * @param queue         the {@link Packet} for logging errors
+     * @param queue
+     *            the {@link Packet} for logging errors
      *
-     * @throws BusException if there is a problem connecting to the adapter
+     * @throws BusException
+     *             if there is a problem connecting to the adapter
      *
      */
     public RP1210Bus(RP1210Library rp1210Library, ScheduledExecutorService exec, MultiQueue<Packet> queue,
@@ -108,6 +121,8 @@ public class RP1210Bus implements Bus {
         this.queue = queue;
         this.address = address;
         this.logger = logger;
+        timeStampWeight = adapter.getTimeStampWeight();
+        timeStampStartMicroseconds = 0;
 
         clientId = rp1210Library
                 .RP1210_ClientConnect(0,
@@ -141,13 +156,14 @@ public class RP1210Bus implements Bus {
      * Decodes the given byte array into a {@link Packet}
      *
      * @param data
-     *               the byte array to decode
+     *            the byte array to decode
      * @param length
-     *               the total length of the payload data
+     *            the total length of the payload data
      * @return {@link Packet}
      */
     private Packet decode(byte[] data, int length) {
-        // data[0 - 3] is timestamp
+        int timestamp = (0xFF000000 & data[0] << 24) | (0xFF0000 & data[1] << 16) | (0xFF00 & data[2] << 8)
+                | (0xFF & data[3]);
         // data[4] is echo
         int echoed = data[4];
         int pgn = ((data[7] & 0xFF) << 16) | ((data[6] & 0xFF) << 8) | (data[5] & 0xFF);
@@ -157,7 +173,22 @@ public class RP1210Bus implements Bus {
             int destination = data[10];
             pgn = pgn | (destination & 0xFF);
         }
-        return Packet.create(priority, pgn, source, echoed != 0, Arrays.copyOfRange(data, 11, length));
+
+        if (timeStampStartMicroseconds <= 0) {
+            timeStampStartMicroseconds = 1000 * System.currentTimeMillis() - timestamp * timeStampWeight;
+        }
+        long microseconds = timestamp * timeStampWeight + timeStampStartMicroseconds;
+        LocalDateTime time = LocalDateTime.ofInstant(Instant.ofEpochSecond(
+                /* seconds */ microseconds / 1000000,
+                /* nanoseconds */(microseconds % 1000000) * 1000),
+                ZoneId.systemDefault());
+
+        return Packet.create(
+                time,
+                priority,
+                pgn, source,
+                echoed != 0,
+                Arrays.copyOfRange(data, 11, length));
     }
 
     @Override
@@ -170,9 +201,10 @@ public class RP1210Bus implements Bus {
      * to the vehicle bus
      *
      * @param packet
-     *               the {@link Packet} to encode
+     *            the {@link Packet} to encode
      * @return a byte array of the encoded packet
      */
+    @SuppressWarnings("deprecation")
     private byte[] encode(Packet packet) {
         byte[] buf = new byte[packet.getLength() + 6];
         buf[0] = (byte) packet.getId();
@@ -218,6 +250,12 @@ public class RP1210Bus implements Bus {
                         getLogger().log(Level.WARNING, "Another module is using this address");
                     }
                     queue.add(packet);
+                } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
+                    // RX queue full, remedy is to reread.
+                    byte[] buffer = new byte[256];
+                    rp1210Library.RP1210_GetErrorMsg((short) Math.abs(rtn), buffer);
+                    getLogger().log(Level.SEVERE,
+                            "Error (" + rtn + "): " + new String(buffer, StandardCharsets.UTF_8).trim());
                 } else {
                     verify(rtn);
                     break;
@@ -243,17 +281,25 @@ public class RP1210Bus implements Bus {
     }
 
     @Override
-    public void send(Packet packet) throws BusException {
+    public Packet send(Packet tx) throws BusException {
         try {
-            byte[] data = encode(packet);
-            Future<Short> rtn = exec.submit(() -> rp1210Library.RP1210_SendMessage(clientId,
-                    data,
-                    (short) data.length,
-                    NOTIFICATION_NONE,
-                    BLOCKING_NONE));
-            verify(rtn.get());
-        } catch (Exception e) {
-            throw new BusException("Failed to send: " + packet, e);
+            byte[] data = encode(tx);
+            return CompletableFuture.supplyAsync(() -> {
+                try (Stream<Packet> stream = read(10, TimeUnit.SECONDS);) {
+                    short rtn = rp1210Library.RP1210_SendMessage(clientId,
+                            data,
+                            (short) data.length,
+                            NOTIFICATION_NONE,
+                            BLOCKING_NONE);
+                    verify(rtn);
+                    return stream.filter(rx -> tx.getId(0xFFFF) == rx.getId(0xFFFF) && rx.getSource() == getAddress())
+                            .findFirst().orElse(null);
+                } catch (BusException e) {
+                    throw new CompletionException(e);
+                }
+            }).get();
+        } catch (Throwable e) {
+            throw new BusException("Failed to send: " + tx, e);
         }
     }
 
@@ -261,11 +307,11 @@ public class RP1210Bus implements Bus {
      * Helper method to send a command to the library
      *
      * @param command
-     *                the command to send
+     *            the command to send
      * @param data
-     *                the data to include in the command
+     *            the data to include in the command
      * @throws BusException
-     *                      if there result of the command was unsuccessful
+     *             if there result of the command was unsuccessful
      */
     private void sendCommand(short command, byte... data) throws BusException {
         short rtn = rp1210Library.RP1210_SendCommand(command, clientId, data, (short) data.length);
@@ -276,7 +322,7 @@ public class RP1210Bus implements Bus {
      * Disconnects from the {@link RP1210Library}
      *
      * @throws BusException
-     *                      if there is a problem disconnecting
+     *             if there is a problem disconnecting
      */
     public void stop() throws BusException {
         try {
@@ -295,9 +341,9 @@ public class RP1210Bus implements Bus {
      * an error.
      *
      * @param rtnCode
-     *                the return code to check
+     *            the return code to check
      * @throws BusException
-     *                      if the return code is an error
+     *             if the return code is an error
      */
     private void verify(short rtnCode) throws BusException {
         if (rtnCode > 127 || rtnCode < 0) {

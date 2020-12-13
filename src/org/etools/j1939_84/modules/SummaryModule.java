@@ -5,7 +5,6 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -32,14 +31,11 @@ public class SummaryModule {
 
     private final PartResultRepository partResultRepository;
 
-    private List<PartResult> getPartResults() {
-        return partResultRepository.getPartResults();
-    }
     /**
      *
      */
     public SummaryModule() {
-        this.partResultRepository = PartResultRepository.getInstance();
+        partResultRepository = PartResultRepository.getInstance();
     }
 
     public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
@@ -82,18 +78,20 @@ public class SummaryModule {
                 .count();
     }
 
+    private List<PartResult> getPartResults() {
+        return partResultRepository.getPartResults();
+    }
+
     private StepResult getStepResult(int partNumber, int stepNumber) {
         return partResultRepository.getStepResult(partNumber, stepNumber);
     }
 
     public long getTiming() {
-        return -1;
-        // FIXME this probably means J1939-21 TP timing warnings.
-        // return partResults.stream()
-        // .flatMap(p -> p.getStepResults().stream())
-        // .flatMap(s -> s.getOutcomes().stream())
-        // .filter(o -> o.getOutcome() == Outcome.?)
-        // .count();
+        return getPartResults().stream()
+                .flatMap(p -> p.getStepResults().stream())
+                .flatMap(s -> s.getOutcomes().stream())
+                .filter(o -> o.getOutcome() == Outcome.TIMING)
+                .count();
     }
 
     public long getWarnings() {

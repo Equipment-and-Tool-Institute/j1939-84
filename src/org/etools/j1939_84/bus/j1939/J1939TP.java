@@ -390,17 +390,17 @@ public class J1939TP implements Bus {
     }
 
     @Override
-    public void send(Packet packet) throws BusException {
+    public Packet send(Packet packet) throws BusException {
         if (packet.getLength() <= 8) {
-            bus.send(packet);
+            return bus.send(packet);
         } else if (packet.getPgn() >= 0xF000) {
-            sendBam(packet);
+            return sendBam(packet);
         } else {
-            sendDestinationSpecific(packet);
+            return sendDestinationSpecific(packet);
         }
     }
 
-    void sendBam(Packet packet) throws BusException {
+    Packet sendBam(Packet packet) throws BusException {
         int pgn = packet.getPgn();
         int packetsToSend = packet.getLength() / 7 + 1;
         int sourceAddress = getAddress();
@@ -416,7 +416,7 @@ public class J1939TP implements Bus {
                 (0b111 & (pgn >> 16)));
         fine("tx BAM: " + bam);
 
-        bus.send(bam);
+        Packet response = bus.send(bam);
         // send data
         int id = DT | 0xFF;
         for (int i = 0; i < packetsToSend; i++) {
@@ -432,12 +432,14 @@ public class J1939TP implements Bus {
             buf[0] = (byte) (i + 1);
             sleep(50);
             Packet dp = Packet.create(id, sourceAddress, buf);
+
             fine("tx DT.DP: " + dp);
             bus.send(dp);
         }
+        return response;
     }
 
-    void sendDestinationSpecific(Packet packet) throws BusException {
+    Packet sendDestinationSpecific(Packet packet) throws BusException {
         // int pgn = packet.getPgn();
         // int destinationAddress = packet.getDestination();
         int pgn = packet.getId();
@@ -462,7 +464,7 @@ public class J1939TP implements Bus {
                 0xFF & (pgn >> 16));
         fine("tx RTS: " + rts);
 
-        bus.send(rts);
+        Packet response = bus.send(rts);
 
         // wait for CTS
         Optional<Packet> ctsOptional = ctsStream.findFirst();
@@ -497,8 +499,9 @@ public class J1939TP implements Bus {
                             Math.min(packet.getLength() - i * 7, 7));
                     buf[0] = (byte) (i + 1);
                     Packet dp = Packet.create(DT | destinationAddress, getAddress(), buf);
+
                     fine("tx DP: " + dp);
-                    bus.send(dp);
+                    response = bus.send(dp);
                 }
                 // wait for CTS or EOM
                 ctsOptional = bus.read(T3, TimeUnit.MILLISECONDS).filter(controlMessageFilter).findFirst();
@@ -515,6 +518,7 @@ public class J1939TP implements Bus {
             throw ctsOptional.map(p -> (BusException) new EomBusException())
                     .orElse(new CtsBusException());
         }
+        return response;
     }
 
     public void warn(String msg, Object... a) {

@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.bus;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertTrue;
@@ -23,7 +22,7 @@ import java.util.stream.Stream;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
-import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.controllers.TestResultsListener;
 import org.ini4j.InvalidFileFormatException;
 import org.junit.After;
 import org.junit.Test;
@@ -47,6 +46,7 @@ public class RP1210Test {
     static public void main(String[] args) throws IOException, BusException {
         List<Adapter> adapters = new RP1210().getAdapters();
         if (args.length == 0) {
+            System.err.println("Choose and adapter!");
             for (Adapter a : adapters) {
                 System.err.println(a.getDLLName() + " : " + a.getDeviceId() + "\t" + a.getName());
             }
@@ -60,20 +60,23 @@ public class RP1210Test {
             throw new IllegalArgumentException("Unknown RP1210 Adapter");
         }
         RP1210Bus bus = new RP1210Bus(adapter.get(), 0xF9, true);
-        long start = System.currentTimeMillis();
-        Stream<Packet> read = bus.read(365, TimeUnit.DAYS);
-        new J1939(bus).requestGlobalResult(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class)
-                .getEither()
-                .stream()
-                .flatMap(pa -> pa.left.stream())
-                .map(pa -> pa.getVin())
-                .findAny()
-                .ifPresent(vin -> System.err.format(NL + NL + "VIN:%s" + NL + NL, vin));
-        read// .filter(p -> p.getId() == 0xFECA || p.getId() == 0xFEEC ||
-            // (p.getId() & 0xFF00) == 0xEB00
-            // || (p.getId() & 0xFF00) == 0xEC00 || (p.getId() | 0xFF00) ==
-            // 0xEA00 || p.getSource() == 0xF9)
-                .forEach(p -> System.err.format("%8d %s" + NL, (System.currentTimeMillis() - start), p.toString()));
+        try (Stream<Packet> read = bus.read(2000, TimeUnit.MILLISECONDS);) {
+            new J1939(bus)
+                    .requestGlobalResult("Request VIN", new TestResultsListener() {
+                        @Override
+                        public void onResult(String result) {
+                            System.err.println("RST: " + result);
+                        }
+
+                    }, false, VehicleIdentificationPacket.class)
+                    .getEither()
+                    .stream()
+                    .flatMap(pa -> pa.left.stream())
+                    .map(pa -> pa.getVin())
+                    .findAny()
+                    .ifPresent(vin -> System.err.format("%n%nVIN:%s%n%n", vin));
+            read.forEach(p -> System.err.format("%8s %s%n", p.isTransmitted() ? "echoed" : "", p.toTimeString()));
+        }
     }
 
     @After
