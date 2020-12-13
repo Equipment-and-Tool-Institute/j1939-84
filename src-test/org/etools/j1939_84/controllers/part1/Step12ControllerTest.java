@@ -36,7 +36,6 @@ import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.OBDTestsModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -85,7 +84,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
     @Mock
     private OBDTestsModule obdTestsModule;
-
 
     @Mock
     private ReportFileModule reportFileModule;
@@ -147,8 +145,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         when(supportedSPN.getSpn()).thenReturn(159);
         supportedSPNs.add(supportedSPN);
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs
-        ));
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
@@ -212,8 +209,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         when(supportedSPN.getSpn()).thenReturn(159);
         supportedSPNs.add(supportedSPN);
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs
-        ));
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
@@ -278,8 +274,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         SupportedSPN supportedSPN = mock(SupportedSPN.class);
         supportedSPNs.add(supportedSPN);
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs
-        ));
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
@@ -363,8 +358,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         when(supportedSPN.getSpn()).thenReturn(157);
         supportedSPNs.add(supportedSPN);
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs
-        ));
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
@@ -423,8 +417,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         when(supportedSPN.getSpn()).thenReturn(157);
         supportedSPNs.add(supportedSPN);
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs
-        ));
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
@@ -488,8 +481,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         when(supportedSPN.getSpn()).thenReturn(157);
         supportedSPNs.add(supportedSPN);
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs
-        ));
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
@@ -551,8 +543,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         when(supportedSPN.getSpn()).thenReturn(157);
         supportedSPNs.add(supportedSPN);
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs
-        ));
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
@@ -622,8 +613,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         when(supportedSPN.getSpn()).thenReturn(157);
         supportedSPNs.add(supportedSPN);
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs
-        ));
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
@@ -725,8 +715,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         when(supportedSPN.getSpn()).thenReturn(157);
         supportedSPNs.add(supportedSPN);
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs
-        ));
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
@@ -784,8 +773,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         when(supportedSPN.getSpn()).thenReturn(157);
         supportedSPNs.add(supportedSPN);
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs
-        ));
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
@@ -861,8 +849,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         when(supportedSPN.getSpn()).thenReturn(159);
         supportedSPNs.add(supportedSPN);
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs
-        ));
+        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         List<ScaledTestResult> scaledTestsResults = new ArrayList<>();

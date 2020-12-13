@@ -23,7 +23,6 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -57,10 +56,10 @@ public class Step06ControllerTest extends AbstractControllerTest {
      * unnecessary mocks.
      */
     private static DM56EngineFamilyPacket createDM56(Integer sourceAddress,
-            Integer engineYear,
-            String modelYear,
-            Integer vehicleYear,
-            String familyName) {
+                                                     Integer engineYear,
+                                                     String modelYear,
+                                                     Integer vehicleYear,
+                                                     String familyName) {
         DM56EngineFamilyPacket packet = mock(DM56EngineFamilyPacket.class);
         if (sourceAddress != null) {
             when(packet.getSourceAddress()).thenReturn(sourceAddress);

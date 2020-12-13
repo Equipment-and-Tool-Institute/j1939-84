@@ -23,7 +23,6 @@ import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
@@ -103,8 +102,7 @@ public class Step01ControllerTest {
     }
 
     /**
-     * Test method for
-     * {@link Step01Controller#getDisplayName()}.
+     * Test method for {@link Step01Controller#getDisplayName()}.
      */
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.1", description = "Verifies part and step name for report"))
@@ -113,19 +111,7 @@ public class Step01ControllerTest {
     }
 
     /**
-     * Test method for
-     * {@link Step01Controller#getTotalSteps()}.
-     */
-    @Test
-    @TestDoc(value = @TestItem(verifies = "6.1.1", description = "Verifies that there is a single 6.1.1 step"))
-    public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
-    }
-
-
-    /**
-     * Test method for
-     * {@link StepController#getPartNumber()}.
+     * Test method for {@link StepController#getPartNumber()}.
      */
     @Test
     public void testGetPartNumber() {
@@ -133,16 +119,24 @@ public class Step01ControllerTest {
     }
 
     /**
-     * Test method for
-     * {@link StepController#getStepNumber()}.
+     * Test method for {@link StepController#getStepNumber()}.
      */
     @Test
     public void testGetStepNumber() {
         assertEquals(STEP_NUMBER, instance.getStepNumber());
     }
+
     /**
-     * Test method for
-     * {@link Step01Controller#run()}.
+     * Test method for {@link Step01Controller#getTotalSteps()}.
+     */
+    @Test
+    @TestDoc(value = @TestItem(verifies = "6.1.1", description = "Verifies that there is a single 6.1.1 step"))
+    public void testGetTotalSteps() {
+        assertEquals("Total Steps", 1, instance.getTotalSteps());
+    }
+
+    /**
+     * Test method for {@link Step01Controller#run()}.
      */
     @Test
     @TestDoc(value = {
@@ -197,7 +191,7 @@ public class Step01ControllerTest {
         verify(engineSpeedModule).isEngineNotRunning();
         verify(mockListener).onUrgentMessage(urgentMessages, expectedTitle, expectedType);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, Outcome.FAIL, "Testing");
-       // verify(mockListener).addOutcome(PART_NUMBER, );
+        // verify(mockListener).addOutcome(PART_NUMBER, );
         verify(mockListener).onVehicleInformationReceived(vehicleInfo);
         verify(vehicleInformationModule).setJ1939(j1939);
 
@@ -223,8 +217,7 @@ public class Step01ControllerTest {
     }
 
     /**
-     * Test method for
-     * {@link Step01Controller#run()}.
+     * Test method for {@link Step01Controller#run()}.
      */
     @Test
     @TestDoc(value = {
@@ -313,7 +306,7 @@ public class Step01ControllerTest {
             ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
             verify(executor).execute(runnableCaptor.capture());
             runnableCaptor.getValue().run();
-        }catch (Throwable e){
+        } catch (Throwable e) {
             e.printStackTrace();
 
         }

@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.modules;
 
-import java.util.function.Function;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -48,10 +47,10 @@ public abstract class FunctionalModule {
      * @return the List of Packets that were received
      */
     protected <T extends ParsedPacket> RequestResult<T> generateReport(
-            ResultsListener listener,
-            String title,
-            Class<T> clazz,
-            Packet request) {
+                                                                       ResultsListener listener,
+                                                                       String title,
+                                                                       Class<T> clazz,
+                                                                       Packet request) {
         return getJ1939().requestResult(title, listener, true, clazz, request);
     }
 
@@ -78,11 +77,11 @@ public abstract class FunctionalModule {
     }
 
     protected <T extends ParsedPacket> BusResult<T> getPacketDS(String title,
-            int pgn,
-            Class<T> clazz,
-            ResultsListener listener,
-            boolean fullString,
-            int address) {
+                                                                int pgn,
+                                                                Class<T> clazz,
+                                                                ResultsListener listener,
+                                                                boolean fullString,
+                                                                int address) {
         Packet request = getJ1939().createRequestPacket(pgn, address);
 
         return getJ1939().requestDS(title, listener, fullString, clazz, request);
@@ -108,10 +107,12 @@ public abstract class FunctionalModule {
      * @return the List of packets returned
      */
     protected <T extends ParsedPacket> RequestResult<T> getPacketsFromGlobal(String title,
-            int pgn,
-            Class<T> clazz,
-            ResultsListener listener,
-            boolean fullString) { // FIXME is full
+                                                                             int pgn,
+                                                                             Class<T> clazz,
+                                                                             ResultsListener listener,
+                                                                             boolean fullString) { // FIXME
+                                                                                                   // is
+                                                                                                   // full
         Packet request = getJ1939().createRequestPacket(pgn, J1939.GLOBAL_ADDR);
 
         return getJ1939().requestGlobal(title, listener, fullString, clazz, request);

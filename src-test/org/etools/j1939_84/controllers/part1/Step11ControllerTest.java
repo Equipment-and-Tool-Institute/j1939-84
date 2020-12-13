@@ -26,7 +26,6 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.model.PartResultFactory;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
@@ -55,12 +54,12 @@ public class Step11ControllerTest extends AbstractControllerTest {
      * unnecessary mocks.
      */
     private static DM21DiagnosticReadinessPacket createDM21Packet(Integer sourceAddress,
-            Double kmSinceDtcCleared,
-            Double kmWhileMILIsActivated,
-            Double milesSinceDTCsCleared,
-            Double milesWhileMILIsActivated,
-            Double minutesSinceDTCsCleared,
-            Double minutesWhileMILIsActivated) {
+                                                                  Double kmSinceDtcCleared,
+                                                                  Double kmWhileMILIsActivated,
+                                                                  Double milesSinceDTCsCleared,
+                                                                  Double milesWhileMILIsActivated,
+                                                                  Double minutesSinceDTCsCleared,
+                                                                  Double minutesWhileMILIsActivated) {
         DM21DiagnosticReadinessPacket packet = mock(DM21DiagnosticReadinessPacket.class);
         if (sourceAddress != null) {
             when(packet.getSourceAddress()).thenReturn(sourceAddress);

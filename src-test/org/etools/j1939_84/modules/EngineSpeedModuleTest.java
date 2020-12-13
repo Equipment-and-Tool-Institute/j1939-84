@@ -24,7 +24,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
-import org.mockito.internal.verification.VerificationModeFactory;
 import org.mockito.junit.MockitoJUnitRunner;
 
 /**
@@ -115,6 +114,19 @@ public class EngineSpeedModuleTest {
         assertFalse(instance.isEngineRunning());
     }
 
+    /**
+     * Test method for {@link EngineSpeedModule#isEngineRunning()} ()}.
+     */
+    @Test
+    public void testIsEngineRunning() {
+        EngineSpeedPacket packet = getEngineSpeedPacket(0xFFFF);
+        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS))
+                .thenReturn(Optional.of(new Either<>(packet, null)));
+        assertFalse(instance.isEngineRunning());
+        assertTrue(instance.isEngineCommunicating());
+        assertFalse(instance.isEngineNotRunning());
+    }
+
     @Test
     @TestDoc(@TestItem(description = "Verify KOER is identified when PGN 61444 speed (0xFE00-1)/8 RPM is on the bus."))
     public void testKOER_2500() {
@@ -150,19 +162,5 @@ public class EngineSpeedModuleTest {
         assertTrue(instance.isEngineCommunicating());
         assertFalse(instance.isEngineNotRunning());
         assertFalse(instance.isEngineRunning());
-    }
-
-    /**
-     * Test method for
-     * {@link EngineSpeedModule#isEngineRunning()} ()}.
-     */
-    @Test
-    public void testIsEngineRunning() {
-        EngineSpeedPacket packet = getEngineSpeedPacket(0xFFFF);
-        when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS))
-                .thenReturn(Optional.of(new Either<>(packet, null)));
-        assertFalse(instance.isEngineRunning());
-        assertTrue(instance.isEngineCommunicating());
-        assertFalse(instance.isEngineNotRunning());
     }
 }
