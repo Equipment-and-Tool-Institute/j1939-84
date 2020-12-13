@@ -14,6 +14,7 @@ import java.util.Optional;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CompletionException;
 import java.util.concurrent.TimeUnit;
+import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -37,6 +38,15 @@ public class J1939TPTest {
     interface PacketTask {
         void run() throws BusException;
     }
+
+    static private Predicate<? super Packet> VALID_FILTER = p -> {
+        try {
+            p.get(0);
+            return true;
+        } catch (Throwable t) {
+            return false;
+        }
+    };
 
     /** Compares content and not timestamps. */
     static private void assertPacketsEquals(Collection<Packet> expected, Collection<Packet> actual) {
@@ -155,7 +165,7 @@ public class J1939TPTest {
                         });
 
                 // verify no traffic
-                assertPacketsEquals(Collections.emptyList(), stream.collect(Collectors.toList()));
+                assertPacketsEquals(Collections.emptyList(), stream.filter(VALID_FILTER).collect(Collectors.toList()));
             }
         }
     }
@@ -277,7 +287,7 @@ public class J1939TPTest {
                 sleep(50);
                 bus.send(p);
             });
-            assertPacketsEquals(Collections.emptyList(), in.collect(Collectors.toList()));
+            assertPacketsEquals(Collections.emptyList(), in.filter(VALID_FILTER).collect(Collectors.toList()));
         }
     }
 
@@ -319,7 +329,7 @@ public class J1939TPTest {
                     sleep((long) (0.8 * J1939TP.T1));
                 }
                 // verify that no message was received
-                assertTrue(packetStream.collect(Collectors.toList()).isEmpty());
+                assertTrue(packetStream.filter(VALID_FILTER).collect(Collectors.toList()).isEmpty());
             }
         }
     }
@@ -451,7 +461,8 @@ public class J1939TPTest {
                 tpOut.send(p);
             }
             // verify that exactly one packet is received.
-            assertPacketsEquals(Collections.singletonList(p), tpStream.collect(Collectors.toList()));
+            assertPacketsEquals(Collections.singletonList(p),
+                    tpStream.filter(VALID_FILTER).collect(Collectors.toList()));
         }
     }
 
@@ -477,7 +488,8 @@ public class J1939TPTest {
                 tpOut.send(p);
             }
             // verify that exactly one packet is received.
-            assertPacketsEquals(Collections.singletonList(p), tpStream.collect(Collectors.toList()));
+            assertPacketsEquals(Collections.singletonList(p),
+                    tpStream.filter(VALID_FILTER).collect(Collectors.toList()));
         }
     }
 
@@ -544,7 +556,7 @@ public class J1939TPTest {
             Stream<Packet> rxStream = bus.read(500, TimeUnit.MILLISECONDS);
             run(() -> {
                 Stream<Packet> stream = tp.read(100, TimeUnit.MILLISECONDS);
-                tp.send(J1939.createRequestPacket(0xEA00, 0xF9, tp.getAddress()), stream);
+                tp.send(J1939.createRequestPacket(0xEA00, 0xF9, tp.getAddress()));
                 stream.findFirst()
                         .ifPresentOrElse(p -> result.complete(p),
                                 () -> result.completeExceptionally(success));
@@ -590,7 +602,7 @@ public class J1939TPTest {
             run(() -> {
                 long start = System.currentTimeMillis();
                 Stream<Packet> stream = tp.read(220, TimeUnit.MILLISECONDS);
-                tp.send(J1939.createRequestPacket(0xEA00, 0xF9, tp.getAddress()), stream);
+                tp.send(J1939.createRequestPacket(0xEA00, 0xF9, tp.getAddress()));
                 stream.findFirst()
                         .ifPresentOrElse(p -> result.complete(p),
                                 () -> result.completeExceptionally(
@@ -710,7 +722,7 @@ public class J1939TPTest {
             CompletableFuture<Object> sender = CompletableFuture
                     .supplyAsync(() -> {
                         try {
-                            tp.send(Packet.parse("1812F900 00 01 02 03 04 05 06 07 08 09 10"), waitForRts);
+                            tp.send(Packet.parse("1812F900 00 01 02 03 04 05 06 07 08 09 10"));
                         } catch (BusException e1) {
                         }
                         return null;
@@ -750,7 +762,7 @@ public class J1939TPTest {
                 bus.send(Packet.parse("18EC00F9 11 FF 01 11 11 F9 EA 00"));
             });
 
-            tp.send(Packet.parse("18EAF900 01 02 03 04 05 06 07 08 09 10"), stream);
+            tp.send(Packet.parse("18EAF900 01 02 03 04 05 06 07 08 09 10"));
             fail();
         } catch (RuntimeException e) {
             assertEquals(success, e);
@@ -780,7 +792,7 @@ public class J1939TPTest {
                 bus.send(Packet.parse("18EC00F9 11 00 11 11 11 11 11 11"));
             });
 
-            tp.send(Packet.parse("18EAF900 01 02 03 04 05 06 07 08 09 10"), stream);
+            tp.send(Packet.parse("18EAF900 01 02 03 04 05 06 07 08 09 10"));
             fail();
         } catch (RuntimeException e) {
             assertEquals(success, e);
@@ -810,7 +822,7 @@ public class J1939TPTest {
                 bus.send(Packet.parse("18EC00F9 11 01 02 FF FF 11 11 11"));
             });
 
-            tp.send(Packet.parse("18EAF900 01 02 03 04 05 06 07 08 09 10"), stream);
+            tp.send(Packet.parse("18EAF900 01 02 03 04 05 06 07 08 09 10"));
             fail();
         } catch (RuntimeException e) {
             assertEquals(success, e);

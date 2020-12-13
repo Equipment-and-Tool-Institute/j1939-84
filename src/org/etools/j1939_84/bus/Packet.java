@@ -24,6 +24,14 @@ import org.etools.j1939_84.modules.DateTimeModule;
  */
 public class Packet {
 
+    static public class PacketException extends RuntimeException {
+
+        public PacketException(String string) {
+            super(string);
+        }
+
+    }
+
     /**
      * The indication that a packet was transmitted
      */
@@ -81,7 +89,7 @@ public class Packet {
     public static Packet create(int priority, int id, int source, boolean transmitted, byte... bytes) {
         int[] data = new int[bytes.length];
         for (int i = 0; i < bytes.length; i++) {
-            data[i] = bytes[i];
+            data[i] = 0xFF & bytes[i];
         }
         return new Packet(LocalDateTime.now(), priority, id, source, transmitted, data);
     }
@@ -146,7 +154,7 @@ public class Packet {
         return null;
     }
 
-    private final int[] data;
+    private int[] data;
 
     private final int id;
 
@@ -178,10 +186,7 @@ public class Packet {
         this.id = id;
         this.source = source;
         this.transmitted = transmitted;
-        this.data = new int[data.length];
-        for (int i = 0; i < data.length; i++) {
-            this.data[i] = (0xFF & data[i]);
-        }
+        this.data = data;
     }
 
     @Override
@@ -195,7 +200,12 @@ public class Packet {
 
         Packet that = (Packet) obj;
         return id == that.id && priority == that.priority && source == that.source && transmitted == that.transmitted
-                && Objects.deepEquals(data, that.data);
+                && Objects.deepEquals(getData(), that.getData());
+    }
+
+    synchronized public void fail() {
+        data = new int[0];
+        notifyAll();
     }
 
     /**
@@ -206,7 +216,7 @@ public class Packet {
      * @return int
      */
     public int get(int i) {
-        return data[i];
+        return getData()[i];
     }
 
     /**
@@ -217,7 +227,7 @@ public class Packet {
      * @return int
      */
     public int get16(int i) {
-        return (data[i + 1] << 8) | data[i];
+        return (getData()[i + 1] << 8) | getData()[i];
     }
 
     /**
@@ -229,7 +239,7 @@ public class Packet {
      * @return int
      */
     public int get16Big(int i) {
-        return (data[i] << 8) | data[i + 1];
+        return (getData()[i] << 8) | getData()[i + 1];
     }
 
     /**
@@ -241,7 +251,7 @@ public class Packet {
      * @return int
      */
     public int get24(int i) {
-        return (data[i + 2] << 16) | (data[i + 1] << 8) | data[i];
+        return (getData()[i + 2] << 16) | (getData()[i + 1] << 8) | getData()[i];
     }
 
     /**
@@ -253,7 +263,7 @@ public class Packet {
      * @return int
      */
     public int get24Big(int i) {
-        return (data[i] << 16) | (data[i + 1] << 8) | data[i + 2];
+        return (getData()[i] << 16) | (getData()[i + 1] << 8) | getData()[i + 2];
     }
 
     /**
@@ -265,8 +275,8 @@ public class Packet {
      * @return int
      */
     public long get32(int i) {
-        return ((data[i + 3] & 0xFF) << 24) | ((data[i + 2] & 0xFF) << 16) | ((data[i + 1] & 0xFF) << 8)
-                | (data[i] & 0xFF);
+        return ((getData()[i + 3] & 0xFF) << 24) | ((getData()[i + 2] & 0xFF) << 16) | ((getData()[i + 1] & 0xFF) << 8)
+                | (getData()[i] & 0xFF);
     }
 
     /**
@@ -278,7 +288,7 @@ public class Packet {
      * @return int
      */
     public long get32Big(int i) {
-        return (data[i] << 24) | (data[i + 1] << 16) | (data[i + 2] << 8) | data[i + 3];
+        return (getData()[i] << 24) | (getData()[i + 1] << 16) | (getData()[i + 2] << 8) | getData()[i + 3];
     }
 
     public long get64() {
@@ -291,11 +301,25 @@ public class Packet {
      * @return byte[]
      */
     public byte[] getBytes() {
-        byte[] bytes = new byte[data.length];
+        byte[] bytes = new byte[getData().length];
         for (int i = 0; i < bytes.length; i++) {
-            bytes[i] = (byte) data[i];
+            bytes[i] = (byte) getData()[i];
         }
         return bytes;
+    }
+
+    synchronized private int[] getData() {
+        while (data == null) {
+            try {
+                wait();
+            } catch (InterruptedException e) {
+                // No worries
+            }
+        }
+        if (data.length == 0) {
+            throw new PacketException("Failed Packet");
+        }
+        return data;
     }
 
     /**
@@ -308,7 +332,7 @@ public class Packet {
      * @return int[]
      */
     public int[] getData(int beginIndex, int endIndex) {
-        return Arrays.copyOfRange(data, beginIndex, endIndex);
+        return Arrays.copyOfRange(getData(), beginIndex, endIndex);
     }
 
     /**
@@ -345,7 +369,7 @@ public class Packet {
      * @return int
      */
     public int getLength() {
-        return data.length;
+        return getData().length;
     }
 
     public int getPgn() {
@@ -386,7 +410,11 @@ public class Packet {
 
     @Override
     public int hashCode() {
-        return Objects.hash(id, priority, source, transmitted, Arrays.hashCode(data));
+        return Objects.hash(id, priority, source, transmitted, Arrays.hashCode(getData()));
+    }
+
+    public boolean isComplete() {
+        return data != null;
     }
 
     /**
@@ -402,12 +430,23 @@ public class Packet {
         return (id < 0xF000 ? (id & 0xFF00) : id) == pgn;
     }
 
+    synchronized public void setData(byte... data) {
+        if (isComplete()) {
+            throw new PacketException("Packet already initialized.");
+        }
+        this.data = new int[data.length];
+        for (int i = 0; i < data.length; i++) {
+            this.data[i] = (0xFF & data[i]);
+        }
+        notifyAll();
+    }
+
     @Override
     public String toString() {
         return String.format("%06X%02X %s",
                 priority << 18 | id,
                 source,
-                Arrays.stream(data).mapToObj(x -> String.format("%02X", x)).collect(Collectors.joining(" "))
+                Arrays.stream(getData()).mapToObj(x -> String.format("%02X", x)).collect(Collectors.joining(" "))
                         + (transmitted ? TX : ""));
     }
 

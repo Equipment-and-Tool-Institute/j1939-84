@@ -12,7 +12,6 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
-import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -20,21 +19,11 @@ import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.EchoBus;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.Packet.PacketException;
 
 // this was written before packet.getPgn() et. al.
 @SuppressWarnings("deprecation")
 public class J1939TP implements Bus {
-    /**
-     * Used to jump out of internal predicaments that should not be exposed to
-     * callers.
-     */
-    static private class BusControlException extends RuntimeException {
-        public final BusException busException;
-
-        public BusControlException(BusException e) {
-            busException = e;
-        }
-    }
 
     static public class CanceledBusException extends BusException {
         public CanceledBusException() {
@@ -78,20 +67,19 @@ public class J1939TP implements Bus {
     static private final Logger logger = Logger.getLogger(J1939TP.class.getName());
     final static public int T1 = 750;
     final static public int T2 = 1250;
-
     final static public int T3 = 1250;
 
     final static public int T4 = 1050;
+
     final static public Map<Integer, String> table7;
     final static public int Th = 500;
     final static public int Tr = 200;
-
     final static public int TrPlus = 220;
+
     static {
         Map<Integer, String> err = new HashMap<>();
         err.put(1, "Already in one or more connection managed sessions and cannot support another.");
-        err.put(2,
-                "System resources were needed for another task so this connection managed session was terminated.");
+        err.put(2, "System resources were needed for another task so this connection managed session was terminated.");
         err.put(3, "A timeout occurred and this is the connection abort to close the session.");
         err.put(4, "CTS messages received when data transfer is in progress.");
         err.put(5, "Maximum retransmit request limit reached");
@@ -125,18 +113,14 @@ public class J1939TP implements Bus {
             5L,
             TimeUnit.MILLISECONDS,
             new LinkedBlockingQueue<Runnable>());
+
     private final EchoBus inbound;
     /**
      * map of active requests (pgn<<32)|addr -> callbacks that are called when
      * RTS is received.
      */
     private final Map<Long, Runnable> requestCBs = new WeakHashMap<>();
-
     private final Stream<Packet> stream;
-
-    {
-        logger.setLevel(Level.FINEST);
-    }
 
     public J1939TP(Bus bus) throws BusException {
         this(bus, bus.getAddress());
@@ -172,6 +156,10 @@ public class J1939TP implements Bus {
         e.printStackTrace();
     }
 
+    private void fine(String string) {
+        System.err.println("LOG:" + string);
+    }
+
     @Override
     public int getAddress() {
         return inbound.getAddress();
@@ -198,9 +186,7 @@ public class J1939TP implements Bus {
                     if (packet.getDestination() == getAddress()) {
                         exec.execute(() -> {
                             try {
-                                inbound.send(receiveDestinationSpecific(packet));
-                            } catch (BusControlException e) {
-                                error("Failed to receive destination specific TP.", e.busException);
+                                receiveDestinationSpecific(packet);
                             } catch (BusException e) {
                                 error("Failed to receive destination specific TP.", e);
                             }
@@ -220,9 +206,7 @@ public class J1939TP implements Bus {
                     Stream<Packet> bamStream = bus.duplicate(stream, T2, TimeUnit.MILLISECONDS);
                     exec.execute(() -> {
                         try {
-                            inbound.send(receiveBam(packet, bamStream));
-                        } catch (BusControlException e) {
-                            error("Failed to receive BAM TP.", e.busException);
+                            receiveBam(packet, bamStream);
                         } catch (BusException e) {
                             error("Failed to receive BAM TP.", e);
                         } finally {
@@ -244,8 +228,8 @@ public class J1939TP implements Bus {
         }
     }
 
-    private Packet receiveBam(Packet rts, Stream<Packet> stream) throws BusException {
-        logger.fine("rx BAM: " + rts);
+    private void receiveBam(Packet rts, Stream<Packet> stream) throws BusException {
+        fine("rx BAM: " + rts);
 
         int numberOfPackets = rts.get(3);
 
@@ -253,38 +237,43 @@ public class J1939TP implements Bus {
         BitSet received = new BitSet(numberOfPackets + 1);
         int dataId = DT | rts.getDestination();
         int controlId = CM | (rts.getId() & 0xFF);
+
+        int pgn = rts.get24(5);
         int source = rts.getSource();
+        int packetId = pgn < 0xF000 ? pgn | rts.getDestination() : pgn;
+        Packet packet = Packet.create(packetId, source, (int[]) null);
+        synchronized (packet) {
+            inbound.send(packet);
 
-        bus.resetTimeout(stream, T2, TimeUnit.MILLISECONDS);
-        Optional<Packet> o = stream
-                .filter(p -> {
-                    int id = p.getId() & 0xFFFF;
-                    return p.getSource() == source && (id == dataId || id == controlId);
-                })
-                .peek(p -> bus.resetTimeout(stream, T1, TimeUnit.MILLISECONDS))
-                .flatMap(p -> {
-                    if ((p.getId() & 0xFFFF) == controlId) {
-                        warn("BAM canceled or aborted: " + rts + " -> " + p);
-                        throw new BusControlException(new CanceledBusException());
-                    }
-                    logger.fine("rx DT: " + p);
-                    received.set(p.get(0));
-                    int offset = (p.get(0) - 1) * 7;
-                    System.arraycopy(p.getBytes(), 1, data, offset, Math.min(offset + 7, data.length) - offset);
-                    return (received.cardinality() == numberOfPackets)
-                            ? Stream.of(Packet.create(rts.get24(5), rts.getSource(), data))
-                            : Stream.empty();
-
-                }).findFirst();
-        if (!o.isPresent()) {
-            warn("BAM missing DT %d != %d", received.cardinality(), numberOfPackets);
-            throw new TpDtBusException();
+            bus.resetTimeout(stream, T2, TimeUnit.MILLISECONDS);
+            stream
+                    .filter(p -> {
+                        int id = p.getId() & 0xFFFF;
+                        return p.getSource() == source && (id == dataId || id == controlId);
+                    })
+                    .peek(p -> bus.resetTimeout(stream, T1, TimeUnit.MILLISECONDS))
+                    .forEach(p -> {
+                        if ((p.getId() & 0xFFFF) == controlId) {
+                            warn("BAM canceled or aborted: " + rts + " -> " + p);
+                            packet.fail();
+                            return;
+                        }
+                        fine("rx DT: " + p);
+                        received.set(p.get(0));
+                        int offset = (p.get(0) - 1) * 7;
+                        System.arraycopy(p.getBytes(), 1, data, offset, Math.min(offset + 7, data.length) - offset);
+                    });
+            if (received.cardinality() == numberOfPackets && !packet.isComplete()) {
+                packet.setData(data);
+            } else {
+                warn("BAM missing DT %d != %d", received.cardinality(), numberOfPackets);
+                packet.fail();
+            }
         }
-        return o.get();
     }
 
-    public Packet receiveDestinationSpecific(Packet rts) throws BusException {
-        logger.fine("rx RTS: " + rts);
+    public void receiveDestinationSpecific(Packet rts) throws BusException {
+        fine("rx RTS: " + rts);
         int numberOfPackets = rts.get(3);
         int maxResponsePackets = rts.get(4);
 
@@ -294,91 +283,105 @@ public class J1939TP implements Bus {
         int lastCardinality = -1;
         int cardinality;
 
-        long key = ((long) rts.get24Big(5) << 32) | rts.getSource();
-        Runnable requestCallback = requestCBs.get(key);
-        if (requestCallback != null) {
-            requestCallback.run();
-        }
+        int pgn = rts.get24(5);
+        int source = rts.getSource();
+        int id = pgn < 0xF000 ? pgn | rts.getDestination() : pgn;
+        Packet packet = Packet.create(id, source, (int[]) null);
+        synchronized (packet) {
+            inbound.send(packet);
+            long key = ((long) pgn << 32) | source;
+            Runnable requestCallback = requestCBs.get(key);
+            if (requestCallback != null) {
+                requestCallback.run();
+            }
 
-        while ((cardinality = received.cardinality()) < numberOfPackets) {
-            if (cardinality == lastCardinality) {
-                if (receivedNone++ > 3) {
-                    throw new BusException("Failed to receive DT");
+            while ((cardinality = received.cardinality()) < numberOfPackets) {
+                if (cardinality == lastCardinality) {
+                    if (receivedNone++ > 3) {
+                        throw new BusException("Failed to receive DT");
+                    }
+                } else {
+                    lastCardinality = cardinality;
+                    receivedNone = 0;
                 }
-            } else {
-                lastCardinality = cardinality;
-                receivedNone = 0;
-            }
-            int nextPacket = received.nextClearBit(1);
-            int packetCount = received.nextSetBit(nextPacket) - nextPacket;
-            if (packetCount < 0) {
-                packetCount = numberOfPackets - nextPacket + 1;
-            }
-            if (packetCount > maxResponsePackets) {
-                packetCount = maxResponsePackets;
-            }
-            // FIXME should we warn on priority issues? Check with -21 and then
-            // with Eric
-            Stream<Packet> dataStream = bus.read(T2, TimeUnit.MILLISECONDS);
-            Stream<Packet> stream = dataStream
-                    .filter(p -> p.getSource() == rts.getSource())
-                    .peek(p -> {
-                        if ((p.getId() & 0xFFFF) == (CM | (rts.getId() & 0xFF))) {
-                            if (p.get(0) == CM_ConnAbort) {
-                                warn(getAbortError(p.get(1)));
+                int nextPacket = received.nextClearBit(1);
+                int packetCount = received.nextSetBit(nextPacket) - nextPacket;
+                if (packetCount < 0) {
+                    packetCount = numberOfPackets - nextPacket + 1;
+                }
+                if (packetCount > maxResponsePackets) {
+                    packetCount = maxResponsePackets;
+                }
+                // FIXME should we warn on priority issues? Check with -21 and
+                // then
+                // with Eric
+                Stream<Packet> dataStream = bus.read(T2, TimeUnit.MILLISECONDS);
+                Stream<Packet> stream = dataStream
+                        .filter(p -> p.getSource() == source)
+                        .peek(p -> {
+                            if ((p.getId() & 0xFFFF) == (CM | (rts.getId() & 0xFF))) {
+                                if (p.get(0) == CM_ConnAbort) {
+                                    warn(getAbortError(p.get(1)));
+                                }
+                                warn("TP canceled: " + p); // FIXME
+                                packet.fail();
+                                throw new PacketException("TP canceled");
                             }
-                            warn("TP canceled: " + p); // FIXME
-                            throw new BusControlException(new CanceledBusException());
-                        }
-                    })
-                    // only consider DT packet that are part of this connection
-                    .filter(p -> (p.getId() & 0xFFFF) == (DT | (rts.getId() & 0xFF)))
-                    // After every TP.DT, reset timeout to T1 from now.
-                    .peek(p -> {
-                        bus.resetTimeout(dataStream, T1, TimeUnit.MILLISECONDS);
-                        if (requestCallback != null) {
-                            requestCallback.run();
-                        }
-                    })
-                    .limit(packetCount);
-            Packet cts = Packet.create(CM | rts.getSource(),
+                        })
+                        // only consider DT packet that are part of this
+                        // connection
+                        .filter(p -> (p.getId() & 0xFFFF) == (DT | (rts.getId() & 0xFF)))
+                        // After every TP.DT, reset timeout to T1 from now.
+                        .peek(p -> {
+                            bus.resetTimeout(dataStream, T1, TimeUnit.MILLISECONDS);
+                            if (requestCallback != null) {
+                                requestCallback.run();
+                            }
+                        })
+                        .limit(packetCount);
+                Packet cts = Packet.create(CM | source,
+                        getAddress(),
+                        CM_CTS,
+                        packetCount,
+                        nextPacket,
+                        0xFF,
+                        0xFF,
+                        rts.get(5),
+                        rts.get(6),
+                        rts.get(7));
+                fine("tx CTS: " + cts);
+
+                bus.send(cts);
+                try {
+                    stream.forEach(p -> {
+                        fine("rx DT: " + rts);
+                        received.set(p.get(0));
+                        int offset = (p.get(0) - 1) * 7;
+                        System.arraycopy(p.getBytes(), 1, data, offset, Math.min(offset + 7, data.length) - offset);
+                    });
+                } catch (PacketException e) {
+                    // TP failed.
+                    return;
+                }
+            }
+            Packet eom = Packet.create(CM | source,
                     getAddress(),
-                    CM_CTS,
-                    packetCount,
-                    nextPacket,
-                    0xFF,
+                    CM_EndOfMessageACK,
+                    rts.get(1),
+                    rts.get(2),
+                    rts.get(3),
                     0xFF,
                     rts.get(5),
                     rts.get(6),
                     rts.get(7));
-            logger.fine("tx CTS: " + cts);
+            fine("tx EOM: " + eom);
 
-            bus.send(cts);
-            stream.forEach(p -> {
-                logger.fine("rx DT: " + rts);
-                received.set(p.get(0));
-                int offset = (p.get(0) - 1) * 7;
-                System.arraycopy(p.getBytes(), 1, data, offset, Math.min(offset + 7, data.length) - offset);
-            });
+            bus.send(eom);
+            if (pgn < 0xF000) {
+                pgn |= getAddress();
+            }
+            packet.setData(data);
         }
-        Packet eom = Packet.create(CM | rts.getSource(),
-                getAddress(),
-                CM_EndOfMessageACK,
-                rts.get(1),
-                rts.get(2),
-                rts.get(3),
-                0xFF,
-                rts.get(5),
-                rts.get(6),
-                rts.get(7));
-        logger.fine("tx EOM: " + eom);
-
-        bus.send(eom);
-        int pgn = rts.get24(5);
-        if (pgn < 0xF000) {
-            pgn |= getAddress();
-        }
-        return Packet.create(pgn, rts.getSource(), data);
     }
 
     @Override
@@ -397,18 +400,6 @@ public class J1939TP implements Bus {
         }
     }
 
-    @SafeVarargs
-    final public void send(Packet packet, Stream<Packet>... streams) throws BusException {
-        long pgn = packet.getPgn();
-        requestCBs.put((pgn << 32) | packet.getDestination(),
-                () -> {
-                    for (var stream : streams) {
-                        inbound.resetTimeout(stream, TrPlus, TimeUnit.MILLISECONDS);
-                    }
-                });
-        send(packet);
-    }
-
     void sendBam(Packet packet) throws BusException {
         int pgn = packet.getPgn();
         int packetsToSend = packet.getLength() / 7 + 1;
@@ -420,10 +411,10 @@ public class J1939TP implements Bus {
                 packet.getLength() >> 8,
                 packetsToSend,
                 0xFF,
-                pgn,
-                pgn >> 8,
+                0xFF & pgn,
+                0xFF & (pgn >> 8),
                 (0b111 & (pgn >> 16)));
-        logger.fine("tx BAM: " + bam);
+        fine("tx BAM: " + bam);
 
         bus.send(bam);
         // send data
@@ -441,7 +432,7 @@ public class J1939TP implements Bus {
             buf[0] = (byte) (i + 1);
             sleep(50);
             Packet dp = Packet.create(id, sourceAddress, buf);
-            logger.fine("tx DT.DP: " + dp);
+            fine("tx DT.DP: " + dp);
             bus.send(dp);
         }
     }
@@ -466,10 +457,10 @@ public class J1939TP implements Bus {
                 packet.getLength() >> 8,
                 totalPacketsToSend,
                 0xFF,
-                pgn,
-                pgn >> 8,
-                pgn >> 16);
-        logger.fine("tx RTS: " + rts);
+                0xFF & pgn,
+                0xFF & (pgn >> 8),
+                0xFF & (pgn >> 16));
+        fine("tx RTS: " + rts);
 
         bus.send(rts);
 
@@ -477,7 +468,7 @@ public class J1939TP implements Bus {
         Optional<Packet> ctsOptional = ctsStream.findFirst();
         while (ctsOptional.map(p -> p.get(0) == CM_CTS).orElse(false)) {
             Packet cts = ctsOptional.get();
-            logger.fine("rx CTS: " + cts);
+            fine("rx CTS: " + cts);
 
             int packetsToSend = Math.min(cts.get(1), totalPacketsToSend);
             if (packetsToSend == 0) {
@@ -506,14 +497,14 @@ public class J1939TP implements Bus {
                             Math.min(packet.getLength() - i * 7, 7));
                     buf[0] = (byte) (i + 1);
                     Packet dp = Packet.create(DT | destinationAddress, getAddress(), buf);
-                    logger.fine("tx DP: " + dp);
+                    fine("tx DP: " + dp);
                     bus.send(dp);
                 }
                 // wait for CTS or EOM
                 ctsOptional = bus.read(T3, TimeUnit.MILLISECONDS).filter(controlMessageFilter).findFirst();
             }
         }
-        ctsOptional.ifPresent(eom -> logger.fine("rx EOM: " + eom));
+        ctsOptional.ifPresent(eom -> fine("rx EOM: " + eom));
 
         if (ctsOptional.map(p -> p.get(0) == CM_ConnAbort).orElse(false)) {
             // FAIL
@@ -528,6 +519,8 @@ public class J1939TP implements Bus {
 
     public void warn(String msg, Object... a) {
         // FIXME where do we want warning messages to go?
-        System.err.println("WARN: " + String.format(msg, a));
+        String str = String.format(msg, a);
+        logger.warning(str);
+        System.err.println("WARN: " + str);
     }
 }
