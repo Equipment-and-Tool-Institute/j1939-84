@@ -163,8 +163,8 @@ public class PacketTest {
 
     @Test
     public void testNotEqualsPriority() {
-        Packet instance1 = Packet.create(6, 1234, 56, true);
-        Packet instance2 = Packet.create(9, 1234, 56, true);
+        Packet instance1 = Packet.create(6, 1234, 56, true, new byte[8]);
+        Packet instance2 = Packet.create(9, 1234, 56, true, new byte[8]);
         assertFalse(instance1.equals(instance2));
         assertFalse(instance2.equals(instance1));
     }
@@ -179,8 +179,8 @@ public class PacketTest {
 
     @Test
     public void testNotEqualsTransmitted() {
-        Packet instance1 = Packet.create(6, 1234, 56, true);
-        Packet instance2 = Packet.create(6, 1234, 56, false);
+        Packet instance1 = Packet.create(6, 1234, 56, true, new byte[8]);
+        Packet instance2 = Packet.create(6, 1234, 56, false, new byte[8]);
         assertFalse(instance1.equals(instance2));
         assertFalse(instance2.equals(instance1));
     }

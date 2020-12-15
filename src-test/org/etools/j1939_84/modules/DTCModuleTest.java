@@ -1749,8 +1749,9 @@ public class DTCModuleTest {
 
         String expected = "10:15:30.0000 Global DM29 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 00 9E 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response."
-                + NL;
+        expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 9E 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
@@ -1761,7 +1762,7 @@ public class DTCModuleTest {
         assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 
     @Test

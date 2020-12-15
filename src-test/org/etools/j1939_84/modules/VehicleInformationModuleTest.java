@@ -10,6 +10,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -695,12 +696,14 @@ public class VehicleInformationModuleTest {
         String expected = "10:15:30.0000 Global VIN Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 EC FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 EC FE 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
 
         List<VehicleIdentificationPacket> packets = instance.reportVin(listener);
         assertEquals(0, packets.size());
         assertEquals(expected, listener.getResults());
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).read(anyLong(), any());
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 
 }
