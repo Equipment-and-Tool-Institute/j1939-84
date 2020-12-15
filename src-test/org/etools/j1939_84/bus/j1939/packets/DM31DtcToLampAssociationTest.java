@@ -22,12 +22,11 @@ public class DM31DtcToLampAssociationTest {
 
     @Test
     public void testEmptyDTCs() {
-        Packet packet = Packet.create(DM31DtcToLampAssociation.PGN,
-                0);
+        Packet packet = Packet.create(DM31DtcToLampAssociation.PGN, 0, 0, 0, 0, 0, 0, 255, 255, 255);
         DM31DtcToLampAssociation instance = new DM31DtcToLampAssociation(packet);
         assertEquals("DM31", instance.getName());
         assertTrue(instance.getDtcLampStatuses().isEmpty());
-        assertEquals(0, instance.getPacket().getBytes().length);
+        assertEquals(8, instance.getPacket().getBytes().length);
     }
 
     @Test

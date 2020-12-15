@@ -58,6 +58,12 @@ public class RequestResult<T extends ParsedPacket> {
         this.acks = Collections.emptyList();
     }
 
+    public <T extends AcknowledgmentPacket> RequestResult(boolean retryUsed, T... packets) {
+        this.retryUsed = retryUsed;
+        this.packets = Collections.emptyList();
+        this.acks = Objects.requireNonNull(Arrays.asList(packets));
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (obj == this) {

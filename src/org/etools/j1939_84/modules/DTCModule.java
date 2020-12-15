@@ -12,6 +12,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
@@ -103,7 +104,7 @@ public class DTCModule extends FunctionalModule {
         Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
 
         var results = getJ1939()
-                .requestResult("Global DM11 Request", listener, false, DM11ClearActiveDTCsPacket.class, requestPacket);
+                .requestResult("Global DM11 Request", listener, true, DM11ClearActiveDTCsPacket.class, requestPacket);
 
         if (!results.getAcks().isEmpty() && results.getAcks().stream().allMatch(t -> t.getResponse() == Response.ACK)) {
             listener.onResult(DTCS_CLEARED);
@@ -139,7 +140,7 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public BusResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, boolean fullString,
-            int moduleAddress) {
+                                                             int moduleAddress) {
         return getPacketDS("Destination Specific DM12 Request to " + Lookup.getAddressName(moduleAddress),
                 DM12MILOnEmissionDTCPacket.PGN,
                 DM12MILOnEmissionDTCPacket.class,
@@ -172,7 +173,7 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public BusResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString,
-            int obdAddress) {
+                                                        int obdAddress) {
         return getPacketDS("Destination Specific DM2 Request to " + Lookup.getAddressName(obdAddress),
                 DM2PreviouslyActiveDTC.PGN,
                 DM2PreviouslyActiveDTC.class,
@@ -221,7 +222,7 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener,
-            boolean fullString) {
+                                                                           boolean fullString) {
         return getPacketsFromGlobal("Global DM23 Request",
                 DM23PreviouslyMILOnEmissionDTCPacket.PGN,
                 DM23PreviouslyMILOnEmissionDTCPacket.class,
@@ -239,7 +240,7 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public BusResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener, boolean fullString,
-            int address) {
+                                                                       int address) {
         return getPacketDS("Destination Specific DM23 Request to " + Lookup.getAddressName(address),
                 DM23PreviouslyMILOnEmissionDTCPacket.PGN,
                 DM23PreviouslyMILOnEmissionDTCPacket.class,
@@ -321,7 +322,7 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public BusResult<DM27AllPendingDTCsPacket> requestDM27(ResultsListener listener, boolean fullString,
-            int address) {
+                                                           int address) {
         return getPacketDS("Destination Specific DM27 Request to " + Lookup.getAddressName(address),
                 DM27AllPendingDTCsPacket.PGN,
                 DM27AllPendingDTCsPacket.class,
@@ -354,7 +355,7 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public BusResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener, boolean fullString,
-            int address) {
+                                                                 int address) {
         return getPacketDS("Destination Specific DM28 Request to " + Lookup.getAddressName(address),
                 DM28PermanentEmissionDTCPacket.PGN,
                 DM28PermanentEmissionDTCPacket.class,
@@ -442,7 +443,7 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> requestDM33(
-            ResultsListener listener) {
+                                                                                                     ResultsListener listener) {
         return requestDM33(listener, GLOBAL_ADDR);
     }
 
@@ -455,7 +456,8 @@ public class DTCModule extends FunctionalModule {
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> requestDM33(
-            ResultsListener listener, int address) {
+                                                                                                     ResultsListener listener,
+                                                                                                     int address) {
         Packet request = getJ1939()
                 .createRequestPacket(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, address);
 
@@ -491,18 +493,9 @@ public class DTCModule extends FunctionalModule {
     public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener, Integer address) {
         Packet request = getJ1939().createRequestPacket(DM6PendingEmissionDTCPacket.PGN, address);
 
-        String title = address == GLOBAL_ADDR ? " Global DM6 Request"
-                : " Destination Specific DM6 Request to " + Lookup.getAddressName(address);
+        String title = address == GLOBAL_ADDR ? "Global DM6 Request"
+                : "Destination Specific DM6 Request to " + Lookup.getAddressName(address);
 
-        listener.onResult(getTime() + title);
-        listener.onResult(getTime() + " " + request);
-
-        RequestResult<DM6PendingEmissionDTCPacket> result = new RequestResult<>(false, getJ1939()
-                .requestRaw(DM6PendingEmissionDTCPacket.class,
-                        request)
-                .collect(Collectors.toList()));
-        listener.onResult(result.getPackets().stream().map(ParsedPacket::toString).collect(Collectors.toList()));
-
-        return result;
+        return getJ1939().requestResult(title, listener, true, DM6PendingEmissionDTCPacket.class, request);
     }
 }

@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
@@ -49,7 +50,9 @@ public class DM31DtcToLampAssociation extends GenericPacket {
         final int length = getPacket().getLength();
         dtcLampStatuses = new ArrayList<>();
         for (int i = 0; i + 6 <= length; i = i + 6) {
-            dtcLampStatuses.add(new DTCLampStatus(getPacket().getData(i, i + 6)));
+            if (getPacket().get32(0) != 0) {
+                dtcLampStatuses.add(new DTCLampStatus(getPacket().getData(i, i + 6)));
+            }
         }
     }
 

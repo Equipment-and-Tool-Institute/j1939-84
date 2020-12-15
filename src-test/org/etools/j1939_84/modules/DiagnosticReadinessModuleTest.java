@@ -387,7 +387,7 @@ public class DiagnosticReadinessModuleTest {
 
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
@@ -562,7 +562,7 @@ public class DiagnosticReadinessModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -877,7 +877,7 @@ public class DiagnosticReadinessModuleTest {
 
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
@@ -1003,7 +1003,7 @@ public class DiagnosticReadinessModuleTest {
 
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
@@ -1091,7 +1091,7 @@ public class DiagnosticReadinessModuleTest {
 
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
@@ -1164,7 +1164,7 @@ public class DiagnosticReadinessModuleTest {
 
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -1573,7 +1573,7 @@ public class DiagnosticReadinessModuleTest {
 
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;

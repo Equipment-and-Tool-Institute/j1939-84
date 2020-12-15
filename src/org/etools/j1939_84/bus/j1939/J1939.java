@@ -242,7 +242,6 @@ public class J1939 {
         return bus.getAddress();
     }
 
-    /** FIXME why Integer and not int? */
     private Predicate<Packet> globalFilter(int pgn) {
         return
         // does the packet have the right ID
@@ -406,7 +405,7 @@ public class J1939 {
             throw new IllegalArgumentException("Invalid read from global.");
         }
 
-        Integer pgn = getPgn(T);
+        int pgn = getPgn(T);
         try (Stream<Packet> stream = read(timeout, unit)) {
             return stream
                     .filter(sourceFilter(addr).and(pgnFilter(pgn)))
@@ -435,7 +434,7 @@ public class J1939 {
     public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> read(Class<T> T,
                                                                                  long timeout,
                                                                                  TimeUnit unit) {
-        Integer pgn = getPgn(T);
+        int pgn = getPgn(T);
         try {
             return read(timeout, unit)
                     .filter(pgnFilter(pgn))
@@ -679,7 +678,8 @@ public class J1939 {
                 listener.onResult(DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + sent.toString());
             } else {// failed to send
             }
-            result = stream
+            Collection<Packet> list = stream.collect(Collectors.toList());
+            result = list.stream()
                     .filter(globalFilter(pgn))
                     .peek(p -> listener.onResult(p.toTimeString()))
                     .map(rawPacket -> (Either<T, AcknowledgmentPacket>) process(rawPacket))
@@ -703,42 +703,16 @@ public class J1939 {
                                                                          ResultsListener listener,
                                                                          boolean fullString,
                                                                          Class<T> clas) {
-        return requestGlobalResult(title, listener, fullString, clas, null);
+        return requestGlobalResult(title, listener, fullString, clas, getPgn(clas));
     }
 
     public <T extends ParsedPacket> RequestResult<T> requestGlobalResult(String title,
                                                                          ResultsListener listener,
                                                                          boolean fullString,
                                                                          Class<T> clas,
-                                                                         Integer pgn) {
-        if (pgn == null) {
-            pgn = getPgn(clas);
-            if (pgn == null) {
-                throw new IllegalArgumentException("The static field PGN can't be found in class " + clas.getName());
-            }
-        }
+                                                                         int pgn) {
 
         return requestGlobal(title, listener, fullString, clas, createRequestPacket(pgn, GLOBAL_ADDR));
-    }
-
-    /**
-     * Avoid using for new development. This is redundant with
-     * requestResult(...)
-     *
-     * @param clas
-     *            ParsedPacket class expected.
-     * @param requestPacket
-     *            The SAE request.
-     * @return Stream of results.
-     */
-    public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> requestRaw(
-                                                                                       Class<T> clas,
-                                                                                       Packet requestPacket) {
-        return requestResult(clas, requestPacket).getEither().stream();
-    }
-
-    public <T extends ParsedPacket> RequestResult<T> requestResult(Class<T> clazz, Packet request) {
-        return requestResult(null, ResultsListener.NOOP, true, clazz, request);
     }
 
     /**

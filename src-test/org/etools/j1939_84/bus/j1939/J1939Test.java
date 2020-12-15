@@ -10,7 +10,6 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -155,13 +154,13 @@ public class J1939Test {
                 e.printStackTrace();
             }
         }).start();
-        Thread.sleep(100);
 
         long start = System.currentTimeMillis();
-        Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = j1939
-                .requestDm7(null, ResultsListener.NOOP, j1939.createRequestPacket(DM24SPNSupportPacket.PGN, 0))
-                .getPacket();
+        BusResult<DM30ScaledTestResultsPacket> requestDm7 = j1939
+                .requestDm7(null, ResultsListener.NOOP, j1939.createRequestPacket(DM24SPNSupportPacket.PGN, 0));
         long duration = System.currentTimeMillis() - start;
+        Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = requestDm7
+                .getPacket();
 
         assertTrue(result.isPresent());
         Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket> e = result.get();
@@ -291,7 +290,7 @@ public class J1939Test {
     @Test
     public void testRequestDM7WillTryThreeTimes() throws Exception {
         Packet packet1 = Packet.create(DM30ScaledTestResultsPacket.PGN
-                | 0xA5, 0x00, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0x0A, 0x0B, 0x0C, 0x0D);
+                | BUS_ADDR, 0x00, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0x0A, 0x0B, 0x0C, 0x0D);
         when(bus.read(220, TimeUnit.MILLISECONDS)).thenReturn(Stream.of()).thenReturn(Stream.of())
                 .thenReturn(Stream.of(packet1));
 
@@ -468,47 +467,6 @@ public class J1939Test {
         assertEquals("BodyControllerVIN", packets.get(2).getVin());
 
         verify(bus).send(request);
-    }
-
-    @Test
-    public void testRequestRawReturns() throws Exception {
-        // NACK to addr
-        Packet response1 = Packet.create(0xE8FF, 0x01, 0, 0, 0, 0, BUS_ADDR, 0xD3, 0xFE, 0x00);
-        // NACK to global
-        Packet response2 = Packet.create(0xE8FF, 0x01, 0, 0, 0, 0, 0xFF, 0xD3, 0xFE, 0x00);
-        // NACK to addr DS
-        Packet response3 = Packet.create(0xE8A5, 0x01, 0, 0, 0, 0, BUS_ADDR, 0xD3, 0xFE, 0x00);
-        // NACK to global DS
-        Packet response4 = Packet.create(0xE8A5, 0x01, 0, 0, 0, 0, 0xFF, 0xD3, 0xFE, 0x00);
-        // ACK to addr
-        Packet response5 = Packet.create(0xE8FF, 0x00, 0, 0, 0, 0, BUS_ADDR, 0xD3, 0xFE, 0x00);
-        // ACK to global
-        Packet response6 = Packet.create(0xE8FF, 0x00, 0, 0, 0, 0, 0xFF, 0xD3, 0xFE, 0x00);
-        // ACK to addr DS
-        Packet response7 = Packet.create(0xE8A5, 0x00, 0, 0, 0, 0, BUS_ADDR, 0xD3, 0xFE, 0x00);
-        // ACK to global DS
-        Packet response8 = Packet.create(0xE8A5, 0x00, 0, 0, 0, 0, 0xFF, 0xD3, 0xFE, 0x00);
-        // Junk to different PGN
-        Packet response9 = Packet.create(0xE8FF, 0x00, 0, 0, 0, 0, 0xFF, 0xFA, 0xFE, 0x00);
-        // Junk with different pgn
-        Packet response10 = Packet.create(0xF004, 0x00, 0, 0, 0, 0, 0xFF, 0xD3, 0xFE, 0x00);
-
-        when(bus.read(ArgumentMatchers.anyLong(), any(TimeUnit.class))).thenReturn(Stream.of(response1,
-                response2,
-                response3,
-                response4,
-                response5,
-                response6,
-                response7,
-                response8,
-                response9,
-                response10));
-
-        Packet request = instance.createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
-        List<?> packets = instance.requestRaw(DM11ClearActiveDTCsPacket.class, request)
-                .collect(Collectors.toList());
-
-        assertEquals(8, packets.size());
     }
 
 }

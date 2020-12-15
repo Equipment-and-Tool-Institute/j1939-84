@@ -94,6 +94,10 @@ public class Packet {
 
     public static Packet create(LocalDateTime time, int priority, int id, int source, boolean transmitted,
                                 byte... bytes) {
+        if (bytes.length < 3) {
+            // a body of 0 length indicates that the packet was a failure.
+            throw new IllegalArgumentException("Packets must have a body of at least 3 bytes.");
+        }
         int[] data = new int[bytes.length];
         for (int i = 0; i < bytes.length; i++) {
             data[i] = 0xFF & bytes[i];

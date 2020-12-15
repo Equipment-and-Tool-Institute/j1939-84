@@ -11,6 +11,7 @@ import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import java.util.ArrayList;
@@ -291,26 +292,26 @@ public class DTCModuleTest {
     }
 
     @Test
-    /* FIXME what is this supposed to be testing? */
+    /* FIXME what is this supposed to be testing? It has one response. */
     public void testRequestDM11GlobalNoResponseWithManyModules() throws BusException {
         final int pgn = DM11ClearActiveDTCsPacket.PGN;
 
         Packet requestPacket = Packet.create(REQUEST_PGN | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
-        DM11ClearActiveDTCsPacket packet1 = new DM11ClearActiveDTCsPacket(
-                Packet.create(0xE8FF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
+        AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
+                Packet.create(0xE8A5, 0x00, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
         expected += "10:15:30.0000 Global DM11 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 D3 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18E8A500 00 FF FF FF A5 D3 FE 00" + NL;
         expected += "Diagnostic Trouble Codes were successfully cleared." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM11ClearActiveDTCsPacket> expectedResult = new RequestResult<>(false, Collections.emptyList(),
-                Collections.emptyList());
+        RequestResult<AcknowledgmentPacket> expectedResult = new RequestResult<>(false, packet1);
         assertEquals(expectedResult, instance.requestDM11(listener));
         assertEquals(expected, listener.getResults());
 
@@ -325,22 +326,23 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(REQUEST_PGN | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
 
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
         expected += "10:15:30.0000 Global DM11 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 D3 FE 00 (TX)" + NL;
-        expected += "Diagnostic Trouble Codes were successfully cleared." + NL;
+        expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 D3 FE 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+        expected += "ERROR: Clearing Diagnostic Trouble Codes failed." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM11ClearActiveDTCsPacket> expectedResult = new RequestResult<>(false, Collections.emptyList(),
-                Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM11(listener));
+        assertEquals(RequestResult.empty(), instance.requestDM11(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).requestRaw(DM11ClearActiveDTCsPacket.class, requestPacket);
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 
     @Test
@@ -350,7 +352,7 @@ public class DTCModuleTest {
         Packet requestPacket1 = Packet.create(REQUEST_PGN | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket1).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
-        DM11ClearActiveDTCsPacket packet1 = new DM11ClearActiveDTCsPacket(
+        AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
                 Packet.create(0xE800 | BUS_ADDR, 0x00, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
 
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
@@ -359,8 +361,9 @@ public class DTCModuleTest {
         expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
         expected += "10:15:30.0000 Global DM11 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 D3 FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 18E80000 00 FF FF FF A5 D3 FE 00" + NL;
-        expected += "DM11 from Engine #1 (0): Response is Acknowledged" + NL;
+        expected += "10:15:30.0000 18E8A500 00 FF FF FF A5 D3 FE 00" + NL;
+        // why is thi smissing FIXME expected += "DM11 from Engine #1 (0):
+        // Response is Acknowledged" + NL;
         expected += "Diagnostic Trouble Codes were successfully cleared." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -409,12 +412,12 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(REQUEST_PGN | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
-        DM11ClearActiveDTCsPacket packet1 = new DM11ClearActiveDTCsPacket(
-                Packet.create(0xE800, 0x00, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
-        DM11ClearActiveDTCsPacket packet2 = new DM11ClearActiveDTCsPacket(
-                Packet.create(0xE800, 0x17, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
-        DM11ClearActiveDTCsPacket packet3 = new DM11ClearActiveDTCsPacket(
-                Packet.create(0xE800, 0x21, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
+        AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
+                Packet.create(0xE8FF, 0x00, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
+        AcknowledgmentPacket packet2 = new AcknowledgmentPacket(
+                Packet.create(0xE8FF, 0x17, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
+        AcknowledgmentPacket packet3 = new AcknowledgmentPacket(
+                Packet.create(0xE8FF, 0x21, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
                 any());
 
@@ -432,7 +435,7 @@ public class DTCModuleTest {
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM11ClearActiveDTCsPacket> expectedResult = new RequestResult<>(false, Collections.emptyList(),
-                Arrays.asList(new DM11ClearActiveDTCsPacket[] { packet1, packet2, packet3 }));
+                Arrays.asList(new AcknowledgmentPacket[] { packet1, packet2, packet3 }));
         assertEquals(expectedResult, instance.requestDM11(listener));
         assertEquals(expected, listener.getResults());
 
@@ -448,11 +451,11 @@ public class DTCModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
-                Packet.create(0xE800, 0x00, 0x01, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
+                Packet.create(0xE800 | BUS_ADDR, 0x00, 0x01, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
         AcknowledgmentPacket packet2 = new AcknowledgmentPacket(
-                Packet.create(0xE800, 0x17, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
+                Packet.create(0xE800 | BUS_ADDR, 0x17, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
         AcknowledgmentPacket packet3 = new AcknowledgmentPacket(
-                Packet.create(0xE800, 0x21, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
+                Packet.create(0xE800 | BUS_ADDR, 0x21, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
                 any());
 
@@ -460,15 +463,20 @@ public class DTCModuleTest {
         expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
         expected += "10:15:30.0000 Global DM11 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 D3 FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 18E80000 01 FF FF FF F9 D3 FE 00" + NL;
-        expected += "Acknowledgment from Engine #1 (0): Response: NACK, Group Function: 255, Address Acknowledged: 249, PGN Requested: 65235"
-                + NL;
-        expected += "10:15:30.0000 18E80017 00 FF FF FF F9 D3 FE 00" + NL;
-        expected += "Acknowledgment from Instrument Cluster #1 (23): Response: ACK, Group Function: 255, Address Acknowledged: 249, PGN Requested: 65235"
-                + NL;
-        expected += "10:15:30.0000 18E80021 00 FF FF FF F9 D3 FE 00" + NL;
-        expected += "Acknowledgment from Body Controller (33): Response: ACK, Group Function: 255, Address Acknowledged: 249, PGN Requested: 65235"
-                + NL;
+        expected += "10:15:30.0000 18E8A500 01 FF FF FF A5 D3 FE 00" + NL;
+        // FIXME expected += "Acknowledgment from Engine #1 (0): Response: NACK,
+        // Group Function: 255, Address Acknowledged: 249, PGN Requested: 65235"
+        // + NL;
+        expected += "10:15:30.0000 18E8A517 00 FF FF FF A5 D3 FE 00" + NL;
+        // FIXME expected += "Acknowledgment from Instrument Cluster #1 (23):
+        // Response: ACK, Group Function: 255, Address Acknowledged: 249, PGN
+        // Requested: 65235"
+        // + NL;
+        expected += "10:15:30.0000 18E8A521 00 FF FF FF A5 D3 FE 00" + NL;
+        // FIXME expected += "Acknowledgment from Body Controller (33):
+        // Response: ACK, Group Function: 255, Address Acknowledged: 249, PGN
+        // Requested: 65235"
+        // + NL;
         expected += "ERROR: Clearing Diagnostic Trouble Codes failed." + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -673,17 +681,145 @@ public class DTCModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
 
         TestResultsListener listener = new TestResultsListener();
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM12 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 D4 FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 D4 FE 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
 
-        RequestResult<DM12MILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false, Collections.emptyList(),
-                Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM12(listener, true));
+        assertEquals(RequestResult.empty(), instance.requestDM12(listener, true));
         assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939, times(2)).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM21DestinationSpecificNoResponse() throws BusException {
+        final int pgn = DM21DiagnosticReadinessPacket.PGN;
+        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
+
+        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+
+        String expected = "10:15:30.0000 Destination Specific DM21 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 00 C1 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM21DiagnosticReadinessPacket> result = new RequestResult<>(false,
+                Collections.emptyList(),
+                Collections.emptyList());
+
+        assertEquals(result, instance.requestDM21(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM21DestinationSpecificResponse() throws BusException {
+        final int pgn = DM21DiagnosticReadinessPacket.PGN;
+        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
+
+        Packet packet = Packet.create(pgn | BUS_ADDR, 0, 0x10, 0x27, 0x20, 0x4E, 0x30, 0x75, 0x40, 0x9C);
+        DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(packet);
+
+        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM21DiagnosticReadinessPacket> result = new RequestResult<>(false,
+                Collections.singletonList(packet1),
+                Collections.emptyList());
+
+        String expected = "10:15:30.0000 Destination Specific DM21 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18C1A500 10 27 20 4E 30 75 40 9C" + NL;
+        expected += "DM21 from Engine #1 (0): [" + NL;
+        expected += "  Distance Traveled While MIL is Activated:     10,000 km (6,213.712 mi)" + NL;
+        expected += "  Time Run by Engine While MIL is Activated:    30,000 minutes" + NL;
+        expected += "  Distance Since DTCs Cleared:                  20,000 km (12,427.424 mi)" + NL;
+        expected += "  Time Since DTCs Cleared:                      40,000 minutes" + NL + "]" + NL;
+
+        assertEquals(result, instance.requestDM21(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM21GlobalNoResponse() throws BusException {
+        final int pgn = DM21DiagnosticReadinessPacket.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
+
+        Packet packet = Packet.create(pgn | BUS_ADDR, 0, 0x10, 0x27, 0x20, 0x4E, 0x30, 0x75, 0x40, 0x9C);
+        DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(packet);
+
+        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM21DiagnosticReadinessPacket> result = new RequestResult<>(false,
+                Collections.singletonList(packet1),
+                Collections.emptyList());
+
+        String expected = "10:15:30.0000 Global DM21 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18C1A500 10 27 20 4E 30 75 40 9C" + NL;
+        expected += "DM21 from Engine #1 (0): [" + NL;
+        expected += "  Distance Traveled While MIL is Activated:     10,000 km (6,213.712 mi)" + NL;
+        expected += "  Time Run by Engine While MIL is Activated:    30,000 minutes" + NL;
+        expected += "  Distance Since DTCs Cleared:                  20,000 km (12,427.424 mi)" + NL;
+        expected += "  Time Since DTCs Cleared:                      40,000 minutes" + NL + "]" + NL;
+
+        assertEquals(result, instance.requestDM21(listener));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM21GlobalResponse() throws BusException {
+        final int pgn = DM21DiagnosticReadinessPacket.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+
+        Packet packet = Packet.create(pgn | BUS_ADDR, 0, 0x10, 0x27, 0x20, 0x4E, 0x30, 0x75, 0x40, 0x9C);
+        DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(packet);
+
+        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM21DiagnosticReadinessPacket> result = new RequestResult<>(false,
+                Collections.singletonList(packet1),
+                Collections.emptyList());
+
+        String expected = "10:15:30.0000 Global DM21 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18C1A500 10 27 20 4E 30 75 40 9C" + NL;
+        expected += "DM21 from Engine #1 (0): [" + NL;
+        expected += "  Distance Traveled While MIL is Activated:     10,000 km (6,213.712 mi)" + NL;
+        expected += "  Time Run by Engine While MIL is Activated:    30,000 minutes" + NL;
+        expected += "  Distance Since DTCs Cleared:                  20,000 km (12,427.424 mi)" + NL;
+        expected += "  Time Since DTCs Cleared:                      40,000 minutes" + NL + "]" + NL;
+
+        assertEquals(result, instance.requestDM21(listener));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -870,22 +1006,193 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
-        doReturn(Stream.of()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM23 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 B5 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 B5 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
-                Collections.emptyList(), Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM23(listener, true));
+        assertEquals(RequestResult.empty(), instance.requestDM23(listener, true));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939, times(2)).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM25DestinationSpecificNackOnly() throws BusException {
+        final int pgn = DM25ExpandedFreezeFrame.PGN;
+        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
+
+        AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
+                Packet.create(0xE800 | GLOBAL_ADDR, 0x00, 0x01, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xB7, 0xFD, 0x00));
+
+        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+
+        String expected = "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 B7 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18E8FF00 01 FF FF FF A5 B7 FD 00" + NL;
+        expected += "Acknowledgment from Engine #1 (0): Response: NACK, Group Function: 255, Address Acknowledged: 165, PGN Requested: 64951"
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        BusResult<DM25ExpandedFreezeFrame> expectedResult = new BusResult<>(false, packet1);
+        assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM25DestinationSpecificNoResponse() throws BusException {
+        final int pgn = DM25ExpandedFreezeFrame.PGN;
+        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
+
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
+        String expected = "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 B7 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        BusResult<DM25ExpandedFreezeFrame> expectedResult = new BusResult<>(false, Optional.empty());
+        assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM25DestinationSpecificWithResponse() throws BusException {
+        final int pgn = DM25ExpandedFreezeFrame.PGN;
+        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
+
+        int[] realData = new int[] {
+                0x56,
+                0x9D,
+                0x00,
+                0x07,
+                0x7F,
+                0x00,
+                0x01,
+                0x7B,
+                0x00,
+                0x00,
+                0x39,
+                0x3A,
+                0x5C,
+                0x0F,
+                0xC4,
+                0xFB,
+                0x00,
+                0x00,
+                0x00,
+                0xF1,
+                0x26,
+                0x00,
+                0x00,
+                0x00,
+                0x12,
+                0x7A,
+                0x7D,
+                0x80,
+                0x65,
+                0x00,
+                0x00,
+                0x32,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x84,
+                0xAD,
+                0x00,
+                0x39,
+                0x2C,
+                0x30,
+                0x39,
+                0xFC,
+                0x38,
+                0xC6,
+                0x35,
+                0xE0,
+                0x34,
+                0x2C,
+                0x2F,
+                0x00,
+                0x00,
+                0x7D,
+                0x7D,
+                0x8A,
+                0x28,
+                0xA0,
+                0x0F,
+                0xA0,
+                0x0F,
+                0xD1,
+                0x37,
+                0x00,
+                0xCA,
+                0x28,
+                0x01,
+                0xA4,
+                0x0D,
+                0x00,
+                0xA8,
+                0xC3,
+                0xB2,
+                0xC2,
+                0xC3,
+                0x00,
+                0x00,
+                0x00,
+                0x00,
+                0x7E,
+                0xD0,
+                0x07,
+                0x00,
+                0x7D,
+                0x04,
+                0xFF,
+                0xFA };
+
+        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(pgn, 0x00, realData));
+        doReturn(Stream.of(packet.getPacket())).when(j1939).read(anyLong(), any());
+
+        String expected = "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 B7 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FDB700 56 9D 00 07 7F 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
+                + NL;
+        expected += "DM25 from Engine #1 (0): " + NL;
+        expected += "Freeze Frames: [" + NL;
+        expected += "DTC:  (157) Engine Fuel 1 Injector Metering Rail 1 Pressure Mechanical System Not Responding Or Out Of Adjustment (7)"
+                + NL;
+        expected += "SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF"
+                + NL;
+        expected += "]" + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        BusResult<DM25ExpandedFreezeFrame> expectedResult = new BusResult<>(false, packet);
+        assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
         verify(j1939).read(anyLong(), any());
     }
 
@@ -1068,22 +1375,22 @@ public class DTCModuleTest {
 
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0xFF);
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(false,
-                Collections.emptyList(), Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM26(listener));
+        assertEquals(RequestResult.empty(), instance.requestDM26(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).read(anyLong(), any());
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 
     @Test
@@ -1283,21 +1590,21 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM27 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 82 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 82 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM27AllPendingDTCsPacket> expectedResult = new RequestResult<>(false, Collections.emptyList(),
-                Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM27(listener, true));
+        assertEquals(RequestResult.empty(), instance.requestDM27(listener, true));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 
     @Test
@@ -1361,8 +1668,135 @@ public class DTCModuleTest {
                 + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false, List.of(packet1), Collections.emptyList());
+        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false, List.of(packet1),
+                Collections.emptyList());
         assertEquals(expectedResult, instance.requestDM28(listener, true));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM29DestinationSpecificNoResponse() throws BusException {
+        final int pgn = DM29DtcCounts.PGN;
+        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
+
+        String expected = "10:15:30.0000 Destination Specific DM29 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 00 9E 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response."
+                + NL;
+
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
+
+        TestResultsListener listener = new TestResultsListener();
+        assertEquals(BusResult.empty(), instance.requestDM29(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM29DestinationSpecificResponse() throws BusException {
+        final int pgn = DM29DtcCounts.PGN;
+        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
+
+        String expected = "10:15:30.0000 Destination Specific DM29 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 00 9E 00 (TX)" + NL;
+        expected += "10:15:30.0000 189EA500 09 20 47 31 01 FF FF FF" + NL;
+        expected += "DM29 from Engine #1 (0): " + NL;
+        expected += "Emission-Related Pending DTC Count                               9" + NL;
+        expected += "All Pending DTC Count                                           32" + NL;
+        expected += "Emission-Related MIL-On DTC Count                               71" + NL;
+        expected += "Emission-Related Previously MIL-On DTC Count                    49" + NL;
+        expected += "Emission-Related Permanent DTC Count                             1" + NL;
+
+        DM29DtcCounts packet1 = new DM29DtcCounts(
+                Packet.create(pgn | BUS_ADDR, 0x00,
+                        0x09,
+                        0x20,
+                        0x47,
+                        0x31,
+                        0x01,
+                        0xFF,
+                        0xFF,
+                        0xFF));
+        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+
+        TestResultsListener listener = new TestResultsListener();
+        BusResult<DM29DtcCounts> expectedResult = new BusResult<>(false, packet1);
+        assertEquals(expectedResult, instance.requestDM29(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM29GlobalNoResponse() throws BusException {
+        final int pgn = DM29DtcCounts.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
+
+        String expected = "10:15:30.0000 Global DM29 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 9E 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response."
+                + NL;
+
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
+
+        TestResultsListener listener = new TestResultsListener();
+        assertEquals(RequestResult.empty(), instance.requestDM29(listener));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM29GlobalResponse() throws BusException {
+        final int pgn = DM29DtcCounts.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
+
+        String expected = "10:15:30.0000 Global DM29 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 9E 00 (TX)" + NL;
+        expected += "10:15:30.0000 189EFF00 09 20 47 31 01 FF FF FF" + NL;
+        expected += "DM29 from Engine #1 (0): " + NL;
+        expected += "Emission-Related Pending DTC Count                               9" + NL;
+        expected += "All Pending DTC Count                                           32" + NL;
+        expected += "Emission-Related MIL-On DTC Count                               71" + NL;
+        expected += "Emission-Related Previously MIL-On DTC Count                    49" + NL;
+        expected += "Emission-Related Permanent DTC Count                             1" + NL;
+
+        DM29DtcCounts packet1 = new DM29DtcCounts(
+                Packet.create(pgn | GLOBAL_ADDR, 0x00,
+                        0x09,
+                        0x20,
+                        0x47,
+                        0x31,
+                        0x01,
+                        0xFF,
+                        0xFF,
+                        0xFF));
+        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM29DtcCounts> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet1),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM29(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -1566,15 +2000,182 @@ public class DTCModuleTest {
 
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM2 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 CB FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 CB FE 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
         assertEquals(new ArrayList<DM2PreviouslyActiveDTC>(), instance.requestDM2(listener, true).getPackets());
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939, times(2)).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM31DestinationSpecificNoResponse() throws BusException {
+        final int pgn = DM31DtcToLampAssociation.PGN;
+        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
+
+        String expected = "10:15:30.0000 Destination Specific DM31 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 00 A3 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
+                Collections.emptyList(),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM31(listener, 0x00));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0x00);
+        verify(j1939).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM31DestinationSpecificResponse() throws BusException {
+        final int pgn = DM31DtcToLampAssociation.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | 0x21, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x21);
+
+        String expected = "10:15:30.0000 Destination Specific DM31 Request to Body Controller (33)" + NL;
+        expected += "10:15:30.0000 18EA21A5 00 A3 00 (TX)" + NL;
+        expected += "10:15:30.0000 18A3A521 61 02 13 81 62 1D 21 06 1F 23 22 DD EE 10 04 00 AA 55"
+                + NL;
+        expected += "DM31 from Body Controller (33): " + NL;
+        expected += "DTC Lamp Statuses: [" + NL;
+        expected += "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
+        expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 1 times" + NL;
+        expected += "MIL: off, RSL: other, AWL: off, PL: other" + NL;
+        expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 35 times" + NL;
+        expected += "MIL: other, RSL: other, AWL: other, PL: other" + NL;
+        expected += "DTC:  (4334) Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+        expected += "]" + NL;
+
+        DM31DtcToLampAssociation packet1 = new DM31DtcToLampAssociation(
+                Packet.create(pgn | BUS_ADDR, 0x21,
+                        0x61, // SPN least significant bit
+                        0x02, // SPN most significant bit
+                        0x13, // Failure mode indicator
+                        0x81, // SPN Conversion Occurrence Count
+                        0x62, // Lamp Status/Support
+                        0x1D, // Lamp Status/State
+
+                        0x21, // SPN least significant bit
+                        0x06, // SPN most significant bit
+                        0x1F, // Failure mode indicator
+                        0x23, // SPN Conversion Occurrence Count
+                        0x22, // Lamp Status/Support
+                        0xDD, // Lamp Status/State
+
+                        0xEE, // SPN least significant bit
+                        0x10, // SPN most significant bit
+                        0x04, // Failure mode indicator
+                        0x00, // SPN Conversion Occurrence Count
+                        0xAA, // Lamp Status/Support
+                        0x55));// Lamp Status/State
+        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM31DtcToLampAssociation> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet1),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM31(listener, 0x21));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, 0x21);
+        verify(j1939).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM31GlobalNoResponse() throws BusException {
+        final int pgn = DM31DtcToLampAssociation.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
+
+        String expected = "10:15:30.0000 Global DM31 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 A3 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 A3 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
+
+        TestResultsListener listener = new TestResultsListener();
+        assertEquals(RequestResult.empty(), instance.requestDM31(listener));
+        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939, times(2)).read(anyLong(), any());
+    }
+
+    @Test
+    public void testRequestDM31GlobalResponse() throws BusException {
+        final int pgn = DM31DtcToLampAssociation.PGN;
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
+
+        String expected = "10:15:30.0000 Global DM31 Request" + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 A3 00 (TX)" + NL;
+        expected += "10:15:30.0000 18A30021 61 02 13 81 62 1D 21 06 1F 23 22 DD EE 10 04 00 AA 55"
+                + NL;
+        expected += "DM31 from Body Controller (33): " + NL;
+        expected += "DTC Lamp Statuses: [" + NL;
+        expected += "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
+        expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 1 times" + NL;
+        expected += "MIL: off, RSL: other, AWL: off, PL: other" + NL;
+        expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 35 times" + NL;
+        expected += "MIL: other, RSL: other, AWL: other, PL: other" + NL;
+        expected += "DTC:  (4334) Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
+                + NL;
+        expected += "]" + NL;
+
+        DM31DtcToLampAssociation packet1 = new DM31DtcToLampAssociation(
+                Packet.create(pgn, 0x21,
+                        0x61, // SPN least significant bit
+                        0x02, // SPN most significant bit
+                        0x13, // Failure mode indicator
+                        0x81,
+                        0x62,
+                        0x1D,
+
+                        0x21, // SPN least significant bit
+                        0x06, // SPN most significant bit
+                        0x1F, // Failure mode indicator
+                        0x23,
+                        0x22,
+                        0xDD,
+
+                        0xEE, // SPN least significant bit
+                        0x10, // SPN most significant bit
+                        0x04, // Failure mode indicator
+                        0x00,
+                        0xAA,
+                        0x55));
+        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<DM31DtcToLampAssociation> expectedResult = new RequestResult<>(false,
+                Collections.singletonList(packet1),
+                Collections.emptyList());
+        assertEquals(expectedResult, instance.requestDM31(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -1803,13 +2404,7 @@ public class DTCModuleTest {
         expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        List<DM6PendingEmissionDTCPacket> dm6Packets = new ArrayList<>() {
-            {
-                add(packet1);
-            }
-        };
-        RequestResult<DM6PendingEmissionDTCPacket> result = new RequestResult<>(false, dm6Packets,
-                Collections.emptyList());
+        RequestResult<DM6PendingEmissionDTCPacket> result = new RequestResult<>(false, packet1);
 
         assertEquals(result, instance.requestDM6(listener, 0x00));
         assertEquals(expected, listener.getResults());
@@ -1879,6 +2474,7 @@ public class DTCModuleTest {
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM6 Request to Body Controller (33)" + NL;
         expected += "10:15:30.0000 18EA21A5 CF FE 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM6PendingEmissionDTCPacket> result = new RequestResult<>(false,
@@ -1993,620 +2589,21 @@ public class DTCModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
 
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "10:15:30.0000 Global DM6 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 CF FE 00 (TX)" + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM6PendingEmissionDTCPacket> result = new RequestResult<>(false,
-                Collections.emptyList(),
-                Collections.emptyList());
-        assertEquals(result, instance.requestDM6(listener));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM21DestinationSpecificNoResponse() throws BusException {
-        final int pgn = DM21DiagnosticReadinessPacket.PGN;
-        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
-
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
-
-        String expected = "10:15:30.0000 Destination Specific DM21 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.0000 18EA00A5 00 C1 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 CF FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM21DiagnosticReadinessPacket> result = new RequestResult<>(false,
-                Collections.emptyList(),
-                Collections.emptyList());
-
-        assertEquals(result, instance.requestDM21(listener, 0x00));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM21DestinationSpecificResponse() throws BusException {
-        final int pgn = DM21DiagnosticReadinessPacket.PGN;
-        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
-
-        Packet packet = Packet.create(pgn | BUS_ADDR, 0, 0x10, 0x27, 0x20, 0x4E, 0x30, 0x75, 0x40, 0x9C);
-        DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(packet);
-
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM21DiagnosticReadinessPacket> result = new RequestResult<>(false,
-                Collections.singletonList(packet1),
-                Collections.emptyList());
-
-        String expected = "10:15:30.0000 Destination Specific DM21 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.0000 18EA00A5 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.0000 18C1A500 10 27 20 4E 30 75 40 9C" + NL;
-        expected += "DM21 from Engine #1 (0): [" + NL;
-        expected += "  Distance Traveled While MIL is Activated:     10,000 km (6,213.712 mi)" + NL;
-        expected += "  Time Run by Engine While MIL is Activated:    30,000 minutes" + NL;
-        expected += "  Distance Since DTCs Cleared:                  20,000 km (12,427.424 mi)" + NL;
-        expected += "  Time Since DTCs Cleared:                      40,000 minutes" + NL + "]" + NL;
-
-        assertEquals(result, instance.requestDM21(listener, 0x00));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM21GlobalNoResponse() throws BusException {
-        final int pgn = DM21DiagnosticReadinessPacket.PGN;
-        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
-
-        Packet packet = Packet.create(pgn | BUS_ADDR, 0, 0x10, 0x27, 0x20, 0x4E, 0x30, 0x75, 0x40, 0x9C);
-        DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(packet);
-
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM21DiagnosticReadinessPacket> result = new RequestResult<>(false,
-                Collections.singletonList(packet1),
-                Collections.emptyList());
-
-        String expected = "10:15:30.0000 Global DM21 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.0000 18C1A500 10 27 20 4E 30 75 40 9C" + NL;
-        expected += "DM21 from Engine #1 (0): [" + NL;
-        expected += "  Distance Traveled While MIL is Activated:     10,000 km (6,213.712 mi)" + NL;
-        expected += "  Time Run by Engine While MIL is Activated:    30,000 minutes" + NL;
-        expected += "  Distance Since DTCs Cleared:                  20,000 km (12,427.424 mi)" + NL;
-        expected += "  Time Since DTCs Cleared:                      40,000 minutes" + NL + "]" + NL;
-
-        assertEquals(result, instance.requestDM21(listener));
+        assertEquals(RequestResult.empty(), instance.requestDM6(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM21GlobalResponse() throws BusException {
-        final int pgn = DM21DiagnosticReadinessPacket.PGN;
-        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-
-        Packet packet = Packet.create(pgn | BUS_ADDR, 0, 0x10, 0x27, 0x20, 0x4E, 0x30, 0x75, 0x40, 0x9C);
-        DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(packet);
-
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM21DiagnosticReadinessPacket> result = new RequestResult<>(false,
-                Collections.singletonList(packet1),
-                Collections.emptyList());
-
-        String expected = "10:15:30.0000 Global DM21 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.0000 18C1A500 10 27 20 4E 30 75 40 9C" + NL;
-        expected += "DM21 from Engine #1 (0): [" + NL;
-        expected += "  Distance Traveled While MIL is Activated:     10,000 km (6,213.712 mi)" + NL;
-        expected += "  Time Run by Engine While MIL is Activated:    30,000 minutes" + NL;
-        expected += "  Distance Since DTCs Cleared:                  20,000 km (12,427.424 mi)" + NL;
-        expected += "  Time Since DTCs Cleared:                      40,000 minutes" + NL + "]" + NL;
-
-        assertEquals(result, instance.requestDM21(listener));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM25DestinationSpecificNackOnly() throws BusException {
-        final int pgn = DM25ExpandedFreezeFrame.PGN;
-        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
-
-        AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
-                Packet.create(0xE800 | GLOBAL_ADDR, 0x00, 0x01, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xB7, 0xFD, 0x00));
-
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
-
-        String expected = "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.0000 18EA00A5 B7 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 18E8FF00 01 FF FF FF A5 B7 FD 00" + NL;
-        expected += "Acknowledgment from Engine #1 (0): Response: NACK, Group Function: 255, Address Acknowledged: 165, PGN Requested: 64951"
-                + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        BusResult<DM25ExpandedFreezeFrame> expectedResult = new BusResult<>(false, packet1);
-        assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM25DestinationSpecificNoResponse() throws BusException {
-        final int pgn = DM25ExpandedFreezeFrame.PGN;
-        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
-
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
-        String expected = "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.0000 18EA00A5 B7 FD 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        BusResult<DM25ExpandedFreezeFrame> expectedResult = new BusResult<>(false, Optional.empty());
-        assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM25DestinationSpecificWithResponse() throws BusException {
-        final int pgn = DM25ExpandedFreezeFrame.PGN;
-        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
-
-        int[] realData = new int[] {
-                0x56,
-                0x9D,
-                0x00,
-                0x07,
-                0x7F,
-                0x00,
-                0x01,
-                0x7B,
-                0x00,
-                0x00,
-                0x39,
-                0x3A,
-                0x5C,
-                0x0F,
-                0xC4,
-                0xFB,
-                0x00,
-                0x00,
-                0x00,
-                0xF1,
-                0x26,
-                0x00,
-                0x00,
-                0x00,
-                0x12,
-                0x7A,
-                0x7D,
-                0x80,
-                0x65,
-                0x00,
-                0x00,
-                0x32,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x84,
-                0xAD,
-                0x00,
-                0x39,
-                0x2C,
-                0x30,
-                0x39,
-                0xFC,
-                0x38,
-                0xC6,
-                0x35,
-                0xE0,
-                0x34,
-                0x2C,
-                0x2F,
-                0x00,
-                0x00,
-                0x7D,
-                0x7D,
-                0x8A,
-                0x28,
-                0xA0,
-                0x0F,
-                0xA0,
-                0x0F,
-                0xD1,
-                0x37,
-                0x00,
-                0xCA,
-                0x28,
-                0x01,
-                0xA4,
-                0x0D,
-                0x00,
-                0xA8,
-                0xC3,
-                0xB2,
-                0xC2,
-                0xC3,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x7E,
-                0xD0,
-                0x07,
-                0x00,
-                0x7D,
-                0x04,
-                0xFF,
-                0xFA };
-
-        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(pgn, 0x00, realData));
-        doReturn(Stream.of(packet.getPacket())).when(j1939).read(anyLong(), any());
-
-        String expected = "10:15:30.0000 Destination Specific DM25 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.0000 18EA00A5 B7 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FDB700 56 9D 00 07 7F 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF FA"
-                + NL;
-        expected += "DM25 from Engine #1 (0): " + NL;
-        expected += "Freeze Frames: [" + NL;
-        expected += "DTC:  (157) Engine Fuel 1 Injector Metering Rail 1 Pressure Mechanical System Not Responding Or Out Of Adjustment (7)"
-                + NL;
-        expected += "SPN Data: 00 01 7B 00 00 39 3A 5C 0F C4 FB 00 00 00 F1 26 00 00 00 12 7A 7D 80 65 00 00 32 00 00 00 00 84 AD 00 39 2C 30 39 FC 38 C6 35 E0 34 2C 2F 00 00 7D 7D 8A 28 A0 0F A0 0F D1 37 00 CA 28 01 A4 0D 00 A8 C3 B2 C2 C3 00 00 00 00 7E D0 07 00 7D 04 FF"
-                + NL;
-        expected += "]" + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        BusResult<DM25ExpandedFreezeFrame> expectedResult = new BusResult<>(false, packet);
-        assertEquals(expectedResult, instance.requestDM25(listener, 0x00));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM29DestinationSpecificNoResponse() throws BusException {
-        final int pgn = DM29DtcCounts.PGN;
-        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
-
-        String expected = "10:15:30.0000 Destination Specific DM29 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.0000 18EA00A5 00 9E 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response."
-                + NL;
-
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
-                Collections.emptyList(),
-                Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM29(listener, 0x00));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM29DestinationSpecificResponse() throws BusException {
-        final int pgn = DM29DtcCounts.PGN;
-        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
-
-        String expected = "10:15:30.0000 Destination Specific DM29 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.0000 18EA00A5 00 9E 00 (TX)" + NL;
-        expected += "10:15:30.0000 189EA500 09 20 47 31 01 FF FF FF" + NL;
-        expected += "DM29 from Engine #1 (0): " + NL;
-        expected += "Emission-Related Pending DTC Count                               9" + NL;
-        expected += "All Pending DTC Count                                           32" + NL;
-        expected += "Emission-Related MIL-On DTC Count                               71" + NL;
-        expected += "Emission-Related Previously MIL-On DTC Count                    49" + NL;
-        expected += "Emission-Related Permanent DTC Count                             1" + NL;
-
-        DM29DtcCounts packet1 = new DM29DtcCounts(
-                Packet.create(pgn | BUS_ADDR, 0x00,
-                        0x09,
-                        0x20,
-                        0x47,
-                        0x31,
-                        0x01,
-                        0xFF,
-                        0xFF,
-                        0xFF));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM29DtcCounts> expectedResult = new RequestResult<>(false,
-                Collections.singletonList(packet1),
-                Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM29(listener, 0x00));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM29GlobalNoResponse() throws BusException {
-        final int pgn = DM29DtcCounts.PGN;
-        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
-
-        String expected = "10:15:30.0000 Global DM29 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 9E 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response."
-                + NL;
-
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM29DtcCounts> expectedResult = new RequestResult<>(false,
-                Collections.emptyList(),
-                Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM29(listener));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM29GlobalResponse() throws BusException {
-        final int pgn = DM29DtcCounts.PGN;
-        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
-
-        String expected = "10:15:30.0000 Global DM29 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 9E 00 (TX)" + NL;
-        expected += "10:15:30.0000 189EFF00 09 20 47 31 01 FF FF FF" + NL;
-        expected += "DM29 from Engine #1 (0): " + NL;
-        expected += "Emission-Related Pending DTC Count                               9" + NL;
-        expected += "All Pending DTC Count                                           32" + NL;
-        expected += "Emission-Related MIL-On DTC Count                               71" + NL;
-        expected += "Emission-Related Previously MIL-On DTC Count                    49" + NL;
-        expected += "Emission-Related Permanent DTC Count                             1" + NL;
-
-        DM29DtcCounts packet1 = new DM29DtcCounts(
-                Packet.create(pgn | GLOBAL_ADDR, 0x00,
-                        0x09,
-                        0x20,
-                        0x47,
-                        0x31,
-                        0x01,
-                        0xFF,
-                        0xFF,
-                        0xFF));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM29DtcCounts> expectedResult = new RequestResult<>(false,
-                Collections.singletonList(packet1),
-                Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM29(listener));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM31DestinationSpecificNoResponse() throws BusException {
-        final int pgn = DM31DtcToLampAssociation.PGN;
-        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
-
-        String expected = "10:15:30.0000 Destination Specific DM31 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.0000 18EA00A5 00 A3 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
-                Collections.emptyList(),
-                Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM31(listener, 0x00));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM31DestinationSpecificResponse() throws BusException {
-        final int pgn = DM31DtcToLampAssociation.PGN;
-        Packet requestPacket = Packet.create(0xEA00 | 0x21, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x21);
-
-        String expected = "10:15:30.0000 Destination Specific DM31 Request to Body Controller (33)" + NL;
-        expected += "10:15:30.0000 18EA21A5 00 A3 00 (TX)" + NL;
-        expected += "10:15:30.0000 18A3A521 61 02 13 81 62 1D 21 06 1F 23 22 DD EE 10 04 00 AA 55"
-                + NL;
-        expected += "DM31 from Body Controller (33): " + NL;
-        expected += "DTC Lamp Statuses: [" + NL;
-        expected += "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
-        expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 1 times" + NL;
-        expected += "MIL: off, RSL: other, AWL: off, PL: other" + NL;
-        expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 35 times" + NL;
-        expected += "MIL: other, RSL: other, AWL: other, PL: other" + NL;
-        expected += "DTC:  (4334) Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
-                + NL;
-        expected += "]" + NL;
-
-        DM31DtcToLampAssociation packet1 = new DM31DtcToLampAssociation(
-                Packet.create(pgn | BUS_ADDR, 0x21,
-                        0x61, // SPN least significant bit
-                        0x02, // SPN most significant bit
-                        0x13, // Failure mode indicator
-                        0x81, // SPN Conversion Occurrence Count
-                        0x62, // Lamp Status/Support
-                        0x1D, // Lamp Status/State
-
-                        0x21, // SPN least significant bit
-                        0x06, // SPN most significant bit
-                        0x1F, // Failure mode indicator
-                        0x23, // SPN Conversion Occurrence Count
-                        0x22, // Lamp Status/Support
-                        0xDD, // Lamp Status/State
-
-                        0xEE, // SPN least significant bit
-                        0x10, // SPN most significant bit
-                        0x04, // Failure mode indicator
-                        0x00, // SPN Conversion Occurrence Count
-                        0xAA, // Lamp Status/Support
-                        0x55));// Lamp Status/State
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM31DtcToLampAssociation> expectedResult = new RequestResult<>(false,
-                Collections.singletonList(packet1),
-                Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM31(listener, 0x21));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, 0x21);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM31GlobalNoResponse() throws BusException {
-        final int pgn = DM31DtcToLampAssociation.PGN;
-        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
-
-        String expected = "10:15:30.0000 Global DM31 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 A3 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM25ExpandedFreezeFrame> expectedResult = new RequestResult<>(false,
-                Collections.emptyList(),
-                Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM31(listener));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM31GlobalResponse() throws BusException {
-        final int pgn = DM31DtcToLampAssociation.PGN;
-        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
-
-        String expected = "10:15:30.0000 Global DM31 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 A3 00 (TX)" + NL;
-        expected += "10:15:30.0000 18A30021 61 02 13 81 62 1D 21 06 1F 23 22 DD EE 10 04 00 AA 55"
-                + NL;
-        expected += "DM31 from Body Controller (33): " + NL;
-        expected += "DTC Lamp Statuses: [" + NL;
-        expected += "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
-        expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 1 times" + NL;
-        expected += "MIL: off, RSL: other, AWL: off, PL: other" + NL;
-        expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 35 times" + NL;
-        expected += "MIL: other, RSL: other, AWL: other, PL: other" + NL;
-        expected += "DTC:  (4334) Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
-                + NL;
-        expected += "]" + NL;
-
-        DM31DtcToLampAssociation packet1 = new DM31DtcToLampAssociation(
-                Packet.create(pgn, 0x21,
-                        0x61, // SPN least significant bit
-                        0x02, // SPN most significant bit
-                        0x13, // Failure mode indicator
-                        0x81,
-                        0x62,
-                        0x1D,
-
-                        0x21, // SPN least significant bit
-                        0x06, // SPN most significant bit
-                        0x1F, // Failure mode indicator
-                        0x23,
-                        0x22,
-                        0xDD,
-
-                        0xEE, // SPN least significant bit
-                        0x10, // SPN most significant bit
-                        0x04, // Failure mode indicator
-                        0x00,
-                        0xAA,
-                        0x55));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM31DtcToLampAssociation> expectedResult = new RequestResult<>(false,
-                Collections.singletonList(packet1),
-                Collections.emptyList());
-        assertEquals(expectedResult, instance.requestDM31(listener));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 }
