@@ -12,6 +12,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -156,11 +157,13 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM20 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 00 C2 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 C2 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
         instance.getDM20Packets(listener, true);
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 
     @Test
@@ -393,11 +396,13 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM26 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
         instance.getDM26Packets(listener, true);
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 
     @Test
@@ -568,11 +573,13 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM5 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
         instance.getDM5Packets(listener, true);
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 
     @Test
@@ -883,11 +890,13 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM20 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 00 C2 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 C2 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
         assertEquals(false, instance.reportDM20(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 
     @Test
@@ -1009,11 +1018,13 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM21 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
         instance.reportDM21(listener);
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 
     @Test
@@ -1024,7 +1035,7 @@ public class DiagnosticReadinessModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         DM21DiagnosticReadinessPacket packet1 = new DM21DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x00, 0x00));
+                Packet.create(pgn | GLOBAL_ADDR, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x00, 0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         instance.reportDM21(listener);
@@ -1097,11 +1108,13 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM26 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
         assertEquals(false, instance.reportDM26(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).read(anyLong(), any());
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 
     @Test
@@ -1170,11 +1183,13 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM5 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
         assertEquals(false, instance.reportDM5(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).read(anyLong(), any());
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 
     @Test
@@ -1410,11 +1425,13 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM21 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
         instance.requestDM21Packets(listener, true);
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).read(anyLong(), any());
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 
     @Test
@@ -1579,10 +1596,12 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM5 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
+        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
+        expected += "Error: Timeout - No Response." + NL;
         instance.requestDM5Packets(listener, true);
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939).read(anyLong(), any());
+        verify(j1939, times(2)).read(anyLong(), any());
     }
 }
