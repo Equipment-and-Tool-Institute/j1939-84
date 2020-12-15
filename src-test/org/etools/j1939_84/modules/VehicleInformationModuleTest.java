@@ -598,7 +598,7 @@ public class VehicleInformationModuleTest {
         expected += "High Resolution Vehicle Distance from Turbocharger (2): " + NL;
         expected += "  SPN   917, Total Vehicle Distance (High Resolution): 168430090.000000 m" + NL;
         expected += "  SPN   918, Trip Distance (High Resolution): 168430090.000000 m" + NL;
-        expected+=NL;
+        expected += NL;
 
         TestResultsListener listener = new TestResultsListener();
         instance.reportVehicleDistance(listener);
@@ -628,7 +628,7 @@ public class VehicleInformationModuleTest {
         expected += "Total Vehicle Distance from Turbocharger (2): " + NL;
         expected += "  SPN   244, Trip Distance: 4210752.250000 km" + NL;
         expected += "  SPN   245, Total Vehicle Distance: 4210752.250000 km" + NL;
-        expected+=NL;
+        expected += NL;
 
         TestResultsListener listener = new TestResultsListener();
         instance.reportVehicleDistance(listener);
@@ -690,7 +690,7 @@ public class VehicleInformationModuleTest {
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0xFF);
 
-        doReturn(Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "10:15:30.0000 Global VIN Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 EC FE 00 (TX)" + NL;

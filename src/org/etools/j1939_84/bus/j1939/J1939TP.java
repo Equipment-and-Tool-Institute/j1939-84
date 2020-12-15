@@ -157,7 +157,7 @@ public class J1939TP implements Bus {
     }
 
     private void fine(String string) {
-        System.err.println("LOG:" + string);
+        // System.err.println("LOG:" + string);
     }
 
     @Override
@@ -225,6 +225,8 @@ public class J1939TP implements Bus {
             }
             // everything else, pass through
             inbound.send(packet);
+            // } else {
+            // System.err.println("ignoring:" + packet);
         }
     }
 
@@ -246,24 +248,26 @@ public class J1939TP implements Bus {
             inbound.send(packet);
 
             bus.resetTimeout(stream, T2, TimeUnit.MILLISECONDS);
-            stream
+            if (stream
                     .filter(p -> {
                         int id = p.getId() & 0xFFFF;
                         return p.getSource() == source && (id == dataId || id == controlId);
                     })
                     .peek(p -> bus.resetTimeout(stream, T1, TimeUnit.MILLISECONDS))
-                    .forEach(p -> {
+                    .map(p -> {
                         if ((p.getId() & 0xFFFF) == controlId) {
                             warn("BAM canceled or aborted: " + rts + " -> " + p);
                             packet.fail();
-                            return;
+                            return true;
                         }
                         fine("rx DT: " + p);
                         received.set(p.get(0));
                         int offset = (p.get(0) - 1) * 7;
                         System.arraycopy(p.getBytes(), 1, data, offset, Math.min(offset + 7, data.length) - offset);
-                    });
-            if (received.cardinality() == numberOfPackets && !packet.isComplete()) {
+                        packet.setTimestamp(p.getTimestamp());
+                        return received.cardinality() == numberOfPackets;
+                    }).filter(b -> b).findFirst().orElse(false)
+                    && received.cardinality() == numberOfPackets) {
                 packet.setData(data);
             } else {
                 warn("BAM missing DT %d != %d", received.cardinality(), numberOfPackets);
@@ -356,6 +360,7 @@ public class J1939TP implements Bus {
                     stream.forEach(p -> {
                         fine("rx DT: " + rts);
                         received.set(p.get(0));
+                        packet.setTimestamp(p.getTimestamp());
                         int offset = (p.get(0) - 1) * 7;
                         System.arraycopy(p.getBytes(), 1, data, offset, Math.min(offset + 7, data.length) - offset);
                     });

@@ -69,7 +69,7 @@ public class J1939 {
      * The default time to wait for a response (200 ms + 10%)
      */
     // FIXME
-    private static final int DEFAULT_TIMEOUT = 1220;
+    private static final int DEFAULT_TIMEOUT = 220;
 
     /**
      * The default time unit for responses
@@ -119,19 +119,19 @@ public class J1939 {
      *            the class of interest
      * @return PGN number based on ParsedPacket class
      */
-    static private <T extends ParsedPacket> Integer getPgn(Class<T> cls) {
+    static private <T extends ParsedPacket> int getPgn(Class<T> cls) {
         try {
             return cls.getField("PGN").getInt(null);
         } catch (Exception e) {
-            return null;
+            throw new IllegalStateException("Unable to find PGN for " + cls, e);
         }
     }
 
     /**
      * filter by pgn
      */
-    static private Predicate<Packet> pgnFilter(Integer pgn) {
-        return response -> pgn == null || response.getPgn() == pgn;
+    static private Predicate<Packet> pgnFilter(int pgn) {
+        return response -> response.getPgn() == pgn;
     }
 
     static private void sleep(int time) {
@@ -186,6 +186,7 @@ public class J1939 {
      *            the pgn that's being requested
      * @return true if the message is an Acknowledgement/Nack for the given pgn
      */
+    /* FIXME why Integer and not int? */
     private Predicate<Packet> ackNackFilter(int pgn) {
         return response -> {
             return // ID is Acknowledgment
@@ -213,7 +214,7 @@ public class J1939 {
         return createRequestPacket(pgn, addr, getBusAddress());
     }
 
-    private Predicate<Packet> dsFilter(Integer pgn, int requestDestination, int requestSource) {
+    private Predicate<Packet> dsFilter(int pgn, int requestDestination, int requestSource) {
         if (requestDestination == GLOBAL_ADDR || requestSource == GLOBAL_ADDR) {
             throw new IllegalArgumentException("Invalid use of global.");
         }
@@ -241,7 +242,8 @@ public class J1939 {
         return bus.getAddress();
     }
 
-    private Predicate<Packet> globalFilter(Integer pgn) {
+    /** FIXME why Integer and not int? */
+    private Predicate<Packet> globalFilter(int pgn) {
         return
         // does the packet have the right ID
         (pgnFilter(pgn).or(ackNackFilter(pgn)))
@@ -501,12 +503,13 @@ public class J1939 {
                                                            ResultsListener listener,
                                                            boolean fullString,
                                                            Class<T> packetClass,
-                                                           Integer pgn,
+                                                           int pgn,
                                                            Packet request) {
         if (title != null) {
             listener.onResult(DateTimeModule.getInstance().getTime() + " " + title);
         }
 
+        // FIXME verify and make a constant.
         long end = System.currentTimeMillis() + 1200;
         boolean retry = false;
         for (int noResponse = 0; System.currentTimeMillis() < end; noResponse++) {
@@ -541,7 +544,7 @@ public class J1939 {
                                                            boolean fullString,
                                                            Class<T> packetClass,
                                                            Packet request) {
-        return requestDS(title, listener, fullString, packetClass, null, request);
+        return requestDS(title, listener, fullString, packetClass, getPgn(packetClass), request);
     }
 
     /**
@@ -550,16 +553,13 @@ public class J1939 {
     private <T extends ParsedPacket> Optional<Either<T, AcknowledgmentPacket>> requestDSOnce(ResultsListener listener,
                                                                                              boolean fullString,
                                                                                              Class<T> packetClass,
-                                                                                             Integer pgn,
+                                                                                             int pgn,
                                                                                              Packet request) {
         if (request.getDestination() == GLOBAL_ADDR) {
             throw new IllegalArgumentException("Request to global.");
         }
 
         try {
-            if (pgn == null) {
-                pgn = getPgn(packetClass);
-            }
             Stream<Either<T, AcknowledgmentPacket>> stream = read(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS)
                     .filter(dsFilter(pgn, request.getDestination(), getBusAddress()))
                     .map(this::process);
@@ -589,19 +589,8 @@ public class J1939 {
                                                                    ResultsListener listener,
                                                                    boolean fullString,
                                                                    Class<T> clas,
-                                                                   Integer pgnId,
+                                                                   final int pgn,
                                                                    Packet requestPacket) {
-
-        Integer pgnTemp;
-        if (pgnId == null) {
-            pgnTemp = getPgn(clas);
-            if (pgnTemp == null) {
-                throw new IllegalArgumentException("The static field PGN can't be found in class " + clas.getName());
-            }
-        } else {
-            pgnTemp = pgnId;
-        }
-        int pgn = pgnTemp;
 
         if (title != null) {
             listener.onResult(DateTimeModule.getInstance().getTime() + " " + title);
@@ -634,7 +623,7 @@ public class J1939 {
         // now try the DS request
         Collection<Either<T, AcknowledgmentPacket>> list = busyNACKs.stream()
                 .flatMap(p -> {
-                    Packet dsRequest = createRequestPacket(pgnId, p.getSourceAddress());
+                    Packet dsRequest = createRequestPacket(pgn, p.getSourceAddress());
                     Optional<Either<T, AcknowledgmentPacket>> response = requestDSOnce(listener, fullString, clas, pgn,
                             dsRequest);
                     if (response.flatMap(e -> e.right.map(ack -> ack.getResponse() == Response.BUSY)).orElse(false)) {
@@ -667,7 +656,7 @@ public class J1939 {
                                                                    boolean fullString,
                                                                    Class<T> clas,
                                                                    Packet requestPacket) {
-        return requestGlobal(title, listener, fullString, clas, null, requestPacket);
+        return requestGlobal(title, listener, fullString, clas, getPgn(clas), requestPacket);
     }
 
     /**
@@ -686,7 +675,10 @@ public class J1939 {
         try {
             Stream<Packet> stream = read(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS);
             Packet sent = bus.send(request);
-            listener.onResult(DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + sent.toString());
+            if (sent != null) {
+                listener.onResult(DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + sent.toString());
+            } else {// failed to send
+            }
             result = stream
                     .filter(globalFilter(pgn))
                     .peek(p -> listener.onResult(p.toTimeString()))

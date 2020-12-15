@@ -9,9 +9,8 @@ import static org.etools.j1939_84.bus.j1939.packets.ScaledTestResult.TestResult.
 import static org.etools.j1939_84.bus.j1939.packets.ScaledTestResult.TestResult.PASSED;
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult.TestResult;
+import org.junit.Test;
 
 /**
  * Unit tests for the {@link ScaledTestResult} class
@@ -49,7 +48,7 @@ public class ScaledTestResultTest {
         assertEquals(61440, instance.getTestMaximum());
         assertEquals(40960, instance.getTestMinimum());
         assertEquals(TestResult.FAILED, instance.getTestResult());
-        String expected = "SPN 4796 FMI 31 Result: Test Failed. Min: 1,007, Value: 1,734.969, Max: 1,647 C";
+        String expected = "SPN 4796 FMI 31 Result: Test Failed. Min: 1,007, Value: 1,734.969, Max: 1,647 °C";
         assertEquals(expected, instance.toString());
     }
 

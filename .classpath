@@ -62,6 +62,6 @@
 	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/org.jacoco.report-0.8.5.201910111838.jar"/>
 	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/jacocoagent.jar"/>
 	<classpathentry kind="lib" path="lib-test/jacoco-0.8.5/lib/jacococli.jar"/>
-	<classpathentry kind="lib" path="lib/opencsv-5.3.jar"/>
+	<classpathentry kind="lib" path="lib/opencsv-3.8.jar"/>
 	<classpathentry kind="output" path="bin"/>
 </classpath>

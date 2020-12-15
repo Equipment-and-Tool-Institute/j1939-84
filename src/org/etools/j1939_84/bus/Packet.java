@@ -169,7 +169,7 @@ public class Packet {
 
     private final int source;
 
-    private final LocalDateTime timestamp;
+    private LocalDateTime timestamp;
 
     private final boolean transmitted;
 
@@ -451,6 +451,10 @@ public class Packet {
             this.data[i] = (0xFF & data[i]);
         }
         notifyAll();
+    }
+
+    public void setTimestamp(LocalDateTime timestamp2) {
+        timestamp = timestamp2;
     }
 
     @Override

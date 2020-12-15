@@ -86,6 +86,50 @@ public class J1939Test {
 
     private ArgumentCaptor<Packet> sendPacketCaptor;
 
+    @Test
+    public void aTestTP() throws Exception {
+        final String VIN = "Some VINs are garbage, but this test doesn't care.";
+        try (EchoBus echoBus = new EchoBus(0xF9)) {
+            J1939 j1939 = new J1939(new J1939TP(echoBus));
+            Stream<Packet> reqStream = echoBus.read(1, TimeUnit.HOURS);
+            new Thread(() -> {
+                // respond with VIN packets with long delays to verify over all
+                // delay
+                Optional<Packet> req = reqStream.findFirst();
+                assertEquals(req.get(), Packet.parse("18EA00F9 EC FE 00 (TX)"));
+                try {
+                    echoBus.send(Packet.parse("18ECFF00 20 32 00 08 FF EC FE 00"));
+                    Thread.sleep(100);
+                    echoBus.send(Packet.parse("18EBFF00 01 53 6F 6D 65 20 56 49"));
+                    Thread.sleep(100);
+                    echoBus.send(Packet.parse("18EBFF00 02 4E 73 20 61 72 65 20"));
+                    Thread.sleep(100);
+                    echoBus.send(Packet.parse("18EBFF00 03 67 61 72 62 61 67 65"));
+                    Thread.sleep(100);
+                    echoBus.send(Packet.parse("18EBFF00 04 2C 20 62 75 74 20 74"));
+                    Thread.sleep(100);
+                    echoBus.send(Packet.parse("18EBFF00 05 68 69 73 20 74 65 73"));
+                    Thread.sleep(100);
+                    echoBus.send(Packet.parse("18EBFF00 06 74 20 64 6F 65 73 6E"));
+                    Thread.sleep(100);
+                    echoBus.send(Packet.parse("18EBFF00 07 27 74 20 63 61 72 65"));
+                    Thread.sleep(100);
+                    echoBus.send(Packet.parse("18EBFF00 08 2E FF FF FF FF FF FF"));
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+            }).start();
+            System.err.format("### pre %d%n", System.currentTimeMillis());
+            BusResult<VehicleIdentificationPacket> response = j1939.requestDS("test", ResultsListener.NOOP, true,
+                    VehicleIdentificationPacket.class,
+                    J1939.createRequestPacket(VehicleIdentificationPacket.PGN, 0, 0xF9));
+            System.err.format("### post %d%n", System.currentTimeMillis());
+            final String vin2 = response.getPacket().get().left.get().getVin();
+            System.err.format("### vin %d%n", System.currentTimeMillis());
+            assertEquals(VIN, vin2);
+        }
+    }
+
     @Before
     public void setup() {
         when(bus.getAddress()).thenReturn(BUS_ADDR);
@@ -344,7 +388,7 @@ public class J1939Test {
                 .stream()
                 .flatMap(e -> e.left.stream());
         assertEquals(0, response.count());
-        verify(bus, times(1)).send(request);
+        verify(bus, times(2)).send(request);
     }
 
     @Test

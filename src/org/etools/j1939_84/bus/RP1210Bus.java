@@ -294,6 +294,7 @@ public class RP1210Bus implements Bus {
                     verify(rtn);
                     return stream.filter(rx -> tx.getId(0xFFFF) == rx.getId(0xFFFF) && rx.getSource() == getAddress())
                             .findFirst().orElse(null);
+                    // .orElseThrow(() -> new BusException("Echo failed."));
                 } catch (BusException e) {
                     throw new CompletionException(e);
                 }
