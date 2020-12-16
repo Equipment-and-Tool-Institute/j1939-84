@@ -1,17 +1,22 @@
+/*
+ * Copyright 2020 Equipment & Tool Institute
+ */
 package org.etools.j1939_84.controllers.part1;
 
-import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.Outcome.ABORT;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 
 public class Step01Controller extends StepController {
     private static final int PART_NUMBER = 1;
@@ -22,24 +27,23 @@ public class Step01Controller extends StepController {
 
     Step01Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-             new EngineSpeedModule(),
-             new BannerModule(),
-             new VehicleInformationModule(),
-             dataRepository);
+                new EngineSpeedModule(),
+                new BannerModule(),
+                new VehicleInformationModule(),
+                dataRepository);
     }
 
     Step01Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
                      VehicleInformationModule vehicleInformationModule, DataRepository dataRepository) {
         super(executor, engineSpeedModule, bannerModule, vehicleInformationModule,
-              PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }
 
     /**
      * Sends the request to the UI to gather vehicle information from the user.
      *
-     * @throws InterruptedException
-     *         if the cancelled the operation
+     * @throws InterruptedException if the cancelled the operation
      */
     private void collectVehicleInformation() throws InterruptedException {
         getListener().onVehicleInformationNeeded(vehInfo -> {
@@ -55,12 +59,8 @@ public class Step01Controller extends StepController {
         });
 
         while (dataRepository.getVehicleInformation() == null) {
-            Thread.sleep(500);
-            updateProgress("Part 1, Step 1 e Collecting Vehicle Information"); // To
-            // check
-            // for
-            // test
-            // aborted
+            getDateTimeModule().pauseFor(500);
+            updateProgress("Part 1, Step 1 e Collecting Vehicle Information");
         }
 
         getListener().onResult("User provided " + dataRepository.getVehicleInformation());
@@ -79,15 +79,14 @@ public class Step01Controller extends StepController {
 
         getListener().onUrgentMessage(message, "Start Part 1", MessageType.WARNING);
 
-        getListener().addOutcome(1, 1, Outcome.FAIL, "Testing");
+        getListener().addOutcome(1, 1, FAIL, "Testing");
     }
 
     /**
      * Ensures the Key is on with the Engine Off and prompts the user to make
      * the proper adjustments.
      *
-     * @throws InterruptedException
-     *         if the user cancels the operation
+     * @throws InterruptedException if the user cancels the operation
      */
     private void ensureKeyOnEngineOff() throws InterruptedException {
         try {
@@ -95,12 +94,13 @@ public class Step01Controller extends StepController {
                 getListener().onUrgentMessage("Please turn the Engine OFF with Key ON", "Adjust Key Switch", WARNING);
                 while (!getEngineSpeedModule().isEngineNotRunning()) {
                     updateProgress("Waiting for Key ON, Engine OFF...");
-                    Thread.sleep(500);
+                    getDateTimeModule().pauseFor(500);
                 }
             }
         } catch (InterruptedException e) {
-            getListener().addOutcome(1, 2, Outcome.ABORT, "User cancelled operation");
-            throw e;
+            getListener().addOutcome(1, 2, ABORT, "User cancelled operation");
+            setEnding(Ending.ABORTED);
+            updateProgress("User Aborted");
         }
     }
 
