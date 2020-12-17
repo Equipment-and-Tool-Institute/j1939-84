@@ -12,6 +12,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
@@ -26,9 +27,9 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * <p>
- * The controller for 6.1.12 DM7/DM30: Command Non-continuously
- * Monitored Test/Scaled Test Results
+ *         <p>
+ *         The controller for 6.1.12 DM7/DM30: Command Non-continuously
+ *         Monitored Test/Scaled Test Results
  */
 public class Step12Controller extends StepController {
 
@@ -41,28 +42,28 @@ public class Step12Controller extends StepController {
 
     Step12Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-             new EngineSpeedModule(),
-             new BannerModule(),
-             dataRepository,
-             new VehicleInformationModule(),
-             new OBDTestsModule(),
-             new TableA7Validator());
+                new EngineSpeedModule(),
+                new BannerModule(),
+                dataRepository,
+                new VehicleInformationModule(),
+                new OBDTestsModule(),
+                new TableA7Validator());
     }
 
     Step12Controller(Executor executor,
-                     EngineSpeedModule engineSpeedModule,
-                     BannerModule bannerModule,
-                     DataRepository dataRepository,
-                     VehicleInformationModule vehicleInformationModule,
-                     OBDTestsModule obdTestsModule,
-                     TableA7Validator tableA7Validator) {
+            EngineSpeedModule engineSpeedModule,
+            BannerModule bannerModule,
+            DataRepository dataRepository,
+            VehicleInformationModule vehicleInformationModule,
+            OBDTestsModule obdTestsModule,
+            TableA7Validator tableA7Validator) {
         super(executor,
-              engineSpeedModule,
-              bannerModule,
-              vehicleInformationModule,
-              PART_NUMBER,
-              STEP_NUMBER,
-              TOTAL_STEPS);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                PART_NUMBER,
+                STEP_NUMBER,
+                TOTAL_STEPS);
         this.dataRepository = dataRepository;
         this.obdTestsModule = obdTestsModule;
         this.tableA7Validator = tableA7Validator;
@@ -112,21 +113,21 @@ public class Step12Controller extends StepController {
                 addPass(PART_NUMBER, STEP_NUMBER, "6.1.12.2.a");
             } else {
                 addFailure(PART_NUMBER,
-                           STEP_NUMBER,
-                           "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)");
+                        STEP_NUMBER,
+                        "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)");
             }
         } else if (fuelType.isSparkIgnition()) {
             if (tableA7Validator.validateForSparkIgnition(vehicleTestResults, getListener())) {
                 addPass(PART_NUMBER, STEP_NUMBER, "6.1.12.2.a");
             } else {
                 addFailure(PART_NUMBER, STEP_NUMBER,
-                           "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Spark Ignition)");
+                        "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Spark Ignition)");
             }
         } else {
             // TODO - verify this is what we really want to do.
             addFailure(PART_NUMBER,
-                       STEP_NUMBER,
-                       "6.1.12.2.a Verification of 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results is only defined for spark or compression ignition");
+                    STEP_NUMBER,
+                    "6.1.12.2.a Verification of 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results is only defined for spark or compression ignition");
         }
 
     }
@@ -143,8 +144,8 @@ public class Step12Controller extends StepController {
 
         if (testResults.isEmpty()) {
             addFailure(PART_NUMBER,
-                       STEP_NUMBER,
-                       "6.1.12.1.a Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support");
+                    STEP_NUMBER,
+                    "6.1.12.1.a Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support");
         } else {
             addPass(PART_NUMBER, STEP_NUMBER, "6.1.12.1.a");
         }
@@ -159,8 +160,8 @@ public class Step12Controller extends StepController {
                     result.getTestMinimum() == 0x0000 && result.getTestMaximum() == 0x0000;
             if (!isMaximum && !isMinimum) {
                 addFailure(PART_NUMBER,
-                           STEP_NUMBER,
-                           "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+                        STEP_NUMBER,
+                        "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
             } else {
                 addPass(PART_NUMBER, STEP_NUMBER, "6.1.12.1.b");
             }
@@ -168,7 +169,10 @@ public class Step12Controller extends StepController {
             // undefined or a not valid SLOT in Appendix A of J1939-71. See
             // Table A-7-2 3 for a list of the valid, SLOTs known to be
             // appropriate for use in test results.
-            verifyValidSlotIdentifier(result.getSlot().getId());
+            if (result.getSlot() != null) {
+                // FIXME Joe blindly added the above to avoid a crash
+                verifyValidSlotIdentifier(result.getSlot().getId());
+            }
 
         }
 
@@ -184,7 +188,7 @@ public class Step12Controller extends StepController {
                 String failureMessage = "6.1.12.1.d SPN " + dup.getSpn() + " FMI " + dup.getFmi()
                         + " returned duplicates";
                 addFailure(PART_NUMBER, STEP_NUMBER,
-                           failureMessage);
+                        failureMessage);
             });
         } else {
             addPass(PART_NUMBER, STEP_NUMBER, "6.1.12.1.d");
@@ -195,9 +199,9 @@ public class Step12Controller extends StepController {
 
     private void verifyValidSlotIdentifier(int slotIdentifier) {
 
-        new HashSet<>(Arrays.asList(new Integer[]{5, 8, 9}));
+        new HashSet<>(Arrays.asList(new Integer[] { 5, 8, 9 }));
 
-        Set<Integer> validSlots = new HashSet<>(Arrays.asList(new Integer[]{
+        Set<Integer> validSlots = new HashSet<>(Arrays.asList(new Integer[] {
                 5, 8, 9, 10, 12, 13, 14, 16, 17, 18, 19, 22, 23, 27, 28, 29, 30, 32, 37, 39, 42, 43, 50, 51, 52, 55, 57,
                 64, 68, 69, 70, 71, 72, 76, 77, 78, 80, 82, 85, 96, 98, 104, 106, 107, 112, 113, 114, 115, 125, 127,
                 130, 131, 132, 136, 138, 143, 144, 145, 146, 151, 162, 206, 208, 211, 219, 221, 222, 223, 224, 226, 227,
@@ -210,7 +214,7 @@ public class Step12Controller extends StepController {
         }));
         if (!validSlots.contains(slotIdentifier)) {
             addFailure(PART_NUMBER, STEP_NUMBER,
-                       "6.1.12.1.c #" + slotIdentifier + " SLOT identifier is an undefined or invalid");
+                    "6.1.12.1.c #" + slotIdentifier + " SLOT identifier is an undefined or invalid");
         } else {
             addPass(PART_NUMBER, STEP_NUMBER, "6.1.12.1.c");
         }

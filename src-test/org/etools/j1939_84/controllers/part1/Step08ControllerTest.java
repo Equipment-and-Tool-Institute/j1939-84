@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -49,7 +50,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class Step08ControllerTest extends AbstractControllerTest {
 
     private static DM20MonitorPerformanceRatioPacket createDM20(Integer sourceAddress,
-            List<Integer> ratios) {
+                                                                List<Integer> ratios) {
         DM20MonitorPerformanceRatioPacket packet = mock(DM20MonitorPerformanceRatioPacket.class);
 
         when(packet.getSourceAddress()).thenReturn(sourceAddress);
@@ -184,7 +185,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.\n",
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported." + NL,
                 listener.getResults());
     }
 
@@ -238,7 +239,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.\n",
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for spark ignition are not supported." + NL,
                 listener.getResults());
     }
 
@@ -382,7 +383,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.\n",
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported." + NL,
                 listener.getResults());
     }
 
@@ -418,7 +419,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.\n",
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for spark ignition are not supported." + NL,
                 listener.getResults());
     }
 
@@ -477,7 +478,7 @@ public class Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.\n",
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported." + NL,
                 listener.getResults());
     }
 

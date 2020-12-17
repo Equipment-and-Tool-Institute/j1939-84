@@ -1,5 +1,6 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 
 import java.nio.charset.StandardCharsets;
@@ -49,8 +50,8 @@ public class DM56EngineFamilyPacketTest {
         Packet packet = Packet.create(0, 0, bytes.getBytes(StandardCharsets.UTF_8));
         DM56EngineFamilyPacket instance = new DM56EngineFamilyPacket(packet);
         String expected = "";
-        expected += "Model Year and Certification Engine Family from Engine #1 (0): \n";
-        expected += "Model Year: 2018V-MY\n";
+        expected += "Model Year and Certification Engine Family from Engine #1 (0): " + NL;
+        expected += "Model Year: 2018V-MY" + NL;
         expected += "Family Name: US HD OBD";
         assertEquals(expected, instance.toString());
     }

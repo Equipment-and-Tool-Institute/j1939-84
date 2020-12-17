@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -203,11 +204,11 @@ public class Step03ControllerTest {
                 "");
         verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
 
-        String expectedObd = "OBD Module Information: \n";
-        expectedObd += "sourceAddress is : 0\n";
-        expectedObd += "obdCompliance is : 4\n";
-        expectedObd += "function is : " + "0" + "\n";
-        expectedObd += "Supported SPNs: \n";
+        String expectedObd = "OBD Module Information: " + NL;
+        expectedObd += "sourceAddress is : 0" + NL;
+        expectedObd += "obdCompliance is : 4" + NL;
+        expectedObd += "function is : " + "0" + "" + NL;
+        expectedObd += "Supported SPNs: " + NL;
         assertEquals(expectedObd, obdInfo1.toString());
     }
 

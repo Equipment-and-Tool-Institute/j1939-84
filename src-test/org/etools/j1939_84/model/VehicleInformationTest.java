@@ -119,12 +119,12 @@ public class VehicleInformationTest {
                 "Fuel Type: Diesel vehicle" + NL +
                 "Ignition Type: Compression" + NL +
                 "Number of Trips for Fault B Implant: 0" + NL + NL +
-                "Vehicle Information:\n" +
-                "VIN: vin\n" +
-                "Vehicle MY: 2\n" +
-                "Engine MY: 1\n" +
-                "Cert. Engine Family: cert\n" +
-                "Number of OBD ECUs Found: 0\n" + NL +
+                "Vehicle Information:" + NL +
+                "VIN: vin" + NL +
+                "Vehicle MY: 2" + NL +
+                "Engine MY: 1" + NL +
+                "Cert. Engine Family: cert" + NL +
+                "Number of OBD ECUs Found: 0" + NL + NL +
                 "Number of CAL IDs Found: 0" + NL + NL;
         assertEquals(expected, actual);
     }

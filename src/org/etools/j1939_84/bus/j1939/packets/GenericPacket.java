@@ -6,8 +6,10 @@ package org.etools.j1939_84.bus.j1939.packets;
 import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
@@ -16,6 +18,8 @@ import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 
 public class GenericPacket extends ParsedPacket {
 
+    private static final PgnDefinition UNKNOWN_PGN = new PgnDefinition(-1, "Unknown", "Uknown", false, false, 0,
+            Collections.emptyList());
     private final SpnDataParser parser;
     private final PgnDefinition pgnDefinition;
     private List<Spn> spns;
@@ -26,7 +30,7 @@ public class GenericPacket extends ParsedPacket {
 
     GenericPacket(Packet packet, PgnDefinition pgnDefinition, SpnDataParser parser) {
         super(packet);
-        this.pgnDefinition = pgnDefinition;
+        this.pgnDefinition = pgnDefinition == null ? UNKNOWN_PGN : pgnDefinition;
         this.parser = parser;
     }
 
@@ -41,6 +45,10 @@ public class GenericPacket extends ParsedPacket {
 
     public PgnDefinition getPgnDefinition() {
         return pgnDefinition;
+    }
+
+    public Optional<Spn> getSpn(int spnId) {
+        return getSpns().stream().filter(s -> s.getId() == spnId).findFirst();
     }
 
     public List<Spn> getSpns() {
@@ -58,10 +66,6 @@ public class GenericPacket extends ParsedPacket {
             }
         }
         return spns;
-    }
-
-    public Optional<Spn> getSpn(int spnId) {
-        return getSpns().stream().filter(s -> s.getId() == spnId).findFirst();
     }
 
     @Override

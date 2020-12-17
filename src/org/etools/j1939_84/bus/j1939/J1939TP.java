@@ -225,8 +225,6 @@ public class J1939TP implements Bus {
             }
             // everything else, pass through
             inbound.send(packet);
-            // } else {
-            // System.err.println("ignoring:" + packet);
         }
     }
 
@@ -317,7 +315,6 @@ public class J1939TP implements Bus {
                     packetCount = maxResponsePackets;
                 }
                 // FIXME should we warn on priority issues? Check with -21 and
-                // then
                 // with Eric
                 Stream<Packet> dataStream = bus.read(T2, TimeUnit.MILLISECONDS);
                 Stream<Packet> stream = dataStream
@@ -445,8 +442,6 @@ public class J1939TP implements Bus {
     }
 
     Packet sendDestinationSpecific(Packet packet) throws BusException {
-        // int pgn = packet.getPgn();
-        // int destinationAddress = packet.getDestination();
         int pgn = packet.getId();
         int destinationAddress = packet.getId() & 0xFF;
         Predicate<Packet> controlMessageFilter = p -> p.getSource() == destinationAddress

@@ -68,7 +68,6 @@ public class J1939 {
     /**
      * The default time to wait for a response (200 ms + 10%)
      */
-    // FIXME
     private static final int DEFAULT_TIMEOUT = 220;
 
     /**
@@ -123,7 +122,9 @@ public class J1939 {
         try {
             return cls.getField("PGN").getInt(null);
         } catch (Exception e) {
-            throw new IllegalStateException("Unable to find PGN for " + cls, e);
+            // throw new IllegalStateException("Unable to find PGN for " + cls,
+            // e);
+            return -1;
         }
     }
 
@@ -186,7 +187,6 @@ public class J1939 {
      *            the pgn that's being requested
      * @return true if the message is an Acknowledgement/Nack for the given pgn
      */
-    /* FIXME why Integer and not int? */
     private Predicate<Packet> ackNackFilter(int pgn) {
         return response -> {
             return // ID is Acknowledgment
@@ -434,11 +434,14 @@ public class J1939 {
     public <T extends ParsedPacket> Stream<Either<T, AcknowledgmentPacket>> read(Class<T> T,
                                                                                  long timeout,
                                                                                  TimeUnit unit) {
-        int pgn = getPgn(T);
         try {
-            return read(timeout, unit)
-                    .filter(pgnFilter(pgn))
-                    .map(this::process);
+            Stream<Packet> stream = read(timeout, unit);
+            final int pgn = getPgn(T);
+            if (pgn >= 0) {
+                stream = stream.filter(pgnFilter(pgn));
+            }
+
+            return stream.map(this::process);
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, "Error reading packets", e);
         }
@@ -475,7 +478,9 @@ public class J1939 {
                 if (sent != null) {
                     listener.onResult(
                             DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + sent.toString());
-                } else {// failed to send
+                } else {
+                    // failed to send
+                    log("Failed to send: " + request);
                 }
                 Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> first = stream.findFirst();
                 result = new BusResult<>(i > 0, first);
@@ -566,6 +571,7 @@ public class J1939 {
             if (sent != null) {
                 listener.onResult(DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + sent.toString());
             } else {// failed to send
+                log("Failed to send: " + request);
             }
             Optional<Either<T, AcknowledgmentPacket>> result = stream.findFirst();
             result.ifPresentOrElse(p -> {
@@ -636,9 +642,6 @@ public class J1939 {
                     return response.stream();
                 })
                 .collect(Collectors.toList());
-        if (!list.isEmpty()) {
-            System.err.println("ds:" + list);
-        }
         results.addAll(list);
         return new RequestResult<>(retry, results);
     }
@@ -677,6 +680,7 @@ public class J1939 {
             if (sent != null) {
                 listener.onResult(DateTimeModule.getInstance().format(sent.getTimestamp()) + " " + sent.toString());
             } else {// failed to send
+                log("Failed to send: " + request);
             }
             Collection<Packet> list = stream.collect(Collectors.toList());
             result = list.stream()

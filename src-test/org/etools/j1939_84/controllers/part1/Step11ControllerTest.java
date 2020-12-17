@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -215,8 +216,8 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.e - Fail if no OBD ECU provides a DM21 message\n"
-                + "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses\n";
+        String expectedResult = "FAIL: 6.1.11.1.e - Fail if no OBD ECU provides a DM21 message" + NL
+                + "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses" + NL;
         assertEquals(expectedResult, listener.getResults());
 
     }
@@ -299,7 +300,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses\n";
+        String expectedResult = "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses" + NL;
         assertEquals(expectedResult, listener.getResults());
 
     }
@@ -371,7 +372,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses\n";
+        String expectedResult = "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses" + NL;
         assertEquals(expectedResult, listener.getResults());
 
     }
@@ -453,8 +454,9 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses\n"
-                + "FAIL: 6.1.11.4.f - Fail if NACK not received from OBD ECUs that did not respond to global query\n";
+        String expectedResult = "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses" + NL
+                + "FAIL: 6.1.11.4.f - Fail if NACK not received from OBD ECUs that did not respond to global query"
+                + NL;
         assertEquals(expectedResult, listener.getResults());
 
     }
@@ -587,8 +589,9 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero\n"
-                + "FAIL: 6.1.11.4.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero\n";
+        String expectedResult = "FAIL: 6.1.11.1.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero"
+                + NL
+                + "FAIL: 6.1.11.4.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero" + NL;
         assertEquals(expectedResult, listener.getResults());
     }
 
@@ -660,8 +663,8 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.b - Fail if any ECU reports distance SCC (SPN 3294) is not zero\n"
-                + "FAIL: 6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero\n";
+        String expectedResult = "FAIL: 6.1.11.1.b - Fail if any ECU reports distance SCC (SPN 3294) is not zero" + NL
+                + "FAIL: 6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero" + NL;
         assertEquals(expectedResult, listener.getResults());
     }
 
@@ -734,8 +737,9 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero\n"
-                + "FAIL: 6.1.11.4.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero\n";
+        String expectedResult = "FAIL: 6.1.11.1.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero"
+                + NL
+                + "FAIL: 6.1.11.4.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero" + NL;
         assertEquals(expectedResult, listener.getResults());
     }
 
@@ -806,8 +810,8 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.b - Fail if any ECU reports distance SCC (SPN 3294) is not zero\n"
-                + "FAIL: 6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero\n";
+        String expectedResult = "FAIL: 6.1.11.1.b - Fail if any ECU reports distance SCC (SPN 3294) is not zero" + NL
+                + "FAIL: 6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero" + NL;
         assertEquals(expectedResult, listener.getResults());
     }
 
@@ -879,8 +883,9 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)\n"
-                + "FAIL: 6.1.11.4.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)\n";
+        String expectedResult = "FAIL: 6.1.11.1.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)"
+                + NL
+                + "FAIL: 6.1.11.4.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)" + NL;
         assertEquals(expectedResult, listener.getResults());
 
     }
@@ -954,8 +959,10 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)\n"
-                + "FAIL: 6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)\n";
+        String expectedResult = "FAIL: 6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)"
+                + NL
+                + "FAIL: 6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)"
+                + NL;
         assertEquals(expectedResult, listener.getResults());
 
     }

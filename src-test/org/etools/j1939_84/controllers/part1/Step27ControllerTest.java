@@ -14,12 +14,12 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartResultRepository;
@@ -40,7 +40,6 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -105,19 +104,20 @@ public class Step27ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                                 engineSpeedModule,
-                                 bannerModule,
-                                 vehicleInformationModule,
-                                 dataRepository,
-                                 mockListener);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                dataRepository,
+                mockListener);
     }
 
     /**
-     * Test method for
-     * {@link Step27Controller#run()}.
+     * Test method for {@link Step27Controller#run()}.
      */
+    // FIXME - this needs to be fixed when we figure out how to throw the
+    // InterruptedException.
     @Test
-    public void testUserAbortForFail() {
+    public void testEngineThrowInterruptedException() {
         String expectedTitle = "Start Part 2";
         ResultsListener.MessageType expectedType = QUESTION;
         PartResultRepository partResultRepository = PartResultRepository.getInstance();
@@ -128,8 +128,12 @@ public class Step27ControllerTest extends AbstractControllerTest {
         partResultRepository.setStepResult(1, stepResult);
 
         when(engineSpeedModule.isEngineRunning()).thenReturn(false, false, false, true);
+        // doThrow(InterruptedException.class).when(engineSpeedModule).isEngineRunning();
+        // when(engineSpeedModule.isEngineRunning()).thenThrow(new
+        // InterruptedException("Engine failed to start"));
 
-        ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
+        // ArgumentCaptor<QuestionListener> questionCaptor =
+        // ArgumentCaptor.forClass(QuestionListener.class);
         runTest();
 
         verify(engineSpeedModule).setJ1939(j1939);
@@ -137,22 +141,21 @@ public class Step27ControllerTest extends AbstractControllerTest {
 
         String urgentMessages = "";
         urgentMessages += "Ready to transition from Part 1 to Part 2 of the test" + NL;
-        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1." + NL;
+        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1."
+                + NL;
         urgentMessages += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
-        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?" + NL;
+        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?"
+                + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
-                                             eq(expectedType),
-                                             questionCaptor.capture());
-        questionCaptor.getValue().answered(NO);
+                eq(expectedTitle),
+                eq(expectedType),
+                any());
+        // questionCaptor.getValue().answered(NO);
         String urgentMessages2 = "Please turn the Engine ON with Key ON";
         String expectedTitle2 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING));
 
-        String outcomeMessage = "Aborting - user ended test";
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, Outcome.ABORT, outcomeMessage);
-
-        String expectedMessages = "\n";
+        String expectedMessages = NL;
         expectedMessages += "Part 1, Step 27 Part 1 to Part 2 Transition" + NL;
         expectedMessages += "Part 1, Step 27 b.i Ensuring Key On, Engine On" + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
@@ -169,10 +172,8 @@ public class Step27ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMilestones());
     }
 
-
     /**
-     * Test method for
-     * {@link StepController#getDisplayName()}.
+     * Test method for {@link StepController#getDisplayName()}.
      */
     @Test
     public void testGetDisplayName() {
@@ -181,8 +182,7 @@ public class Step27ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test method for
-     * {@link StepController#getPartNumber()}.
+     * Test method for {@link StepController#getPartNumber()}.
      */
     @Test
     public void testGetPartNumber() {
@@ -190,8 +190,7 @@ public class Step27ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test method for
-     * {@link StepController#getStepNumber()}.
+     * Test method for {@link StepController#getStepNumber()}.
      */
     @Test
     public void testGetStepNumber() {
@@ -199,8 +198,7 @@ public class Step27ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test method for
-     * {@link StepController#getTotalSteps()}.
+     * Test method for {@link StepController#getTotalSteps()}.
      */
     @Test
     public void testGetTotalSteps() {
@@ -208,8 +206,7 @@ public class Step27ControllerTest extends AbstractControllerTest {
     }
 
     /**
-     * Test method for
-     * {@link Step27Controller#run()}.
+     * Test method for {@link Step27Controller#run()}.
      */
     @Test
     public void testRun() {
@@ -232,20 +229,22 @@ public class Step27ControllerTest extends AbstractControllerTest {
 
         String urgentMessages = "";
         urgentMessages += "Ready to transition from Part 1 to Part 2 of the test" + NL;
-        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1." + NL;
+        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1."
+                + NL;
         urgentMessages += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
-        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?" + NL;
+        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?"
+                + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
-                                             eq(expectedType),
-                                             questionCaptor.capture());
+                eq(expectedTitle),
+                eq(expectedType),
+                questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
         String urgentMessages2 = "Please turn the Engine ON with Key ON";
         String expectedTitle2 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING));
 
-        String expectedMessages = "\n";
+        String expectedMessages = NL;
         expectedMessages += "Part 1, Step 27 Part 1 to Part 2 Transition" + NL;
         expectedMessages += "Part 1, Step 27 b.i Ensuring Key On, Engine On" + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
@@ -256,21 +255,18 @@ public class Step27ControllerTest extends AbstractControllerTest {
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
 
-        String expectedResults = "";//"User provided ";
-        //expectedResults += "\n";
+        String expectedResults = "";// "User provided ";
+        // expectedResults += "\n";
         assertEquals(expectedResults, listener.getResults());
 
         assertEquals("", listener.getMilestones());
     }
 
-
     /**
-     * Test method for
-     * {@link Step27Controller#run()}.
+     * Test method for {@link Step27Controller#run()}.
      */
-    //FIXME - this needs to be fixed when we figure out how to throw the InterruptedException.
     @Test
-    public void testEngineThrowInterruptedException() {
+    public void testUserAbortForFail() {
         String expectedTitle = "Start Part 2";
         ResultsListener.MessageType expectedType = QUESTION;
         PartResultRepository partResultRepository = PartResultRepository.getInstance();
@@ -281,10 +277,8 @@ public class Step27ControllerTest extends AbstractControllerTest {
         partResultRepository.setStepResult(1, stepResult);
 
         when(engineSpeedModule.isEngineRunning()).thenReturn(false, false, false, true);
-        //doThrow(InterruptedException.class).when(engineSpeedModule).isEngineRunning();
-        //when(engineSpeedModule.isEngineRunning()).thenThrow(new InterruptedException("Engine failed to start"));
 
-        //ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
+        ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         runTest();
 
         verify(engineSpeedModule).setJ1939(j1939);
@@ -292,19 +286,24 @@ public class Step27ControllerTest extends AbstractControllerTest {
 
         String urgentMessages = "";
         urgentMessages += "Ready to transition from Part 1 to Part 2 of the test" + NL;
-        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1." + NL;
+        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1."
+                + NL;
         urgentMessages += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
-        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?" + NL;
+        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?"
+                + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
-                                             eq(expectedType),
-                                             any());
-        //questionCaptor.getValue().answered(NO);
+                eq(expectedTitle),
+                eq(expectedType),
+                questionCaptor.capture());
+        questionCaptor.getValue().answered(NO);
         String urgentMessages2 = "Please turn the Engine ON with Key ON";
         String expectedTitle2 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING));
 
-        String expectedMessages = "\n";
+        String outcomeMessage = "Aborting - user ended test";
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, Outcome.ABORT, outcomeMessage);
+
+        String expectedMessages = NL;
         expectedMessages += "Part 1, Step 27 Part 1 to Part 2 Transition" + NL;
         expectedMessages += "Part 1, Step 27 b.i Ensuring Key On, Engine On" + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;

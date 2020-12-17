@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
@@ -182,7 +183,8 @@ public class Step06ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)\n",
+                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)"
+                        + NL,
                 listener.getResults());
     }
 
@@ -231,7 +233,8 @@ public class Step06ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)\n",
+                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)"
+                        + NL,
                 listener.getResults());
     }
 
@@ -265,7 +268,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.6.2.a - Engine model year does not match user input\n",
+                "FAIL: 6.1.6.2.a - Engine model year does not match user input" + NL,
                 listener.getResults());
     }
 
@@ -314,7 +317,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)\n",
+                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)" + NL,
                 listener.getResults());
     }
 
@@ -398,7 +401,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)\n",
+                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)" + NL,
                 listener.getResults());
     }
 
@@ -453,7 +456,8 @@ public class Step06ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.6.2.b - Indicates 'V' instead of 'E' for cert type\nFAIL: 6.1.6.2.c - Not formatted correctly\n",
+                "FAIL: 6.1.6.2.b - Indicates 'V' instead of 'E' for cert type\nFAIL: 6.1.6.2.c - Not formatted correctly"
+                        + NL,
                 listener.getResults());
     }
 
@@ -470,7 +474,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("DM56 is not supported\n", listener.getResults());
+        assertEquals("DM56 is not supported" + NL, listener.getResults());
 
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).onResult("DM56 is not supported");
@@ -480,7 +484,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("DM56 is not supported\n", listener.getResults());
+        assertEquals("DM56 is not supported" + NL, listener.getResults());
     }
 
     /**
