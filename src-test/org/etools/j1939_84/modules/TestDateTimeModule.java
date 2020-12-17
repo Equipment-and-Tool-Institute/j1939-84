@@ -12,7 +12,6 @@ import java.time.temporal.ChronoField;
  * {@link DateTimeModule} that reports a fixed point in time for testing
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class TestDateTimeModule extends DateTimeModule {
 
@@ -26,9 +25,7 @@ public class TestDateTimeModule extends DateTimeModule {
             .parseDefaulting(ChronoField.SECOND_OF_MINUTE, 30).parseDefaulting(ChronoField.YEAR_OF_ERA, 2016)
             .parseDefaulting(ChronoField.DAY_OF_YEAR, 1).toFormatter();
 
-    private int timeIndex = 0;
-
-    private long[] timesAsLong = { 0 };
+    private long timeAsLong = 0L;
 
     /**
      * Method returns the actual {@link DateTimeFormatter} used in production
@@ -42,7 +39,7 @@ public class TestDateTimeModule extends DateTimeModule {
 
     @Override
     public long getTimeAsLong() {
-        return timesAsLong[timeIndex++];
+        return timeAsLong;
     }
 
     @Override
@@ -58,11 +55,7 @@ public class TestDateTimeModule extends DateTimeModule {
     @Override
     public void pauseFor(long milliseconds) {
         pauseFor = milliseconds;
-    }
-
-    public void setTimesAsLong(long... timesAsLong) {
-        this.timesAsLong = timesAsLong;
-        timeIndex = 0;
+        timeAsLong += milliseconds;
     }
 
 }

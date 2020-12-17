@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.modules;
@@ -56,7 +56,7 @@ public class DateTimeModule {
      * @return Current date as a string.
      */
     public String getDate() {
-        return now().format(DateTimeFormatter.ofPattern("YYY/MM/dd"));
+        return now().format(DateTimeFormatter.ofPattern("yyy/MM/dd"));
     }
 
     /**
@@ -104,7 +104,7 @@ public class DateTimeModule {
     public void pauseFor(long milliseconds) {
         try {
             Thread.sleep(milliseconds);
-        } catch (InterruptedException e) {
+        } catch (InterruptedException ignored) {
         }
     }
 
