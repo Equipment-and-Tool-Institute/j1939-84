@@ -81,7 +81,6 @@ public class Step04Controller extends StepController {
         dataRepository.getObdModules().forEach(module -> {
             BusResult<DM24SPNSupportPacket> result = obdTestsModule.requestDM24(getListener(),
                                                                                 module.getSourceAddress());
-
             result.getPacket().ifPresent(packet -> {
                 packet.left.ifPresent(p -> {
                     destinationSpecifcPackets.add(p);
@@ -94,21 +93,17 @@ public class Step04Controller extends StepController {
             // a. Fail if retry was required to obtain DM24 response.
             if (result.isRetryUsed()) {
                 addFailure("6.1.4.2.a - Retry was required to obtain DM24 response");
-            } else {
-                addPass("6.1.4.2.a");
             }
         });
         // 6.1.4.1.c Create vehicle list of supported SPNs for data stream
-        destinationSpecifcPackets.stream().forEach(p -> {
+        destinationSpecifcPackets.forEach(p -> {
             OBDModuleInformation info = dataRepository.getObdModule(p.getSourceAddress());
             if (info != null) {
                 // d. Create ECU specific list of supported SPNs for test
                 // results.
                 info.setSupportedSpns(p.getSupportedSpns());
-                addPass("6.1.4.1.c");
                 // Store the updates
                 dataRepository.putObdModule(p.getSourceAddress(), info);
-                addPass("6.1.4.1.d");
             }
         });
 
@@ -125,8 +120,6 @@ public class Step04Controller extends StepController {
         // the OBD ECU(s).
         if (!freezeFrameOk) {
             addFailure("6.1.4.2.c - One or more SPNs for freeze frame are not supported");
-        } else {
-            addPass("6.1.4.2.c");
         }
 
         // 6.1.4.1.d. Create ECU specific list of supported SPNs for test
@@ -146,9 +139,6 @@ public class Step04Controller extends StepController {
         // ECU(s).
         if (!dataStreamOk) {
             addFailure("6.1.4.2.b - One or more SPNs for data stream is not supported");
-        } else {
-            addPass("6.1.4.2.b");
         }
-
     }
 }
