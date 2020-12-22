@@ -255,6 +255,7 @@ public class Step26ControllerTest extends AbstractControllerTest {
                 eq(1),
                 eq(26));
         verify(tableA1Validator).reportImplausibleSPNValues(any(),
+                eq(supportedSpns),
                 any(ResultsListener.class),
                 eq(false),
                 eq(DSL),
@@ -356,6 +357,7 @@ public class Step26ControllerTest extends AbstractControllerTest {
                 eq(1),
                 eq(26));
         verify(tableA1Validator).reportImplausibleSPNValues(any(),
+                eq(supportedSpns),
                 any(ResultsListener.class),
                 eq(false),
                 eq(DSL),

@@ -17,11 +17,15 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
+import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
+import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
@@ -60,6 +64,8 @@ public class TableA1ValidatorTest {
     public void reportImplausibleSPNValues() {
         List<GenericPacket> packets = new ArrayList<>();
 
+        Collection<Integer> supportedSpns = List.of(1, 2, 3, 4, 5, 6);
+
         {
             GenericPacket packet1 = mock(GenericPacket.class);
             when(packet1.toString()).thenReturn("packet1");
@@ -67,6 +73,13 @@ public class TableA1ValidatorTest {
             packet1Spns.add(mockSpn(1, 100.0));
             packet1Spns.add(mockSpn(2, 200.0));
             when(packet1.getSpns()).thenReturn(packet1Spns);
+
+            Packet packet1Packet = mock(Packet.class);
+            when(packet1Packet.getPgn()).thenReturn(11111);
+            when(packet1.getPacket()).thenReturn(packet1Packet);
+            PgnDefinition pgnDefinition = mockPgnDef(1, 2);
+            when(packet1.getPgnDefinition()).thenReturn(pgnDefinition);
+
             packets.add(packet1);
         }
 
@@ -77,23 +90,73 @@ public class TableA1ValidatorTest {
             packet2Spns.add(mockSpn(3, 100.0));
             packet2Spns.add(mockSpn(4, 200.0));
             when(packet2.getSpns()).thenReturn(packet2Spns);
+
+            Packet packet2Packet = mock(Packet.class);
+            when(packet2Packet.getPgn()).thenReturn(22222);
+            when(packet2.getPacket()).thenReturn(packet2Packet);
+            PgnDefinition pgnDefinition = mockPgnDef(3, 4);
+            when(packet2.getPgnDefinition()).thenReturn(pgnDefinition);
+
             packets.add(packet2);
+        }
+
+        {
+            GenericPacket packet = mock(GenericPacket.class);
+            when(packet.toString()).thenReturn("packet3");
+            List<Spn> spns = new ArrayList<>();
+            spns.add(mockSpn(5, 100.0));
+            spns.add(mockSpn(6, 200.0));
+            when(packet.getSpns()).thenReturn(spns);
+
+            Packet packetPacket = mock(Packet.class);
+            when(packetPacket.getPgn()).thenReturn(33333);
+            when(packet.getPacket()).thenReturn(packetPacket);
+            PgnDefinition pgnDefinition = mockPgnDef(5, 6);
+            when(packet.getPgnDefinition()).thenReturn(pgnDefinition);
+
+            packets.add(packet);
+            packets.add(packet); //Proves we only print it once
+        }
+
+        {
+            GenericPacket packet = mock(GenericPacket.class);
+            List<Spn> spns = new ArrayList<>();
+            spns.add(mockSpn(7, 100.0));
+            spns.add(mockSpn(8, 200.0));
+            when(packet.getSpns()).thenReturn(spns);
+
+            Packet packetPacket = mock(Packet.class);
+            when(packetPacket.getPgn()).thenReturn(44444);
+            when(packet.getPacket()).thenReturn(packetPacket);
+            PgnDefinition pgnDefinition = mockPgnDef(7, 8);
+            when(packet.getPgnDefinition()).thenReturn(pgnDefinition);
+
+            packets.add(packet);
         }
 
         when(valueValidator.isImplausible(1, 100.0, true, FuelType.DSL)).thenReturn(false);
         when(valueValidator.isImplausible(2, 200.0, true, FuelType.DSL)).thenReturn(true);
         when(valueValidator.isImplausible(3, 100.0, true, FuelType.DSL)).thenReturn(true);
         when(valueValidator.isImplausible(4, 200.0, true, FuelType.DSL)).thenReturn(false);
+        when(valueValidator.isImplausible(5, 100.0, true, FuelType.DSL)).thenReturn(false);
+        when(valueValidator.isImplausible(6, 200.0, true, FuelType.DSL)).thenReturn(false);
+        when(valueValidator.isImplausible(7, 100.0, true, FuelType.DSL)).thenReturn(false);
+        when(valueValidator.isImplausible(8, 200.0, true, FuelType.DSL)).thenReturn(false);
 
-        instance.reportImplausibleSPNValues(packets, listener, true, FuelType.DSL, 1, 26);
+        instance.reportImplausibleSPNValues(packets, supportedSpns, listener, true, FuelType.DSL, 1, 26);
 
         verify(listener).onResult("Found: packet1");
         verify(listener).onResult("Found: packet2");
+        verify(listener).onResult("Found: packet3");
 
         verify(valueValidator).isImplausible(1, 100.0, true, FuelType.DSL);
         verify(valueValidator).isImplausible(2, 200.0, true, FuelType.DSL);
         verify(valueValidator).isImplausible(3, 100.0, true, FuelType.DSL);
         verify(valueValidator).isImplausible(4, 200.0, true, FuelType.DSL);
+        verify(valueValidator, times(2)).isImplausible(5, 100.0, true, FuelType.DSL);
+        verify(valueValidator, times(2)).isImplausible(6, 200.0, true, FuelType.DSL);
+        verify(valueValidator).isImplausible(7, 100.0, true, FuelType.DSL);
+        verify(valueValidator).isImplausible(8, 200.0, true, FuelType.DSL);
 
         verify(listener).addOutcome(1, 26, WARN, "Value for SPN 2 (200.0) is implausible");
         verify(listener).onResult("WARN: 6.1.26 - Value for SPN 2 (200.0) is implausible");
@@ -285,9 +348,9 @@ public class TableA1ValidatorTest {
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 3251, 3609, 3610");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 102, 106, 1127, 3563");
         verify(listener).addOutcome(1,
-                                    26,
-                                    FAIL,
-                                    "At least one of these SPNs is not supported: 94, 157, 164, 5313, 5314, 5578");
+                26,
+                FAIL,
+                "At least one of these SPNs is not supported: 94, 157, 164, 5313, 5314, 5578");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 3516, 3518, 7346");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 3031, 3515");
     }
@@ -395,24 +458,24 @@ public class TableA1ValidatorTest {
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 3251, 3609, 3610");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 102, 106, 1127, 3563");
         verify(listener).addOutcome(1,
-                                    26,
-                                    FAIL,
-                                    "At least one of these SPNs is not supported: 94, 157, 164, 5313, 5314, 5578");
+                26,
+                FAIL,
+                "At least one of these SPNs is not supported: 94, 157, 164, 5313, 5314, 5578");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 3516, 3518, 7346");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 3031, 3515");
     }
 
     @Test
     public void reportMissingSPNsNone() {
-       List<Integer> supportedSpns = Arrays.asList(27, 84, 91, 92, 108,
-                                                   235, 247, 248,
-                                                   512, 513, 514, 539, 540, 541, 542, 543, 544,
-                                                   2791, 2978, 3226, 3700,
-                                                   5466, 5829, 5837, 6895, 7333,
-                                                   96, 110, 132, 157, 190,
-                                                   5313, 5466, 5827,
-                                                   158, 110, 723, 158,
-                                                   5454, 183, 3251, 1127, 94, 3516, 3515);
+        List<Integer> supportedSpns = Arrays.asList(27, 84, 91, 92, 108,
+                235, 247, 248,
+                512, 513, 514, 539, 540, 541, 542, 543, 544,
+                2791, 2978, 3226, 3700,
+                5466, 5829, 5837, 6895, 7333,
+                96, 110, 132, 157, 190,
+                5313, 5466, 5827,
+                158, 110, 723, 158,
+                5454, 183, 3251, 1127, 94, 3516, 3515);
         TestResultsListener testResultsListener = new TestResultsListener(listener);
         instance.reportMissingSPNs(supportedSpns, testResultsListener, FuelType.DSL, 1, 26);
     }
@@ -435,6 +498,22 @@ public class TableA1ValidatorTest {
         Spn mock = mock(Spn.class);
         when(mock.getId()).thenReturn(id);
         when(mock.getValue()).thenReturn(value);
+        return mock;
+    }
+
+    private static PgnDefinition mockPgnDef(int... spns) {
+        PgnDefinition pgnDef = mock(PgnDefinition.class);
+        List<SpnDefinition> spnDefs = new ArrayList<>();
+        for (int spn : spns) {
+            spnDefs.add(mockSpnDef(spn));
+        }
+        when(pgnDef.getSpnDefinitions()).thenReturn(spnDefs);
+        return pgnDef;
+    }
+
+    private static SpnDefinition mockSpnDef(int id) {
+        SpnDefinition mock = mock(SpnDefinition.class);
+        when(mock.getSpnId()).thenReturn(id);
         return mock;
     }
 }
