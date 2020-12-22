@@ -175,12 +175,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.b");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.2.a");
-
         verify(obdTestsModule).setJ1939(j1939);
 
         verify(tableA7Validator).hasDuplicates(any());
@@ -189,12 +183,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
-        expectedResults.append("PASS: 6.1.12.1.b" + NL)
-                .append("PASS: 6.1.12.1.c" + NL)
-                .append("PASS: 6.1.12.1.d" + NL)
-                .append("PASS: 6.1.12.2.a" + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -239,10 +228,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.b");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)");
 
@@ -254,12 +239,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
-        expectedResults.append("PASS: 6.1.12.1.b" + NL)
-                .append("PASS: 6.1.12.1.c" + NL)
-                .append("PASS: 6.1.12.1.d" + NL)
-                .append("FAIL: 6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)"
-                        + NL);
+        StringBuilder expectedResults = new StringBuilder("FAIL: 6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)").append(NL);
         assertEquals(expectedResults.toString(), listener.getResults());
     }
 
@@ -296,8 +276,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.12.1.a Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.2.a");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -308,16 +286,14 @@ public class Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         StringBuilder expectedResults = new StringBuilder(
-                "FAIL: 6.1.12.1.a Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support"
-                        + NL);
-        expectedResults.append("PASS: 6.1.12.1.d" + NL)
-                .append("PASS: 6.1.12.2.a" + NL);
+                "FAIL: 6.1.12.1.a Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support").append(NL);
+
         assertEquals(expectedResults.toString(), listener.getResults());
     }
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step12Controller#getDisplayName()}.
+     * {@link Step12Controller#getDisplayName()}.
      */
     @Test
     public void testGetDisplayName() {
@@ -326,7 +302,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step12Controller#getStepNumber()}.
+     * {@link Step12Controller#getStepNumber()}.
      */
     @Test
     public void testGetStepNumber() {
@@ -335,7 +311,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step12Controller#getTotalSteps()}.
+     * {@link Step12Controller#getTotalSteps()}.
      */
     @Test
     public void testGetTotalSteps() {
@@ -344,7 +320,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step12Controller#run()}.
+     * {@link Step12Controller#run()}.
      */
     @Test
     public void testIgnitionUnknown() {
@@ -381,10 +357,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.b");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.12.2.a Verification of 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results is only defined for spark or compression ignition");
 
@@ -395,13 +367,8 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
-        expectedResults.append("PASS: 6.1.12.1.b" + NL)
-                .append("PASS: 6.1.12.1.c" + NL)
-                .append("PASS: 6.1.12.1.d" + NL)
-                .append(
-                        "FAIL: 6.1.12.2.a Verification of 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results is only defined for spark or compression ignition"
-                                + NL);
+        StringBuilder expectedResults = new StringBuilder(
+                        "FAIL: 6.1.12.2.a Verification of 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results is only defined for spark or compression ignition").append(NL);
         assertEquals(expectedResults.toString(), listener.getResults());
     }
 
@@ -442,13 +409,8 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "6.1.12.1.a");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.2.a");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -459,14 +421,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
-        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
-        expectedResults.append(
-                "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
-                        + NL)
-                .append("PASS: 6.1.12.1.c" + NL)
-                .append("PASS: 6.1.12.1.d" + NL)
-                .append("PASS: 6.1.12.2.a" + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals("FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000" + NL, listener.getResults());
     }
 
     @Test
@@ -506,12 +461,8 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.2.a");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -521,14 +472,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
-        expectedResults.append(
-                "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
-                        + NL)
-                .append("PASS: 6.1.12.1.c" + NL)
-                .append("PASS: 6.1.12.1.d" + NL)
-                .append("PASS: 6.1.12.2.a" + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals("FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000" + NL, listener.getResults());
     }
 
     @Test
@@ -568,16 +512,8 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "6.1.12.1.a");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "6.1.12.1.c");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "6.1.12.1.d");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "6.1.12.2.a");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -587,19 +523,14 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
-        expectedResults.append(
-                "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
-                        + NL)
-                .append("PASS: 6.1.12.1.c" + NL)
-                .append("PASS: 6.1.12.1.d" + NL)
-                .append("PASS: 6.1.12.2.a" + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        String expectedResults = "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000" + NL;
+
+        assertEquals(expectedResults, listener.getResults());
     }
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step12Controller#run()}.
+     * {@link Step12Controller#run()}.
      */
     @Test
     public void testInvalidSlot() {
@@ -641,12 +572,8 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.b");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.12.1.c #" + slotNumber + " SLOT identifier is an undefined or invalid");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.2.a");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -656,13 +583,9 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
-        expectedResults.append("PASS: 6.1.12.1.b" + NL)
-                .append("FAIL: 6.1.12.1.c #" + String.valueOf(slotNumber)
-                        + " SLOT identifier is an undefined or invalid" + NL)
-                .append("PASS: 6.1.12.1.d" + NL)
-                .append("PASS: 6.1.12.2.a" + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        String expectedResults = "FAIL: 6.1.12.1.c #" + slotNumber +
+                " SLOT identifier is an undefined or invalid" + NL;
+        assertEquals(expectedResults, listener.getResults());
     }
 
     @Test
@@ -692,16 +615,15 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder("WARN: No OBD modules found.  Continuing..." + NL);
-        expectedResults.append(
+        String expectedResults = "WARN: No OBD modules found.  Continuing..." + NL +
                 "FAIL: 6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)"
-                        + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+                + NL;
+        assertEquals(expectedResults, listener.getResults());
     }
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step12Controller#run()}.
+     * {@link Step12Controller#run()}.
      */
     @Test
     public void testOneModule() {
@@ -739,12 +661,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.b");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.2.a");
-
         verify(obdTestsModule).setJ1939(j1939);
 
         verify(tableA7Validator).hasDuplicates(scaledTestsResults);
@@ -753,12 +669,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
-        expectedResults.append("PASS: 6.1.12.1.b" + NL)
-                .append("PASS: 6.1.12.1.c" + NL)
-                .append("PASS: 6.1.12.1.d" + NL)
-                .append("PASS: 6.1.12.2.a" + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -808,13 +719,10 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.12.1.d SPN 157 FMI 18 returned duplicates");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.2.a");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -824,17 +732,10 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
-        expectedResults.append(
-                "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
-                        + NL)
-                .append("PASS: 6.1.12.1.c" + NL)
-                .append("FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000"
-                        + NL)
-                .append("PASS: 6.1.12.1.c" + NL)
-                .append("FAIL: 6.1.12.1.d SPN 157 FMI 18 returned duplicates" + NL)
-                .append("PASS: 6.1.12.2.a" + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        String expectedResults = "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000" + NL +
+                "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000" + NL +
+                "FAIL: 6.1.12.1.d SPN 157 FMI 18 returned duplicates" + NL;
+        assertEquals(expectedResults, listener.getResults());
     }
 
     @Test
@@ -879,10 +780,6 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.a");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.b");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.c");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "6.1.12.1.d");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Spark Ignition)");
 
@@ -894,13 +791,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder("PASS: 6.1.12.1.a" + NL);
-        expectedResults.append("PASS: 6.1.12.1.b" + NL)
-                .append("PASS: 6.1.12.1.c" + NL)
-                .append("PASS: 6.1.12.1.d" + NL)
-                .append("FAIL: 6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Spark Ignition)"
-                        + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals("FAIL: 6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Spark Ignition)" + NL, listener.getResults());
     }
 
 }
