@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019. Equipment & Tool Institute
  */
 package org.etools.j1939_84.ui;
@@ -50,6 +50,7 @@ public class VehicleInformationPresenterTest {
 
     @Mock
     private VehicleInformationListener listener;
+
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
@@ -129,6 +130,7 @@ public class VehicleInformationPresenterTest {
         verify(view).setCalIds(0);
         verify(dateTimeModule).getYear();
         verify(view).setVehicleModelYear(500);
+        verify(view).setEngineModelYear(500);
         verify(vehicleInformationModule).reportAddressClaim(ArgumentMatchers.any());
         verify(vehicleInformationModule).reportCalibrationInformation(ArgumentMatchers.any());
         verify(vehicleInformationModule).getEngineModelYear();

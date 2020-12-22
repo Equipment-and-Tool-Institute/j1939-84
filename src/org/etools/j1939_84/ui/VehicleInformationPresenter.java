@@ -188,23 +188,19 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
                                     ack -> ComponentIdentificationPacket.error(address, "ERROR")))
                             .orElse(ComponentIdentificationPacket.error(address, "MISSING"))));
             view.setEmissionUnits(emissionUnitsFound.size());
-        } catch (Exception e) {
-            // Don't care
-            e.printStackTrace(); // FXIME remove this
+        } catch (Exception ignored) {
         }
 
         try {
             calIdsFound = vehicleInformationModule.reportCalibrationInformation(ResultsListener.NOOP);
             view.setCalIds((int) calIdsFound.stream().mapToLong(p -> p.getCalibrationInformation().size()).sum());
-        } catch (Exception e) {
-            // Don't care
+        } catch (Exception ignored) {
         }
 
         try {
             vin = vehicleInformationModule.getVin();
             view.setVin(vin);
-        } catch (Exception e) {
-            // Don't care
+        } catch (Exception ignored) {
         }
 
         int modelYear = vinDecoder.getModelYear(vin);
@@ -216,15 +212,14 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         try {
             engineModelYear = vehicleInformationModule.getEngineModelYear();
             view.setEngineModelYear(engineModelYear);
-        } catch (Exception e) {
+        } catch (Exception ignored) {
             view.setEngineModelYear(modelYear);
         }
 
         try {
             certificationIntent = vehicleInformationModule.getEngineFamilyName();
             view.setCertificationIntent(certificationIntent);
-        } catch (Exception e) {
-            // Don't care
+        } catch (Exception ignored) {
         }
     }
 
