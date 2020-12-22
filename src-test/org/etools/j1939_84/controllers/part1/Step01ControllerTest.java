@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -12,17 +12,15 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
@@ -38,8 +36,6 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * The unit test for {@link Step01Controller}
@@ -168,7 +164,6 @@ public class Step01ControllerTest {
     public void testRun() {
 
         String expectedTitle = "Start Part 1";
-        MessageType expectedType = WARNING;
         VehicleInformation vehicleInfo = mock(VehicleInformation.class);
         when(vehicleInfo.toString()).thenReturn("VehicleInfo");
 
@@ -189,9 +184,7 @@ public class Step01ControllerTest {
         verify(dataRepository, atLeastOnce()).getVehicleInformation();
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule).isEngineNotRunning();
-        verify(mockListener).onUrgentMessage(urgentMessages, expectedTitle, expectedType);
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, Outcome.FAIL, "Testing");
-        // verify(mockListener).addOutcome(PART_NUMBER, );
+        verify(mockListener).onUrgentMessage(urgentMessages, expectedTitle, WARNING);
         verify(mockListener).onVehicleInformationReceived(vehicleInfo);
         verify(vehicleInformationModule).setJ1939(j1939);
 
@@ -323,12 +316,11 @@ public class Step01ControllerTest {
         urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions.\n";
         verify(mockListener).onUrgentMessage(urgentMessages, "Start Part 1", WARNING);
 
-        verify(mockListener).onUrgentMessage("Please turn the Engine OFF with Key ON.", "Adjust Key Switch", WARNING);
+        verify(mockListener).onUrgentMessage("Please turn the Engine OFF with Key ON", "Adjust Key Switch", WARNING);
 
         String expectedMessages = "\n";
         expectedMessages += "Part 1, Step 1 a-c Displaying Warning Message\n";
         expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off\n";
-        expectedMessages += "Waiting for Key ON, Engine OFF...\n";
         expectedMessages += "Waiting for Key ON, Engine OFF...\n";
         expectedMessages += "Waiting for Key ON, Engine OFF...";
         assertEquals(expectedMessages, listener.getMessages());

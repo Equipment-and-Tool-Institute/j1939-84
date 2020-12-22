@@ -3,20 +3,18 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.Outcome.ABORT;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
-import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.Outcome.ABORT;
-import static org.etools.j1939_84.model.Outcome.FAIL;
 
 public class Step01Controller extends StepController {
     private static final int PART_NUMBER = 1;
@@ -78,8 +76,6 @@ public class Step01Controller extends StepController {
                 + NL;
 
         getListener().onUrgentMessage(message, "Start Part 1", MessageType.WARNING);
-
-        getListener().addOutcome(1, 1, FAIL, "Testing");
     }
 
     /**
