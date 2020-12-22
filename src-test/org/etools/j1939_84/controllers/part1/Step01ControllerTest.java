@@ -292,7 +292,7 @@ public class Step01ControllerTest {
             public void run() {
                 instance.stop();
             }
-        }, 750);
+        }, 500);
 
         try {
             instance.execute(listener, j1939, reportFileModule);
