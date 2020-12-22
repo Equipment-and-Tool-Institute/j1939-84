@@ -793,5 +793,4 @@ public class Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMilestones());
         assertEquals("FAIL: 6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Spark Ignition)" + NL, listener.getResults());
     }
-
 }
