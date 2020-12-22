@@ -1,5 +1,5 @@
-/**
- * Copyright 2020 Equipment & Tool Institute
+/*
+  Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
 
@@ -28,6 +28,7 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
@@ -91,11 +92,8 @@ public class Step14ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
 
         listener = new TestResultsListener(mockListener);
 
@@ -111,11 +109,8 @@ public class Step14ControllerTest extends AbstractControllerTest {
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verifyNoMoreInteractions(executor,
                 engineSpeedModule,
                 bannerModule,
@@ -128,7 +123,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step14Controller#Step14Controller(DataRepository)}.
+     * {@link Step14Controller#run()}.
      */
     @Test
     public void testEmptyPacketFailure() {
@@ -158,7 +153,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step14Controller#Step14Controller(DataRepository)}.
+     * {@link Step14Controller#run()}.
      */
     @Test
     public void testFailures() {
@@ -181,7 +176,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule3 = new OBDModuleInformation(0x03);
         obdModule3.setMontioredSystems(obdPacket3.getMonitoredSystems());
 
-        when(dataRepository.getObdModules()).thenReturn(new HashSet<OBDModuleInformation>() {
+        when(dataRepository.getObdModules()).thenReturn(new HashSet<>() {
             {
                 add(obdModule1);
                 add(obdModule3);
@@ -213,25 +208,25 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "Cold start aid system      not supported,     complete");
+                        + NL + "    Cold start aid system          not supported,       completed");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "EGR/VVT system             not supported,     complete");
+                        + NL + "    EGR/VVT system                 not supported,       completed");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "Exhaust Gas Sensor         not supported, not complete");
+                        + NL + "    Exhaust Gas Sensor             not supported,   not completed");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "Heated catalyst            not supported, not complete");
+                        + NL + "    Heated catalyst                not supported,   not completed");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "NMHC converting catalyst   not supported,     complete");
+                        + NL + "    NMHC converting catalyst       not supported,       completed");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "NOx catalyst/adsorber      not supported, not complete");
+                        + NL + "    NOx catalyst/adsorber          not supported,   not completed");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "Secondary air system       not supported,     complete");
+                        + NL + "    Secondary air system           not supported,       completed");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.14.2.d Fail if any response indicates number of warm-ups since code clear is not zero" + NL
                         + "DM26 from Engine #2 (1): Warm-ups: 51, Time Since Engine Start: 8,721 seconds"
@@ -258,43 +253,43 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
         String expectedResults = "" + NL;
         expectedResults += "Vehicle Composite of DM26:" + NL;
-        expectedResults += "A/C system refrigerant         enabled, not complete" + NL;
-        expectedResults += "Boost pressure control sys     enabled, not complete" + NL;
-        expectedResults += "Catalyst                       enabled, not complete" + NL;
-        expectedResults += "Cold start aid system          enabled, not complete" + NL;
-        expectedResults += "Comprehensive component        enabled, not complete" + NL;
-        expectedResults += "Diesel Particulate Filter      enabled, not complete" + NL;
-        expectedResults += "EGR/VVT system                 enabled, not complete" + NL;
-        expectedResults += "Evaporative system             enabled, not complete" + NL;
-        expectedResults += "Exhaust Gas Sensor             enabled, not complete" + NL;
-        expectedResults += "Exhaust Gas Sensor heater      enabled, not complete" + NL;
-        expectedResults += "Fuel System                not enabled,     complete" + NL;
-        expectedResults += "Heated catalyst                enabled, not complete" + NL;
-        expectedResults += "Misfire                    not enabled,     complete" + NL;
-        expectedResults += "NMHC converting catalyst       enabled, not complete" + NL;
-        expectedResults += "NOx catalyst/adsorber          enabled, not complete" + NL;
-        expectedResults += "Secondary air system           enabled, not complete" + NL;
+        expectedResults += "    A/C system refrigerant             supported,   not completed" + NL;
+        expectedResults += "    Boost pressure control sys         supported,   not completed" + NL;
+        expectedResults += "    Catalyst                           supported,   not completed" + NL;
+        expectedResults += "    Cold start aid system              supported,   not completed" + NL;
+        expectedResults += "    Comprehensive component            supported,   not completed" + NL;
+        expectedResults += "    Diesel Particulate Filter          supported,   not completed" + NL;
+        expectedResults += "    EGR/VVT system                     supported,   not completed" + NL;
+        expectedResults += "    Evaporative system                 supported,   not completed" + NL;
+        expectedResults += "    Exhaust Gas Sensor                 supported,   not completed" + NL;
+        expectedResults += "    Exhaust Gas Sensor heater          supported,   not completed" + NL;
+        expectedResults += "    Fuel System                    not supported,       completed" + NL;
+        expectedResults += "    Heated catalyst                    supported,   not completed" + NL;
+        expectedResults += "    Misfire                        not supported,       completed" + NL;
+        expectedResults += "    NMHC converting catalyst           supported,   not completed" + NL;
+        expectedResults += "    NOx catalyst/adsorber              supported,   not completed" + NL;
+        expectedResults += "    Secondary air system               supported,   not completed" + NL;
         expectedResults += "FAIL: 6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
                 + NL;
-        expectedResults += "Cold start aid system      not supported,     complete" + NL;
+        expectedResults += "    Cold start aid system          not supported,       completed" + NL;
         expectedResults += "FAIL: 6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
                 + NL;
-        expectedResults += "EGR/VVT system             not supported,     complete" + NL;
+        expectedResults += "    EGR/VVT system                 not supported,       completed" + NL;
         expectedResults += "FAIL: 6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
                 + NL;
-        expectedResults += "Exhaust Gas Sensor         not supported, not complete" + NL;
+        expectedResults += "    Exhaust Gas Sensor             not supported,   not completed" + NL;
         expectedResults += "FAIL: 6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
                 + NL;
-        expectedResults += "Heated catalyst            not supported, not complete" + NL;
+        expectedResults += "    Heated catalyst                not supported,   not completed" + NL;
         expectedResults += "FAIL: 6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
                 + NL;
-        expectedResults += "NMHC converting catalyst   not supported,     complete" + NL;
+        expectedResults += "    NMHC converting catalyst       not supported,       completed" + NL;
         expectedResults += "FAIL: 6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
                 + NL;
-        expectedResults += "NOx catalyst/adsorber      not supported, not complete" + NL;
+        expectedResults += "    NOx catalyst/adsorber          not supported,   not completed" + NL;
         expectedResults += "FAIL: 6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
                 + NL;
-        expectedResults += "Secondary air system       not supported,     complete" + NL;
+        expectedResults += "    Secondary air system           not supported,       completed" + NL;
         expectedResults += "FAIL: 6.1.14.2.d Fail if any response indicates number of warm-ups since code clear is not zero"
                 + NL;
         expectedResults += "DM26 from Engine #2 (1): Warm-ups: 51, Time Since Engine Start: 8,721 seconds"
@@ -320,7 +315,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.StepController#getDisplayName()}.
+     * {@link StepController#getDisplayName()}.
      */
     @Test
     public void testGetDisplayName() {
@@ -330,7 +325,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step13Controller#getStepNumber()}.
+     * {@link Step14Controller#getStepNumber()}.
      */
     @Test
     public void testGetStepNumber() {
@@ -339,7 +334,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.StepController#getTotalSteps()}.
+     * {@link StepController#getTotalSteps()}.
      */
     @Test
     public void testGetTotalSteps() {
@@ -348,7 +343,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step14Controller#Step14Controller(DataRepository)}.
+     * {@link Step14Controller#run()}.
      */
     @Test
     public void testMoreFailures() {
@@ -370,7 +365,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
         obdModule1.setMontioredSystems(obdPacket1.getMonitoredSystems());
 
-        when(dataRepository.getObdModules()).thenReturn(new HashSet<OBDModuleInformation>() {
+        when(dataRepository.getObdModules()).thenReturn(new HashSet<>() {
             {
                 add(obdModule1);
             }
@@ -405,7 +400,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
                 "6.1.14.2.a Fail if any response for a monitor in DM5 is reported as supported and is reported as not supported by DM26 response");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "Comprehensive component    not supported,     complete");
+                        + NL + "    Comprehensive component        not supported,       completed");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.14.2.b Fail if any response from an ECU indicating support for CCM monitor in DM5 is report as not supported by DM26 response");
 
@@ -442,29 +437,28 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
         verify(reportFileModule).onProgress(0, 1, "");
 
-        String expectedResults = "" + NL;
-        expectedResults += "Vehicle Composite of DM26:" + NL;
-        expectedResults += "A/C system refrigerant         enabled, not complete" + NL;
-        expectedResults += "Boost pressure control sys     enabled,     complete" + NL;
-        expectedResults += "Catalyst                       enabled, not complete" + NL;
-        expectedResults += "Cold start aid system      not enabled,     complete" + NL;
-        expectedResults += "Comprehensive component        enabled, not complete" + NL;
-        expectedResults += "Diesel Particulate Filter      enabled,     complete" + NL;
-        expectedResults += "EGR/VVT system             not enabled,     complete" + NL;
-        expectedResults += "Evaporative system             enabled, not complete" + NL;
-        expectedResults += "Exhaust Gas Sensor         not enabled, not complete" + NL;
-        expectedResults += "Exhaust Gas Sensor heater      enabled, not complete" + NL;
-        expectedResults += "Fuel System                not enabled,     complete" + NL;
-        expectedResults += "Heated catalyst            not enabled, not complete" + NL;
-        expectedResults += "Misfire                    not enabled,     complete" + NL;
-        expectedResults += "NMHC converting catalyst   not enabled,     complete" + NL;
-        expectedResults += "NOx catalyst/adsorber      not enabled, not complete" + NL;
-        expectedResults += "Secondary air system       not enabled,     complete" + NL;
+        String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
+        expectedResults += "    A/C system refrigerant             supported,   not completed" + NL;
+        expectedResults += "    Boost pressure control sys         supported,       completed" + NL;
+        expectedResults += "    Catalyst                           supported,   not completed" + NL;
+        expectedResults += "    Cold start aid system          not supported,       completed" + NL;
+        expectedResults += "    Comprehensive component            supported,   not completed" + NL;
+        expectedResults += "    Diesel Particulate Filter          supported,       completed" + NL;
+        expectedResults += "    EGR/VVT system                 not supported,       completed" + NL;
+        expectedResults += "    Evaporative system                 supported,   not completed" + NL;
+        expectedResults += "    Exhaust Gas Sensor             not supported,   not completed" + NL;
+        expectedResults += "    Exhaust Gas Sensor heater          supported,   not completed" + NL;
+        expectedResults += "    Fuel System                    not supported,       completed" + NL;
+        expectedResults += "    Heated catalyst                not supported,   not completed" + NL;
+        expectedResults += "    Misfire                        not supported,       completed" + NL;
+        expectedResults += "    NMHC converting catalyst       not supported,       completed" + NL;
+        expectedResults += "    NOx catalyst/adsorber          not supported,   not completed" + NL;
+        expectedResults += "    Secondary air system           not supported,       completed" + NL;
         expectedResults += "FAIL: 6.1.14.2.a Fail if any response for a monitor in DM5 is reported as supported and is reported as not supported by DM26 response"
                 + NL;
         expectedResults += "FAIL: 6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
                 + NL;
-        expectedResults += "Comprehensive component    not supported,     complete" + NL;
+        expectedResults += "    Comprehensive component        not supported,       completed" + NL;
         expectedResults += "FAIL: 6.1.14.2.b Fail if any response from an ECU indicating support for CCM monitor in DM5 is report as not supported by DM26 response"
                 + NL;
         expectedResults += "FAIL: 6.1.14.2.a Fail if any response for a monitor in DM5 is reported as supported and is reported as not supported by DM26 response"
@@ -511,13 +505,12 @@ public class Step14ControllerTest extends AbstractControllerTest {
                 + NL;
         expectedResults += "FAIL: 6.1.14.5.b Fail if NACK not received from OBD ECUs that did not respond to global query"
                 + NL;
-
         assertEquals(expectedResults, listener.getResults());
     }
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step14Controller#run()}.
+     * {@link Step14Controller#run()}.
      */
     @Test
     public void testRun() {
@@ -530,13 +523,11 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
         obdModule1.setMontioredSystems(packet1.getMonitoredSystems());
-        System.out.println("obdModule1 size is " + obdModule1.getMonitoredSystems().size());
         when(dataRepository.getObdModules()).thenReturn(new HashSet<OBDModuleInformation>() {
             {
                 add(obdModule1);
             }
         });
-
         when(dtcModule.requestDM26(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet1), Collections.emptyList()));
         when(dtcModule.requestDM26(any(), eq(0x01)))
@@ -554,25 +545,23 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
         verify(reportFileModule).onProgress(0, 1, "");
 
-        String expectedResults = "" + NL;
-        expectedResults += "Vehicle Composite of DM26:" + NL;
-        expectedResults += "A/C system refrigerant         enabled, not complete" + NL;
-        expectedResults += "Boost pressure control sys     enabled,     complete" + NL;
-        expectedResults += "Catalyst                       enabled, not complete" + NL;
-        expectedResults += "Cold start aid system      not enabled,     complete" + NL;
-        expectedResults += "Comprehensive component        enabled, not complete" + NL;
-        expectedResults += "Diesel Particulate Filter      enabled,     complete" + NL;
-        expectedResults += "EGR/VVT system             not enabled,     complete" + NL;
-        expectedResults += "Evaporative system             enabled, not complete" + NL;
-        expectedResults += "Exhaust Gas Sensor         not enabled, not complete" + NL;
-        expectedResults += "Exhaust Gas Sensor heater      enabled, not complete" + NL;
-        expectedResults += "Fuel System                not enabled,     complete" + NL;
-        expectedResults += "Heated catalyst            not enabled, not complete" + NL;
-        expectedResults += "Misfire                    not enabled,     complete" + NL;
-        expectedResults += "NMHC converting catalyst   not enabled,     complete" + NL;
-        expectedResults += "NOx catalyst/adsorber      not enabled, not complete" + NL;
-        expectedResults += "Secondary air system       not enabled,     complete" + NL;
+        String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
+        expectedResults += "    A/C system refrigerant             supported,   not completed" + NL;
+        expectedResults += "    Boost pressure control sys         supported,       completed" + NL;
+        expectedResults += "    Catalyst                           supported,   not completed" + NL;
+        expectedResults += "    Cold start aid system          not supported,       completed" + NL;
+        expectedResults += "    Comprehensive component            supported,   not completed" + NL;
+        expectedResults += "    Diesel Particulate Filter          supported,       completed" + NL;
+        expectedResults += "    EGR/VVT system                 not supported,       completed" + NL;
+        expectedResults += "    Evaporative system                 supported,   not completed" + NL;
+        expectedResults += "    Exhaust Gas Sensor             not supported,   not completed" + NL;
+        expectedResults += "    Exhaust Gas Sensor heater          supported,   not completed" + NL;
+        expectedResults += "    Fuel System                    not supported,       completed" + NL;
+        expectedResults += "    Heated catalyst                not supported,   not completed" + NL;
+        expectedResults += "    Misfire                        not supported,       completed" + NL;
+        expectedResults += "    NMHC converting catalyst       not supported,       completed" + NL;
+        expectedResults += "    NOx catalyst/adsorber          not supported,   not completed" + NL;
+        expectedResults += "    Secondary air system           not supported,       completed" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
-
 }
