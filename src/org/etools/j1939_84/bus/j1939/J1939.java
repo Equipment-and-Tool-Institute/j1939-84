@@ -6,6 +6,7 @@ package org.etools.j1939_84.bus.j1939;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
@@ -20,6 +21,7 @@ import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.EchoBus;
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.Packet.PacketException;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
@@ -682,11 +684,19 @@ public class J1939 {
             } else {// failed to send
                 log("Failed to send: " + request);
             }
-            Collection<Packet> list = stream.collect(Collectors.toList());
-            result = list.stream()
+            result = stream
                     .filter(globalFilter(pgn))
                     .peek(p -> listener.onResult(p.toTimeString()))
-                    .map(rawPacket -> (Either<T, AcknowledgmentPacket>) process(rawPacket))
+                    .map(rawPacket -> {
+                        try {
+                            return (Either<T, AcknowledgmentPacket>) process(rawPacket);
+                        } catch (PacketException e) {
+                            // This is not a complete packet. Should be
+                            // logged as a failure elsewhere.
+                            return null;
+                        }
+                    })
+                    .filter(Objects::nonNull)
                     .peek(p -> {
                         if (fullString) {
                             listener.onResult(p.resolve().toString());

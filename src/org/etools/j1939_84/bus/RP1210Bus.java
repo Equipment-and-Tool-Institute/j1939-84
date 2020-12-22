@@ -17,8 +17,6 @@ import java.time.Instant;
 import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.CompletionException;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
@@ -169,7 +167,7 @@ public class RP1210Bus implements Bus {
         int pgn = ((data[7] & 0xFF) << 16) | ((data[6] & 0xFF) << 8) | (data[5] & 0xFF);
         int priority = data[8] & 0x07;
         int source = data[9] & 0xFF;
-        if (pgn < 0xF000 && pgn >= 0xE000) {
+        if (pgn < 0xF000) {
             int destination = data[10];
             pgn = pgn | (destination & 0xFF);
         }
@@ -247,7 +245,7 @@ public class RP1210Bus implements Bus {
                 if (rtn > 0) {
                     Packet packet = decode(data, rtn);
                     if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
-                        getLogger().log(Level.WARNING, "Another module is using this address");
+                        getLogger().log(Level.WARNING, "Another module is using this address: " + packet);
                     }
                     queue.add(packet);
                 } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
@@ -284,21 +282,26 @@ public class RP1210Bus implements Bus {
     public Packet send(Packet tx) throws BusException {
         try {
             byte[] data = encode(tx);
-            return CompletableFuture.supplyAsync(() -> {
-                try (Stream<Packet> stream = read(10, TimeUnit.SECONDS);) {
+            return exec.submit(() -> {
+                try (Stream<Packet> stream = read(100, TimeUnit.MILLISECONDS);) {
                     short rtn = rp1210Library.RP1210_SendMessage(clientId,
                             data,
                             (short) data.length,
                             NOTIFICATION_NONE,
                             BLOCKING_NONE);
                     verify(rtn);
-                    return stream.filter(rx -> tx.getId(0xFFFF) == rx.getId(0xFFFF) && rx.getSource() == getAddress())
-                            .findFirst().orElse(null);
-                } catch (BusException e) {
-                    throw new CompletionException(e);
+                    return stream
+                            .filter(rx -> tx.getId(0xFFFF) == rx.getId(0xFFFF) && rx.getSource() == tx.getSource())
+                            .findFirst()
+                            .orElseThrow(() -> new BusException("Failed to send: " + tx));
+                    // } catch (BusException e) {
+                    // throw new CompletionException(e);
                 }
             }).get();
         } catch (Throwable e) {
+            if (e.getCause() instanceof BusException) {
+                throw (BusException) e.getCause();
+            }
             throw new BusException("Failed to send: " + tx, e);
         }
     }

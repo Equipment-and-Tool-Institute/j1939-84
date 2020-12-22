@@ -456,7 +456,8 @@ public class Step06ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.6.2.b - Indicates 'V' instead of 'E' for cert type\nFAIL: 6.1.6.2.c - Not formatted correctly"
+                "FAIL: 6.1.6.2.b - Indicates 'V' instead of 'E' for cert type" + NL
+                        + "FAIL: 6.1.6.2.c - Not formatted correctly"
                         + NL,
                 listener.getResults());
     }
