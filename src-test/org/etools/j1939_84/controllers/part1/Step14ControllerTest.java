@@ -1,5 +1,5 @@
-/**
- * Copyright 2020 Equipment & Tool Institute
+/*
+  Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
 
@@ -28,6 +28,7 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
@@ -91,11 +92,8 @@ public class Step14ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
 
         listener = new TestResultsListener(mockListener);
 
@@ -111,11 +109,8 @@ public class Step14ControllerTest extends AbstractControllerTest {
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verifyNoMoreInteractions(executor,
                 engineSpeedModule,
                 bannerModule,
@@ -128,7 +123,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step14Controller#Step14Controller(DataRepository)}.
+     * {@link Step14Controller#run()}.
      */
     @Test
     public void testEmptyPacketFailure() {
@@ -158,7 +153,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step14Controller#Step14Controller(DataRepository)}.
+     * {@link Step14Controller#run()}.
      */
     @Test
     public void testFailures() {
@@ -181,7 +176,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule3 = new OBDModuleInformation(0x03);
         obdModule3.setMontioredSystems(obdPacket3.getMonitoredSystems());
 
-        when(dataRepository.getObdModules()).thenReturn(new HashSet<OBDModuleInformation>() {
+        when(dataRepository.getObdModules()).thenReturn(new HashSet<>() {
             {
                 add(obdModule1);
                 add(obdModule3);
@@ -320,7 +315,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.StepController#getDisplayName()}.
+     * {@link StepController#getDisplayName()}.
      */
     @Test
     public void testGetDisplayName() {
@@ -330,7 +325,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step13Controller#getStepNumber()}.
+     * {@link Step14Controller#getStepNumber()}.
      */
     @Test
     public void testGetStepNumber() {
@@ -339,7 +334,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.StepController#getTotalSteps()}.
+     * {@link StepController#getTotalSteps()}.
      */
     @Test
     public void testGetTotalSteps() {
@@ -348,7 +343,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step14Controller#Step14Controller(DataRepository)}.
+     * {@link Step14Controller#run()}.
      */
     @Test
     public void testMoreFailures() {
@@ -370,7 +365,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
         obdModule1.setMontioredSystems(obdPacket1.getMonitoredSystems());
 
-        when(dataRepository.getObdModules()).thenReturn(new HashSet<OBDModuleInformation>() {
+        when(dataRepository.getObdModules()).thenReturn(new HashSet<>() {
             {
                 add(obdModule1);
             }
@@ -517,7 +512,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step14Controller#run()}.
+     * {@link Step14Controller#run()}.
      */
     @Test
     public void testRun() {
@@ -531,7 +526,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
         obdModule1.setMontioredSystems(packet1.getMonitoredSystems());
         System.out.println("obdModule1 size is " + obdModule1.getMonitoredSystems().size());
-        when(dataRepository.getObdModules()).thenReturn(new HashSet<OBDModuleInformation>() {
+        when(dataRepository.getObdModules()).thenReturn(new HashSet<>() {
             {
                 add(obdModule1);
             }
