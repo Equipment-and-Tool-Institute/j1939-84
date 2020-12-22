@@ -255,8 +255,8 @@ public class Step26Controller extends StepController {
         tableA1Validator.reportMissingSPNs(supportedSpns, getListener(), fuelType, getPartNumber(), getStepNumber());
 
         // a. Gather broadcast data for all SPNs that are supported for data stream in the OBD ECU DM24 responses.
-        // we need 3 samples, to 3 * maxPeriod
-        List<GenericPacket> packets = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 3);
+        // we need 3 samples plus time for a BAM, to 4 * maxPeriod
+        List<GenericPacket> packets = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 4);
 
         // This list will keep track of the PGNs which we need to listen for at the end of the test
         List<Integer> broadcastPgns = new ArrayList<>();
@@ -286,8 +286,8 @@ public class Step26Controller extends StepController {
             String moduleName = Lookup.getAddressName(moduleAddress);
 
             // DS Request for all SPNs that are sent on-request AND those were missed earlier
-            List<Integer> requestPgns = busService.getPgnsForDSRequest(missingSpns, supportedSpns);
-            for (Integer pgn : requestPgns) {
+            List<Integer> requestPgns = busService.getPgnsForDSRequest(missingSpns, dataStreamSpns);
+            for (int pgn : requestPgns) {
                 updateProgress("DS Request for " + pgn + " to " + moduleName);
                 List<GenericPacket> dsResponse = busService.dsRequest(pgn, moduleAddress);
                 packets.addAll(dsResponse);
@@ -323,7 +323,7 @@ public class Step26Controller extends StepController {
                     .collect(Collectors.toList());
 
             // Listen for the PGNs of interest
-            int waitTime = broadcastValidator.getMaximumBroadcastPeriod(broadcastPgns) * 3;
+            int waitTime = broadcastValidator.getMaximumBroadcastPeriod(broadcastPgns) * 4;
             Predicate<GenericPacket> busFilter = p -> broadcastPgns.contains(p.getPacket().getPgn());
             List<GenericPacket> broadcastPackets = busService.readBus(waitTime, busFilter);
             packets.addAll(broadcastPackets);

@@ -155,7 +155,7 @@ public class Step26ControllerTest extends AbstractControllerTest {
         packets.add(packet1);
         GenericPacket packet3 = packet(333, true);
         packets.add(packet3);
-        when(busService.readBus(9)).thenReturn(packets);
+        when(busService.readBus(12)).thenReturn(packets);
 
         Map<Integer, List<GenericPacket>> packetMap = new HashMap<>();
         packetMap.put(11111, List.of(packet1));
@@ -194,7 +194,7 @@ public class Step26ControllerTest extends AbstractControllerTest {
         when(busService.collectBroadcastPGNs(List.of(22222, 44444, 55555, 66666))).thenReturn(List.of(22222));
         when(broadcastValidator.getMaximumBroadcastPeriod(List.of(22222))).thenReturn(2);
 
-        when(busService.readBus(eq(6), any())).thenReturn(List.of(packet2));
+        when(busService.readBus(eq(8 ), any())).thenReturn(List.of(packet2));
         Map<Integer, List<GenericPacket>> packetMap2 = new HashMap<>();
         packetMap2.put(22222, List.of(packet2));
         when(broadcastValidator.buildPGNPacketsMap(List.of(packet2), 0)).thenReturn(packetMap2);
@@ -212,7 +212,7 @@ public class Step26ControllerTest extends AbstractControllerTest {
                 eq(1),
                 eq(26));
         verify(broadcastValidator).getMaximumBroadcastPeriod();
-        verify(busService).readBus(9);
+        verify(busService).readBus(12);
         verify(broadcastValidator).buildPGNPacketsMap(packets, 0);
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
                 eq(0),
@@ -240,7 +240,7 @@ public class Step26ControllerTest extends AbstractControllerTest {
         verify(busService).globalRequest(66666);
         verify(busService).collectBroadcastPGNs(List.of(22222, 44444, 55555, 66666));
         verify(broadcastValidator).getMaximumBroadcastPeriod(List.of(22222));
-        verify(busService).readBus(eq(6), any());
+        verify(busService).readBus(eq(8), any());
         verify(broadcastValidator).buildPGNPacketsMap(List.of(packet2), 0);
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap2),
                 eq(0),
@@ -312,7 +312,7 @@ public class Step26ControllerTest extends AbstractControllerTest {
         List<GenericPacket> packets = new ArrayList<>();
         GenericPacket packet1 = packet(111, false);
         packets.add(packet1);
-        when(busService.readBus(9)).thenReturn(packets);
+        when(busService.readBus(12)).thenReturn(packets);
 
         Map<Integer, List<GenericPacket>> packetMap = new HashMap<>();
         packetMap.put(11111, List.of(packet1));
@@ -337,7 +337,7 @@ public class Step26ControllerTest extends AbstractControllerTest {
                 eq(1),
                 eq(26));
         verify(broadcastValidator).getMaximumBroadcastPeriod();
-        verify(busService).readBus(9);
+        verify(busService).readBus(12);
         verify(broadcastValidator).buildPGNPacketsMap(packets, 0);
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
                 eq(0),

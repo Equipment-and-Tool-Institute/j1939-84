@@ -126,7 +126,7 @@ public class BroadcastValidator {
                 .filter(period -> period > 0)
                 .map(period -> period / 1000)
                 .max()
-                .orElse(30);
+                .orElse(5);
     }
 
     /**
@@ -147,7 +147,7 @@ public class BroadcastValidator {
                 .filter(period -> period > 0)
                 .map(period -> period / 1000)
                 .max()
-                .orElse(30);
+                .orElse(5);
     }
 
     @SuppressWarnings("SameParameterValue")
