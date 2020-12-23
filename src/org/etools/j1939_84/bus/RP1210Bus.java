@@ -294,8 +294,6 @@ public class RP1210Bus implements Bus {
                             .filter(rx -> tx.getId(0xFFFF) == rx.getId(0xFFFF) && rx.getSource() == tx.getSource())
                             .findFirst()
                             .orElseThrow(() -> new BusException("Failed to send: " + tx));
-                    // } catch (BusException e) {
-                    // throw new CompletionException(e);
                 }
             }).get();
         } catch (Throwable e) {
