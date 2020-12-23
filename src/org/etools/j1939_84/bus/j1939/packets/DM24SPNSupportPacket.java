@@ -6,6 +6,7 @@ package org.etools.j1939_84.bus.j1939.packets;
 import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.Packet;
@@ -49,6 +50,7 @@ public class DM24SPNSupportPacket extends GenericPacket {
         if (spns == null) {
             spns = new ArrayList<>();
             parsePacket();
+            spns.sort(Comparator.comparingInt(SupportedSPN::getSpn));
         }
         return spns;
     }
