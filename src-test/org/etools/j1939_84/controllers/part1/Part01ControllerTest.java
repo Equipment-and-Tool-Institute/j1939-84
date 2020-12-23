@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -11,8 +12,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -29,6 +30,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * The unit test for {@link Part01Controller}
@@ -149,76 +152,75 @@ public class Part01ControllerTest {
         listener = new TestResultsListener(mockListener);
 
         instance = new Part01Controller(executor,
-                                        engineSpeedModule,
-                                        bannerModule,
-                                        vehicleInformationModule,
-                                        step01Controller,
-                                        step02Controller,
-                                        step03Controller,
-                                        step04Controller,
-                                        step05Controller,
-                                        step06Controller,
-                                        step07Controller,
-                                        step08Controller,
-                                        step09Controller,
-                                        step10Controller,
-                                        step11Controller,
-                                        step12Controller,
-                                        step13Controller,
-                                        step14Controller,
-                                        step15Controller,
-                                        step16Controller,
-                                        step17Controller,
-                                        step18Controller,
-                                        step19Controller,
-                                        step20Controller,
-                                        step21Controller,
-                                        step22Controller,
-                                        step23Controller,
-                                        step24Controller,
-                                        step25Controller,
-                                        step26Controller,
-                                        step27Controller);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                step01Controller,
+                step02Controller,
+                step03Controller,
+                step04Controller,
+                step05Controller,
+                step06Controller,
+                step07Controller,
+                step08Controller,
+                step09Controller,
+                step10Controller,
+                step11Controller,
+                step12Controller,
+                step13Controller,
+                step14Controller,
+                step15Controller,
+                step16Controller,
+                step17Controller,
+                step18Controller,
+                step19Controller,
+                step20Controller,
+                step21Controller,
+                step22Controller,
+                step23Controller,
+                step24Controller,
+                step25Controller,
+                step26Controller,
+                step27Controller);
     }
 
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
-                                 engineSpeedModule,
-                                 bannerModule,
-                                 vehicleInformationModule,
-                                 step01Controller,
-                                 step02Controller,
-                                 step03Controller,
-                                 step04Controller,
-                                 step05Controller,
-                                 step06Controller,
-                                 step07Controller,
-                                 step08Controller,
-                                 step09Controller,
-                                 step10Controller,
-                                 step11Controller,
-                                 step12Controller,
-                                 step13Controller,
-                                 step14Controller,
-                                 step15Controller,
-                                 step16Controller,
-                                 step17Controller,
-                                 step18Controller,
-                                 step19Controller,
-                                 step20Controller,
-                                 step21Controller,
-                                 step22Controller,
-                                 step23Controller,
-                                 step24Controller,
-                                 step25Controller,
-                                 step26Controller,
-                                 step27Controller);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                step01Controller,
+                step02Controller,
+                step03Controller,
+                step04Controller,
+                step05Controller,
+                step06Controller,
+                step07Controller,
+                step08Controller,
+                step09Controller,
+                step10Controller,
+                step11Controller,
+                step12Controller,
+                step13Controller,
+                step14Controller,
+                step15Controller,
+                step16Controller,
+                step17Controller,
+                step18Controller,
+                step19Controller,
+                step20Controller,
+                step21Controller,
+                step22Controller,
+                step23Controller,
+                step24Controller,
+                step25Controller,
+                step26Controller,
+                step27Controller);
     }
 
     /**
-     * Test method for
-     * {@link Part01Controller#getDisplayName()}.
+     * Test method for {@link Part01Controller#getDisplayName()}.
      */
     @Test
     public void testGetDisplayName() {
@@ -226,8 +228,7 @@ public class Part01ControllerTest {
     }
 
     /**
-     * Test method for
-     * {@link Part01Controller#getTotalSteps()}.
+     * Test method for {@link Part01Controller#getTotalSteps()}.
      */
     @Test
     public void testGetTotalSteps() {
@@ -235,33 +236,36 @@ public class Part01ControllerTest {
     }
 
     /**
-     * Test method for
-     * {@link Part01Controller#Part01Controller()}.
+     * Test method for {@link Part01Controller#Part01Controller()}.
      */
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     public void testPart01Controller() {
-        int[] steps = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27 };
+        int[] steps = { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26,
+                27 };
 
         StringBuilder expectedMessages = new StringBuilder();
         for (int i : steps) {
-            expectedMessages.append("\nStep 1.").append(i).append(". ").append(Lookup.getStepName(1, i));
+            expectedMessages.append(NL + "Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i));
         }
 
-        StringBuilder expectedMilestones = new StringBuilder("Begin Part: " + Lookup.getPartName(1) + "\n");
+        StringBuilder expectedMilestones = new StringBuilder("Begin Part: " + Lookup.getPartName(1) + NL);
         for (int i : steps) {
-            expectedMilestones.append("Begin Step: Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i)).append("\n");
-            expectedMilestones.append("End Step: Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i)).append("\n");
+            expectedMilestones.append("Begin Step: Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i))
+                    .append(NL);
+            expectedMilestones.append("End Step: Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i))
+                    .append(NL);
         }
         expectedMilestones.append("End Part: ").append(Lookup.getPartName(1));
 
-        StringBuilder expectedResults = new StringBuilder("Start "+ Lookup.getPartName(1)+"\n");
+        StringBuilder expectedResults = new StringBuilder("Start " + Lookup.getPartName(1) + NL);
         for (int i : steps) {
-            expectedResults.append("\n\nStart Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i)).append("\n");
-            expectedResults.append("End Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i)).append("\n");
+            expectedResults.append(NL + NL + "Start Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i))
+                    .append(NL);
+            expectedResults.append("End Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i)).append(NL);
         }
-        expectedResults.append("End ").append(Lookup.getPartName(1)).append("\n");
+        expectedResults.append("End ").append(Lookup.getPartName(1)).append(NL);
 
         when(step01Controller.getStepNumber()).thenReturn(1);
         when(step02Controller.getStepNumber()).thenReturn(2);
@@ -298,32 +302,32 @@ public class Part01ControllerTest {
         runnableCaptor.getValue().run();
 
         InOrder inOrder = inOrder(step01Controller,
-                                  step02Controller,
-                                  step03Controller,
-                                  step04Controller,
-                                  step05Controller,
-                                  step06Controller,
-                                  step07Controller,
-                                  step08Controller,
-                                  step09Controller,
-                                  step10Controller,
-                                  step11Controller,
-                                  step12Controller,
-                                  step13Controller,
-                                  step14Controller,
-                                  step15Controller,
-                                  step16Controller,
-                                  step17Controller,
-                                  step18Controller,
-                                  step19Controller,
-                                  step20Controller,
-                                  step21Controller,
-                                  step22Controller,
-                                  step23Controller,
-                                  step24Controller,
-                                  step25Controller,
-                                  step26Controller,
-                                  step27Controller);
+                step02Controller,
+                step03Controller,
+                step04Controller,
+                step05Controller,
+                step06Controller,
+                step07Controller,
+                step08Controller,
+                step09Controller,
+                step10Controller,
+                step11Controller,
+                step12Controller,
+                step13Controller,
+                step14Controller,
+                step15Controller,
+                step16Controller,
+                step17Controller,
+                step18Controller,
+                step19Controller,
+                step20Controller,
+                step21Controller,
+                step22Controller,
+                step23Controller,
+                step24Controller,
+                step25Controller,
+                step26Controller,
+                step27Controller);
         inOrder.verify(step01Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step02Controller).run(any(ResultsListener.class), eq(j1939));
         inOrder.verify(step03Controller).run(any(ResultsListener.class), eq(j1939));

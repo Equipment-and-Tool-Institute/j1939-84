@@ -16,12 +16,11 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.TimeUnit;
-import java.util.stream.Stream;
 
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
+import org.etools.j1939_84.bus.j1939.J1939TP;
+import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.ini4j.InvalidFileFormatException;
 import org.junit.After;
@@ -59,24 +58,27 @@ public class RP1210Test {
         if (!adapter.isPresent()) {
             throw new IllegalArgumentException("Unknown RP1210 Adapter");
         }
-        RP1210Bus bus = new RP1210Bus(adapter.get(), 0xF9, true);
-        try (Stream<Packet> read = bus.read(2000, TimeUnit.MILLISECONDS);) {
-            new J1939(bus)
-                    .requestGlobalResult("Request VIN", new TestResultsListener() {
+        final RP1210Bus rawBus = new RP1210Bus(adapter.get(), 0xF9, true);
+        // rawBus.log(p -> "raw: " + p.toTimeString());
+        Bus tpBus = new J1939TP(rawBus);
+        // try (Stream<Packet> read = bus.read(2000, TimeUnit.MILLISECONDS);)
+        {
+            final Class<DM29DtcCounts> cls = DM29DtcCounts.class;
+            new J1939(tpBus)
+                    .requestGlobalResult("Request " + cls, new TestResultsListener() {
                         @Override
                         public void onResult(String result) {
                             System.err.println("RST: " + result);
                         }
-
-                    }, false, VehicleIdentificationPacket.class)
+                    }, false, cls)
                     .getEither()
                     .stream()
-                    .flatMap(pa -> pa.left.stream())
-                    .map(pa -> pa.getVin())
-                    .findAny()
-                    .ifPresent(vin -> System.err.format("%n%nVIN:%s%n%n", vin));
-            read.forEach(p -> System.err.format("%8s %s%n", p.isTransmitted() ? "echoed" : "", p.toTimeString()));
+                    .map(pa -> pa.resolve())
+                    .forEach(p -> System.err.format("Response: %s%n", p));
+            // read.forEach(p -> System.err.format("%8s %s%n", p.isTransmitted()
+            // ? "echoed" : "", p.toTimeString()));
         }
+        System.exit(0);
     }
 
     @After
