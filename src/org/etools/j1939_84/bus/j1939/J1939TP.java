@@ -21,8 +21,6 @@ import org.etools.j1939_84.bus.EchoBus;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.Packet.PacketException;
 
-// this was written before packet.getPgn() et. al.
-@SuppressWarnings("deprecation")
 public class J1939TP implements Bus {
 
     static public class CanceledBusException extends BusException {
@@ -236,7 +234,7 @@ public class J1939TP implements Bus {
         byte[] data = new byte[rts.get16(1)];
         BitSet received = new BitSet(numberOfPackets + 1);
         int dataId = DT | rts.getDestination();
-        int controlId = CM | (rts.getId() & 0xFF);
+        int controlId = CM | rts.getId(0xFF);
 
         int pgn = rts.get24(5);
         int source = rts.getSource();
@@ -248,12 +246,12 @@ public class J1939TP implements Bus {
             bus.resetTimeout(stream, T2, TimeUnit.MILLISECONDS);
             if (stream
                     .filter(p -> {
-                        int id = p.getId() & 0xFFFF;
+                        int id = p.getId(0xFFFF);
                         return p.getSource() == source && (id == dataId || id == controlId);
                     })
                     .peek(p -> bus.resetTimeout(stream, T1, TimeUnit.MILLISECONDS))
                     .map(p -> {
-                        if ((p.getId() & 0xFFFF) == controlId) {
+                        if (p.getId(0xFFFF) == controlId) {
                             warn("BAM canceled or aborted: " + rts + " -> " + p);
                             packet.fail();
                             return true;
@@ -320,7 +318,7 @@ public class J1939TP implements Bus {
                 Stream<Packet> stream = dataStream
                         .filter(p -> p.getSource() == source)
                         .peek(p -> {
-                            if ((p.getId() & 0xFFFF) == (CM | (rts.getId() & 0xFF))) {
+                            if (p.getId(0xFFFF) == (CM | rts.getId(0xFF))) {
                                 if (p.get(0) == CM_ConnAbort) {
                                     warn(getAbortError(p.get(1)));
                                 }
@@ -331,7 +329,7 @@ public class J1939TP implements Bus {
                         })
                         // only consider DT packet that are part of this
                         // connection
-                        .filter(p -> (p.getId() & 0xFFFF) == (DT | (rts.getId() & 0xFF)))
+                        .filter(p -> p.getId(0xFFFF) == (DT | rts.getId(0xFF)))
                         // After every TP.DT, reset timeout to T1 from now.
                         .peek(p -> {
                             bus.resetTimeout(dataStream, T1, TimeUnit.MILLISECONDS);
@@ -442,13 +440,11 @@ public class J1939TP implements Bus {
     }
 
     Packet sendDestinationSpecific(Packet packet) throws BusException {
-        int pgn = packet.getId();
-        int destinationAddress = packet.getId() & 0xFF;
-        Predicate<Packet> controlMessageFilter = p -> p.getSource() == destinationAddress
-                && (0xFFFF & p.getId()) == (CM | packet.getSource());
-
-        Stream<Packet> ctsStream = bus.read(T3, TimeUnit.MILLISECONDS)
-                .filter(controlMessageFilter);
+        int pgn = packet.getPgn();
+        int destinationAddress = packet.getDestination();
+        Predicate<Packet> controlMessageFilter = p -> //
+        p.getSource() == destinationAddress
+                && p.getId(0xFFFF) == (CM | packet.getSource());
 
         // send RTS
         int totalPacketsToSend = packet.getLength() / 7 + 1;
@@ -464,6 +460,8 @@ public class J1939TP implements Bus {
                 0xFF & (pgn >> 16));
         fine("tx RTS: " + rts);
 
+        Stream<Packet> ctsStream = bus.read(T3, TimeUnit.MILLISECONDS)
+                .filter(controlMessageFilter);
         Packet response = bus.send(rts);
 
         // wait for CTS

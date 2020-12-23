@@ -119,7 +119,7 @@ public class PacketTest {
         assertEquals(0x44332211, instance.get32(0));
         assertEquals(0x11223344, instance.get32Big(0));
 
-        String expected = "1804D238 11 22 33 44 55 66 77 88 (TX)";
+        String expected = "18123438 11 22 33 44 55 66 77 88 (TX)";
         assertEquals(expected, instance.toString());
     }
 

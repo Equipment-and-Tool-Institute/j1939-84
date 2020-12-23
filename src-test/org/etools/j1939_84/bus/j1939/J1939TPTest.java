@@ -759,7 +759,7 @@ public class J1939TPTest {
             Stream<Packet> stream = bus.read(J1939TP.T1, TimeUnit.MILLISECONDS);
             run(() -> {
                 // wait for RTS
-                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF F9 EA 00"),
+                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF 00 EA 00"),
                         stream.findFirst().orElse(null));
                 // send invalid CTS
                 bus.send(Packet.parse("18EC00F9 11 FF 01 11 11 F9 EA 00"));
@@ -789,7 +789,7 @@ public class J1939TPTest {
             Stream<Packet> stream = bus.read(J1939TP.T1, TimeUnit.MILLISECONDS);
             run(() -> {
                 // wait for RTS
-                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF F9 EA 00"),
+                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF 00 EA 00"),
                         stream.findFirst().orElse(null));
                 // send invalid CTS
                 bus.send(Packet.parse("18EC00F9 11 00 11 11 11 11 11 11"));
@@ -819,7 +819,7 @@ public class J1939TPTest {
             Stream<Packet> stream = bus.read(J1939TP.T1, TimeUnit.MILLISECONDS);
             run(() -> {
                 // wait for RTS
-                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF F9 EA 00"),
+                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF 00 EA 00"),
                         stream.findFirst().orElse(null));
                 // send invalid CTS
                 bus.send(Packet.parse("18EC00F9 11 01 02 FF FF 11 11 11"));
