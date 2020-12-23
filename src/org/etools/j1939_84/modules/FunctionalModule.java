@@ -46,8 +46,7 @@ public abstract class FunctionalModule {
      *
      * @return the List of Packets that were received
      */
-    protected <T extends ParsedPacket> RequestResult<T> generateReport(
-                                                                       ResultsListener listener,
+    protected <T extends ParsedPacket> RequestResult<T> generateReport(ResultsListener listener,
                                                                        String title,
                                                                        Class<T> clazz,
                                                                        Packet request) {
