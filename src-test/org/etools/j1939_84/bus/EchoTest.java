@@ -28,7 +28,7 @@ public class EchoTest {
         Bus bus = new EchoBus(0xF9);
         final String VIN = "SOME VIN";
         try (Sim sim = new Sim(bus)) {
-            sim.response(p -> (p.getId() & 0xFF00) == 0xEA00 && p.get24(0) == 65260,
+            sim.response(p -> p.getPgn() == 0xEA00 && p.get24(0) == 65260,
                     () -> Packet.create(65260, 0x0, VIN.getBytes()));
 
             assertEquals(VIN,

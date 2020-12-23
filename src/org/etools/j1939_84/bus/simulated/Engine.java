@@ -95,7 +95,7 @@ public class Engine implements AutoCloseable {
     }
 
     private static boolean isDM7For(int spn, Packet packet) {
-        boolean isId = packet.getId() == 0xE300;
+        boolean isId = packet.getPgn() == 0xE300;
         if (!isId) {
             return false;
         }
@@ -108,12 +108,12 @@ public class Engine implements AutoCloseable {
         return result;
     }
 
-    private static boolean isRequestFor(int pgn, Packet packet) {
-        return isRequestFor(pgn, ADDR, packet);
+    private static boolean isRequestFor(int pgn, int address, Packet packet) {
+        return (packet.getId(0xFFFF) == (0xEA00 | address) || packet.getId(0xFFFF) == 0xEAFF) && packet.get24(0) == pgn;
     }
 
-    private static boolean isRequestFor(int pgn, int address, Packet packet) {
-        return (packet.getId() == (0xEA00 | address) || packet.getId() == 0xEAFF) && packet.get24(0) == pgn;
+    private static boolean isRequestFor(int pgn, Packet packet) {
+        return isRequestFor(pgn, ADDR, packet);
     }
 
     private int demCount;
@@ -418,40 +418,40 @@ public class Engine implements AutoCloseable {
 
         // DM 20 from third module
         sim.response(p -> isRequestFor(DM20MonitorPerformanceRatioPacket.PGN, ADDR, p),
-                     p -> Packet.create(DM20MonitorPerformanceRatioPacket.PGN | p.getSource(),
-                                        ADDR,
-                                        0x54,
-                                        0x00, // Ignition Cycles
-                                        0x19,
-                                        0x00, // OBD Counts
-                                        0xCA,
-                                        0x14,
-                                        0xF8,
-                                        0x03,
-                                        0x00,
-                                        0x04,
-                                        0x00,
-                                        0xB8,
-                                        0x12,
-                                        0xF8,
-                                        0x07,
-                                        0x00,
-                                        0x19,
-                                        0x00,
-                                        0xC6,
-                                        0x14,
-                                        0xF8,
-                                        0x02,
-                                        0x00,
-                                        0x19,
-                                        0x00,
-                                        0xF8,
-                                        0x0B,
-                                        0xF8,
-                                        0x11,
-                                        0x00,
-                                        0x19,
-                                        0x00));
+                p -> Packet.create(DM20MonitorPerformanceRatioPacket.PGN | p.getSource(),
+                        ADDR,
+                        0x54,
+                        0x00, // Ignition Cycles
+                        0x19,
+                        0x00, // OBD Counts
+                        0xCA,
+                        0x14,
+                        0xF8,
+                        0x03,
+                        0x00,
+                        0x04,
+                        0x00,
+                        0xB8,
+                        0x12,
+                        0xF8,
+                        0x07,
+                        0x00,
+                        0x19,
+                        0x00,
+                        0xC6,
+                        0x14,
+                        0xF8,
+                        0x02,
+                        0x00,
+                        0x19,
+                        0x00,
+                        0xF8,
+                        0x0B,
+                        0xF8,
+                        0x11,
+                        0x00,
+                        0x19,
+                        0x00));
 
         // DM21
         sim.response(p -> isRequestFor(49408, p),

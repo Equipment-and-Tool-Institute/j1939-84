@@ -34,9 +34,9 @@ public class PacketTest {
 
     @Test
     public void testCreateWithBytes() {
-        Packet instance = Packet.create(1234, 56, new byte[] { 11, 22, 33 });
+        Packet instance = Packet.create(0x1234, 56, new byte[] { 11, 22, 33 });
         assertEquals(6, instance.getPriority());
-        assertEquals(1234, instance.getId());
+        assertEquals(0x1234, instance.getId(0xFFFF));
         assertEquals(56, instance.getSource());
         assertEquals(false, instance.isTransmitted());
         assertEquals(3, instance.getBytes().length);
@@ -47,9 +47,9 @@ public class PacketTest {
 
     @Test
     public void testCreateWithInts() {
-        Packet instance = Packet.create(1234, 56, new int[] { 11, 22, 33 });
+        Packet instance = Packet.create(0x1234, 56, new int[] { 11, 22, 33 });
         assertEquals(6, instance.getPriority());
-        assertEquals(1234, instance.getId());
+        assertEquals(0x1234, instance.getId(0xFFFF));
         assertEquals(56, instance.getSource());
         assertEquals(false, instance.isTransmitted());
         assertEquals(3, instance.getBytes().length);
@@ -60,9 +60,9 @@ public class PacketTest {
 
     @Test
     public void testCreateWithPriority() {
-        Packet instance = Packet.create(18, 1234, 56, true, new byte[] { 11, 22, 33 });
+        Packet instance = Packet.create(18, 0x1234, 56, true, new byte[] { 11, 22, 33 });
         assertEquals(18, instance.getPriority());
-        assertEquals(1234, instance.getId());
+        assertEquals(0x1234, instance.getId(0xFFFF));
         assertEquals(56, instance.getSource());
         assertEquals(true, instance.isTransmitted());
         assertEquals(3, instance.getBytes().length);
@@ -98,8 +98,8 @@ public class PacketTest {
     @Test
     public void testGettersAndToString() {
         byte[] bytes = new byte[] { 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, (byte) 0x88 };
-        Packet instance = Packet.create(6, 1234, 56, true, bytes);
-        assertEquals(1234, instance.getId());
+        Packet instance = Packet.create(6, 0x1234, 56, true, bytes);
+        assertEquals(0x1234, instance.getId(0xFFFF));
         assertEquals(6, instance.getPriority());
         assertEquals(56, instance.getSource());
         assertEquals(true, instance.isTransmitted());
