@@ -235,7 +235,7 @@ public class BroadcastValidatorTest {
 
     @Test
     public void getMaximumBroadcastPeriodWithDefault() {
-        assertEquals(30, instance.getMaximumBroadcastPeriod(Collections.emptyList()));
+        assertEquals(5, instance.getMaximumBroadcastPeriod(Collections.emptyList()));
     }
 
     @Test
@@ -284,7 +284,7 @@ public class BroadcastValidatorTest {
     public void testGetMaximumBroadcastPeriodDefault() {
         when(dataRepository.getObdModules()).thenReturn(Collections.emptyList());
 
-        assertEquals(30, instance.getMaximumBroadcastPeriod());
+        assertEquals(5, instance.getMaximumBroadcastPeriod());
 
         verify(dataRepository).getObdModules();
     }

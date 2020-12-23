@@ -1,3 +1,6 @@
+/*
+ * Copyright 2020 Equipment & Tool Institute
+ */
 package org.etools.j1939_84.controllers;
 
 import java.util.concurrent.Executor;
@@ -26,10 +29,6 @@ public abstract class StepController extends Controller {
 
     protected void addFailure(String message) {
         addFailure(getPartNumber(), getStepNumber(), message);
-    }
-
-    protected void addPass(String message) {
-        addPass(getPartNumber(), getStepNumber(), message);
     }
 
     protected void addWarning(String message) {

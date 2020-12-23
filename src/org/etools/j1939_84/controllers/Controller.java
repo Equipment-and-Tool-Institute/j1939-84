@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers;
@@ -130,7 +130,7 @@ public abstract class Controller {
 
         private final String string;
 
-        private Ending(String string) {
+        Ending(String string) {
             this.string = string;
         }
 
@@ -144,7 +144,7 @@ public abstract class Controller {
      * The Endings that indicate the procedure should be halted
      */
     private static final List<Ending> INTERUPPTABLE_ENDINGS = Arrays
-            .asList(new Ending[]{Ending.STOPPED, Ending.ABORTED, Ending.FAILED});
+            .asList(Ending.STOPPED, Ending.ABORTED, Ending.FAILED);
 
     /**
      * The {@link BannerModule} used to generate the headers and footers
@@ -252,22 +252,6 @@ public abstract class Controller {
     protected void addFailure(int partNumber, int stepNumber, String message) {
         getListener().addOutcome(partNumber, stepNumber, Outcome.FAIL, message);
         getListener().onResult("FAIL: " + message);
-    }
-
-    /**
-     * Adds a pass to the report
-     *
-     * @param partNumber
-     *         the part number to add to the report
-     * @param stepNumber
-     *         the step number where the warning originated
-     * @param message
-     *         the warning to add to the report
-     */
-    protected void addPass(int partNumber, int stepNumber, String message) {
-        getListener().addOutcome(partNumber, stepNumber, Outcome.PASS, message);
-        getListener().onResult("PASS: " + message);
-
     }
 
     /**
