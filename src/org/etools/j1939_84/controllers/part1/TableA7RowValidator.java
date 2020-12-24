@@ -1,11 +1,9 @@
-/**
+/*
  *
  */
 package org.etools.j1939_84.controllers.part1;
 
 import java.util.Collection;
-import java.util.Iterator;
-
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.model.ExpectedTestResult;
 
@@ -20,12 +18,8 @@ public class TableA7RowValidator {
             int minimumContains) {
 
         int matches = 0;
-        Iterator<ExpectedTestResult> ei = expectedTestResults.iterator();
-        while (ei.hasNext()) {
-            ExpectedTestResult expectedTestResult = ei.next();
-            Iterator<ScaledTestResult> si = scaledTestResults.iterator();
-            while (si.hasNext()) {
-                ScaledTestResult scaledTestResult = si.next();
+        for (ExpectedTestResult expectedTestResult : expectedTestResults) {
+            for (ScaledTestResult scaledTestResult : scaledTestResults) {
                 if (expectedTestResult.matches(scaledTestResult)) {
                     if (++matches >= minimumContains) {
                         return true;

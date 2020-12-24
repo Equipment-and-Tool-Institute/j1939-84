@@ -62,7 +62,7 @@ public class TableA1Validator {
         return allRequiredSpns;
     }
 
-    private static ArrayList<Integer> getInfoSPNs() {
+    private static List<Integer> getInfoSPNs() {
         return new ArrayList<>(Arrays.asList(96, 110, 132, 157, 190, 5466, 5827, 5313));
     }
 
@@ -81,8 +81,9 @@ public class TableA1Validator {
         return spnGroups;
     }
 
-    private static ArrayList<Integer> getWarningSPNs() {
-        return new ArrayList<>(158);
+    private static List<Integer> getWarningSPNs() {
+        //noinspection ArraysAsListWithZeroOrOneArgument
+        return new ArrayList<>(Arrays.asList(158));
     }
 
     private static boolean packetContainsSupportedSPNs(Collection<Integer> supportedSpns, GenericPacket packet) {

@@ -1,5 +1,5 @@
-/**
- * Copyright 2017 Equipment & Tool Institute
+/*
+ * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.ui;
 
@@ -129,7 +129,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         this.executor = executor;
         this.helpView = helpView;
         this.overallController = overallController;
-        runtime.addShutdownHook(new Thread(() -> reportFileModule.onProgramExit(), "Shutdown Hook Thread"));
+        runtime.addShutdownHook(new Thread(reportFileModule::onProgramExit, "Shutdown Hook Thread"));
     }
 
     private void checkSetupComplete() {
@@ -412,7 +412,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
                 getView().displayDialog(e.getMessage(), "Communications Error", JOptionPane.ERROR_MESSAGE, false);
             } finally {
                 if (result) {
-                    getView().setProgressBarText("Push Go Button");
+                    getView().setProgressBarText("Push Start Button");
                 }
                 getView().setStartButtonEnabled(result);
                 getView().setStopButtonEnabled(false);

@@ -158,7 +158,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptyList());
         when(tableA7Validator.validateForCompressionIgnition(any(), any())).thenReturn(true);
 
         runTest();
@@ -168,7 +168,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         verify(obdTestsModule).setJ1939(j1939);
 
-        verify(tableA7Validator).hasDuplicates(any());
+        verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
 
         // Verify the documentation was recorded correctly
@@ -211,7 +211,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptyList());
         when(tableA7Validator.validateForCompressionIgnition(any(), any())).thenReturn(false);
 
         runTest();
@@ -219,20 +219,15 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)");
-
         verify(obdTestsModule).setJ1939(j1939);
 
-        verify(tableA7Validator).hasDuplicates(any());
+        verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                "FAIL: 6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)" + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -258,7 +253,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptyList());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
@@ -269,19 +264,18 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                 STEP_NUMBER,
                 FAIL,
-                "6.1.12.1.a Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support");
+                "6.1.12.1.a No test result for an SPN indicated as supported is actually reported from the ECU that indicated support");
 
         verify(obdTestsModule).setJ1939(j1939);
 
-        verify(tableA7Validator).hasDuplicates(scaledTestsResults);
+        verify(tableA7Validator).findDuplicates(scaledTestsResults);
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
-        String expectedResults = "FAIL: 6.1.12.1.a Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support" +
-                NL;
+        String expectedResults = "FAIL: 6.1.12.1.a No test result for an SPN indicated as supported is actually reported from the ECU that indicated support" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -337,7 +331,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         verify(obdTestsModule).setJ1939(j1939);
 
-        verify(tableA7Validator).hasDuplicates(scaledTestsResults);
+        verify(tableA7Validator).findDuplicates(scaledTestsResults);
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -374,7 +368,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptyList());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
@@ -385,11 +379,11 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                 STEP_NUMBER,
                 FAIL,
-                "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+                "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
 
         verify(obdTestsModule).setJ1939(j1939);
 
-        verify(tableA7Validator).hasDuplicates(scaledTestsResults);
+        verify(tableA7Validator).findDuplicates(scaledTestsResults);
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         // Verify the documentation was recorded correctly
@@ -397,7 +391,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMilestones());
 
         assertEquals(
-                "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000" + NL,
+                "FAIL: 6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly" + NL,
                 listener.getResults());
     }
 
@@ -441,18 +435,18 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                 STEP_NUMBER,
                 FAIL,
-                "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+                "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
 
         verify(obdTestsModule).setJ1939(j1939);
 
-        verify(tableA7Validator).hasDuplicates(scaledTestsResults);
+        verify(tableA7Validator).findDuplicates(scaledTestsResults);
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000" + NL,
+                "FAIL: 6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly" + NL,
                 listener.getResults());
     }
 
@@ -485,7 +479,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptySet());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptySet());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
@@ -496,17 +490,17 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                 STEP_NUMBER,
                 FAIL,
-                "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+                "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
 
         verify(obdTestsModule).setJ1939(j1939);
 
-        verify(tableA7Validator).hasDuplicates(scaledTestsResults);
+        verify(tableA7Validator).findDuplicates(scaledTestsResults);
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000" + NL;
+        String expectedResults = "FAIL: 6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly" + NL;
 
         assertEquals(expectedResults, listener.getResults());
     }
@@ -548,7 +542,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptyList());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
         runTest();
 
@@ -560,7 +554,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         verify(obdTestsModule).setJ1939(j1939);
 
-        verify(tableA7Validator).hasDuplicates(scaledTestsResults);
+        verify(tableA7Validator).findDuplicates(scaledTestsResults);
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         // Verify the documentation was recorded correctly
@@ -579,28 +573,24 @@ public class Step12ControllerTest extends AbstractControllerTest {
         when(vehicleInformation.getFuelType()).thenReturn(BI_DSL);
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
+        when(tableA7Validator.findDuplicates(Collections.emptyList())).thenReturn(Collections.emptyList());
+
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, "No OBD modules found.  Continuing...");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)");
-
         verify(obdTestsModule).setJ1939(j1939);
 
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
+        verify(tableA7Validator).findDuplicates(any());
 
         verify(vehicleInformation).getFuelType();
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "WARN: No OBD modules found.  Continuing..." + NL +
-                "FAIL: 6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -631,7 +621,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptyList());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
@@ -641,7 +631,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         verify(obdTestsModule).setJ1939(j1939);
 
-        verify(tableA7Validator).hasDuplicates(scaledTestsResults);
+        verify(tableA7Validator).findDuplicates(scaledTestsResults);
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         // Verify the documentation was recorded correctly
@@ -688,7 +678,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.hasDuplicates(scaledTestsResults))
+        when(tableA7Validator.findDuplicates(scaledTestsResults))
                 .thenReturn(Collections.singletonList(scaledTestResult));
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
@@ -700,21 +690,20 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener, times(2)).addOutcome(PART_NUMBER,
                 STEP_NUMBER,
                 FAIL,
-                "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.12.1.d SPN 157 FMI 18 returned duplicates");
+                "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, "6.1.12.1.d SPN 157 FMI 18 returned duplicates");
 
         verify(obdTestsModule).setJ1939(j1939);
 
-        verify(tableA7Validator).hasDuplicates(scaledTestsResults);
+        verify(tableA7Validator).findDuplicates(scaledTestsResults);
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000" + NL +
-                "FAIL: 6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000" + NL +
-                "FAIL: 6.1.12.1.d SPN 157 FMI 18 returned duplicates" + NL;
+        String expectedResults = "FAIL: 6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly" + NL +
+                "FAIL: 6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly" + NL +
+                "WARN: 6.1.12.1.d SPN 157 FMI 18 returned duplicates" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -752,7 +741,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.hasDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptyList());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(false);
 
         runTest();
@@ -760,18 +749,14 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Spark Ignition)");
-
         verify(obdTestsModule).setJ1939(j1939);
 
-        verify(tableA7Validator).hasDuplicates(any());
+        verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Spark Ignition)" + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 }

@@ -602,7 +602,7 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setProgressBarValue(0, 6, 2);
         inOrder.verify(view).setProgressBarText("Reading Vehicle Calibrations");
         inOrder.verify(view).setEngineCals("Engine Cals");
-        inOrder.verify(view).setProgressBarText("Push Go Button");
+        inOrder.verify(view).setProgressBarText("Push Start Button");
         inOrder.verify(view).setStartButtonEnabled(true);
         inOrder.verify(view).setStopButtonEnabled(false);
         inOrder.verify(view).setReadVehicleInfoButtonEnabled(true);

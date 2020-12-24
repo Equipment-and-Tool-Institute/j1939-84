@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.modules;
@@ -6,7 +6,7 @@ package org.etools.j1939_84.modules;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
+import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 
@@ -46,7 +46,7 @@ public abstract class FunctionalModule {
      *
      * @return the List of Packets that were received
      */
-    protected <T extends ParsedPacket> RequestResult<T> generateReport(ResultsListener listener,
+    protected <T extends GenericPacket> RequestResult<T> generateReport(ResultsListener listener,
                                                                        String title,
                                                                        Class<T> clazz,
                                                                        Packet request) {
@@ -75,7 +75,7 @@ public abstract class FunctionalModule {
         return j1939;
     }
 
-    protected <T extends ParsedPacket> BusResult<T> getPacketDS(String title,
+    protected <T extends GenericPacket> BusResult<T> getPacketDS(String title,
                                                                 int pgn,
                                                                 Class<T> clazz,
                                                                 ResultsListener listener,
@@ -105,7 +105,7 @@ public abstract class FunctionalModule {
      *            false to only include the returned raw packet in the report
      * @return the List of packets returned
      */
-    protected <T extends ParsedPacket> RequestResult<T> getPacketsFromGlobal(String title,
+    protected <T extends GenericPacket> RequestResult<T> getPacketsFromGlobal(String title,
                                                                              int pgn,
                                                                              Class<T> clazz,
                                                                              ResultsListener listener,

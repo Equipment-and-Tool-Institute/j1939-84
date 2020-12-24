@@ -31,22 +31,22 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  */
 public class Step12Controller extends StepController {
     //formatter:off
-    private static final Set<Integer> VALID_SLOTS = new HashSet<>(Arrays.asList(5, 8, 9, 10, 12, 13, 14, 16, 17, 18,
-            19, 22, 23, 27, 28,
-            29, 30, 32, 37, 39, 42, 43, 50, 51, 52, 55, 57, 64, 68, 69, 70, 71, 72, 76, 77, 78, 80, 82, 85, 96, 98,
-            104, 106, 107, 112, 113, 114, 115, 125, 127, 130, 131, 132, 136, 138, 143, 144, 145, 146, 151, 162, 206,
-            208, 211, 219, 221, 222, 223, 224, 226, 227, 231, 235, 236, 237, 238, 242, 243, 249, 250, 251, 256, 261,
-            262, 264, 270, 272, 277, 285, 288, 290, 295, 301, 302, 303, 305, 306, 307, 317, 318, 319, 320, 323, 324,
-            333, 334, 336, 337, 345, 346, 346, 347, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359, 360, 361,
-            362, 363, 364, 365, 366, 367, 369, 370, 372, 373, 375, 377, 378, 379, 380, 383, 384, 385, 386, 387, 388,
-            389, 390, 393, 394, 396, 397, 398, 399, 400, 401, 403, 414, 415, 416, 429, 430, 431, 433, 434, 436, 437,
-            438, 440, 441, 442, 443, 444, 445, 446, 450, 451, 452, 453, 456, 459, 460, 462, 463, 464, 474, 475, 476,
-            479));
+    private static final Set<Integer> VALID_SLOTS = new HashSet<>(Arrays.asList(5, 8, 9, 10, 12, 13, 14, 16, 17, 18, 19,
+            22, 23, 27, 28, 29, 30, 32, 37, 39, 42, 43, 50, 51, 52, 55, 57, 64, 68, 69, 70, 71, 72, 76, 77, 78, 80, 82,
+            85, 96, 98, 104, 106, 107, 112, 113, 114, 115, 125, 127, 130, 131, 132, 136, 138, 143, 144, 145, 146, 151,
+            162, 206, 208, 211, 219, 221, 222, 223, 224, 226, 227, 231, 235, 236, 237, 238, 242, 243, 249, 250, 251,
+            256, 261, 262, 264, 270, 272, 277, 285, 288, 290, 295, 301, 302, 303, 305, 306, 307, 317, 318, 319, 320,
+            323, 324, 333, 334, 336, 337, 345, 346, 346, 347, 349, 350, 351, 352, 353, 354, 355, 356, 357, 358, 359,
+            360, 361, 362, 363, 364, 365, 366, 367, 369, 370, 372, 373, 375, 377, 378, 379, 380, 383, 384, 385, 386,
+            387, 388, 389, 390, 393, 394, 396, 397, 398, 399, 400, 401, 403, 414, 415, 416, 429, 430, 431, 433, 434,
+            436, 437, 438, 440, 441, 442, 443, 444, 445, 446, 450, 451, 452, 453, 456, 459, 460, 462, 463, 464, 474,
+            475, 476, 479));
     //formatter:on
 
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 12;
     private static final int TOTAL_STEPS = 1;
+
     private final DataRepository dataRepository;
     private final OBDTestsModule obdTestsModule;
     private final TableA7Validator tableA7Validator;
@@ -90,20 +90,15 @@ public class Step12Controller extends StepController {
         List<ScaledTestResult> vehicleTestResults = new ArrayList<>();
 
         // Record it the DM30 for each module
-        Collection<OBDModuleInformation> obdModules = dataRepository.getObdModules();
-        if (obdModules.isEmpty()) {
-            addWarning(PART_NUMBER, STEP_NUMBER, "No OBD modules found.  Continuing...");
-        }
-
-        for (OBDModuleInformation obdModule : obdModules) {
+        for (OBDModuleInformation obdModule : dataRepository.getObdModules()) {
             List<ScaledTestResult> moduleTestResults = new ArrayList<>();
             for (SupportedSPN spn : obdModule.getTestResultSpns()) {
-                var dm30Packets = obdTestsModule.getDM30Packets(getListener(), obdModule.getSourceAddress(), spn);
-                List<ScaledTestResult> testResults = dm30Packets
-                        .stream()
-                        .peek(p -> verifyDM30PacketSupported(p, spn))
-                        .flatMap(p -> p.getTestResults().stream())
-                        .collect(Collectors.toList());
+                List<ScaledTestResult> testResults =
+                        obdTestsModule.getDM30Packets(getListener(), obdModule.getSourceAddress(), spn)
+                                .stream()
+                                .peek(p -> verifyDM30PacketSupported(p, spn))
+                                .flatMap(p -> p.getTestResults().stream())
+                                .collect(Collectors.toList());
                 moduleTestResults.addAll(testResults);
             }
             obdModule.setScaledTestResults(moduleTestResults);
@@ -117,19 +112,17 @@ public class Step12Controller extends StepController {
         FuelType fuelType = dataRepository.getVehicleInformation().getFuelType();
 
         if (fuelType.isCompressionIgnition()) {
-            if (!tableA7Validator.validateForCompressionIgnition(vehicleTestResults, getListener())) {
-                addFailure(PART_NUMBER,
-                        STEP_NUMBER,
-                        "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Compression Ignition)");
-            }
+            tableA7Validator.validateForCompressionIgnition(vehicleTestResults, getListener());
+        } else if (fuelType.isSparkIgnition()) {
+            tableA7Validator.validateForSparkIgnition(vehicleTestResults, getListener());
         }
 
-        if (fuelType.isSparkIgnition()) {
-            if (!tableA7Validator.validateForSparkIgnition(vehicleTestResults, getListener())) {
-                addFailure(PART_NUMBER, STEP_NUMBER,
-                        "6.1.12.2.a Fail/warn per section A.7 Criteria for Test Results Evaluation (Spark Ignition)");
-            }
-        }
+        // d. Warn if any ECU reports more than one set of test results for the same SPN+FMI.
+        Collection<ScaledTestResult> reportedDuplicates = tableA7Validator.findDuplicates(vehicleTestResults);
+        reportedDuplicates.forEach(dup -> {
+            String failureMessage = "6.1.12.1.d SPN " + dup.getSpn() + " FMI " + dup.getFmi() + " returned duplicates";
+            addWarning(PART_NUMBER, STEP_NUMBER, failureMessage);
+        });
     }
 
     private void verifyDM30PacketSupported(DM30ScaledTestResultsPacket packet, SupportedSPN spn) {
@@ -144,7 +137,7 @@ public class Step12Controller extends StepController {
         if (testResults.isEmpty()) {
             addFailure(PART_NUMBER,
                     STEP_NUMBER,
-                    "6.1.12.1.a Fail if no test result (comprised of a SPN+FMI with a test result and a min and max test limit) for an SPN indicated as supported is actually reported from the ECU/device that indicated support");
+                    "6.1.12.1.a No test result for an SPN indicated as supported is actually reported from the ECU that indicated support");
         }
 
         // b. Fail if any test result does not report the test result/min test
@@ -158,7 +151,7 @@ public class Step12Controller extends StepController {
             if (!isMaximum && !isMinimum) {
                 addFailure(PART_NUMBER,
                         STEP_NUMBER,
-                        "6.1.12.1.b Fail if any test result does not report the test result/min test limit/max test limit initialized one of the following values 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000");
+                        "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
             }
             // c. Fail if the SLOT identifier for any test results is an
             // undefined or a not valid SLOT in Appendix A of J1939-71. See
@@ -168,22 +161,13 @@ public class Step12Controller extends StepController {
                 int slotIdentifier = result.getSlot().getId();
 
                 if (!VALID_SLOTS.contains(slotIdentifier)) {
-                    addFailure(PART_NUMBER, STEP_NUMBER,
+                    addFailure(PART_NUMBER,
+                            STEP_NUMBER,
                             "6.1.12.1.c #" + slotIdentifier + " SLOT identifier is invalid");
                 }
             } else {
-                addFailure(PART_NUMBER, STEP_NUMBER, "6.1.12.1.c SLOT identifier is undefined");
+                addFailure(PART_NUMBER, STEP_NUMBER, "6.1.12.1.c #" + result.getSlotNumber() + " SLOT identifier is undefined");
             }
-
-        }
-
-        // d. Warn if any ECU reports more than one set of test results for the same SPN+FMI.
-        List<ScaledTestResult> reportedDuplicates = new ArrayList<>(tableA7Validator.hasDuplicates(testResults));
-        if (!reportedDuplicates.isEmpty()) {
-            reportedDuplicates.forEach(dup -> {
-                String failureMessage = "6.1.12.1.d SPN " + dup.getSpn() + " FMI " + dup.getFmi() + " returned duplicates";
-                addFailure(PART_NUMBER, STEP_NUMBER, failureMessage);
-            });
         }
     }
 

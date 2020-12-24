@@ -89,7 +89,7 @@ public class BusServiceTest {
         Packet request = mock(Packet.class);
         when(j1939.createRequestPacket(11111, J1939.GLOBAL_ADDR)).thenReturn(request);
         RequestResult<GenericPacket> result = new RequestResult<GenericPacket>(false, packet(11111), packet(11111), packet(11111));
-        when(j1939.requestGlobal("Global Request for 11111", listener, true, GenericPacket.class, 11111, request))
+        when(j1939.requestGlobal("Global Request for 11111", listener, true, 11111, request))
                 .thenReturn(result);
 
         List<GenericPacket> actual = instance.globalRequest(11111);
@@ -100,7 +100,7 @@ public class BusServiceTest {
 
         verify(listener).onResult(NL);
         verify(j1939).createRequestPacket(11111, J1939.GLOBAL_ADDR);
-        verify(j1939).requestGlobal("Global Request for 11111", listener, true, GenericPacket.class, 11111, request);
+        verify(j1939).requestGlobal("Global Request for 11111", listener, true, 11111, request);
 
     }
 

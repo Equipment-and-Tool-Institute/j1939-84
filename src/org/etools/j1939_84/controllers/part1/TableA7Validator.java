@@ -1,5 +1,5 @@
-/**
- *
+/*
+ * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
 
@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.ExpectedTestResult;
@@ -19,7 +18,6 @@ import org.etools.j1939_84.model.Outcome;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class TableA7Validator {
 
@@ -40,11 +38,10 @@ public class TableA7Validator {
         public boolean validate(Collection<ScaledTestResult> actualTestResults, ResultsListener listener) {
             boolean isValid = rowValidator.isValid(actualTestResults, expectedTestResults, minimumContains);
             if (!isValid) {
-                listener.addOutcome(PART_NUMBER, STEP_NUMBER, Outcome.FAIL,
+                listener.addOutcome(PART_NUMBER,
+                        STEP_NUMBER,
+                        Outcome.FAIL,
                         monitorName + " is missing required Test Result");
-            } else {
-                listener.addOutcome(PART_NUMBER, STEP_NUMBER, Outcome.PASS,
-                        monitorName + " has the required Test Result");
             }
             return isValid;
         }
@@ -139,13 +136,15 @@ public class TableA7Validator {
         return rows;
     }
 
-    public Collection<ScaledTestResult> hasDuplicates(Collection<ScaledTestResult> testResults) {
+    public Collection<ScaledTestResult> findDuplicates(Collection<ScaledTestResult> testResults) {
 
         List<ExpectedTestResult> expectedTestResults = testResults.stream()
-                .map(r -> new ExpectedTestResult(r.getSpn(), r.getFmi())).collect(Collectors.toList());
+                .map(r -> new ExpectedTestResult(r.getSpn(), r.getFmi()))
+                .collect(Collectors.toList());
 
         Set<ExpectedTestResult> duplicates = expectedTestResults.stream()
-                .filter(r -> Collections.frequency(expectedTestResults, r) > 1).collect(Collectors.toSet());
+                .filter(r -> Collections.frequency(expectedTestResults, r) > 1)
+                .collect(Collectors.toSet());
 
         Set<ScaledTestResult> results = new HashSet<>();
         for (ExpectedTestResult etr : duplicates) {
@@ -160,22 +159,20 @@ public class TableA7Validator {
     }
 
     public boolean validateForCompressionIgnition(Collection<ScaledTestResult> testResults, ResultsListener listener) {
-        boolean[] isValid = { true };
-        getCompressionIgnitionRows().forEach(r -> {
-            if (!r.validate(testResults, listener)) {
-                isValid[0] = false;
-            }
-        });
-        return isValid[0];
+        return validate(testResults, listener, getCompressionIgnitionRows());
     }
 
     public boolean validateForSparkIgnition(Collection<ScaledTestResult> testResults, ResultsListener listener) {
-        boolean[] isValid = { true };
-        getSparkIgnitionRows().forEach(r -> {
-            if (!r.validate(testResults, listener)) {
-                isValid[0] = false;
+        return validate(testResults, listener, getSparkIgnitionRows());
+    }
+
+    private boolean validate(Collection<ScaledTestResult> testResults, ResultsListener listener, Collection<Row> rows) {
+        boolean isValid = true;
+        for (Row row : rows) {
+            if (!row.validate(testResults, listener)) {
+                isValid = false;
             }
-        });
-        return isValid[0];
+        }
+        return isValid;
     }
 }

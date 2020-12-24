@@ -84,7 +84,6 @@ public class BusService {
         return j1939.requestDS(title,
                 listener,
                 true,
-                GenericPacket.class,
                 pgn,
                 requestPacket)
                 .getPacket()
@@ -135,7 +134,6 @@ public class BusService {
         RequestResult<GenericPacket> globalResult = j1939.requestGlobal(title,
                 listener,
                 true,
-                GenericPacket.class,
                 pgn,
                 requestPacket);
         return globalResult

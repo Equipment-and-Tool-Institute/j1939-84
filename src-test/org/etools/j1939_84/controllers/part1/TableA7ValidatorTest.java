@@ -1,23 +1,19 @@
-/**
- *
+/*
+ * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.PASS;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.List;
-
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -103,10 +99,9 @@ public class TableA7ValidatorTest {
         return testResults;
     }
 
+    @SuppressWarnings("SameParameterValue")
     private static void remove(Collection<ScaledTestResult> testResults, int spn, int fmi) {
-        Iterator<ScaledTestResult> iterator = testResults.iterator();
-        while (iterator.hasNext()) {
-            ScaledTestResult testResult = iterator.next();
+        for (ScaledTestResult testResult : testResults) {
             if (testResult.getSpn() == spn && testResult.getFmi() == fmi) {
                 testResults.remove(testResult);
                 break;
@@ -144,72 +139,15 @@ public class TableA7ValidatorTest {
         remove(testResults, 3055, 18);
         instance.validateForCompressionIgnition(testResults, new TestResultsListener(listener));
 
-        verify(listener)
-                .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                        "Fuel system pressure control low is missing required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Fuel system pressure control high has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Injector Quantity (High Flow) or Injector Timing has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Injector Quantity (Low Flow) or Injector Timing has the required Test Result");
-        verify(listener, times(4)).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "% of misfire has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "Low Flow has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "High Flow has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "Cooler performance has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "Under Boost has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "Over Boost has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Charge Air Undercooling has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Conversion Efficiency, or Aftertreatment Assistance: Exotherm to assist PM reg., or Aftertreatment Assistance: Feedgas to assist SCR has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Conversion Efficiency has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "SCR or Other Reductant delivery performance has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Filtering Performance has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Incomplete regeneration has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "NOx Sensor Performance Monitoring Capability has the required Test Result");
+        verify(listener).addOutcome(PART_NUMBER,
+                STEP_NUMBER,
+                FAIL,
+                "Fuel system pressure control low is missing required Test Result");
     }
 
     @Test
     public void testCompressionIgnitionValid() {
         instance.validateForCompressionIgnition(getCompressionIgnitionTestResults(), new TestResultsListener(listener));
-
-        verify(listener)
-                .addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                        "Fuel system pressure control low has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Fuel system pressure control high has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Injector Quantity (High Flow) or Injector Timing has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Injector Quantity (Low Flow) or Injector Timing has the required Test Result");
-        verify(listener, times(4)).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "% of misfire has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "Low Flow has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "High Flow has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "Cooler performance has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "Under Boost has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "Over Boost has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Charge Air Undercooling has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Conversion Efficiency, or Aftertreatment Assistance: Exotherm to assist PM reg., or Aftertreatment Assistance: Feedgas to assist SCR has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Conversion Efficiency has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "SCR or Other Reductant delivery performance has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Filtering Performance has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "Incomplete regeneration has the required Test Result");
-        verify(listener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "NOx Sensor Performance Monitoring Capability has the required Test Result");
         // Nothing (bad) happens
     }
 
@@ -220,7 +158,7 @@ public class TableA7ValidatorTest {
         results.add(scaledTestResult(345, 18));
         results.add(scaledTestResult(345, 18));
 
-        Collection<ScaledTestResult> duplicates = instance.hasDuplicates(results);
+        Collection<ScaledTestResult> duplicates = instance.findDuplicates(results);
         assertEquals(1, duplicates.size());
 
         ScaledTestResult duplicate = duplicates.iterator().next();
@@ -236,9 +174,8 @@ public class TableA7ValidatorTest {
         results.add(scaledTestResult(345, 18));
         results.add(scaledTestResult(345, 17));
         results.add(scaledTestResult(678, 1));
-        Collection<ScaledTestResult> duplicates = instance.hasDuplicates(results);
+        Collection<ScaledTestResult> duplicates = instance.findDuplicates(results);
         assertTrue(duplicates.isEmpty());
-
     }
 
 }

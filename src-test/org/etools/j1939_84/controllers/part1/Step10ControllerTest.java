@@ -149,8 +149,7 @@ public class Step10ControllerTest extends AbstractControllerTest {
         expectedMessages += "Waiting for 4 seconds" + NL;
         expectedMessages += "Waiting for 3 seconds" + NL;
         expectedMessages += "Waiting for 2 seconds" + NL;
-        expectedMessages += "Waiting for 1 seconds" + NL;
-        expectedMessages += "Waiting for 0 seconds";
+        expectedMessages += "Waiting for 1 seconds";
         assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -196,8 +195,7 @@ public class Step10ControllerTest extends AbstractControllerTest {
         expectedMessages += "Waiting for 4 seconds" + NL;
         expectedMessages += "Waiting for 3 seconds" + NL;
         expectedMessages += "Waiting for 2 seconds" + NL;
-        expectedMessages += "Waiting for 1 seconds" + NL;
-        expectedMessages += "Waiting for 0 seconds";
+        expectedMessages += "Waiting for 1 seconds";
         assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());

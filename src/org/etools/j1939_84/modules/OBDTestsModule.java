@@ -1,5 +1,5 @@
-/**
- * Copyright 2017 Equipment & Tool Institute
+/*
+ * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.modules;
 
@@ -11,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
@@ -29,7 +28,6 @@ import org.etools.j1939_84.model.RequestResult;
  * OBD Modules
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class OBDTestsModule extends FunctionalModule {
 
@@ -45,13 +43,9 @@ public class OBDTestsModule extends FunctionalModule {
      * given SPN. The request will be sent to the specific destination
      *
      * @param destination
-     *            the destination address for the packet
+     *         the destination address for the packet
      * @param spn
-     *            the SPN
-     * @param destination
-     *            the destination address for the packet
-     * @param spn
-     *            the SPN
+     *         the SPN
      * @return Packet
      */
     public Packet createDM7Packet(int destination, int spn) {
@@ -73,7 +67,7 @@ public class OBDTestsModule extends FunctionalModule {
      * {@link DM7CommandTestsPacket}s
      *
      * @param listener
-     *            the {@link ResultsListener}
+     *         the {@link ResultsListener}
      * @return {@link List} of {@link DM30ScaledTestResultsPacket}s
      */
     public List<DM30ScaledTestResultsPacket> getDM30Packets(ResultsListener listener, int address,
@@ -88,8 +82,8 @@ public class OBDTestsModule extends FunctionalModule {
             String moduleName = Lookup.getAddressName(destination);
             // Find tests that support scaled results, remove duplicates and use
             // a predictable order for testing.
-            List<Integer> spns = packet.getSupportedSpns().stream().filter(t -> t.supportsScaledTestResults())
-                    .map(s -> s.getSpn()).sorted().distinct().collect(Collectors.toList());
+            List<Integer> spns = packet.getSupportedSpns().stream().filter(SupportedSPN::supportsScaledTestResults)
+                    .map(SupportedSPN::getSpn).sorted().distinct().collect(Collectors.toList());
             if (spns.isEmpty()) {
                 listener.onResult(moduleName + " does not have any tests that support scaled tests results");
                 listener.onResult("");
@@ -137,9 +131,9 @@ public class OBDTestsModule extends FunctionalModule {
      * to the listener
      *
      * @param listener
-     *            the {@link ResultsListener}
+     *         the {@link ResultsListener}
      * @param obdModules
-     *            the {@link List} of addresses for ODB Modules
+     *         the {@link List} of addresses for ODB Modules
      */
     public void reportOBDTests(ResultsListener listener, List<Integer> obdModules) {
 
@@ -148,7 +142,6 @@ public class OBDTestsModule extends FunctionalModule {
         reportObdTests(listener, requestedPackets);
     }
 
-    @SuppressWarnings("unused")
     private void reportResults(ResultsListener listener, List<DM24SPNSupportPacket> requestedPackets) {
         Map<Integer, List<ScaledTestResult>> allTestResults = new HashMap<>();
         for (DM24SPNSupportPacket packet : requestedPackets) {
@@ -156,8 +149,8 @@ public class OBDTestsModule extends FunctionalModule {
             String moduleName = Lookup.getAddressName(destination);
             // Find tests that support scaled results, remove duplicates and use
             // a predictable order for testing.
-            List<Integer> spns = packet.getSupportedSpns().stream().filter(t -> t.supportsScaledTestResults())
-                    .map(s -> s.getSpn()).sorted().distinct().collect(Collectors.toList());
+            List<Integer> spns = packet.getSupportedSpns().stream().filter(SupportedSPN::supportsScaledTestResults)
+                    .map(SupportedSPN::getSpn).sorted().distinct().collect(Collectors.toList());
             if (spns.isEmpty()) {
                 listener.onResult(moduleName + " does not have any tests that support scaled tests results");
                 listener.onResult("");
@@ -197,9 +190,9 @@ public class OBDTestsModule extends FunctionalModule {
      * {@link DM24SPNSupportPacket}s DM24 are only destination specific messages
      *
      * @param listener
-     *            {@link ResultsListener}
+     *         {@link ResultsListener}
      * @param obdModuleAddress
-     *            {@link Integer}
+     *         {@link Integer}
      * @return {@link List} of {@link DM24SPNSupportPacket}s
      */
     public BusResult<DM24SPNSupportPacket> requestDM24(ResultsListener listener,
@@ -215,7 +208,7 @@ public class OBDTestsModule extends FunctionalModule {
      * {@link DM7CommandTestsPacket}s
      *
      * @param listener
-     *            the {@link ResultsListener}
+     *         the {@link ResultsListener}
      * @return {@link List} of {@link DM30ScaledTestResultsPacket}s
      */
     public RequestResult<DM30ScaledTestResultsPacket> requestDM30Packets(ResultsListener listener,
@@ -223,8 +216,7 @@ public class OBDTestsModule extends FunctionalModule {
             int spn) {
         Packet request = createDM7Packet(address, spn);
         BusResult<DM30ScaledTestResultsPacket> result = getJ1939()
-                .requestDm7(null, listener, request);
-        result.getPacket().flatMap(e -> e.left).ifPresent(packet -> listener.onResult(packet.toString()));
+                .requestDm7("DM30 for DM7 from " + Lookup.getAddressName(address), listener, request);
 
         listener.onResult("");
         return result.requestResult();
@@ -242,11 +234,11 @@ public class OBDTestsModule extends FunctionalModule {
      * Results for the specified SPN
      *
      * @param listener
-     *            the {@link ResultsListener}
+     *         the {@link ResultsListener}
      * @param destination
-     *            the destination address to send the request to
+     *         the destination address to send the request to
      * @param spn
-     *            the SPN for which the Scaled Test Results are being requested
+     *         the SPN for which the Scaled Test Results are being requested
      * @return the {@link List} of {@link DM30ScaledTestResultsPacket} returned.
      */
     private List<ScaledTestResult> requestScaledTestResultsForSpn(String title, ResultsListener listener,
@@ -256,7 +248,7 @@ public class OBDTestsModule extends FunctionalModule {
         results.getPacket().flatMap(e -> e.left).ifPresent(packet -> listener.onResult(packet.toString()));
         listener.onResult("");
         return results.getPacket()
-                .flatMap(br -> br.left.map(p -> p.getTestResults()))
+                .flatMap(br -> br.left.map(DM30ScaledTestResultsPacket::getTestResults))
                 .orElse(Collections.emptyList());
     }
 
@@ -265,13 +257,13 @@ public class OBDTestsModule extends FunctionalModule {
      * Results for all the Supported SPNs
      *
      * @param listener
-     *            the {@link ResultsListener}
+     *         the {@link ResultsListener}
      * @param destination
-     *            the destination address to send the request to
+     *         the destination address to send the request to
      * @param moduleName
-     *            the name of the vehicle module for the report
+     *         the name of the vehicle module for the report
      * @param spns
-     *            the {@link List} of SPNs that will be requested
+     *         the {@link List} of SPNs that will be requested
      * @return List of {@link ScaledTestResult}s
      */
     private List<ScaledTestResult> requestScaledTestResultsFromModule(ResultsListener listener,
@@ -291,9 +283,9 @@ public class OBDTestsModule extends FunctionalModule {
      * Sends a request to the vehicle for {@link DM24SPNSupportPacket}s
      *
      * @param listener
-     *            the {@link ResultsListener}
+     *         the {@link ResultsListener}
      * @param obdModuleAddresses
-     *            {@link Collection} of Integers}
+     *         {@link Collection} of Integers}
      * @return {@link List} of {@link DM24SPNSupportPacket}s
      */
     public RequestResult<DM24SPNSupportPacket> requestSupportedSpnPackets(ResultsListener listener,

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939;
@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.EchoBus;
@@ -35,7 +34,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
+import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
@@ -55,16 +54,16 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-@RunWith(MockitoJUnitRunner.class)
+@SuppressWarnings("ConstantConditions") @RunWith(MockitoJUnitRunner.class)
 public class J1939Test {
 
-    final private static class TestPacket extends ParsedPacket {
+    final private static class TestPacket extends GenericPacket {
         // used by tests in getPgn(Packet)
         @SuppressWarnings("unused")
         public static int PGN = -1;
 
         public TestPacket(Packet packet) {
-            super(packet);
+            super(packet, null);
         }
     }
 
@@ -85,7 +84,7 @@ public class J1939Test {
 
     private ArgumentCaptor<Packet> sendPacketCaptor;
 
-    @Test
+    @SuppressWarnings("OptionalGetWithoutIsPresent") @Test
     public void aTestTP() throws Exception {
         final String VIN = "Some VINs are garbage, but this test doesn't care.";
         try (EchoBus echoBus = new EchoBus(0xF9)) {
@@ -139,10 +138,10 @@ public class J1939Test {
 
     @Test()
     @TestDoc(description = "6.1.4.1.b no retry on NACK")
-    public void test6141bNoRetryOnNack() throws BusException, InterruptedException {
+    public void test6141bNoRetryOnNack() throws BusException {
         // verify 3 trys in 3*220ms
         Bus bus = new EchoBus(0xF9);
-        bus.log(p -> p.toTimeString());
+        bus.log(Packet::toTimeString);
         Stream<Packet> all = bus.read(1, TimeUnit.SECONDS);
         J1939 j1939 = new J1939(bus);
         Stream<Packet> stream = bus.read(200, TimeUnit.SECONDS);
@@ -166,7 +165,7 @@ public class J1939Test {
         Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket> e = result.get();
         assertTrue(e.left.isEmpty());
         assertTrue(e.right.isPresent());
-        // 200 ms seems exesssive, but I was seeing weird timing in the tests
+        // 200 ms seems excessive, but I was seeing weird timing in the tests
         // FIXME review.
         assertTrue("Took too long: " + duration, duration < 200);
         assertEquals(2L, all.count());
@@ -189,8 +188,6 @@ public class J1939Test {
     /**
      * The purpose of this test is to verify that processing doesn't hang on any
      * possible PGN
-     *
-     * @throws Exception
      */
     @Test
     @Ignore
@@ -233,8 +230,6 @@ public class J1939Test {
 
     /**
      * This sends request for DM7 but gets back a DM30
-     *
-     * @throws Exception
      */
     @Test
     public void testRequestDM7() throws Exception {
@@ -244,8 +239,7 @@ public class J1939Test {
 
         int spn = 1024;
 
-        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN
-                | 0x00, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
+        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
 
         DM30ScaledTestResultsPacket packet = instance.requestDm7(null, ResultsListener.NOOP, requestPacket).getPacket()
                 .flatMap(e -> e.left)
@@ -260,8 +254,6 @@ public class J1939Test {
 
     /**
      * This sends request for DM7 but times out
-     *
-     * @throws Exception
      */
     @Test
     public void testRequestDM7Timesout() throws Exception {
@@ -270,8 +262,7 @@ public class J1939Test {
 
         int spn = 1024;
 
-        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN
-                | 0x00, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
+        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
 
         Object packet = instance.requestDm7(null, ResultsListener.NOOP, requestPacket).getPacket().orElse(null);
         assertNull(packet);
@@ -284,8 +275,6 @@ public class J1939Test {
 
     /**
      * This sends request for DM7 and eventually gets back a DM30
-     *
-     * @throws Exception
      */
     @Test
     public void testRequestDM7WillTryThreeTimes() throws Exception {
@@ -296,8 +285,7 @@ public class J1939Test {
 
         int spn = 1024;
 
-        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN
-                | 0x00, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
+        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
 
         Object packet = instance.requestDm7(null, ResultsListener.NOOP, requestPacket).getPacket().orElse(null);
         assertNotNull(packet);
@@ -309,7 +297,7 @@ public class J1939Test {
     }
 
     @Test
-    public void testRequestMultipleByClassHandlesException() throws Exception {
+    public void testRequestMultipleByClassHandlesException() {
         Stream<?> response = instance.requestGlobalResult(null, ResultsListener.NOOP, false, TestPacket.class)
                 .getEither()
                 .stream();
@@ -370,9 +358,9 @@ public class J1939Test {
     }
 
     @Test
-    public void testRequestMultipleHandlesException() throws Exception {
+    public void testRequestMultipleHandlesException() {
         Stream<TestPacket> response = instance.requestResult(null, ResultsListener.NOOP, false, TestPacket.class,
-                Packet.create(0xEA00 | 0, 0, 0, 0 >> 8, 0 >> 16)).getEither().stream().flatMap(e -> e.left.stream());
+                Packet.create(0xEA00, 0, 0, 0, 0)).getEither().stream().flatMap(e -> e.left.stream());
         assertEquals(0, response.count());
     }
 

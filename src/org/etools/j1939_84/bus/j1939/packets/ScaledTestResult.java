@@ -1,17 +1,15 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import java.util.Arrays;
-
 import org.etools.j1939_84.NumberFormatter;
 
 /**
  * Represents a Scaled Test Result from a {@link DM30ScaledTestResultsPacket}
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class ScaledTestResult {
 
@@ -19,16 +17,17 @@ public class ScaledTestResult {
      * The Possible Outcomes of the Test
      *
      * @author Matt Gumbel (matt@soliddesign.net)
-     *
      */
     public enum TestResult {
 
-        CANNOT_BE_PERFORMED("Test Cannot Be Performed"), FAILED("Test Failed"), NOT_COMPLETE(
-                "Test Not Complete"), PASSED("Test Passed");
+        CANNOT_BE_PERFORMED("Test Cannot Be Performed"),
+        FAILED("Test Failed"),
+        NOT_COMPLETE("Test Not Complete"),
+        PASSED("Test Passed");
 
         private final String string;
 
-        private TestResult(String string) {
+        TestResult(String string) {
             this.string = string;
         }
 
@@ -51,7 +50,7 @@ public class ScaledTestResult {
      * Constructor
      *
      * @param data
-     *            the data that contains the {@link ScaledTestResult}
+     *         the data that contains the {@link ScaledTestResult}
      */
     public ScaledTestResult(int[] data) {
         testIdentifier = data[0];
@@ -109,6 +108,10 @@ public class ScaledTestResult {
             slot = Slot.findSlot(slotNumber);
         }
         return slot;
+    }
+
+    public int getSlotNumber() {
+        return slotNumber;
     }
 
     /**

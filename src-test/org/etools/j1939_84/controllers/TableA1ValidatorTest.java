@@ -474,7 +474,7 @@ public class TableA1ValidatorTest {
                 5466, 5829, 5837, 6895, 7333,
                 96, 110, 132, 157, 190,
                 5313, 5466, 5827,
-                158, 110, 723, 158,
+                158, 110, 723,
                 5454, 183, 3251, 1127, 94, 3516, 3515);
         TestResultsListener testResultsListener = new TestResultsListener(listener);
         instance.reportMissingSPNs(supportedSpns, testResultsListener, FuelType.DSL, 1, 26);

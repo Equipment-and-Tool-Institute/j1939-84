@@ -74,11 +74,15 @@ public class Step10Controller extends StepController {
 
         // c. Allow 5 s to elapse before proceeding with test step 6.1.10.2.
         long stopTime = dateTimeModule.getTimeAsLong() + (5L * 1000L);
-        long secondsToGo = 5;
-        while (secondsToGo > 0) {
+        long secondsToGo;
+        while (true) {
             secondsToGo = (stopTime - dateTimeModule.getTimeAsLong()) / 1000;
-            getListener().onProgress(String.format("Waiting for %1$d seconds", secondsToGo));
-            dateTimeModule.pauseFor(1000);
+            if (secondsToGo > 0) {
+                getListener().onProgress(String.format("Waiting for %1$d seconds", secondsToGo));
+                dateTimeModule.pauseFor(1000);
+            } else {
+                break;
+            }
         }
 
         // 6.1.10.2.a. Fail if NACK received from any HD OBD ECU
