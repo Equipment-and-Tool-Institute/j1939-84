@@ -84,8 +84,7 @@ public class Step04Controller extends StepController {
             BusResult<DM24SPNSupportPacket> result = obdTestsModule.requestDM24(getListener(),
                                                                                 module.getSourceAddress());
             result.getPacket().flatMap(packet -> packet.left).ifPresent(destinationSpecificPackets::add);
-            // 6.1.4.2 Fail criteria:7
-            // a. Fail if retry was required to obtain DM24 response.
+            // 6.1.4.2.a. Fail if retry was required to obtain DM24 response.
             if (result.isRetryUsed()) {
                 addFailure("6.1.4.2.a - Retry was required to obtain DM24 response");
             }
@@ -111,8 +110,7 @@ public class Step04Controller extends StepController {
         boolean freezeFrameOk = supportedSpnModule.validateFreezeFrameSpns(getListener(),
                                                                            freezeFrameSpns);
         // c. Fail if one or more minimum expected SPNs for freeze frame not
-        // supported per section A.2, Criteria for Freeze Frame Evaluation, from
-        // the OBD ECU(s).
+        // supported per section A.2, Criteria for Freeze Frame Evaluation, from the OBD ECU(s).
         if (!freezeFrameOk) {
             addFailure("6.1.4.2.c - One or more SPNs for freeze frame are not supported");
         }
@@ -131,8 +129,7 @@ public class Step04Controller extends StepController {
                                         dataStreamSpns,
                                         dataRepository.getVehicleInformation().getFuelType());
         // 6.1.4.2.b. Fail if one or more minimum expected SPNs for data stream
-        // not supported per section A.1, Minimum Support Table, from the OBD
-        // ECU(s).
+        // not supported per section A.1, Minimum Support Table, from the OBD ECU(s).
         if (!dataStreamOk) {
             addFailure("6.1.4.2.b - One or more SPNs for data stream is not supported");
         }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -7,7 +7,6 @@ package org.etools.j1939_84.bus.j1939.packets;
  * The Composite Monitoring Systems
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 public enum CompositeSystem {
 
@@ -32,39 +31,29 @@ public enum CompositeSystem {
     private final int mask;
     private final String name;
 
-    private CompositeSystem(String name, int lowerByte, int mask) {
+    CompositeSystem(String name, int lowerByte, int mask) {
         this.name = name;
         this.lowerByte = lowerByte;
         this.mask = mask;
     }
 
-    /**
-     * @return the address
-     */
     public int getLowerByte() {
         return lowerByte;
     }
 
-    /**
-     * @return the lowerByte
-     */
     public int getMask() {
         return mask;
     }
 
-    /**
-     * @return the name
-     */
     public String getName() {
         return String.format("%-26s", name);
     }
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder(String.format("%-30s", getName()))
-                .append(String.format("%-17s", String.valueOf("Lower Byte: " + getMask())))
-                .append(String.format("%-10s", String.valueOf("Address: " + getLowerByte())));
-        return stringBuilder.toString();
+        return String.format("%-30s", getName()) +
+                String.format("%-17s", "Lower Byte: " + getMask()) +
+                String.format("%-10s", "Address: " + getLowerByte());
     }
 
 }

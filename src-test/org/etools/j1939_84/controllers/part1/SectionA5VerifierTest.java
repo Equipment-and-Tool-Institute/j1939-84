@@ -774,9 +774,8 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 +
                 NL + "Post DTC all clear code sent retrieved the DM28 packet :" + NL +
                 "DM28 from Engine #1 (0): MIL: on, RSL: off, AWL: off, PL: other" + NL +
-                "DTC:  (157) Engine Fuel 1 Injector Metering Rail 1 Pressure Mechanical System Not Responding Or Out Of Adjustment (7) 1 times";
-        assertEquals(
-                expectedMessages, listener.getMessages());
+                "DTC 157:7 - Engine Fuel 1 Injector Metering Rail 1 Pressure, Mechanical System Not Responding Or Out Of Adjustment - 1 times";
+        assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 

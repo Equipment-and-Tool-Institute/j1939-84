@@ -61,7 +61,7 @@ public class Step01Controller extends StepController {
             updateProgress("Part 1, Step 1 e Collecting Vehicle Information");
         }
 
-        getListener().onResult("User provided " + dataRepository.getVehicleInformation());
+        getListener().onResult(dataRepository.getVehicleInformation().toString());
         getListener().onVehicleInformationReceived(dataRepository.getVehicleInformation());
     }
 

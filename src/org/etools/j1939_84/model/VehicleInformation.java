@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019. Equipment & Tool Institute
  */
 package org.etools.j1939_84.model;
@@ -188,8 +188,8 @@ public class VehicleInformation implements Cloneable {
                 + "Number of CAL IDs Expected: " + calIds + NL
                 + "Fuel Type: " + fuelType + NL
                 + "Ignition Type: " + fuelType.ignitionType.name + NL
-                + "Number of Trips for Fault B Implant: " + numberOfTripsForFaultBImplant + NL + NL
-
+                + "Number of Trips for Fault B Implant: " + numberOfTripsForFaultBImplant + NL
+                + NL
                 + "Vehicle Information:" + NL
                 + "VIN: " + vin + NL
                 + "Vehicle MY: " + vehicleModelYear + NL
@@ -202,10 +202,10 @@ public class VehicleInformation implements Cloneable {
                         .collect(Collectors.joining(NL))
                 + NL
                 + "Number of CAL IDs Found: "
-                + calIdsFound.stream().flatMap(dm19 -> dm19.getCalibrationInformation().stream()).count() + NL
+                + calIdsFound.stream().mapToLong(dm19 -> dm19.getCalibrationInformation().size()).sum() + NL
                 + calIdsFound.stream()
-                        .map(ci -> ci.toString())
-                        .flatMap(s -> s.lines())
+                        .map(DM19CalibrationInformationPacket::toString)
+                        .flatMap(String::lines)
                         .map(s -> "     " + s)
                         .collect(Collectors.joining(NL))
                 + NL;

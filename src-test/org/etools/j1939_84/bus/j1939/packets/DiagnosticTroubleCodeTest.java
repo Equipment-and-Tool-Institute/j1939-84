@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -49,6 +49,7 @@ public class DiagnosticTroubleCodeTest {
         assertEquals(0, instance.getOccurrenceCount());
     }
 
+    @SuppressWarnings({ "SimplifiableAssertion", "EqualsBetweenInconvertibleTypes" })
     @Test
     public void testEquals() {
         int[] data = new int[] { 0x61, // conversion method
@@ -60,7 +61,7 @@ public class DiagnosticTroubleCodeTest {
         int[] data2 = new int[] { 0x13, 0x81, 0x61, 0x02 };
         DiagnosticTroubleCode instance3 = new DiagnosticTroubleCode(data2);
         DM31DtcToLampAssociation instance4 = new DM31DtcToLampAssociation(
-                Packet.create(0, 0, new int[] { 0x61, 0x02, 0x13, 0x81 }));
+                Packet.create(0, 0, 0x61, 0x02, 0x13, 0x81));
         assertTrue(instance.equals(instance2));
         assertFalse(instance.equals(instance3));
         assertFalse(instance.equals(instance4));
@@ -138,7 +139,7 @@ public class DiagnosticTroubleCodeTest {
     public void testToString() {
         int[] data = new int[] { 0x21, 0x06, 0x1F, 0x23 };
         DiagnosticTroubleCode instance = new DiagnosticTroubleCode(data);
-        assertEquals("DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 35 times",
+        assertEquals("DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 35 times",
                 instance.toString());
     }
 
@@ -146,7 +147,7 @@ public class DiagnosticTroubleCodeTest {
     public void testToStringNoDTC() {
         int[] data = new int[] { 0x00, 0x00, 0x00, 0x00 };
         DiagnosticTroubleCode instance = new DiagnosticTroubleCode(data);
-        assertEquals("DTC:  (0) Unknown Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times",
+        assertEquals("DTC 0:0 - Unknown, Data Valid But Above Normal Operational Range - Most Severe Level - 0 times",
                 instance.toString());
     }
 }

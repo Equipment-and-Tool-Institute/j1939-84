@@ -1,17 +1,15 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import java.util.Objects;
-
 import org.etools.j1939_84.bus.j1939.Lookup;
 
 /**
  * Contains the information about a Diagnostic Trouble Code (DTC)
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class DiagnosticTroubleCode {
 
@@ -61,8 +59,7 @@ public class DiagnosticTroubleCode {
         return (getSuspectParameterNumber() == that.getSuspectParameterNumber() &&
                 getOccurrenceCount() == that.getOccurrenceCount() &&
                 getFailureModeIndicator() == that.getFailureModeIndicator() &&
-                getConversionMethod() == that.getConversionMethod() &&
-                getSuspectParameterNumber() == that.getSuspectParameterNumber());
+                getConversionMethod() == that.getConversionMethod());
     }
 
     /**
@@ -112,11 +109,11 @@ public class DiagnosticTroubleCode {
 
     @Override
     public String toString() {
-        String result = "DTC: ";
-        result += " (" + getSuspectParameterNumber() + ") " + Lookup.getSpnName(getSuspectParameterNumber());
-        result += " " + Lookup.getFmiDescription(getFailureModeIndicator()) + " (" + getFailureModeIndicator() + ")";
+        String result = "DTC " + getSuspectParameterNumber() + ":" + getFailureModeIndicator() + " - ";
+        result += Lookup.getSpnName(getSuspectParameterNumber()) + ", ";
+        result += Lookup.getFmiDescription(getFailureModeIndicator());
         if (getOccurrenceCount() != 0x3F && getOccurrenceCount() != 127) {
-            result += " " + getOccurrenceCount() + " times";
+            result += " - " + getOccurrenceCount() + " times";
         }
         return result;
     }

@@ -3,6 +3,16 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
+
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Set;
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
@@ -15,22 +25,10 @@ import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
-import java.util.Set;
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
-
-import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
-
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  * <p>
- * The controller for 6.1.13 DM5: Diagnostic Readiness 1: Monitor
- * Readiness
+ * The controller for 6.1.13 DM5: Diagnostic Readiness 1: Monitor Readiness
  */
 
 public class Step13Controller extends StepController {

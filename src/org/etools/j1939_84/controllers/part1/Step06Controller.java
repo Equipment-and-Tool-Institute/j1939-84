@@ -1,3 +1,6 @@
+/*
+ * Copyright 2020 Equipment & Tool Institute
+ */
 package org.etools.j1939_84.controllers.part1;
 
 import java.util.List;
@@ -20,24 +23,24 @@ public class Step06Controller extends StepController {
 
     Step06Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-             new EngineSpeedModule(),
-             new BannerModule(),
-             new VehicleInformationModule(),
-             dataRepository);
+                new EngineSpeedModule(),
+                new BannerModule(),
+                new VehicleInformationModule(),
+                dataRepository);
     }
 
     Step06Controller(Executor executor,
-                     EngineSpeedModule engineSpeedModule,
-                     BannerModule bannerModule,
-                     VehicleInformationModule vehicleInformationModule,
-                     DataRepository dataRepository) {
+            EngineSpeedModule engineSpeedModule,
+            BannerModule bannerModule,
+            VehicleInformationModule vehicleInformationModule,
+            DataRepository dataRepository) {
         super(executor,
-              engineSpeedModule,
-              bannerModule,
-              vehicleInformationModule,
-              PART_NUMBER,
-              STEP_NUMBER,
-              TOTAL_STEPS);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                PART_NUMBER,
+                STEP_NUMBER,
+                TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }
 
@@ -68,16 +71,12 @@ public class Step06Controller extends StepController {
                 addFailure(1, 6, "6.1.6.2.c - Not formatted correctly");
             }
 
-            // TODO: See the citation for Karl Simon’s manufacturer guidance in
-            // 2.1.3.
-            // The description of the coding for engine model year is defined in
-            // CSID-07-03,
+            // TODO: See the citation for Karl Simon’s manufacturer guidance in 2.1.3.
+            // The description of the coding for engine model year is defined in CSID-07-03,
             // a manufacturer letter that is available from US EPA at
             // http://iaspub.epa.gov/otaqpub/publist_gl.jsp?guideyear=2007
             //
-            // d. Fail if MY designation in engine family (1st digit) does not
-            // match user MY
-            // input.11
+            // d. Fail if MY designation in engine family (1st digit) does not match user MY input
 
             String familyName = packet.getFamilyName();
             char char13 = familyName.length() >= 14 ? familyName.charAt(13) : Character.MIN_VALUE;
@@ -87,13 +86,12 @@ public class Step06Controller extends StepController {
             if ((-1 < asteriskIndex && asteriskIndex <= 12)
                     || (char13 != Character.MIN_VALUE && char13 != '*' && familyName.contains("*"))) {
                 addFailure(1,
-                           6,
-                           "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
-            } else if ((familyName.length() < 13 && char13 == Character.MIN_VALUE)
-                    || (familyName.indexOf("*") == -1 && char13 != Character.MIN_VALUE)) {
+                        6,
+                        "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
+            } else if (familyName.length() < 13 || !familyName.contains("*") && char13 != Character.MIN_VALUE) {
                 addFailure(1,
-                           6,
-                           "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+                        6,
+                        "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
             }
         }
     }

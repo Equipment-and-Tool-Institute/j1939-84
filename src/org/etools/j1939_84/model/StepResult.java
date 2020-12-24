@@ -1,17 +1,22 @@
-/**
+/*
  * Copyright (c) 2019. Equipment & Tool Institute
  */
 package org.etools.j1939_84.model;
+
+import static org.etools.j1939_84.model.Outcome.ABORT;
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
+import static org.etools.j1939_84.model.Outcome.INFO;
+import static org.etools.j1939_84.model.Outcome.TIMING;
+import static org.etools.j1939_84.model.Outcome.WARN;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class StepResult implements IResult {
-
     private final String name;
     private Outcome outcome;
     private final int partNumber;
@@ -40,11 +45,15 @@ public class StepResult implements IResult {
         }
 
         if (outcome == null) {
-            if (hasOutcome(Outcome.FAIL)) {
-                outcome = Outcome.FAIL;
-            } else if (hasOutcome(Outcome.WARN)) {
-                outcome = Outcome.WARN;
-            } else {
+            Outcome[] outcomes = { FAIL, WARN, INFO, TIMING, INCOMPLETE, ABORT };
+            for (Outcome o : outcomes) {
+                if (hasOutcome(o)) {
+                    outcome = o;
+                    break;
+                }
+            }
+
+            if (outcome == null) {
                 outcome = Outcome.PASS;
             }
         }
@@ -55,16 +64,10 @@ public class StepResult implements IResult {
         return results;
     }
 
-    /**
-     * @return the stepNumber
-     */
     public int getStepNumber() {
         return stepNumber;
     }
 
-    /**
-     * @return
-     */
     private boolean hasOutcome(Outcome expectedOutcome) {
         return results.stream().anyMatch(r -> r.getOutcome() == expectedOutcome);
     }

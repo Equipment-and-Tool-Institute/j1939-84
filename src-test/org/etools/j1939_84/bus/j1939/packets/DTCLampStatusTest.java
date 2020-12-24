@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -88,7 +88,7 @@ public class DTCLampStatusTest {
         assertEquals(LampStatus.SLOW_FLASH, instance.getProtectLampStatus());
     }
 
-    @Test
+    @SuppressWarnings({ "EqualsBetweenInconvertibleTypes", "SimplifiableAssertion" }) @Test
     public void testEquals() {
 
         DTCLampStatus instance = new DTCLampStatus(new int[] {
@@ -141,7 +141,7 @@ public class DTCLampStatusTest {
      * Test method for
      * {@link org.etools.j1939_84.bus.j1939.packets.DTCLampStatus#hashCode()}.
      */
-    @Test
+    @SuppressWarnings("SimplifiableAssertion") @Test
     public void testHashCode() {
         DTCLampStatus instance = new DTCLampStatus(new int[] {
                 0x61, // SPN least significant bit
@@ -169,7 +169,7 @@ public class DTCLampStatusTest {
         int[] data = new int[] { 0x00, 0x00, 0x00, 0x00, 0x62, 0x1D };
         DTCLampStatus instance = new DTCLampStatus(data);
         String expected = "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
-        expected += "DTC:  (0) Unknown Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times";
+        expected += "DTC 0:0 - Unknown, Data Valid But Above Normal Operational Range - Most Severe Level - 0 times";
         assertEquals(expected, instance.toString());
     }
 }

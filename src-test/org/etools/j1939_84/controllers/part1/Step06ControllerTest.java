@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -16,9 +16,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -43,11 +41,10 @@ import org.mockito.junit.MockitoJUnitRunner;
  * The unit test for {@link Step06Controller}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 @TestDoc(value = @TestItem(verifies = "Part 1 Step 6",
-                           description = "DM56: Model year and certification engine family"))
+        description = "DM56: Model year and certification engine family"))
 public class Step06ControllerTest extends AbstractControllerTest {
 
     private static final String familyName = "YCALIF HD OBD*";
@@ -56,11 +53,12 @@ public class Step06ControllerTest extends AbstractControllerTest {
      * All values must be checked prior to mocking so that we are not creating
      * unnecessary mocks.
      */
+    @SuppressWarnings("SameParameterValue")
     private static DM56EngineFamilyPacket createDM56(Integer sourceAddress,
-                                                     Integer engineYear,
-                                                     String modelYear,
-                                                     Integer vehicleYear,
-                                                     String familyName) {
+            Integer engineYear,
+            String modelYear,
+            Integer vehicleYear,
+            String familyName) {
         DM56EngineFamilyPacket packet = mock(DM56EngineFamilyPacket.class);
         if (sourceAddress != null) {
             when(packet.getSourceAddress()).thenReturn(sourceAddress);
@@ -79,9 +77,6 @@ public class Step06ControllerTest extends AbstractControllerTest {
         }
         return packet;
     }
-
-    @Mock
-    private AcknowledgmentPacket acknowledgmentPacket;
 
     @Mock
     private BannerModule bannerModule;
@@ -143,7 +138,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
      */
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.6.2.e",
-                               description = "Engine family has > 12 characters before first asterisk character"))
+            description = "Engine family has > 12 characters before first asterisk character"))
     public void testAsteriskTerminationGreaterThanTwelve() {
         String famName = familyName.replace("*", "44*");
 
@@ -195,7 +190,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
      */
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.6.2.e",
-                               description = "Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)"))
+            description = "Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)"))
     public void testAstriskPositionLessThanTwelve() {
         String famName = familyName.replace("A", "*");
 
@@ -277,7 +272,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
      */
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.6.2.e",
-                               description = "Engine family has > 12 characters before first asterisk character"))
+            description = "Engine family has > 12 characters before first asterisk character"))
     public void testFamilyNameLessThan13Characters() {
         String famName = familyName.replace(" OBD*", "");
 
@@ -327,7 +322,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
      */
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.6.2.e.",
-                               description = "Engine family has 12 characters before first 'null' character"))
+            description = "Engine family has 12 characters before first 'null' character"))
     public void testFamilyNameWithNullTermination() {
         // Remove asterisk from name to test valid null termination
         String famName = familyName.replace('*', Character.MIN_VALUE);
@@ -360,7 +355,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
      */
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.6.2.e.",
-                               description = "Engine family has <> 12 characters before first 'null' character"))
+            description = "Engine family has <> 12 characters before first 'null' character"))
     public void testFamilyNameWithNullTerminationGreaterThanTwelve() {
         // Remove asterisk from name to test valid null termination
         String famName = familyName.replace("*", "4");
@@ -422,8 +417,8 @@ public class Step06ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(value = { @TestItem(verifies = "6.1.6.2.b"),
             @TestItem(verifies = "6.1.6.2.c") },
-             description = "Indicates 'V' instead of 'E' for cert type" + "<br/>" + "&nbsp"
-                     + "Not formatted correctly")
+            description = "Indicates 'V' instead of 'E' for cert type" + "<br/>" + "&nbsp"
+                    + "Not formatted correctly")
 
     public void testModelYearField() {
         List<DM56EngineFamilyPacket> parsedPackets = Collections

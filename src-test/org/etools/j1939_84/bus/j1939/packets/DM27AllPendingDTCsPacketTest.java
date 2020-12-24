@@ -7,7 +7,6 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
-
 import org.etools.j1939_84.bus.Packet;
 import org.junit.Test;
 
@@ -15,7 +14,6 @@ import org.junit.Test;
  * The unit test for {@link DM27AllPendingDTCsPacket}
  *
  * @author Marianne Schaefer (marianne.schaefer@gmail.com)
- *
  */
 public class DM27AllPendingDTCsPacketTest {
 
@@ -282,10 +280,10 @@ public class DM27AllPendingDTCsPacketTest {
         int[] data = new int[] { 0x54, 0x4F, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06, 0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00 };
         Packet packet = Packet.create(DM27AllPendingDTCsPacket.PGN, 0x00, data);
         DM27AllPendingDTCsPacket instance = new DM27AllPendingDTCsPacket(packet);
-        String expected = "DM27 from Engine #1 (0): MIL: fast flash, RSL: slow flash, AWL: on, PL: off" + NL
-                + "DTC:  (609) Controller #2 Received Network Data In Error (19) 0 times" + NL
-                + "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 0 times" + NL
-                + "DTC:  (4334) Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure Voltage Below Normal, Or Shorted To Low Source (4) 0 times";
+        String expected = "DM27 from Engine #1 (0): MIL: fast flash, RSL: slow flash, AWL: on, PL: off" + NL +
+                "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL +
+                "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL +
+                "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times";
         assertEquals(expected, instance.toString());
     }
 

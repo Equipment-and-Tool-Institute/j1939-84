@@ -8,7 +8,6 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
-
 import org.etools.j1939_84.bus.Packet;
 import org.junit.Test;
 
@@ -16,7 +15,6 @@ import org.junit.Test;
  * Unit tests the {@link DM31DtcToLampAssociation} class
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 public class DM31DtcToLampAssociationTest {
 
@@ -47,7 +45,7 @@ public class DM31DtcToLampAssociationTest {
         String expected = "DM31 from Engine #1 (0): " + NL;
         expected += "DTC Lamp Statuses: [" + NL;
         expected += "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
-        expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 1 times" + NL;
+        expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 1 times" + NL;
         expected += "]";
         assertEquals(expected, instance.toString());
 
@@ -100,12 +98,11 @@ public class DM31DtcToLampAssociationTest {
         String expected = "DM31 from Engine #1 (0): " + NL;
         expected += "DTC Lamp Statuses: [" + NL;
         expected += "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
-        expected += "DTC:  (609) Controller #2 Received Network Data In Error (19) 1 times" + NL;
+        expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 1 times" + NL;
         expected += "MIL: off, RSL: other, AWL: off, PL: other" + NL;
-        expected += "DTC:  (1569) Engine Protection Torque Derate Condition Exists (31) 35 times" + NL;
+        expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 35 times" + NL;
         expected += "MIL: other, RSL: other, AWL: other, PL: other" + NL;
-        expected += "DTC:  (4334) Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure Voltage Below Normal, Or Shorted To Low Source (4) 0 times"
-                + NL;
+        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times" + NL;
         expected += "]";
         assertEquals(expected, instance.toString());
 

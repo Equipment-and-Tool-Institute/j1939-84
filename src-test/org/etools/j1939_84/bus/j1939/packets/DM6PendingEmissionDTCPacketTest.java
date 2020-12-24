@@ -26,11 +26,9 @@ public class DM6PendingEmissionDTCPacketTest {
         assertEquals(LampStatus.OFF, instance.getProtectLampStatus());
         assertEquals(LampStatus.OFF, instance.getRedStopLampStatus());
         assertEquals(LampStatus.OFF, instance.getMalfunctionIndicatorLampStatus());
-        StringBuilder expected = new StringBuilder(
-                "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL);
-        expected.append(
-                "DTC:  (6401) Engine Cylinder 2 Peak Pressure Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times");
-        assertEquals(expected.toString(), instance.toString());
+        String expected = "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL +
+                "DTC 6401:0 - Engine Cylinder 2 Peak Pressure, Data Valid But Above Normal Operational Range - Most Severe Level - 0 times";
+        assertEquals(expected, instance.toString());
         assertEquals(65231, DM6PendingEmissionDTCPacket.PGN);
     }
 
@@ -58,11 +56,9 @@ public class DM6PendingEmissionDTCPacketTest {
         assertEquals(LampStatus.ON, instance.getProtectLampStatus());
         assertEquals(LampStatus.ON, instance.getRedStopLampStatus());
         assertEquals(LampStatus.ON, instance.getMalfunctionIndicatorLampStatus());
-        StringBuilder expected = new StringBuilder(
-                "DM6 from Engine #1 (0): MIL: on, RSL: on, AWL: on, PL: on" + NL);
-        expected.append(
-                "DTC:  (4865) Special Ignitor Loop 38 - Resistance Data Valid But Above Normal Operational Range - Most Severe Level (0) 0 times");
-        assertEquals(expected.toString(), instance.toString());
+        String expected = "DM6 from Engine #1 (0): MIL: on, RSL: on, AWL: on, PL: on" + NL +
+                "DTC 4865:0 - Special Ignitor Loop 38 - Resistance, Data Valid But Above Normal Operational Range - Most Severe Level - 0 times";
+        assertEquals(expected, instance.toString());
         assertEquals(65231, DM6PendingEmissionDTCPacket.PGN);
     }
 
@@ -75,11 +71,9 @@ public class DM6PendingEmissionDTCPacketTest {
         assertEquals(LampStatus.FAST_FLASH, instance.getProtectLampStatus());
         assertEquals(LampStatus.SLOW_FLASH, instance.getRedStopLampStatus());
         assertEquals(LampStatus.OFF, instance.getMalfunctionIndicatorLampStatus());
-        StringBuilder expected = new StringBuilder(
-                "DM6 from Engine #1 (0): MIL: off, RSL: slow flash, AWL: off, PL: fast flash");
-        expected.append(NL)
-                .append("DTC:  (257) Cold Restart Of Specific Component Data Valid But Below Normal Operational Range - Most Severe Level (1) 1 times");
-        assertEquals(expected.toString(), instance.toString());
+        String expected = "DM6 from Engine #1 (0): MIL: off, RSL: slow flash, AWL: off, PL: fast flash" + NL +
+                "DTC 257:1 - Cold Restart Of Specific Component, Data Valid But Below Normal Operational Range - Most Severe Level - 1 times";
+        assertEquals(expected, instance.toString());
     }
 
 }

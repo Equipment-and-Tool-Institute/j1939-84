@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019. Equipment & Tool Institute
  */
 package org.etools.j1939_84.modules;
@@ -7,7 +7,6 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.Arrays;
 import java.util.List;
-
 import org.etools.j1939_84.controllers.PartResultRepository;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.IResult;
@@ -17,11 +16,10 @@ import org.etools.j1939_84.model.StepResult;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class SummaryModule {
 
-    private static final int LINE_LENGTH = 72;
+    private static final int LINE_LENGTH = 80;
 
     private static String dots(int length) {
         char[] charArray = new char[length];
@@ -31,22 +29,15 @@ public class SummaryModule {
 
     private final PartResultRepository partResultRepository;
 
-    /**
-     *
-     */
     public SummaryModule() {
         partResultRepository = PartResultRepository.getInstance();
     }
-
+    
     public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
         StepResult stepResult = getStepResult(partNumber, stepNumber);
         stepResult.addResult(new ActionOutcome(outcome, message));
     }
 
-    /**
-     * @param partResult
-     *            {@link PartResult} to be added to partResults
-     */
     public void beginPart(PartResult partResult) {
         getPartResults().add(partResult);
     }
@@ -108,20 +99,17 @@ public class SummaryModule {
         Outcome outcome = iResult.getOutcome();
         String result = "(" + outcome + ")";
 
-        if (!result.isEmpty()) {
-            int totalLength = name.length() + result.length() + 9;
+        //Name[...](Result) with min 3 dots
+        int totalLength = name.length() + result.length() + 3;
 
-            if (totalLength > LINE_LENGTH) {
-                int overrun = totalLength - LINE_LENGTH + 3;
-                name = name.substring(0, name.length() - overrun);
-            }
-
-            int dots = LINE_LENGTH - (name.length() + result.length() + 3);
-
-            return name + dots(dots) + result + NL;
-        } else {
-            return name + NL;
+        if (totalLength > LINE_LENGTH) {
+            int overrun = totalLength - LINE_LENGTH + 3;
+            name = name.substring(0, name.length() - overrun);
         }
+
+        int dots = LINE_LENGTH - (name.length() + result.length() + 3);
+
+        return name + dots(dots) + result + NL;
     }
 
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus;
@@ -19,13 +19,12 @@ public class MultiQueueTest {
     /** Add 10000 items from 25 different threads in less than 1 s */
     @Test(timeout = 1000)
     @TestDoc(description = "Verifies that 10,000 items can be added from 25 threads and all 250,000 items are read by one thread in less than 1 s.")
-    public void bandwidthTest() throws InterruptedException {
+    public void bandwidthTest()  {
         try (MultiQueue<Integer> queue = new MultiQueue<>()) {
             long COUNT = 10000;
             int THREADS = 25;
 
             Stream<Integer> stream = queue.stream(10, TimeUnit.SECONDS).limit(COUNT * THREADS);
-            queue.stream(10, TimeUnit.SECONDS).limit(COUNT * THREADS);
             ExecutorService e = Executors.newFixedThreadPool(THREADS);
             for (int thread = 0; thread < THREADS; thread++) {
                 e.execute(() -> {
@@ -41,7 +40,7 @@ public class MultiQueueTest {
         }
     }
 
-    @Test()
+    @SuppressWarnings("OptionalGetWithoutIsPresent") @Test()
     @TestDoc(description = "Verifies that the streams generated from the MultiQueue can correctly support multiple items, findFirst(), skip() and an empty stream.")
     public void simpleTest() throws BusException {
         try (MultiQueue<Integer> q = new MultiQueue<>()) {
@@ -140,7 +139,7 @@ public class MultiQueueTest {
                     for (int i = 0; i < 100; i++) {
                         try {
                             Thread.sleep(10);
-                        } catch (InterruptedException e) {
+                        } catch (InterruptedException ignored) {
                         }
                         q.add(i);
                     }
@@ -151,9 +150,9 @@ public class MultiQueueTest {
             Stream<Integer> s1 = q.stream(205, TimeUnit.MILLISECONDS);
             Stream<Integer> s2 = q.stream(405, TimeUnit.MILLISECONDS);
             // verify that roughly 20 packets were processed in 200 ms
-            assertEquals(20, s1.count(), 2);
+            assertEquals(20, s1.count(), 5);
             // verify that roughly 40 packets were processed in 200 ms
-            assertEquals(40, s2.count(), 2);
+            assertEquals(40, s2.count(), 5);
         }
     }
 }
