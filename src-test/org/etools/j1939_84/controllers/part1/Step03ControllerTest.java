@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -53,9 +53,6 @@ import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 @TestDoc(value = @TestItem(verifies = "Part 1 Step 3", description = "DM5: Diagnostic readiness 1"))
 @RunWith(MockitoJUnitRunner.class)
 public class Step03ControllerTest {
-
-    @Mock
-    private AcknowledgmentPacket acknowledgmentPacket;
 
     @Mock
     private BannerModule bannerModule;
@@ -117,9 +114,6 @@ public class Step03ControllerTest {
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
                         justification = "The method is called just to get some exception.")
-    /**
-     * Includes addWarning() verification for distinctCount > 1
-     */
     @TestDoc(value = {
             @TestItem(verifies = "6.1.3.2.b"),
             @TestItem(verifies = "6.1.3.3.a") },

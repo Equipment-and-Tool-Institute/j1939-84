@@ -18,7 +18,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -66,7 +65,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  * The unit test for {@link SectionA5Verifier}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class SectionA5VerifierTest extends AbstractControllerTest {
@@ -1129,15 +1127,14 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM33(dm33Packets, listener, obdModuleAddresses));
 
-        String expectedMessages = "Section A.5 verification failed during DM33 check done at table step 9.a" + NL
-                + "Pre DTC all clear code sent retrieved the DM33 packet :" + NL +
-                "   dm33Packet17.toString()" + NL + "   dm33Packet21.toString()" + NL +
-                "Post DTC all clear code sent retrieved the DM33 packet :" + NL +
-                "   DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime" + NL +
-                "EngineHoursTimer" + NL + "  EI-AECD Number = 1" + NL +
-                "  EI-AECD Engine Hours Timer 1 = 0 minutes" + NL +
-                "  EI-AECD Engine Hours Timer 2 = n/a" + NL + "   dm33Packet17.toString()" +
-                NL + "   dm33Packet21.toString()";
+        String expectedMessages = "Section A.5 verification failed during DM33 check done at table step 9.a" + NL;
+        expectedMessages += "Pre DTC all clear code sent retrieved the DM33 packet :" + NL;
+        expectedMessages += "   dm33Packet17.toString()" + NL + "   dm33Packet21.toString()" + NL;
+        expectedMessages += "Post DTC all clear code sent retrieved the DM33 packet :" + NL;
+        expectedMessages += "   DM33 Emission Increasing AECD Active Time" + NL;
+        expectedMessages += "EI-AECD Number = 1: Timer 1 = 0 minutes; Timer 2 = n/a" + NL;
+        expectedMessages += "   dm33Packet17.toString()" + NL;
+        expectedMessages += "   dm33Packet21.toString()";
         assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
@@ -1198,14 +1195,14 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         assertFalse(instance.verifyDM33(dm33Packets, listener, obdModuleAddresses));
 
-        String expectedMessages = "Section A.5 verification failed during DM33 check done at table step 9.a" + NL
-                + "Pre DTC all clear code sent retrieved the DM33 packet :" + NL +
-                "   dm33Packet17.toString()" + NL + "   dm33Packet21.toString()" + NL +
-                "Post DTC all clear code sent retrieved the DM33 packet :" + NL +
-                "   DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime" + NL +
-                "EngineHoursTimer" + NL + "  EI-AECD Number = 1" + NL +
-                "  EI-AECD Engine Hours Timer 1 = 0 minutes" + NL +
-                "  EI-AECD Engine Hours Timer 2 = n/a" + NL + "   dm33Packet17.toString()";
+        String expectedMessages = "Section A.5 verification failed during DM33 check done at table step 9.a" + NL;
+        expectedMessages += "Pre DTC all clear code sent retrieved the DM33 packet :" + NL;
+        expectedMessages += "   dm33Packet17.toString()" + NL;
+        expectedMessages += "   dm33Packet21.toString()" + NL;
+        expectedMessages += "Post DTC all clear code sent retrieved the DM33 packet :" + NL;
+        expectedMessages += "   DM33 Emission Increasing AECD Active Time" + NL;
+        expectedMessages += "EI-AECD Number = 1: Timer 1 = 0 minutes; Timer 2 = n/a" + NL;
+        expectedMessages += "   dm33Packet17.toString()";
         assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
@@ -1224,7 +1221,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
     /**
      * Test method for
-     *
+     * <p>
      * {@link org.etools.j1939_84.controllers.part1.SectionA5Verifier#verifyDM5(org.etools.j1939_84.controllers.ResultsListener)}.
      */
     @Test

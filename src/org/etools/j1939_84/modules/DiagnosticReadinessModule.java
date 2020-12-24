@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.modules;
@@ -14,10 +14,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.NumberFormatter;
 import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
@@ -35,20 +33,17 @@ import org.etools.j1939_84.model.RequestResult;
  * {@link FunctionalModule} that requests DM5, DM20, DM21, and DM26 messages
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class DiagnosticReadinessModule extends FunctionalModule {
-
-    public static final int TSCC_GAP_LIMIT = 60; // minutes
 
     /**
      * Condenses the input string by using abbreviations and removing
      * unnecessary words
      *
      * @param input
-     *            the input string
+     *         the input string
      * @param maxLen
-     *            the maximum length of the string
+     *         the maximum length of the string
      * @return a shorter version of the input string
      */
     private static String condense(String input, int maxLen) {
@@ -81,9 +76,9 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * composite
      *
      * @param monitoredSystems
-     *            the {@link MonitoredSystem}s to gather
+     *         the {@link MonitoredSystem}s to gather
      * @param isDM5
-     *            indicates if these systems are from a DM5 message
+     *         indicates if these systems are from a DM5 message
      * @return a List of {@link MonitoredSystem}
      */
     public static List<CompositeMonitoredSystem> getCompositeSystems(Collection<MonitoredSystem> monitoredSystems,
@@ -108,9 +103,9 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * {@link List} of {@link DiagnosticReadinessPacket}s
      *
      * @param packets
-     *            the Packets to parse
+     *         the Packets to parse
      * @param isDM5
-     *            true to indicate the packets are DM5s
+     *         true to indicate the packets are DM5s
      * @return a {@link List} of {@link MonitoredSystem}s
      */
     public static List<CompositeMonitoredSystem> getCompositeSystems(List<? extends DiagnosticReadinessPacket> packets,
@@ -125,12 +120,16 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * maximum value is returned.
      *
      * @param packets
-     *            the {@link Collection} of
-     *            {@link DM20MonitorPerformanceRatioPacket}
+     *         the {@link Collection} of
+     *         {@link DM20MonitorPerformanceRatioPacket}
      * @return int
      */
     public static int getIgnitionCycles(Collection<DM20MonitorPerformanceRatioPacket> packets) {
-        return packets.stream().mapToInt(p -> p.getIgnitionCycles()).filter(v -> v <= 0xFAFF).max().orElse(-1);
+        return packets.stream()
+                .mapToInt(DM20MonitorPerformanceRatioPacket::getIgnitionCycles)
+                .filter(v -> v <= 0xFAFF)
+                .max()
+                .orElse(-1);
     }
 
     /**
@@ -138,12 +137,16 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * Encountered from the packets. The maximum value is returned.
      *
      * @param packets
-     *            the {@link Collection} of
-     *            {@link DM20MonitorPerformanceRatioPacket}
+     *         the {@link Collection} of
+     *         {@link DM20MonitorPerformanceRatioPacket}
      * @return int
      */
     public static int getOBDCounts(Collection<DM20MonitorPerformanceRatioPacket> packets) {
-        return packets.stream().mapToInt(p -> p.getOBDConditionsCount()).filter(v -> v <= 0xFAFF).max().orElse(-1);
+        return packets.stream()
+                .mapToInt(DM20MonitorPerformanceRatioPacket::getOBDConditionsCount)
+                .filter(v -> v <= 0xFAFF)
+                .max()
+                .orElse(-1);
     }
 
     /**
@@ -151,9 +154,8 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * packets
      *
      * @param packets
-     *            the {@link Collection} of
-     *            {@link DM20MonitorPerformanceRatioPacket}
-     *
+     *         the {@link Collection} of
+     *         {@link DM20MonitorPerformanceRatioPacket}
      * @return {@link Set} of {@link PerformanceRatio}
      */
     public static Set<PerformanceRatio> getRatios(Collection<DM20MonitorPerformanceRatioPacket> packets) {
@@ -165,7 +167,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * {@link DiagnosticReadinessPacket}
      *
      * @param packets
-     *            the {@link Collection} of {@link DiagnosticReadinessPacket}
+     *         the {@link Collection} of {@link DiagnosticReadinessPacket}
      * @return {@link Set} of {@link MonitoredSystem}
      */
     public static Set<MonitoredSystem> getSystems(Collection<? extends DiagnosticReadinessPacket> packets) {
@@ -173,28 +175,14 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     }
 
     /**
-     * The source addresses of HD OBD Modules
-     */
-    private final Collection<Integer> obdModuleAddresses = new ArrayList<>();
-
-    /**
-     * Constructor
-     */
-    public DiagnosticReadinessModule() {
-        super();
-        obdModuleAddresses.add(J1939.ENGINE_ADDR);
-        obdModuleAddresses.add(1);
-    }
-
-    /**
      * Sends a global request for DM20 Packets. The request and results will be
      * returned to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener} for the results
+     *         the {@link ResultsListener} for the results
      * @param fullString
-     *            true to include the full string of the results in the report;
-     *            false to only include the returned raw packet in the report
+     *         true to include the full string of the results in the report;
+     *         false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM20MonitorPerformanceRatioPacket}s
      */
     public List<DM20MonitorPerformanceRatioPacket> getDM20Packets(ResultsListener listener,
@@ -211,13 +199,13 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * results will be returned to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener} for the results
+     *         the {@link ResultsListener} for the results
      * @param fullString
-     *            true to include the full string of the results in the report;
-     *            false to only include the returned raw packet in the report
+     *         true to include the full string of the results in the report;
+     *         false to only include the returned raw packet in the report
      * @param obdModuleAddress
-     *            the address to which the destination specific request will be
-     *            sent
+     *         the address to which the destination specific request will be
+     *         sent
      * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
      */
     public BusResult<DM21DiagnosticReadinessPacket> getDM21Packets(ResultsListener listener, boolean fullString,
@@ -235,10 +223,10 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * returned to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener} for the results
+     *         the {@link ResultsListener} for the results
      * @param fullString
-     *            true to include the full string of the results in the report;
-     *            false to only include the returned raw packet in the report
+     *         true to include the full string of the results in the report;
+     *         false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM26TripDiagnosticReadinessPacket}s
      */
     public List<DM26TripDiagnosticReadinessPacket> getDM26Packets(ResultsListener listener,
@@ -257,10 +245,10 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * returned to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener} for the results
+     *         the {@link ResultsListener} for the results
      * @param fullString
-     *            true to include the full string of the results in the report;
-     *            false to only include the returned raw packet in the report
+     *         true to include the full string of the results in the report;
+     *         false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM5DiagnosticReadinessPacket}s
      */
     public List<DM5DiagnosticReadinessPacket> getDM5Packets(ResultsListener listener, boolean fullString) {
@@ -276,14 +264,14 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * {@link List} of source addresses of the modules that do support HD-OBD.
      *
      * @param listener
-     *            the {@link ResultsListener} that is notified of the
-     *            communications
+     *         the {@link ResultsListener} that is notified of the
+     *         communications
      * @return List of source addresses
      */
     public List<Integer> getOBDModules(ResultsListener listener) {
         List<DM5DiagnosticReadinessPacket> packets = getDM5Packets(listener, false);
-        List<Integer> addresses = packets.stream().filter(t -> t.isHdObd())
-                .map(t -> t.getSourceAddress())
+        List<Integer> addresses = packets.stream().filter(DM5DiagnosticReadinessPacket::isHdObd)
+                .map(ParsedPacket::getSourceAddress)
                 .sorted()
                 .distinct()
                 .collect(Collectors.toList());
@@ -302,7 +290,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * space on the right if necessary
      *
      * @param system
-     *            the {@link MonitoredSystem} to pad
+     *         the {@link MonitoredSystem} to pad
      * @return String with extra space on the right
      */
     private String getPaddedStatus(MonitoredSystem system) {
@@ -319,9 +307,9 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * Pads the String with spaces on the left
      *
      * @param string
-     *            the String to pad
+     *         the String to pad
      * @param length
-     *            the maximum number of spaces
+     *         the maximum number of spaces
      * @return the padded string
      */
     private String padLeft(String string, int length) {
@@ -332,9 +320,9 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * Pads the String with spaces on the right
      *
      * @param string
-     *            the String to pad
+     *         the String to pad
      * @param length
-     *            the maximum number of spaces
+     *         the maximum number of spaces
      * @return the padded string
      */
     private String padRight(String string, int length) {
@@ -346,7 +334,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * back to the supplied listener
      *
      * @param listener
-     *            the {@link ResultsListener} that will be notified of results
+     *         the {@link ResultsListener} that will be notified of results
      * @return true if packets were received
      */
     public boolean reportDM20(ResultsListener listener) {
@@ -359,8 +347,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * back to the supplied listener
      *
      * @param listener
-     *            the {@link ResultsListener} that will be notified of results
-     *
+     *         the {@link ResultsListener} that will be notified of results
      * @return true if packets were received
      */
     public boolean reportDM21(ResultsListener listener) {
@@ -374,7 +361,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * for the report. The results are reported back to the supplied listener
      *
      * @param listener
-     *            the {@link ResultsListener} that will be notified of results
+     *         the {@link ResultsListener} that will be notified of results
      * @return true if packets were received
      */
     public boolean reportDM26(ResultsListener listener) {
@@ -383,7 +370,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
             listener.onResult("");
             listener.onResult("Vehicle Composite of DM26:");
             List<CompositeMonitoredSystem> systems = getCompositeSystems(packets, false);
-            listener.onResult(systems.stream().map(t -> t.toString()).collect(Collectors.toList()));
+            listener.onResult(systems.stream().map(MonitoredSystem::toString).collect(Collectors.toList()));
         }
         return !packets.isEmpty();
     }
@@ -394,7 +381,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * for the report. The results are reported back to the supplied listener
      *
      * @param listener
-     *            the {@link ResultsListener} that will be notified of results
+     *         the {@link ResultsListener} that will be notified of results
      * @return true if packets were received
      */
     public boolean reportDM5(ResultsListener listener) {
@@ -403,7 +390,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
             listener.onResult("");
             listener.onResult("Vehicle Composite of DM5:");
             List<CompositeMonitoredSystem> systems = getCompositeSystems(packets, true);
-            listener.onResult(systems.stream().map(t -> t.toString()).collect(Collectors.toList()));
+            listener.onResult(systems.stream().map(MonitoredSystem::toString).collect(Collectors.toList()));
         }
         return !packets.isEmpty();
     }
@@ -413,17 +400,17 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * values. The results are returned to the listener
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the table
+     *         the {@link ResultsListener} that will be given the table
      * @param initialValues
-     *            the {@link Collection} of {@link MonitoredSystem} that were
-     *            gathered when the process started
+     *         the {@link Collection} of {@link MonitoredSystem} that were
+     *         gathered when the process started
      * @param finalValues
-     *            the {@link Collection} of {@link MonitoredSystem} that were
-     *            last gathered in the process
+     *         the {@link Collection} of {@link MonitoredSystem} that were
+     *         last gathered in the process
      * @param initialTime
-     *            the formatted time when the process started
+     *         the formatted time when the process started
      * @param finalTime
-     *            the formatted time when the process ended
+     *         the formatted time when the process ended
      */
     public void reportMonitoredSystems(ResultsListener listener,
             Collection<MonitoredSystem> initialValues,
@@ -467,27 +454,27 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * table format. The results are returned to the listener.
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the table
+     *         the {@link ResultsListener} that will be given the table
      * @param initialValues
-     *            the {@link Collection} of {@link PerformanceRatio} that were
-     *            gathered when the process started
+     *         the {@link Collection} of {@link PerformanceRatio} that were
+     *         gathered when the process started
      * @param finalValues
-     *            the {@link Collection} of {@link PerformanceRatio} that were
-     *            last gathered by the process
+     *         the {@link Collection} of {@link PerformanceRatio} that were
+     *         last gathered by the process
      * @param initialIgnitionCycles
-     *            the initial value of the number of Ignition Cycles
+     *         the initial value of the number of Ignition Cycles
      * @param finalIgnitionCycles
-     *            the final value of the number of Ignition Cycles
+     *         the final value of the number of Ignition Cycles
      * @param initialObdCounts
-     *            the initial value of the number of OBD Monitoring Conditions
-     *            Encountered
+     *         the initial value of the number of OBD Monitoring Conditions
+     *         Encountered
      * @param finalObdCounts
-     *            the final value of the number of OBD Monitoring Conditions
-     *            Encountered
+     *         the final value of the number of OBD Monitoring Conditions
+     *         Encountered
      * @param initialTime
-     *            the formatted time when the process started
+     *         the formatted time when the process started
      * @param finalTime
-     *            the formatted time when the process ended
+     *         the formatted time when the process ended
      */
     public void reportPerformanceRatios(ResultsListener listener,
             Collection<PerformanceRatio> initialValues,
@@ -500,8 +487,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
             String finalTime) {
 
         // Sorts the lists by Source then by Ratio Name
-        Comparator<? super PerformanceRatio> comparator = (o1, o2) -> (o1.getSource() + " " + o1.getName())
-                .compareTo(o2.getSource() + " " + o2.getName());
+        Comparator<? super PerformanceRatio> comparator = Comparator.comparing(o -> (o.getSource() + " " + o.getName()));
 
         List<PerformanceRatio> startingRatios = new ArrayList<>(initialValues);
         startingRatios.sort(comparator);
@@ -589,10 +575,10 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * returned to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener} for the results
+     *         the {@link ResultsListener} for the results
      * @param fullString
-     *            true to include the full string of the results in the report;
-     *            false to only include the returned raw packet in the report
+     *         true to include the full string of the results in the report;
+     *         false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM20MonitorPerformanceRatioPacket}s
      */
     public RequestResult<DM20MonitorPerformanceRatioPacket> requestDM20(ResultsListener listener,
@@ -609,10 +595,10 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * results will be returned to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener} for the results
+     *         the {@link ResultsListener} for the results
      * @param fullString
-     *            true to include the full string of the results in the report;
-     *            false to only include the returned raw packet in the report
+     *         true to include the full string of the results in the report;
+     *         false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM20MonitorPerformanceRatioPacket}s
      */
     public BusResult<DM20MonitorPerformanceRatioPacket> requestDM20(ResultsListener listener,
@@ -631,10 +617,10 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * returned to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener} for the results
+     *         the {@link ResultsListener} for the results
      * @param fullString
-     *            true to include the full string of the results in the report;
-     *            false to only include the returned raw packet in the report
+     *         true to include the full string of the results in the report;
+     *         false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
      */
     public RequestResult<DM21DiagnosticReadinessPacket> requestDM21Packets(ResultsListener listener,
@@ -651,10 +637,10 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * returned to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener} for the results
+     *         the {@link ResultsListener} for the results
      * @param fullString
-     *            true to include the full string of the results in the report;
-     *            false to only include the returned raw packet in the report
+     *         true to include the full string of the results in the report;
+     *         false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM5DiagnosticReadinessPacket}s
      */
     public RequestResult<DM5DiagnosticReadinessPacket> requestDM5(ResultsListener listener,
@@ -672,13 +658,12 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * be returned to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener} for the results
+     *         the {@link ResultsListener} for the results
      * @param fullString
-     *            true to include the full string of the results in the report;
-     *            false to only include the returned raw packet in the report
+     *         true to include the full string of the results in the report;
+     *         false to only include the returned raw packet in the report
      * @param obdAddress
-     *            address of module to which request is to be made
-     *
+     *         address of module to which request is to be made
      * @return the {@link List} of {@link DM5DiagnosticReadinessPacket}s
      */
     public BusResult<DM5DiagnosticReadinessPacket> requestDM5(ResultsListener listener, boolean fullString,
@@ -697,10 +682,10 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * returned to the {@link ResultsListener}
      *
      * @param listener
-     *            the {@link ResultsListener} for the results
+     *         the {@link ResultsListener} for the results
      * @param fullString
-     *            true to include the full string of the results in the report;
-     *            false to only include the returned raw packet in the report
+     *         true to include the full string of the results in the report;
+     *         false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM5DiagnosticReadinessPacket}s
      */
     public RequestResult<DM5DiagnosticReadinessPacket> requestDM5Packets(ResultsListener listener, boolean fullString) {
@@ -709,14 +694,14 @@ public class DiagnosticReadinessModule extends FunctionalModule {
                 DM5DiagnosticReadinessPacket.class,
                 listener,
                 fullString)
-                        // FIXME this ignores NACKs
-                        .getPackets();
+                // FIXME this ignores NACKs
+                .getPackets();
 
         if (!parsedPackets.isEmpty()) {
             listener.onResult("");
             listener.onResult("Vehicle Composite of DM5:");
             List<CompositeMonitoredSystem> systems = getCompositeSystems(parsedPackets, true);
-            listener.onResult(systems.stream().map(t -> t.toString()).collect(Collectors.toList()));
+            listener.onResult(systems.stream().map(MonitoredSystem::toString).collect(Collectors.toList()));
         }
         return new RequestResult<>(false, parsedPackets, Collections.emptyList());
     }

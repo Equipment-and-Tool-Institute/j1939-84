@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -24,14 +24,9 @@ import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
-import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -60,7 +55,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
     private static final String COLON_SPACE = ": ";
 
-    private static final String EXPECTEC_WARN_MESSAGE_3_D = "6.1.9.3.d Model field (SPN 587) is less than 1 character long";
+    private static final String EXPECTED_WARN_MESSAGE_3_D = "6.1.9.3.d Model field (SPN 587) is less than 1 character long";
 
     private static final String EXPECTED_FAIL_MESSAGE_1_A = "6.1.9.1.a There are no positive responses (serial number SPN 588 not supported by any OBD ECU)";
 
@@ -70,11 +65,11 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
     private static final String EXPECTED_FAIL_MESSAGE_2_D = "6.1.9.2.d The make (SPN 586), model (SPN 587), or serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters";
 
-    private static final String EXPECTED_FAIL_MESSAGE_5_A = "6.1.9.5.a Fail if there is no positive response from function 0. (Global request not supported or timed out)";
+    private static final String EXPECTED_FAIL_MESSAGE_5_A = "6.1.9.5.a There is no positive response from function 0";
 
-    private static final String EXPECTED_FAIL_MESSAGE_5_B = "6.1.9.5.b  Fail if the global response does not match the destination specific response from function 0";
+    private static final String EXPECTED_FAIL_MESSAGE_5_B = "6.1.9.5.b Global response does not match the destination specific response from function 0";
 
-    private static final String EXPECTED_FAIL_MESSAGE_6_A = "6.1.9.6.a Component ID not supported for the global query in 6.1.9.4, when supported by destination specific query";
+    private static final String EXPECTED_FAIL_MESSAGE_6_A = "6.1.9.6.a Component ID not supported for the global query, when supported by destination specific query";
 
     private static final String EXPECTED_WARN_MESSAGE_3_A = "6.1.9.3.a Serial number field (SPN 588) from any function 0 device is less than 8 characters long";
 
@@ -82,8 +77,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
     private static final String EXPECTED_WARN_MESSAGE_3_C = "6.1.9.3.c Make field (SPN 586) is less than 2 ASCII characters";
 
-    private static final String EXPECTED_WARN_MESSAGE_4_A_4_B = "6.1.9.4.a & 6.1.9.4.b Global Componenet ID request(PGN 59904) for PGN 65259 (SPNs 586, 587, and 588)"
-            + NL + "  did not recieve any packets back to filter for display in the log";
+    private static final String EXPECTED_WARN_MESSAGE_4_A_4_B = "6.1.9.4.a & 6.1.9.4.b Global Component ID request for PGN 65259 did not receive any packets";
 
     private static final int PART_NUMBER = 1;
 
@@ -113,9 +107,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         return packet;
     }
-
-    @Mock
-    private AcknowledgmentPacket acknowledgmentPacket;
 
     @Mock
     private BannerModule bannerModule;
@@ -148,15 +139,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    private OBDModuleInformation createOBDModuleInformation(Integer sourceAddress,
-            Integer function,
-            Byte obdCompliance,
-            List<CalibrationInformation> calibrationInfoList,
-            List<SupportedSPN> dataStreamSpns,
-            List<SupportedSPN> freezeFrameSpns,
-            List<SupportedSPN> supportedSpns,
-            List<SupportedSPN> testResultSpns,
-            List<ScaledTestResult> scaledTestResult) {
+    private OBDModuleInformation createOBDModuleInformation(Integer sourceAddress, Integer function) {
         OBDModuleInformation module = mock(OBDModuleInformation.class);
         if (sourceAddress != null) {
             when(module.getSourceAddress()).thenReturn(sourceAddress);
@@ -164,22 +147,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
         if (function != null) {
             when(module.getFunction()).thenReturn(function);
         }
-        if (calibrationInfoList != null) {
-            when(module.getCalibrationInformation()).thenReturn(calibrationInfoList);
-        }
-        if (dataStreamSpns != null) {
-            when(module.getDataStreamSpns()).thenReturn(dataStreamSpns);
-        }
-        if (freezeFrameSpns != null) {
-            when(module.getFreezeFrameSpns()).thenReturn(freezeFrameSpns);
-        }
-        if (supportedSpns != null) {
-            when(module.getSupportedSpns()).thenReturn(supportedSpns);
-        }
-        if (testResultSpns != null) {
-            when(module.getTestResultSpns()).thenReturn(testResultSpns);
-        }
-
         return module;
     }
 
@@ -290,14 +257,12 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder(
-                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_1_A + NL);
-        expectedResults.append(WARN.toString() + COLON_SPACE + functionZeroWarning + NL)
-                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_B + NL)
-                .append(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A + NL)
-                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A + NL)
-                .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        String expectedResults = FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_1_A + NL + WARN.toString() + COLON_SPACE + functionZeroWarning + NL +
+                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_B + NL +
+                WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A + NL +
+                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A + NL +
+                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B + NL;
+        assertEquals(expectedResults, listener.getResults());
 
     }
 
@@ -309,7 +274,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGetStepNumber() {
-
         assertEquals(STEP_NUMBER, instance.getStepNumber());
     }
 
@@ -319,7 +283,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testGloabalRequestDoesNotMatchDestinationSpecificRequest() {
+    public void testGlobalRequestDoesNotMatchDestinationSpecificRequest() {
 
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
                 "Bat",
@@ -347,17 +311,17 @@ public class Step09ControllerTest extends AbstractControllerTest {
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<ComponentIdentificationPacket>(false, Optional.empty()));
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<ComponentIdentificationPacket>(false, Optional.empty()));
+                .thenReturn(new BusResult<>(false, Optional.empty()));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<ComponentIdentificationPacket>(false, Optional.empty()));
+                .thenReturn(new BusResult<>(false, Optional.empty()));
 
         List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
+                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -392,12 +356,11 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder(
-                WARN.toString().trim() + COLON_SPACE + EXPECTED_WARN_MESSAGE_4_A_4_B + NL)
-                        .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A + NL)
-                        .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B + NL)
-                        .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_6_A + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        String expectedResults = WARN.toString().trim() + COLON_SPACE + EXPECTED_WARN_MESSAGE_4_A_4_B + NL +
+                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A + NL +
+                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B + NL +
+                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_6_A + NL;
+        assertEquals(expectedResults, listener.getResults());
     }
 
     @Test
@@ -433,7 +396,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
+                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -490,7 +453,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
+                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -515,9 +478,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder(
-                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D + NL, listener.getResults());
     }
 
     @Test
@@ -555,7 +516,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
+                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -581,9 +542,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder(
-                WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_B + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_B + NL, listener.getResults());
 
     }
 
@@ -620,7 +579,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
+                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -644,9 +603,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder(
-                WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_B + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_B + NL, listener.getResults());
     }
 
     @Test
@@ -682,7 +639,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
+                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -708,9 +665,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
-        StringBuilder expectedResults = new StringBuilder(
-                WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_C + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_C + NL, listener.getResults());
 
     }
 
@@ -748,7 +703,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
+                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -772,11 +727,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
         verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
-        StringBuilder expectedResults = new StringBuilder(
-                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D + NL);
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D + NL, listener.getResults());
     }
 
     @Test
@@ -812,7 +765,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
+                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -821,12 +774,12 @@ public class Step09ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
         verify(dataRepository).getObdModules();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTEC_WARN_MESSAGE_3_D);
-        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTEC_WARN_MESSAGE_3_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_D);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_D);
 
         verify(reportFileModule).onProgress(0, PART_NUMBER, "");
 
-        verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTEC_WARN_MESSAGE_3_D);
+        verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_D);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -837,9 +790,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder(
-                WARN.toString() + COLON_SPACE + EXPECTEC_WARN_MESSAGE_3_D + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_D + NL, listener.getResults());
 
     }
 
@@ -886,7 +837,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
+                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -911,9 +862,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder(
-                WARN.toString() + COLON_SPACE + expected2ModulesWarnMessage + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals(WARN.toString() + COLON_SPACE + expected2ModulesWarnMessage + NL, listener.getResults());
     }
 
     @Test
@@ -949,7 +898,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
+                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -985,12 +934,11 @@ public class Step09ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
-        StringBuilder expectedResults = new StringBuilder(
-                WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_4_A_4_B + NL)
-                        .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A + NL)
-                        .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B + NL)
-                        .append(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_6_A + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        String expectedResults = WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_4_A_4_B + NL +
+                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A + NL +
+                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B + NL +
+                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_6_A + NL;
+        assertEquals(expectedResults, listener.getResults());
     }
 
     @Test
@@ -1027,7 +975,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
+                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -1054,9 +1002,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder(
-                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D + NL, listener.getResults());
     }
 
     @Test
@@ -1092,7 +1038,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
+                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -1122,10 +1068,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
-        StringBuilder expectedResults = new StringBuilder(
-                WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A + NL);
-
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A + NL, listener.getResults());
 
     }
 
@@ -1162,7 +1105,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue(), (byte) 0, null, null, null, null, null, null));
+                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -1187,8 +1130,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        StringBuilder expectedResults = new StringBuilder(
-                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_C + NL);
-        assertEquals(expectedResults.toString(), listener.getResults());
+        assertEquals(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_C + NL, listener.getResults());
     }
 }

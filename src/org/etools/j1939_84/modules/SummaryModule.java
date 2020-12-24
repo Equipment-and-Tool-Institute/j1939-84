@@ -32,7 +32,7 @@ public class SummaryModule {
     public SummaryModule() {
         partResultRepository = PartResultRepository.getInstance();
     }
-    
+
     public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
         StepResult stepResult = getStepResult(partNumber, stepNumber);
         stepResult.addResult(new ActionOutcome(outcome, message));

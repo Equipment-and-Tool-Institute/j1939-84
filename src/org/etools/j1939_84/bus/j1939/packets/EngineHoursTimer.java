@@ -1,15 +1,12 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
-
-import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.Objects;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 public class EngineHoursTimer {
 
@@ -36,8 +33,8 @@ public class EngineHoursTimer {
 
     public EngineHoursTimer(byte[] bytes) {
         eiAecdNumber = bytes[0];
-        eiAecdTimer1 = getScaledLongValue(bytes, 1, 1);
-        eiAecdTimer2 = getScaledLongValue(bytes, 5, 1);
+        eiAecdTimer1 = getScaledLongValue(bytes, 1);
+        eiAecdTimer2 = getScaledLongValue(bytes, 5);
     }
 
     @Override
@@ -63,11 +60,11 @@ public class EngineHoursTimer {
      * index+2, and index+3
      *
      * @param i
-     *            the index
+     *         the index
      * @return int
      */
     private long get32(byte[] bytes, int i) {
-        return ((bytes[i + 3] & 0xFF) << 24) | ((bytes[i + 2] & 0xFF) << 16) | ((bytes[i + 1] & 0xFF) << 8)
+        return ((long) (bytes[i + 3] & 0xFF) << 24) | ((bytes[i + 2] & 0xFF) << 16) | ((bytes[i + 1] & 0xFF) << 8)
                 | (bytes[i] & 0xFF);
     }
 
@@ -96,7 +93,7 @@ public class EngineHoursTimer {
      * Helper method to get four bytes at the given index
      *
      * @param index
-     *            the index of the byte to get
+     *         the index of the byte to get
      * @return four byte
      */
     private long getLong(byte[] bytes, int index) {
@@ -109,20 +106,18 @@ public class EngineHoursTimer {
      * instead
      *
      * @param index
-     *            the index of the value
-     * @param divisor
-     *            the divisor for scaling
+     *         the index of the value
      * @return long
      */
-    private long getScaledLongValue(byte[] bytes, int index, long divisor) {
+    private long getScaledLongValue(byte[] bytes, int index) {
         byte upperByte = bytes[index + 3];
         switch (upperByte) {
-        case (byte) 0xFF:
-            return NOT_AVAILABLE;
-        case (byte) 0xFE:
-            return ERROR;
-        default:
-            return getLong(bytes, index) / divisor;
+            case (byte) 0xFF:
+                return NOT_AVAILABLE;
+            case (byte) 0xFE:
+                return ERROR;
+            default:
+                return getLong(bytes, index);
         }
     }
 
@@ -133,14 +128,8 @@ public class EngineHoursTimer {
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("EngineHoursTimer");
-        sb.append(NL)
-                .append("  EI-AECD Number = ")
-                .append(eiAecdNumber)
-                .append(NL)
-                .append("  EI-AECD Engine Hours Timer 1 = " + timerToString(eiAecdTimer1) + NL)
-                .append("  EI-AECD Engine Hours Timer 2 = " + timerToString(eiAecdTimer2));
-        return sb.toString();
+        return "EI-AECD Number = " + eiAecdNumber + ": Timer 1 = " + timerToString(eiAecdTimer1) + "; Timer 2 = " + timerToString(
+                eiAecdTimer2);
     }
 
 }

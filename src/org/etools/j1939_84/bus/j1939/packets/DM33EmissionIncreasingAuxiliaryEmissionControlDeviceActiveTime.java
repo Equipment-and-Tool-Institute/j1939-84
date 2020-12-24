@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -53,10 +53,8 @@ public class DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime exte
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime");
-        getEiAecdEngineHoursTimers().forEach(timer -> {
-            sb.append(NL).append(timer.toString());
-        });
+        StringBuilder sb = new StringBuilder("DM33 Emission Increasing AECD Active Time");
+        getEiAecdEngineHoursTimers().forEach(timer -> sb.append(NL).append(timer.toString()));
         return sb.toString();
     }
 

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -13,19 +13,15 @@ import org.junit.Test;
 /**
  * Unit tests the
  * {@link DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime} class
- * 
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  *
+ * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  */
 public class DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTimeTest {
 
     private DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime instance;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         // 1 good one with two good timers
         byte[] data = { 0x01, 0x2B, 0x0B, 0x01, 0x00, 0x2B, (byte) 0xC4, 0x0B, 0x00,
                 // 1 with FE for timer 1 and FF for timer 2
@@ -39,10 +35,6 @@ public class DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTimeTest 
         instance = new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(packet);
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime#getEiAecdEngineHoursTimers()}.
-     */
     @Test
     public void testGetEiAecdEngineHoursTimers() {
         assertEquals(4, instance.getEiAecdEngineHoursTimers().size());
@@ -62,55 +54,19 @@ public class DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTimeTest 
         assertEquals(expectedEngineHoursTimer3, instance.getEiAecdEngineHoursTimers().get(3));
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime#getName()}.
-     */
     @Test
     public void testGetName() {
         assertEquals("DM33", instance.getName());
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime#toString()}.
-     */
     @Test
     public void testToString() {
-        StringBuilder expected = new StringBuilder("DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime");
-        expected.append(NL)
-                .append("EngineHoursTimer")
-                .append(NL)
-                .append("  EI-AECD Number = 1")
-                .append(NL)
-                .append("  EI-AECD Engine Hours Timer 1 = 68395 minutes")
-                .append(NL)
-                .append("  EI-AECD Engine Hours Timer 2 = 771115 minutes")
-                .append(NL)
-                .append("EngineHoursTimer")
-                .append(NL)
-                .append("  EI-AECD Number = 2")
-                .append(NL)
-                .append("  EI-AECD Engine Hours Timer 1 = errored")
-                .append(NL)
-                .append("  EI-AECD Engine Hours Timer 2 = n/a")
-                .append(NL)
-                .append("EngineHoursTimer")
-                .append(NL)
-                .append("  EI-AECD Number = 3")
-                .append(NL)
-                .append("  EI-AECD Engine Hours Timer 1 = errored")
-                .append(NL)
-                .append("  EI-AECD Engine Hours Timer 2 = 199468 minutes")
-                .append(NL)
-                .append("EngineHoursTimer")
-                .append(NL)
-                .append("  EI-AECD Number = 4")
-                .append(NL)
-                .append("  EI-AECD Engine Hours Timer 1 = errored")
-                .append(NL)
-                .append("  EI-AECD Engine Hours Timer 2 = n/a");
-        assertEquals(expected.toString(), instance.toString());
+        String expected = "DM33 Emission Increasing AECD Active Time" + NL;
+        expected += "EI-AECD Number = 1: Timer 1 = 68395 minutes; Timer 2 = 771115 minutes" + NL;
+        expected += "EI-AECD Number = 2: Timer 1 = errored; Timer 2 = n/a" + NL;
+        expected += "EI-AECD Number = 3: Timer 1 = errored; Timer 2 = 199468 minutes" + NL;
+        expected += "EI-AECD Number = 4: Timer 1 = errored; Timer 2 = n/a";
+        assertEquals(expected, instance.toString());
     }
 
 }

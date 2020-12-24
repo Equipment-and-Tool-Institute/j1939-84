@@ -1,13 +1,14 @@
+/*
+ * Copyright (c) 2020. Electronic Tools Institute
+ */
 package org.etools.j1939_84.controllers.part1;
 
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.stream.Stream;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
-import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -63,15 +64,12 @@ public class Step03Controller extends StepController {
             addFailure(1, 3, "6.1.3.2.b - The request for DM5 was NACK'ed");
         }
 
-        Stream<DM5DiagnosticReadinessPacket> dm5Packets = response.getPackets().stream();
-        dm5Packets.filter(p -> p.isObd()).forEach(p -> {
+        response.getPackets().stream()
+                .filter(DM5DiagnosticReadinessPacket::isObd)
+                .forEach(p -> {
             OBDModuleInformation info = new OBDModuleInformation(p.getSourceAddress());
             info.setObdCompliance(p.getOBDCompliance());
-            info.setMontioredSystems(new HashSet<MonitoredSystem>() {
-                {
-                    addAll(p.getMonitoredSystems());
-                }
-            });
+            info.setMontioredSystems(new HashSet<>(p.getMonitoredSystems()));
             dataRepository.putObdModule(p.getSourceAddress(), info);
         });
 
