@@ -208,7 +208,7 @@ public class J1939Test {
     @Test
     public void testCreateRequestPacket() {
         Packet actual = instance.createRequestPacket(12345, 0x99);
-        assertEquals(0xEA99, actual.getId());
+        assertEquals(0xEA99, actual.getId(0xFFFF));
         assertEquals(BUS_ADDR, actual.getSource());
         assertEquals(12345, actual.get24(0));
     }
@@ -254,7 +254,7 @@ public class J1939Test {
 
         verify(bus).send(sendPacketCaptor.capture());
         Packet request = sendPacketCaptor.getValue();
-        assertEquals(DM7CommandTestsPacket.PGN, request.getId());
+        assertEquals(DM7CommandTestsPacket.PGN, request.getPgn());
         assertEquals(BUS_ADDR, request.getSource());
     }
 
@@ -278,7 +278,7 @@ public class J1939Test {
 
         verify(bus, times(3)).send(sendPacketCaptor.capture());
         Packet request = sendPacketCaptor.getValue();
-        assertEquals(DM7CommandTestsPacket.PGN, request.getId());
+        assertEquals(DM7CommandTestsPacket.PGN, request.getPgn());
         assertEquals(BUS_ADDR, request.getSource());
     }
 
@@ -304,7 +304,7 @@ public class J1939Test {
 
         verify(bus, times(3)).send(sendPacketCaptor.capture());
         Packet request = sendPacketCaptor.getValue();
-        assertEquals(DM7CommandTestsPacket.PGN, request.getId());
+        assertEquals(DM7CommandTestsPacket.PGN, request.getPgn());
         assertEquals(BUS_ADDR, request.getSource());
     }
 
@@ -441,7 +441,7 @@ public class J1939Test {
         List<Packet> packets = sendPacketCaptor.getAllValues();
         assertEquals(1, packets.size());
         Packet request = packets.get(0);
-        assertEquals(0xEAFF, request.getId());
+        assertEquals(0xEAFF, request.getId(0xFFFF));
         assertEquals(BUS_ADDR, request.getSource());
         assertEquals(DM11ClearActiveDTCsPacket.PGN, request.get24(0));
     }

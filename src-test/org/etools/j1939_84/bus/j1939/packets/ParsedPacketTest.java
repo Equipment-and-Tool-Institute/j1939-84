@@ -90,9 +90,10 @@ public class ParsedPacketTest {
 
     @Test
     public void testGetName() {
-        Packet packet = Packet.create(0x123456, 0, 0);
+        int pgn = 0xFEDC;
+        Packet packet = Packet.create(pgn, 0, 0);
         ParsedPacket instance = new ParsedPacket(packet);
-        assertEquals("1193046", instance.getName());
+        assertEquals(String.valueOf(pgn), instance.getName());
     }
 
     @Test
@@ -167,9 +168,10 @@ public class ParsedPacketTest {
 
     @Test
     public void testGetStringPrefix() {
-        Packet packet = Packet.create(0x123456, 23, 0);
+        int pgn = 0xFEDC;
+        Packet packet = Packet.create(pgn, 23, 0);
         ParsedPacket instance = new ParsedPacket(packet);
-        assertEquals("1193046 from Instrument Cluster #1 (23): ", instance.getStringPrefix());
+        assertEquals(String.valueOf(pgn) + " from Instrument Cluster #1 (23): ", instance.getStringPrefix());
     }
 
     @Test

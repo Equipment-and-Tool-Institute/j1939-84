@@ -202,15 +202,15 @@ public class RP1210Bus implements Bus {
      *            the {@link Packet} to encode
      * @return a byte array of the encoded packet
      */
-    @SuppressWarnings("deprecation")
     private byte[] encode(Packet packet) {
         byte[] buf = new byte[packet.getLength() + 6];
-        buf[0] = (byte) packet.getId();
-        buf[1] = (byte) (packet.getId() >> 8);
-        buf[2] = (byte) (packet.getId() >> 16);
+        int id = packet.getId(0xFFFF);
+        buf[0] = (byte) id;
+        buf[1] = (byte) (id >> 8);
+        buf[2] = (byte) (id >> 16);
         buf[3] = (byte) packet.getPriority();
         buf[4] = (byte) packet.getSource();
-        buf[5] = (packet.getId() < 0xF000) ? (byte) (packet.getId() & 0xFF) : 0;
+        buf[5] = (id < 0xF000) ? (byte) (id & 0xFF) : 0;
         for (int i = 0; i < packet.getLength(); i++) {
             buf[6 + i] = (byte) packet.get(i);
         }

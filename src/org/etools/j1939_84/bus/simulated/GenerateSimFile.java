@@ -62,7 +62,7 @@ public class GenerateSimFile {
             49408,
             64950,
             64711,
-            58112,  // DM7
+            58112, // DM7
             0xA400, // DM30
             0xFED0, // DM8
             0xFECA, // DM1
@@ -70,7 +70,7 @@ public class GenerateSimFile {
     );
 
     static public Integer getPgn(Packet p) {
-        int id = p.getId() & 0xFFFF;
+        int id = p.getId(0xFFFF);
         if (id < 0xF000) {
             id &= 0xFF00;
         }
@@ -85,12 +85,16 @@ public class GenerateSimFile {
      * Parse each packet from file and send through bus. Load requests with PGNs
      * requested.
      *
-     * @param file     File to read.
-     * @param bus      Bus to send packets on.
-     * @param requests Out parameter of all requests in stream.
+     * @param file
+     *            File to read.
+     * @param bus
+     *            Bus to send packets on.
+     * @param requests
+     *            Out parameter of all requests in stream.
      */
     public void load(File file, EchoBus bus, Map<Integer, String> requests) {
-        // 0.000953 1 14F00131x Rx d 8 FF FF FF FF FF FF FF FF Length = 0 BitCount = 0
+        // 0.000953 1 14F00131x Rx d 8 FF FF FF FF FF FF FF FF Length = 0
+        // BitCount = 0
         // ID = 351273265x
         LocalDateTime start = LocalDateTime.now();
         try (BufferedReader in = new BufferedReader(new FileReader(file))) {
@@ -142,19 +146,24 @@ public class GenerateSimFile {
                     .filter(p -> {
                         Integer pgn = getPgn(p);
                         // FIXM
-                        return pgns.contains(pgn);// && (pgn > 0xF000 || destinationAddress == 0xFF ||
-                                                  // destinationAddress == 0xF9);
+                        return pgns.contains(pgn);// && (pgn > 0xF000 ||
+                                                  // destinationAddress == 0xFF
+                                                  // ||
+                                                  // destinationAddress ==
+                                                  // 0xF9);
                     })
                     // group sets of unique packets by PGN/DA/SA
-                    .collect(Collectors.groupingBy(p -> (p.getId() << 8) | p.getSource(),
+                    .collect(Collectors.groupingBy(p -> (p.getId(0xFFFF) << 8) | p.getSource(),
                             Collectors.toCollection(() -> new LinkedHashSet<>())))
                     // only consider each of those sets
                     .values().stream()
                     // sort by PGN/SA
-                    .sorted(Comparator.comparing((Set<Packet> set) -> set.iterator().next().getId())
+                    .sorted(Comparator.comparing((Set<Packet> set) -> set.iterator().next().getId(0xFFFF))
                             .thenComparing(set -> set.iterator().next().getSource()))
-                    // sort each set of packets to a list to simplify manual updates and merging.
-                    // .map(set -> set.stream().sorted(Comparator.comparing((Packet p) ->
+                    // sort each set of packets to a list to simplify manual
+                    // updates and merging.
+                    // .map(set ->
+                    // set.stream().sorted(Comparator.comparing((Packet p) ->
                     // p.toString()))
                     // .collect(Collectors.toList()))
                     // for each set, make a JSON entry
@@ -175,7 +184,8 @@ public class GenerateSimFile {
                         } else {
                             o.addProperty("period", 100);
                         }
-                        // add the packets as individual environs, to allow humans to tag with set,
+                        // add the packets as individual environs, to allow
+                        // humans to tag with set,
                         // setFor, isSet, clear, isClear.
                         JsonArray packetArray = new JsonArray();
                         o.add("packets", packetArray);

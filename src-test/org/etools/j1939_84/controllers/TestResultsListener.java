@@ -7,7 +7,6 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;

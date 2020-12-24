@@ -48,10 +48,11 @@ public class EchoBusTest {
 
             Packet r = stream1
                     // .peek(p -> System.err.println("filter:"+p))
-                    .filter(x -> x.getId() == 0xFF07).findFirst().get();
-            assertEquals(0xFF07, r.getId());
+                    .filter(x -> x.getId(0xFFFF) == 0xFF07).findFirst().get();
+            assertEquals(0xFF07, r.getId(0xFFFF));
             assertEquals(count,
-                    stream2.limit(count) // otherwise, stream will end with timeout
+                    stream2.limit(count) // otherwise, stream will end with
+                                         // timeout
                             // .peek(p -> System.err.println("count:" + p))
                             .count());
         }

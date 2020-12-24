@@ -64,6 +64,7 @@ public class DiagnosticTroubleCodeTest {
                 Packet.create(0, 0, 0x61, 0x02, 0x13, 0x81));
         assertTrue(instance.equals(instance2));
         assertFalse(instance.equals(instance3));
+        // FIXME what is this supposed to be doing?
         assertFalse(instance.equals(instance4));
         int[] data3 = new int[] { 0x61, 0x02, 0x03, 0x81 };
         DiagnosticTroubleCode instance5 = new DiagnosticTroubleCode(data3);

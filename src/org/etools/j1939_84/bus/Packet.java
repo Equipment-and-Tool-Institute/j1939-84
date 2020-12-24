@@ -361,14 +361,6 @@ public class Packet {
     }
 
     /**
-     * @deprecated use getPgn() instead.
-     */
-    @Deprecated
-    public int getId() {
-        return id;
-    }
-
-    /**
      * Returns the ID of the packet
      *
      * @param mask

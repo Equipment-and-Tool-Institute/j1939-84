@@ -121,6 +121,7 @@ public class DTCLampStatusTest {
                 0x55), null);
         assertEquals(true, instance.equals(instance2));
         assertEquals(false, instance.equals(instance3));
+        // FIXME what is this supposed to be doing?
         assertEquals(false, instance.equals(instance4));
     }
 

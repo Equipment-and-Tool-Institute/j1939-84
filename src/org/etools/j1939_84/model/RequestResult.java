@@ -52,13 +52,15 @@ public class RequestResult<T extends ParsedPacket> {
         this.acks = Objects.requireNonNull(acks);
     }
 
+    @SafeVarargs
     public RequestResult(boolean retryUsed, T... packets) {
         this.retryUsed = retryUsed;
         this.packets = Objects.requireNonNull(Arrays.asList(packets));
         this.acks = Collections.emptyList();
     }
 
-    public <T extends AcknowledgmentPacket> RequestResult(boolean retryUsed, T... packets) {
+    @SafeVarargs
+    public <TP extends AcknowledgmentPacket> RequestResult(boolean retryUsed, TP... packets) {
         this.retryUsed = retryUsed;
         this.packets = Collections.emptyList();
         this.acks = Objects.requireNonNull(Arrays.asList(packets));

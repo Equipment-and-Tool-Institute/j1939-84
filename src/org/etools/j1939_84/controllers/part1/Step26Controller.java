@@ -12,6 +12,7 @@ import java.util.concurrent.Executors;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
@@ -125,20 +126,20 @@ public class Step26Controller extends StepController {
      * received as Not Available
      *
      * @param supportedSpns
-     *         the list Supported SPNs
+     *            the list Supported SPNs
      * @param pgn
-     *         the PGN of interest
+     *            the PGN of interest
      * @param packets
-     *         the packet that may contain the PGN
+     *            the packet that may contain the PGN
      * @param moduleAddress
-     *         the module address of concern, can be null for Global messages
+     *            the module address of concern, can be null for Global messages
      * @return true if the given PGN wasn't received or any supported SPN is Not
-     * Available
+     *         Available
      */
     private boolean checkForNotAvailableSPNs(List<Integer> supportedSpns,
-            int pgn,
-            List<GenericPacket> packets,
-            Integer moduleAddress) {
+                                             int pgn,
+                                             List<GenericPacket> packets,
+                                             Integer moduleAddress) {
         String message = null;
         if (packets.isEmpty()) {
             if (moduleAddress != null) {
@@ -168,17 +169,17 @@ public class Step26Controller extends StepController {
      * the SPNs that were received by broadcast as Not Available
      *
      * @param obdModuleInformation
-     *         the module information
+     *            the module information
      * @param foundPackets
-     *         the Map of PGNs to the List of those packets sent by the
-     *         module
+     *            the Map of PGNs to the List of those packets sent by the
+     *            module
      * @param spns
-     *         the list of SPNs that are still of concern
+     *            the list of SPNs that are still of concern
      * @return the List of SPNs which were not found
      */
     private List<Integer> collectAndReportNotAvailableSPNs(OBDModuleInformation obdModuleInformation,
-            Map<Integer, List<GenericPacket>> foundPackets,
-            List<Integer> spns) {
+                                                           Map<Integer, List<GenericPacket>> foundPackets,
+                                                           List<Integer> spns) {
 
         int moduleSourceAddress = obdModuleInformation.getSourceAddress();
 
@@ -249,19 +250,23 @@ public class Step26Controller extends StepController {
                 .collect(Collectors.toList());
 
         // 6.1.26.3.a. Identify SPNs provided in the data stream that are listed
-        // in Table A-1, but are not supported by any OBD ECU in its DM24 response.
+        // in Table A-1, but are not supported by any OBD ECU in its DM24
+        // response.
         // 6.1.26.4.a. Fail/warn per Table A-1 column, “Action if SPN provided
         // but not included in DM24”
         tableA1Validator.reportMissingSPNs(supportedSpns, getListener(), fuelType, getPartNumber(), getStepNumber());
 
-        // a. Gather broadcast data for all SPNs that are supported for data stream in the OBD ECU DM24 responses.
+        // a. Gather broadcast data for all SPNs that are supported for data
+        // stream in the OBD ECU DM24 responses.
         // we need 3 samples plus time for a BAM, to 4 * maxPeriod
         List<GenericPacket> packets = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 4);
 
-        // This list will keep track of the PGNs which we need to listen for at the end of the test
+        // This list will keep track of the PGNs which we need to listen for at
+        // the end of the test
         List<Integer> broadcastPgns = new ArrayList<>();
 
-        // Find and report any Supported SPNs which should have been received but weren't
+        // Find and report any Supported SPNs which should have been received
+        // but weren't
         for (OBDModuleInformation obdModule : dataRepository.getObdModules()) {
 
             int moduleAddress = obdModule.getSourceAddress();
@@ -285,7 +290,8 @@ public class Step26Controller extends StepController {
 
             String moduleName = Lookup.getAddressName(moduleAddress);
 
-            // DS Request for all SPNs that are sent on-request AND those were missed earlier
+            // DS Request for all SPNs that are sent on-request AND those were
+            // missed earlier
             List<Integer> requestPgns = busService.getPgnsForDSRequest(missingSpns, dataStreamSpns);
             for (int pgn : requestPgns) {
                 updateProgress("DS Request for " + pgn + " to " + moduleName);
@@ -303,13 +309,16 @@ public class Step26Controller extends StepController {
                 }
             }
 
-            // Gather the PGNs which are sent on Broadcast and needed to be requested
+            // Gather the PGNs which are sent on Broadcast and needed to be
+            // requested
             // There are some PGNs which are sent periodically once requested
             broadcastPgns.addAll(busService.collectBroadcastPGNs(requestPgns));
         }
 
-        // See if there are any PGNs that were missing which need to be listened for
-        // We listen for missing SPNs from all modules, rather than waiting foreach module
+        // See if there are any PGNs that were missing which need to be listened
+        // for
+        // We listen for missing SPNs from all modules, rather than waiting
+        // foreach module
         if (!broadcastPgns.isEmpty()) {
 
             // Get the list of SPNs that that Support in the broadcastPgns
@@ -363,7 +372,8 @@ public class Step26Controller extends StepController {
                 getPartNumber(),
                 getStepNumber());
 
-        // f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
+        // f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed
+        // in Table A-1
         tableA1Validator.reportDuplicateSPNs(packets, getListener(), getPartNumber(), getStepNumber());
 
         updateProgress("End Part 1 Step 26");

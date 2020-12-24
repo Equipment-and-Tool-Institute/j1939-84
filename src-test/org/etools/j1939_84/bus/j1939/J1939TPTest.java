@@ -222,9 +222,8 @@ public class J1939TPTest {
                 "18EBFF00 06 05 06 07 08 09 FF FF");
         try (EchoBus bus = new EchoBus(0xF9);
                 J1939TP tp = new J1939TP(bus, 0)) {
-            // bus.log(() -> String.format("BAM %6d:",
-            // (System.currentTimeMillis() -
-            // start)));
+            long start = System.currentTimeMillis();
+            bus.log(p -> String.format("BAM %6d: %s", (System.currentTimeMillis() - start), p));
 
             // test tp bam send
             {
@@ -243,7 +242,6 @@ public class J1939TPTest {
 
                 // just to terminate the stream
                 assertEquals(1, firstPacketStream.count());
-                long start = System.currentTimeMillis();
                 assertEquals(6, shortPacketStream.count());
                 // verify there was a delay between packets
                 assertEquals(250, System.currentTimeMillis() - start, 100);
@@ -253,14 +251,19 @@ public class J1939TPTest {
 
             // test tp bam send and read
             try (J1939TP receivingTp = new J1939TP(bus, 0xF9)) {
-                Stream<Packet> tpStream = receivingTp.read(2, TimeUnit.SECONDS);
+                System.err.println("Starting:" + (System.currentTimeMillis() - start));
+                Stream<Packet> tpStream = receivingTp.read(50, TimeUnit.MILLISECONDS);
                 {// test raw packets
-                    Stream<Packet> packetStream = bus.read(1, TimeUnit.SECONDS);
-                    run(() -> tp.sendBam(testPacket));
-                    assertPacketsEquals(expectedResult, packetStream.collect(Collectors.toList()));
+                    run(() -> {
+                        for (Packet p : expectedResult) {
+                            bus.send(p);
+                            sleep(75);
+                        }
+                    });
+                    System.err.println("waiting:" + (System.currentTimeMillis() - start));
+                    assertPacketsEquals(testPacket, tpStream.findFirst().get());
+                    System.err.println("done:" + (System.currentTimeMillis() - start));
                 }
-                // test TP
-                assertPacketsEquals(testPacket, tpStream.findFirst().orElse(null));
             }
         }
     }
@@ -561,7 +564,7 @@ public class J1939TPTest {
                         .ifPresentOrElse(p -> result.complete(p),
                                 () -> result.completeExceptionally(success));
             });
-            Assert.assertEquals(0xEAF9, rxStream.findFirst().get().getId());
+            Assert.assertEquals(0xEAF9, rxStream.findFirst().get().getId(0xFFFF));
 
             Stream<Packet> ctsStream = bus.read(1000, TimeUnit.MILLISECONDS).filter(p -> p.getSource() == 0);
             // send CTS
@@ -609,7 +612,7 @@ public class J1939TPTest {
                                         new RuntimeException("too late (" + (System.currentTimeMillis() - start)
                                                 + " ms). Stream timeout wasn't refreshed.")));
             });
-            Assert.assertEquals(0xEAF9, rxStream.findFirst().get().getId());
+            Assert.assertEquals(0xEAF9, rxStream.findFirst().get().getId(0xFFFF));
 
             Stream<Packet> ctsStream = bus.read(1000, TimeUnit.MILLISECONDS).filter(p -> p.getSource() == 0);
             // send CTS
@@ -756,7 +759,7 @@ public class J1939TPTest {
             Stream<Packet> stream = bus.read(J1939TP.T1, TimeUnit.MILLISECONDS);
             run(() -> {
                 // wait for RTS
-                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF F9 EA 00"),
+                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF 00 EA 00"),
                         stream.findFirst().orElse(null));
                 // send invalid CTS
                 bus.send(Packet.parse("18EC00F9 11 FF 01 11 11 F9 EA 00"));
@@ -786,7 +789,7 @@ public class J1939TPTest {
             Stream<Packet> stream = bus.read(J1939TP.T1, TimeUnit.MILLISECONDS);
             run(() -> {
                 // wait for RTS
-                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF F9 EA 00"),
+                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF 00 EA 00"),
                         stream.findFirst().orElse(null));
                 // send invalid CTS
                 bus.send(Packet.parse("18EC00F9 11 00 11 11 11 11 11 11"));
@@ -816,7 +819,7 @@ public class J1939TPTest {
             Stream<Packet> stream = bus.read(J1939TP.T1, TimeUnit.MILLISECONDS);
             run(() -> {
                 // wait for RTS
-                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF F9 EA 00"),
+                assertPacketsEquals(Packet.parsePacket("18ECF900 10 0A 00 02 FF 00 EA 00"),
                         stream.findFirst().orElse(null));
                 // send invalid CTS
                 bus.send(Packet.parse("18EC00F9 11 01 02 FF FF 11 11 11"));
