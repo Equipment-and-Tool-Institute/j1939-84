@@ -4,7 +4,6 @@
 
 package org.etools.j1939_84.controllers;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -12,7 +11,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
@@ -36,7 +34,7 @@ public class DataRepository {
     }
 
     public List<Integer> getObdModuleAddresses() {
-        return new ArrayList<>(obdModules.keySet().stream().sorted().collect(Collectors.toList()));
+        return obdModules.keySet().stream().sorted().collect(Collectors.toList());
     }
 
     public Collection<OBDModuleInformation> getObdModules() {
@@ -44,7 +42,7 @@ public class DataRepository {
     }
 
     public VehicleInformation getVehicleInformation() {
-        return Optional.ofNullable(vehicleInformation).map(vi -> vi.clone()).orElse(null);
+        return Optional.ofNullable(vehicleInformation).map(VehicleInformation::clone).orElse(null);
     }
 
     /**
@@ -56,6 +54,10 @@ public class DataRepository {
 
     public int obdModuleCount() {
         return obdModules.size();
+    }
+
+    public boolean isObdModule(int sourceAddress) {
+        return obdModules.containsKey(sourceAddress);
     }
 
     public void putObdModule(int sourceAddress, OBDModuleInformation information) {

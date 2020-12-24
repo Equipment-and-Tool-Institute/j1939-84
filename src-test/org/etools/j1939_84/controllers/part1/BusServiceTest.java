@@ -34,8 +34,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class BusServiceTest {
 
-    private J1939DaRepository j1939DaRepository;
-
     @Mock
     private J1939 j1939;
 
@@ -46,7 +44,7 @@ public class BusServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        j1939DaRepository = new J1939DaRepository();
+        J1939DaRepository j1939DaRepository = new J1939DaRepository();
         instance = new BusService(j1939DaRepository);
         instance.setup(j1939, listener);
     }
@@ -90,7 +88,7 @@ public class BusServiceTest {
     public void globalRequest() {
         Packet request = mock(Packet.class);
         when(j1939.createRequestPacket(11111, J1939.GLOBAL_ADDR)).thenReturn(request);
-        RequestResult<GenericPacket> result = new RequestResult<>(false, packet(11111), packet(11111), packet(11111));
+        RequestResult<GenericPacket> result = new RequestResult<GenericPacket>(false, packet(11111), packet(11111), packet(11111));
         when(j1939.requestGlobal("Global Request for 11111", listener, true, GenericPacket.class, 11111, request))
                 .thenReturn(result);
 

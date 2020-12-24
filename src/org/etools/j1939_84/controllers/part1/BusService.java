@@ -11,7 +11,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -21,16 +20,19 @@ import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
+import org.etools.j1939_84.modules.DateTimeModule;
 
 public class BusService {
 
     private J1939 j1939;
 
     private final J1939DaRepository j1939DaRepository;
+    private final DateTimeModule dateTimeModule;
     private ResultsListener listener;
 
     BusService(J1939DaRepository j1939DaRepository) {
         this.j1939DaRepository = j1939DaRepository;
+        this.dateTimeModule = DateTimeModule.getInstance();
     }
 
     /**
@@ -70,9 +72,9 @@ public class BusService {
      * moduleAddress
      *
      * @param pgn
-     *            the PGN of interest
+     *         the PGN of interest
      * @param moduleAddress
-     *            the module address of interest
+     *         the module address of interest
      * @return List of Packets received
      */
     public List<GenericPacket> dsRequest(int pgn, int moduleAddress) {
@@ -96,10 +98,10 @@ public class BusService {
      * Determines the PGNs (ids) which will need to be requested.
      *
      * @param missingSpns
-     *            the collection of SPNs which need to be request
+     *         the collection of SPNs which need to be request
      * @param supportedSpns
-     *            the collection of SPNs which are supported by the module in
-     *            the data stream
+     *         the collection of SPNs which are supported by the module in
+     *         the data stream
      * @return list of PGNs
      */
     public List<Integer> getPgnsForDSRequest(Collection<Integer> missingSpns, Collection<Integer> supportedSpns) {
@@ -148,7 +150,7 @@ public class BusService {
      * found
      *
      * @param seconds
-     *            the number of seconds to read the bus
+     *         the number of seconds to read the bus
      * @return the List of GenericPackets that were received
      */
     public List<GenericPacket> readBus(int seconds) {
@@ -160,21 +162,18 @@ public class BusService {
      * found
      *
      * @param seconds
-     *            the number of seconds to read the bus
+     *         the number of seconds to read the bus
      * @return the List of GenericPackets that were received
      */
     public List<GenericPacket> readBus(int seconds, Predicate<GenericPacket> filter) {
         listener.onResult("Reading bus for " + seconds + " seconds");
-        long stopTime = System.currentTimeMillis() + seconds * 1000L;
+        long stopTime = dateTimeModule.getTimeAsLong() + seconds * 1000L;
         new Thread(() -> {
             long secondsToGo = seconds;
             while (secondsToGo > 0) {
-                secondsToGo = (stopTime - System.currentTimeMillis()) / 1000;
+                secondsToGo = (stopTime - dateTimeModule.getTimeAsLong() ) / 1000;
                 listener.onProgress(String.format("Reading bus for %1$d seconds", secondsToGo));
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException ignored) {
-                }
+                dateTimeModule.pauseFor(1000);
             }
         }).start();
 
