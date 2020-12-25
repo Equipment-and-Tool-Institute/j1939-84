@@ -84,6 +84,9 @@ public class VehicleInformation implements Cloneable {
     }
 
     public RequestResult<AddressClaimPacket> getAddressClaim() {
+        if (addressClaim == null) {
+            addressClaim = new RequestResult<>(false, Collections.emptyList());
+        }
         return addressClaim;
     }
 

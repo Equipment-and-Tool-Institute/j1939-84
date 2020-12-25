@@ -173,7 +173,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
 
     @Override
     public void initialize() {
-        addressClaim = vehicleInformationModule.reportAddressClaim(ResultsListener.NOOP);
+        addressClaim = vehicleInformationModule.reportAddressClaim(listener.getResultsListener());
 
         view.setFuelType(FuelType.DSL); // Assuming this used mostly on Diesel engines
         numberOfTripsForFaultBImplant = 1;

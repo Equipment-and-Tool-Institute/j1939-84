@@ -8,6 +8,7 @@ import java.util.HashSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
+import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -69,24 +70,22 @@ public class Step03Controller extends StepController {
                 .forEach(p -> {
                     OBDModuleInformation info = new OBDModuleInformation(p.getSourceAddress());
                     info.setObdCompliance(p.getOBDCompliance());
-                    info.setMonitoredSystems(new HashSet<>(p.getMonitoredSystems()));
+                    info.setMonitoredSystems(p.getMonitoredSystems());
+                    int function = dataRepository.getVehicleInformation()
+                            .getAddressClaim()
+                            .getPackets()
+                            .stream()
+                            .filter(a -> a.getSourceAddress() == p.getSourceAddress())
+                            .map(AddressClaimPacket::getFunctionId)
+                            .findFirst()
+                            .orElse(-1);
+                    info.setFunction(function);
                     dataRepository.putObdModule(p.getSourceAddress(), info);
                 });
 
         Collection<OBDModuleInformation> modules = dataRepository.getObdModules();
         if (modules.isEmpty()) {
             addFailure(1, 3, "6.1.3.2.a - There needs to be at least one OBD Module");
-        } else {
-            dataRepository.getVehicleInformation()
-                    .getAddressClaim()
-                    .getPackets()
-                    .forEach(p -> {
-                        OBDModuleInformation moduleInformation = dataRepository.getObdModule(p.getSourceAddress());
-                        if (moduleInformation != null) {
-                            moduleInformation.setFunction(p.getFunctionId());
-                            dataRepository.putObdModule(p.getSourceAddress(), moduleInformation);
-                        }
-                    });
         }
 
         long distinctCount = new HashSet<>(modules).size();

@@ -10,8 +10,11 @@ import static org.etools.j1939_84.model.Outcome.ABORT;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.etools.j1939_84.controllers.DataRepository;
+import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.VehicleInformation;
+import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -32,7 +35,7 @@ public class Step01Controller extends StepController {
     }
 
     Step01Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-                     VehicleInformationModule vehicleInformationModule, DataRepository dataRepository) {
+            VehicleInformationModule vehicleInformationModule, DataRepository dataRepository) {
         super(executor, engineSpeedModule, bannerModule, vehicleInformationModule,
                 PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.dataRepository = dataRepository;
@@ -41,18 +44,27 @@ public class Step01Controller extends StepController {
     /**
      * Sends the request to the UI to gather vehicle information from the user.
      *
-     * @throws InterruptedException if the cancelled the operation
+     * @throws InterruptedException
+     *         if the cancelled the operation
      */
     private void collectVehicleInformation() throws InterruptedException {
-        getListener().onVehicleInformationNeeded(vehInfo -> {
-            if (vehInfo == null) {
-                try {
-                    setEnding(Ending.ABORTED);
-                } catch (InterruptedException e) {
-                    // This will be caught later.
+
+        getListener().onVehicleInformationNeeded(new VehicleInformationListener() {
+
+            @Override public void onResult(VehicleInformation vehInfo) {
+                if (vehInfo == null) {
+                    try {
+                        setEnding(Ending.ABORTED);
+                    } catch (InterruptedException e) {
+                        // This will be caught later.
+                    }
+                } else {
+                    dataRepository.setVehicleInformation(vehInfo);
                 }
-            } else {
-                dataRepository.setVehicleInformation(vehInfo);
+            }
+
+            @Override public ResultsListener getResultsListener() {
+                return getListener();
             }
         });
 
@@ -82,7 +94,8 @@ public class Step01Controller extends StepController {
      * Ensures the Key is on with the Engine Off and prompts the user to make
      * the proper adjustments.
      *
-     * @throws InterruptedException if the user cancels the operation
+     * @throws InterruptedException
+     *         if the user cancels the operation
      */
     private void ensureKeyOnEngineOff() throws InterruptedException {
         try {

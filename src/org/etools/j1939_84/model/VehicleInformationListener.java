@@ -1,7 +1,9 @@
-/**
- * Copyright (c) 2019. Equipment & Tool Institute
+/*
+ * Copyright (c) 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.model;
+
+import org.etools.j1939_84.controllers.ResultsListener;
 
 /**
  * The Listener which is called once the user has entered
@@ -19,4 +21,6 @@ public interface VehicleInformationListener {
 	 *                           will be null if the cancelled/closed the dialog.
 	 */
 	void onResult(VehicleInformation vehicleInformation);
+
+	ResultsListener getResultsListener();
 }
