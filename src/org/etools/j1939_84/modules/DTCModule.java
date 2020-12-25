@@ -12,7 +12,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
@@ -40,7 +39,6 @@ import org.etools.j1939_84.model.RequestResult;
  * Clearing the DTCs from the vehicle
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class DTCModule extends FunctionalModule {
 
@@ -73,6 +71,7 @@ public class DTCModule extends FunctionalModule {
             listener.onResult(getTime() + " No published DM1 messages were identified");
         } else {
             for (DM1ActiveDTCsPacket p : packets) {
+                listener.onResult(getDateTimeModule().format(p.getPacket().getTimestamp()) + " " + p.getPacket());
                 listener.onResult(p.toString());
             }
         }
@@ -97,7 +96,7 @@ public class DTCModule extends FunctionalModule {
      * for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      */
     public RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener) {
         listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
@@ -120,7 +119,7 @@ public class DTCModule extends FunctionalModule {
      * that's suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, boolean fullString) {
@@ -136,11 +135,11 @@ public class DTCModule extends FunctionalModule {
      * {@link String} that's suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public BusResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, boolean fullString,
-                                                             int moduleAddress) {
+            int moduleAddress) {
         return getPacketDS("Destination Specific DM12 Request to " + Lookup.getAddressName(moduleAddress),
                 DM12MILOnEmissionDTCPacket.PGN,
                 DM12MILOnEmissionDTCPacket.class,
@@ -154,7 +153,7 @@ public class DTCModule extends FunctionalModule {
      * {@link String} that's suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString) {
@@ -169,11 +168,11 @@ public class DTCModule extends FunctionalModule {
      * generates a {@link String} that's suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public BusResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString,
-                                                        int obdAddress) {
+            int obdAddress) {
         return getPacketDS("Destination Specific DM2 Request to " + Lookup.getAddressName(obdAddress),
                 DM2PreviouslyActiveDTC.PGN,
                 DM2PreviouslyActiveDTC.class,
@@ -187,7 +186,7 @@ public class DTCModule extends FunctionalModule {
      * inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener) {
@@ -199,7 +198,7 @@ public class DTCModule extends FunctionalModule {
      * {@link String} that's suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener, int address) {
@@ -218,11 +217,11 @@ public class DTCModule extends FunctionalModule {
      * {@link String} that's suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener,
-                                                                           boolean fullString) {
+            boolean fullString) {
         return getPacketsFromGlobal("Global DM23 Request",
                 DM23PreviouslyMILOnEmissionDTCPacket.PGN,
                 DM23PreviouslyMILOnEmissionDTCPacket.class,
@@ -236,11 +235,11 @@ public class DTCModule extends FunctionalModule {
      * the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public BusResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener, boolean fullString,
-                                                                       int address) {
+            int address) {
         return getPacketDS("Destination Specific DM23 Request to " + Lookup.getAddressName(address),
                 DM23PreviouslyMILOnEmissionDTCPacket.PGN,
                 DM23PreviouslyMILOnEmissionDTCPacket.class,
@@ -253,9 +252,9 @@ public class DTCModule extends FunctionalModule {
      * Sends a request to the vehicle for {@link DM25ExpandedFreezeFrame}s
      *
      * @param listener
-     *            the {@link ResultsListener}
+     *         the {@link ResultsListener}
      * @param moduleAddress
-     *            the address to send the request to
+     *         the address to send the request to
      * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
      */
     public BusResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener, int moduleAddress) {
@@ -271,7 +270,7 @@ public class DTCModule extends FunctionalModule {
      * inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM26TripDiagnosticReadinessPacket> requestDM26(ResultsListener listener) {
@@ -283,7 +282,7 @@ public class DTCModule extends FunctionalModule {
      * suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM26TripDiagnosticReadinessPacket> requestDM26(ResultsListener listener, int address) {
@@ -303,7 +302,7 @@ public class DTCModule extends FunctionalModule {
      * inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM27AllPendingDTCsPacket> requestDM27(ResultsListener listener, boolean fullString) {
@@ -318,11 +317,11 @@ public class DTCModule extends FunctionalModule {
      * suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public BusResult<DM27AllPendingDTCsPacket> requestDM27(ResultsListener listener, boolean fullString,
-                                                           int address) {
+            int address) {
         return getPacketDS("Destination Specific DM27 Request to " + Lookup.getAddressName(address),
                 DM27AllPendingDTCsPacket.PGN,
                 DM27AllPendingDTCsPacket.class,
@@ -336,7 +335,7 @@ public class DTCModule extends FunctionalModule {
      * inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener, boolean fullString) {
@@ -351,11 +350,11 @@ public class DTCModule extends FunctionalModule {
      * suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public BusResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener, boolean fullString,
-                                                                 int address) {
+            int address) {
         return getPacketDS("Destination Specific DM28 Request to " + Lookup.getAddressName(address),
                 DM28PermanentEmissionDTCPacket.PGN,
                 DM28PermanentEmissionDTCPacket.class,
@@ -369,7 +368,7 @@ public class DTCModule extends FunctionalModule {
      * generates a {@link String} that's suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM29DtcCounts> requestDM29(ResultsListener listener) {
@@ -387,10 +386,10 @@ public class DTCModule extends FunctionalModule {
      * generates a {@link String} that's suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @param obdAddress
-     *            the address of the module from which the DM29 is to be
-     *            requested
+     *         the address of the module from which the DM29 is to be
+     *         requested
      * @return true if there were any DTCs returned
      */
     public BusResult<DM29DtcCounts> requestDM29(ResultsListener listener, int obdAddress) {
@@ -407,7 +406,7 @@ public class DTCModule extends FunctionalModule {
      * that's suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM31DtcToLampAssociation> requestDM31(ResultsListener listener) {
@@ -419,7 +418,7 @@ public class DTCModule extends FunctionalModule {
      * {@link String} that's suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM31DtcToLampAssociation> requestDM31(ResultsListener listener, int address) {
@@ -439,11 +438,11 @@ public class DTCModule extends FunctionalModule {
      * inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> requestDM33(
-                                                                                                     ResultsListener listener) {
+            ResultsListener listener) {
         return requestDM33(listener, GLOBAL_ADDR);
     }
 
@@ -452,12 +451,12 @@ public class DTCModule extends FunctionalModule {
      * suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> requestDM33(
-                                                                                                     ResultsListener listener,
-                                                                                                     int address) {
+            ResultsListener listener,
+            int address) {
         Packet request = getJ1939()
                 .createRequestPacket(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, address);
 
@@ -475,7 +474,7 @@ public class DTCModule extends FunctionalModule {
      * inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener) {
@@ -487,7 +486,7 @@ public class DTCModule extends FunctionalModule {
      * suitable for inclusion in the report
      *
      * @param listener
-     *            the {@link ResultsListener} that will be given the report
+     *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
     public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener, Integer address) {

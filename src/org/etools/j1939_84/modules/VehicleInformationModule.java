@@ -285,7 +285,7 @@ public class VehicleInformationModule extends FunctionalModule {
                 ComponentIdentificationPacket.PGN,
                 ComponentIdentificationPacket.class,
                 listener,
-                false,
+                true,
                 address);
     }
 

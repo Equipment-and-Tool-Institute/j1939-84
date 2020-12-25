@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019. Equipment & Tool Institute
  */
 package org.etools.j1939_84.model;
@@ -64,7 +64,7 @@ public class OBDModuleInformation implements Cloneable {
         obdInfo.setPerformanceRatios(getPerformanceRatios());
         obdInfo.setScaledTestResults(getScaledTestResults());
         obdInfo.setSupportedSpns(getSupportedSpns());
-        obdInfo.setMontioredSystems(getMonitoredSystems());
+        obdInfo.setMonitoredSystems(getMonitoredSystems());
 
         return obdInfo;
     }
@@ -100,14 +100,14 @@ public class OBDModuleInformation implements Cloneable {
      * @return the supportedSpns
      */
     public List<SupportedSPN> getDataStreamSpns() {
-        return getSupportedSpns().stream().filter(s -> s.supportsDataStream()).collect(Collectors.toList());
+        return getSupportedSpns().stream().filter(SupportedSPN::supportsDataStream).collect(Collectors.toList());
     }
 
     /**
      * @return the freezeFrameSpns
      */
     public List<SupportedSPN> getFreezeFrameSpns() {
-        return getSupportedSpns().stream().filter(s -> s.supportsExpandedFreezeFrame()).collect(Collectors.toList());
+        return getSupportedSpns().stream().filter(SupportedSPN::supportsExpandedFreezeFrame).collect(Collectors.toList());
     }
 
     /**
@@ -154,7 +154,7 @@ public class OBDModuleInformation implements Cloneable {
     }
 
     public List<SupportedSPN> getTestResultSpns() {
-        return getSupportedSpns().stream().filter(s -> s.supportsScaledTestResults()).collect(Collectors.toList());
+        return getSupportedSpns().stream().filter(SupportedSPN::supportsScaledTestResults).collect(Collectors.toList());
     }
 
     @Override
@@ -188,7 +188,7 @@ public class OBDModuleInformation implements Cloneable {
      * @param monitoredSystems
      *            the calibrationInformation to set
      */
-    public void setMontioredSystems(Set<MonitoredSystem> monitoredSystems) {
+    public void setMonitoredSystems(Set<MonitoredSystem> monitoredSystems) {
         this.monitoredSystems.clear();
         this.monitoredSystems.addAll(monitoredSystems);
     }
@@ -231,7 +231,7 @@ public class OBDModuleInformation implements Cloneable {
         result += "obdCompliance is : " + getObdCompliance() + NL;
         result += "function is : " + getFunction() + NL;
         result += "Supported SPNs: " + NL
-                + getSupportedSpns().stream().map(i -> i.toString()).collect(Collectors.joining(","));
+                + getSupportedSpns().stream().map(SupportedSPN::toString).collect(Collectors.joining(","));
         return result;
     }
 

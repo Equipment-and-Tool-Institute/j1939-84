@@ -29,26 +29,26 @@ public class Step03Controller extends StepController {
 
     Step03Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-             new EngineSpeedModule(),
-             new BannerModule(),
-             new VehicleInformationModule(),
-             new DiagnosticReadinessModule(),
-             dataRepository);
+                new EngineSpeedModule(),
+                new BannerModule(),
+                new VehicleInformationModule(),
+                new DiagnosticReadinessModule(),
+                dataRepository);
     }
 
     Step03Controller(Executor executor,
-                     EngineSpeedModule engineSpeedModule,
-                     BannerModule bannerModule,
-                     VehicleInformationModule vehicleInformationModule,
-                     DiagnosticReadinessModule diagnosticReadinessModule,
-                     DataRepository dataRepository) {
+            EngineSpeedModule engineSpeedModule,
+            BannerModule bannerModule,
+            VehicleInformationModule vehicleInformationModule,
+            DiagnosticReadinessModule diagnosticReadinessModule,
+            DataRepository dataRepository) {
         super(executor,
-              engineSpeedModule,
-              bannerModule,
-              vehicleInformationModule,
-              PART_NUMBER,
-              STEP_NUMBER,
-              TOTAL_STEPS);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                PART_NUMBER,
+                STEP_NUMBER,
+                TOTAL_STEPS);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dataRepository = dataRepository;
     }
@@ -67,23 +67,34 @@ public class Step03Controller extends StepController {
         response.getPackets().stream()
                 .filter(DM5DiagnosticReadinessPacket::isObd)
                 .forEach(p -> {
-            OBDModuleInformation info = new OBDModuleInformation(p.getSourceAddress());
-            info.setObdCompliance(p.getOBDCompliance());
-            info.setMontioredSystems(new HashSet<>(p.getMonitoredSystems()));
-            dataRepository.putObdModule(p.getSourceAddress(), info);
-        });
+                    OBDModuleInformation info = new OBDModuleInformation(p.getSourceAddress());
+                    info.setObdCompliance(p.getOBDCompliance());
+                    info.setMonitoredSystems(new HashSet<>(p.getMonitoredSystems()));
+                    dataRepository.putObdModule(p.getSourceAddress(), info);
+                });
 
         Collection<OBDModuleInformation> modules = dataRepository.getObdModules();
         if (modules.isEmpty()) {
             addFailure(1, 3, "6.1.3.2.a - There needs to be at least one OBD Module");
+        } else {
+            dataRepository.getVehicleInformation()
+                    .getAddressClaim()
+                    .getPackets()
+                    .forEach(p -> {
+                        OBDModuleInformation moduleInformation = dataRepository.getObdModule(p.getSourceAddress());
+                        if (moduleInformation != null) {
+                            moduleInformation.setFunction(p.getFunctionId());
+                            dataRepository.putObdModule(p.getSourceAddress(), moduleInformation);
+                        }
+                    });
         }
 
         long distinctCount = new HashSet<>(modules).size();
         if (distinctCount > 1) {
             // All the values should be the same
             addWarning(1,
-                       3,
-                       "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
+                    3,
+                    "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
         }
     }
 
