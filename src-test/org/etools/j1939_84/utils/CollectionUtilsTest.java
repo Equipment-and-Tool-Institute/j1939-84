@@ -25,16 +25,16 @@ public class CollectionUtilsTest {
 @Test
     public void areTwoListsEqualSameType() {
         // verify null objects
-        assertTrue(CollectionUtils.areTwoListsEqual(null, null));
+        assertTrue(CollectionUtils.areTwoCollectionsEqual(null, null));
 
         Collection<Packet> collectionA = new HashSet<>();
         // verify one real and one null lists of the same type
-        assertFalse(CollectionUtils.areTwoListsEqual(collectionA, null));
+        assertFalse(CollectionUtils.areTwoCollectionsEqual(collectionA, null));
 
         Collection<Packet> collectionB = new HashSet<>();
 
         // verify two null lists of the same type
-        assertTrue(CollectionUtils.areTwoListsEqual(collectionA, collectionB));
+        assertTrue(CollectionUtils.areTwoCollectionsEqual(collectionA, collectionB));
 
         //verify one list null nad one with real packet not equals
         int[] dataA = {
@@ -50,11 +50,11 @@ public class CollectionUtilsTest {
                 0x00,
                 dataA);
         collectionA.add(packetA);
-        assertFalse(CollectionUtils.areTwoListsEqual(collectionA, collectionB));
+        assertFalse(CollectionUtils.areTwoCollectionsEqual(collectionA, collectionB));
 
         //make them equal and verify again
         collectionB.add(packetA);
-        assertTrue(CollectionUtils.areTwoListsEqual(collectionA, collectionB));
+        assertTrue(CollectionUtils.areTwoCollectionsEqual(collectionA, collectionB));
 
         // add another packet to one and verify inequility
         int[] dataB = {
@@ -70,7 +70,7 @@ public class CollectionUtilsTest {
                 0x01,
                 dataB);
         collectionB.add(packetB);
-        assertFalse(CollectionUtils.areTwoListsEqual(collectionA, collectionB));
+        assertFalse(CollectionUtils.areTwoCollectionsEqual(collectionA, collectionB));
     }
 
     @Test
@@ -91,7 +91,7 @@ public class CollectionUtilsTest {
         collectionA.add(packetA);
 
         //  Verify inequality of a Collection<> and null
-        assertFalse(CollectionUtils.areTwoListsEqual(collectionA, null));
+        assertFalse(CollectionUtils.areTwoCollectionsEqual(collectionA, null));
 
         int[] dataB = new int[]{
                 0xF7, // Test Identifier
@@ -115,21 +115,21 @@ public class CollectionUtilsTest {
         // Verify two equal Collections
         Collection<DM30ScaledTestResultsPacket> collectionB = new HashSet<>();
         collectionB.add(packetB);
-        assertFalse(CollectionUtils.areTwoListsEqual(collectionA, collectionB));
+        assertFalse(CollectionUtils.areTwoCollectionsEqual(collectionA, collectionB));
 
         //Verify inequality of one Collection<> and on List<>
         List<DM30ScaledTestResultsPacket> listC = new ArrayList<>();
         listC.add(packetB);
-        assertTrue(CollectionUtils.areTwoListsEqual(collectionB, listC));
+        assertTrue(CollectionUtils.areTwoCollectionsEqual(collectionB, listC));
 
         // Verify inequality of two different types of List<>
         List<DM20MonitorPerformanceRatioPacket> listD = new ArrayList<>();
         listD.add(packetA);
-        assertFalse(CollectionUtils.areTwoListsEqual(listC, listD));
+        assertFalse(CollectionUtils.areTwoCollectionsEqual(listC, listD));
 
         // Verify two equal List<>
         List<DM20MonitorPerformanceRatioPacket> listE = new ArrayList<>();
         listE.add(packetA);
-        assertTrue(CollectionUtils.areTwoListsEqual(listD, listE));
+        assertTrue(CollectionUtils.areTwoCollectionsEqual(listD, listE));
     }
 }

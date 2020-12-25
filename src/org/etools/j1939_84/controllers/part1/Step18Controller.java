@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -22,7 +22,6 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * <p>
  * The controller for 6.1.18 DM12: Emissions related active DTCs
  */
 
@@ -40,26 +39,26 @@ public class Step18Controller extends StepController {
 
     Step18Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-             new EngineSpeedModule(),
-             new BannerModule(),
-             new VehicleInformationModule(),
-             new DTCModule(),
-             dataRepository);
+                new EngineSpeedModule(),
+                new BannerModule(),
+                new VehicleInformationModule(),
+                new DTCModule(),
+                dataRepository);
     }
 
     Step18Controller(Executor executor,
-                     EngineSpeedModule engineSpeedModule,
-                     BannerModule bannerModule,
-                     VehicleInformationModule vehicleInformationModule,
-                     DTCModule dtcModule,
-                     DataRepository dataRepository) {
+            EngineSpeedModule engineSpeedModule,
+            BannerModule bannerModule,
+            VehicleInformationModule vehicleInformationModule,
+            DTCModule dtcModule,
+            DataRepository dataRepository) {
         super(executor,
-              engineSpeedModule,
-              bannerModule,
-              vehicleInformationModule,
-              PART_NUMBER,
-              STEP_NUMBER,
-              TOTAL_STEPS);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                PART_NUMBER,
+                STEP_NUMBER,
+                TOTAL_STEPS);
         this.dtcModule = dtcModule;
         this.dataRepository = dataRepository;
     }
@@ -69,65 +68,55 @@ public class Step18Controller extends StepController {
 
         dtcModule.setJ1939(getJ1939());
 
-        // 6.1.18.1 Actions:
-        // a. Global DM12 (send Request (PGN 59904) for PGN 65236 (SPNs
-        // 1213-1215, 1706, and 3038)).
+        // 6.1.18.1.a. Global DM12 for PGN 65236
         RequestResult<DM12MILOnEmissionDTCPacket> globalResponse = dtcModule.requestDM12(getListener(), true);
 
         globalResponse.getPackets().forEach(packet -> {
-            // 6.1.18.2 Fail criteria:
-            // a. Fail if any ECU reports active DTCs.
+            // 6.1.18.2.a. Fail if any ECU reports active DTCs.
             if (!packet.getDtcs().isEmpty()) {
-                addFailure("6.1.18.2.a - Fail if any ECU reports active DTCs");
+                addFailure("6.1.18.2.a - An ECU reported active DTCs");
             }
-            // b. Fail if any ECU does not report MIL off.
+            // 6.1.18.2.b. Fail if any ECU does not report MIL off.
             if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF) {
-                addFailure("6.1.18.2.b - Fail if any ECU does not report MIL off");
+                addFailure("6.1.18.2.b - An ECU did not report MIL off");
             }
         });
-        // c. Fail if no OBD ECU provides DM12.
-        if (globalResponse.getPackets().isEmpty()) {
-            addFailure("6.1.18.2.c - Fail if no OBD ECU provides DM12");
 
+        // 6.1.18.2.c. Fail if no OBD ECU provides DM12.
+        if (globalResponse.getPackets().isEmpty()) {
+            addFailure("6.1.18.2.c - No OBD ECU provided DM12");
         }
-        // 6.1.18.3 Actions2:
-        // a. DS DM12 to all OBD ECUs.
+
+        // 6.1.18.3.a. DS DM12 to all OBD ECUs.
         List<DM12MILOnEmissionDTCPacket> destinationSpecificPackets = new ArrayList<>();
-        dataRepository.getObdModuleAddresses().forEach(address -> {
-            dtcModule.requestDM12(getListener(), true, address)
-                    .getPacket()
-                    .ifPresentOrElse((packet) -> {
-                        // No requirements around the destination specific acks
-                        // so, the acks are not needed
-                        if (packet.left.isPresent()) {
-                            destinationSpecificPackets.add(packet.left.get());
-                        }
-                    }, () -> {
-                        addWarning("6.1.18.3 OBD module " + getAddressName(address)
-                                           + " did not return a response to a destination specific request");
-                    });
-        });
+        dataRepository.getObdModuleAddresses().forEach(address -> dtcModule.requestDM12(getListener(), true, address)
+                .getPacket()
+                .ifPresentOrElse((packet) -> {
+                    // No requirements around the destination specific acks so, the acks are not needed
+                    packet.left.ifPresent(destinationSpecificPackets::add);
+                }, () -> addWarning("6.1.18.3 OBD module " + getAddressName(address)
+                        + " did not return a response to a destination specific request")));
         if (destinationSpecificPackets.isEmpty()) {
             addWarning("6.1.18.3.a Destination Specific DM12 requests to OBD modules did not return any responses");
         }
-        // 6.1.18.4 Fail criteria2:
-        // a. Fail if any difference compared to data received during global
-        // request.
-        List<DM12MILOnEmissionDTCPacket> differentPackets = globalResponse.getPackets().stream()
-                .filter(packet -> {
-                    return !destinationSpecificPackets.contains(packet);
-                }).collect(Collectors.toList());
+
+        // 6.1.18.4.a. Fail if any difference compared to data received during global request.
+        List<DM12MILOnEmissionDTCPacket> differentPackets = globalResponse
+                .getPackets()
+                .stream()
+                .filter(packet -> !destinationSpecificPackets.contains(packet))
+                .collect(Collectors.toList());
         if (!differentPackets.isEmpty()) {
-            addFailure("6.1.18.4.a Fail if any difference compared to data received during global request");
+            addFailure("6.1.18.4.a Difference compared to data received during global request");
         }
-        // b. Fail if NACK not received from OBD ECUs that did not respond to
-        // global query.
-        List<DM12MILOnEmissionDTCPacket> nacksRemovedPackets = differentPackets.stream().filter(packet -> {
-            return globalResponse.getAcks().stream()
-                    .anyMatch(ack -> ack.getSourceAddress() != packet.getSourceAddress());
-        }).collect(Collectors.toList());
+
+        // 6.1.18.4.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
+        List<DM12MILOnEmissionDTCPacket> nacksRemovedPackets = differentPackets.stream()
+                .filter(packet -> globalResponse.getAcks().stream()
+                        .anyMatch(ack -> ack.getSourceAddress() != packet.getSourceAddress()))
+                .collect(Collectors.toList());
         if (!nacksRemovedPackets.isEmpty()) {
-            addFailure("6.1.18.4.b b. Fail if NACK not received from OBD ECUs that did not respond to global query");
+            addFailure("6.1.18.4.b NACK not received from OBD ECUs that did not respond to global query");
         }
     }
 }

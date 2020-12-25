@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -86,9 +86,6 @@ public class Step18ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
     public void setUp() {
 
@@ -105,9 +102,6 @@ public class Step18ControllerTest extends AbstractControllerTest {
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
@@ -142,7 +136,7 @@ public class Step18ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM12(any(), eq(true), eq(0x01));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.18.2.c - Fail if no OBD ECU provides DM12");
+                "6.1.18.2.c - No OBD ECU provided DM12");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
                 "6.1.18.3 OBD module Engine #2 (1) did not return a response to a destination specific request");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
@@ -150,7 +144,7 @@ public class Step18ControllerTest extends AbstractControllerTest {
 
         verify(reportFileModule).onProgress(0, 1, "");
 
-        String expectedResults = "FAIL: 6.1.18.2.c - Fail if no OBD ECU provides DM12" + NL;
+        String expectedResults = "FAIL: 6.1.18.2.c - No OBD ECU provided DM12" + NL;
         expectedResults += "WARN: 6.1.18.3 OBD module Engine #2 (1) did not return a response to a destination specific request"
                 + NL;
         expectedResults += "WARN: 6.1.18.3.a Destination Specific DM12 requests to OBD modules did not return any responses"
@@ -204,19 +198,19 @@ public class Step18ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM12(any(), eq(true), eq(0x03));
 
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.18.2.a - Fail if any ECU reports active DTCs");
+                "6.1.18.2.a - An ECU reported active DTCs");
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.18.2.b - Fail if any ECU does not report MIL off");
+                "6.1.18.2.b - An ECU did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.18.4.a Fail if any difference compared to data received during global request");
+                "6.1.18.4.a Difference compared to data received during global request");
 
         verify(reportFileModule).onProgress(0, 1, "");
 
-        String expectedResults = "FAIL: 6.1.18.2.a - Fail if any ECU reports active DTCs" + NL;
-        expectedResults += "FAIL: 6.1.18.2.b - Fail if any ECU does not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.18.2.a - Fail if any ECU reports active DTCs" + NL;
-        expectedResults += "FAIL: 6.1.18.2.b - Fail if any ECU does not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.18.4.a Fail if any difference compared to data received during global request"
+        String expectedResults = "FAIL: 6.1.18.2.a - An ECU reported active DTCs" + NL;
+        expectedResults += "FAIL: 6.1.18.2.b - An ECU did not report MIL off" + NL;
+        expectedResults += "FAIL: 6.1.18.2.a - An ECU reported active DTCs" + NL;
+        expectedResults += "FAIL: 6.1.18.2.b - An ECU did not report MIL off" + NL;
+        expectedResults += "FAIL: 6.1.18.4.a Difference compared to data received during global request"
                 + NL;
 
         assertEquals(expectedResults, listener.getResults());
@@ -293,28 +287,26 @@ public class Step18ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM12(any(), eq(true), eq(0x03));
 
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.18.2.a - Fail if any ECU reports active DTCs");
+                "6.1.18.2.a - An ECU reported active DTCs");
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.18.2.b - Fail if any ECU does not report MIL off");
+                "6.1.18.2.b - An ECU did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
                 "6.1.18.3 OBD module Engine #2 (1) did not return a response to a destination specific request");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.18.4.a Fail if any difference compared to data received during global request");
+                "6.1.18.4.a Difference compared to data received during global request");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.18.4.b b. Fail if NACK not received from OBD ECUs that did not respond to global query");
+                "6.1.18.4.b NACK not received from OBD ECUs that did not respond to global query");
 
         verify(reportFileModule).onProgress(0, 1, "");
 
-        String expectedResults = "FAIL: 6.1.18.2.a - Fail if any ECU reports active DTCs" + NL;
-        expectedResults += "FAIL: 6.1.18.2.b - Fail if any ECU does not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.18.2.a - Fail if any ECU reports active DTCs" + NL;
-        expectedResults += "FAIL: 6.1.18.2.b - Fail if any ECU does not report MIL off" + NL;
+        String expectedResults = "FAIL: 6.1.18.2.a - An ECU reported active DTCs" + NL;
+        expectedResults += "FAIL: 6.1.18.2.b - An ECU did not report MIL off" + NL;
+        expectedResults += "FAIL: 6.1.18.2.a - An ECU reported active DTCs" + NL;
+        expectedResults += "FAIL: 6.1.18.2.b - An ECU did not report MIL off" + NL;
         expectedResults += "WARN: 6.1.18.3 OBD module Engine #2 (1) did not return a response to a destination specific request"
                 + NL;
-        expectedResults += "FAIL: 6.1.18.4.a Fail if any difference compared to data received during global request"
-                + NL;
-        expectedResults += "FAIL: 6.1.18.4.b b. Fail if NACK not received from OBD ECUs that did not respond to global query"
-                + NL;
+        expectedResults += "FAIL: 6.1.18.4.a Difference compared to data received during global request" + NL;
+        expectedResults += "FAIL: 6.1.18.4.b NACK not received from OBD ECUs that did not respond to global query" + NL;
 
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());

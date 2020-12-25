@@ -10,6 +10,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
+import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.FuelType;
@@ -94,13 +95,14 @@ public class Step08Controller extends StepController {
             OBDModuleInformation obdModule = dataRepository.getObdModule(sourceAddress);
             if (obdModule != null) {
                 obdModule.setPerformanceRatios(packet.getRatios());
+                dataRepository.putObdModule(sourceAddress, obdModule);
             }
         }
 
         // Gather all the spn of performance ratio from the vehicle
         Set<Integer> dm20Spns = globalDM20s.stream()
                 .flatMap(dm20 -> dm20.getRatios().stream())
-                .map(ratio -> ratio.getSpn())
+                .map(PerformanceRatio::getSpn)
                 .collect(Collectors.toSet());
 
         verifyMinimumExpectedSpnSupported(dm20Spns);
@@ -111,7 +113,6 @@ public class Step08Controller extends StepController {
      * "Criteria for Monitor Performance Ratio Evaluation" section A.4 of
      * J1939_84
      *
-     * @param dm20Spns
      */
     private void verifyMinimumExpectedSpnSupported(Set<Integer> dm20Spns) {
         VehicleInformation vehicleInfo = dataRepository.getVehicleInformation();
@@ -119,19 +120,18 @@ public class Step08Controller extends StepController {
 
         if (fuelType.isCompressionIgnition()) {
 
-            int SPNa[] = {5322, 5318, 3058, 3064, 5321, 3055};
-            int SPNn[] = {4792, 5308, 4364};
+            int[] SPNa = {5322, 5318, 3058, 3064, 5321, 3055};
+            int[] SPNn = {4792, 5308, 4364};
 
-            if (!(IntStream.of(SPNa).allMatch(spn -> dm20Spns.contains(spn)))
-                    || !(IntStream.of(SPNn).anyMatch(spn -> dm20Spns.contains(spn)))) {
+            if (!(IntStream.of(SPNa).allMatch(dm20Spns::contains))
+                    || IntStream.of(SPNn).noneMatch(dm20Spns::contains)) {
                 addFailure(1, 8, "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
             }
         } else if (fuelType.isSparkIgnition()) {
             // TODO Add the Outlet Oxygen Sensor Banks in Table A-3-2 (pg.111)
-            // with
-            // non-integer variables i.e. New1, New2 at the end of the table.
-            int SPNsi[] = {3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057};
-            if (!IntStream.of(SPNsi).allMatch(spn -> dm20Spns.contains(spn))) {
+            // with non-integer variables i.e. New1, New2 at the end of the table.
+            int[] SPNsi = {3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057};
+            if (!IntStream.of(SPNsi).allMatch(dm20Spns::contains)) {
                 addFailure(1, 8, "6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.");
             }
         } else {

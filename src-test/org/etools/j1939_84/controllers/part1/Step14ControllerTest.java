@@ -172,9 +172,9 @@ public class Step14ControllerTest extends AbstractControllerTest {
         DM26TripDiagnosticReadinessPacket obdPacket3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x03);
-        obdModule1.setMontioredSystems(packet1.getMonitoredSystems());
+        obdModule1.setMonitoredSystems(packet1.getMonitoredSystems());
         OBDModuleInformation obdModule3 = new OBDModuleInformation(0x03);
-        obdModule3.setMontioredSystems(obdPacket3.getMonitoredSystems());
+        obdModule3.setMonitoredSystems(obdPacket3.getMonitoredSystems());
 
         when(dataRepository.getObdModules()).thenReturn(new HashSet<>() {
             {
@@ -363,7 +363,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
                 Packet.create(PGN, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
-        obdModule1.setMontioredSystems(obdPacket1.getMonitoredSystems());
+        obdModule1.setMonitoredSystems(obdPacket1.getMonitoredSystems());
 
         when(dataRepository.getObdModules()).thenReturn(new HashSet<>() {
             {
@@ -522,7 +522,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
-        obdModule1.setMontioredSystems(packet1.getMonitoredSystems());
+        obdModule1.setMonitoredSystems(packet1.getMonitoredSystems());
         when(dataRepository.getObdModules()).thenReturn(new HashSet<OBDModuleInformation>() {
             {
                 add(obdModule1);

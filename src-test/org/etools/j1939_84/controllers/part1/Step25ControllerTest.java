@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -88,11 +88,8 @@ public class Step25ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         listener = new TestResultsListener(mockListener);
 
         instance = new Step25Controller(executor,
@@ -105,11 +102,8 @@ public class Step25ControllerTest extends AbstractControllerTest {
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verifyNoMoreInteractions(executor,
                 engineSpeedModule,
                 bannerModule,
@@ -370,15 +364,15 @@ public class Step25ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                 STEP_NUMBER,
                 FAIL,
-                "6.1.25.2.b - Fail if any difference compared to data received during global request earlier in test 1.8"
+                "6.1.25.2.b - Difference compared to data received during global request earlier"
                         + NL
-                        + "Engine #1 (0) had a differnce between stored performance ratios and destination specific requested DM20 response ratios");
+                        + "Engine #1 (0) had a difference between stored performance ratios and destination specific requested DM20 response ratios");
 
         verify(reportFileModule).onProgress(0, 1, "");
 
-        String expectedResults = "FAIL: 6.1.25.2.b - Fail if any difference compared to data received during global request earlier in test 1.8"
+        String expectedResults = "FAIL: 6.1.25.2.b - Difference compared to data received during global request earlier"
                 + NL
-                + "Engine #1 (0) had a differnce between stored performance ratios and destination specific requested DM20 response ratios"
+                + "Engine #1 (0) had a difference between stored performance ratios and destination specific requested DM20 response ratios"
                 + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -439,9 +433,9 @@ public class Step25ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                 STEP_NUMBER,
                 FAIL,
-                "6.1.25.2.c - Fail if NACK not received from OBD ECUs that did not respond to global query in test 1.8");
+                "6.1.25.2.c - NACK not received from OBD ECUs that did not respond to global query");
 
-        String expectedResult = "FAIL: 6.1.25.2.c - Fail if NACK not received from OBD ECUs that did not respond to global query in test 1.8"
+        String expectedResult = "FAIL: 6.1.25.2.c - NACK not received from OBD ECUs that did not respond to global query"
                 + NL;
         assertEquals(expectedResult, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -489,10 +483,10 @@ public class Step25ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                 STEP_NUMBER,
                 FAIL,
-                "6.1.25.2.a - Fail if retry was required to obtain DM20 response:"
+                "6.1.25.2.a - Retry was required to obtain DM20 response:"
                         + NL + "Engine #1 (0) required a retry when requesting its destination specific DM20");
 
-        String expectedResult = "FAIL: 6.1.25.2.a - Fail if retry was required to obtain DM20 response:" + NL
+        String expectedResult = "FAIL: 6.1.25.2.a - Retry was required to obtain DM20 response:" + NL
                 + "Engine #1 (0) required a retry when requesting its destination specific DM20" + NL;
         assertEquals(expectedResult, listener.getResults());
         assertEquals("", listener.getMessages());

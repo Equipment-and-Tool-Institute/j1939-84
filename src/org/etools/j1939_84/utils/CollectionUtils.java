@@ -8,7 +8,7 @@ import java.util.Collection;
 
 public class CollectionUtils {
 
-    public static boolean areTwoListsEqual(Collection<? extends Object> collectionA, Collection<? extends Object> collectionB) {
+    public static boolean areTwoCollectionsEqual(Collection<?> collectionA, Collection<?> collectionB) {
 
         //verify null checks
         if (collectionA == null && collectionB == null) {

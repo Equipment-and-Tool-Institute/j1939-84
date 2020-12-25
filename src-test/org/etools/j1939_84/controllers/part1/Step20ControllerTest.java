@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -14,7 +14,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -85,9 +84,6 @@ public class Step20ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
     public void setUp() {
 
@@ -103,9 +99,6 @@ public class Step20ControllerTest extends AbstractControllerTest {
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
@@ -140,7 +133,7 @@ public class Step20ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM28(any(), eq(true), eq(0x01));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.20.2.c - Fail if no OBD ECU provides DM28");
+                                        "6.1.20.2.c - No OBD ECU provided a DM28");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
                                         "6.1.20.3 OBD module Engine #2 (1) did not return a response to a destination specific request");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
@@ -148,7 +141,7 @@ public class Step20ControllerTest extends AbstractControllerTest {
 
         verify(reportFileModule).onProgress(0, 1, "");
 
-        String expectedResults = "FAIL: 6.1.20.2.c - Fail if no OBD ECU provides DM28" + NL;
+        String expectedResults = "FAIL: 6.1.20.2.c - No OBD ECU provided a DM28" + NL;
         expectedResults += "WARN: 6.1.20.3 OBD module Engine #2 (1) did not return a response to a destination specific request"
                 + NL;
         expectedResults += "WARN: 6.1.20.3.a Destination Specific DM28 requests to OBD modules did not return any responses"
@@ -169,24 +162,14 @@ public class Step20ControllerTest extends AbstractControllerTest {
                 Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
         DM28PermanentEmissionDTCPacket packet3 = new DM28PermanentEmissionDTCPacket(
                 Packet.create(PGN, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
-        List<Integer> obdModuleAddresses = new ArrayList<>() {
-            {
-                add(0x01);
-                add(0x03);
-            }
-        };
+        List<Integer> obdModuleAddresses = Arrays.asList(0x01, 0x03);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
         DM28PermanentEmissionDTCPacket obdPacket3 = new DM28PermanentEmissionDTCPacket(
                 Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
 
         when(dtcModule.requestDM28(any(), eq(true)))
-                .thenReturn(new RequestResult<>(false, new ArrayList<>() {
-                    {
-                        add(packet1);
-                        add(packet3);
-                    }
-                }, Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Arrays.asList(packet1, packet3), Collections.emptyList()));
 
         when(dtcModule.requestDM28(any(), eq(true), eq(0x01)))
                 .thenReturn(new BusResult<>(false, packet1));
@@ -202,20 +185,19 @@ public class Step20ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM28(any(), eq(true), eq(0x03));
 
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                                  "6.1.20.2.a - Fail if any ECU reports active DTCs");
+                                                  "6.1.20.2.a - An ECU reported active DTCs");
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                                  "6.1.20.2.b - Fail if any ECU does not report MIL off");
+                                                  "6.1.20.2.b - An ECU did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.20.4.a Fail if any difference compared to data received during global request");
+                                        "6.1.20.4.a Difference compared to data received during global request");
 
         verify(reportFileModule).onProgress(0, 1, "");
 
-        String expectedResults = "FAIL: 6.1.20.2.a - Fail if any ECU reports active DTCs" + NL;
-        expectedResults += "FAIL: 6.1.20.2.b - Fail if any ECU does not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.20.2.a - Fail if any ECU reports active DTCs" + NL;
-        expectedResults += "FAIL: 6.1.20.2.b - Fail if any ECU does not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.20.4.a Fail if any difference compared to data received during global request"
-                + NL;
+        String expectedResults = "FAIL: 6.1.20.2.a - An ECU reported active DTCs" + NL;
+        expectedResults += "FAIL: 6.1.20.2.b - An ECU did not report MIL off" + NL;
+        expectedResults += "FAIL: 6.1.20.2.a - An ECU reported active DTCs" + NL;
+        expectedResults += "FAIL: 6.1.20.2.b - An ECU did not report MIL off" + NL;
+        expectedResults += "FAIL: 6.1.20.4.a Difference compared to data received during global request" + NL;
 
         assertEquals(expectedResults, listener.getResults());
     }
@@ -287,22 +269,20 @@ public class Step20ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM28(any(), eq(true), eq(0x03));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.20.2.a - Fail if any ECU reports active DTCs");
+                                        "6.1.20.2.a - An ECU reported active DTCs");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.20.2.b - Fail if any ECU does not report MIL off");
+                                        "6.1.20.2.b - An ECU did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.20.4.a Fail if any difference compared to data received during global request");
+                                        "6.1.20.4.a Difference compared to data received during global request");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.20.4.b Fail if NACK not received from OBD ECUs that did not respond to global query");
+                                        "6.1.20.4.b NACK not received from OBD ECUs that did not respond to global query");
 
         verify(reportFileModule).onProgress(0, 1, "");
 
-        String expectedResults = "FAIL: 6.1.20.2.a - Fail if any ECU reports active DTCs" + NL;
-        expectedResults += "FAIL: 6.1.20.2.b - Fail if any ECU does not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.20.4.a Fail if any difference compared to data received during global request"
-                + NL;
-        expectedResults += "FAIL: 6.1.20.4.b Fail if NACK not received from OBD ECUs that did not respond to global query"
-                + NL;
+        String expectedResults = "FAIL: 6.1.20.2.a - An ECU reported active DTCs" + NL;
+        expectedResults += "FAIL: 6.1.20.2.b - An ECU did not report MIL off" + NL;
+        expectedResults += "FAIL: 6.1.20.4.a Difference compared to data received during global request" + NL;
+        expectedResults += "FAIL: 6.1.20.4.b NACK not received from OBD ECUs that did not respond to global query" + NL;
 
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());

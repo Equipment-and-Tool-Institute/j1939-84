@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -7,8 +7,8 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 
@@ -16,7 +16,6 @@ import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
  * Class that represents a packet that contains Diagnostic Trouble Codes
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class DiagnosticTroubleCodePacket extends GenericPacket {
 
@@ -30,7 +29,7 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
      * Constructor
      *
      * @param packet
-     *            the {@link Packet} to parse
+     *         the {@link Packet} to parse
      */
     public DiagnosticTroubleCodePacket(Packet packet, PgnDefinition pgnDefinition) {
         super(packet, pgnDefinition);
@@ -65,9 +64,9 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
      * Helper method to get a {@link LampStatus}
      *
      * @param mask
-     *            the bit mask
+     *         the bit mask
      * @param shift
-     *            the number of bits to shift to the right
+     *         the number of bits to shift to the right
      * @return the {@link LampStatus} that corresponds to the value
      */
     private LampStatus getLampStatus(int mask, int shift) {
@@ -139,6 +138,34 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
             }
         }
         return dtcs;
+    }
+
+    @Override public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+        if (o == null || getClass() != o.getClass()) {
+            return false;
+        }
+        if (!super.equals(o)) {
+            return false;
+        }
+
+        DiagnosticTroubleCodePacket that = (DiagnosticTroubleCodePacket) o;
+        return getAmberWarningLampStatus() == that.getAmberWarningLampStatus()
+                && getDtcs().equals(that.getDtcs())
+                && getMalfunctionIndicatorLampStatus() == that.getMalfunctionIndicatorLampStatus()
+                && getProtectLampStatus() == that.getProtectLampStatus()
+                && getRedStopLampStatus() == that.getRedStopLampStatus();
+    }
+
+    @Override public int hashCode() {
+        return Objects.hash(super.hashCode(),
+                getAmberWarningLampStatus(),
+                getDtcs(),
+                getMalfunctionIndicatorLampStatus(),
+                getProtectLampStatus(),
+                getRedStopLampStatus());
     }
 
     @Override

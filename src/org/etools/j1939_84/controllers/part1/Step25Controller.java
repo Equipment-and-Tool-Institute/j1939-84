@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -42,26 +42,26 @@ public class Step25Controller extends StepController {
 
     Step25Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-             new EngineSpeedModule(),
-             new BannerModule(),
-             new VehicleInformationModule(),
-             new DiagnosticReadinessModule(),
-             dataRepository);
+                new EngineSpeedModule(),
+                new BannerModule(),
+                new VehicleInformationModule(),
+                new DiagnosticReadinessModule(),
+                dataRepository);
     }
 
     Step25Controller(Executor executor,
-                     EngineSpeedModule engineSpeedModule,
-                     BannerModule bannerModule,
-                     VehicleInformationModule vehicleInformationModule,
-                     DiagnosticReadinessModule diagnosticReadinessModule,
-                     DataRepository dataRepository) {
+            EngineSpeedModule engineSpeedModule,
+            BannerModule bannerModule,
+            VehicleInformationModule vehicleInformationModule,
+            DiagnosticReadinessModule diagnosticReadinessModule,
+            DataRepository dataRepository) {
         super(executor,
-              engineSpeedModule,
-              bannerModule,
-              vehicleInformationModule,
-              PART_NUMBER,
-              STEP_NUMBER,
-              TOTAL_STEPS);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                PART_NUMBER,
+                STEP_NUMBER,
+                TOTAL_STEPS);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dataRepository = dataRepository;
     }
@@ -70,18 +70,16 @@ public class Step25Controller extends StepController {
     protected void run() throws Throwable {
 
         diagnosticReadinessModule.setJ1939(getJ1939());
-        // 6.1.25.1 Actions:
-        // a. DS DM20 (send Request (PGN 59904) for PGN 49664 (SPNs 3048-3049,
-        // 3066-3068)) to each OBD ECU.
-        // Get the OBD module
+        // 6.1.25.1.a. DS DM20 (send Request (PGN 59904) for PGN 49664 to each OBD ECU.
         dataRepository.getObdModules().forEach(module -> {
             // Request DM20 from the module
             BusResult<DM20MonitorPerformanceRatioPacket> dm20BusResult = diagnosticReadinessModule
                     .requestDM20(getListener(), true, module.getSourceAddress());
             // 6.1.25.2.a. Fail if retry was required to obtain DM20 response.
             if (dm20BusResult.isRetryUsed()) {
-                addFailure("6.1.25.2.a - Fail if retry was required to obtain DM20 response:" + NL
-                                   + getAddressName(module.getSourceAddress()) + " required a retry when requesting its destination specific DM20");
+                addFailure("6.1.25.2.a - Retry was required to obtain DM20 response:" + NL
+                        + getAddressName(module.getSourceAddress())
+                        + " required a retry when requesting its destination specific DM20");
             }
             // 6.1.25.1.b. If no response (transport protocol RTS or NACK(Busy) in 220
             // ms), then retry DS DM20 request to the OBD ECU. [Do not attempt
@@ -94,19 +92,17 @@ public class Step25Controller extends StepController {
                 if (ratio.left.isPresent()) {
                     //6.1.25.1.a.i. Store ignition cycle counter value (SPN 3048) for later use.
                     module.setIgnitionCycleCounterValue(ratio.left.get().getIgnitionCycles());
-                    // 6.1.25.2.b. Fail if any difference compared to data received during global
-                    // request earlier in test 1.8.
-                    if (!CollectionUtils.areTwoListsEqual(module.getPerformanceRatios(),
-                                                          ratio.left.get().getRatios())) {
-                        String failureMessage = "6.1.25.2.b - Fail if any difference compared to data received during global request earlier in test 1.8" + NL;
+                    // 6.1.25.2.b. Fail if any difference compared to data received during global request earlier
+                    if (!CollectionUtils.areTwoCollectionsEqual(module.getPerformanceRatios(),
+                            ratio.left.get().getRatios())) {
+                        String failureMessage = "6.1.25.2.b - Difference compared to data received during global request earlier" + NL;
                         failureMessage += getAddressName(module.getSourceAddress());
-                        failureMessage += " had a differnce between stored performance ratios and destination specific requested DM20 response ratios";
+                        failureMessage += " had a difference between stored performance ratios and destination specific requested DM20 response ratios";
                         addFailure(failureMessage);
                     }
                 } else if (ratio.right.isEmpty() || ratio.right.get().getResponse() != Response.NACK) {
                     // 6.1.25.2.c. Fail if NACK not received from OBD ECUs that did not respond to global query in test 1.8.
-                    addFailure(
-                            "6.1.25.2.c - Fail if NACK not received from OBD ECUs that did not respond to global query in test 1.8");
+                    addFailure("6.1.25.2.c - NACK not received from OBD ECUs that did not respond to global query");
                 }
             } else {
                 addWarning(getAddressName(module.getSourceAddress()) + " did not response to the DS20 request");
