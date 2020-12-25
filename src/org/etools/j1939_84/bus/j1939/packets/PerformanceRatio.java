@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -52,8 +52,10 @@ public class PerformanceRatio {
             return false;
         }
         PerformanceRatio that = (PerformanceRatio) obj;
-        return getSpn() == that.getSpn() && getNumerator() == that.getNumerator()
-                && getDenominator() == that.getDenominator() && sourceAddress == that.sourceAddress;
+        return getSpn() == that.getSpn()
+                && getNumerator() == that.getNumerator()
+                && getDenominator() == that.getDenominator()
+                && sourceAddress == that.sourceAddress;
     }
 
     /**

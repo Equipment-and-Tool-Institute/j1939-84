@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -63,33 +63,29 @@ public class Step15Controller extends StepController {
 
         dtcModule.setJ1939(getJ1939());
 
-        // 6.1.15.1 Actions:
-        // a. Gather broadcast DM1 data from all ECUs (PGN 65226 (SPNs
-        // 1213-1215, 1706, and 3038)).
+        // 6.1.15.1.a. Gather broadcast DM1 data from all ECUs (PGN 65226)
         RequestResult<DM1ActiveDTCsPacket> results = dtcModule.readDM1(getListener());
 
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
-        // 6.1.15.2 Fail criteria:
         results.getPackets().forEach(packet -> {
             boolean isObdModule = obdModuleAddresses.contains(packet.getSourceAddress());
-            // a. Fail if any OBD ECU reports an active DTC.
+            // 6.1.15.2.a. Fail if any OBD ECU reports an active DTC.
             if (isObdModule && !packet.getDtcs().isEmpty()) {
                 addFailure("6.1.15.2.a - Fail if any OBD ECU reports an active DTC");
             }
-            // b. Fail if any OBD ECU does not report MIL off. See section A.8
+            // 6.1.15.2.b. Fail if any OBD ECU does not report MIL off. See section A.8
             // for allowed values
             LampStatus malfunctionIndicatorLampStatus = packet.getMalfunctionIndicatorLampStatus();
             if (isObdModule && malfunctionIndicatorLampStatus != OFF) {
                 addFailure("6.1.15.2.b - Fail if any OBD ECU does not report MIL off per Section A.8 allowed values");
 
-                // 6.1.15.3 Warn criteria:
-                // a. Warn if any ECU reports the non-preferred MIL off format.
+                // 6.1.15.3.a. Warn if any ECU reports the non-preferred MIL off format.
                 // See section A.8 for description of (0b00, 0b00).
                 if (malfunctionIndicatorLampStatus == LampStatus.ALTERNATE_OFF) {
                     addWarning("6.1.15.3.a - any ECU reports the non-preferred MIL off format per Section A.8");
                 }
             }
-            // c. Fail if any non-OBD ECU does not report MIL off or not
+            // 6.1.15.2.c. Fail if any non-OBD ECU does not report MIL off or not
             // supported/ MIL status (per SAE J1939-73 Table 5).
             if (!isObdModule && malfunctionIndicatorLampStatus != OFF
                     && malfunctionIndicatorLampStatus != NOT_SUPPORTED) {
@@ -98,14 +94,11 @@ public class Step15Controller extends StepController {
             packet.getDtcs().forEach(dtc -> {
                 if (dtc.getConversionMethod() == 1) {
                     if (isObdModule) {
-                        // d. Fail if any OBD ECU reports SPN conversion method
-                        // (SPN 1706) equal to binary 1.
+                        // 6.1.15.2.d. Fail if any OBD ECU reports SPN conversion method (SPN 1706) equal to binary 1.
                         addFailure(
                                 "6.1.15.2.d - Fail if any OBD ECU reports SPN conversion method (SPN 1706) equal to binary 1");
                     } else {
-                        // 6.1.15.3
-                        // b. Warn if any non-OBD ECU reports SPN conversion
-                        // method (SPN 1706) equal to 1.
+                        // 6.1.15.3.b. Warn if any non-OBD ECU reports SPN conversion method (SPN 1706) equal to 1.
                         addWarning(
                                 "6.1.15.3.b - Warn if any non-OBD ECU reports SPN conversion method (SPN 1706) equal to 1");
                     }

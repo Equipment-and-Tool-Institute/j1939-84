@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -8,9 +8,9 @@ import static org.etools.j1939_84.model.Outcome.ABORT;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -48,7 +48,7 @@ public class Step02Controller extends StepController {
 
                 while (!getEngineSpeedModule().isEngineNotRunning() && getEnding() == null) {
                     updateProgress("Waiting for Key ON, Engine OFF...");
-                    Thread.sleep(500);
+                    DateTimeModule.getInstance().pauseFor(500);
                 }
             }
         } catch (InterruptedException e) {

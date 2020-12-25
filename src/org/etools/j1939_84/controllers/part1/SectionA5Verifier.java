@@ -534,7 +534,6 @@ public class SectionA5Verifier {
             }
         });
         if (!dm30Packets.isEmpty()) {
-            boolean[] failed = { false };
             StringBuilder failureMessage = new StringBuilder(
                     "Section A.5 verification failed during DM7/DM30 check done at table step 6.a");
             failureMessage.append(NL).append("DM30 Scaled Test Results for");
@@ -547,19 +546,16 @@ public class SectionA5Verifier {
                     if (isInvalid(testMaximum)) {
                         failureMessage.append("  TestMaximum failed and the value returned was : ")
                                 .append(testMaximum).append(NL);
-                        failed[0] = true;
                     }
                     int testValue = testResult.getTestValue();
                     if (isInvalid(testValue)) {
                         failureMessage.append("  TestResult failed and the value returned was : ")
                                 .append(testResult.getTestValue()).append(NL);
-                        failed[0] = true;
                     }
                     int testMinimum = testResult.getTestMinimum();
                     if (isInvalid(testMinimum)) {
                         failureMessage.append("  TestMinimum failed and the value returned was : ")
                                 .append(testResult.getTestMinimum()).append(NL);
-                        failed[0] = true;
                     }
                     failureMessage.append("]");
                 }

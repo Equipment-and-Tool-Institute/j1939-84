@@ -68,8 +68,7 @@ public class Step09Controller extends StepController {
                         .flatMap(e -> e.left).stream())
                 .collect(Collectors.toList());
         if (packets.isEmpty()) {
-            addFailure(
-                    "6.1.9.1.a There are no positive responses (serial number SPN 588 not supported by any OBD ECU)");
+            addFailure("6.1.9.1.a There are no positive responses (serial number SPN 588 not supported by any OBD ECU)");
         }
         // Filter the modules responded to be only ones with function = 0 (engine function)
         List<OBDModuleInformation> zeroFunctionObdBDModules = dataRepository.getObdModules()
@@ -102,8 +101,7 @@ public class Step09Controller extends StepController {
 
         // 6.1.9.2 Fail Criteria:
         // c. Fail if the serial number field (SPN 588) from any function 0
-        // device does not end in 6 numeric characters (ASCII 0 through ASCII
-        // 9).
+        // device does not end in 6 numeric characters (ASCII 0 through ASCII 9).
         String serialNumber = zeroFunctionPacket != null ? zeroFunctionPacket.getSerialNumber() : "";
 
         if (serialNumber.length() >= 6 && !StringUtils.containsOnlyNumericAsciiCharacters(serialNumber.substring(
@@ -136,8 +134,7 @@ public class Step09Controller extends StepController {
                     STEP_NUMBER,
                     "6.1.9.3.a Serial number field (SPN 588) from any function 0 device is less than 8 characters long");
         }
-        // b. Warn if the make field (SPN 586) is longer than 5 ASCII
-        // characters.
+        // b. Warn if the make field (SPN 586) is longer than 5 ASCII characters.
         if (!make.isEmpty() && make.length() > 5) {
             addWarning(PART_NUMBER,
                     STEP_NUMBER,
