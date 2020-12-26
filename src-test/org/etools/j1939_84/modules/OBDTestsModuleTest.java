@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import org.etools.j1939_84.bus.Packet;
@@ -162,21 +163,21 @@ public class OBDTestsModuleTest {
         expected += "]" + NL;
         expected += "" + NL;
         expected += NL;
-        expected += "DM30 from 0: SPN 102 FMI 18 Result: Test Not Complete." + NL;
+        expected += "DM30 from 0: SPN 102 FMI 18 (SLOT 208) Result: Test Not Complete." + NL;
         expected += "" + NL;
-        expected += "DM30 from 0: SPN 512 FMI 18 Result: Test Not Complete." + NL;
+        expected += "DM30 from 0: SPN 512 FMI 18 (SLOT 208) Result: Test Not Complete." + NL;
         expected += "" + NL;
-        expected += "DM30 from 0: SPN 520348 FMI 31 Result: Test Not Complete." + NL;
+        expected += "DM30 from 0: SPN 520348 FMI 31 (SLOT 208) Result: Test Not Complete." + NL;
         expected += "" + NL;
-        expected += "DM30 from 85: SPN 3226 FMI 10 Result: Test Not Complete." + NL;
+        expected += "DM30 from 85: SPN 3226 FMI 10 (SLOT 256) Result: Test Not Complete." + NL;
         expected += "" + NL;
-        expected += "DM30 from 85: SPN 4364 FMI 0 Result: Test Passed. Min: N/A, Value: 65,535, Max: N/A" + NL;
+        expected += "DM30 from 85: SPN 4364 FMI 0 (SLOT 65531) Result: Test Passed. Min: N/A, Value: 65,535, Max: N/A" + NL;
         expected += "" + NL;
         expected += "Incomplete Tests: [" + NL;
-        expected += "  Diesel Particulate Filter Controller (85): SPN 3226 FMI 10 Result: Test Not Complete." + NL;
-        expected += "  Engine #1 (0): SPN 102 FMI 18 Result: Test Not Complete." + NL;
-        expected += "  Engine #1 (0): SPN 512 FMI 18 Result: Test Not Complete." + NL;
-        expected += "  Engine #1 (0): SPN 520348 FMI 31 Result: Test Not Complete." + NL;
+        expected += "  Diesel Particulate Filter Controller (85): SPN 3226 FMI 10 (SLOT 256) Result: Test Not Complete." + NL;
+        expected += "  Engine #1 (0): SPN 102 FMI 18 (SLOT 208) Result: Test Not Complete." + NL;
+        expected += "  Engine #1 (0): SPN 512 FMI 18 (SLOT 208) Result: Test Not Complete." + NL;
+        expected += "  Engine #1 (0): SPN 520348 FMI 31 (SLOT 208) Result: Test Not Complete." + NL;
         expected += "]" + NL;
         expected += "4 Incomplete Tests" + NL;
 
@@ -199,15 +200,10 @@ public class OBDTestsModuleTest {
         when(j1939.requestDS("Direct DM24 Request to Engine #1 (0)", listener, true,
                 DM24SPNSupportPacket.class, requestPacket))
                 .thenReturn(new BusResult<>(true, Optional.empty()));
-        List<Integer> obdModules = Arrays.asList(0x00);
+        List<Integer> obdModules = Collections.singletonList(0x00);
 
         instance.requestSupportedSpnPackets(listener, obdModules);
-        String expected = "";
-        // expected += "10:15:30.0000 Direct DM24 Request to Engine #1 (0)" +
-        // NL;
-        // expected += "10:15:30.0000 18EA00A5 B6 FD 00 (TX)" + NL;
-        // expected += "Error: Timeout - No Response." + NL;
-        expected += "" + NL;
+        String expected = NL;
         expected += "ERROR No tests results returned" + NL;
 
         assertEquals(expected, listener.getResults());
@@ -248,7 +244,7 @@ public class OBDTestsModuleTest {
         expected += "]" + NL;
         expected += NL;
         expected += NL;
-        expected += "DM30 from 0: SPN 102 FMI 18 Result: Test Passed. Min: N/A, Value: 64,000, Max: N/A count" + NL;
+        expected += "DM30 from 0: SPN 102 FMI 18 (SLOT 208) Result: Test Passed. Min: N/A, Value: 64,000, Max: N/A count" + NL;
         expected += "" + NL;
         expected += "All Tests Complete" + NL;
 
@@ -313,7 +309,7 @@ public class OBDTestsModuleTest {
                 requestPacket))
                 .thenReturn((new BusResult<>(false, engineDm24Packet)));
 
-        List<Integer> obdModules = Arrays.asList(0x00);
+        List<Integer> obdModules = Collections.singletonList(0x00);
         instance.requestSupportedSpnPackets(listener, obdModules);
 
         String expected = "";

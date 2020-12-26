@@ -199,7 +199,7 @@ public class ScaledTestResult {
 
     @Override
     public String toString() {
-        String result = "SPN " + getSpn() + " FMI " + getFmi() + " ";
+        String result = "SPN " + getSpn() + " FMI " + getFmi() + " (SLOT " + slotNumber + ") ";
         final TestResult testResult = getTestResult();
         result += "Result: " + testResult + ".";
         if (testResult == TestResult.PASSED || testResult == TestResult.FAILED) {

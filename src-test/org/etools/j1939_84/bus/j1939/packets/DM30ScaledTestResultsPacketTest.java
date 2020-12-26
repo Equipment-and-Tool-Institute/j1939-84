@@ -34,11 +34,11 @@ public class DM30ScaledTestResultsPacketTest {
         assertEquals(1, testResults.size());
         {
             ScaledTestResult testResult = testResults.get(0);
-            String expected = "SPN 3362 FMI 31 Result: Test Passed. Min: 800, Value: 951, Max: 1,000 count";
+            String expected = "SPN 3362 FMI 31 (SLOT 208) Result: Test Passed. Min: 800, Value: 951, Max: 1,000 count";
             assertEquals(expected, testResult.toString());
         }
 
-        String expected = "DM30 from 0: SPN 3362 FMI 31 Result: Test Passed. Min: 800, Value: 951, Max: 1,000 count";
+        String expected = "DM30 from 0: SPN 3362 FMI 31 (SLOT 208) Result: Test Passed. Min: 800, Value: 951, Max: 1,000 count";
         assertEquals(expected, instance.toString());
     }
 
@@ -53,24 +53,24 @@ public class DM30ScaledTestResultsPacketTest {
         assertEquals(3, testResults.size());
         {
             ScaledTestResult testResult = testResults.get(0);
-            String expected = "SPN 724 FMI 20 Result: Test Passed. Min: -3.92, Value: -3.92, Max: -3.92";
+            String expected = "SPN 724 FMI 20 (SLOT 318) Result: Test Passed. Min: -3.92, Value: -3.92, Max: -3.92";
             assertEquals(expected, testResult.toString());
         }
         {
             ScaledTestResult testResult = testResults.get(1);
-            String expected = "SPN 724 FMI 21 Result: Test Passed. Min: -3.92, Value: -3.92, Max: -3.92";
+            String expected = "SPN 724 FMI 21 (SLOT 318) Result: Test Passed. Min: -3.92, Value: -3.92, Max: -3.92";
             assertEquals(expected, testResult.toString());
         }
         {
             ScaledTestResult testResult = testResults.get(2);
-            String expected = "SPN 724 FMI 2 Result: Test Passed. Min: 0, Value: 0, Max: 0 ms";
+            String expected = "SPN 724 FMI 2 (SLOT 132) Result: Test Passed. Min: 0, Value: 0, Max: 0 ms";
             assertEquals(expected, testResult.toString());
         }
 
         String expected = "DM30 from 0: [" + NL
-                + "  SPN 724 FMI 20 Result: Test Passed. Min: -3.92, Value: -3.92, Max: -3.92" + NL
-                + "  SPN 724 FMI 21 Result: Test Passed. Min: -3.92, Value: -3.92, Max: -3.92" + NL
-                + "  SPN 724 FMI 2 Result: Test Passed. Min: 0, Value: 0, Max: 0 ms" + NL
+                + "  SPN 724 FMI 20 (SLOT 318) Result: Test Passed. Min: -3.92, Value: -3.92, Max: -3.92" + NL
+                + "  SPN 724 FMI 21 (SLOT 318) Result: Test Passed. Min: -3.92, Value: -3.92, Max: -3.92" + NL
+                + "  SPN 724 FMI 2 (SLOT 132) Result: Test Passed. Min: 0, Value: 0, Max: 0 ms" + NL
                 + "]";
         assertEquals(expected, instance.toString());
     }
