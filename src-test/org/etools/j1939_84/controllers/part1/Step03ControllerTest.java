@@ -280,6 +280,7 @@ public class Step03ControllerTest {
         RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(false, new ArrayList<>(),
                 new ArrayList<>());
         DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
+        when(packet1.getOBDCompliance()).thenReturn((byte)4);
         requestResult.getPackets().add(packet1);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);

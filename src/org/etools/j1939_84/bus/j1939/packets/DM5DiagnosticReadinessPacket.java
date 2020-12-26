@@ -21,6 +21,7 @@ public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
 
 	public static final int PGN = 65230;
 
+	@SuppressWarnings("DuplicateBranchesInSwitch")
 	private static String lookupObdCompliance(byte value) {
 		switch (value) {
 		case 1:
@@ -178,10 +179,9 @@ public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
 	@Override
 	public String toString() {
 		final byte obd = getOBDCompliance();
-		String result = getStringPrefix() + "OBD Compliance: " + lookupObdCompliance(obd) + " (" + (obd & 0xFF) + "), "
+		return getStringPrefix() + "OBD Compliance: " + lookupObdCompliance(obd) + " (" + (obd & 0xFF) + "), "
 				+ "Active Codes: " + getValueWithUnits(getActiveCodeCount(), null) + ", Previously Active Codes: "
 				+ getValueWithUnits(getPreviouslyActiveCodeCount(), null);
-		return result;
 	}
 
 }

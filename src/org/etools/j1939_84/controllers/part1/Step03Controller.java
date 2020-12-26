@@ -3,8 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import java.util.Collection;
-import java.util.HashSet;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
@@ -83,12 +81,17 @@ public class Step03Controller extends StepController {
                     dataRepository.putObdModule(p.getSourceAddress(), info);
                 });
 
-        Collection<OBDModuleInformation> modules = dataRepository.getObdModules();
-        if (modules.isEmpty()) {
+        if (dataRepository.getObdModules().size() < 1) {
             addFailure(1, 3, "6.1.3.2.a - There needs to be at least one OBD Module");
         }
 
-        long distinctCount = new HashSet<>(modules).size();
+        long distinctCount = response.getPackets()
+                .stream()
+                .map(DM5DiagnosticReadinessPacket::getOBDCompliance)
+                .filter(c -> c != (byte) 255 && c != (byte) 5) //Non-OBD values
+                .distinct()
+                .count();
+
         if (distinctCount > 1) {
             // All the values should be the same
             addWarning(1,
