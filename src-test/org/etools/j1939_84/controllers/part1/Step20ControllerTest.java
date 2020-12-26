@@ -185,7 +185,7 @@ public class Step20ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM28(any(), eq(true), eq(0x03));
 
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                                  "6.1.20.2.a - An ECU reported active DTCs");
+                                                  "6.1.20.2.a - An ECU reported permanent DTCs");
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                                   "6.1.20.2.b - An ECU did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
@@ -193,9 +193,9 @@ public class Step20ControllerTest extends AbstractControllerTest {
 
         verify(reportFileModule).onProgress(0, 1, "");
 
-        String expectedResults = "FAIL: 6.1.20.2.a - An ECU reported active DTCs" + NL;
+        String expectedResults = "FAIL: 6.1.20.2.a - An ECU reported permanent DTCs" + NL;
         expectedResults += "FAIL: 6.1.20.2.b - An ECU did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.20.2.a - An ECU reported active DTCs" + NL;
+        expectedResults += "FAIL: 6.1.20.2.a - An ECU reported permanent DTCs" + NL;
         expectedResults += "FAIL: 6.1.20.2.b - An ECU did not report MIL off" + NL;
         expectedResults += "FAIL: 6.1.20.4.a Difference compared to data received during global request" + NL;
 
@@ -269,7 +269,7 @@ public class Step20ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM28(any(), eq(true), eq(0x03));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.20.2.a - An ECU reported active DTCs");
+                                        "6.1.20.2.a - An ECU reported permanent DTCs");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.20.2.b - An ECU did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
@@ -279,7 +279,7 @@ public class Step20ControllerTest extends AbstractControllerTest {
 
         verify(reportFileModule).onProgress(0, 1, "");
 
-        String expectedResults = "FAIL: 6.1.20.2.a - An ECU reported active DTCs" + NL;
+        String expectedResults = "FAIL: 6.1.20.2.a - An ECU reported permanent DTCs" + NL;
         expectedResults += "FAIL: 6.1.20.2.b - An ECU did not report MIL off" + NL;
         expectedResults += "FAIL: 6.1.20.4.a Difference compared to data received during global request" + NL;
         expectedResults += "FAIL: 6.1.20.4.b NACK not received from OBD ECUs that did not respond to global query" + NL;

@@ -74,7 +74,7 @@ public class Step20Controller extends StepController {
         globalResponse.getPackets().forEach(packet -> {
             // 6.1.20.2.a. Fail if any ECU reports a permanent DTC
             if (!packet.getDtcs().isEmpty()) {
-                addFailure("6.1.20.2.a - An ECU reported active DTCs");
+                addFailure("6.1.20.2.a - An ECU reported permanent DTCs");
             }
             // 6.1.20.2.b. Fail if any ECU does not report MIL off
             if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF) {
