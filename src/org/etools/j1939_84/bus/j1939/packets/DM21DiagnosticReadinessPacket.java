@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -17,8 +17,6 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 public class DM21DiagnosticReadinessPacket extends GenericPacket {
 
     public static final int PGN = 49408;
-
-    public static final String TSCC_LINE = "Time Since DTCs Cleared:";
 
     public DM21DiagnosticReadinessPacket(Packet packet) {
         super(packet, new J1939DaRepository().findPgnDefinition(PGN));
@@ -111,7 +109,7 @@ public class DM21DiagnosticReadinessPacket extends GenericPacket {
         result += "  Distance Traveled While MIL is Activated:     " + getDistanceWithMILActiveAsString() + NL;
         result += "  Time Run by Engine While MIL is Activated:    " + getTimeWithMILActiveAsString() + NL;
         result += "  Distance Since DTCs Cleared:                  " + getDistanceSinceDTCsClearedAsString() + NL;
-        result += "  " + TSCC_LINE + "                      " + getTimeSinceDTCsClearedAsString() + NL;
+        result += "  Time Since DTCs Cleared:                      " + getTimeSinceDTCsClearedAsString() + NL;
         result += "]";
         return result;
     }

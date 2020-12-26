@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -16,7 +16,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -45,7 +44,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  * The unit test for {@link Step06Controller}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Step11ControllerTest extends AbstractControllerTest {
@@ -55,12 +53,12 @@ public class Step11ControllerTest extends AbstractControllerTest {
      * unnecessary mocks.
      */
     private static DM21DiagnosticReadinessPacket createDM21Packet(Integer sourceAddress,
-                                                                  Double kmSinceDtcCleared,
-                                                                  Double kmWhileMILIsActivated,
-                                                                  Double milesSinceDTCsCleared,
-                                                                  Double milesWhileMILIsActivated,
-                                                                  Double minutesSinceDTCsCleared,
-                                                                  Double minutesWhileMILIsActivated) {
+            Double kmSinceDtcCleared,
+            Double kmWhileMILIsActivated,
+            Double milesSinceDTCsCleared,
+            Double milesWhileMILIsActivated,
+            Double minutesSinceDTCsCleared,
+            Double minutesWhileMILIsActivated) {
         DM21DiagnosticReadinessPacket packet = mock(DM21DiagnosticReadinessPacket.class);
         if (sourceAddress != null) {
             when(packet.getSourceAddress()).thenReturn(sourceAddress);
@@ -85,9 +83,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
         }
         return packet;
     }
-
-    @Mock
-    private AcknowledgmentPacket acknowledgmentPacket;
 
     @Mock
     private BannerModule bannerModule;
@@ -119,11 +114,8 @@ public class Step11ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         listener = new TestResultsListener(mockListener);
 
         instance = new Step11Controller(executor,
@@ -135,11 +127,8 @@ public class Step11ControllerTest extends AbstractControllerTest {
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verifyNoMoreInteractions(executor,
                 engineSpeedModule,
                 bannerModule,
@@ -152,19 +141,11 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testEmptyDM21PacketsCleared() {
-        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
-            {
-                add(0);
-                add(17);
-                add(21);
-            }
-        };
+        List<Integer> obdAddressSet = List.of(0, 17, 21);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> emptyPackets = new ArrayList<>();
-        // return packets when Global DM21 request (PGN 59904) for PGN 49408
-        // (SPNs 3069,
-        // 3294-3296)).
+
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, emptyPackets, Collections.emptyList()));
         // return the set of OBD module addresses when requested
@@ -193,31 +174,31 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.1.e - Fail if no OBD ECU provides a DM21 message");
+                "6.1.11.1.e - No OBD ECU provided a DM21 message");
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.e - Fail if any responses differ from global responses");
+                "6.1.11.4.e - DS responses differ from global responses");
 
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.1.e - Fail if no OBD ECU provides a DM21 message");
+                "6.1.11.1.e - No OBD ECU provided a DM21 message");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.e - Fail if any responses differ from global responses");
+                "6.1.11.4.e - DS responses differ from global responses");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.1.e - Fail if no OBD ECU provides a DM21 message");
+                "FAIL: 6.1.11.1.e - No OBD ECU provided a DM21 message");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses");
+                "FAIL: 6.1.11.4.e - DS responses differ from global responses");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.e - Fail if no OBD ECU provides a DM21 message" + NL
-                + "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses" + NL;
+        String expectedResult = "FAIL: 6.1.11.1.e - No OBD ECU provided a DM21 message" + NL
+                + "FAIL: 6.1.11.4.e - DS responses differ from global responses" + NL;
         assertEquals(expectedResult, listener.getResults());
 
     }
@@ -242,19 +223,10 @@ public class Step11ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGlobalAndAddressSpecificResponsesDiffer() {
-        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
-            {
-                add(0);
-                add(17);
-                add(21);
-            }
-        };
+        List<Integer> obdAddressSet = List.of(0, 17, 21);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> globalPackets = new ArrayList<>();
-        // return packets when Global DM21 request (PGN 59904) for PGN 49408
-        // (SPNs 3069,
-        // 3294-3296)).
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, globalPackets, Collections.emptyList()));
         // return the set of OBD module addresses when requested
@@ -269,12 +241,10 @@ public class Step11ControllerTest extends AbstractControllerTest {
                 .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
 
-        mock(AcknowledgmentPacket.class);
-
         DM21DiagnosticReadinessPacket packet3 = createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
                 .thenReturn(new BusResult<>(false, new Either<>(packet3, null
-                /* packet3 - this didn't make sense */)));
+                        /* packet3 - this didn't make sense */)));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -288,39 +258,28 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.e - Fail if any responses differ from global responses");
+                "6.1.11.4.e - DS responses differ from global responses");
 
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.e - Fail if any responses differ from global responses");
+                "6.1.11.4.e - DS responses differ from global responses");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses");
+                "FAIL: 6.1.11.4.e - DS responses differ from global responses");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses" + NL;
+        String expectedResult = "FAIL: 6.1.11.4.e - DS responses differ from global responses" + NL;
         assertEquals(expectedResult, listener.getResults());
-
     }
 
     @Test
     public void testGlobalAndAddressSpecificResponsesDifferAtNackPacket() {
-        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
-            {
-                add(0);
-                add(9);
-                add(17);
-                add(21);
-            }
-        };
+        List<Integer> obdAddressSet = List.of(0, 9, 17, 21);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> globalPackets = new ArrayList<>();
-        // return packets when Global DM21 request (PGN 59904) for PGN 49408
-        // (SPNs 3069,
-        // 3294-3296)).
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, globalPackets, Collections.emptyList()));
         // return the set of OBD module addresses when requested
@@ -360,39 +319,28 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.e - Fail if any responses differ from global responses");
+                "6.1.11.4.e - DS responses differ from global responses");
 
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.e - Fail if any responses differ from global responses");
+                "6.1.11.4.e - DS responses differ from global responses");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses");
+                "FAIL: 6.1.11.4.e - DS responses differ from global responses");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses" + NL;
+        String expectedResult = "FAIL: 6.1.11.4.e - DS responses differ from global responses" + NL;
         assertEquals(expectedResult, listener.getResults());
-
     }
 
     @Test
     public void testGlobalAndAddressSpecificResponsesDifferAtSourceAddress() {
-        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
-            {
-                add(0);
-                add(9);
-                add(17);
-                add(21);
-            }
-        };
+        List<Integer> obdAddressSet = List.of(0, 9, 17, 21);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> globalPackets = new ArrayList<>();
-        // return packets when Global DM21 request (PGN 59904) for PGN 49408
-        // (SPNs 3069,
-        // 3294-3296)).
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, globalPackets, Collections.emptyList()));
         // return the set of OBD module addresses when requested
@@ -432,31 +380,30 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.e - Fail if any responses differ from global responses");
+                "6.1.11.4.e - DS responses differ from global responses");
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.f - Fail if NACK not received from OBD ECUs that did not respond to global query");
+                "6.1.11.4.f - NACK not received from OBD ECUs that did not respond to global query");
 
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.e - Fail if any responses differ from global responses");
+                "6.1.11.4.e - DS responses differ from global responses");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.f - Fail if NACK not received from OBD ECUs that did not respond to global query");
+                "6.1.11.4.f - NACK not received from OBD ECUs that did not respond to global query");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses");
+                "FAIL: 6.1.11.4.e - DS responses differ from global responses");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.4.f - Fail if NACK not received from OBD ECUs that did not respond to global query");
+                "FAIL: 6.1.11.4.f - NACK not received from OBD ECUs that did not respond to global query");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.4.e - Fail if any responses differ from global responses" + NL
-                + "FAIL: 6.1.11.4.f - Fail if NACK not received from OBD ECUs that did not respond to global query"
-                + NL;
+        String expectedResult = "FAIL: 6.1.11.4.e - DS responses differ from global responses" + NL
+                + "FAIL: 6.1.11.4.f - NACK not received from OBD ECUs that did not respond to global query" + NL;
         assertEquals(expectedResult, listener.getResults());
 
     }
@@ -467,19 +414,10 @@ public class Step11ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testHappyPath() {
-        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
-            {
-                add(0);
-                add(17);
-                add(21);
-            }
-        };
+        List<Integer> obdAddressSet = List.of(0, 17, 21);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
-        // return packets when Global DM21 request (PGN 59904) for PGN 49408
-        // (SPNs 3069,
-        // 3294-3296)).
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, packets, Collections.emptyList()));
         // return the set of OBD module addresses when requested
@@ -514,25 +452,11 @@ public class Step11ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
     }
 
-    /**
-     * Test method for
-     *
-     */
     @Test
     public void testKmSinceDTCsCleared() {
-        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
-            {
-                add(0);
-                add(17);
-                add(21);
-            }
-        };
+        List<Integer> obdAddressSet = List.of(0, 17, 21);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
-
-        // return packets when Global DM21 request (PGN 59904) for PGN 49408
-        // (SPNs 3069,
-        // 3294-3296)).
 
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, packets, Collections.emptyList()));
@@ -566,50 +490,41 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.1.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
+                "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
+                "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
 
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.1.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
+                "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.1.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
+                "FAIL: 6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
 
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
+                "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.4.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
+                "FAIL: 6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero"
+        String expectedResult = "FAIL: 6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero"
                 + NL
-                + "FAIL: 6.1.11.4.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero" + NL;
+                + "FAIL: 6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero" + NL;
         assertEquals(expectedResult, listener.getResults());
     }
 
     @Test
     public void testKmWhileMILIsActivated() {
-        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
-            {
-                add(0);
-                add(17);
-                add(21);
-            }
-        };
+        List<Integer> obdAddressSet = List.of(0, 17, 21);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
-        // return packets when Global DM21 request (PGN 59904) for PGN 49408
-        // (SPNs 3069,
-        // 3294-3296)).
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, packets, Collections.emptyList()));
         // return the set of OBD module addresses when requested
@@ -641,49 +556,40 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.1.b - Fail if any ECU reports distance SCC (SPN 3294) is not zero");
+                "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero");
+                "6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
 
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.1.b - Fail if any ECU reports distance SCC (SPN 3294) is not zero");
+                "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.1.b - Fail if any ECU reports distance SCC (SPN 3294) is not zero");
+                "FAIL: 6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero");
+                "6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero");
+                "FAIL: 6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.b - Fail if any ECU reports distance SCC (SPN 3294) is not zero" + NL
-                + "FAIL: 6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero" + NL;
+        String expectedResult = "FAIL: 6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero" + NL
+                + "FAIL: 6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero" + NL;
         assertEquals(expectedResult, listener.getResults());
     }
 
     @Test
     public void testMilesSinceDTCsCleared() {
-        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
-            {
-                add(0);
-                add(17);
-                add(21);
-            }
-        };
+        List<Integer> obdAddressSet = List.of(0, 17, 21);
         // return the set of OBD module addresses when requested
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
-        // return packets when Global DM21 request (PGN 59904) for PGN 49408
-        // (SPNs 3069,
-        // 3294-3296)).
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, packets, Collections.emptyList()));
 
@@ -714,50 +620,41 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.1.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
+                "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
+                "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
 
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.1.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
+                "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.1.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
+                "FAIL: 6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
 
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
+                "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.4.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero");
+                "FAIL: 6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero"
+        String expectedResult = "FAIL: 6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero"
                 + NL
-                + "FAIL: 6.1.11.4.a - Fail if any ECU reports distance with MIL on (SPN 3069) is not zero" + NL;
+                + "FAIL: 6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero" + NL;
         assertEquals(expectedResult, listener.getResults());
     }
 
     @Test
     public void testMilesWhileMILIsActivated() {
-        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
-            {
-                add(0);
-                add(17);
-                add(21);
-            }
-        };
+        List<Integer> obdAddressSet = List.of(0, 17, 21);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
-        // return packets when Global DM21 request (PGN 59904) for PGN 49408
-        // (SPNs 3069,
-        // 3294-3296)).
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, packets, Collections.emptyList()));
 
@@ -788,49 +685,42 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.1.b - Fail if any ECU reports distance SCC (SPN 3294) is not zero");
+                "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero");
+                "6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
 
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.1.b - Fail if any ECU reports distance SCC (SPN 3294) is not zero");
+                "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.1.b - Fail if any ECU reports distance SCC (SPN 3294) is not zero");
+                "FAIL: 6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero");
+                "6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero");
+                "FAIL: 6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.b - Fail if any ECU reports distance SCC (SPN 3294) is not zero" + NL
-                + "FAIL: 6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero" + NL;
+        String expectedResult = "FAIL: 6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero" + NL
+                + "FAIL: 6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero" + NL;
         assertEquals(expectedResult, listener.getResults());
     }
 
     @Test
     public void testMinutesSinceDTCsCleared() {
-        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
-            {
-                add(0);
-                add(17);
-                add(21);
-            }
-        };
+        List<Integer> obdAddressSet = List.of(0, 17, 21);
+
         // return the set of OBD module addresses when requested
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
-        // return packets when Global DM21 request (PGN 59904) for PGN 49408
-        // (SPNs 3069,
-        // 3294-3296)).
+
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, packets, Collections.emptyList()));
 
@@ -860,51 +750,43 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.1.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)");
+                "6.1.11.1.d - An ECU reported time SCC (SPN 3296) > 1 minute");
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)");
+                "6.1.11.4.d - An ECU reported time SCC (SPN 3296) > 1 minute");
 
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.1.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)");
+                "6.1.11.1.d - An ECU reported time SCC (SPN 3296) > 1 minute");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.1.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)");
+                "FAIL: 6.1.11.1.d - An ECU reported time SCC (SPN 3296) > 1 minute");
 
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)");
+                "6.1.11.4.d - An ECU reported time SCC (SPN 3296) > 1 minute");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.4.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)");
+                "FAIL: 6.1.11.4.d - An ECU reported time SCC (SPN 3296) > 1 minute");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)"
+        String expectedResult = "FAIL: 6.1.11.1.d - An ECU reported time SCC (SPN 3296) > 1 minute"
                 + NL
-                + "FAIL: 6.1.11.4.d - Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported)" + NL;
+                + "FAIL: 6.1.11.4.d - An ECU reported time SCC (SPN 3296) > 1 minute" + NL;
         assertEquals(expectedResult, listener.getResults());
 
     }
 
     @Test
     public void testMinutesWhileMILIsActivated() {
-        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
-            {
-                add(0);
-                add(17);
-                add(21);
-            }
-        };
+        List<Integer> obdAddressSet = List.of(0, 17, 21);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
-        // return packets when Global DM21 request (PGN 59904) for PGN 49408
-        // (SPNs 3069,
-        // 3294-3296)).
+        
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, packets, Collections.emptyList()));
         // return the set of OBD module addresses when requested
@@ -937,31 +819,31 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
+                "6.1.11.1.c - An ECU reported time with MIL on (SPN 3295) is not zero");
         verify(mockListener).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
+                "6.1.11.4.c - An ECU reported time with MIL on (SPN 3295) is not zero");
 
         verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
+                "6.1.11.1.c - An ECU reported time with MIL on (SPN 3295) is not zero");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
-                "6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
+                "6.1.11.4.c - An ECU reported time with MIL on (SPN 3295) is not zero");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
+                "FAIL: 6.1.11.1.c - An ECU reported time with MIL on (SPN 3295) is not zero");
         verify(reportFileModule).onResult(
-                "FAIL: 6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)");
+                "FAIL: 6.1.11.4.c - An ECU reported time with MIL on (SPN 3295) is not zero");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)"
+        String expectedResult = "FAIL: 6.1.11.1.c - An ECU reported time with MIL on (SPN 3295) is not zero"
                 + NL
-                + "FAIL: 6.1.11.4.c - Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)"
+                + "FAIL: 6.1.11.4.c - An ECU reported time with MIL on (SPN 3295) is not zero"
                 + NL;
         assertEquals(expectedResult, listener.getResults());
 

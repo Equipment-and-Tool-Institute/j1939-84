@@ -343,19 +343,6 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     }
 
     /**
-     * Requests all DM21s from all vehicle modules. The results are reported
-     * back to the supplied listener
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be notified of results
-     * @return true if packets were received
-     */
-    public boolean reportDM21(ResultsListener listener) {
-        RequestResult<? extends ParsedPacket> packets = requestDM21Packets(listener, true);
-        return !packets.getPackets().isEmpty();
-    }
-
-    /**
      * Requests all DM26 from all vehicle modules. The compiles the
      * {@link MonitoredSystem} to include a vehicle composite of those systems
      * for the report. The results are reported back to the supplied listener
@@ -623,8 +610,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      *         false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
      */
-    public RequestResult<DM21DiagnosticReadinessPacket> requestDM21Packets(ResultsListener listener,
-            boolean fullString) {
+    public RequestResult<DM21DiagnosticReadinessPacket> requestDM21Packets(ResultsListener listener, boolean fullString) {
         return getPacketsFromGlobal("Global DM21 Request",
                 DM21DiagnosticReadinessPacket.PGN,
                 DM21DiagnosticReadinessPacket.class,
