@@ -629,8 +629,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      *         false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM5DiagnosticReadinessPacket}s
      */
-    public RequestResult<DM5DiagnosticReadinessPacket> requestDM5(ResultsListener listener,
-            boolean fullString) {
+    public RequestResult<DM5DiagnosticReadinessPacket> requestDM5(ResultsListener listener, boolean fullString) {
 
         return getPacketsFromGlobal("Global DM5 Request",
                 DM5DiagnosticReadinessPacket.PGN,

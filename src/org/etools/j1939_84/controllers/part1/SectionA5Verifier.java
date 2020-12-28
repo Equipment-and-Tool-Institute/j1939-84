@@ -432,8 +432,7 @@ public class SectionA5Verifier {
     }
 
     public boolean verifyDM5(ResultsListener listener) {
-        // e. DM5 shall report zero for number of active and previously active
-        // DTCs
+        // e. DM5 shall report zero for number of active and previously active DTCs
         boolean passTest = true;
         List<DM5DiagnosticReadinessPacket> dm5Packets = diagnosticReadinessModule.requestDM5(listener, true)
                 .getPackets()
@@ -449,7 +448,7 @@ public class SectionA5Verifier {
                     .append(", reported ")
                     .append(packet.getActiveCodeCount())
                     .append(" active DTCs and ")
-                    .append(packet.getPreviouslyActiveCodeCount()).append(" previously acitve DTCs"));
+                    .append(packet.getPreviouslyActiveCodeCount()).append(" previously active DTCs"));
             listener.onProgress(failureMessage.toString());
             passTest = false;
         } else {

@@ -20,13 +20,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.RequestResult;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -50,12 +48,7 @@ public class SectionA6ValidatorTest {
     @Mock
     private DataRepository dataRepository;
 
-    @Mock
-    private DiagnosticReadinessModule diagnosticReadinessModule;
-
     private SectionA6Validator instance;
-    @Mock
-    private J1939 j1939;
 
     private TestResultsListener listener;
 
@@ -68,18 +61,12 @@ public class SectionA6ValidatorTest {
     @Before
     public void setUp() {
         listener = new TestResultsListener(mockListener);
-        instance = new SectionA6Validator(dataRepository,
-                diagnosticReadinessModule,
-                tableA6Validator);
+        instance = new SectionA6Validator(dataRepository, tableA6Validator);
     }
 
     @After
     public void tearDown() {
-        verifyNoMoreInteractions(
-                dataRepository,
-                diagnosticReadinessModule,
-                mockListener,
-                tableA6Validator);
+        verifyNoMoreInteractions(dataRepository, mockListener, tableA6Validator);
     }
 
     @Test
@@ -106,18 +93,12 @@ public class SectionA6ValidatorTest {
         };
         RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false,
                 dm5Packets, Collections.emptyList());
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(response);
 
         when(tableA6Validator.verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER))).thenReturn(true);
 
-        instance.setJ1939(j1939);
-
-        assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER));
+        assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER, response));
 
         verify(dataRepository).getObdModuleAddresses();
-
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true));
 
         StringBuilder expectedMessage1dPacket0 = new StringBuilder(SECTION_A6_VALIDATOR + NL);
         expectedMessage1dPacket0.append(" Step 1.d - A response does not report 0 for reserved bits")
@@ -149,16 +130,10 @@ public class SectionA6ValidatorTest {
 
         RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false,
                 Collections.emptyList(), Collections.emptyList());
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(response);
 
-        instance.setJ1939(j1939);
-
-        assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER));
+        assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER, response));
 
         verify(dataRepository).getObdModuleAddresses();
-
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true));
 
         StringBuilder expectedMessage1a = new StringBuilder(SECTION_A6_VALIDATOR + NL);
         expectedMessage1a.append(
@@ -204,16 +179,11 @@ public class SectionA6ValidatorTest {
         };
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(response);
         when(tableA6Validator.verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER))).thenReturn(true);
-        instance.setJ1939(j1939);
 
-        assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER));
+        assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER, response));
 
         verify(dataRepository, times(1)).getObdModuleAddresses();
-
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true));
 
         StringBuilder expectedMessage1d = new StringBuilder(SECTION_A6_VALIDATOR + NL);
         expectedMessage1d.append(" Step 1.d - A response does not report 0 for reserved bits")
@@ -262,19 +232,13 @@ public class SectionA6ValidatorTest {
                         0x23, 0x00, 0x00, 0x00, 0x00, 0x00)));
             }
         };
-        RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false,
-                dm5Packets, Collections.emptyList());
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(response);
+        RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false, dm5Packets, Collections.emptyList());
 
         when(tableA6Validator.verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER))).thenReturn(true);
-        instance.setJ1939(j1939);
 
-        assertTrue(instance.verify(listener, PART_NUMBER, STEP_NUMBER));
+        assertTrue(instance.verify(listener, PART_NUMBER, STEP_NUMBER, response));
 
         verify(dataRepository).getObdModuleAddresses();
-
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true));
 
         verify(tableA6Validator, times(3)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
@@ -308,15 +272,9 @@ public class SectionA6ValidatorTest {
         };
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(response);
-        instance.setJ1939(j1939);
-
-        assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER));
+        assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER, response));
 
         verify(dataRepository).getObdModuleAddresses();
-
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true));
 
         StringBuilder expectedMessage1a = new StringBuilder(SECTION_A6_VALIDATOR + NL);
         expectedMessage1a.append(
@@ -353,12 +311,12 @@ public class SectionA6ValidatorTest {
                 .append("also report 0 in the corresponding status bit in SPN 1221 and")
                 .append(NL)
                 .append("1223");
-        verify(mockListener, times(3)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 expectedMessage1c.toString());
 
         String expectedMessage2c = SECTION_A6_VALIDATOR + NL +
                 " Step 2.c - Composite vehicle readiness does not meet any of the criteria in Table A-6";
-        verify(mockListener, times(3)).addOutcome(PART_NUMBER, STEP_NUMBER,
+        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER,
                 FAIL,
                 expectedMessage2c);
 
@@ -380,13 +338,12 @@ public class SectionA6ValidatorTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
                 expectedMessage3b.toString());
 
-        verify(tableA6Validator, times(3)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
+        verify(tableA6Validator, times(2)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
         String expectedMessage =
                 FAIL.toString() + ": " + expectedMessage1a + NL +
                         FAIL.toString() + ": " + expectedMessage1c + NL +
                         FAIL.toString() + ": " + expectedMessage1b + NL +
-                        FAIL.toString() + ": " + expectedMessage1c + NL +
                         FAIL.toString() + ": " + expectedMessage1c + NL +
                         WARN.toString() + ": " + expectedMessage2d + NL +
                         WARN.toString() + ": " + expectedMessage3b;

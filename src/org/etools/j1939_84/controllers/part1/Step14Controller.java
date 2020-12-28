@@ -46,28 +46,28 @@ public class Step14Controller extends StepController {
 
     Step14Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-             new EngineSpeedModule(),
-             new BannerModule(),
-             new VehicleInformationModule(),
-             new DiagnosticReadinessModule(),
-             new DTCModule(),
-             dataRepository);
+                new EngineSpeedModule(),
+                new BannerModule(),
+                new VehicleInformationModule(),
+                new DiagnosticReadinessModule(),
+                new DTCModule(),
+                dataRepository);
     }
 
     Step14Controller(Executor executor,
-                     EngineSpeedModule engineSpeedModule,
-                     BannerModule bannerModule,
-                     VehicleInformationModule vehicleInformationModule,
-                     DiagnosticReadinessModule diagnosticReadinessModule,
-                     DTCModule dtcModule,
-                     DataRepository dataRepository) {
+            EngineSpeedModule engineSpeedModule,
+            BannerModule bannerModule,
+            VehicleInformationModule vehicleInformationModule,
+            DiagnosticReadinessModule diagnosticReadinessModule,
+            DTCModule dtcModule,
+            DataRepository dataRepository) {
         super(executor,
-              engineSpeedModule,
-              bannerModule,
-              vehicleInformationModule,
-              PART_NUMBER,
-              STEP_NUMBER,
-              TOTAL_STEPS);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                PART_NUMBER,
+                STEP_NUMBER,
+                TOTAL_STEPS);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dtcModule = dtcModule;
         this.dataRepository = dataRepository;
@@ -79,32 +79,35 @@ public class Step14Controller extends StepController {
         diagnosticReadinessModule.setJ1939(getJ1939());
         dtcModule.setJ1939(getJ1939());
 
-        // 6.1.14.1 Actions:
-        // a. Global DM26 (send Request (PGN 59904) for PGN 64952 (SPNs
+        // 6.1.14.1.a. Global DM26 (send Request (PGN 59904) for PGN 64952 (SPNs
         // 3301-3305)).
         // i. Create list by ECU address of all data and current status for
         // use later in the test.
         RequestResult<DM26TripDiagnosticReadinessPacket> globalResponse = dtcModule.requestDM26(getListener());
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
         if (!globalResponse.getPackets().isEmpty()) {
-            // b. Display monitor readiness composite value in log for OBD ECU
-            // replies only.
+            // 6.1.14.1.b. Display monitor readiness composite value in log for OBD ECU replies only.
             getListener().onResult("");
             getListener().onResult("Vehicle Composite of DM26:");
-            List<CompositeMonitoredSystem> dm26Systems = DiagnosticReadinessModule
-                    .getCompositeSystems(globalResponse.getPackets().stream()
-                            .filter(p -> obdModuleAddresses.contains(p.getSourceAddress())).collect(Collectors.toList()), false);
-            getListener().onResult(dm26Systems.stream().sorted().map(MonitoredSystem::toString)
-                                           .collect(Collectors.toList()));
+            List<DM26TripDiagnosticReadinessPacket> obdModulePackets = globalResponse.getPackets().stream()
+                    .filter(p -> obdModuleAddresses.contains(p.getSourceAddress()))
+                    .collect(Collectors.toList());
 
-            // 6.1.14.2 Fail criteria:
+            List<CompositeMonitoredSystem> dm26Systems = DiagnosticReadinessModule.getCompositeSystems(obdModulePackets,
+                    false);
+
+            getListener().onResult(dm26Systems.stream()
+                    .sorted()
+                    .map(MonitoredSystem::toString)
+                    .collect(Collectors.toList()));
+
             DiagnosticReadinessModule.getCompositeSystems(dataRepository.getObdModules().stream()
-                                                                  .flatMap(module -> module.getMonitoredSystems()
-                                                                          .stream())
-                                                                  .sorted()
-                                                                  .collect(Collectors.toList()), true)
+                    .flatMap(module -> module.getMonitoredSystems()
+                            .stream())
+                    .sorted()
+                    .collect(Collectors.toList()), true)
                     .forEach(system -> {
-                        // a. Fail if any response for any monitor supported in
+                        // 6.1.14.2.a. Fail if any response for any monitor supported in
                         // DM5 by a given ECU is reported as '0=monitor complete
                         // this cycle or not supported' in SPN 3303 bits 1-4 and
                         // SPN 3305 [except comprehensive components monitor
@@ -115,7 +118,7 @@ public class Step14Controller extends StepController {
                                     "6.1.14.2.a Fail if any response for a monitor in DM5 is reported as supported and is reported as not supported by DM26 response");
                         } else if (!system.getStatus().isEnabled() && dm26Systems.stream()
                                 .anyMatch(s -> (s.getId() == system.getId()) && (s.getStatus().isEnabled()))) {
-                            // b. Fail if any response for each monitor not
+                            // 6.1.14.2.b. Fail if any response for each monitor not
                             // supported in DM5 by a given ECU is not also
                             // reported in DM26 as '0=monitor complete this
                             // cycle or not supported' in SPN 3303 bits 5-7 and
@@ -127,12 +130,8 @@ public class Step14Controller extends StepController {
                             if (system.getId() == CompositeSystem.COMPREHENSIVE_COMPONENT
                                     && !system.getStatus().isEnabled() && dm26Systems.stream()
                                     .anyMatch(s -> s.getId() == system.getId() && s.getStatus().isEnabled())) {
-                                // c. Fail if any response from an ECU
-                                // indicating
-                                // support for CCM monitor in DM5 reports
-                                // '0=monitor
-                                // disabled for rest of this cycle or not
-                                // supported'
+                                // 6.1.14.2.c. Fail if any response from an ECU indicating support for CCM monitor
+                                // in DM5 report '0=monitor disabled for rest of this cycle or not supported'
                                 // in SPN 3303 bit 3.
                                 addFailure(
                                         "6.1.14.2.b Fail if any response from an ECU indicating support for CCM monitor in DM5 is report as not supported by DM26 response");
@@ -140,7 +139,7 @@ public class Step14Controller extends StepController {
                         }
                     });
 
-            // d. Fail if any response indicates number of warm-ups since
+            // 6.1.14.2.d. Fail if any response indicates number of warm-ups since
             // code clear (WU-SCC) (SPN 3302) is not zero.
             List<DM26TripDiagnosticReadinessPacket> warmUpsFailedPackets = globalResponse.getPackets().stream()
                     .filter(packet -> packet.getWarmUpsSinceClear() != 0).collect(Collectors.toList());
@@ -153,8 +152,7 @@ public class Step14Controller extends StepController {
                         failureMessage[0]);
             }
 
-            // e. Fail if any response indicates time since engine start
-            // (SPN 3301) is not zero.
+            // 6.1.14.2.e. Fail if any response indicates time since engine start (SPN 3301) is not zero.
             globalResponse.getPackets().forEach(packet -> {
                 if (packet.getTimeSinceEngineStart() != 0) {
                     addFailure("6.1.14.2.e Fail if any response indicates time since engine start is not zero" +
@@ -162,8 +160,7 @@ public class Step14Controller extends StepController {
                 }
             });
 
-            // 6.1.14.3 Warn criteria:
-            // a. Warn if any individual required monitor, except Continuous
+            // 6.1.14.3.a. Warn if any individual required monitor, except Continuous
             // Component Monitoring (CCM) is supported by more than one OBD ECU.
             // Get the list of duplicate composite systems
             List<CompositeSystem> compositeSystems = globalResponse.getPackets().stream()
@@ -187,29 +184,26 @@ public class Step14Controller extends StepController {
                         warning.toString());
             }
 
-            // 6.1.14.4 Actions:
-            // a. DS DM26 to each OBD ECU.
+            // 6.1.14.4.a. DS DM26 to each OBD ECU.
             List<DM26TripDiagnosticReadinessPacket> destinationSpecificPackets = new ArrayList<>();
             dataRepository.getObdModuleAddresses()
-                    .forEach(address -> destinationSpecificPackets.addAll(dtcModule.requestDM26(getListener(), address).getPackets()));
+                    .forEach(address -> destinationSpecificPackets.addAll(dtcModule.requestDM26(getListener(), address)
+                            .getPackets()));
             if (destinationSpecificPackets.isEmpty()) {
                 addWarning("6.1.14.4.a Destination Specific DM5 requests to OBD modules did not return any responses");
             }
 
-            // 6.1.14.5 Fail criteria:
-            // a. Fail if any difference compared to data received during
-            // global request.
+            // 6.1.14.5.a. Fail if any difference compared to data received during global request.
             List<DM26TripDiagnosticReadinessPacket> differentPackets = globalResponse.getPackets().stream()
                     .filter(packet -> !destinationSpecificPackets.contains(packet)).collect(Collectors.toList());
             if (!differentPackets.isEmpty()) {
                 addFailure("6.1.14.5.a Fail if any difference compared to data received during global request");
             }
 
-            // b. Fail if NACK not received from OBD ECUs that did not respond
-            // to global query.
+            // 6.1.14.5.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
             List<DM26TripDiagnosticReadinessPacket> nacksRemovedPackets = differentPackets.stream()
                     .filter(packet -> globalResponse.getAcks().stream()
-                    .anyMatch(ack -> ack.getSourceAddress() != packet.getSourceAddress()))
+                            .anyMatch(ack -> ack.getSourceAddress() != packet.getSourceAddress()))
                     .collect(Collectors.toList());
             if (!nacksRemovedPackets.isEmpty()) {
                 addFailure("6.1.14.5.b Fail if NACK not received from OBD ECUs that did not respond to global query");

@@ -1279,7 +1279,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         String expectedMessages = "Section A.5 verification failed during DM5 check done at table step 1.e" +
                 NL +
-                "Modules with source address 0, reported 2 active DTCs and 0 previously acitve DTCs" + NL +
+                "Modules with source address 0, reported 2 active DTCs and 0 previously active DTCs" + NL +
                 "Section A.5 verification failed during DM5 check done at table step 4.a" + NL +
                 "Module address 0 :" + NL + "dm5Packet.toString()";
         assertEquals(expectedMessages, listener.getMessages());
@@ -1321,7 +1321,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         String expectedMessages = "Section A.5 verification failed during DM5 check done at table step 1.e" +
                 NL +
-                "Modules with source address 0, reported 2 active DTCs and 0 previously acitve DTCs" + NL +
+                "Modules with source address 0, reported 2 active DTCs and 0 previously active DTCs" + NL +
                 "PASS: Section A.5 Step 4.a DM5 Verification";
         assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -2014,7 +2014,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 NL +
                 "Section A.5 verification failed during DM5 check done at table step 1.e" +
                 NL +
-                "Modules with source address 0, reported 2 active DTCs and 0 previously acitve DTCs" +
+                "Modules with source address 0, reported 2 active DTCs and 0 previously active DTCs" +
                 NL +
                 "Section A.5 verification failed during DM5 check done at table step 4.a" +
                 NL +
@@ -2405,7 +2405,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 NL +
                 "Section A.5 verification failed during DM5 check done at table step 1.e" +
                 NL +
-                "Modules with source address 0, reported 0 active DTCs and 2 previously acitve DTCs" +
+                "Modules with source address 0, reported 0 active DTCs and 2 previously active DTCs" +
                 NL +
                 "PASS: Section A.5 Step 4.a DM5 Verification" +
                 NL +

@@ -11,7 +11,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
@@ -20,7 +19,6 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.Validator;
 import org.etools.j1939_84.model.RequestResult;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 
 /**
  * @author Marianne Schaefer (marianne.schaefer@gmail.com)
@@ -32,42 +30,39 @@ public class SectionA6Validator extends Validator {
 
     private final DataRepository dataRepository;
 
-    private final DiagnosticReadinessModule diagnosticReadinessModule;
-
     private final String SECTION_NAME = "Section A6 Validator";
 
     private final TableA6Validator tableA6Validator;
 
     public SectionA6Validator(DataRepository dataRepository) {
-        this(dataRepository, new DiagnosticReadinessModule(), new TableA6Validator(dataRepository));
+        this(dataRepository, new TableA6Validator(dataRepository));
     }
 
     protected SectionA6Validator(DataRepository dataRepository,
-            DiagnosticReadinessModule diagnosticReadinessModule,
             TableA6Validator tableA6Validator) {
         this.dataRepository = dataRepository;
-        this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.tableA6Validator = tableA6Validator;
     }
 
-    public void setJ1939(J1939 j1939) {
-        diagnosticReadinessModule.setJ1939(j1939);
-    }
-
-    public boolean verify(ResultsListener listener, int partNumber, int stepNumber) {
+    public boolean verify(ResultsListener listener,
+            int partNumber,
+            int stepNumber,
+            RequestResult<DM5DiagnosticReadinessPacket> response) {
 
         boolean[] passed = { true };
-
-        RequestResult<DM5DiagnosticReadinessPacket> response = diagnosticReadinessModule.requestDM5(listener, true);
 
         // 1. The response from each responding device shall be evaluated
         // separately using a through d below:
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
         List<Integer> obdModuleAddresses2 = List.copyOf(obdModuleAddresses);
-        List<Integer> packs = response.getPackets().stream().filter(DM5DiagnosticReadinessPacket::isObd)
-                .map(ParsedPacket::getSourceAddress).collect(Collectors.toList());
-        packs.addAll(response.getAcks().stream().map(ParsedPacket::getSourceAddress).collect(Collectors.toList()));
-        obdModuleAddresses.removeAll(packs);
+
+        List<Integer> packets = response.getPackets().stream()
+                .filter(DM5DiagnosticReadinessPacket::isObd)
+                .map(ParsedPacket::getSourceAddress)
+                .collect(Collectors.toList());
+        packets.addAll(response.getAcks().stream().map(ParsedPacket::getSourceAddress).collect(Collectors.toList()));
+        obdModuleAddresses.removeAll(packets);
+
         if (!obdModuleAddresses.isEmpty()) {
             // a. Fail if no response from an OBD ECU (ECUs that indicate
             // 0x13, 0x14, 0x22, or 0x23 for OBD compliance).
@@ -83,7 +78,7 @@ public class SectionA6Validator extends Validator {
             passed[0] = false;
         }
 
-        response.getPackets().forEach(packet -> {
+        response.getPackets().stream().filter(DM5DiagnosticReadinessPacket::isObd).forEach(packet -> {
             // b. Fail if any response does not report supported and
             // complete for comprehensive components support and status (SPN
             // 1221, byte 4, bit 3 = 1 and bit 7 = 0), except when all the

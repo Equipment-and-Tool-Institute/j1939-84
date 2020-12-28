@@ -3,6 +3,23 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -13,7 +30,11 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
-import org.etools.j1939_84.modules.*;
+import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DiagnosticReadinessModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.ReportFileModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.junit.After;
 import org.junit.Before;
@@ -21,17 +42,6 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.*;
-import java.util.concurrent.Executor;
-
-import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.WARN;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
@@ -70,8 +80,8 @@ public class Step13ControllerTest extends AbstractControllerTest {
     @Mock
     private OBDModuleInformation obdModuleInformation;
 
-    @Mock
-    private ReportFileModule reportFileModule;
+    //    @Mock
+    //    private ReportFileModule reportFileModule;
 
     @Mock
     private SectionA6Validator sectionA6Validator;
@@ -93,6 +103,7 @@ public class Step13ControllerTest extends AbstractControllerTest {
                 dataRepository,
                 sectionA6Validator);
 
+        ReportFileModule reportFileModule = mock(ReportFileModule.class);
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
 
     }
@@ -106,42 +117,25 @@ public class Step13ControllerTest extends AbstractControllerTest {
                 vehicleInformationModule,
                 dataRepository,
                 mockListener,
-                reportFileModule,
                 sectionA6Validator);
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step13Controller#getDisplayName()}.
-     */
     @Test
     public void testGetDisplayName() {
         String name = "Part " + PART_NUMBER + " Step " + STEP_NUMBER;
         assertEquals("Display Name", name, instance.getDisplayName());
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step13Controller#getStepNumber()}.
-     */
     @Test
     public void testGetStepNumber() {
         assertEquals(STEP_NUMBER, instance.getStepNumber());
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step13Controller#getTotalSteps()}.
-     */
     @Test
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 1, instance.getTotalSteps());
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part1.Step13Controller#run()}.
-     */
     @Test
     public void testRun() {
         final int pgn = DM5DiagnosticReadinessPacket.PGN;
@@ -156,17 +150,15 @@ public class Step13ControllerTest extends AbstractControllerTest {
                 false, List.of(packet0, packet17, packet23), Collections.emptyList());
         when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalRequestResponse);
 
-        BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
-                packet0);
+        BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false, packet0);
         when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x00))).thenReturn(busResult0x00);
-        BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false,
-                packet17);
+        BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false, packet17);
         when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x17))).thenReturn(busResult0x17);
-        BusResult<DM5DiagnosticReadinessPacket> busResult0x23 = new BusResult<>(false,
-                packet23);
+        BusResult<DM5DiagnosticReadinessPacket> busResult0x23 = new BusResult<>(false, packet23);
         when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x23))).thenReturn(busResult0x23);
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER))).thenReturn(true);
+        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
+                true);
 
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x23));
 
@@ -174,32 +166,28 @@ public class Step13ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModuleAddresses();
 
-        verify(reportFileModule).onProgress(0, 1, "");
-        StringBuilder expectedVehicleComposite = new StringBuilder("Global DM5 Vehicle Composite" + NL);
-        expectedVehicleComposite.append("  DM5 Response from Engine #1 (0)").append(NL)
-                .append("    A/C system refrigerant         not supported,       completed").append(NL).append("    Boost pressure control sys         supported,   not completed").append(NL)
-                .append("    Catalyst                       not supported,       completed").append(NL)
-                .append("    Cold start aid system          not supported,       completed").append(NL)
-                .append("    Comprehensive component            supported,       completed").append(NL)
-                .append("    Diesel Particulate Filter          supported,   not completed").append(NL)
-                .append("    EGR/VVT system                     supported,   not completed").append(NL)
-                .append("    Evaporative system             not supported,       completed").append(NL)
-                .append("    Exhaust Gas Sensor                 supported,   not completed").append(NL)
-                .append("    Exhaust Gas Sensor heater          supported,   not completed").append(NL)
-                .append("    Fuel System                        supported,   not completed").append(NL)
-                .append("    Heated catalyst                not supported,       completed").append(NL)
-                .append("    Misfire                            supported,   not completed").append(NL)
-                .append("    NMHC converting catalyst           supported,   not completed").append(NL)
-                .append("    NOx catalyst/adsorber              supported,   not completed").append(NL)
-                .append("    Secondary air system           not supported,       completed");
-        verify(reportFileModule).onResult(expectedVehicleComposite.toString());
-
-        verify(sectionA6Validator).setJ1939(j1939);
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER));
+        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(expectedVehicleComposite.toString() + NL, listener.getResults());
+        String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +
+                "    A/C system refrigerant         not supported,       completed" + NL +
+                "    Boost pressure control sys         supported,   not completed" + NL +
+                "    Catalyst                       not supported,       completed" + NL +
+                "    Cold start aid system          not supported,       completed" + NL +
+                "    Comprehensive component            supported,       completed" + NL +
+                "    Diesel Particulate Filter          supported,   not completed" + NL +
+                "    EGR/VVT system                     supported,   not completed" + NL +
+                "    Evaporative system             not supported,       completed" + NL +
+                "    Exhaust Gas Sensor                 supported,   not completed" + NL +
+                "    Exhaust Gas Sensor heater          supported,   not completed" + NL +
+                "    Fuel System                        supported,   not completed" + NL +
+                "    Heated catalyst                not supported,       completed" + NL +
+                "    Misfire                            supported,   not completed" + NL +
+                "    NMHC converting catalyst           supported,   not completed" + NL +
+                "    NOx catalyst/adsorber              supported,   not completed" + NL +
+                "    Secondary air system           not supported,       completed" + NL;
+        assertEquals(expectedVehicleComposite + NL, listener.getResults());
     }
 
     @Test
@@ -211,8 +199,10 @@ public class Step13ControllerTest extends AbstractControllerTest {
                 Packet.create(ackPgn, 0x44, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM5DiagnosticReadinessPacket packet21 = new DM5DiagnosticReadinessPacket(
                 Packet.create(PGN, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(new RequestResult<>(
-                false, Collections.emptyList(), Collections.singletonList(packet44)));
+        RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
+                Collections.emptyList(),
+                Collections.singletonList(packet44));
+        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalRequestResponse);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
                 packet0);
@@ -224,7 +214,8 @@ public class Step13ControllerTest extends AbstractControllerTest {
                 packet21);
         when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x21))).thenReturn(busResult0x21);
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER))).thenReturn(false);
+        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
+                false);
 
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
 
@@ -233,36 +224,17 @@ public class Step13ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.1.a Global DM5 request did not receive any response packets");
+                "6.1.13.1.a - Global DM5 request did not receive any response packets");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.2.a Fail/warn per section A.6, Criteria for Readiness 1 Evaluation");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.2.c Fail if no OBD ECU provides DM5 with readiness bits showing monitor support");
+                "6.1.13.2.c - No OBD ECU provided DM5 with readiness bits showing monitor support");
 
-        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.1.a Global DM5 request did not receive any response packets");
-        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.2.a Fail/warn per section A.6, Criteria for Readiness 1 Evaluation");
-        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.2.c Fail if no OBD ECU provides DM5 with readiness bits showing monitor support");
-
-        verify(reportFileModule).onProgress(0, 1, "");
-
-        verify(reportFileModule).onResult("FAIL: 6.1.13.1.a Global DM5 request did not receive any response packets");
-        verify(reportFileModule)
-                .onResult("FAIL: 6.1.13.2.a Fail/warn per section A.6, Criteria for Readiness 1 Evaluation");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.1.13.2.c Fail if no OBD ECU provides DM5 with readiness bits showing monitor support");
-
-        verify(sectionA6Validator).setJ1939(j1939);
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER));
+        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
-        String expectedResults = "FAIL: 6.1.13.1.a Global DM5 request did not receive any response packets" + NL;
-        expectedResults += "FAIL: 6.1.13.2.a Fail/warn per section A.6, Criteria for Readiness 1 Evaluation" + NL;
-        expectedResults += "FAIL: 6.1.13.2.c Fail if no OBD ECU provides DM5 with readiness bits showing monitor support" + NL;
+        String expectedResults = "FAIL: 6.1.13.1.a - Global DM5 request did not receive any response packets" + NL;
+        expectedResults += "FAIL: 6.1.13.2.c - No OBD ECU provided DM5 with readiness bits showing monitor support" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -291,7 +263,8 @@ public class Step13ControllerTest extends AbstractControllerTest {
                 packet21);
         when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x21))).thenReturn(busResult0x21);
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER))).thenReturn(false);
+        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
+                false);
 
         when(dataRepository.getObdModuleAddresses()).thenReturn(new ArrayList<>() {
             {
@@ -306,128 +279,68 @@ public class Step13ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.2.a Fail/warn per section A.6, Criteria for Readiness 1 Evaluation");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.2.a Fail/warn per section A.6, Criteria for Readiness 1 Evaluation");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.2.b - Fail if any OBD ECU reports active/previously active fault DTCs count not = 0/0" + NL
+                "6.1.13.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0" + NL
                         + "  Reported active fault count = 3" + NL + "  Reported previously active fault count = 16");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.13.3 OBD module Engine #1 (0) did not return a response to a destination specific request");
+                "6.1.13.3 - OBD module Engine #1 (0) did not return a response to a destination specific request");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                STEP_NUMBER,
+                WARN,
+                "6.1.13.3 - OBD module Instrument Cluster #1 (23) did not return a response to a destination specific request");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.13.3 OBD module Instrument Cluster #1 (23) did not return a response to a destination specific request");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.13.3.a Destination Specific DM5 requests to OBD modules did not return any responses");
+                "6.1.13.3.a - Destination Specific DM5 requests to OBD modules did not return any responses");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.4.a Fail if any difference compared to data received during global request");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.4.b Fail if NACK not received from OBD ECUs that did not respond to global query");
-        StringBuilder expected2dWarning = new StringBuilder(
-                "6.1.13.2.d Warn if any individual required monitor, except Continuous Component Monitoring (CCM) is supported by more than one OBD ECU"
-                        + NL);
-        expected2dWarning.append("Boost pressure control sys has reporting from more than one OBD ECU").append(NL)
-                .append("Diesel Particulate Filter  has reporting from more than one OBD ECU").append(NL)
-                .append("EGR/VVT system             has reporting from more than one OBD ECU").append(NL)
-                .append("Exhaust Gas Sensor         has reporting from more than one OBD ECU").append(NL)
-                .append("Exhaust Gas Sensor heater  has reporting from more than one OBD ECU").append(NL)
-                .append("Fuel System                has reporting from more than one OBD ECU").append(NL)
-                .append("Misfire                    has reporting from more than one OBD ECU").append(NL)
-                .append("NMHC converting catalyst   has reporting from more than one OBD ECU").append(NL)
-                .append("NOx catalyst/adsorber      has reporting from more than one OBD ECU");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                expected2dWarning.toString());
+                "6.1.13.4.a - A difference compared to data received during global request");
 
-        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.2.a Fail/warn per section A.6, Criteria for Readiness 1 Evaluation");
-        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.2.b - Fail if any OBD ECU reports active/previously active fault DTCs count not = 0/0" + NL
-                        + "  Reported active fault count = 3" + NL + "  Reported previously active fault count = 16");
-        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                expected2dWarning.toString());
-        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.13.3 OBD module Engine #1 (0) did not return a response to a destination specific request");
-        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.13.3 OBD module Instrument Cluster #1 (23) did not return a response to a destination specific request");
-        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.13.3.a Destination Specific DM5 requests to OBD modules did not return any responses");
-        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.4.a Fail if any difference compared to data received during global request");
-        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.4.b Fail if NACK not received from OBD ECUs that did not respond to global query");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                STEP_NUMBER,
+                FAIL,
+                "6.1.13.4.b - NACK not received from OBD ECUs that did not respond to global query");
 
-        verify(reportFileModule).onProgress(0, 1, "");
+        String expected2dWarning = "6.1.13.2.d - An individual required monitor is supported by more than one OBD ECU" + NL +
+                "Boost pressure control sys has reporting from more than one OBD ECU" + NL +
+                "Diesel Particulate Filter  has reporting from more than one OBD ECU" + NL +
+                "EGR/VVT system             has reporting from more than one OBD ECU" + NL +
+                "Exhaust Gas Sensor         has reporting from more than one OBD ECU" + NL +
+                "Exhaust Gas Sensor heater  has reporting from more than one OBD ECU" + NL +
+                "Fuel System                has reporting from more than one OBD ECU" + NL +
+                "Misfire                    has reporting from more than one OBD ECU" + NL +
+                "NMHC converting catalyst   has reporting from more than one OBD ECU" + NL +
+                "NOx catalyst/adsorber      has reporting from more than one OBD ECU";
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, expected2dWarning);
 
-        StringBuilder expectedVehicleComposite = new StringBuilder("Global DM5 Vehicle Composite" + NL);
-        expectedVehicleComposite.append("  DM5 Response from Engine #1 (0)").append(NL)
-                .append("    A/C system refrigerant         not supported,       completed").append(NL)
-                .append("    Boost pressure control sys         supported,   not completed").append(NL)
-                .append("    Catalyst                       not supported,       completed").append(NL)
-                .append("    Cold start aid system          not supported,       completed").append(NL)
-                .append("    Comprehensive component            supported,       completed").append(NL)
-                .append("    Diesel Particulate Filter          supported,   not completed").append(NL)
-                .append("    EGR/VVT system                     supported,   not completed").append(NL)
-                .append("    Evaporative system             not supported,       completed").append(NL)
-                .append("    Exhaust Gas Sensor                 supported,   not completed").append(NL)
-                .append("    Exhaust Gas Sensor heater          supported,   not completed").append(NL)
-                .append("    Fuel System                        supported,   not completed").append(NL)
-                .append("    Heated catalyst                not supported,       completed").append(NL)
-                .append("    Misfire                            supported,   not completed").append(NL)
-                .append("    NMHC converting catalyst           supported,   not completed").append(NL)
-                .append("    NOx catalyst/adsorber              supported,   not completed").append(NL)
-                .append("    Secondary air system           not supported,       completed").append(NL)
-                .append("  DM5 Response from Body Controller (33)").append(NL)
-                .append("    A/C system refrigerant         not supported,       completed").append(NL)
-                .append("    Boost pressure control sys         supported,   not completed").append(NL)
-                .append("    Catalyst                       not supported,       completed").append(NL)
-                .append("    Cold start aid system          not supported,       completed").append(NL)
-                .append("    Comprehensive component            supported,       completed").append(NL)
-                .append("    Diesel Particulate Filter          supported,   not completed").append(NL)
-                .append("    EGR/VVT system                     supported,   not completed").append(NL)
-                .append("    Evaporative system             not supported,       completed").append(NL)
-                .append("    Exhaust Gas Sensor                 supported,   not completed").append(NL)
-                .append("    Exhaust Gas Sensor heater          supported,   not completed").append(NL)
-                .append("    Fuel System                        supported,   not completed").append(NL)
-                .append("    Heated catalyst                not supported,       completed").append(NL)
-                .append("    Misfire                            supported,   not completed").append(NL)
-                .append("    NMHC converting catalyst           supported,   not completed").append(NL)
-                .append("    NOx catalyst/adsorber              supported,   not completed").append(NL)
-                .append("    Secondary air system           not supported,       completed");
-        verify(reportFileModule).onResult(expectedVehicleComposite.toString());
-        verify(reportFileModule)
-                .onResult("FAIL: 6.1.13.2.a Fail/warn per section A.6, Criteria for Readiness 1 Evaluation");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.1.13.2.b - Fail if any OBD ECU reports active/previously active fault DTCs count not = 0/0"
-                        + NL + "  Reported active fault count = 3" + NL
-                        + "  Reported previously active fault count = 16");
-        verify(reportFileModule).onResult(
-                "WARN: " + expected2dWarning.toString());
-        verify(reportFileModule).onResult(
-                "WARN: 6.1.13.3 OBD module Engine #1 (0) did not return a response to a destination specific request");
-        verify(reportFileModule).onResult(
-                "WARN: 6.1.13.3 OBD module Instrument Cluster #1 (23) did not return a response to a destination specific request");
-        verify(reportFileModule).onResult(
-                "WARN: 6.1.13.3.a Destination Specific DM5 requests to OBD modules did not return any responses");
-        verify(reportFileModule)
-                .onResult("FAIL: 6.1.13.4.a Fail if any difference compared to data received during global request");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.1.13.4.b Fail if NACK not received from OBD ECUs that did not respond to global query");
-
-        verify(sectionA6Validator).setJ1939(j1939);
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER));
+        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = expectedVehicleComposite.toString() + NL;
-        expectedResults += "FAIL: 6.1.13.2.a Fail/warn per section A.6, Criteria for Readiness 1 Evaluation" + NL;
-        expectedResults += "FAIL: 6.1.13.2.b - Fail if any OBD ECU reports active/previously active fault DTCs count not = 0/0" + NL;
+        String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +
+                "    A/C system refrigerant         not supported,       completed" + NL +
+                "    Boost pressure control sys         supported,   not completed" + NL +
+                "    Catalyst                       not supported,       completed" + NL +
+                "    Cold start aid system          not supported,       completed" + NL +
+                "    Comprehensive component            supported,       completed" + NL +
+                "    Diesel Particulate Filter          supported,   not completed" + NL +
+                "    EGR/VVT system                     supported,   not completed" + NL +
+                "    Evaporative system             not supported,       completed" + NL +
+                "    Exhaust Gas Sensor                 supported,   not completed" + NL +
+                "    Exhaust Gas Sensor heater          supported,   not completed" + NL +
+                "    Fuel System                        supported,   not completed" + NL +
+                "    Heated catalyst                not supported,       completed" + NL +
+                "    Misfire                            supported,   not completed" + NL +
+                "    NMHC converting catalyst           supported,   not completed" + NL +
+                "    NOx catalyst/adsorber              supported,   not completed" + NL +
+                "    Secondary air system           not supported,       completed" + NL;
+        String expectedResults = expectedVehicleComposite + NL;
+        expectedResults += "FAIL: 6.1.13.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0" + NL;
         expectedResults += "  Reported active fault count = 3" + NL;
         expectedResults += "  Reported previously active fault count = 16" + NL;
-        expectedResults += "WARN: " + expected2dWarning.toString() + NL;
-        expectedResults += "WARN: 6.1.13.3 OBD module Engine #1 (0) did not return a response to a destination specific request" + NL;
-        expectedResults += "WARN: 6.1.13.3 OBD module Instrument Cluster #1 (23) did not return a response to a destination specific request" + NL;
-        expectedResults += "WARN: 6.1.13.3.a Destination Specific DM5 requests to OBD modules did not return any responses" + NL;
-        expectedResults += "FAIL: 6.1.13.4.a Fail if any difference compared to data received during global request" + NL;
-        expectedResults += "FAIL: 6.1.13.4.b Fail if NACK not received from OBD ECUs that did not respond to global query" + NL;
+
+        expectedResults += "WARN: " + expected2dWarning + NL;
+        expectedResults += "WARN: 6.1.13.3 - OBD module Engine #1 (0) did not return a response to a destination specific request" + NL;
+        expectedResults += "WARN: 6.1.13.3 - OBD module Instrument Cluster #1 (23) did not return a response to a destination specific request" + NL;
+        expectedResults += "WARN: 6.1.13.3.a - Destination Specific DM5 requests to OBD modules did not return any responses" + NL;
+        expectedResults += "FAIL: 6.1.13.4.a - A difference compared to data received during global request" + NL;
+        expectedResults += "FAIL: 6.1.13.4.b - NACK not received from OBD ECUs that did not respond to global query" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 }
