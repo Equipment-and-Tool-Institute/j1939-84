@@ -290,17 +290,17 @@ public class TableA1ValidatorTest {
         expected += "INFO: 6.1.26 - Required SPN 157 is not supported" + NL;
         expected += "INFO: 6.1.26 - Required SPN 190 is not supported" + NL;
         expected += "INFO: 6.1.26 - Required SPN 5313 is not supported" + NL;
-        expected += "INFO: 6.1.26 - Required SPN 5466 is not supported" + NL;
         expected += "INFO: 6.1.26 - Required SPN 5827 is not supported" + NL;
         expected += "WARN: 6.1.26 - Required SPN 158 is not supported" + NL;
+        expected += "WARN: 6.1.26 - Required SPN 5466 is not supported" + NL;
         expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 110, 1637, 4076, 4193" + NL;
         expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 190, 723, 4201, 4202" + NL;
         expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 158, 168" + NL;
-        expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 5454, 5827" + NL;
         expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 183, 1413, 1600" + NL;
-        expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 3251, 3609, 3610" + NL;
         expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 102, 106, 1127, 3563" + NL;
         expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 94, 157, 164, 5313, 5314, 5578" + NL;
+        expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 5454, 5827" + NL;
+        expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 3251, 3609, 3610" + NL;
         expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 3516, 3518, 7346" + NL;
         expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 3031, 3515" + NL;
         assertEquals(expected, testResultsListener.getResults());
@@ -337,20 +337,20 @@ public class TableA1ValidatorTest {
         verify(listener).addOutcome(1, 26, INFO, "Required SPN 157 is not supported");
         verify(listener).addOutcome(1, 26, INFO, "Required SPN 190 is not supported");
         verify(listener).addOutcome(1, 26, INFO, "Required SPN 5313 is not supported");
-        verify(listener).addOutcome(1, 26, INFO, "Required SPN 5466 is not supported");
         verify(listener).addOutcome(1, 26, INFO, "Required SPN 5827 is not supported");
         verify(listener).addOutcome(1, 26, WARN, "Required SPN 158 is not supported");
+        verify(listener).addOutcome(1, 26, WARN, "Required SPN 5466 is not supported");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 110, 1637, 4076, 4193");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 190, 723, 4201, 4202");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 158, 168");
-        verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 5454, 5827");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 183, 1413, 1600");
-        verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 3251, 3609, 3610");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 102, 106, 1127, 3563");
         verify(listener).addOutcome(1,
                 26,
                 FAIL,
                 "At least one of these SPNs is not supported: 94, 157, 164, 5313, 5314, 5578");
+        verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 5454, 5827");
+        verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 3251, 3609, 3610");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 3516, 3518, 7346");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 3031, 3515");
     }
@@ -396,19 +396,14 @@ public class TableA1ValidatorTest {
         expected += "INFO: 6.1.26 - Required SPN 157 is not supported" + NL;
         expected += "INFO: 6.1.26 - Required SPN 190 is not supported" + NL;
         expected += "INFO: 6.1.26 - Required SPN 5313 is not supported" + NL;
-        expected += "INFO: 6.1.26 - Required SPN 5466 is not supported" + NL;
         expected += "INFO: 6.1.26 - Required SPN 5827 is not supported" + NL;
         expected += "WARN: 6.1.26 - Required SPN 158 is not supported" + NL;
         expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 110, 1637, 4076, 4193" + NL;
         expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 190, 723, 4201, 4202" + NL;
         expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 158, 168" + NL;
-        expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 5454, 5827" + NL;
         expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 183, 1413, 1600" + NL;
-        expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 3251, 3609, 3610" + NL;
         expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 102, 106, 1127, 3563" + NL;
-        expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 94, 157, 164, 5313, 5314, 5578" + NL;
-        expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 3516, 3518, 7346" + NL;
-        expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 3031, 3515" + NL;
+        expected += "FAIL: 6.1.26 - At least one of these SPNs is not supported: 94, 157, 5313, 5578" + NL;
         assertEquals(expected, testResultsListener.getResults());
 
         verify(listener).addOutcome(1, 26, FAIL, "Required SPN 27 is not supported");
@@ -447,22 +442,14 @@ public class TableA1ValidatorTest {
         verify(listener).addOutcome(1, 26, INFO, "Required SPN 157 is not supported");
         verify(listener).addOutcome(1, 26, INFO, "Required SPN 190 is not supported");
         verify(listener).addOutcome(1, 26, INFO, "Required SPN 5313 is not supported");
-        verify(listener).addOutcome(1, 26, INFO, "Required SPN 5466 is not supported");
         verify(listener).addOutcome(1, 26, INFO, "Required SPN 5827 is not supported");
         verify(listener).addOutcome(1, 26, WARN, "Required SPN 158 is not supported");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 110, 1637, 4076, 4193");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 190, 723, 4201, 4202");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 158, 168");
-        verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 5454, 5827");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 183, 1413, 1600");
-        verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 3251, 3609, 3610");
         verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 102, 106, 1127, 3563");
-        verify(listener).addOutcome(1,
-                26,
-                FAIL,
-                "At least one of these SPNs is not supported: 94, 157, 164, 5313, 5314, 5578");
-        verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 3516, 3518, 7346");
-        verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 3031, 3515");
+        verify(listener).addOutcome(1, 26, FAIL, "At least one of these SPNs is not supported: 94, 157, 5313, 5578");
     }
 
     @Test

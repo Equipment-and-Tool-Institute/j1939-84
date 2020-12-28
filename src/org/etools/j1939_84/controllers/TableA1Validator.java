@@ -9,7 +9,6 @@ import static org.etools.j1939_84.model.Outcome.PASS;
 import static org.etools.j1939_84.model.Outcome.WARN;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
@@ -18,7 +17,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
@@ -30,10 +28,10 @@ import org.etools.j1939_84.model.Outcome;
 public class TableA1Validator {
 
     private static void addOutcome(ResultsListener listener,
-                                   int partNumber,
-                                   int stepNumber,
-                                   Outcome outcome,
-                                   String message) {
+            int partNumber,
+            int stepNumber,
+            Outcome outcome,
+            String message) {
         listener.addOutcome(partNumber, stepNumber, outcome, message);
         listener.onResult(outcome + ": 6." + partNumber + "." + stepNumber + " - " + message);
     }
@@ -43,47 +41,56 @@ public class TableA1Validator {
 
         // These SPNS must be provided by all vehicles
         // noinspection CollectionAddAllCanBeReplacedWithConstructor
-        allRequiredSpns.addAll(Arrays.asList(27, 84, 91, 92, 108,
+        allRequiredSpns.addAll(List.of(27, 84, 91, 92, 108,
                 235, 247, 248,
                 512, 513, 514, 539, 540, 541, 542, 543, 544,
                 2791, 2978,
                 5837, 5829));
 
-        if (fuelType.isSparkIgnition()) {
-            // These are SPNs required for SI Engines
-            allRequiredSpns.addAll(Arrays.asList(51, 3464, 4236, 4237, 4240, 3249, 3241, 3217, 3227));
-        }
-
         if (fuelType.isCompressionIgnition()) {
             // These are SPNs required for CI Engines
-            allRequiredSpns.addAll(Arrays.asList(5466, 3700, 6895, 7333, 3226));
+            allRequiredSpns.addAll(List.of(5466, 3700, 6895, 7333, 3226));
+        } else if (fuelType.isSparkIgnition()) {
+            // These are SPNs required for SI Engines
+            allRequiredSpns.addAll(List.of(51, 3464, 4236, 4237, 4240, 3249, 3241, 3217, 3227));
         }
 
         return allRequiredSpns;
     }
 
     private static List<Integer> getInfoSPNs() {
-        return new ArrayList<>(Arrays.asList(96, 110, 132, 157, 190, 5466, 5827, 5313));
+        return new ArrayList<>(List.of(96, 110, 132, 157, 190, 5827, 5313));
     }
 
-    private static Collection<List<Integer>> getSPNGroups() {
+    private static Collection<List<Integer>> getSPNGroups(FuelType fuelType) {
         Collection<List<Integer>> spnGroups = new ArrayList<>();
-        spnGroups.add(Arrays.asList(110, 1637, 4076, 4193));
-        spnGroups.add(Arrays.asList(190, 723, 4201, 4202));
-        spnGroups.add(Arrays.asList(158, 168));
-        spnGroups.add(Arrays.asList(5454, 5827));
-        spnGroups.add(Arrays.asList(183, 1413, 1600));
-        spnGroups.add(Arrays.asList(3251, 3609, 3610));
-        spnGroups.add(Arrays.asList(102, 106, 1127, 3563));
-        spnGroups.add(Arrays.asList(94, 157, 164, 5313, 5314, 5578));
-        spnGroups.add(Arrays.asList(3516, 3518, 7346));
-        spnGroups.add(Arrays.asList(3031, 3515));
+        spnGroups.add(List.of(110, 1637, 4076, 4193));
+        spnGroups.add(List.of(190, 723, 4201, 4202));
+        spnGroups.add(List.of(158, 168));
+        spnGroups.add(List.of(183, 1413, 1600));
+
+        spnGroups.add(List.of(102, 106, 1127, 3563));
+
+        if (fuelType.isCompressionIgnition()) {
+            spnGroups.add(List.of(94, 157, 164, 5313, 5314, 5578));
+            spnGroups.add(List.of(5454, 5827));
+            spnGroups.add(List.of(3251, 3609, 3610));
+            spnGroups.add(List.of(3516, 3518, 7346));
+            spnGroups.add(List.of(3031, 3515));
+        } else if (fuelType.isSparkIgnition()) {
+            spnGroups.add(List.of(94, 157, 5313, 5578));
+        }
+
         return spnGroups;
     }
 
-    private static List<Integer> getWarningSPNs() {
-        //noinspection ArraysAsListWithZeroOrOneArgument
-        return new ArrayList<>(Arrays.asList(158));
+    private static List<Integer> getWarningSPNs(FuelType fuelType) {
+        List<Integer> allWarningSPNs = new ArrayList<>();
+        allWarningSPNs.add(158);
+        if (fuelType.isCompressionIgnition()) {
+            allWarningSPNs.add(5466);
+        }
+        return allWarningSPNs;
     }
 
     private static boolean packetContainsSupportedSPNs(Collection<Integer> supportedSpns, GenericPacket packet) {
@@ -115,9 +122,9 @@ public class TableA1Validator {
      * Writes a Failure/Warning if any SPNs is provided by more than one module
      */
     public void reportDuplicateSPNs(List<GenericPacket> packets,
-                                    ResultsListener listener,
-                                    int partNumber,
-                                    int stepNumber) {
+            ResultsListener listener,
+            int partNumber,
+            int stepNumber) {
         // f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed
         // in Table A-1
         Map<Integer, Integer> uniques = new HashMap<>();
@@ -148,12 +155,12 @@ public class TableA1Validator {
      * type
      */
     public void reportImplausibleSPNValues(List<GenericPacket> packets,
-                                           Collection<Integer> supportedSpns,
-                                           ResultsListener listener,
-                                           boolean isEngineOn,
-                                           FuelType fuelType,
-                                           int partNumber,
-                                           int stepNumber) {
+            Collection<Integer> supportedSpns,
+            ResultsListener listener,
+            boolean isEngineOn,
+            FuelType fuelType,
+            int partNumber,
+            int stepNumber) {
         // Map of Source Address to PGNs for packets already written to the log
         Map<Integer, Set<Integer>> foundPackets = new HashMap<>();
 
@@ -208,10 +215,10 @@ public class TableA1Validator {
      * any OBD Modules
      */
     public void reportMissingSPNs(List<Integer> supportedSpns,
-                                  ResultsListener listener,
-                                  FuelType fuelType,
-                                  int partNumber,
-                                  int stepNumber) {
+            ResultsListener listener,
+            FuelType fuelType,
+            int partNumber,
+            int stepNumber) {
 
         // This processes the SPNs in steps
         // The first step is to report the SPNs which *must* be provided and
@@ -230,7 +237,7 @@ public class TableA1Validator {
         missingSpns.put(FAIL, allRequiredSpns);
 
         // Warnings SPNs
-        List<Integer> warningSpns = getWarningSPNs();
+        List<Integer> warningSpns = getWarningSPNs(fuelType);
         warningSpns.removeAll(supportedSpns);
         Collections.sort(warningSpns);
         missingSpns.put(WARN, warningSpns);
@@ -252,7 +259,7 @@ public class TableA1Validator {
         }
 
         // Report on SPN Groups
-        for (List<Integer> spns : getSPNGroups()) {
+        for (List<Integer> spns : getSPNGroups(fuelType)) {
             if (spns.stream().noneMatch(supportedSpns::contains)) {
                 addOutcome(listener,
                         partNumber,
@@ -267,10 +274,10 @@ public class TableA1Validator {
      * provided by a Non-OBD Module.
      */
     public void reportNonObdModuleProvidedSPNs(List<GenericPacket> packets,
-                                               int obdModuleAddress,
-                                               ResultsListener listener,
-                                               int partNumber,
-                                               int stepNumber) {
+            int obdModuleAddress,
+            ResultsListener listener,
+            int partNumber,
+            int stepNumber) {
 
         // e. Fail/warn per Table A-1, if an expected SPN from the DM24 support
         // list from an OBD ECU is provided by a non-OBD
