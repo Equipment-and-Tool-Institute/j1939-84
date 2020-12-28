@@ -206,7 +206,7 @@ public class Step05ControllerTest {
     @Test
     @TestDoc(description = "Verify step 5 has 1 step.")
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     @Test

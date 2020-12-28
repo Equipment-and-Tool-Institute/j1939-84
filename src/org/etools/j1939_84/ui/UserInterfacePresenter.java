@@ -178,10 +178,6 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         return adapters;
     }
 
-    private VehicleInformationModule getComparisonModule() {
-        return vehicleInformationModule;
-    }
-
     private Logger getLogger() {
         return J1939_84.getLogger();
     }
@@ -214,32 +210,22 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         return new ResultsListener() {
             @Override
             public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
-                // TODO Auto-generated method stub
-
             }
 
             @Override
             public void beginPart(PartResult partResult) {
-                // TODO Auto-generated method stub
-
             }
 
             @Override
             public void beginStep(StepResult stepResult) {
-                // TODO Auto-generated method stub
-
             }
 
             @Override
             public void endPart(PartResult partResult) {
-                // TODO Auto-generated method stub
-
             }
 
             @Override
             public void endStep(StepResult stepResult) {
-                // TODO Auto-generated method stub
-
             }
 
             @Override
@@ -292,8 +278,6 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
             @Override
             public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
-                // TODO Auto-generated method stub
-
             }
 
         };
@@ -398,17 +382,18 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
             ResultsListener resultsListener = getResultsListener();
             try {
-                resultsListener.onProgress(1, 6, "Reading Vehicle Identification Number");
-                vin = getComparisonModule().getVin();
+                resultsListener.onProgress(1, 3, "Reading Vehicle Identification Number");
+                vin = vehicleInformationModule.getVin();
                 getView().setVin(vin);
 
-                resultsListener.onProgress(2, 6, "Reading Vehicle Calibrations");
-                String cals = getComparisonModule().getCalibrationsAsString();
+                resultsListener.onProgress(2, 3, "Reading Vehicle Calibrations");
+                String cals = vehicleInformationModule.getCalibrationsAsString();
                 getView().setEngineCals(cals);
 
                 result = true;
+                resultsListener.onProgress(3, 3, "Complete");
             } catch (IOException e) {
-                getView().setProgressBarText(e.getMessage());
+                resultsListener.onProgress(3, 3, e.getMessage());
                 getView().displayDialog(e.getMessage(), "Communications Error", JOptionPane.ERROR_MESSAGE, false);
             } finally {
                 if (result) {
@@ -460,7 +445,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     }
 
     private void resetView() {
-        getComparisonModule().reset();
+        vehicleInformationModule.reset();
         vin = null;
         getView().setVin("");
         getView().setEngineCals("");
@@ -471,7 +456,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
     private void setBus(Bus bus) throws BusException {
         this.bus = bus;
-        getComparisonModule().setJ1939(getNewJ1939());
+        vehicleInformationModule.setJ1939(getNewJ1939());
     }
 
     /**

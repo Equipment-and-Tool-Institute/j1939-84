@@ -3,26 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.controllers.PartResultRepository;
-import org.etools.j1939_84.controllers.QuestionListener;
-import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.ActionOutcome;
-import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.model.StepResult;
-import org.etools.j1939_84.modules.*;
-import org.etools.j1939_84.utils.AbstractControllerTest;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.concurrent.Executor;
-
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
@@ -33,7 +13,34 @@ import static org.etools.j1939_84.model.Outcome.PASS;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.concurrent.Executor;
+import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.controllers.PartResultRepository;
+import org.etools.j1939_84.controllers.QuestionListener;
+import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.ActionOutcome;
+import org.etools.j1939_84.model.Outcome;
+import org.etools.j1939_84.model.StepResult;
+import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.ReportFileModule;
+import org.etools.j1939_84.modules.TestDateTimeModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.utils.AbstractControllerTest;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * The unit test for {@link Step27Controller}
@@ -133,7 +140,7 @@ public class Step27ControllerTest extends AbstractControllerTest {
         String outcomeMessage = "Aborting - user ended test";
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, Outcome.ABORT, outcomeMessage);
 
-        String expectedMessages = NL + "Part 1, Step 27 - Part 1 to Part 2 Transition" + NL;
+        String expectedMessages = "Part 1, Step 27 - Part 1 to Part 2 Transition" + NL;
         expectedMessages += "Part 1, Step 27 b.i - Ensuring Key On, Engine On" + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
@@ -171,7 +178,7 @@ public class Step27ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 3, instance.getTotalSteps());
     }
 
     @Test
@@ -207,7 +214,7 @@ public class Step27ControllerTest extends AbstractControllerTest {
         String expectedTitle2 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING));
 
-        String expectedMessages = NL + "Part 1, Step 27 - Part 1 to Part 2 Transition" + NL;
+        String expectedMessages = "Part 1, Step 27 - Part 1 to Part 2 Transition" + NL;
         expectedMessages += "Part 1, Step 27 b.i - Ensuring Key On, Engine On" + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
@@ -256,7 +263,7 @@ public class Step27ControllerTest extends AbstractControllerTest {
         String expectedTitle2 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING));
 
-        String expectedMessages = NL + "Part 1, Step 27 - Part 1 to Part 2 Transition" + NL;
+        String expectedMessages = "Part 1, Step 27 - Part 1 to Part 2 Transition" + NL;
         expectedMessages += "Part 1, Step 27 b.i - Ensuring Key On, Engine On" + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;

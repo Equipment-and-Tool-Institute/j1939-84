@@ -144,7 +144,7 @@ public class Step10ControllerTest extends AbstractControllerTest {
 
         assertEquals("WARN: 6.1.10.3.a - The request for DM11 was NACK'ed" + NL + "WARN: 6.1.10.3.a - The request for DM11 was ACK'ed" + NL,
                 listener.getResults());
-        String expectedMessages = NL;
+        String expectedMessages = "";
         expectedMessages += "Waiting for 5 seconds" + NL;
         expectedMessages += "Waiting for 4 seconds" + NL;
         expectedMessages += "Waiting for 3 seconds" + NL;
@@ -166,7 +166,7 @@ public class Step10ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     @Test
@@ -190,7 +190,7 @@ public class Step10ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM11(any());
         verify(dataRepository).isObdModule(0);
 
-        String expectedMessages = NL;
+        String expectedMessages = "";
         expectedMessages += "Waiting for 5 seconds" + NL;
         expectedMessages += "Waiting for 4 seconds" + NL;
         expectedMessages += "Waiting for 3 seconds" + NL;

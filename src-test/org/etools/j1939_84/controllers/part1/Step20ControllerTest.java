@@ -139,8 +139,6 @@ public class Step20ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
                                         "6.1.20.3.a Destination Specific DM28 requests to OBD modules did not return any responses");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.20.2.c - No OBD ECU provided a DM28" + NL;
         expectedResults += "WARN: 6.1.20.3 OBD module Engine #2 (1) did not return a response to a destination specific request"
                 + NL;
@@ -191,8 +189,6 @@ public class Step20ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.20.4.a Difference compared to data received during global request");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.20.2.a - An ECU reported permanent DTCs" + NL;
         expectedResults += "FAIL: 6.1.20.2.b - An ECU did not report MIL off" + NL;
         expectedResults += "FAIL: 6.1.20.2.a - An ECU reported permanent DTCs" + NL;
@@ -227,7 +223,7 @@ public class Step20ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     /**
@@ -277,8 +273,6 @@ public class Step20ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.20.4.b NACK not received from OBD ECUs that did not respond to global query");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.20.2.a - An ECU reported permanent DTCs" + NL;
         expectedResults += "FAIL: 6.1.20.2.b - An ECU did not report MIL off" + NL;
         expectedResults += "FAIL: 6.1.20.4.a Difference compared to data received during global request" + NL;
@@ -314,8 +308,6 @@ public class Step20ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM28(any(), eq(true));
         verify(dtcModule).requestDM28(any(), eq(true), eq(0x01));
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

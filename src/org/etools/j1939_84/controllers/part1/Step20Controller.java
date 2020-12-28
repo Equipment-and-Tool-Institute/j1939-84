@@ -28,10 +28,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 public class Step20Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
-
     private static final int STEP_NUMBER = 20;
-
-    private static final int TOTAL_STEPS = 1;
+    private static final int TOTAL_STEPS = 0;
 
     private final DataRepository dataRepository;
 

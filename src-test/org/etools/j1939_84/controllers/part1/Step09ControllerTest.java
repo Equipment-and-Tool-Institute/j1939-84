@@ -237,8 +237,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
 
-        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
-
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_1_A);
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_B);
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A);
@@ -279,7 +277,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", PART_NUMBER, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     @Test
@@ -334,8 +332,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
-
-        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
 
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_4_A_4_B);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
@@ -405,8 +401,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
         verify(dataRepository).getObdModules();
 
-        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
-
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
@@ -464,8 +458,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
-
-        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
 
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D);
 
@@ -529,8 +521,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
 
-        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
-
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_B);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
@@ -590,7 +580,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
 
-        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_B);
 
@@ -650,8 +639,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_C);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_C);
-
-        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
 
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_C);
 
@@ -714,8 +701,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
 
-        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
-
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
 
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D);
@@ -776,8 +761,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_D);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_D);
-
-        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
 
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_D);
 
@@ -848,8 +831,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         int twice = 2;
 
-        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
-
         String expected2ModulesWarnMessage = "2 module(s) have claimed function 0 - only one module should";
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + expected2ModulesWarnMessage);
 
@@ -916,8 +897,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
-
-        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
 
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_4_A_4_B);
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A);
@@ -989,8 +968,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
 
-        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
-
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
@@ -1054,8 +1031,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
 
-        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
-
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
@@ -1116,8 +1091,6 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_C);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_C);
-
-        verify(reportFileModule).onProgress(0, PART_NUMBER, "");
 
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_C);
 

@@ -149,8 +149,6 @@ public class Step24ControllerTest extends AbstractControllerTest {
                                                        FAIL,
                                                        "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
                 + NL;
         assertEquals(expectedResults, listener.getResults());
@@ -588,7 +586,7 @@ public class Step24ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     /**

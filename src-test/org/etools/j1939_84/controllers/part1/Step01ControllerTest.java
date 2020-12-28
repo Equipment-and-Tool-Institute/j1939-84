@@ -127,7 +127,7 @@ public class Step01ControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.1", description = "Verifies that there is a single 6.1.1 step"))
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 3, instance.getTotalSteps());
     }
 
     /**
@@ -193,7 +193,7 @@ public class Step01ControllerTest {
         vehicleInfoCaptor.getValue().onResult(vehicleInfo);
         verify(dataRepository).setVehicleInformation(vehicleInfo);
 
-        String expectedMessages = "\n";
+        String expectedMessages = "";
         expectedMessages += "Part 1, Step 1 a-c Displaying Warning Message\n";
         expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off\n";
         expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information";
@@ -258,7 +258,7 @@ public class Step01ControllerTest {
         verify(mockListener).onUrgentMessage(urgentMessages, "Start Part 1", WARNING);
         verify(vehicleInformationModule).setJ1939(j1939);
 
-        String expectedMessages = "\n";
+        String expectedMessages = "";
         expectedMessages += "Part 1, Step 1 a-c Displaying Warning Message\n";
         expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off\n";
         expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information\n";
@@ -298,8 +298,8 @@ public class Step01ControllerTest {
             runnableCaptor.getValue().run();
         } catch (Throwable e) {
             e.printStackTrace();
-
         }
+
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).isEngineNotRunning();
         verify(vehicleInformationModule).setJ1939(j1939);
@@ -315,7 +315,7 @@ public class Step01ControllerTest {
 
         verify(mockListener).onUrgentMessage("Please turn the Engine OFF with Key ON", "Adjust Key Switch", WARNING);
 
-        String expectedMessages = "\n";
+        String expectedMessages = "";
         expectedMessages += "Part 1, Step 1 a-c Displaying Warning Message\n";
         expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off\n";
         expectedMessages += "Waiting for Key ON, Engine OFF...\n";

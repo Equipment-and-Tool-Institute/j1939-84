@@ -180,8 +180,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.11.4.e - DS responses differ from global responses");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
@@ -218,7 +216,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testGetTotalSteps() {
-        assertEquals(1, instance.getTotalSteps());
+        assertEquals(0, instance.getTotalSteps());
     }
 
     @Test
@@ -260,7 +258,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.11.4.e - DS responses differ from global responses");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
@@ -321,7 +318,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.11.4.e - DS responses differ from global responses");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
@@ -386,7 +382,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.11.4.f - NACK not received from OBD ECUs that did not respond to global query");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
@@ -445,8 +440,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
         verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
@@ -496,7 +489,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
@@ -562,7 +554,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
@@ -626,7 +617,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
@@ -691,7 +681,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
@@ -756,7 +745,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.11.4.d - An ECU reported time SCC (SPN 3296) > 1 minute");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,
@@ -825,7 +813,6 @@ public class Step11ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.11.4.c - An ECU reported time with MIL on (SPN 3295) is not zero");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 11,
                 Outcome.FAIL,

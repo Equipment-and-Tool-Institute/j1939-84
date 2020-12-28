@@ -1,23 +1,22 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
-
-import org.etools.j1939_84.controllers.QuestionListener;
-import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import org.etools.j1939_84.controllers.QuestionListener;
+import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.Outcome;
+import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
@@ -30,7 +29,7 @@ public class Step27Controller extends StepController {
 
     private static final int STEP_NUMBER = 27;
 
-    private static final int TOTAL_STEPS = 1;
+    private static final int TOTAL_STEPS = 3;
 
     Step27Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),

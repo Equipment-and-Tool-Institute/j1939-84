@@ -101,7 +101,7 @@ public class Step26Controller extends StepController {
             DataRepository dataRepository,
             BroadcastValidator broadcastValidator,
             BusService busService) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, 1, 26, 1);
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, 1, 26, 0);
         this.tableA1Validator = tableA1Validator;
         this.j1939DaRepository = j1939DaRepository;
         this.dataRepository = dataRepository;

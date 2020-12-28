@@ -147,8 +147,6 @@ public class Step25ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
                 "Engine #1 (0) did not response to the DS20 request");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "WARN: Engine #1 (0) did not response to the DS20 request" + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -185,7 +183,7 @@ public class Step25ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     /**
@@ -297,8 +295,6 @@ public class Step25ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).setJ1939(j1939);
         verify(diagnosticReadinessModule).requestDM20(any(), eq(true), eq(0x00));
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -367,8 +363,6 @@ public class Step25ControllerTest extends AbstractControllerTest {
                 "6.1.25.2.b - Difference compared to data received during global request earlier"
                         + NL
                         + "Engine #1 (0) had a difference between stored performance ratios and destination specific requested DM20 response ratios");
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         String expectedResults = "FAIL: 6.1.25.2.b - Difference compared to data received during global request earlier"
                 + NL

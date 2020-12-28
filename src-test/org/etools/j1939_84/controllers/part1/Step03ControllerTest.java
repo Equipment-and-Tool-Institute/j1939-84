@@ -199,9 +199,6 @@ public class Step03ControllerTest {
         verify(reportFileModule).onResult(
                 "WARN: 6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
 
-        verify(reportFileModule).onProgress(0,
-                1,
-                "");
         verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
 
         String expectedObd = "OBD Module Information: " + NL;
@@ -221,7 +218,7 @@ public class Step03ControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.3", description = "Verifies that there is a single 6.1.3 step."))
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     @Test
@@ -264,9 +261,6 @@ public class Step03ControllerTest {
                 3,
                 FAIL,
                 "6.1.3.2.a - There needs to be at least one OBD Module");
-        verify(reportFileModule).onProgress(0,
-                1,
-                "");
 
         verify(vehicleInformationModule).setJ1939(j1939);
 
@@ -334,9 +328,6 @@ public class Step03ControllerTest {
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
 
         verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-        verify(reportFileModule).onProgress(0,
-                1,
-                "");
         verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
 
         verify(vehicleInformationModule).setJ1939(j1939);

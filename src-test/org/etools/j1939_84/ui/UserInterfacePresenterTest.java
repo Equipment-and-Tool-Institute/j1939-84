@@ -1,5 +1,5 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.ui;
 
@@ -508,7 +508,7 @@ public class UserInterfacePresenterTest {
     }
 
     @Test
-    public void testOnHelpButtonClicked() throws Exception {
+    public void testOnHelpButtonClicked() {
         instance.onHelpButtonClicked();
         verify(helpView).setVisible(true);
     }
@@ -533,11 +533,12 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
         inOrder.verify(view).setAdapterComboBoxEnabled(false);
         inOrder.verify(view).setSelectFileButtonEnabled(false);
-        inOrder.verify(view).setProgressBarValue(0, 6, 1);
+        inOrder.verify(view).setProgressBarValue(0, 3, 1);
         inOrder.verify(view).setProgressBarText("Reading Vehicle Identification Number");
         inOrder.verify(view).setVin("12345678901234567890");
-        inOrder.verify(view).setProgressBarValue(0, 6, 2);
+        inOrder.verify(view).setProgressBarValue(0, 3, 2);
         inOrder.verify(view).setProgressBarText("Reading Vehicle Calibrations");
+        inOrder.verify(view).setProgressBarValue(0, 3, 3);
         inOrder.verify(view).setProgressBarText("Cals not read");
         inOrder.verify(view).displayDialog("Cals not read", "Communications Error", JOptionPane.ERROR_MESSAGE, false);
         inOrder.verify(view).setStartButtonEnabled(false);
@@ -564,8 +565,9 @@ public class UserInterfacePresenterTest {
         verify(view).setAdapterComboBoxEnabled(false);
         verify(view).setSelectFileButtonEnabled(false);
 
-        verify(view).setProgressBarValue(0, 6, 1);
+        verify(view).setProgressBarValue(0, 3, 1);
         verify(view).setProgressBarText("Reading Vehicle Identification Number");
+        verify(view).setProgressBarValue(0, 3, 3);
         verify(view).setProgressBarText("VIN not read");
         verify(view).displayDialog("VIN not read", "Communications Error", JOptionPane.ERROR_MESSAGE, false);
 
@@ -596,12 +598,14 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setReadVehicleInfoButtonEnabled(false);
         inOrder.verify(view).setAdapterComboBoxEnabled(false);
         inOrder.verify(view).setSelectFileButtonEnabled(false);
-        inOrder.verify(view).setProgressBarValue(0, 6, 1);
+        inOrder.verify(view).setProgressBarValue(0, 3, 1);
         inOrder.verify(view).setProgressBarText("Reading Vehicle Identification Number");
         inOrder.verify(view).setVin("12345678901234567890");
-        inOrder.verify(view).setProgressBarValue(0, 6, 2);
+        inOrder.verify(view).setProgressBarValue(0, 3, 2);
         inOrder.verify(view).setProgressBarText("Reading Vehicle Calibrations");
         inOrder.verify(view).setEngineCals("Engine Cals");
+        inOrder.verify(view).setProgressBarValue(0, 3, 3);
+        inOrder.verify(view).setProgressBarText("Complete");
         inOrder.verify(view).setProgressBarText("Push Start Button");
         inOrder.verify(view).setStartButtonEnabled(true);
         inOrder.verify(view).setStopButtonEnabled(false);
@@ -627,7 +631,7 @@ public class UserInterfacePresenterTest {
     }
 
     @Test
-    public void testOnStopButtonClicked() throws Exception {
+    public void testOnStopButtonClicked() {
         when(overallController.isActive()).thenReturn(true);
 
         instance.onStopButtonClicked();
@@ -638,7 +642,7 @@ public class UserInterfacePresenterTest {
     }
 
     @Test
-    public void testOnStopButtonClickedWithNoController() throws Exception {
+    public void testOnStopButtonClickedWithNoController() {
         instance.onStopButtonClicked();
 
         verify(view).setProgressBarText("User cancelled operation");
@@ -646,7 +650,7 @@ public class UserInterfacePresenterTest {
     }
 
     @Test
-    public void testOnStopButtonClickedWithStoppedController() throws Exception {
+    public void testOnStopButtonClickedWithStoppedController() {
         when(overallController.isActive()).thenReturn(false);
 
         instance.onStopButtonClicked();

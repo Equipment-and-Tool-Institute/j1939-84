@@ -143,8 +143,6 @@ public class Step14ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.14.2.f. Fail if no OBD ECU provides DM26");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.14.2.f. Fail if no OBD ECU provides DM26" + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -249,8 +247,6 @@ public class Step14ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.14.5.a Fail if any difference compared to data received during global request");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "" + NL;
         expectedResults += "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant             supported,   not completed" + NL;
@@ -338,7 +334,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     /**
@@ -434,8 +430,6 @@ public class Step14ControllerTest extends AbstractControllerTest {
                 "6.1.14.5.a Fail if any difference compared to data received during global request");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.14.5.b Fail if NACK not received from OBD ECUs that did not respond to global query");
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant             supported,   not completed" + NL;
@@ -542,8 +536,6 @@ public class Step14ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM26(any());
         verify(dtcModule).requestDM26(any(), eq(0x01));
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant             supported,   not completed" + NL;

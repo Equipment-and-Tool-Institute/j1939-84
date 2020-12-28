@@ -174,8 +174,6 @@ public class Step22ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.22.4.b - Fail if NACK not received from OBD ECUs that did not respond to global query - OBD module Transmission #1 (3) did not return a response");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.22.2.a - For ECUs that support DM27, fail if any ECU does not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
                 + NL;
         expectedResults += "FAIL: 6.1.22.2.a - For ECUs that support DM27, fail if any ECU does not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
@@ -241,8 +239,6 @@ public class Step22ControllerTest extends AbstractControllerTest {
                 "6.1.22.2.c - For non-OBD ECUs, fail if any ECU reports pending, MIL-on, previously MIL-on or permanent DTC count greater than 0");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.22.4.a - Fail if any difference compared to data received during global request");
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         String expectedResults = "FAIL: 6.1.22.2.a - For ECUs that support DM27, fail if any ECU does not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
                 + NL;
@@ -320,8 +316,6 @@ public class Step22ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.22.4.a - Fail if any difference compared to data received during global request");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.22.2.b - For ECUs that do not support DM27, fail if any ECU does not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0"
                 + NL;
         expectedResults += "FAIL: 6.1.22.2.a - For ECUs that support DM27, fail if any ECU does not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
@@ -370,8 +364,6 @@ public class Step22ControllerTest extends AbstractControllerTest {
                 "6.1.22.3.a - Destination Specific DM29 requests to OBD modules did not return any responses");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.22.4.b - Fail if NACK not received from OBD ECUs that did not respond to global query - OBD module Engine #2 (1) did not return a response");
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         String expectedResults = "FAIL: 6.1.22.2.c - Fail if no OBD ECU provides DM29" + NL;
         expectedResults += "WARN: 6.1.22.3 - OBD module Engine #2 (1) did not return a response to a destination specific request"
@@ -440,8 +432,6 @@ public class Step22ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.22.4.a - Fail if any difference compared to data received during global request");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.22.2.a - For ECUs that support DM27, fail if any ECU does not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
                 + NL;
         expectedResults += "FAIL: 6.1.22.2.c - For non-OBD ECUs, fail if any ECU reports pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"
@@ -479,7 +469,7 @@ public class Step22ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     /**
@@ -493,7 +483,7 @@ public class Step22ControllerTest extends AbstractControllerTest {
         DM29DtcCounts packet1 = new DM29DtcCounts(
                 Packet.create(PGN, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00));
 
-        List<Integer> obdModuleAddresses = new ArrayList<>(Arrays.asList(0x01));
+        List<Integer> obdModuleAddresses = new ArrayList<>(Collections.singletonList(0x01));
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
         when(dtcModule.requestDM29(any()))
@@ -507,8 +497,6 @@ public class Step22ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM29(any());
         verify(dtcModule).requestDM29(any(), eq(0x01));
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

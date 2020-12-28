@@ -7,7 +7,6 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.StepResult;
@@ -18,13 +17,10 @@ import org.etools.j1939_84.model.VehicleInformationListener;
  * Helper class used as a {@link ResultsListener} for testing
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class TestResultsListener implements ResultsListener {
 
     private boolean complete = false;
-
-    private int lastStep = 0;
 
     private final List<String> messages = new ArrayList<>();
 
@@ -108,16 +104,6 @@ public class TestResultsListener implements ResultsListener {
 
     @Override
     public void onProgress(int currentStep, int totalSteps, String message) {
-        // FIXME This needs put back after Stepping if fixed.
-        // if (currentStep < lastStep) {
-        // fail("Steps went backwards");
-        // } else if (currentStep != lastStep + 1) {
-        // fail("Steps skipped from " + lastStep + " to " + currentStep);
-        // } else if (currentStep > totalSteps) {
-        // fail("Steps exceed maximum");
-        // }
-
-        lastStep = currentStep;
         messages.add(message);
     }
 

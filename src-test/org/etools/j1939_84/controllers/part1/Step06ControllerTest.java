@@ -159,12 +159,10 @@ public class Step06ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 6,
                 Outcome.FAIL,
                 "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 6,
                 Outcome.FAIL,
@@ -214,7 +212,6 @@ public class Step06ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
         verify(reportFileModule).addOutcome(1,
@@ -253,7 +250,6 @@ public class Step06ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.a - Engine model year does not match user input");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).onResult("FAIL: 6.1.6.2.a - Engine model year does not match user input");
         verify(reportFileModule)
                 .addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.a - Engine model year does not match user input");
@@ -293,12 +289,10 @@ public class Step06ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 6,
                 Outcome.FAIL,
                 "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 6,
                 Outcome.FAIL,
@@ -339,8 +333,6 @@ public class Step06ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository, times(2)).getVehicleInformation();
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         verify(vehicleInformationModule).reportEngineFamily(any());
 
         // Verify the documentation was recorded correctly
@@ -377,12 +369,10 @@ public class Step06ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 6,
                 Outcome.FAIL,
                 "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 6,
                 Outcome.FAIL,
@@ -407,7 +397,7 @@ public class Step06ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     /*
@@ -437,12 +427,10 @@ public class Step06ControllerTest extends AbstractControllerTest {
                 .addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.b - Indicates 'V' instead of 'E' for cert type");
         verify(mockListener).addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.c - Not formatted correctly");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).onResult("FAIL: 6.1.6.2.b - Indicates 'V' instead of 'E' for cert type");
         verify(reportFileModule)
                 .addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.b - Indicates 'V' instead of 'E' for cert type");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).onResult("FAIL: 6.1.6.2.c - Not formatted correctly");
         verify(reportFileModule).addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.c - Not formatted correctly");
 
@@ -472,7 +460,6 @@ public class Step06ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMilestones());
         assertEquals("DM56 is not supported" + NL, listener.getResults());
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).onResult("DM56 is not supported");
 
         verify(vehicleInformationModule).reportEngineFamily(any());
@@ -500,8 +487,6 @@ public class Step06ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository, times(2)).getVehicleInformation();
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         verify(vehicleInformationModule).reportEngineFamily(any());
 

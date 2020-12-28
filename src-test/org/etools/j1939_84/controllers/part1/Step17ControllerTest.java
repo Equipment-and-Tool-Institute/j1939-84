@@ -143,8 +143,6 @@ public class Step17ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
                 "6.1.17.3.a Destination Specific DM6 requests to OBD modules did not return any responses");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.17.2.c - Fail if no OBD ECU provides DM6" + NL;
         expectedResults += "WARN: 6.1.17.3.a Destination Specific DM6 requests to OBD modules did not return any responses"
                 + NL;
@@ -201,8 +199,6 @@ public class Step17ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.17.4.a Fail if any difference compared to data received during global request");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.17.2.a - Fail if any ECU reports pending DTCs" + NL;
         expectedResults += "FAIL: 6.1.17.2.b - Fail if any ECU does not report MIL off" + NL;
         expectedResults += "FAIL: 6.1.17.2.a - Fail if any ECU reports pending DTCs" + NL;
@@ -238,7 +234,7 @@ public class Step17ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     /**
@@ -293,8 +289,6 @@ public class Step17ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.17.4.b Fail if NACK not received from OBD ECUs that did not respond to global query");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.17.2.a - Fail if any ECU reports pending DTCs" + NL;
         expectedResults += "FAIL: 6.1.17.2.b - Fail if any ECU does not report MIL off" + NL;
         expectedResults += "FAIL: 6.1.17.2.a - Fail if any ECU reports pending DTCs" + NL;
@@ -331,8 +325,6 @@ public class Step17ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM6(any());
         verify(dtcModule).requestDM6(any(), eq(0x01));
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

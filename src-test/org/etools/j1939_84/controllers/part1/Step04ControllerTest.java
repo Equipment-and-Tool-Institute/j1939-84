@@ -173,7 +173,6 @@ public class Step04ControllerTest extends AbstractControllerTest {
                 .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                         "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule)
                 .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                         "6.1.4.2.b - One or more SPNs for data stream is not supported");
@@ -256,8 +255,6 @@ public class Step04ControllerTest extends AbstractControllerTest {
                 FAIL,
                 "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         verify(reportFileModule).addOutcome(PART_NUMBER,
                 STEP_NUMBER,
                 FAIL,
@@ -290,7 +287,7 @@ public class Step04ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(description = "Verify that there is only one step in 6.1.4.")
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     /**
@@ -391,8 +388,6 @@ public class Step04ControllerTest extends AbstractControllerTest {
         verify(dataRepository).putObdModule(1, obdInfo1);
 
         verify(engineSpeedModule).setJ1939(j1939);
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         //formatter:off
         List<Integer> expectedDataStreamsPacket4 = Arrays.asList(512, 513, 899, 132, 1413, 1414, 1415,

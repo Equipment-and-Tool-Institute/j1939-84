@@ -3,8 +3,6 @@
  */
 package org.etools.j1939_84.controllers;
 
-import static org.etools.j1939_84.J1939_84.NL;
-
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -52,13 +50,11 @@ public abstract class Controller {
         @Override
         public void beginPart(PartResult partResult) {
             Arrays.stream(listeners).forEach(l -> l.beginPart(partResult));
-
         }
 
         @Override
         public void beginStep(StepResult stepResult) {
             Arrays.stream(listeners).forEach(l -> l.beginStep(stepResult));
-
         }
 
         @Override
@@ -159,7 +155,7 @@ public abstract class Controller {
     /**
      * The current step in the controller execution
      */
-    private int currentStep;
+    private static int currentStep;
 
     /**
      * How the execution ended
@@ -185,14 +181,9 @@ public abstract class Controller {
     /**
      * The maximum number of steps in the controller execution
      */
-    private int maxSteps;
+    private static int maxSteps;
 
     private final PartResultRepository partResultRepository;
-
-    /**
-     * The {@link ReportFileModule} used to read and write the report
-     */
-    private ReportFileModule reportFileModule;
 
     /**
      * The {@link VehicleInformationModule} used to read general information
@@ -297,29 +288,6 @@ public abstract class Controller {
     public void execute(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
         setupRun(listener, j1939, reportFileModule);
         getExecutor().execute(getRunnable());
-    }
-
-    protected void executeTests(int partNumber, int totalSteps) throws InterruptedException {
-        PartResult partResult = getPartResult(partNumber);
-        getListener().beginPart(partResult);
-        getListener().onResult("Begin " + partResult);
-
-        for (int i = 1; i <= totalSteps; i++) {
-            StepResult stepResult = partResult.getStepResult(i);
-
-            getListener().beginStep(stepResult);
-            getListener().onResult(NL);
-            getListener().onResult("Start " + stepResult);
-
-            incrementProgress(stepResult.toString());
-            getListener().onResult("Do Testing;\nWait for Responses;\nWrite Messages, etc");
-            // Thread.sleep(100);
-
-            getListener().endStep(stepResult);
-            getListener().onResult("End " + stepResult);
-        }
-        getListener().endPart(partResult);
-        getListener().onResult("End " + partResult);
     }
 
     /**
@@ -431,15 +399,6 @@ public abstract class Controller {
     }
 
     /**
-     * Returns the {@link ReportFileModule}
-     *
-     * @return {@link ReportFileModule}
-     */
-    protected ReportFileModule getReportFileModule() {
-        return reportFileModule;
-    }
-
-    /**
      * Creates a {@link Runnable} that is used to run the controller
      *
      * @return {@link Runnable}
@@ -447,13 +406,7 @@ public abstract class Controller {
     private Runnable getRunnable() {
         return () -> {
             try {
-                setupProgress(getTotalSteps());
-
-                // checkEngineSpeed();
-
-                // Call to the specific controller
                 run();
-
             } catch (Throwable e) {
                 getLogger().log(Level.SEVERE, "Error", e);
                 if (!(e instanceof InterruptedException)) {
@@ -467,10 +420,6 @@ public abstract class Controller {
         };
     }
 
-    protected StepResult getStepResult(int partNumber, int stepNumber) {
-        return getPartResult(partNumber).getStepResult(stepNumber);
-    }
-
     /**
      * Returns the current date/time stamp for the report
      *
@@ -479,13 +428,6 @@ public abstract class Controller {
     protected String getTime() {
         return getDateTimeModule().getTime();
     }
-
-    /**
-     * Returns the total number of steps that be sent back to the listener
-     *
-     * @return int
-     */
-    protected abstract int getTotalSteps();
 
     /**
      * Returns the {@link VehicleInformationModule}
@@ -556,30 +498,21 @@ public abstract class Controller {
     }
 
     /**
-     * @param reportFileModule
-     *         the reportFileModule to set
-     */
-    public void setReportFileModule(ReportFileModule reportFileModule) {
-        this.reportFileModule = reportFileModule;
-    }
-
-    /**
      * Resets the progress to zero, clears the message displayed to the user and
      * sets the maximum number of steps
      *
      * @param maxSteps
      *         the maximum number of steps in the operation
      */
-    private void setupProgress(int maxSteps) {
-        currentStep = 0;
-        this.maxSteps = maxSteps;
+    protected void setupProgress(int maxSteps) {
+        Controller.currentStep = 0;
+        Controller.maxSteps = maxSteps;
         getListener().onProgress(currentStep, maxSteps, "");
     }
 
     public void setupRun(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
         setJ1939(j1939);
         if (reportFileModule != null) {
-            setReportFileModule(reportFileModule);
             compositeListener = new CompositeResultsListener(listener, reportFileModule);
         } else {
             compositeListener = new CompositeResultsListener(listener);

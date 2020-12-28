@@ -133,8 +133,6 @@ public class Step23ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.23.2 - a. Fail if any received ECU response does not report MIL off");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.23.2 - a. Fail if any received ECU response does not report MIL off" + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -175,7 +173,7 @@ public class Step23ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     /**
@@ -203,8 +201,6 @@ public class Step23ControllerTest extends AbstractControllerTest {
 
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM31(any());
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

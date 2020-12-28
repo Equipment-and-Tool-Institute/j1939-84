@@ -48,7 +48,6 @@ public abstract class StepController extends Controller {
         return stepNumber;
     }
 
-    @Override
     public int getTotalSteps() {
         return totalSteps;
     }

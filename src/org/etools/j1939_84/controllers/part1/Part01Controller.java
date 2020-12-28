@@ -3,17 +3,15 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import static org.etools.j1939_84.J1939_84.NL;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.DataRepository;
+import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.PartResult;
-import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -23,7 +21,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
-public class Part01Controller extends Controller {
+public class Part01Controller extends PartController {
 
     private final List<StepController> stepControllers = new ArrayList<>();
 
@@ -119,42 +117,18 @@ public class Part01Controller extends Controller {
         stepControllers.add(step27Controller);
     }
 
-    private void executeStep(StepController controller) throws InterruptedException {
-        StepResult stepResult = getPartResult(1).getStepResult(controller.getStepNumber());
-
-        getListener().beginStep(stepResult);
-        getListener().onResult(NL);
-        getListener().onResult("Start " + stepResult);
-
-        incrementProgress(stepResult.toString());
-        controller.run(getListener(), getJ1939());
-
-        getListener().endStep(stepResult);
-        getListener().onResult("End " + stepResult);
-    }
-
     @Override
     public String getDisplayName() {
         return "Part 1 Test";
     }
 
     @Override
-    protected int getTotalSteps() {
-        return 28;
+    protected PartResult getPartResult() {
+        return getPartResult(1);
     }
 
     @Override
-    protected void run() throws Throwable {
-        PartResult partResult = getPartResult(1);
-        getListener().beginPart(partResult);
-        getListener().onResult("Start " + partResult);
-
-        for (StepController controller : stepControllers) {
-            executeStep(controller);
-        }
-
-        getListener().onResult("End " + partResult);
-        getListener().endPart(partResult);
+    public List<StepController> getStepControllers() {
+        return stepControllers;
     }
-
 }

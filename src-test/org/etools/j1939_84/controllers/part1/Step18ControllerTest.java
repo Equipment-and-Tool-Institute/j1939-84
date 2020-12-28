@@ -142,8 +142,6 @@ public class Step18ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
                 "6.1.18.3.a Destination Specific DM12 requests to OBD modules did not return any responses");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.18.2.c - No OBD ECU provided DM12" + NL;
         expectedResults += "WARN: 6.1.18.3 OBD module Engine #2 (1) did not return a response to a destination specific request"
                 + NL;
@@ -204,8 +202,6 @@ public class Step18ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.18.4.a Difference compared to data received during global request");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.18.2.a - An ECU reported active DTCs" + NL;
         expectedResults += "FAIL: 6.1.18.2.b - An ECU did not report MIL off" + NL;
         expectedResults += "FAIL: 6.1.18.2.a - An ECU reported active DTCs" + NL;
@@ -241,7 +237,7 @@ public class Step18ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     /**
@@ -297,8 +293,6 @@ public class Step18ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.18.4.b NACK not received from OBD ECUs that did not respond to global query");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.18.2.a - An ECU reported active DTCs" + NL;
         expectedResults += "FAIL: 6.1.18.2.b - An ECU did not report MIL off" + NL;
         expectedResults += "FAIL: 6.1.18.2.a - An ECU reported active DTCs" + NL;
@@ -338,8 +332,6 @@ public class Step18ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM12(any(), eq(true));
         verify(dtcModule).requestDM12(any(), eq(true), eq(0x01));
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

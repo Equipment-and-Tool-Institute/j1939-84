@@ -94,7 +94,7 @@ public class Step02ControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.2", description = "Verifies that there is a single 6.1.2 step."))
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     @Test
@@ -147,7 +147,7 @@ public class Step02ControllerTest {
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(mockListener).onUrgentMessage("Please turn the Engine OFF with Key ON.", "Adjust Key Switch", WARNING);
 
-        String expectedMessages = "" + NL;
+        String expectedMessages = "";
         expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
         expectedMessages += "Waiting for Key ON, Engine OFF...";
         assertEquals(expectedMessages, listener.getMessages());

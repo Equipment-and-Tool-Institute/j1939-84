@@ -134,8 +134,6 @@ public class Step15ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.15.2 - Fail if no OBD ECU provides DM1");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.15.2 - Fail if no OBD ECU provides DM1" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
@@ -188,8 +186,6 @@ public class Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
                 "6.1.15.3.b - Warn if any non-OBD ECU reports SPN conversion method (SPN 1706) equal to 1");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.15.2.a - Fail if any OBD ECU reports an active DTC" + NL;
         expectedResults += "FAIL: 6.1.15.2.b - Fail if any OBD ECU does not report MIL off per Section A.8 allowed values"
                 + NL;
@@ -236,7 +232,7 @@ public class Step15ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     /**
@@ -262,8 +258,6 @@ public class Step15ControllerTest extends AbstractControllerTest {
 
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).readDM1(any());
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         String expectedResults = "";
         assertEquals(expectedResults, listener.getResults());

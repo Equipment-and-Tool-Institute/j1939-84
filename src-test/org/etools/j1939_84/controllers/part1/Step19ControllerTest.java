@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -87,9 +87,6 @@ public class Step19ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
     public void setUp() {
 
@@ -106,9 +103,6 @@ public class Step19ControllerTest extends AbstractControllerTest {
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
@@ -148,8 +142,6 @@ public class Step19ControllerTest extends AbstractControllerTest {
                 "6.1.19.3 OBD module Engine #2 (1) did not return a response to a destination specific request");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
                 "6.1.19.3.a Destination Specific DM23 requests to OBD modules did not return any responses");
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         String expectedResults = "FAIL: 6.1.19.2.c - Fail if no OBD ECU provides DM23" + NL;
         expectedResults += "WARN: 6.1.19.3 OBD module Engine #2 (1) did not return a response to a destination specific request"
@@ -211,8 +203,6 @@ public class Step19ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.19.4.a Fail if any difference compared to data received during global request");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.19.2.a - Fail if any ECU reports active DTCs" + NL;
         expectedResults += "FAIL: 6.1.19.2.b - Fail if any ECU does not report MIL off" + NL;
         expectedResults += "FAIL: 6.1.19.2.a - Fail if any ECU reports active DTCs" + NL;
@@ -248,7 +238,7 @@ public class Step19ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     /**
@@ -298,8 +288,6 @@ public class Step19ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                 "6.1.19.4.b Fail if NACK not received from OBD ECUs that did not respond to global query");
 
-        verify(reportFileModule).onProgress(0, 1, "");
-
         String expectedResults = "FAIL: 6.1.19.2.a - Fail if any ECU reports active DTCs" + NL;
         expectedResults += "FAIL: 6.1.19.2.b - Fail if any ECU does not report MIL off" + NL;
         expectedResults += "FAIL: 6.1.19.4.a Fail if any difference compared to data received during global request"
@@ -337,8 +325,6 @@ public class Step19ControllerTest extends AbstractControllerTest {
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM23(any(), eq(true));
         verify(dtcModule).requestDM23(any(), eq(true), eq(0x01));
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

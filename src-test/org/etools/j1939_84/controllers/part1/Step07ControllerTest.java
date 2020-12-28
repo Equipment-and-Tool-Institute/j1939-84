@@ -129,7 +129,7 @@ public class Step07ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGetTotalSteps() {
-        assertEquals(1, instance.getTotalSteps());
+        assertEquals(0, instance.getTotalSteps());
     }
 
     /**

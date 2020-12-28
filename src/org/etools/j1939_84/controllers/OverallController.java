@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2019. Equipment & Tool Institute
+/*
+ * Copyright (c) 2002. Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers;
 
@@ -36,45 +36,7 @@ public class OverallController extends Controller {
              new Part10Controller(), new Part11Controller(), new Part12Controller());
     }
 
-    /**
-     * Constructor expose for testing
-     *
-     * @param executor
-     *         {@link Executor}
-     * @param engineSpeedModule
-     *         the {@link EngineSpeedModule} used to request engine speed
-     * @param bannerModule
-     *         the {@link BannerModule} used to display headers and footers
-     *         on the report
-     * @param vehicleInformationModule
-     *         the {@link VehicleInformationModule} used to gather
-     *         information about the vehicle
-     * @param part1Controller
-     *         the {@link Part01Controller}
-     * @param part2Controller
-     *         the {@link Part02Controller}
-     * @param part3Controller
-     *         the {@link Part03Controller}
-     * @param part4Controller
-     *         the {@link Part04Controller}
-     * @param part5Controller
-     *         the {@link Part05Controller}
-     * @param part6Controller
-     *         the {@link Part06Controller}
-     * @param part7Controller
-     *         the {@link Part07Controller}
-     * @param part8Controller
-     *         the {@link Part08Controller}
-     * @param part9Controller
-     *         the {@link Part09Controller}
-     * @param part10Controller
-     *         the {@link Part10Controller}
-     * @param part11Controller
-     *         the {@link Part11Controller}
-     * @param part12Controller
-     *         the {@link Part12Controller}
-     */
-    public OverallController(Executor executor,
+    private OverallController(Executor executor,
                              EngineSpeedModule engineSpeedModule,
                              BannerModule bannerModule,
                              VehicleInformationModule vehicleInformationModule,
@@ -111,18 +73,12 @@ public class OverallController extends Controller {
     }
 
     @Override
-    protected int getTotalSteps() {
-        return controllers.size();
-    }
-
-    @Override
     protected void run() throws Throwable {
         try {
             getBannerModule().reportHeader(getListener());
 
-            for (int i = 0; i < controllers.size(); i++) {
-                activeController = controllers.get(i);
-                getListener().onProgress(i, getTotalSteps(), activeController.getDisplayName());
+            for (Controller controller : controllers) {
+                activeController = controller;
                 activeController.run(getListener(), getJ1939());
                 activeController = null;
                 if (getEnding() != null) {
@@ -137,7 +93,7 @@ public class OverallController extends Controller {
 
     @Override
     public void stop() {
-        Optional.ofNullable(activeController).ifPresent(ac -> ac.stop());
+        Optional.ofNullable(activeController).ifPresent(Controller::stop);
         super.stop();
     }
 

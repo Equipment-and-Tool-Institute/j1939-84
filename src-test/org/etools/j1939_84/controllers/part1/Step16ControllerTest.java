@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
@@ -18,7 +18,6 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
@@ -28,7 +27,6 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -89,8 +87,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
     private VehicleInformationModule vehicleInformationModule;
 
     private RequestResult<DM2PreviouslyActiveDTC> requestResult(DM2PreviouslyActiveDTC packet1) {
-        return new RequestResult<>(false,
-                Collections.singletonList(new Either<DM2PreviouslyActiveDTC, AcknowledgmentPacket>(packet1, null)));
+        return new RequestResult<>(false, Collections.singletonList(new Either<>(packet1, null)));
     }
 
     @Before
@@ -169,7 +166,6 @@ public class Step16ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 16,
                 Outcome.FAIL,
@@ -192,7 +188,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 1, instance.getTotalSteps());
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
 
     @Test
@@ -206,10 +202,7 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
         // Return the modules address so that we can do the destination specific
         // calls
-        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
-            {
-            }
-        };
+        ArrayList<Integer> obdAddressSet = new ArrayList<>();
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         runTest();
@@ -228,7 +221,6 @@ public class Step16ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.16.4.a DS DM2 responses differ from global responses");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 16,
                 Outcome.FAIL,
@@ -254,18 +246,9 @@ public class Step16ControllerTest extends AbstractControllerTest {
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(
                 new RequestResult<>(false, Collections.singletonList(packet1), Collections.singletonList(packet3)));
 
-        // Set up the destination specific packets we will be returning when
-        // requested
-        List<ParsedPacket> destinationSpecificPackets = new ArrayList<>();
-        DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
-        destinationSpecificPackets.add(packet2);
 
-        // Return the modules address so that we can do the destination specific
-        // calls
-        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
-            {
-            }
-        };
+        // Return the modules address so that we can do the destination specific calls
+        ArrayList<Integer> obdAddressSet = new ArrayList<>();
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         runTest();
@@ -280,7 +263,6 @@ public class Step16ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.16.4.a DS DM2 responses differ from global responses");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 16,
                 Outcome.FAIL,
@@ -346,7 +328,6 @@ public class Step16ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 16,
                 Outcome.FAIL,
@@ -375,19 +356,9 @@ public class Step16ControllerTest extends AbstractControllerTest {
         when(dtcModule.requestDM2(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet1), Collections.emptyList()));
 
-        // Set up the destination specific packets we will be returning when
-        // requested
-        List<ParsedPacket> destinationSpecificPackets = new ArrayList<>();
-        DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
-        destinationSpecificPackets.add(packet2);
-        mock(DiagnosticTroubleCode.class);
-
         // Return the modules address so that we can do the destination specific
         // calls
-        ArrayList<Integer> obdAddressSet = new ArrayList<>() {
-            {
-            }
-        };
+        ArrayList<Integer> obdAddressSet = new ArrayList<>();
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         runTest();
@@ -410,7 +381,6 @@ public class Step16ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.16.4.a DS DM2 responses differ from global responses");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 16,
                 Outcome.FAIL,
@@ -473,7 +443,6 @@ public class Step16ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 16,
                 Outcome.FAIL,
@@ -534,7 +503,6 @@ public class Step16ControllerTest extends AbstractControllerTest {
                 Outcome.FAIL,
                 "6.1.16.4.a DS DM2 responses differ from global responses");
 
-        verify(reportFileModule).onProgress(0, 1, "");
         verify(reportFileModule).addOutcome(1,
                 16,
                 Outcome.FAIL,
@@ -580,8 +548,6 @@ public class Step16ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM2(any(), eq(true), eq(3));
 
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
-
-        verify(reportFileModule).onProgress(0, 1, "");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());

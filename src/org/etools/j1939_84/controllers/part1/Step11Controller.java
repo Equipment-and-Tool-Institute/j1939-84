@@ -28,7 +28,7 @@ public class Step11Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 11;
-    private static final int TOTAL_STEPS = 1;
+    private static final int TOTAL_STEPS = 0;
 
     private final DataRepository dataRepository;
     private final DiagnosticReadinessModule diagnosticReadinessModule;

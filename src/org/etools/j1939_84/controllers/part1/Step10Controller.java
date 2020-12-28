@@ -26,7 +26,7 @@ public class Step10Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 10;
-    private static final int TOTAL_STEPS = 1;
+    private static final int TOTAL_STEPS = 0;
 
     private final DTCModule dtcModule;
     private final DataRepository dataRepository;
