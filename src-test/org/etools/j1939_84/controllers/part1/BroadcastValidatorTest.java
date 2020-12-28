@@ -90,6 +90,15 @@ public class BroadcastValidatorTest {
         packets.add(genericPacket(66666, 0, time(4500)));
         packets.add(genericPacket(66666, 0, time(7000)));
 
+        //On Request
+        packets.add(genericPacket(77777, 0, time(8000)));
+
+        PgnDefinition pgnDef1 = pgnDefinition(0);
+        when(j1939DaRepository.findPgnDefinition(11111)).thenReturn(pgnDef1);
+
+        PgnDefinition pgnDef2 = pgnDefinition(0);
+        when(j1939DaRepository.findPgnDefinition(22222)).thenReturn(pgnDef2);
+
         PgnDefinition pgnDef3 = pgnDefinition(1000, false);
         when(j1939DaRepository.findPgnDefinition(33333)).thenReturn(pgnDef3);
 
@@ -102,6 +111,9 @@ public class BroadcastValidatorTest {
         PgnDefinition pgnDef6 = pgnDefinition(2000, false);
         when(j1939DaRepository.findPgnDefinition(66666)).thenReturn(pgnDef6);
 
+        PgnDefinition pgnDef7 = pgnDefinition(-1);
+        when(j1939DaRepository.findPgnDefinition(77777)).thenReturn(pgnDef7);
+
         ResultsListener mockListener = mock(ResultsListener.class);
         TestResultsListener listener = new TestResultsListener(mockListener);
         //Helper to make the map
@@ -109,24 +121,24 @@ public class BroadcastValidatorTest {
         instance.reportBroadcastPeriod(packetMap, 0, listener, 1, 26);
 
         verify(mockListener).addOutcome(1,
-                                        26,
-                                        INFO,
-                                        "Unable to determine period for PGN 11111 from Engine #1 (0)");
+                26,
+                INFO,
+                "Unable to determine period for PGN 11111 from Engine #1 (0)");
 
         verify(mockListener).addOutcome(1,
-                                        26,
-                                        INFO,
-                                        "Unable to determine period for PGN 22222 from Engine #1 (0)");
+                26,
+                INFO,
+                "Unable to determine period for PGN 22222 from Engine #1 (0)");
 
         verify(mockListener).addOutcome(1,
-                                        26,
-                                        FAIL,
-                                        "Broadcast of 55555 by OBD Module Engine #1 (0) is less than 90% specified broadcast period.");
+                26,
+                FAIL,
+                "Broadcast of 55555 by OBD Module Engine #1 (0) is less than 90% specified broadcast period.");
 
         verify(mockListener).addOutcome(1,
-                                        26,
-                                        FAIL,
-                                        "Broadcast of 66666 by OBD Module Engine #1 (0) is beyond 110% specified broadcast period.");
+                26,
+                FAIL,
+                "Broadcast of 66666 by OBD Module Engine #1 (0) is beyond 110% specified broadcast period.");
 
         String expected = "" + NL;
         expected += "07:30:00.0000 - 11111" + NL;
@@ -156,10 +168,13 @@ public class BroadcastValidatorTest {
 
         assertEquals(expected, listener.getResults());
 
+        verify(j1939DaRepository).findPgnDefinition(11111);
+        verify(j1939DaRepository).findPgnDefinition(22222);
         verify(j1939DaRepository).findPgnDefinition(33333);
         verify(j1939DaRepository).findPgnDefinition(44444);
         verify(j1939DaRepository).findPgnDefinition(55555);
         verify(j1939DaRepository).findPgnDefinition(66666);
+        verify(j1939DaRepository).findPgnDefinition(77777);
 
         verifyNoMoreInteractions(mockListener);
     }
@@ -296,6 +311,11 @@ public class BroadcastValidatorTest {
     private static PgnDefinition pgnDefinition(int broadcastPeriod, Boolean isVariable) {
         PgnDefinition mock = mock(PgnDefinition.class);
         when(mock.getBroadcastPeriod()).thenReturn(broadcastPeriod);
+        if (broadcastPeriod == -1) {
+            when(mock.isOnRequest()).thenReturn(true);
+        } else {
+            when(mock.isOnRequest()).thenReturn(false);
+        }
         if (isVariable != null) {
             when(mock.isVariableBroadcast()).thenReturn(isVariable);
         }

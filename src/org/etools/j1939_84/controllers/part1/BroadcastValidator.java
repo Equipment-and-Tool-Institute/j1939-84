@@ -105,9 +105,13 @@ public class BroadcastValidator {
         // verify frequency of broadcast.
         for (Map.Entry<Integer, List<GenericPacket>> entry : packetMap.entrySet()) {
 
-            List<GenericPacket> samplePackets = entry.getValue();
             int pgn = entry.getKey();
+            PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
+            if (pgnDefinition.isOnRequest()) {
+                return;
+            }
 
+            List<GenericPacket> samplePackets = entry.getValue();
             if (samplePackets.size() < 3) {
                 listener.onResult("");
                 samplePackets.forEach(p -> listener.onResult(p.getPacket().toTimeString()));
@@ -134,8 +138,6 @@ public class BroadcastValidator {
 
                 LocalDateTime t2 = packet2.getTimestamp();
                 long diff2 = ChronoUnit.MILLIS.between(t1, t2);
-
-                PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
 
                 long broadcastPeriod = pgnDefinition.getBroadcastPeriod();
                 double maxBroadcastPeriod = broadcastPeriod * 1.1;
