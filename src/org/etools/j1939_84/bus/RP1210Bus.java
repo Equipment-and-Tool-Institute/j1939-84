@@ -280,27 +280,23 @@ public class RP1210Bus implements Bus {
 
     @Override
     public Packet send(Packet tx) throws BusException {
-        try {
-            byte[] data = encode(tx);
-            return exec.submit(() -> {
-                try (Stream<Packet> stream = read(100, TimeUnit.MILLISECONDS);) {
-                    short rtn = rp1210Library.RP1210_SendMessage(clientId,
-                            data,
-                            (short) data.length,
-                            NOTIFICATION_NONE,
-                            BLOCKING_NONE);
-                    verify(rtn);
-                    return stream
-                            .filter(rx -> tx.getId(0xFFFF) == rx.getId(0xFFFF) && rx.getSource() == tx.getSource())
-                            .findFirst()
-                            .orElseThrow(() -> new BusException("Failed to send: " + tx));
-                }
-            }).get();
+        byte[] data = encode(tx);
+        try (Stream<Packet> stream = read(100, TimeUnit.MILLISECONDS)) {
+            // rp1210 libraries may not be thread safe
+            short rtn = exec.submit(() -> rp1210Library.RP1210_SendMessage(clientId,
+                    data,
+                    (short) data.length,
+                    NOTIFICATION_NONE,
+                    BLOCKING_NONE)).get();
+            verify(rtn);
+            final int id = tx.getId(0xFFFF);
+            final int source = tx.getSource();
+            return stream
+                    .filter(rx -> rx.isTransmitted() && id == rx.getId(0xFFFF) && rx.getSource() == source)
+                    .findFirst()
+                    .orElseThrow(() -> new BusException("Failed to send: " + tx));
         } catch (Throwable e) {
-            if (e.getCause() instanceof BusException) {
-                throw (BusException) e.getCause();
-            }
-            throw new BusException("Failed to send: " + tx, e);
+            throw e instanceof BusException ? (BusException) e : new BusException("Failed to send: " + tx, e);
         }
     }
 
