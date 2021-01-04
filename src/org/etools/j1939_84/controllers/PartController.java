@@ -48,8 +48,8 @@ public abstract class PartController extends Controller {
             getListener().endStep(stepResult);
             getListener().onResult("End " + stepResult);
         }
-
         getListener().onResult("End " + partResult);
+        getListener().onResult(NL);
         getListener().endPart(partResult);
     }
 

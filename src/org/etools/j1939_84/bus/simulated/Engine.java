@@ -138,18 +138,19 @@ public class Engine implements AutoCloseable {
                 () -> Packet.create(61444, ADDR, combine(NA3, engineOn[0] ? ENGINE_SPEED : ENGINE_SPEED_ZERO, NA3)));
         sim.schedule(100, 100, TimeUnit.MILLISECONDS, () -> Packet.create(65248, ADDR, combine(NA4, DISTANCE)));
         sim.response(p -> isRequestFor(65259, p), () -> Packet.create(65259, ADDR, COMPONENT_ID));
-        sim.response(p -> isRequestFor(DM20MonitorPerformanceRatioPacket.PGN, ADDR, p), () -> {
+        // 65278,Auxiliary Water Pump Pressure,AWPP,1 s,1,73,Auxiliary Pump Pressure,49
+        // When the DM24 is reported as supporting SPN 73, this will begin the count down to report the key
+        //  state of key on.
+        sim.response(p -> isRequestFor(65278, ADDR, p), () -> {
             // Start a timer to turn the engine on
             executor.schedule(() -> engineOn[0] = true, 20, TimeUnit.SECONDS);
-            return Packet.create(0, ADDR, new byte[8]);
+            return Packet.create(65278, ADDR, new byte[8]);
         });
 
         sim.response(p -> isRequestFor(65253, p),
                 () -> {
                     // Start a timer that will increment the numerators and
-                    // denominators
-                    // for UI demo purposes
-                    // startTimer();
+                    // denominators for UI demo purposes startTimer();
                     return Packet.create(65253, ADDR, combine(ENGINE_HOURS, NA4));
                 });
         // Address Claim
@@ -459,9 +460,14 @@ public class Engine implements AutoCloseable {
                         dtcsCleared ? 0x00 : 0x10, 0x00));
 
         // DM24 supported SPNs
+        // Add support for the SPN 73 to trigger the key state change
         sim.response(p -> isRequestFor(DM24SPNSupportPacket.PGN, p),
-                () -> Packet.create(DM24SPNSupportPacket.PGN, ADDR, 0x5C, 0x00, 0x30, 0x01, 0x00, 0x02, 0x30, 0x01,
-                        0x01, 0x02, 0x30, 0x01));
+                () -> Packet.create(DM24SPNSupportPacket.PGN, ADDR,
+                        0x5C, 0x00, 0x30, 0x01,
+                        0x00, 0x02, 0x30, 0x01,
+                        0x01, 0x02, 0x30, 0x01,
+                        // support for the SPN of 73 (Aux. water pump is added here to trigger a key state change)
+                        0x49, 0x00, 0x00, 0x01));
         // DM29 response
         sim.response(p -> isRequestFor(DM29DtcCounts.PGN, p),
                 p -> Packet.create(DM29DtcCounts.PGN | p.getSource(), ADDR, 0x00, 0x00, 0x01, 0x00, 0x01, 0xFF, 0xFF,
