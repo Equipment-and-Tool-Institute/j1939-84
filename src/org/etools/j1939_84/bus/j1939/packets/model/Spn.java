@@ -43,6 +43,15 @@ public class Spn {
         return slot == null || slot.isNotAvailable(data);
     }
 
+    /**
+     * Returns true of the value of the SPN is ERROR
+     *
+     * @return boolean
+     */
+    public boolean isError() {
+        return slot == null || slot.isError(data);
+    }
+
     @Override
     public String toString() {
         return String.format("SPN %1$5s, %2$s: %3$s",
