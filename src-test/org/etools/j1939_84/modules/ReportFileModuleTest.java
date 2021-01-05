@@ -68,7 +68,7 @@ public class ReportFileModuleTest {
 
     @Test
     public void testOnProgramExit() throws Exception {
-        instance.setReportFile(listener, file);
+        instance.setReportFile(file);
         instance.onProgramExit();
         List<String> lines = Files.readAllLines(file.toPath());
         String expected = "10:15:30.0000 End of J1939-84 Tool Execution";
@@ -95,7 +95,7 @@ public class ReportFileModuleTest {
 
     @Test
     public void testOnResult() throws Exception {
-        instance.setReportFile(listener, file);
+        instance.setReportFile(file);
         List<String> results = new ArrayList<>();
         results.add("Line 1");
         results.add("Line 2");
@@ -113,7 +113,7 @@ public class ReportFileModuleTest {
         File reportFile = mock(File.class);
         when(reportFile.getAbsolutePath()).thenReturn("files/users/report.j1939_84");
         when(reportFile.toPath()).thenReturn(file.toPath());
-        instance.setReportFile(listener, reportFile);
+        instance.setReportFile(reportFile);
 
         instance.reportFileInformation(listener);
 
@@ -123,7 +123,7 @@ public class ReportFileModuleTest {
 
     @Test
     public void testSetReportFileWithNull() throws Exception {
-        instance.setReportFile(listener, null);
+        instance.setReportFile(null);
         // Nothing (bad) happens
     }
 

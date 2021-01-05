@@ -469,7 +469,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
      *             if there is a problem setting the report file
      */
     void setReportFile(File file) throws IOException {
-        getReportFileModule().setReportFile(getResultsListener(), file);
+        getReportFileModule().setReportFile(file);
         reportFile = file;
     }
 

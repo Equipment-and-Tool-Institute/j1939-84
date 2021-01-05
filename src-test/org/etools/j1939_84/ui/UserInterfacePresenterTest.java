@@ -254,7 +254,7 @@ public class UserInterfacePresenterTest {
         verify(comparisonModule).reset();
         verify(comparisonModule).setJ1939(any(J1939.class));
 
-        verify(reportFileModule).setReportFile(any(ResultsListener.class), eq(file));
+        verify(reportFileModule).setReportFile(eq(file));
 
         verify(rp1210).getAdapters();
         verify(rp1210).setAdapter(adapter1, 0xF9);
@@ -285,7 +285,7 @@ public class UserInterfacePresenterTest {
 
         verify(comparisonModule).reset();
         verify(comparisonModule).setJ1939(any(J1939.class));
-        verify(reportFileModule).setReportFile(any(ResultsListener.class), eq(null));
+        verify(reportFileModule).setReportFile(eq(null));
 
         verify(rp1210).getAdapters();
         verify(rp1210).setAdapter(adapter1, 0xF9);
@@ -296,7 +296,7 @@ public class UserInterfacePresenterTest {
         File file = mockFile(true);
 
         Mockito.doThrow(new IOException("There was a failure")).when(reportFileModule)
-                .setReportFile(any(ResultsListener.class), eq(file));
+                .setReportFile(eq(file));
 
         instance.onFileChosen(file);
         executor.run();
@@ -316,7 +316,7 @@ public class UserInterfacePresenterTest {
         inOrder.verify(view).setAdapterComboBoxEnabled(false);
         inOrder.verify(view).setSelectFileButtonEnabled(false);
         inOrder.verify(view).setProgressBarText("Scanning Report File");
-        inOrder.verify(reportFileModule).setReportFile(any(ResultsListener.class), eq(file));
+        inOrder.verify(reportFileModule).setReportFile(eq(file));
         inOrder.verify(view).setSelectFileButtonText(null);
         inOrder.verify(view).setAdapterComboBoxEnabled(true);
         inOrder.verify(view).setSelectFileButtonEnabled(true);
@@ -338,7 +338,7 @@ public class UserInterfacePresenterTest {
         assertEquals(path, reportFile.getAbsolutePath());
         verify(view).setSelectFileButtonText(path);
 
-        verify(reportFileModule).setReportFile(any(ResultsListener.class), eq(file));
+        verify(reportFileModule).setReportFile(eq(file));
 
         verify(comparisonModule).reset();
 
@@ -404,7 +404,7 @@ public class UserInterfacePresenterTest {
         assertNotNull(reportFile);
         assertTrue(reportFile.getAbsolutePath().endsWith(tempFile.getName() + ".j1939-84"));
 
-        verify(reportFileModule).setReportFile(any(ResultsListener.class), eq(reportFile));
+        verify(reportFileModule).setReportFile(eq(reportFile));
 
         verify(comparisonModule).reset();
 
@@ -453,7 +453,7 @@ public class UserInterfacePresenterTest {
         instance.onFileChosen(file);
         executor.run();
 
-        verify(reportFileModule).setReportFile(any(ResultsListener.class), eq(file));
+        verify(reportFileModule).setReportFile(eq(file));
 
         assertSame(file, instance.getReportFile());
 
@@ -483,7 +483,7 @@ public class UserInterfacePresenterTest {
         instance.onFileChosen(file);
         executor.run();
 
-        verify(reportFileModule).setReportFile(any(ResultsListener.class), eq(file));
+        verify(reportFileModule).setReportFile(eq(file));
 
         assertSame(file, instance.getReportFile());
 

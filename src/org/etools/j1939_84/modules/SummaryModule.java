@@ -61,14 +61,6 @@ public class SummaryModule {
         return sb.toString();
     }
 
-    public long getFailures() {
-        return getPartResults().stream()
-                .flatMap(p -> p.getStepResults().stream())
-                .flatMap(s -> s.getOutcomes().stream())
-                .filter(o -> o.getOutcome() == Outcome.FAIL)
-                .count();
-    }
-
     private List<PartResult> getPartResults() {
         return partResultRepository.getPartResults();
     }
@@ -77,21 +69,14 @@ public class SummaryModule {
         return partResultRepository.getStepResult(partNumber, stepNumber);
     }
 
-    public long getTiming() {
+    public long getOutcomeCount(Outcome outcome) {
         return getPartResults().stream()
                 .flatMap(p -> p.getStepResults().stream())
                 .flatMap(s -> s.getOutcomes().stream())
-                .filter(o -> o.getOutcome() == Outcome.TIMING)
+                .filter(o -> o.getOutcome() == outcome)
                 .count();
     }
 
-    public long getWarnings() {
-        return getPartResults().stream()
-                .flatMap(p -> p.getStepResults().stream())
-                .flatMap(s -> s.getOutcomes().stream())
-                .filter(o -> o.getOutcome() == Outcome.WARN)
-                .count();
-    }
 
     private String println(IResult iResult) {
         String name = iResult.toString();
