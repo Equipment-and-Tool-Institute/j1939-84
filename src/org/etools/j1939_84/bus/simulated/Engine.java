@@ -143,7 +143,7 @@ public class Engine implements AutoCloseable {
         //  state of key on.
         sim.response(p -> isRequestFor(65278, ADDR, p), () -> {
             // Start a timer to turn the engine on
-            executor.schedule(() -> engineOn[0] = true, 20, TimeUnit.SECONDS);
+            executor.schedule(() -> engineOn[0] = true, 30, TimeUnit.SECONDS);
             return Packet.create(65278, ADDR, new byte[8]);
         });
 

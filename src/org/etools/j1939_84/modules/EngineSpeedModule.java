@@ -60,4 +60,14 @@ public class EngineSpeedModule extends FunctionalModule {
         EngineSpeedPacket packet = getEngineSpeedPacket();
         return !(packet == null || packet.isError() || packet.isNotAvailable() || packet.getEngineSpeed() < 300);
     }
+
+    /**
+     * Returns the engine speed in RPMs.
+     *
+     * @return double representing the engine speed in RPMs
+     */
+    public double getEngineSpeed() {
+        EngineSpeedPacket packet = getEngineSpeedPacket();
+        return packet == null ? -1.0 : packet.getEngineSpeed();
+    }
 }
