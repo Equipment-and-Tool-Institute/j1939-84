@@ -1,15 +1,12 @@
-/**
- * Copyright 2020 Equipment & Tool Institute
+/*
+* Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 import java.util.Timer;
 import java.util.TimerTask;
@@ -73,7 +70,8 @@ public class Step02ControllerTest {
         instance = new Step02Controller(executor,
                 engineSpeedModule,
                 bannerModule,
-                vehicleInformationModule);
+                vehicleInformationModule,
+                DateTimeModule.getInstance());
     }
 
     @After
@@ -110,6 +108,7 @@ public class Step02ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(engineSpeedModule).setJ1939(j1939);
+        verify(engineSpeedModule).getEngineSpeed();
         verify(engineSpeedModule).isEngineNotRunning();
         verify(vehicleInformationModule).setJ1939(j1939);
 
@@ -119,7 +118,7 @@ public class Step02ControllerTest {
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
 
-        String expectedResults = "";
+        String expectedResults = "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -143,6 +142,7 @@ public class Step02ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(engineSpeedModule).setJ1939(j1939);
+        verify(engineSpeedModule, times(2)).getEngineSpeed();
         verify(engineSpeedModule, atLeastOnce()).isEngineNotRunning();
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(mockListener).onUrgentMessage("Please turn the Engine OFF with Key ON.", "Adjust Key Switch", WARNING);
@@ -155,8 +155,8 @@ public class Step02ControllerTest {
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
 
-        String expectedResults = "";
+        String expectedResults = "Initial Engine Speed = 0.0 RPMs" +NL;
+        expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
-
 }
