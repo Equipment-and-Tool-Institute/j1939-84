@@ -3,18 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import static org.etools.j1939_84.J1939_84.NL;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.inOrder;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
-
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.List;
-import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -32,6 +21,15 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.List;
+import java.util.concurrent.Executor;
+
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.*;
 
 /**
  * The unit test for {@link Part01Controller}
@@ -329,16 +327,21 @@ public class Part01ControllerTest {
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
-        StringBuilder expectedResults = new StringBuilder("Start " + Lookup.getPartName(1) + NL);
+        StringBuilder expectedResults = new StringBuilder(NL + "Start " + Lookup.getPartName(1) + NL);
         for (int i = 1; i <= 27; i++) {
             expectedResults.append(NL)
+                    .append("Start Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i))
                     .append(NL)
-                    .append("Start Step 1.")
-                    .append(i).append(". ").append(Lookup.getStepName(1, i))
+                    .append(NL)
+                    .append(NL)
+                    .append("End Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i))
                     .append(NL);
-            expectedResults.append("End Step 1.").append(i).append(". ").append(Lookup.getStepName(1, i)).append(NL);
         }
-        expectedResults.append("End ").append(Lookup.getPartName(1)).append(NL);
+        expectedResults.append(NL)
+                .append(NL)
+                .append("End ").append(Lookup.getPartName(1))
+                .append(NL)
+                .append(NL);
         assertEquals(expectedResults.toString(), listener.getResults());
 
     }
