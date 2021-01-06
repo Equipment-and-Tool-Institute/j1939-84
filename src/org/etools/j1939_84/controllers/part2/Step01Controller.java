@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part2;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -31,18 +30,21 @@ public class Step01Controller extends StepController {
     private static final int PART_NUMBER = 2;
     private static final int STEP_NUMBER = 1;
     private static final int TOTAL_STEPS = 0;
+    private final DateTimeModule dateTimeModule;
 
     Step01Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
                 new EngineSpeedModule(),
                 new BannerModule(),
-                new VehicleInformationModule());
+                new VehicleInformationModule(),
+                DateTimeModule.getInstance());
     }
 
     Step01Controller(Executor executor,
                      EngineSpeedModule engineSpeedModule,
                      BannerModule bannerModule,
-                     VehicleInformationModule vehicleInformationModule) {
+                     VehicleInformationModule vehicleInformationModule,
+                     DateTimeModule dateTimeModule) {
         super(executor,
                 engineSpeedModule,
                 bannerModule,
@@ -50,6 +52,7 @@ public class Step01Controller extends StepController {
                 PART_NUMBER,
                 STEP_NUMBER,
                 TOTAL_STEPS);
+        this.dateTimeModule = dateTimeModule;
     }
 
     @Override
@@ -69,7 +72,7 @@ public class Step01Controller extends StepController {
 
                 while (getEngineSpeedModule().isEngineNotRunning()) {
                     updateProgress("Waiting for Key ON, Engine ON...");
-                    DateTimeModule.getInstance().pauseFor(500);
+                    dateTimeModule.pauseFor(500);
                 }
             }
             getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");

@@ -8,10 +8,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.controllers.part1.Step02Controller;
 import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.ReportFileModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.modules.*;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
 import org.junit.*;
@@ -78,7 +75,8 @@ public class Step01ControllerTest {
         instance = new Step01Controller(executor,
                 engineSpeedModule,
                 bannerModule,
-                vehicleInformationModule);
+                vehicleInformationModule,
+                DateTimeModule.getInstance());
     }
 
     @After
