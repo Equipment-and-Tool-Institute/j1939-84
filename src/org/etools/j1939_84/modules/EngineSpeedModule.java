@@ -68,6 +68,6 @@ public class EngineSpeedModule extends FunctionalModule {
      */
     public double getEngineSpeed() {
         EngineSpeedPacket packet = getEngineSpeedPacket();
-        return packet == null ? 0.0 : packet.getEngineSpeed();
+        return packet == null ? -1.0 : packet.getEngineSpeed();
     }
 }
