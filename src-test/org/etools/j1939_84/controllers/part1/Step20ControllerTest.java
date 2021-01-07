@@ -31,6 +31,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -88,13 +89,15 @@ public class Step20ControllerTest extends AbstractControllerTest {
     public void setUp() {
 
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step20Controller(executor,
                                         engineSpeedModule,
                                         bannerModule,
                                         vehicleInformationModule,
                                         dtcModule,
-                                        dataRepository);
+                                        dataRepository,
+                                        DateTimeModule.getInstance());
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -134,9 +137,13 @@ public class Step20ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.20.2.c - No OBD ECU provided a DM28");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
                                         "6.1.20.3 OBD module Engine #2 (1) did not return a response to a destination specific request");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
                                         "6.1.20.3.a Destination Specific DM28 requests to OBD modules did not return any responses");
 
         String expectedResults = "FAIL: 6.1.20.2.c - No OBD ECU provided a DM28" + NL;
@@ -270,7 +277,9 @@ public class Step20ControllerTest extends AbstractControllerTest {
                                         "6.1.20.2.b - An ECU did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.20.4.a Difference compared to data received during global request");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.1.20.4.b NACK not received from OBD ECUs that did not respond to global query");
 
         String expectedResults = "FAIL: 6.1.20.2.a - An ECU reported permanent DTCs" + NL;

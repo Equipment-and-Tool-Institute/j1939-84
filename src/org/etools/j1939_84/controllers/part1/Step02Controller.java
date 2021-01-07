@@ -19,7 +19,6 @@ public class Step02Controller extends StepController {
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 2;
     private static final int TOTAL_STEPS = 0;
-    private final DateTimeModule dateTimeModule;
 
     Step02Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -38,10 +37,10 @@ public class Step02Controller extends StepController {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
+                dateTimeModule,
                 PART_NUMBER,
                 STEP_NUMBER,
                 TOTAL_STEPS);
-        this.dateTimeModule = dateTimeModule;
     }
 
     @Override
@@ -53,7 +52,7 @@ public class Step02Controller extends StepController {
 
                 while (!getEngineSpeedModule().isEngineNotRunning() && getEnding() == null) {
                     updateProgress("Waiting for Key ON, Engine OFF...");
-                    dateTimeModule.pauseFor(500);
+                    getDateTimeModule().pauseFor(500);
                 }
             }
             getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");

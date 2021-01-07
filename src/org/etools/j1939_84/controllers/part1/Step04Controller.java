@@ -15,11 +15,7 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.OBDTestsModule;
-import org.etools.j1939_84.modules.SupportedSpnModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.modules.*;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
@@ -43,7 +39,8 @@ public class Step04Controller extends StepController {
              new VehicleInformationModule(),
              new OBDTestsModule(),
              new SupportedSpnModule(),
-             dataRepository);
+             dataRepository,
+                DateTimeModule.getInstance());
     }
 
     Step04Controller(Executor executor,
@@ -52,11 +49,13 @@ public class Step04Controller extends StepController {
                      VehicleInformationModule vehicleInformationModule,
                      OBDTestsModule obdTestsModule,
                      SupportedSpnModule supportedSpnModule,
-                     DataRepository dataRepository) {
+                     DataRepository dataRepository,
+                     DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);

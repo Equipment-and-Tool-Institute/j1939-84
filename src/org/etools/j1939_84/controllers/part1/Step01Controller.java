@@ -16,6 +16,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -31,12 +32,13 @@ public class Step01Controller extends StepController {
                 new EngineSpeedModule(),
                 new BannerModule(),
                 new VehicleInformationModule(),
-                dataRepository);
+                dataRepository,
+                DateTimeModule.getInstance());
     }
 
     Step01Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-            VehicleInformationModule vehicleInformationModule, DataRepository dataRepository) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule,
+            VehicleInformationModule vehicleInformationModule, DataRepository dataRepository, DateTimeModule dateTimeModule) {
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule,dateTimeModule,
                 PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }

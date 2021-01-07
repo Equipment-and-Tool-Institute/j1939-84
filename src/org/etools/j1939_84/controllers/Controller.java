@@ -192,6 +192,12 @@ public abstract class Controller {
     private final VehicleInformationModule vehicleInformationModule;
 
     /**
+     * The {@link DateTimeModule} used to read general information
+     * from the vehicle
+     */
+    private final DateTimeModule dateTimeModule;
+
+    /**
      * Constructor
      *
      * @param executor
@@ -205,21 +211,26 @@ public abstract class Controller {
      * @param vehicleInformationModule
      *         the {@link VehicleInformationModule} that will gather general
      *         information from the vehicle for the report
+     * @param dateTimeModule
+     *         the {@link DateTimeModule} that will for time tracking
      */
     protected Controller(Executor executor, EngineSpeedModule engineSpeedModule,
                          BannerModule bannerModule,
-                         VehicleInformationModule vehicleInformationModule) {
-        this(executor, engineSpeedModule, bannerModule, vehicleInformationModule, PartResultRepository.getInstance());
+                         VehicleInformationModule vehicleInformationModule,
+                         DateTimeModule dateTimeModule) {
+        this(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule, PartResultRepository.getInstance());
     }
 
     protected Controller(Executor executor, EngineSpeedModule engineSpeedModule,
                          BannerModule bannerModule,
                          VehicleInformationModule vehicleInformationModule,
+                         DateTimeModule dateTimeModule,
                          PartResultRepository partResultRepository) {
         this.executor = executor;
         this.engineSpeedModule = engineSpeedModule;
         this.bannerModule = bannerModule;
         this.vehicleInformationModule = vehicleInformationModule;
+        this.dateTimeModule = dateTimeModule;
         this.partResultRepository = partResultRepository;
     }
 
@@ -339,7 +350,7 @@ public abstract class Controller {
      * @return {@link DateTimeModule}
      */
     protected DateTimeModule getDateTimeModule() {
-        return DateTimeModule.getInstance();
+        return dateTimeModule;
     }
 
     public abstract String getDisplayName();

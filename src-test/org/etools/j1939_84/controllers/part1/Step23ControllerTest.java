@@ -14,7 +14,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
@@ -23,6 +22,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -38,7 +38,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  * The unit test for {@link Step23Controller}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Step23ControllerTest extends AbstractControllerTest {
@@ -80,13 +79,15 @@ public class Step23ControllerTest extends AbstractControllerTest {
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step23Controller(
                 executor,
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                dtcModule);
+                dtcModule,
+                DateTimeModule.getInstance());
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -97,11 +98,11 @@ public class Step23ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dtcModule,
-                mockListener);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 dtcModule,
+                                 mockListener);
     }
 
     /**
@@ -131,7 +132,7 @@ public class Step23ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM31(any());
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.23.2 - a. Fail if any received ECU response does not report MIL off");
+                                                       "6.1.23.2 - a. Fail if any received ECU response does not report MIL off");
 
         String expectedResults = "FAIL: 6.1.23.2 - a. Fail if any received ECU response does not report MIL off" + NL;
         assertEquals(expectedResults, listener.getResults());

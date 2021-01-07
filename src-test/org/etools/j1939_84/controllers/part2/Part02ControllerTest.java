@@ -9,10 +9,7 @@ import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.ReportFileModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.modules.*;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -64,19 +61,20 @@ public class Part02ControllerTest {
     @Mock
     private Step01Controller step01Controller;
 
-//
-
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
     @Before
     public void setUp() {
         listener = new TestResultsListener(mockListener);
+        listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Part02Controller(executor,
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
+                DateTimeModule.getInstance(),
                 step01Controller);
     }
 

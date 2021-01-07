@@ -24,6 +24,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -55,10 +56,10 @@ public class Step06ControllerTest extends AbstractControllerTest {
      */
     @SuppressWarnings("SameParameterValue")
     private static DM56EngineFamilyPacket createDM56(Integer sourceAddress,
-            Integer engineYear,
-            String modelYear,
-            Integer vehicleYear,
-            String familyName) {
+                                                     Integer engineYear,
+                                                     String modelYear,
+                                                     Integer vehicleYear,
+                                                     String familyName) {
         DM56EngineFamilyPacket packet = mock(DM56EngineFamilyPacket.class);
         if (sourceAddress != null) {
             when(packet.getSourceAddress()).thenReturn(sourceAddress);
@@ -106,17 +107,21 @@ public class Step06ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    private DateTimeModule dateTimeModule;
+
     @Before
     public void setUp() throws Exception {
 
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step06Controller(
                 executor,
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                dataRepository);
+                dataRepository,
+                DateTimeModule.getInstance());
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
 
@@ -125,12 +130,12 @@ public class Step06ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                mockListener,
-                reportFileModule);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 dataRepository,
+                                 mockListener,
+                                 reportFileModule);
     }
 
     /**
@@ -155,18 +160,18 @@ public class Step06ControllerTest extends AbstractControllerTest {
         verify(dataRepository, times(2)).getVehicleInformation();
 
         verify(mockListener).addOutcome(1,
-                6,
-                Outcome.FAIL,
-                "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
+                                        6,
+                                        Outcome.FAIL,
+                                        "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
 
         verify(reportFileModule).addOutcome(1,
-                6,
-                Outcome.FAIL,
-                "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
+                                            6,
+                                            Outcome.FAIL,
+                                            "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
         verify(reportFileModule).addOutcome(1,
-                6,
-                Outcome.FAIL,
-                "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
+                                            6,
+                                            Outcome.FAIL,
+                                            "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
 
@@ -193,10 +198,10 @@ public class Step06ControllerTest extends AbstractControllerTest {
         String famName = familyName.replace("A", "*");
 
         List<DM56EngineFamilyPacket> parsedPackets = Collections.singletonList(createDM56(null,
-                2006,
-                "2006E-MY",
-                null,
-                famName));
+                                                                                          2006,
+                                                                                          "2006E-MY",
+                                                                                          null,
+                                                                                          famName));
         when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
 
         VehicleInformation vehicleInformation = mock(VehicleInformation.class);
@@ -208,16 +213,16 @@ public class Step06ControllerTest extends AbstractControllerTest {
         verify(dataRepository, times(2)).getVehicleInformation();
 
         verify(mockListener).addOutcome(1,
-                6,
-                Outcome.FAIL,
-                "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
+                                        6,
+                                        Outcome.FAIL,
+                                        "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
 
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
         verify(reportFileModule).addOutcome(1,
-                6,
-                Outcome.FAIL,
-                "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
+                                            6,
+                                            Outcome.FAIL,
+                                            "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
 
         verify(vehicleInformationModule).reportEngineFamily(any());
 
@@ -285,18 +290,18 @@ public class Step06ControllerTest extends AbstractControllerTest {
         verify(dataRepository, times(2)).getVehicleInformation();
 
         verify(mockListener).addOutcome(1,
-                6,
-                Outcome.FAIL,
-                "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+                                        6,
+                                        Outcome.FAIL,
+                                        "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
 
         verify(reportFileModule).addOutcome(1,
-                6,
-                Outcome.FAIL,
-                "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+                                            6,
+                                            Outcome.FAIL,
+                                            "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
         verify(reportFileModule).addOutcome(1,
-                6,
-                Outcome.FAIL,
-                "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+                                            6,
+                                            Outcome.FAIL,
+                                            "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
 
@@ -365,18 +370,18 @@ public class Step06ControllerTest extends AbstractControllerTest {
         verify(dataRepository, times(2)).getVehicleInformation();
 
         verify(mockListener).addOutcome(1,
-                6,
-                Outcome.FAIL,
-                "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+                                        6,
+                                        Outcome.FAIL,
+                                        "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
 
         verify(reportFileModule).addOutcome(1,
-                6,
-                Outcome.FAIL,
-                "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+                                            6,
+                                            Outcome.FAIL,
+                                            "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
         verify(reportFileModule).addOutcome(1,
-                6,
-                Outcome.FAIL,
-                "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+                                            6,
+                                            Outcome.FAIL,
+                                            "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
 

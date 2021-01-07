@@ -16,10 +16,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
-import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.modules.*;
 
 /**
  * @author Garrison Garland (garrison@soliddesign.net)
@@ -41,7 +38,8 @@ public class Step08Controller extends StepController {
              new BannerModule(),
              new VehicleInformationModule(),
              new DiagnosticReadinessModule(),
-             dataRepository);
+             dataRepository,
+                DateTimeModule.getInstance());
     }
 
     Step08Controller(Executor executor,
@@ -49,11 +47,13 @@ public class Step08Controller extends StepController {
                      BannerModule bannerModule,
                      VehicleInformationModule vehicleInformationModule,
                      DiagnosticReadinessModule diagnosticReadinessModule,
-                     DataRepository dataRepository) {
+                     DataRepository dataRepository,
+                     DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+                dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);

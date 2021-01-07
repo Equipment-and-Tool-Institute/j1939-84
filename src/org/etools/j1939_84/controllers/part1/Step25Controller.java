@@ -16,10 +16,7 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.modules.*;
 import org.etools.j1939_84.utils.CollectionUtils;
 
 /**
@@ -44,7 +41,8 @@ public class Step25Controller extends StepController {
                 new BannerModule(),
                 new VehicleInformationModule(),
                 new DiagnosticReadinessModule(),
-                dataRepository);
+                dataRepository,
+                DateTimeModule.getInstance());
     }
 
     Step25Controller(Executor executor,
@@ -52,11 +50,13 @@ public class Step25Controller extends StepController {
             BannerModule bannerModule,
             VehicleInformationModule vehicleInformationModule,
             DiagnosticReadinessModule diagnosticReadinessModule,
-            DataRepository dataRepository) {
+            DataRepository dataRepository,
+                     DateTimeModule dateTimeModule) {
         super(executor,
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
+                dateTimeModule,
                 PART_NUMBER,
                 STEP_NUMBER,
                 TOTAL_STEPS);

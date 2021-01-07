@@ -12,10 +12,7 @@ import org.etools.j1939_84.bus.j1939.packets.DTCLampStatus;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
-import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.modules.*;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
@@ -36,18 +33,20 @@ public class Step23Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DTCModule());
+             new DTCModule(), DateTimeModule.getInstance());
     }
 
     Step23Controller(Executor executor,
                      EngineSpeedModule engineSpeedModule,
                      BannerModule bannerModule,
                      VehicleInformationModule vehicleInformationModule,
-                     DTCModule dtcModule) {
+                     DTCModule dtcModule,
+                     DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);

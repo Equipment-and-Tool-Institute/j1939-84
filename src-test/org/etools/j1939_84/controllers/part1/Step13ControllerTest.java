@@ -31,6 +31,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -93,6 +94,7 @@ public class Step13ControllerTest extends AbstractControllerTest {
     public void setUp() throws Exception {
 
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step13Controller(
                 executor,
@@ -101,7 +103,8 @@ public class Step13ControllerTest extends AbstractControllerTest {
                 vehicleInformationModule,
                 diagnosticReadinessModule,
                 dataRepository,
-                sectionA6Validator);
+                sectionA6Validator,
+                DateTimeModule.getInstance());
 
         ReportFileModule reportFileModule = mock(ReportFileModule.class);
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
@@ -111,13 +114,13 @@ public class Step13ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                obdModuleInformation,
-                vehicleInformationModule,
-                dataRepository,
-                mockListener,
-                sectionA6Validator);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 obdModuleInformation,
+                                 vehicleInformationModule,
+                                 dataRepository,
+                                 mockListener,
+                                 sectionA6Validator);
     }
 
     @Test
@@ -200,18 +203,19 @@ public class Step13ControllerTest extends AbstractControllerTest {
         DM5DiagnosticReadinessPacket packet21 = new DM5DiagnosticReadinessPacket(
                 Packet.create(PGN, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
-                Collections.emptyList(),
-                Collections.singletonList(packet44));
+                                                                                                Collections.emptyList(),
+                                                                                                Collections.singletonList(
+                                                                                                        packet44));
         when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalRequestResponse);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
-                packet0);
+                                                                                packet0);
         when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x00))).thenReturn(busResult0x00);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false,
-                packet44);
+                                                                                packet44);
         when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x17))).thenReturn(busResult0x17);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false,
-                packet21);
+                                                                                packet21);
         when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x21))).thenReturn(busResult0x21);
 
         when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
@@ -224,9 +228,9 @@ public class Step13ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.1.a - Global DM5 request did not receive any response packets");
+                                        "6.1.13.1.a - Global DM5 request did not receive any response packets");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.2.c - No OBD ECU provided DM5 with readiness bits showing monitor support");
+                                        "6.1.13.2.c - No OBD ECU provided DM5 with readiness bits showing monitor support");
 
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
@@ -254,13 +258,13 @@ public class Step13ControllerTest extends AbstractControllerTest {
         when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalRequestResponse);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
-                Optional.empty());
+                                                                                Optional.empty());
         when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x00))).thenReturn(busResult0x00);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false,
-                Optional.empty());
+                                                                                Optional.empty());
         when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x17))).thenReturn(busResult0x17);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false,
-                packet21);
+                                                                                packet21);
         when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x21))).thenReturn(busResult0x21);
 
         when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
@@ -279,23 +283,23 @@ public class Step13ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0" + NL
-                        + "  Reported active fault count = 3" + NL + "  Reported previously active fault count = 16");
+                                        "6.1.13.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0" + NL
+                                                + "  Reported active fault count = 3" + NL + "  Reported previously active fault count = 16");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.13.3 - OBD module Engine #1 (0) did not return a response to a destination specific request");
+                                        "6.1.13.3 - OBD module Engine #1 (0) did not return a response to a destination specific request");
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                WARN,
-                "6.1.13.3 - OBD module Instrument Cluster #1 (23) did not return a response to a destination specific request");
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.1.13.3 - OBD module Instrument Cluster #1 (23) did not return a response to a destination specific request");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.13.3.a - Destination Specific DM5 requests to OBD modules did not return any responses");
+                                        "6.1.13.3.a - Destination Specific DM5 requests to OBD modules did not return any responses");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.13.4.a - A difference compared to data received during global request");
+                                        "6.1.13.4.a - A difference compared to data received during global request");
 
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.13.4.b - NACK not received from OBD ECUs that did not respond to global query");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.13.4.b - NACK not received from OBD ECUs that did not respond to global query");
 
         String expected2dWarning = "6.1.13.2.d - An individual required monitor is supported by more than one OBD ECU" + NL +
                 "Boost pressure control sys has reporting from more than one OBD ECU" + NL +

@@ -33,6 +33,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -99,15 +100,19 @@ public class Step07ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    private DateTimeModule dateTimeModule;
+
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step07Controller(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository);
+                                        engineSpeedModule,
+                                        bannerModule,
+                                        vehicleInformationModule,
+                                        dataRepository,
+                                        DateTimeModule.getInstance());
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -115,11 +120,11 @@ public class Step07ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                mockListener);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 dataRepository,
+                                 mockListener);
     }
 
     @Test
@@ -219,9 +224,9 @@ public class Step07ControllerTest extends AbstractControllerTest {
         assertEquals(expectedResults, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.7.2.a Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.7.2.a Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units");
 
         verify(vehicleInformationModule).reportCalibrationInformation(any());
         verify(dataRepository).getVehicleInformation();
@@ -278,19 +283,19 @@ public class Step07ControllerTest extends AbstractControllerTest {
         globalDM19s.add(dm191D);
 
         Packet packet0E = Packet.create(0,
-                0x0E,
-                0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
-                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                0xFF, 0xFF, 0xFF);
+                                        0x0E,
+                                        0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
+                                        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                        0xFF, 0xFF, 0xFF);
         DM19CalibrationInformationPacket dm190E = new DM19CalibrationInformationPacket(packet0E);
         globalDM19s.add(dm190E);
 
         // Module 1E - CalId all 0xFF and CVN all 0x00 as OBD Module
         Packet packet1E = Packet.create(0,
-                0x1E,
-                0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
-                0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                0xFF, 0xFF, 0xFF);
+                                        0x1E,
+                                        0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
+                                        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
+                                        0xFF, 0xFF, 0xFF);
         DM19CalibrationInformationPacket dm191E = new DM19CalibrationInformationPacket(packet1E);
         globalDM19s.add(dm191E);
 
@@ -406,28 +411,34 @@ public class Step07ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                WARN,
-                "6.1.7.3.a Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units");
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.1.7.3.a Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units");
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.7.3.b More than one CAL ID and CVN pair is provided in a single DM19 message");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.1.7.3.b More than one CAL ID and CVN pair is provided in a single DM19 message");
 
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.7.2.b.i <> 1 CVN for every CAL ID");
+                                                  "6.1.7.2.b.i <> 1 CVN for every CAL ID");
         verify(mockListener, times(4)).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.7.3.c.i Warn if any non-OBD ECU provides CAL ID");
+                                                  "6.1.7.3.c.i Warn if any non-OBD ECU provides CAL ID");
 
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.7.3.c.ii <> 1 CVN for every CAL ID");
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.7.2.b.ii CAL ID not formatted correctly (contains non-printable ASCII)");
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.7.3.c.iii Warn if CAL ID not formatted correctly (contains non-printable ASCII)");
+                                                  "6.1.7.3.c.ii <> 1 CVN for every CAL ID");
+        verify(mockListener, times(2)).addOutcome(PART_NUMBER,
+                                                  STEP_NUMBER,
+                                                  FAIL,
+                                                  "6.1.7.2.b.ii CAL ID not formatted correctly (contains non-printable ASCII)");
+        verify(mockListener, times(2)).addOutcome(PART_NUMBER,
+                                                  STEP_NUMBER,
+                                                  WARN,
+                                                  "6.1.7.3.c.iii Warn if CAL ID not formatted correctly (contains non-printable ASCII)");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.7.2.b.ii CAL ID not formatted correctly (padded incorrectly)");
+                                        "6.1.7.2.b.ii CAL ID not formatted correctly (padded incorrectly)");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.7.3.c.iii CAL ID not formatted correctly (padded incorrectly)");
+                                        "6.1.7.3.c.iii CAL ID not formatted correctly (padded incorrectly)");
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.7.2.b.iii Received CAL ID is all 0xFF");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.7.2.b.iii Received CVN is all 0x00");
@@ -435,17 +446,17 @@ public class Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.7.3.c.iv Received CVN is all 0x00");
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.7.5.b NACK (PGN 59392) with mode/control byte = 3 (busy) received");
+                                        "6.1.7.5.b NACK (PGN 59392) with mode/control byte = 3 (busy) received");
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.7.5.a Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference [CAL ID of  and CVN of 1234]");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.7.5.a Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference [CAL ID of  and CVN of 1234]");
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.7.5.a Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference [CAL ID of CALID and CVN of ]");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.7.5.a Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference [CAL ID of CALID and CVN of ]");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.7.5.c NACK not received from OBD ECU that did not respond to global query");
+                                        "6.1.7.5.c NACK not received from OBD ECU that did not respond to global query");
 
         verify(vehicleInformationModule).reportCalibrationInformation(any());
         verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0x0A));

@@ -21,7 +21,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.List;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -34,6 +33,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -50,7 +50,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  * The unit test for {@link Step14Controller}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Step14ControllerTest extends AbstractControllerTest {
@@ -96,6 +95,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
     public void setUp() {
 
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step14Controller(
                 executor,
@@ -104,7 +104,8 @@ public class Step14ControllerTest extends AbstractControllerTest {
                 vehicleInformationModule,
                 diagnosticReadinessModule,
                 dtcModule,
-                dataRepository);
+                dataRepository,
+                DateTimeModule.getInstance());
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -112,13 +113,13 @@ public class Step14ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                diagnosticReadinessModule,
-                dtcModule,
-                mockListener);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 dataRepository,
+                                 diagnosticReadinessModule,
+                                 dtcModule,
+                                 mockListener);
     }
 
     /**
@@ -204,48 +205,64 @@ public class Step14ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM26(any(), eq(0x01));
         verify(dtcModule).requestDM26(any(), eq(0x03));
 
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
+                                                + NL + "    Cold start aid system          not supported,       completed");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
+                                                + NL + "    EGR/VVT system                 not supported,       completed");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
+                                                + NL + "    Exhaust Gas Sensor             not supported,   not completed");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
+                                                + NL + "    Heated catalyst                not supported,   not completed");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
+                                                + NL + "    NMHC converting catalyst       not supported,       completed");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
+                                                + NL + "    NOx catalyst/adsorber          not supported,   not completed");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
+                                                + NL + "    Secondary air system           not supported,       completed");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "    Cold start aid system          not supported,       completed");
+                                        "6.1.14.2.d Fail if any response indicates number of warm-ups since code clear is not zero" + NL
+                                                + "DM26 from Engine #2 (1): Warm-ups: 51, Time Since Engine Start: 8,721 seconds"
+                                                + NL
+                                                + "DM26 from Transmission #1 (3): Warm-ups: 4, Time Since Engine Start: 0 seconds"
+                                                + NL);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "    EGR/VVT system                 not supported,       completed");
+                                        "6.1.14.2.e Fail if any response indicates time since engine start is not zero" + NL +
+                                                "DM26 from Engine #2 (1): Warm-ups: 51, Time Since Engine Start: 8,721 seconds"
+                                                + NL);
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.1.14.3.a Warn if any individual required monitor, except Continuous Component Monitoring (CCM) is supported by more than one OBD ECU"
+                                                + NL +
+                                                "A/C system refrigerant     has reporting from more than one OBD ECU" + NL +
+                                                "Boost pressure control sys has reporting from more than one OBD ECU" + NL +
+                                                "Catalyst                   has reporting from more than one OBD ECU" + NL +
+                                                "Diesel Particulate Filter  has reporting from more than one OBD ECU" + NL +
+                                                "Evaporative system         has reporting from more than one OBD ECU" + NL +
+                                                "Exhaust Gas Sensor heater  has reporting from more than one OBD ECU");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "    Exhaust Gas Sensor             not supported,   not completed");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "    Heated catalyst                not supported,   not completed");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "    NMHC converting catalyst       not supported,       completed");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "    NOx catalyst/adsorber          not supported,   not completed");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "    Secondary air system           not supported,       completed");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.d Fail if any response indicates number of warm-ups since code clear is not zero" + NL
-                        + "DM26 from Engine #2 (1): Warm-ups: 51, Time Since Engine Start: 8,721 seconds"
-                        + NL
-                        + "DM26 from Transmission #1 (3): Warm-ups: 4, Time Since Engine Start: 0 seconds"
-                        + NL);
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.e Fail if any response indicates time since engine start is not zero" + NL +
-                        "DM26 from Engine #2 (1): Warm-ups: 51, Time Since Engine Start: 8,721 seconds"
-                        + NL);
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.14.3.a Warn if any individual required monitor, except Continuous Component Monitoring (CCM) is supported by more than one OBD ECU"
-                        + NL +
-                        "A/C system refrigerant     has reporting from more than one OBD ECU" + NL +
-                        "Boost pressure control sys has reporting from more than one OBD ECU" + NL +
-                        "Catalyst                   has reporting from more than one OBD ECU" + NL +
-                        "Diesel Particulate Filter  has reporting from more than one OBD ECU" + NL +
-                        "Evaporative system         has reporting from more than one OBD ECU" + NL +
-                        "Exhaust Gas Sensor heater  has reporting from more than one OBD ECU");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.5.a Fail if any difference compared to data received during global request");
+                                        "6.1.14.5.a Fail if any difference compared to data received during global request");
 
         String expectedResults = "" + NL;
         expectedResults += "Vehicle Composite of DM26:" + NL;
@@ -350,7 +367,7 @@ public class Step14ControllerTest extends AbstractControllerTest {
                 Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77,
-                        0x88));
+                              0x88));
 
         List<Integer> obdModuleAddresses = Arrays.asList(0x01, 0x03);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
@@ -376,10 +393,10 @@ public class Step14ControllerTest extends AbstractControllerTest {
                 }, Collections.singletonList(ackPacket)));
         when(dtcModule.requestDM26(any(), eq(0x01)))
                 .thenReturn(new RequestResult<>(false,
-                        Collections.emptyList(), Collections.emptyList()));
+                                                Collections.emptyList(), Collections.emptyList()));
         when(dtcModule.requestDM26(any(), eq(0x03)))
                 .thenReturn(new RequestResult<>(false,
-                        Collections.emptyList(), Collections.emptyList()));
+                                                Collections.emptyList(), Collections.emptyList()));
 
         runTest();
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
@@ -392,44 +409,52 @@ public class Step14ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM26(any(), eq(0x01));
         verify(dtcModule).requestDM26(any(), eq(0x03));
 
-        verify(mockListener, times(7)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.a Fail if any response for a monitor in DM5 is reported as supported and is reported as not supported by DM26 response");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
-                        + NL + "    Comprehensive component        not supported,       completed");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.b Fail if any response from an ECU indicating support for CCM monitor in DM5 is report as not supported by DM26 response");
+        verify(mockListener, times(7)).addOutcome(PART_NUMBER,
+                                                  STEP_NUMBER,
+                                                  FAIL,
+                                                  "6.1.14.2.a Fail if any response for a monitor in DM5 is reported as supported and is reported as not supported by DM26 response");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.14.2.b Fail if any response for a monitor in DM5 is reported as not supported and is reported as supported by DM26 response"
+                                                + NL + "    Comprehensive component        not supported,       completed");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.14.2.b Fail if any response from an ECU indicating support for CCM monitor in DM5 is report as not supported by DM26 response");
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.d Fail if any response indicates number of warm-ups since code clear is not zero" + NL +
-                        "DM26 from Engine #2 (1): Warm-ups: 51, Time Since Engine Start: 8,721 seconds"
-                        + NL +
-                        "DM26 from Transmission #1 (3): Warm-ups: 10, Time Since Engine Start: 8,721 seconds"
-                        + NL);
+                                        "6.1.14.2.d Fail if any response indicates number of warm-ups since code clear is not zero" + NL +
+                                                "DM26 from Engine #2 (1): Warm-ups: 51, Time Since Engine Start: 8,721 seconds"
+                                                + NL +
+                                                "DM26 from Transmission #1 (3): Warm-ups: 10, Time Since Engine Start: 8,721 seconds"
+                                                + NL);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.e Fail if any response indicates time since engine start is not zero" + NL +
-                        "DM26 from Engine #2 (1): Warm-ups: 51, Time Since Engine Start: 8,721 seconds"
-                        + NL);
+                                        "6.1.14.2.e Fail if any response indicates time since engine start is not zero" + NL +
+                                                "DM26 from Engine #2 (1): Warm-ups: 51, Time Since Engine Start: 8,721 seconds"
+                                                + NL);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.14.4.a Destination Specific DM5 requests to OBD modules did not return any responses");
+                                        "6.1.14.4.a Destination Specific DM5 requests to OBD modules did not return any responses");
         // verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.2.e Fail if any response indicates time since engine start is not zero" + NL +
-                        "DM26 from Transmission #1 (3): Warm-ups: 10, Time Since Engine Start: 8,721 seconds" + NL);
+                                        "6.1.14.2.e Fail if any response indicates time since engine start is not zero" + NL +
+                                                "DM26 from Transmission #1 (3): Warm-ups: 10, Time Since Engine Start: 8,721 seconds" + NL);
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.1.14.3.a Warn if any individual required monitor, except Continuous Component Monitoring (CCM) is supported by more than one OBD ECU"
+                                                + NL + "A/C system refrigerant     has reporting from more than one OBD ECU"
+                                                + NL + "Boost pressure control sys has reporting from more than one OBD ECU"
+                                                + NL + "Catalyst                   has reporting from more than one OBD ECU"
+                                                + NL + "Diesel Particulate Filter  has reporting from more than one OBD ECU"
+                                                + NL + "Evaporative system         has reporting from more than one OBD ECU"
+                                                + NL + "Exhaust Gas Sensor heater  has reporting from more than one OBD ECU");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.14.3.a Warn if any individual required monitor, except Continuous Component Monitoring (CCM) is supported by more than one OBD ECU"
-                        + NL + "A/C system refrigerant     has reporting from more than one OBD ECU"
-                        + NL + "Boost pressure control sys has reporting from more than one OBD ECU"
-                        + NL + "Catalyst                   has reporting from more than one OBD ECU"
-                        + NL + "Diesel Particulate Filter  has reporting from more than one OBD ECU"
-                        + NL + "Evaporative system         has reporting from more than one OBD ECU"
-                        + NL + "Exhaust Gas Sensor heater  has reporting from more than one OBD ECU");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.14.4.a Destination Specific DM5 requests to OBD modules did not return any responses");
+                                        "6.1.14.4.a Destination Specific DM5 requests to OBD modules did not return any responses");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.5.a Fail if any difference compared to data received during global request");
+                                        "6.1.14.5.a Fail if any difference compared to data received during global request");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.14.5.b Fail if NACK not received from OBD ECUs that did not respond to global query");
+                                        "6.1.14.5.b Fail if NACK not received from OBD ECUs that did not respond to global query");
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant             supported,   not completed" + NL;

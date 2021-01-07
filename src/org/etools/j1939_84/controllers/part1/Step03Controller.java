@@ -12,10 +12,7 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
-import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.modules.*;
 
 public class Step03Controller extends StepController {
     private static final int PART_NUMBER = 1;
@@ -32,19 +29,21 @@ public class Step03Controller extends StepController {
                 new BannerModule(),
                 new VehicleInformationModule(),
                 new DiagnosticReadinessModule(),
-                dataRepository);
+                dataRepository,
+                DateTimeModule.getInstance());
     }
 
     Step03Controller(Executor executor,
-            EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule,
-            VehicleInformationModule vehicleInformationModule,
-            DiagnosticReadinessModule diagnosticReadinessModule,
-            DataRepository dataRepository) {
+                     EngineSpeedModule engineSpeedModule,
+                     BannerModule bannerModule,
+                     VehicleInformationModule vehicleInformationModule,
+                     DiagnosticReadinessModule diagnosticReadinessModule,
+                     DataRepository dataRepository, DateTimeModule dateTimeModule) {
         super(executor,
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
+                dateTimeModule,
                 PART_NUMBER,
                 STEP_NUMBER,
                 TOTAL_STEPS);

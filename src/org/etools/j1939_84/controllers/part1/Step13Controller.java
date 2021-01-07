@@ -20,10 +20,7 @@ import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
-import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.modules.*;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
@@ -49,7 +46,8 @@ public class Step13Controller extends StepController {
                 new VehicleInformationModule(),
                 new DiagnosticReadinessModule(),
                 dataRepository,
-                new SectionA6Validator(dataRepository));
+                new SectionA6Validator(dataRepository),
+                DateTimeModule.getInstance());
     }
 
     Step13Controller(Executor executor,
@@ -58,11 +56,13 @@ public class Step13Controller extends StepController {
             VehicleInformationModule vehicleInformationModule,
             DiagnosticReadinessModule diagnosticReadinessModule,
             DataRepository dataRepository,
-            SectionA6Validator sectionaA6Validator) {
+            SectionA6Validator sectionaA6Validator,
+                     DateTimeModule dateTimeModule) {
         super(executor,
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
+                dateTimeModule,
                 PART_NUMBER,
                 STEP_NUMBER,
                 TOTAL_STEPS);

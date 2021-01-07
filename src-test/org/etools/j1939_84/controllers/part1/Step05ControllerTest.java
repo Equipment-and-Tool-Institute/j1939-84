@@ -11,10 +11,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -23,6 +23,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -37,13 +38,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
  * The unit test for {@link Step05Controller}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Step05ControllerTest {
@@ -79,6 +77,8 @@ public class Step05ControllerTest {
     @Mock
     private VinDecoder vinDecoder;
 
+    private DateTimeModule dateTimeModule;
+
     private void runTest() {
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -91,6 +91,7 @@ public class Step05ControllerTest {
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step05Controller(
                 executor,
@@ -98,35 +99,36 @@ public class Step05ControllerTest {
                 bannerModule,
                 vehicleInformationModule,
                 vinDecoder,
-                dataRepository);
+                dataRepository,
+                DateTimeModule.getInstance());
     }
 
     @After
     public void tearDown() throws Exception {
 
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                vinDecoder,
-                dataRepository,
-                mockListener);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 vinDecoder,
+                                 dataRepository,
+                                 mockListener);
     }
 
     @Test
     @TestDoc(
-             value = { @TestItem(verifies = "6.1.5.2.b"), @TestItem(verifies = "6.1.5.2.c"),
-                     @TestItem(verifies = "6.1.5.2.d"), @TestItem(verifies = "6.1.5.2.e"),
-                     @TestItem(verifies = "6.1.5.3.a"), @TestItem(verifies = "6.1.5.3.b"),
-                     @TestItem(verifies = "6.1.5.3.d") },
-             description = "More than one OBD ECU responded with VIN" + "<br>" + "VIN does not match user entered VIN."
-                     + "<br>" + "VIN Model Year does not match user entered Vehicle Model Year" + "<br>"
-                     + "VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence" + "<br>"
-                     + "Non-OBD ECU responded with VIN" + "<br>" + "More than one VIN response from an ECU" + "<br>"
-                     + "Manufacturer defined data follows the VIN")
+            value = { @TestItem(verifies = "6.1.5.2.b"), @TestItem(verifies = "6.1.5.2.c"),
+                    @TestItem(verifies = "6.1.5.2.d"), @TestItem(verifies = "6.1.5.2.e"),
+                    @TestItem(verifies = "6.1.5.3.a"), @TestItem(verifies = "6.1.5.3.b"),
+                    @TestItem(verifies = "6.1.5.3.d") },
+            description = "More than one OBD ECU responded with VIN" + "<br>" + "VIN does not match user entered VIN."
+                    + "<br>" + "VIN Model Year does not match user entered Vehicle Model Year" + "<br>"
+                    + "VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence" + "<br>"
+                    + "Non-OBD ECU responded with VIN" + "<br>" + "More than one VIN response from an ECU" + "<br>"
+                    + "Manufacturer defined data follows the VIN")
 
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-                        justification = "The method is called just to get some exception.")
+            justification = "The method is called just to get some exception.")
     public void testError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
@@ -161,34 +163,34 @@ public class Step05ControllerTest {
         verify(engineSpeedModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.FAIL,
-                "6.1.5.2.b - More than one OBD ECU responded with VIN");
+                                        5,
+                                        Outcome.FAIL,
+                                        "6.1.5.2.b - More than one OBD ECU responded with VIN");
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.FAIL,
-                "6.1.5.2.c - VIN does not match user entered VIN");
+                                        5,
+                                        Outcome.FAIL,
+                                        "6.1.5.2.c - VIN does not match user entered VIN");
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.FAIL,
-                "6.1.5.2.d - VIN Model Year does not match user entered Vehicle Model Year");
+                                        5,
+                                        Outcome.FAIL,
+                                        "6.1.5.2.d - VIN Model Year does not match user entered Vehicle Model Year");
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.FAIL,
-                "6.1.5.2.e - VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence");
+                                        5,
+                                        Outcome.FAIL,
+                                        "6.1.5.2.e - VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence");
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.a - Non-OBD ECU responded with VIN");
+                                        5,
+                                        Outcome.WARN,
+                                        "6.1.5.3.a - Non-OBD ECU responded with VIN");
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.b - More than one VIN response from an ECU");
+                                        5,
+                                        Outcome.WARN,
+                                        "6.1.5.3.b - More than one VIN response from an ECU");
 
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.d - Manufacturer defined data follows the VIN");
+                                        5,
+                                        Outcome.WARN,
+                                        "6.1.5.3.d - Manufacturer defined data follows the VIN");
 
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).reportVin(any());
@@ -211,9 +213,9 @@ public class Step05ControllerTest {
 
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.5",
-                               description = "Verify no failures when no fail criteria are met."))
+            description = "Verify no failures when no fail criteria are met."))
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-                        justification = "The method is called just to get some exception.")
+            justification = "The method is called just to get some exception.")
     public void testNoError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         ArrayList<Integer> obdModulesAddresses = new ArrayList<>();
@@ -255,9 +257,9 @@ public class Step05ControllerTest {
             @TestItem(verifies = "6.1.5.2.d"),
             @TestItem(verifies = "6.1.5.2.e"),
             @TestItem(verifies = "6.1.5.3.a,b,c,d") },
-             description = "Verify fails and warns are reported.")
+            description = "Verify fails and warns are reported.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-                        justification = "The method is called just to get some exception.")
+            justification = "The method is called just to get some exception.")
     public void testNoObdResponses() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
@@ -286,33 +288,33 @@ public class Step05ControllerTest {
         verify(engineSpeedModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.FAIL,
-                "6.1.5.2.c - VIN does not match user entered VIN");
+                                        5,
+                                        Outcome.FAIL,
+                                        "6.1.5.2.c - VIN does not match user entered VIN");
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.FAIL,
-                "6.1.5.2.d - VIN Model Year does not match user entered Vehicle Model Year");
+                                        5,
+                                        Outcome.FAIL,
+                                        "6.1.5.2.d - VIN Model Year does not match user entered Vehicle Model Year");
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.FAIL,
-                "6.1.5.2.e - VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence");
+                                        5,
+                                        Outcome.FAIL,
+                                        "6.1.5.2.e - VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence");
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.a - Non-OBD ECU responded with VIN");
+                                        5,
+                                        Outcome.WARN,
+                                        "6.1.5.3.a - Non-OBD ECU responded with VIN");
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.b - More than one VIN response from an ECU");
+                                        5,
+                                        Outcome.WARN,
+                                        "6.1.5.3.b - More than one VIN response from an ECU");
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.c - VIN provided from more than one non-OBD ECU");
+                                        5,
+                                        Outcome.WARN,
+                                        "6.1.5.3.c - VIN provided from more than one non-OBD ECU");
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.d - Manufacturer defined data follows the VIN");
+                                        5,
+                                        Outcome.WARN,
+                                        "6.1.5.3.d - Manufacturer defined data follows the VIN");
 
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).reportVin(any());
@@ -338,7 +340,7 @@ public class Step05ControllerTest {
 
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-                        justification = "The method is called just to get some exception.")
+            justification = "The method is called just to get some exception.")
     @TestDoc(@TestItem(verifies = "6.1.5.3.a,b,c,d"))
     public void testWarnError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
@@ -372,23 +374,23 @@ public class Step05ControllerTest {
         verify(engineSpeedModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.a - Non-OBD ECU responded with VIN");
+                                        5,
+                                        Outcome.WARN,
+                                        "6.1.5.3.a - Non-OBD ECU responded with VIN");
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.b - More than one VIN response from an ECU");
+                                        5,
+                                        Outcome.WARN,
+                                        "6.1.5.3.b - More than one VIN response from an ECU");
 
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.c - VIN provided from more than one non-OBD ECU");
+                                        5,
+                                        Outcome.WARN,
+                                        "6.1.5.3.c - VIN provided from more than one non-OBD ECU");
 
         verify(mockListener).addOutcome(1,
-                5,
-                Outcome.WARN,
-                "6.1.5.3.d - Manufacturer defined data follows the VIN");
+                                        5,
+                                        Outcome.WARN,
+                                        "6.1.5.3.d - Manufacturer defined data follows the VIN");
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).reportVin(any());
 

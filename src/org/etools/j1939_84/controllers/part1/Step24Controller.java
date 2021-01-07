@@ -10,10 +10,7 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.modules.*;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
@@ -37,7 +34,8 @@ public class Step24Controller extends StepController {
              new BannerModule(),
              new VehicleInformationModule(),
              new DTCModule(),
-             dataRepository);
+             dataRepository,
+                DateTimeModule.getInstance());
     }
 
     Step24Controller(Executor executor,
@@ -45,11 +43,13 @@ public class Step24Controller extends StepController {
                      BannerModule bannerModule,
                      VehicleInformationModule vehicleInformationModule,
                      DTCModule dtcModule,
-                     DataRepository dataRepository) {
+                     DataRepository dataRepository,
+                     DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);

@@ -34,6 +34,7 @@ import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.OBDTestsModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -101,14 +102,16 @@ public class Step12ControllerTest extends AbstractControllerTest {
     @Before
     public void setUp() {
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step12Controller(executor,
-                engineSpeedModule,
-                bannerModule,
-                dataRepository,
-                vehicleInformationModule,
-                obdTestsModule,
-                tableA7Validator);
+                                        engineSpeedModule,
+                                        bannerModule,
+                                        dataRepository,
+                                        vehicleInformationModule,
+                                        obdTestsModule,
+                                        tableA7Validator,
+                                        DateTimeModule.getInstance());
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -116,12 +119,12 @@ public class Step12ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                mockListener,
-                tableA7Validator);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 dataRepository,
+                                 mockListener,
+                                 tableA7Validator);
     }
 
     @Test
@@ -262,9 +265,9 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.12.1.a No test result for an SPN indicated as supported is actually reported from the ECU that indicated support");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.12.1.a No test result for an SPN indicated as supported is actually reported from the ECU that indicated support");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -377,9 +380,9 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -433,9 +436,9 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -488,9 +491,9 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -550,7 +553,7 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.12.1.c #" + slotNumber + " SLOT identifier is invalid");
+                                        "6.1.12.1.c #" + slotNumber + " SLOT identifier is invalid");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -688,10 +691,13 @@ public class Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(mockListener, times(2)).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, "6.1.12.1.d SPN 157 FMI 18 returned duplicates");
+                                                  STEP_NUMBER,
+                                                  FAIL,
+                                                  "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.1.12.1.d SPN 157 FMI 18 returned duplicates");
 
         verify(obdTestsModule).setJ1939(j1939);
 
