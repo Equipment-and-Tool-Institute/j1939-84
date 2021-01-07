@@ -38,6 +38,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -95,31 +96,33 @@ public class Step26ControllerTest extends AbstractControllerTest {
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step26Controller(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                tableA1Validator,
-                j1939DaRepository,
-                dataRepository,
-                broadcastValidator,
-                busService);
+                                        engineSpeedModule,
+                                        bannerModule,
+                                        vehicleInformationModule,
+                                        tableA1Validator,
+                                        j1939DaRepository,
+                                        dataRepository,
+                                        broadcastValidator,
+                                        busService,
+                                        DateTimeModule.getInstance());
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
 
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                tableA1Validator,
-                j1939DaRepository,
-                dataRepository,
-                broadcastValidator,
-                busService,
-                mockListener);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 tableA1Validator,
+                                 j1939DaRepository,
+                                 dataRepository,
+                                 broadcastValidator,
+                                 busService,
+                                 mockListener);
     }
 
     @Test
@@ -194,7 +197,7 @@ public class Step26ControllerTest extends AbstractControllerTest {
         when(busService.collectBroadcastPGNs(List.of(22222, 44444, 55555, 66666))).thenReturn(List.of(22222));
         when(broadcastValidator.getMaximumBroadcastPeriod(List.of(22222))).thenReturn(2);
 
-        when(busService.readBus(eq(8 ), any())).thenReturn(List.of(packet2));
+        when(busService.readBus(eq(8), any())).thenReturn(List.of(packet2));
         Map<Integer, List<GenericPacket>> packetMap2 = new HashMap<>();
         packetMap2.put(22222, List.of(packet2));
         when(broadcastValidator.buildPGNPacketsMap(List.of(packet2), 0)).thenReturn(packetMap2);
@@ -207,18 +210,18 @@ public class Step26ControllerTest extends AbstractControllerTest {
         verify(j1939DaRepository, atLeastOnce()).findPgnDefinition(22222);
 
         verify(tableA1Validator).reportMissingSPNs(eq(supportedSpns),
-                any(ResultsListener.class),
-                eq(DSL),
-                eq(1),
-                eq(26));
+                                                   any(ResultsListener.class),
+                                                   eq(DSL),
+                                                   eq(1),
+                                                   eq(26));
         verify(broadcastValidator).getMaximumBroadcastPeriod();
         verify(busService).readBus(12);
         verify(broadcastValidator).buildPGNPacketsMap(packets, 0);
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
-                eq(0),
-                any(ResultsListener.class),
-                eq(1),
-                eq(26));
+                                                         eq(0),
+                                                         any(ResultsListener.class),
+                                                         eq(1),
+                                                         eq(26));
         verify(busService).collectNonOnRequestPGNs(supportedSpns);
         verify(busService).collectNonOnRequestPGNs(List.of(222));
 
@@ -243,24 +246,24 @@ public class Step26ControllerTest extends AbstractControllerTest {
         verify(busService).readBus(eq(8), any());
         verify(broadcastValidator).buildPGNPacketsMap(List.of(packet2), 0);
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap2),
-                eq(0),
-                any(ResultsListener.class),
-                eq(1),
-                eq(26));
+                                                         eq(0),
+                                                         any(ResultsListener.class),
+                                                         eq(1),
+                                                         eq(26));
 
         verify(dataRepository).getObdModuleAddresses();
         verify(tableA1Validator).reportNonObdModuleProvidedSPNs(any(),
-                eq(0),
-                any(ResultsListener.class),
-                eq(1),
-                eq(26));
+                                                                eq(0),
+                                                                any(ResultsListener.class),
+                                                                eq(1),
+                                                                eq(26));
         verify(tableA1Validator).reportImplausibleSPNValues(any(),
-                eq(supportedSpns),
-                any(ResultsListener.class),
-                eq(false),
-                eq(DSL),
-                eq(1),
-                eq(26));
+                                                            eq(supportedSpns),
+                                                            any(ResultsListener.class),
+                                                            eq(false),
+                                                            eq(DSL),
+                                                            eq(1),
+                                                            eq(26));
         verify(tableA1Validator).reportDuplicateSPNs(any(), any(ResultsListener.class), eq(1), eq(26));
 
         String expected = "";
@@ -274,15 +277,15 @@ public class Step26ControllerTest extends AbstractControllerTest {
         assertEquals(expected, listener.getResults());
 
         String expectedMsg = "";
-        expectedMsg +="Start Part 1 Step 26" + NL;
-        expectedMsg +="DS Request for 22222 to Engine #1 (0)" + NL;
-        expectedMsg +="Global Request for PGN 22222" + NL;
-        expectedMsg +="DS Request for 44444 to Engine #1 (0)" + NL;
-        expectedMsg +="DS Request for 55555 to Engine #1 (0)" + NL;
-        expectedMsg +="Global Request for PGN 55555" + NL;
-        expectedMsg +="DS Request for 66666 to Engine #1 (0)" + NL;
-        expectedMsg +="Global Request for PGN 66666" + NL;
-        expectedMsg +="End Part 1 Step 26";
+        expectedMsg += "Start Part 1 Step 26" + NL;
+        expectedMsg += "DS Request for 22222 to Engine #1 (0)" + NL;
+        expectedMsg += "Global Request for PGN 22222" + NL;
+        expectedMsg += "DS Request for 44444 to Engine #1 (0)" + NL;
+        expectedMsg += "DS Request for 55555 to Engine #1 (0)" + NL;
+        expectedMsg += "Global Request for PGN 55555" + NL;
+        expectedMsg += "DS Request for 66666 to Engine #1 (0)" + NL;
+        expectedMsg += "Global Request for PGN 66666" + NL;
+        expectedMsg += "End Part 1 Step 26";
         assertEquals(expectedMsg, listener.getMessages());
 
         assertEquals("", listener.getMilestones());
@@ -332,18 +335,18 @@ public class Step26ControllerTest extends AbstractControllerTest {
         verify(dataRepository, atLeastOnce()).getObdModules();
 
         verify(tableA1Validator).reportMissingSPNs(eq(supportedSpns),
-                any(ResultsListener.class),
-                eq(DSL),
-                eq(1),
-                eq(26));
+                                                   any(ResultsListener.class),
+                                                   eq(DSL),
+                                                   eq(1),
+                                                   eq(26));
         verify(broadcastValidator).getMaximumBroadcastPeriod();
         verify(busService).readBus(12);
         verify(broadcastValidator).buildPGNPacketsMap(packets, 0);
         verify(broadcastValidator).reportBroadcastPeriod(eq(packetMap),
-                eq(0),
-                any(ResultsListener.class),
-                eq(1),
-                eq(26));
+                                                         eq(0),
+                                                         any(ResultsListener.class),
+                                                         eq(1),
+                                                         eq(26));
         verify(busService).collectNonOnRequestPGNs(supportedSpns);
         verify(busService).collectBroadcastPGNs(List.of(44444));
 
@@ -352,26 +355,26 @@ public class Step26ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModuleAddresses();
         verify(tableA1Validator).reportNonObdModuleProvidedSPNs(any(),
-                eq(0),
-                any(ResultsListener.class),
-                eq(1),
-                eq(26));
+                                                                eq(0),
+                                                                any(ResultsListener.class),
+                                                                eq(1),
+                                                                eq(26));
         verify(tableA1Validator).reportImplausibleSPNValues(any(),
-                eq(supportedSpns),
-                any(ResultsListener.class),
-                eq(false),
-                eq(DSL),
-                eq(1),
-                eq(26));
+                                                            eq(supportedSpns),
+                                                            any(ResultsListener.class),
+                                                            eq(false),
+                                                            eq(DSL),
+                                                            eq(1),
+                                                            eq(26));
         verify(tableA1Validator).reportDuplicateSPNs(any(), any(ResultsListener.class), eq(1), eq(26));
 
         String expected = "";
         assertEquals(expected, listener.getResults());
 
         String expectedMsg = "";
-        expectedMsg +="Start Part 1 Step 26" + NL;
-        expectedMsg +="DS Request for 44444 to Engine #1 (0)" + NL;
-        expectedMsg +="End Part 1 Step 26" ;
+        expectedMsg += "Start Part 1 Step 26" + NL;
+        expectedMsg += "DS Request for 44444 to Engine #1 (0)" + NL;
+        expectedMsg += "End Part 1 Step 26";
         assertEquals(expectedMsg, listener.getMessages());
 
         assertEquals("", listener.getMilestones());

@@ -34,12 +34,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
-import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.OBDTestsModule;
-import org.etools.j1939_84.modules.ReportFileModule;
-import org.etools.j1939_84.modules.SupportedSpnModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.modules.*;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
@@ -107,6 +102,7 @@ public class Step04ControllerTest extends AbstractControllerTest {
     @Before
     public void setUp() throws Exception {
         TestResultsListener listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step04Controller(
                 executor,
@@ -115,7 +111,8 @@ public class Step04ControllerTest extends AbstractControllerTest {
                 vehicleInformationModule,
                 obdTestsModule,
                 supportedSpnModule,
-                dataRepository);
+                dataRepository,
+                DateTimeModule.getInstance());
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }

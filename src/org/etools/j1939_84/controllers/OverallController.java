@@ -11,6 +11,7 @@ import java.util.concurrent.Executors;
 import org.etools.j1939_84.controllers.part1.Part01Controller;
 import org.etools.j1939_84.controllers.part2.Part02Controller;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -31,7 +32,7 @@ public class OverallController extends Controller {
 
     public OverallController() {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-             new VehicleInformationModule(), new Part01Controller(),
+             new VehicleInformationModule(), DateTimeModule.getInstance(), new Part01Controller(),
              new Part02Controller(), new Part03Controller(), new Part04Controller(), new Part05Controller(),
              new Part06Controller(), new Part07Controller(), new Part08Controller(), new Part09Controller(),
              new Part10Controller(), new Part11Controller(), new Part12Controller());
@@ -41,6 +42,7 @@ public class OverallController extends Controller {
                              EngineSpeedModule engineSpeedModule,
                              BannerModule bannerModule,
                              VehicleInformationModule vehicleInformationModule,
+                             DateTimeModule dateTimeModule,
                              Part01Controller part1Controller,
                              Part02Controller part2Controller,
                              Part03Controller part3Controller,
@@ -53,7 +55,7 @@ public class OverallController extends Controller {
                              Part10Controller part10Controller,
                              Part11Controller part11Controller,
                              Part12Controller part12Controller) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule);
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
         controllers.add(part1Controller);
         controllers.add(part2Controller);
         controllers.add(part3Controller);

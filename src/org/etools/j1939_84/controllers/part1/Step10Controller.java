@@ -53,6 +53,7 @@ public class Step10Controller extends StepController {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
+                dateTimeModule,
                 PART_NUMBER,
                 STEP_NUMBER,
                 TOTAL_STEPS);

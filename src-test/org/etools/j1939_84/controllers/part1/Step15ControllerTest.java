@@ -26,6 +26,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -41,7 +42,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  * The unit test for {@link Step15Controller}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Step15ControllerTest extends AbstractControllerTest {
@@ -88,6 +88,7 @@ public class Step15ControllerTest extends AbstractControllerTest {
     public void setUp() throws Exception {
 
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step15Controller(
                 executor,
@@ -95,7 +96,8 @@ public class Step15ControllerTest extends AbstractControllerTest {
                 bannerModule,
                 vehicleInformationModule,
                 dtcModule,
-                dataRepository);
+                dataRepository,
+                DateTimeModule.getInstance());
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -106,12 +108,12 @@ public class Step15ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                dtcModule,
-                mockListener);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 dataRepository,
+                                 dtcModule,
+                                 mockListener);
     }
 
     /**
@@ -146,26 +148,26 @@ public class Step15ControllerTest extends AbstractControllerTest {
     public void testFailures() {
         DM1ActiveDTCsPacket packet1 = new DM1ActiveDTCsPacket(
                 Packet.create(PGN, 0x01, 0x00, 0x00, 0x61, 0x02, 0x13, 0x80, 0x21, 0x06,
-                        0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
         DM1ActiveDTCsPacket packet2 = new DM1ActiveDTCsPacket(
                 Packet.create(PGN, 0x17, 0x00, 0x00, 0x61, 0x02, 0x13, 0x80, 0x21, 0x06,
-                        0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
         DM1ActiveDTCsPacket packet3 = new DM1ActiveDTCsPacket(
                 Packet.create(PGN, 0x03, 0xAA, 0x55, 0x61, 0x02, 0x13, 0x80, 0x21, 0x06,
-                        0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
         DM1ActiveDTCsPacket packet4 = new DM1ActiveDTCsPacket(
                 Packet.create(PGN, 0x00, 0x40, 0x00, 0x61, 0x02, 0x13, 0x80, 0x21, 0x06,
-                        0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
         DM1ActiveDTCsPacket packet5 = new DM1ActiveDTCsPacket(
                 Packet.create(PGN, 0x00, 0xC0, 0xC0, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
-                        0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
 
         List<Integer> obdModuleAddresses = Arrays.asList(0x01, 0x03);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
         when(dtcModule.readDM1(any()))
                 .thenReturn(new RequestResult<>(false, Arrays.asList(packet1, packet2, packet3, packet4, packet5),
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -174,17 +176,17 @@ public class Step15ControllerTest extends AbstractControllerTest {
         verify(dtcModule).readDM1(any());
 
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.15.2.a - Fail if any OBD ECU reports an active DTC");
+                                                  "6.1.15.2.a - Fail if any OBD ECU reports an active DTC");
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.15.2.b - Fail if any OBD ECU does not report MIL off per Section A.8 allowed values");
+                                                  "6.1.15.2.b - Fail if any OBD ECU does not report MIL off per Section A.8 allowed values");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.15.3.a - any ECU reports the non-preferred MIL off format per Section A.8");
+                                        "6.1.15.3.a - any ECU reports the non-preferred MIL off format per Section A.8");
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.15.2.d - Fail if any OBD ECU reports SPN conversion method (SPN 1706) equal to binary 1");
+                                                  "6.1.15.2.d - Fail if any OBD ECU reports SPN conversion method (SPN 1706) equal to binary 1");
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                "6.1.15.2.c - Fail if any non-OBD ECU does not report MIL off or not supported");
+                                                  "6.1.15.2.c - Fail if any non-OBD ECU does not report MIL off or not supported");
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "6.1.15.3.b - Warn if any non-OBD ECU reports SPN conversion method (SPN 1706) equal to 1");
+                                                  "6.1.15.3.b - Warn if any non-OBD ECU reports SPN conversion method (SPN 1706) equal to 1");
 
         String expectedResults = "FAIL: 6.1.15.2.a - Fail if any OBD ECU reports an active DTC" + NL;
         expectedResults += "FAIL: 6.1.15.2.b - Fail if any OBD ECU does not report MIL off per Section A.8 allowed values"
@@ -245,7 +247,7 @@ public class Step15ControllerTest extends AbstractControllerTest {
                 Packet.create(PGN, 0x01, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF));
         DM1ActiveDTCsPacket packet2 = new DM1ActiveDTCsPacket(
                 Packet.create(PGN, 0x17, 0x00, 0xFF, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
-                        0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
 
         List<Integer> obdModuleAddresses = Collections.singletonList(0x01);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);

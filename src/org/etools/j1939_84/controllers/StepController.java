@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers;
 
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -18,10 +19,11 @@ public abstract class StepController extends Controller {
                              EngineSpeedModule engineSpeedModule,
                              BannerModule bannerModule,
                              VehicleInformationModule vehicleInformationModule,
+                             DateTimeModule dateTimeModule,
                              int partNumber,
                              int stepNumber,
                              int totalSteps) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule);
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
         this.partNumber = partNumber;
         this.stepNumber = stepNumber;
         this.totalSteps = totalSteps;

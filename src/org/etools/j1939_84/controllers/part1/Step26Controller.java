@@ -25,6 +25,7 @@ import org.etools.j1939_84.controllers.TableA1Validator;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -93,15 +94,16 @@ public class Step26Controller extends StepController {
     }
 
     Step26Controller(Executor executor,
-            EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule,
-            VehicleInformationModule vehicleInformationModule,
-            TableA1Validator tableA1Validator,
-            J1939DaRepository j1939DaRepository,
-            DataRepository dataRepository,
-            BroadcastValidator broadcastValidator,
-            BusService busService) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, 1, 26, 0);
+                     EngineSpeedModule engineSpeedModule,
+                     BannerModule bannerModule,
+                     VehicleInformationModule vehicleInformationModule,
+                     TableA1Validator tableA1Validator,
+                     J1939DaRepository j1939DaRepository,
+                     DataRepository dataRepository,
+                     BroadcastValidator broadcastValidator,
+                     BusService busService,
+                     DateTimeModule dateTimeModule) {
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule, 1, 26, 0);
         this.tableA1Validator = tableA1Validator;
         this.j1939DaRepository = j1939DaRepository;
         this.dataRepository = dataRepository;
@@ -118,7 +120,8 @@ public class Step26Controller extends StepController {
                 j1939DaRepository,
                 dataRepository,
                 new BroadcastValidator(dataRepository, j1939DaRepository),
-                new BusService(j1939DaRepository));
+                new BusService(j1939DaRepository),
+                DateTimeModule.getInstance());
     }
 
     /**

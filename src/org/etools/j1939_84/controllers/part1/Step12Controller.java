@@ -19,10 +19,7 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.OBDTestsModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.modules.*;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
@@ -58,7 +55,8 @@ public class Step12Controller extends StepController {
                 dataRepository,
                 new VehicleInformationModule(),
                 new OBDTestsModule(),
-                new TableA7Validator());
+                new TableA7Validator(),
+                DateTimeModule.getInstance());
     }
 
     Step12Controller(Executor executor,
@@ -67,11 +65,13 @@ public class Step12Controller extends StepController {
             DataRepository dataRepository,
             VehicleInformationModule vehicleInformationModule,
             OBDTestsModule obdTestsModule,
-            TableA7Validator tableA7Validator) {
+            TableA7Validator tableA7Validator,
+                     DateTimeModule dateTimeModule) {
         super(executor,
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
+                dateTimeModule,
                 PART_NUMBER,
                 STEP_NUMBER,
                 TOTAL_STEPS);

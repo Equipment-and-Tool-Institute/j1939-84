@@ -34,6 +34,7 @@ import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -48,9 +49,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 /**
- *
  * @author Garrison Garland (garrison@soliddesign.net)
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Step16ControllerTest extends AbstractControllerTest {
@@ -92,15 +91,16 @@ public class Step16ControllerTest extends AbstractControllerTest {
 
     @Before
     public void setUp() {
-
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step16Controller(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dtcModule,
-                dataRepository);
+                                        engineSpeedModule,
+                                        bannerModule,
+                                        vehicleInformationModule,
+                                        dtcModule,
+                                        dataRepository,
+                                        DateTimeModule.getInstance());
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
 
@@ -109,12 +109,12 @@ public class Step16ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                mockListener,
-                reportFileModule,
-                dtcModule);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 mockListener,
+                                 reportFileModule,
+                                 dtcModule);
     }
 
     @Test
@@ -158,22 +158,22 @@ public class Step16ControllerTest extends AbstractControllerTest {
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.2.a - OBD ECU reported a previously active DTC");
+                                        16,
+                                        Outcome.FAIL,
+                                        "6.1.16.2.a - OBD ECU reported a previously active DTC");
         verify(mockListener).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
+                                        16,
+                                        Outcome.FAIL,
+                                        "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
 
         verify(reportFileModule).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.2.a - OBD ECU reported a previously active DTC");
+                                            16,
+                                            Outcome.FAIL,
+                                            "6.1.16.2.a - OBD ECU reported a previously active DTC");
         verify(reportFileModule).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
+                                            16,
+                                            Outcome.FAIL,
+                                            "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -213,22 +213,22 @@ public class Step16ControllerTest extends AbstractControllerTest {
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.2.b - OBD ECU does not report MIL off");
+                                        16,
+                                        Outcome.FAIL,
+                                        "6.1.16.2.b - OBD ECU does not report MIL off");
         verify(mockListener).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.4.a DS DM2 responses differ from global responses");
+                                        16,
+                                        Outcome.FAIL,
+                                        "6.1.16.4.a DS DM2 responses differ from global responses");
 
         verify(reportFileModule).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.2.b - OBD ECU does not report MIL off");
+                                            16,
+                                            Outcome.FAIL,
+                                            "6.1.16.2.b - OBD ECU does not report MIL off");
         verify(reportFileModule).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.4.a DS DM2 responses differ from global responses");
+                                            16,
+                                            Outcome.FAIL,
+                                            "6.1.16.4.a DS DM2 responses differ from global responses");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -246,7 +246,6 @@ public class Step16ControllerTest extends AbstractControllerTest {
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(
                 new RequestResult<>(false, Collections.singletonList(packet1), Collections.singletonList(packet3)));
 
-
         // Return the modules address so that we can do the destination specific calls
         ArrayList<Integer> obdAddressSet = new ArrayList<>();
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
@@ -259,14 +258,14 @@ public class Step16ControllerTest extends AbstractControllerTest {
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.4.a DS DM2 responses differ from global responses");
+                                        16,
+                                        Outcome.FAIL,
+                                        "6.1.16.4.a DS DM2 responses differ from global responses");
 
         verify(reportFileModule).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.4.a DS DM2 responses differ from global responses");
+                                            16,
+                                            Outcome.FAIL,
+                                            "6.1.16.4.a DS DM2 responses differ from global responses");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -316,30 +315,30 @@ public class Step16ControllerTest extends AbstractControllerTest {
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.2.a - OBD ECU reported a previously active DTC");
+                                        16,
+                                        Outcome.FAIL,
+                                        "6.1.16.2.a - OBD ECU reported a previously active DTC");
         verify(mockListener).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.2.b - OBD ECU does not report MIL off");
+                                        16,
+                                        Outcome.FAIL,
+                                        "6.1.16.2.b - OBD ECU does not report MIL off");
         verify(mockListener).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
+                                        16,
+                                        Outcome.FAIL,
+                                        "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
 
         verify(reportFileModule).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.2.a - OBD ECU reported a previously active DTC");
+                                            16,
+                                            Outcome.FAIL,
+                                            "6.1.16.2.a - OBD ECU reported a previously active DTC");
         verify(reportFileModule).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.2.b - OBD ECU does not report MIL off");
+                                            16,
+                                            Outcome.FAIL,
+                                            "6.1.16.2.b - OBD ECU does not report MIL off");
         verify(reportFileModule).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
+                                            16,
+                                            Outcome.FAIL,
+                                            "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -369,30 +368,30 @@ public class Step16ControllerTest extends AbstractControllerTest {
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.2.b - OBD ECU does not report MIL off");
+                                        16,
+                                        Outcome.FAIL,
+                                        "6.1.16.2.b - OBD ECU does not report MIL off");
         verify(mockListener).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported");
+                                        16,
+                                        Outcome.FAIL,
+                                        "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported");
         verify(mockListener).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.4.a DS DM2 responses differ from global responses");
+                                        16,
+                                        Outcome.FAIL,
+                                        "6.1.16.4.a DS DM2 responses differ from global responses");
 
         verify(reportFileModule).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.2.b - OBD ECU does not report MIL off");
+                                            16,
+                                            Outcome.FAIL,
+                                            "6.1.16.2.b - OBD ECU does not report MIL off");
         verify(reportFileModule).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported");
+                                            16,
+                                            Outcome.FAIL,
+                                            "6.1.16.2.c - non-OBD ECU does not report MIL off or not supported");
         verify(reportFileModule).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.4.a DS DM2 responses differ from global responses");
+                                            16,
+                                            Outcome.FAIL,
+                                            "6.1.16.4.a DS DM2 responses differ from global responses");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -439,14 +438,14 @@ public class Step16ControllerTest extends AbstractControllerTest {
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
+                                        16,
+                                        Outcome.FAIL,
+                                        "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
 
         verify(reportFileModule).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
+                                            16,
+                                            Outcome.FAIL,
+                                            "6.1.16.4.b Nack not received from OBD ECUs that did not respond to global query");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -499,14 +498,14 @@ public class Step16ControllerTest extends AbstractControllerTest {
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.4.a DS DM2 responses differ from global responses");
+                                        16,
+                                        Outcome.FAIL,
+                                        "6.1.16.4.a DS DM2 responses differ from global responses");
 
         verify(reportFileModule).addOutcome(1,
-                16,
-                Outcome.FAIL,
-                "6.1.16.4.a DS DM2 responses differ from global responses");
+                                            16,
+                                            Outcome.FAIL,
+                                            "6.1.16.4.a DS DM2 responses differ from global responses");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());

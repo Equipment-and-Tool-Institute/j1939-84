@@ -31,6 +31,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -88,6 +89,7 @@ public class Step03ControllerTest {
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step03Controller(
                 executor,
@@ -95,20 +97,21 @@ public class Step03ControllerTest {
                 bannerModule,
                 vehicleInformationModule,
                 diagnosticReadinessModule,
-                dataRepository);
+                dataRepository,
+                DateTimeModule.getInstance());
     }
 
     @After
     public void tearDown() throws Exception {
 
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                diagnosticReadinessModule,
-                dataRepository,
-                mockListener,
-                reportFileModule);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 diagnosticReadinessModule,
+                                 dataRepository,
+                                 mockListener,
+                                 reportFileModule);
     }
 
     @Test
@@ -125,7 +128,7 @@ public class Step03ControllerTest {
     public void testBadECUValue() {
 
         RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(true, new ArrayList<>(),
-                new ArrayList<>());
+                                                                                        new ArrayList<>());
         when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
                 .thenReturn(requestResult);
 
@@ -189,13 +192,13 @@ public class Step03ControllerTest {
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
 
         verify(mockListener).addOutcome(1,
-                3,
-                WARN,
-                "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
+                                        3,
+                                        WARN,
+                                        "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
         verify(reportFileModule).addOutcome(1,
-                3,
-                WARN,
-                "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
+                                            3,
+                                            WARN,
+                                            "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
         verify(reportFileModule).onResult(
                 "WARN: 6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
 
@@ -228,7 +231,7 @@ public class Step03ControllerTest {
             description = "There needs to be at least one OBD Module.")
     public void testModulesEmpty() {
         RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(true, new ArrayList<>(),
-                new ArrayList<>());
+                                                                                        new ArrayList<>());
         DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
         requestResult.getPackets().add(packet1);
 
@@ -258,9 +261,9 @@ public class Step03ControllerTest {
         verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.a - There needs to be at least one OBD Module");
         verify(reportFileModule).onResult("FAIL: 6.1.3.2.a - There needs to be at least one OBD Module");
         verify(reportFileModule).addOutcome(1,
-                3,
-                FAIL,
-                "6.1.3.2.a - There needs to be at least one OBD Module");
+                                            3,
+                                            FAIL,
+                                            "6.1.3.2.a - There needs to be at least one OBD Module");
 
         verify(vehicleInformationModule).setJ1939(j1939);
 
@@ -272,9 +275,9 @@ public class Step03ControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.3.2.b"), description = "The request for DM5 was NACK'ed")
     public void testRun() {
         RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(false, new ArrayList<>(),
-                new ArrayList<>());
+                                                                                        new ArrayList<>());
         DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
-        when(packet1.getOBDCompliance()).thenReturn((byte)4);
+        when(packet1.getOBDCompliance()).thenReturn((byte) 4);
         requestResult.getPackets().add(packet1);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);

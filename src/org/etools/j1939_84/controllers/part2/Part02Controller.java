@@ -14,6 +14,7 @@ import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -28,13 +29,13 @@ public class Part02Controller extends PartController {
 
     public Part02Controller() {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), new DataRepository());
+                new VehicleInformationModule(), new DataRepository(), DateTimeModule.getInstance());
     }
 
     private Part02Controller(Executor executor, EngineSpeedModule engineSpeedModule,
                              BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
-                             DataRepository dataRepository) {
-        this(executor, engineSpeedModule, bannerModule, vehicleInformationModule,
+                             DataRepository dataRepository, DateTimeModule dateTimeModule) {
+        this(executor, engineSpeedModule, bannerModule, vehicleInformationModule,dateTimeModule,
                 new Step01Controller());
 
     }
@@ -45,8 +46,9 @@ public class Part02Controller extends PartController {
                             EngineSpeedModule engineSpeedModule,
                             BannerModule bannerModule,
                             VehicleInformationModule vehicleInformationModule,
+                            DateTimeModule dateTimeModule,
                             Step01Controller step01Controller) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule);
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
 
         stepControllers.add(step01Controller);
     }

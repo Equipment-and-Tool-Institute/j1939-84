@@ -28,6 +28,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -53,12 +54,12 @@ public class Step11ControllerTest extends AbstractControllerTest {
      * unnecessary mocks.
      */
     private static DM21DiagnosticReadinessPacket createDM21Packet(Integer sourceAddress,
-            Double kmSinceDtcCleared,
-            Double kmWhileMILIsActivated,
-            Double milesSinceDTCsCleared,
-            Double milesWhileMILIsActivated,
-            Double minutesSinceDTCsCleared,
-            Double minutesWhileMILIsActivated) {
+                                                                  Double kmSinceDtcCleared,
+                                                                  Double kmWhileMILIsActivated,
+                                                                  Double milesSinceDTCsCleared,
+                                                                  Double milesWhileMILIsActivated,
+                                                                  Double minutesSinceDTCsCleared,
+                                                                  Double minutesWhileMILIsActivated) {
         DM21DiagnosticReadinessPacket packet = mock(DM21DiagnosticReadinessPacket.class);
         if (sourceAddress != null) {
             when(packet.getSourceAddress()).thenReturn(sourceAddress);
@@ -114,29 +115,33 @@ public class Step11ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    private DateTimeModule dateTimeModule;
+
     @Before
     public void setUp() {
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step11Controller(executor,
-                engineSpeedModule,
-                bannerModule,
-                diagnosticReadinessModule,
-                vehicleInformationModule,
-                dataRepository);
+                                        engineSpeedModule,
+                                        bannerModule,
+                                        diagnosticReadinessModule,
+                                        vehicleInformationModule,
+                                        dataRepository,
+                                        DateTimeModule.getInstance());
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
 
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                diagnosticReadinessModule,
-                vehicleInformationModule,
-                mockListener,
-                reportFileModule,
-                dataRepository);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 diagnosticReadinessModule,
+                                 vehicleInformationModule,
+                                 mockListener,
+                                 reportFileModule,
+                                 dataRepository);
     }
 
     @Test
@@ -172,22 +177,22 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
 
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.e - No OBD ECU provided a DM21 message");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.1.e - No OBD ECU provided a DM21 message");
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.e - DS responses differ from global responses");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.4.e - DS responses differ from global responses");
 
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.e - No OBD ECU provided a DM21 message");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.1.e - No OBD ECU provided a DM21 message");
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.e - DS responses differ from global responses");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.4.e - DS responses differ from global responses");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.1.e - No OBD ECU provided a DM21 message");
         verify(reportFileModule).onResult(
@@ -254,14 +259,14 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
 
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.e - DS responses differ from global responses");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.4.e - DS responses differ from global responses");
 
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.e - DS responses differ from global responses");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.4.e - DS responses differ from global responses");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.4.e - DS responses differ from global responses");
 
@@ -314,14 +319,14 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
 
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.e - DS responses differ from global responses");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.4.e - DS responses differ from global responses");
 
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.e - DS responses differ from global responses");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.4.e - DS responses differ from global responses");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.4.e - DS responses differ from global responses");
 
@@ -374,22 +379,22 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
 
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.e - DS responses differ from global responses");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.4.e - DS responses differ from global responses");
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.f - NACK not received from OBD ECUs that did not respond to global query");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.4.f - NACK not received from OBD ECUs that did not respond to global query");
 
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.e - DS responses differ from global responses");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.4.e - DS responses differ from global responses");
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.f - NACK not received from OBD ECUs that did not respond to global query");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.4.f - NACK not received from OBD ECUs that did not respond to global query");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.4.e - DS responses differ from global responses");
         verify(reportFileModule).onResult(
@@ -481,25 +486,25 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
 
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
 
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
 
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
 
@@ -546,24 +551,24 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
 
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
 
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
 
@@ -609,25 +614,25 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
 
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
 
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
 
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
 
@@ -673,24 +678,24 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
 
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
 
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.4.b. - An ECU reported distance SCC (SPN 3294) is not zero");
 
@@ -737,25 +742,25 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
 
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.d - An ECU reported time SCC (SPN 3296) > 1 minute");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.1.d - An ECU reported time SCC (SPN 3296) > 1 minute");
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.d - An ECU reported time SCC (SPN 3296) > 1 minute");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.4.d - An ECU reported time SCC (SPN 3296) > 1 minute");
 
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.d - An ECU reported time SCC (SPN 3296) > 1 minute");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.1.d - An ECU reported time SCC (SPN 3296) > 1 minute");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.1.d - An ECU reported time SCC (SPN 3296) > 1 minute");
 
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.d - An ECU reported time SCC (SPN 3296) > 1 minute");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.4.d - An ECU reported time SCC (SPN 3296) > 1 minute");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.4.d - An ECU reported time SCC (SPN 3296) > 1 minute");
 
@@ -774,7 +779,7 @@ public class Step11ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
-        
+
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, packets, Collections.emptyList()));
         // return the set of OBD module addresses when requested
@@ -805,22 +810,22 @@ public class Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
 
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.c - An ECU reported time with MIL on (SPN 3295) is not zero");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.1.c - An ECU reported time with MIL on (SPN 3295) is not zero");
         verify(mockListener).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.c - An ECU reported time with MIL on (SPN 3295) is not zero");
+                                        11,
+                                        Outcome.FAIL,
+                                        "6.1.11.4.c - An ECU reported time with MIL on (SPN 3295) is not zero");
 
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.1.c - An ECU reported time with MIL on (SPN 3295) is not zero");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.1.c - An ECU reported time with MIL on (SPN 3295) is not zero");
         verify(reportFileModule).addOutcome(1,
-                11,
-                Outcome.FAIL,
-                "6.1.11.4.c - An ECU reported time with MIL on (SPN 3295) is not zero");
+                                            11,
+                                            Outcome.FAIL,
+                                            "6.1.11.4.c - An ECU reported time with MIL on (SPN 3295) is not zero");
         verify(reportFileModule).onResult(
                 "FAIL: 6.1.11.1.c - An ECU reported time with MIL on (SPN 3295) is not zero");
         verify(reportFileModule).onResult(

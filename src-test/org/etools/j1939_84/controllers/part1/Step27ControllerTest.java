@@ -80,13 +80,15 @@ public class Step27ControllerTest extends AbstractControllerTest {
     @Before
     public void setUp() throws Exception {
         DateTimeModule.setInstance(new TestDateTimeModule());
+        DateTimeModule dateTimeModule = DateTimeModule.getInstance();
 
         listener = new TestResultsListener(mockListener);
 
         instance = new Step27Controller(executor,
                 engineSpeedModule,
                 bannerModule,
-                vehicleInformationModule);
+                vehicleInformationModule,
+                dateTimeModule);
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }

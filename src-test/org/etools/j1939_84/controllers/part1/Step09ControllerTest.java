@@ -33,6 +33,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -48,7 +49,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  * The unit test for {@link Step09Controller}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Step09ControllerTest extends AbstractControllerTest {
@@ -88,9 +88,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
      * unnecessary mocks.
      */
     private static ComponentIdentificationPacket createComponentIdPacket(Integer sourceAddress,
-            String make,
-            String model,
-            String serialNumber) {
+                                                                         String make,
+                                                                         String model,
+                                                                         String serialNumber) {
         ComponentIdentificationPacket packet = mock(ComponentIdentificationPacket.class);
         if (sourceAddress != null) {
             when(packet.getSourceAddress()).thenReturn(sourceAddress);
@@ -162,13 +162,15 @@ public class Step09ControllerTest extends AbstractControllerTest {
     public void setUp() throws Exception {
 
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step09Controller(
                 executor,
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                dataRepository);
+                dataRepository,
+                DateTimeModule.getInstance());
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
 
@@ -178,21 +180,21 @@ public class Step09ControllerTest extends AbstractControllerTest {
     public void tearDown() throws Exception {
 
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                obdModuleInformation,
-                vehicleInformationModule,
-                dataRepository,
-                mockListener,
-                reportFileModule);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 obdModuleInformation,
+                                 vehicleInformationModule,
+                                 dataRepository,
+                                 mockListener,
+                                 reportFileModule);
     }
 
     @Test
     public void testDestinationSpecificPacketsEmpty() {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "Bat",
-                "TheBatCave",
-                "ST109823456");
+                                                                       "Bat",
+                                                                       "TheBatCave",
+                                                                       "ST109823456");
 
         Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
                 entry(0, 4),
@@ -205,7 +207,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
@@ -284,9 +286,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
     public void testGlobalRequestDoesNotMatchDestinationSpecificRequest() {
 
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "Bat",
-                "TheBatCave",
-                "ST109823456");
+                                                                       "Bat",
+                                                                       "TheBatCave",
+                                                                       "ST109823456");
 
         Map<Integer, Integer> moduleAddressFunction = new HashMap<>() {
             {
@@ -303,7 +305,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         // Global request response
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.emptyList(),
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         // Destination specific responses
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
@@ -319,7 +321,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue()));
+                                                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -362,9 +364,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPath() {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "Bat",
-                "TheBatCave",
-                "ST109823456");
+                                                                       "Bat",
+                                                                       "TheBatCave",
+                                                                       "ST109823456");
 
         Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
                 entry(0, 0),
@@ -377,7 +379,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
@@ -392,7 +394,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue()));
+                                                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -417,9 +419,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
     public void testMakeContainsNonPrintableAsciiCharacterFailure() {
         char unprintableAsciiLineFeed = 0xa;
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "Bat" + unprintableAsciiLineFeed,
-                "TheBatCave",
-                "ST109823456");
+                                                                       "Bat" + unprintableAsciiLineFeed,
+                                                                       "TheBatCave",
+                                                                       "ST109823456");
 
         Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
                 entry(0, 0),
@@ -432,7 +434,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
@@ -447,7 +449,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue()));
+                                                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -477,9 +479,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
     public void testMakeFieldMoreThanFiveCharacters() {
 
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "BatMan",
-                "TheBatCave",
-                "ST109823456");
+                                                                       "BatMan",
+                                                                       "TheBatCave",
+                                                                       "ST109823456");
 
         Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
                 entry(0, 0),
@@ -489,11 +491,11 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         when(dataRepository.getObdModuleAddresses())
                 .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()).stream()
-                        .sorted().collect(Collectors.toList()));
+                                    .sorted().collect(Collectors.toList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
@@ -508,7 +510,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue()));
+                                                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -539,9 +541,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testMakeFiveCharactersWarning() {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "BatMan",
-                "TheBatCave",
-                "ST109823456");
+                                                                       "BatMan",
+                                                                       "TheBatCave",
+                                                                       "ST109823456");
 
         Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
                 entry(0, 0),
@@ -554,7 +556,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
@@ -569,7 +571,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue()));
+                                                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -598,9 +600,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testMakeLessTwoAsciiCharactersWarning() {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "B",
-                "TheBatCave",
-                "ST109823456");
+                                                                       "B",
+                                                                       "TheBatCave",
+                                                                       "ST109823456");
 
         Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
                 entry(0, 0),
@@ -613,7 +615,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
@@ -628,7 +630,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue()));
+                                                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -660,9 +662,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
     public void testModelContainsNonPrintableAsciiCharacterFailure() {
         char unprintableAsciiCarriageReturn = 0xd;
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "Bat",
-                ("TheBatCave" + unprintableAsciiCarriageReturn),
-                "ST109823456");
+                                                                       "Bat",
+                                                                       ("TheBatCave" + unprintableAsciiCarriageReturn),
+                                                                       "ST109823456");
 
         Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
                 entry(0, 0),
@@ -675,7 +677,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
@@ -690,7 +692,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue()));
+                                                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -720,9 +722,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testModelLessThanOneCharactersWarning() {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "Bat",
-                "",
-                "ST123456");
+                                                                       "Bat",
+                                                                       "",
+                                                                       "ST123456");
 
         Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
                 entry(0, 0),
@@ -735,7 +737,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
@@ -750,7 +752,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue()));
+                                                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -780,13 +782,13 @@ public class Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testMoreThanOneModuleWithFunctionZeroFailure() {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "Bat",
-                "TheBatCave",
-                "ST123456");
+                                                                       "Bat",
+                                                                       "TheBatCave",
+                                                                       "ST123456");
         ComponentIdentificationPacket packet1 = createComponentIdPacket(1,
-                "WW",
-                "TheInvisibleJet",
-                "IJ345612");
+                                                                        "WW",
+                                                                        "TheInvisibleJet",
+                                                                        "IJ345612");
         List<ComponentIdentificationPacket> packets = new ArrayList<>() {
             {
                 add(packet);
@@ -805,7 +807,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, packets,
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
@@ -820,7 +822,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue()));
+                                                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -849,9 +851,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testPacketsEmptyFailureGlobalRequest() {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "Bat",
-                "TheBatCave",
-                "ST109823456");
+                                                                       "Bat",
+                                                                       "TheBatCave",
+                                                                       "ST109823456");
 
         Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
                 entry(0, 0),
@@ -864,7 +866,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.emptyList(),
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
@@ -879,7 +881,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue()));
+                                                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -924,9 +926,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
     public void testSerialNumberContainsAsciiNonPrintableCharacterFailure() {
         char unprintableAsciiNull = 0x0;
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "Bat",
-                "TheBatCave",
-                ("ST" + unprintableAsciiNull + "109823456"));
+                                                                       "Bat",
+                                                                       "TheBatCave",
+                                                                       ("ST" + unprintableAsciiNull + "109823456"));
 
         Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
                 entry(0, 0),
@@ -939,7 +941,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
@@ -954,7 +956,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue()));
+                                                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -985,9 +987,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testSerialNumberEightCharactersWarning() {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "Bat",
-                "TheBatCave",
-                "S123456");
+                                                                       "Bat",
+                                                                       "TheBatCave",
+                                                                       "S123456");
 
         Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
                 entry(0, 0),
@@ -1000,7 +1002,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
@@ -1015,7 +1017,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue()));
+                                                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
@@ -1050,9 +1052,9 @@ public class Step09ControllerTest extends AbstractControllerTest {
     @Test
     public void testSerialNumberEndsWithNonNumericCharacterInLastSixCharactersFailure() {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                "Bat",
-                "TheBatCave",
-                "ST109823J456");
+                                                                       "Bat",
+                                                                       "TheBatCave",
+                                                                       "ST109823J456");
 
         Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
                 entry(0, 0),
@@ -1065,7 +1067,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                        Collections.emptyList()));
+                                                Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
@@ -1080,7 +1082,7 @@ public class Step09ControllerTest extends AbstractControllerTest {
         for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
             obdModuleInformations
                     .add(createOBDModuleInformation(address
-                            .getKey(), address.getValue()));
+                                                            .getKey(), address.getValue()));
         }
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 

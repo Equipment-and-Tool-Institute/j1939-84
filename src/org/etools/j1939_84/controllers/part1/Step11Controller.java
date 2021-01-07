@@ -13,10 +13,7 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.modules.*;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
@@ -39,7 +36,8 @@ public class Step11Controller extends StepController {
              new BannerModule(),
              new DiagnosticReadinessModule(),
              new VehicleInformationModule(),
-             dataRepository);
+             dataRepository,
+                DateTimeModule.getInstance());
     }
 
     Step11Controller(Executor executor,
@@ -47,11 +45,13 @@ public class Step11Controller extends StepController {
                      BannerModule bannerModule,
                      DiagnosticReadinessModule diagnosticReadinessModule,
                      VehicleInformationModule vehicleInformationModule,
-                     DataRepository dataRepository) {
+                     DataRepository dataRepository,
+                     DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);

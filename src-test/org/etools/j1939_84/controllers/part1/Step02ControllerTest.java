@@ -1,21 +1,28 @@
 /*
-* Copyright 2020 Equipment & Tool Institute
+ * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.modules.*;
+import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.ReportFileModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
 import org.junit.After;
@@ -63,21 +70,22 @@ public class Step02ControllerTest {
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
-        instance = new Step02Controller(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                DateTimeModule.getInstance());
+        this.instance = new Step02Controller(executor,
+                                             engineSpeedModule,
+                                             bannerModule,
+                                             vehicleInformationModule,
+                                             DateTimeModule.getInstance());
     }
 
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                mockListener);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 mockListener);
     }
 
     @Test
@@ -94,8 +102,8 @@ public class Step02ControllerTest {
 
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.2.1.a",
-                               description = "Verify if the engine is running that there are no messages when already KOEO.",
-                               dependsOn = { "EngineSpeedModuleTest" }))
+            description = "Verify if the engine is running that there are no messages when already KOEO.",
+            dependsOn = { "EngineSpeedModuleTest" }))
     public void testRun() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
 
@@ -121,8 +129,8 @@ public class Step02ControllerTest {
 
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.2.1.a",
-                               description = "Verify user is requested to turn KOEO when engine is not KOEO.",
-                               dependsOn = { "EngineSpeedModuleTest" }))
+            description = "Verify user is requested to turn KOEO when engine is not KOEO.",
+            dependsOn = { "EngineSpeedModuleTest" }))
     public void testWaitForKeyOn() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
 
@@ -131,7 +139,7 @@ public class Step02ControllerTest {
             public void run() {
                 instance.stop();
             }
-        }, 350);
+        }, 750);
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -144,13 +152,14 @@ public class Step02ControllerTest {
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(mockListener).onUrgentMessage("Please turn the Engine OFF with Key ON.", "Adjust Key Switch", WARNING);
 
-        String expectedMessages = "Waiting for Key ON, Engine OFF...";
+        String expectedMessages = "Waiting for Key ON, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key ON, Engine OFF...";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
 
-        String expectedResults = "Initial Engine Speed = 0.0 RPMs" +NL;
+        String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
     }

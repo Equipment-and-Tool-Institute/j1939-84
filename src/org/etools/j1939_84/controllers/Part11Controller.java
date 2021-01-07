@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -21,7 +22,8 @@ public class Part11Controller extends PartController {
         super(Executors.newSingleThreadScheduledExecutor(),
                 new EngineSpeedModule(),
                 new BannerModule(),
-                new VehicleInformationModule());
+                new VehicleInformationModule(),
+                DateTimeModule.getInstance());
     }
 
     @Override

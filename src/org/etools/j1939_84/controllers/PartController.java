@@ -13,14 +13,16 @@ import java.util.concurrent.Executors;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 public abstract class PartController extends Controller {
 
     protected PartController(Executor executor, EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule, VehicleInformationModule vehicleInformationModule) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule);
+                             BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
+                             DateTimeModule dateTimeModule) {
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
     }
 
     @Override
@@ -73,6 +75,7 @@ public abstract class PartController extends Controller {
                     new EngineSpeedModule(),
                     new BannerModule(),
                     new VehicleInformationModule(),
+                    getDateTimeModule(),
                     partNumber,
                     i,
                     1) {

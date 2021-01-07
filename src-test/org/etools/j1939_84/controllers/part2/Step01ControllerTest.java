@@ -3,37 +3,34 @@
  */
 package org.etools.j1939_84.controllers.part2;
 
-import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.controllers.part1.Step02Controller;
-import org.etools.j1939_84.model.Outcome;
-import org.etools.j1939_84.modules.*;
-import org.etools.testdoc.TestDoc;
-import org.etools.testdoc.TestItem;
-import org.junit.*;
-import org.junit.rules.ExpectedException;
-import org.junit.runner.JUnitCore;
-import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Mock;
-import org.mockito.Mockito;
-import org.mockito.exceptions.base.MockitoException;
-import org.mockito.junit.MockitoJUnitRunner;
-import org.mockito.stubbing.Answer;
-
-import java.nio.channels.InterruptedByTimeoutException;
-import java.util.Timer;
-import java.util.TimerTask;
-import java.util.concurrent.Executor;
-
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
-import static org.junit.Assert.*;
-import static org.mockito.BDDMockito.given;
-import static org.mockito.BDDMockito.willAnswer;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
+import java.util.Timer;
+import java.util.TimerTask;
+import java.util.concurrent.Executor;
+import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.ReportFileModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
+import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * The unit test for {@link Step01Controller}
@@ -71,21 +68,22 @@ public class Step01ControllerTest {
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
 
         instance = new Step01Controller(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                DateTimeModule.getInstance());
+                                        engineSpeedModule,
+                                        bannerModule,
+                                        vehicleInformationModule,
+                                        DateTimeModule.getInstance());
     }
 
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                mockListener);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 mockListener);
     }
 
     @Test
@@ -158,20 +156,20 @@ public class Step01ControllerTest {
     }
 
     @Test
-    public void testEngineThrowInterruptedException(){
+    public void testEngineThrowInterruptedException() {
 
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
         when(engineSpeedModule.getEngineSpeed()).thenReturn(300.0);
-           instance.execute(listener, j1939, reportFileModule);
-           new Timer().schedule(new TimerTask() {
-                @Override
-                public void run() {
-                    instance.stop();
-                }
-            }, 750);
-            ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
-            verify(executor).execute(runnableCaptor.capture());
-           runnableCaptor.getValue().run();
+        instance.execute(listener, j1939, reportFileModule);
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                instance.stop();
+            }
+        }, 750);
+        ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+        verify(executor).execute(runnableCaptor.capture());
+        runnableCaptor.getValue().run();
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule).getEngineSpeed();

@@ -17,10 +17,7 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.RequestResult;
-import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.modules.*;
 
 /**
  * @author Garrison Garland {garrison@soliddesign.net)
@@ -42,7 +39,8 @@ public class Step16Controller extends StepController {
              new BannerModule(),
              new VehicleInformationModule(),
              new DTCModule(),
-             dataRepository);
+             dataRepository,
+                DateTimeModule.getInstance());
     }
 
     protected Step16Controller(Executor executor,
@@ -50,11 +48,13 @@ public class Step16Controller extends StepController {
                                BannerModule bannerModule,
                                VehicleInformationModule vehicleInformationModule,
                                DTCModule dtcModule,
-                               DataRepository dataRepository) {
+                               DataRepository dataRepository,
+                               DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);

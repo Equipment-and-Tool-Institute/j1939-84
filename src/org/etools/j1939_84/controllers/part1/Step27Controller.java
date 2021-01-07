@@ -15,6 +15,7 @@ import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -35,17 +36,20 @@ public class Step27Controller extends StepController {
         this(Executors.newSingleThreadScheduledExecutor(),
                 new EngineSpeedModule(),
                 new BannerModule(),
-                new VehicleInformationModule());
+                new VehicleInformationModule(),
+                DateTimeModule.getInstance());
     }
 
     Step27Controller(Executor executor,
                      EngineSpeedModule engineSpeedModule,
                      BannerModule bannerModule,
-                     VehicleInformationModule vehicleInformationModule) {
+                     VehicleInformationModule vehicleInformationModule,
+                     DateTimeModule dateTimeModule) {
         super(executor,
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
+                dateTimeModule,
                 PART_NUMBER,
                 STEP_NUMBER,
                 TOTAL_STEPS);
