@@ -80,15 +80,14 @@ public class Step22Controller extends StepController {
 
         List<DM29DtcCounts> globalPackets = globalResponse.getPackets();
         globalPackets.forEach(dm29 -> {
-            Packet packet = dm29.getPacket();
 
             // 6.1.22.2 Fail criteria:
             // a. For ECUs that support DM27, fail if any ECU does not report
             // pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0
-            if (dm29.isDM27Supported() && (packet.get(0) != 0
-                    || packet.get(1) != 0
-                    || packet.get(2) != 0
-                    || packet.get(3) != 0)) {
+            if (dm29.isDM27Supported() && (dm29.getEmissionRelatedPendingDTCCount() != 0
+                    || dm29.getEmissionRelatedMILOnDTCCount() != 0
+                    || dm29.getEmissionRelatedPreviouslyMILOnDTCCount() != 0
+                    || dm29.getEmissionRelatedPermanentDTCCount() != 0)) {
                 addFailure("6.1.22.2.a - For ECUs that support DM27, fail if any ECU does "
                                    + "not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
             }
@@ -96,9 +95,11 @@ public class Step22Controller extends StepController {
             // b. For ECUs that do not support DM27, fail if any ECU does not
             // report pending/all pending/MIL on/previous MIL on/permanent =
             // 0/0xFF/0/0/0.
-            if (!dm29.isDM27Supported() && (packet.get(0) != 0
-                    || packet.get(2) != 0
-                    || packet.get(3) != 0)) {
+            if (!dm29.isDM27Supported() &&
+                    (dm29.getEmissionRelatedPendingDTCCount() != 0x00
+                    || dm29.getEmissionRelatedMILOnDTCCount() != 0x00
+                    || dm29.getEmissionRelatedPreviouslyMILOnDTCCount() != 0x00
+                    || dm29.getEmissionRelatedPermanentDTCCount() != 0x00)) {
                 addFailure("6.1.22.2.b - For ECUs that do not support DM27, fail if any ECU does "
                                    + "not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
             }
@@ -106,10 +107,10 @@ public class Step22Controller extends StepController {
             // c. For non-OBD ECUs, fail if any ECU reports pending, MIL-on,
             // previously MIL-on or permanent DTC count greater than 0
             if (!obdModuleAddresses.contains(dm29.getSourceAddress())
-                    && (packet.get(0) > 0
-                    || packet.get(1) > 0
-                    || packet.get(2) > 0
-                    || packet.get(3) > 0)) {
+                    && (dm29.getEmissionRelatedPendingDTCCount() > 0
+                    ||dm29.getEmissionRelatedMILOnDTCCount() > 0
+                    || dm29.getEmissionRelatedPreviouslyMILOnDTCCount() > 0
+                    || dm29.getEmissionRelatedPermanentDTCCount() > 0)) {
                 addFailure("6.1.22.2.c - For non-OBD ECUs, fail if any ECU reports pending, MIL-on, "
                                    + "previously MIL-on or permanent DTC count greater than 0");
 

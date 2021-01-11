@@ -86,10 +86,6 @@ public class Step22ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
     public void setUp() {
 
@@ -317,7 +313,7 @@ public class Step22ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM29(any(), eq(0x01));
         verify(dtcModule).requestDM29(any(), eq(0x03));
 
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER,
+        verify(mockListener, times(3)).addOutcome(PART_NUMBER,
                                                   STEP_NUMBER,
                                                   FAIL,
                                                   "6.1.22.2.a - For ECUs that support DM27, fail if any ECU does not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
@@ -343,6 +339,8 @@ public class Step22ControllerTest extends AbstractControllerTest {
         expectedResults += "FAIL: 6.1.22.2.a - For ECUs that support DM27, fail if any ECU does not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
                 + NL;
         expectedResults += "FAIL: 6.1.22.2.c - For non-OBD ECUs, fail if any ECU reports pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"
+                + NL;
+        expectedResults += "FAIL: 6.1.22.2.a - For ECUs that support DM27, fail if any ECU does not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
                 + NL;
         expectedResults += "FAIL: 6.1.22.4.a - Fail if any difference compared to data received during global request"
                 + NL;
@@ -449,14 +447,16 @@ public class Step22ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.1.22.2.c - For non-OBD ECUs, fail if any ECU reports pending, MIL-on, previously MIL-on or permanent DTC count greater than 0");
-        verify(mockListener).addOutcome(PART_NUMBER,
+        verify(mockListener, times(2)).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.1.22.2.b - For ECUs that do not support DM27, fail if any ECU does not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.22.4.a - Fail if any difference compared to data received during global request");
 
-        String expectedResults = "FAIL: 6.1.22.2.a - For ECUs that support DM27, fail if any ECU does not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
+        String expectedResults = "FAIL: 6.1.22.2.b - For ECUs that do not support DM27, fail if any ECU does not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0"
+                + NL;
+        expectedResults += "FAIL: 6.1.22.2.a - For ECUs that support DM27, fail if any ECU does not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
                 + NL;
         expectedResults += "FAIL: 6.1.22.2.c - For non-OBD ECUs, fail if any ECU reports pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"
                 + NL;
