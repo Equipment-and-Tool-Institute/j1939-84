@@ -29,9 +29,9 @@ public class Part01Controller extends PartController {
     /**
      * Constructor
      */
-    public Part01Controller() {
+    public Part01Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-             new VehicleInformationModule(), new DataRepository(), DateTimeModule.getInstance());
+             new VehicleInformationModule(), dataRepository, DateTimeModule.getInstance());
     }
 
     private Part01Controller(Executor executor, EngineSpeedModule engineSpeedModule,

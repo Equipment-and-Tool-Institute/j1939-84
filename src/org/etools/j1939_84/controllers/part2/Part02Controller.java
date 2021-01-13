@@ -27,16 +27,16 @@ public class Part02Controller extends PartController {
 
     private final List<StepController> stepControllers = new ArrayList<>();
 
-    public Part02Controller() {
+    public Part02Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), new DataRepository(), DateTimeModule.getInstance());
+                new VehicleInformationModule(),DateTimeModule.getInstance(), dataRepository);
     }
 
     private Part02Controller(Executor executor, EngineSpeedModule engineSpeedModule,
                              BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
-                             DataRepository dataRepository, DateTimeModule dateTimeModule) {
+                             DateTimeModule dateTimeModule, DataRepository dataRepository) {
         this(executor, engineSpeedModule, bannerModule, vehicleInformationModule,dateTimeModule,
-                new Step01Controller());
+                new Step01Controller(), new Step02Controller(dataRepository));
 
     }
     /**
@@ -47,10 +47,11 @@ public class Part02Controller extends PartController {
                             BannerModule bannerModule,
                             VehicleInformationModule vehicleInformationModule,
                             DateTimeModule dateTimeModule,
-                            Step01Controller step01Controller) {
+                            Step01Controller step01Controller, Step02Controller step02Controller) {
         super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
 
         stepControllers.add(step01Controller);
+        stepControllers.add(step02Controller);
     }
 
     @Override
