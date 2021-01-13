@@ -31,11 +31,15 @@ public class OverallController extends Controller {
     private final List<Controller> controllers = new ArrayList<>();
 
     public OverallController() {
+        this(new DataRepository());
+    }
+
+    private OverallController(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-             new VehicleInformationModule(), DateTimeModule.getInstance(), new Part01Controller(),
-             new Part02Controller(), new Part03Controller(), new Part04Controller(), new Part05Controller(),
-             new Part06Controller(), new Part07Controller(), new Part08Controller(), new Part09Controller(),
-             new Part10Controller(), new Part11Controller(), new Part12Controller());
+             new VehicleInformationModule(), DateTimeModule.getInstance(),
+             new Part01Controller(dataRepository),new Part02Controller(dataRepository), new Part03Controller(), new Part04Controller(),
+             new Part05Controller(), new Part06Controller(), new Part07Controller(), new Part08Controller(),
+             new Part09Controller(), new Part10Controller(), new Part11Controller(), new Part12Controller());
     }
 
     private OverallController(Executor executor,
@@ -99,5 +103,4 @@ public class OverallController extends Controller {
         Optional.ofNullable(activeController).ifPresent(Controller::stop);
         super.stop();
     }
-
 }

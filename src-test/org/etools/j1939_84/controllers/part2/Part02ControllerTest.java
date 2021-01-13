@@ -3,13 +3,28 @@
  */
 package org.etools.j1939_84.controllers.part2;
 
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.inOrder;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
+
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.List;
+import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.modules.*;
+import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.ReportFileModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -18,15 +33,6 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InOrder;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
-
-import java.util.List;
-import java.util.concurrent.Executor;
-
-import static org.etools.j1939_84.J1939_84.NL;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.*;
 
 /**
  * The unit test for {@link Part02Controller}
@@ -62,29 +68,33 @@ public class Part02ControllerTest {
     private Step01Controller step01Controller;
 
     @Mock
+    private Step02Controller step02Controller;
+
+    @Mock
     private VehicleInformationModule vehicleInformationModule;
 
     @Before
     public void setUp() {
         listener = new TestResultsListener(mockListener);
-        listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
         instance = new Part02Controller(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                DateTimeModule.getInstance(),
-                step01Controller);
+                                        engineSpeedModule,
+                                        bannerModule,
+                                        vehicleInformationModule,
+                                        DateTimeModule.getInstance(),
+                                        step01Controller,
+                                        step02Controller);
     }
 
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                step01Controller);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 step01Controller,
+                                 step02Controller);
     }
 
     /**
@@ -102,7 +112,8 @@ public class Part02ControllerTest {
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
             justification = "The method is called just to get some exception.")
     public void testPart01Controller() {
-        List<StepController> stepControllers = List.of(step01Controller);
+        List<StepController> stepControllers = List.of(step01Controller,
+                                                       step02Controller);
 
         for (int i = 0; i < stepControllers.size(); i++) {
             when(stepControllers.get(i).getStepNumber()).thenReturn(i + 1);
@@ -115,7 +126,8 @@ public class Part02ControllerTest {
         runnableCaptor.getValue().run();
 
         InOrder inOrder = inOrder(
-                step01Controller);
+                step01Controller,
+                step02Controller);
 
         for (StepController StepController : stepControllers) {
             inOrder.verify(StepController).run(any(ResultsListener.class), eq(j1939));
@@ -153,10 +165,9 @@ public class Part02ControllerTest {
                     .append(NL)
                     .append(NL);
             expectedResults.append("End Step 2.").append(i).append(". ").append(Lookup.getStepName(2, i))
-                    .append(NL)
-                    .append(NL)
                     .append(NL);
         }
+        expectedResults.append(NL).append(NL);
         expectedResults.append("End ").append(Lookup.getPartName(2)).append(NL).append(NL);
         assertEquals(expectedResults.toString(), listener.getResults());
     }
