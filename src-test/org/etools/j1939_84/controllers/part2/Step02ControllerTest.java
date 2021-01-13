@@ -9,15 +9,10 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -26,17 +21,12 @@ import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
-import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.controllers.part1.SectionA6Validator;
-import org.etools.j1939_84.controllers.part1.Step03Controller;
-import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
-import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticReadinessModule;
@@ -44,13 +34,10 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
-import org.etools.testdoc.TestDoc;
-import org.etools.testdoc.TestItem;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -80,7 +67,7 @@ public class Step02ControllerTest extends AbstractControllerTest {
     @Mock
     private Executor executor;
 
-    private  Step02Controller instance;
+    private Step02Controller instance;
 
     @Mock
     private J1939 j1939;
@@ -206,23 +193,25 @@ public class Step02ControllerTest extends AbstractControllerTest {
                 Packet.create(ackPgn, 0x44, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         DM5DiagnosticReadinessPacket packet21 = new DM5DiagnosticReadinessPacket(
                 Packet.create(PGN, 0x21, 0x00, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
+        DM5DiagnosticReadinessPacket packet21V2 = new DM5DiagnosticReadinessPacket(
+                Packet.create(PGN, 0x21, 0x00, 0x22, 0x33, 0x44, 0x55, 0x60, 0x70, 0x80));
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
-                                                                                                List.of(packet0, packet21),
-                                                                                                Collections.singletonList(packet44));
+                                                                                                List.of(packet0,
+                                                                                                        packet21),
+                                                                                                List.of(packet44));
         when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalRequestResponse);
 
-        BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
-                                                                                packet0);
+        BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false, packet0);
         when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x00))).thenReturn(busResult0x00);
-        BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false,
-                                                                                packet44);
+
+        BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false, packet44);
         when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x17))).thenReturn(busResult0x17);
-        BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false,
-                                                                                Optional.empty());
+
+        BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false, packet21V2);
         when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x21))).thenReturn(busResult0x21);
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
-                false);
+        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse)))
+                .thenReturn(false);
 
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
 
@@ -236,16 +225,26 @@ public class Step02ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x17));
         verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x21));
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.2.2.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0" + NL +
-                "  Reported active fault count = 1" + NL +
-                "  Reported previously active fault count = 0");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                                        "6.2.2.2.c Listed below are the individually required monitors, except Continuous Component Monitoring (CCM)" + NL +
+                                                "  Reported active fault count = 1" + NL +
+                                                "  Reported previously active fault count = 0");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.2.2.2.c - Listed below are the individually required monitors, except Continuous Component Monitoring (CCM)" + NL +
                                                 "  that have been reported as supported by more than one OBD ECU:" + NL +
                                                 "    Exhaust Gas Sensor heater");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, "6.2.2.3.a - OBD module Body Controller (33) did not return a response to a destination specific DM5 request");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.2.4.a - Fail if any difference compared to data received during global request");
+        //        verify(mockListener).addOutcome(PART_NUMBER,
+        //                                        STEP_NUMBER,
+        //                                        WARN,
+        //                                        "6.2.2.3.a - OBD module Body Controller (33) did not return a response to a destination specific DM5 request");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.2.2.4.a - Difference compared to data received during global request");
 
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
@@ -272,17 +271,16 @@ public class Step02ControllerTest extends AbstractControllerTest {
                 NL + "FAIL: 6.2.2.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0" + NL +
                 "  Reported active fault count = 1" + NL +
                 "  Reported previously active fault count = 0" + NL +
-                "WARN: 6.2.2.2.c Listed below are the individually required monitors, except Continuous Component Monitoring (CCM)" + NL +
+                "WARN: 6.2.2.2.c - Listed below are the individually required monitors, except Continuous Component Monitoring (CCM)" + NL +
                 "  that have been reported as supported by more than one OBD ECU:" + NL +
                 "    Exhaust Gas Sensor heater" + NL +
-                "WARN: 6.2.2.3.a - OBD module Body Controller (33) did not return a response to a destination specific DM5 request" + NL +
-                "FAIL: 6.2.2.4.a - Fail if any difference compared to data received during global request" + NL;
+                "FAIL: 6.2.2.4.a - Difference compared to data received during global request" + NL;
 
         assertEquals(expectedResults, listener.getResults());
     }
 
     @Test
-    public void testStep13DM5PacketsEmpty() {
+    public void testStepDM5PacketsEmpty() {
         DM5DiagnosticReadinessPacket packet0 = new DM5DiagnosticReadinessPacket(
                 Packet.create(PGN, 0x00, 0x00, 0x00, 0x14, 0x37, 0xE0, 0x1E, 0xE0, 0x1E));
         final int ackPgn = DM5DiagnosticReadinessPacket.PGN;
@@ -330,6 +328,92 @@ public class Step02ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMilestones());
 
         String expectedResults = "FAIL: 6.2.2.1.a - Global DM5 request did not receive any response packets" + NL;
+        assertEquals(expectedResults, listener.getResults());
+    }
+
+    @Test
+    public void testStepAllDM5PacketsEmpty() {
+        DM5DiagnosticReadinessPacket packet0 = new DM5DiagnosticReadinessPacket(
+                Packet.create(PGN, 0x00, 0x00, 0x00, 0x14, 0x37, 0xE0, 0x1E, 0xE0, 0x1E));
+        final int ackPgn = DM5DiagnosticReadinessPacket.PGN;
+        AcknowledgmentPacket packet44 = new AcknowledgmentPacket(
+                Packet.create(ackPgn, 0x44, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+        DM5DiagnosticReadinessPacket packet21 = new DM5DiagnosticReadinessPacket(
+                Packet.create(PGN, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
+        RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
+                                                                                                List.of(packet0,
+                                                                                                        packet21),
+                                                                                                Collections.singletonList(
+                                                                                                        packet44));
+        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalRequestResponse);
+
+        BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
+                                                                                Optional.empty());
+        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x00))).thenReturn(busResult0x00);
+        BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false,
+                                                                                Optional.empty());
+        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x17))).thenReturn(busResult0x17);
+        BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false,
+                                                                                packet21);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x21))).thenReturn(busResult0x21);
+
+        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
+                false);
+
+        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
+
+        runTest();
+
+        verify(dataRepository).getObdModuleAddresses();
+
+        verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(true));
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x00));
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x17));
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x21));
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.2.2.2.c - Listed below are the individually required monitors, except Continuous Component Monitoring (CCM)" + NL +
+                                                "  that have been reported as supported by more than one OBD ECU:" + NL +
+                                                "    Exhaust Gas Sensor heater");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.2.2.3.a - OBD module Engine #1 (0) did not return a response to a destination specific DM5 request");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.2.2.3.a - OBD module Instrument Cluster #1 (23) did not return a response to a destination specific DM5 request");
+
+        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        String expectedResults = NL + "Vehicle Composite of DM5:" + NL +
+                "    A/C system refrigerant         not supported,       completed" + NL +
+                "    Boost pressure control sys         supported,   not completed" + NL +
+                "    Catalyst                       not supported,       completed" + NL +
+                "    Cold start aid system          not supported,       completed" + NL +
+                "    Comprehensive component            supported,       completed" + NL +
+                "    Diesel Particulate Filter          supported,   not completed" + NL +
+                "    EGR/VVT system                     supported,   not completed" + NL +
+                "    Evaporative system             not supported,       completed" + NL +
+                "    Exhaust Gas Sensor                 supported,   not completed" + NL +
+                "    Exhaust Gas Sensor heater          supported,   not completed" + NL +
+                "    Fuel System                        supported,   not completed" + NL +
+                "    Heated catalyst                not supported,       completed" + NL +
+                "    Misfire                            supported,   not completed" + NL +
+                "    NMHC converting catalyst           supported,   not completed" + NL +
+                "    NOx catalyst/adsorber              supported,   not completed" + NL +
+                "    Secondary air system           not supported,       completed" + NL +
+                NL + "WARN: 6.2.2.2.c - Listed below are the individually required monitors, except Continuous Component Monitoring (CCM)" + NL +
+                "  that have been reported as supported by more than one  OBD ECU:" + NL +
+                "    Exhaust Gas Sensor heater" + NL +
+                "WARN: 6.2.2.3.a - OBD module Engine #1 (0) did not return a response to a destination specific DM5 request" + NL +
+                "WARN: 6.2.2.3.a - OBD module Instrument Cluster #1 (23) did not return a response to a destination specific DM5 request" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
