@@ -128,27 +128,26 @@ public class Step02Controller extends StepController {
             duplicateCompositeSystems.stream().sorted().forEach(system -> warning.append(NL)
                     .append("    ")
                     .append(system.getName().trim()));
-            addWarning( warning.toString());
+            addWarning(warning.toString());
         }
 
         //6.2.2.3.a. DS DM5 to each OBD ECU.
         List<DM5DiagnosticReadinessPacket> destinationSpecificPackets = new ArrayList<>();
-        dataRepository.getObdModuleAddresses().forEach(address ->
-                                                               diagnosticReadinessModule.requestDM5(getListener(),
-                                                                                                    true,
-                                                                                                    address)
-                                                                       .getPacket()
-                                                                       .ifPresentOrElse((packet) -> {
-                                                                                            // No requirements around the destination specific acks
-                                                                                            // so, the acks are not needed
-                                                                                            packet.left.ifPresent(
-                                                                                                    destinationSpecificPackets::add);
-                                                                                        },
-                                                                                        () -> addWarning(getPartNumber(),
-                                                                                                         getStepNumber(),
-                                                                                                         "6.2.2.3.a - OBD module " + getAddressName(
-                                                                                                                 address)
-                                                                                                                 + " did not return a response to a destination specific DM5 request")));
+        dataRepository.getObdModuleAddresses()
+                .forEach(address -> diagnosticReadinessModule.requestDM5(getListener(),
+                                                                         true,
+                                                                         address).getPacket()
+                        .ifPresentOrElse((packet) -> {
+                                             // No requirements around the destination specific acks
+                                             // so, the acks are not needed
+                                             packet.left.ifPresent(
+                                                     destinationSpecificPackets::add);
+                                         },
+                                         () -> addWarning(getPartNumber(),
+                                                          getStepNumber(),
+                                                          "6.2.2.3.a - OBD module " + getAddressName(
+                                                                  address)
+                                                                  + " did not return a response to a destination specific DM5 request")));
 
         /*
          *        6.2.2.4 Fail criteria2:
