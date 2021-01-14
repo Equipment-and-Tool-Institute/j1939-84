@@ -4,15 +4,18 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 
-import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import org.etools.j1939_84.bus.Either;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
@@ -20,7 +23,11 @@ import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
-import org.etools.j1939_84.modules.*;
+import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticReadinessModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
@@ -41,34 +48,34 @@ public class Step13Controller extends StepController {
 
     Step13Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-                new EngineSpeedModule(),
-                new BannerModule(),
-                new VehicleInformationModule(),
-                new DiagnosticReadinessModule(),
-                dataRepository,
-                new SectionA6Validator(dataRepository),
-                DateTimeModule.getInstance());
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new DiagnosticReadinessModule(),
+             dataRepository,
+             new SectionA6Validator(dataRepository),
+             DateTimeModule.getInstance());
     }
 
     Step13Controller(Executor executor,
-            EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule,
-            VehicleInformationModule vehicleInformationModule,
-            DiagnosticReadinessModule diagnosticReadinessModule,
-            DataRepository dataRepository,
-            SectionA6Validator sectionaA6Validator,
+                     EngineSpeedModule engineSpeedModule,
+                     BannerModule bannerModule,
+                     VehicleInformationModule vehicleInformationModule,
+                     DiagnosticReadinessModule diagnosticReadinessModule,
+                     DataRepository dataRepository,
+                     SectionA6Validator sectionA6Validator,
                      DateTimeModule dateTimeModule) {
         super(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dateTimeModule,
-                PART_NUMBER,
-                STEP_NUMBER,
-                TOTAL_STEPS);
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              dateTimeModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dataRepository = dataRepository;
-        sectionA6Validator = sectionaA6Validator;
+        this.sectionA6Validator = sectionA6Validator;
     }
 
     @Override
@@ -78,7 +85,7 @@ public class Step13Controller extends StepController {
 
         // 6.1.13.1.a. Global DM5 (send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)).
         RequestResult<DM5DiagnosticReadinessPacket> response = diagnosticReadinessModule.requestDM5(getListener(),
-                true);
+                                                                                                    true);
         List<DM5DiagnosticReadinessPacket> obdGlobalPackets = response.getPackets().stream()
                 .filter(DM5DiagnosticReadinessPacket::isObd)
                 .collect(Collectors.toList());
@@ -87,14 +94,13 @@ public class Step13Controller extends StepController {
             // 6.1.13.1.b. Display monitor readiness composite value in log for OBD ECU replies only.
 
             List<CompositeMonitoredSystem> systems = DiagnosticReadinessModule.getCompositeSystems(obdGlobalPackets,
-                    false);
-
+                                                                                                   true);
             getListener().onResult("");
             getListener().onResult("Vehicle Composite of DM5:");
             getListener().onResult(systems.stream()
-                    .sorted()
-                    .map(MonitoredSystem::toString)
-                    .collect(Collectors.toList()));
+                                           .sorted()
+                                           .map(MonitoredSystem::toString)
+                                           .collect(Collectors.toList()));
             getListener().onResult("");
         } else {
             addFailure("6.1.13.1.a - Global DM5 request did not receive any response packets");
@@ -141,41 +147,59 @@ public class Step13Controller extends StepController {
             StringBuilder warning = new StringBuilder(
                     "6.1.13.2.d - An individual required monitor is supported by more than one OBD ECU");
             duplicateCompositeSystems.stream().sorted().forEach(system ->
-                    warning.append(NL).append(system.getName()).append(" has reporting from more than one OBD ECU"));
+                                                                        warning.append(NL)
+                                                                                .append(system.getName())
+                                                                                .append(" has reporting from more than one OBD ECU"));
             addWarning(warning.toString());
         }
 
+        List<Integer> obdAddresses = dataRepository.getObdModuleAddresses();
         // 6.1.13.3.a. DS DM5 to each OBD ECU.
-        List<DM5DiagnosticReadinessPacket> destinationSpecificPackets = new ArrayList<>();
-        dataRepository.getObdModuleAddresses().forEach(address ->
-                diagnosticReadinessModule.requestDM5(getListener(), true, address)
+        List<Either<DM5DiagnosticReadinessPacket, AcknowledgmentPacket>> destinationSpecificPackets = obdAddresses
+                .stream()
+                .flatMap(address -> diagnosticReadinessModule.requestDM5(getListener(), true, address)
                         .getPacket()
-                        .ifPresentOrElse((packet) -> {
-                            // No requirements around the destination specific acks
-                            // so, the acks are not needed
-                            packet.left.ifPresent(destinationSpecificPackets::add);
-                        }, () -> addWarning("6.1.13.3 - OBD module " + getAddressName(address)
-                                + " did not return a response to a destination specific request")));
+                        .stream())
+                .collect(Collectors.toList());
         if (destinationSpecificPackets.isEmpty()) {
             addWarning("6.1.13.3.a - Destination Specific DM5 requests to OBD modules did not return any responses");
         }
 
-        // 6.1.13.4.a. Fail if any difference compared to data received during global request.
-        List<DM5DiagnosticReadinessPacket> differentPackets = obdGlobalPackets.stream()
-                .filter(packet -> !destinationSpecificPackets.contains(packet))
+        List<DM5DiagnosticReadinessPacket> dsDM5s = destinationSpecificPackets.stream()
+                .filter(r -> r.left.isPresent())
+                .map(p -> p.left.get())
                 .collect(Collectors.toList());
-        if (!differentPackets.isEmpty()) {
-            addFailure("6.1.13.4.a - A difference compared to data received during global request");
+
+        List<DM5DiagnosticReadinessPacket> unmatchedPackets = response.getPackets().stream()
+                .filter(packet -> !dsDM5s.contains(packet))
+                .collect(Collectors.toList());
+
+        // 6.1.13.4.a. Fail if any difference compared to data received during global request.
+        if (!unmatchedPackets.isEmpty()) {
+            getListener().addOutcome(getPartNumber(),
+                                     getStepNumber(),
+                                     FAIL,
+                                     "6.1.13.4.a - Difference compared to data received during global request");
         }
 
         // 6.1.13.4.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
-        List<DM5DiagnosticReadinessPacket> nacksRemovedPackets = differentPackets.stream()
-                .filter(packet -> response.getAcks()
-                        .stream()
-                        .anyMatch(ack -> ack.getSourceAddress() != packet.getSourceAddress()))
-                .collect(Collectors.toList());
-        if (!nacksRemovedPackets.isEmpty()) {
-            addFailure("6.1.13.4.b - NACK not received from OBD ECUs that did not respond to global query");
+        Collection<Integer> nackAddresses = destinationSpecificPackets.stream()
+                .filter(r -> r.right.isPresent())
+                .map(r -> r.right.get())
+                .filter(packet -> packet.getResponse() == NACK).map(p -> p.getSourceAddress())
+                .collect(Collectors.toSet());
+        //Removed the addresses that returned a nack
+        obdAddresses.removeAll(nackAddresses);
+        //Removed the addresses that responded
+        Collection<Integer> responseAddresses = response.getPackets().stream()
+                .map(p -> p.getSourceAddress())
+                .collect(Collectors.toSet());
+        obdAddresses.removeAll(responseAddresses);
+        if (!obdAddresses.isEmpty()) {
+            getListener().addOutcome(getPartNumber(),
+                                     getStepNumber(),
+                                     FAIL,
+                                     "6.1.13.4.b - NACK not received from OBD ECUs that did not respond to global query");
         }
     }
 }
