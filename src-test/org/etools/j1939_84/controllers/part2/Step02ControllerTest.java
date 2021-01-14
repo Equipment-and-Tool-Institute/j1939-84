@@ -237,10 +237,6 @@ public class Step02ControllerTest extends AbstractControllerTest {
                                         "6.2.2.2.c - Listed below are the individually required monitors, except Continuous Component Monitoring (CCM)" + NL +
                                                 "  that have been reported as supported by more than one OBD ECU:" + NL +
                                                 "    Exhaust Gas Sensor heater");
-        //        verify(mockListener).addOutcome(PART_NUMBER,
-        //                                        STEP_NUMBER,
-        //                                        WARN,
-        //                                        "6.2.2.3.a - OBD module Body Controller (33) did not return a response to a destination specific DM5 request");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -252,22 +248,22 @@ public class Step02ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMilestones());
 
         String expectedResults = NL + "Vehicle Composite of DM5:" + NL +
-                "    A/C system refrigerant         not supported,       completed" + NL +
-                "    Boost pressure control sys         supported,   not completed" + NL +
-                "    Catalyst                       not supported,       completed" + NL +
-                "    Cold start aid system          not supported,       completed" + NL +
-                "    Comprehensive component            supported,       completed" + NL +
-                "    Diesel Particulate Filter          supported,   not completed" + NL +
-                "    EGR/VVT system                     supported,   not completed" + NL +
-                "    Evaporative system             not supported,       completed" + NL +
-                "    Exhaust Gas Sensor                 supported,   not completed" + NL +
-                "    Exhaust Gas Sensor heater          supported,   not completed" + NL +
-                "    Fuel System                        supported,   not completed" + NL +
-                "    Heated catalyst                not supported,       completed" + NL +
-                "    Misfire                            supported,   not completed" + NL +
-                "    NMHC converting catalyst           supported,   not completed" + NL +
-                "    NOx catalyst/adsorber              supported,   not completed" + NL +
-                "    Secondary air system           not supported,       completed" + NL +
+                "    A/C system refrigerant     not supported,     complete" + NL +
+                "    Boost pressure control sys     supported, not complete" + NL +
+                "    Catalyst                   not supported,     complete" + NL +
+                "    Cold start aid system      not supported,     complete" + NL +
+                "    Comprehensive component        supported,     complete" + NL +
+                "    Diesel Particulate Filter      supported, not complete" + NL +
+                "    EGR/VVT system                 supported, not complete" + NL +
+                "    Evaporative system         not supported,     complete" + NL +
+                "    Exhaust Gas Sensor             supported, not complete" + NL +
+                "    Exhaust Gas Sensor heater      supported, not complete" + NL +
+                "    Fuel System                    supported, not complete" + NL +
+                "    Heated catalyst            not supported,     complete" + NL +
+                "    Misfire                        supported, not complete" + NL +
+                "    NMHC converting catalyst       supported, not complete" + NL +
+                "    NOx catalyst/adsorber          supported, not complete" + NL +
+                "    Secondary air system       not supported,     complete" + NL +
                 NL + "FAIL: 6.2.2.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0" + NL +
                 "  Reported active fault count = 1" + NL +
                 "  Reported previously active fault count = 0" + NL +
@@ -393,22 +389,22 @@ public class Step02ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMilestones());
 
         String expectedResults = NL + "Vehicle Composite of DM5:" + NL +
-                "    A/C system refrigerant         not supported,       completed" + NL +
-                "    Boost pressure control sys         supported,   not completed" + NL +
-                "    Catalyst                       not supported,       completed" + NL +
-                "    Cold start aid system          not supported,       completed" + NL +
-                "    Comprehensive component            supported,       completed" + NL +
-                "    Diesel Particulate Filter          supported,   not completed" + NL +
-                "    EGR/VVT system                     supported,   not completed" + NL +
-                "    Evaporative system             not supported,       completed" + NL +
-                "    Exhaust Gas Sensor                 supported,   not completed" + NL +
-                "    Exhaust Gas Sensor heater          supported,   not completed" + NL +
-                "    Fuel System                        supported,   not completed" + NL +
-                "    Heated catalyst                not supported,       completed" + NL +
-                "    Misfire                            supported,   not completed" + NL +
-                "    NMHC converting catalyst           supported,   not completed" + NL +
-                "    NOx catalyst/adsorber              supported,   not completed" + NL +
-                "    Secondary air system           not supported,       completed" + NL +
+                "    A/C system refrigerant     not supported,     complete" + NL +
+                "    Boost pressure control sys     supported, not complete" + NL +
+                "    Catalyst                   not supported,     complete" + NL +
+                "    Cold start aid system      not supported,     complete" + NL +
+                "    Comprehensive component        supported,     complete" + NL +
+                "    Diesel Particulate Filter      supported, not complete" + NL +
+                "    EGR/VVT system                 supported, not complete" + NL +
+                "    Evaporative system         not supported,     complete" + NL +
+                "    Exhaust Gas Sensor             supported, not complete" + NL +
+                "    Exhaust Gas Sensor heater      supported, not complete" + NL +
+                "    Fuel System                    supported, not complete" + NL +
+                "    Heated catalyst            not supported,     complete" + NL +
+                "    Misfire                        supported, not complete" + NL +
+                "    NMHC converting catalyst       supported, not complete" + NL +
+                "    NOx catalyst/adsorber          supported, not complete" + NL +
+                "    Secondary air system       not supported,     complete" + NL +
                 NL + "WARN: 6.2.2.2.c - Listed below are the individually required monitors, except Continuous Component Monitoring (CCM)" + NL +
                 "  that have been reported as supported by more than one OBD ECU:" + NL +
                 "    Exhaust Gas Sensor heater" + NL +
@@ -458,22 +454,22 @@ public class Step02ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +
-                "    A/C system refrigerant         not supported,       completed" + NL +
-                "    Boost pressure control sys         supported,   not completed" + NL +
-                "    Catalyst                       not supported,       completed" + NL +
-                "    Cold start aid system          not supported,       completed" + NL +
-                "    Comprehensive component            supported,       completed" + NL +
-                "    Diesel Particulate Filter          supported,   not completed" + NL +
-                "    EGR/VVT system                     supported,   not completed" + NL +
-                "    Evaporative system             not supported,       completed" + NL +
-                "    Exhaust Gas Sensor                 supported,   not completed" + NL +
-                "    Exhaust Gas Sensor heater          supported,   not completed" + NL +
-                "    Fuel System                        supported,   not completed" + NL +
-                "    Heated catalyst                not supported,       completed" + NL +
-                "    Misfire                            supported,   not completed" + NL +
-                "    NMHC converting catalyst           supported,   not completed" + NL +
-                "    NOx catalyst/adsorber              supported,   not completed" + NL +
-                "    Secondary air system           not supported,       completed" + NL;
+                "    A/C system refrigerant     not supported,     complete" + NL +
+                "    Boost pressure control sys     supported, not complete" + NL +
+                "    Catalyst                   not supported,     complete" + NL +
+                "    Cold start aid system      not supported,     complete" + NL +
+                "    Comprehensive component        supported,     complete" + NL +
+                "    Diesel Particulate Filter      supported, not complete" + NL +
+                "    EGR/VVT system                 supported, not complete" + NL +
+                "    Evaporative system         not supported,     complete" + NL +
+                "    Exhaust Gas Sensor             supported, not complete" + NL +
+                "    Exhaust Gas Sensor heater      supported, not complete" + NL +
+                "    Fuel System                    supported, not complete" + NL +
+                "    Heated catalyst            not supported,     complete" + NL +
+                "    Misfire                        supported, not complete" + NL +
+                "    NMHC converting catalyst       supported, not complete" + NL +
+                "    NOx catalyst/adsorber          supported, not complete" + NL +
+                "    Secondary air system       not supported,     complete" + NL;
         assertEquals(expectedVehicleComposite + NL, listener.getResults());
     }
 

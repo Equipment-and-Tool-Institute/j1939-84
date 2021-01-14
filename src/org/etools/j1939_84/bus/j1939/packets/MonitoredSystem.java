@@ -1,7 +1,9 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
+
+import static org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus.findStatus;
 
 import java.util.Objects;
 
@@ -9,7 +11,6 @@ import java.util.Objects;
  * The Name and Status of an Emission Monitored System (DM5 and DM26)
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class MonitoredSystem implements Comparable<MonitoredSystem> {
 
@@ -17,42 +18,33 @@ public class MonitoredSystem implements Comparable<MonitoredSystem> {
     private final String name;
     private final int sourceAddress;
     private final MonitoredSystemStatus status;
-
-    /**
-     * Creates a Monitored System
-     *
-     * @param status
-     *            the {@link MonitoredSystemStatus} of the Monitored System
-     * @param sourceAddress
-     *            the source address that reported this
-     * @param id
-     *            the unique id for this system. This allows
-     *            {@link MonitoredSystem} from various source addresses to be
-     *            matched up
-     */
-    public MonitoredSystem(MonitoredSystemStatus status, int sourceAddress, CompositeSystem id) {
-        this(id.getName(), status, sourceAddress, id);
-    }
+    private final boolean isDM5;
 
     /**
      * Creates a Monitored System
      *
      * @param name
-     *            the Name of the Monitored System
+     *         the Name of the Monitored System
      * @param status
-     *            the {@link MonitoredSystemStatus} of the Monitored System
+     *         the {@link MonitoredSystemStatus} of the Monitored System
      * @param sourceAddress
-     *            the source address that reported this
+     *         the source address that reported this
      * @param id
-     *            the unique id for this system. This allows
-     *            {@link MonitoredSystem} from various source addresses to be
-     *            matched up
+     *         the unique id for this system. This allows
+     *         {@link MonitoredSystem} from various source addresses to be
+     * @param isDM5
+     *         indicates this is from a DM5 Packet
      */
-    public MonitoredSystem(String name, MonitoredSystemStatus status, int sourceAddress, CompositeSystem id) {
+    public MonitoredSystem(String name,
+                           MonitoredSystemStatus status,
+                           int sourceAddress,
+                           CompositeSystem id,
+                           boolean isDM5) {
         this.name = name;
         this.status = status;
         this.sourceAddress = sourceAddress;
         this.id = id;
+        this.isDM5 = isDM5;
     }
 
     @Override
@@ -129,11 +121,6 @@ public class MonitoredSystem implements Comparable<MonitoredSystem> {
 
     @Override
     public String toString() {
-        StringBuilder stringBuilder = new StringBuilder(String.format("%-35s", "    " + getName()));
-        stringBuilder.append(getStatus().isEnabled() ? String.format("%15s", "supported, ")
-                                        : String.format("%15s", "not supported, "))
-                .append(getStatus().isComplete() ? String.format("%15s", "completed")
-                                        : String.format("%15s", "not completed"));
-        return stringBuilder.toString();
+        return "    " + getName() + " " + findStatus(isDM5, getStatus().isEnabled(), getStatus().isComplete());
     }
 }

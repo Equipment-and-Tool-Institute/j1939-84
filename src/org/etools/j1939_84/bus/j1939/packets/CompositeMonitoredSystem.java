@@ -1,5 +1,5 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
@@ -39,7 +39,7 @@ public class CompositeMonitoredSystem extends MonitoredSystem {
      *            true to indicate this system is for a DM5 message
      */
     public CompositeMonitoredSystem(CompositeSystem id, boolean isDm5) {
-        super(id.getName(), null, -1, id);
+        super(id.getName(), null, -1, id, isDm5);
         this.isDm5 = isDm5;
     }
 
@@ -53,7 +53,7 @@ public class CompositeMonitoredSystem extends MonitoredSystem {
      *            true to indicate this system is from a DM5 message
      */
     public CompositeMonitoredSystem(MonitoredSystem system, boolean isDm5) {
-        super(system.getName(), system.getStatus(), -1, system.getId());
+        super(system.getName(), system.getStatus(), -1, system.getId(), isDm5);
         this.isDm5 = isDm5;
         addMonitoredSystems(system);
     }
@@ -87,15 +87,15 @@ public class CompositeMonitoredSystem extends MonitoredSystem {
      * Helper method to determine the {@link MonitoredSystemStatus} based upon
      * all the {@link MonitoredSystem} s
      *
-     * @return {@link Status}
+     * @return {@link MonitoredSystemStatus}
      */
     private MonitoredSystemStatus getCompositeStatus() {
         if (systems.isEmpty()) {
             return MonitoredSystemStatus.findStatus(isDm5, false, false);
         }
 
-        boolean isEnabled = systems.values().stream().filter(s -> s.isEnabled()).findFirst().isPresent();
-        boolean isComplete = !systems.values().stream().filter(s -> !s.isComplete()).findFirst().isPresent();
+        boolean isEnabled = systems.values().stream().anyMatch(MonitoredSystemStatus::isEnabled);
+        boolean isComplete = systems.values().stream().allMatch(MonitoredSystemStatus::isComplete);
 
         return MonitoredSystemStatus.findStatus(isDm5, isEnabled, isComplete);
     }

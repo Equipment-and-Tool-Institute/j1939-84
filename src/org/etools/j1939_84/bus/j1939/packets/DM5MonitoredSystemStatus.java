@@ -1,5 +1,5 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
@@ -33,7 +33,7 @@ public enum DM5MonitoredSystemStatus implements MonitoredSystemStatus {
      * @param complete
      *         true if the monitor is complete
      */
-    private DM5MonitoredSystemStatus(boolean enabled, boolean complete) {
+    DM5MonitoredSystemStatus(boolean enabled, boolean complete) {
         this.enabled = enabled;
         this.complete = complete;
     }

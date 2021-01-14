@@ -111,60 +111,62 @@ public class TableA6ValidatorTest {
 
         MonitoredSystemStatus status1 = MonitoredSystemStatus.findStatus(true, false, false);
         MonitoredSystem system1 = new MonitoredSystem(AC_SYSTEM_REFRIGERANT.getName(), status1, 0,
-                AC_SYSTEM_REFRIGERANT);
+                                                      AC_SYSTEM_REFRIGERANT, true);
 
         MonitoredSystemStatus status2 = MonitoredSystemStatus.findStatus(true, true, true);
         MonitoredSystem system2 = new MonitoredSystem(BOOST_PRESSURE_CONTROL_SYS.getName(), status2, 0x00,
-                BOOST_PRESSURE_CONTROL_SYS);
+                                                      BOOST_PRESSURE_CONTROL_SYS, true);
 
         MonitoredSystemStatus status3 = MonitoredSystemStatus.findStatus(true, false, false);
-        MonitoredSystem system3 = new MonitoredSystem(CATALYST.getName(), status3, 0x00, CATALYST);
+        MonitoredSystem system3 = new MonitoredSystem(CATALYST.getName(), status3, 0x00, CATALYST, true);
 
         MonitoredSystemStatus status4 = MonitoredSystemStatus.findStatus(false, true, true);
         MonitoredSystem system4 = new MonitoredSystem(COLD_START_AID_SYSTEM.getName(), status4, 0x00,
-                COLD_START_AID_SYSTEM);
+                                                      COLD_START_AID_SYSTEM, true);
 
         MonitoredSystemStatus status5 = MonitoredSystemStatus.findStatus(true, true, true);
         MonitoredSystem system5 = new MonitoredSystem(COMPREHENSIVE_COMPONENT.getName(), status5, 0x00,
-                COMPREHENSIVE_COMPONENT);
+                                                      COMPREHENSIVE_COMPONENT, true);
 
         MonitoredSystemStatus status6 = MonitoredSystemStatus.findStatus(true, true, true);
         MonitoredSystem system6 = new MonitoredSystem(DIESEL_PARTICULATE_FILTER.getName(), status6, 0x00,
-                DIESEL_PARTICULATE_FILTER);
+                                                      DIESEL_PARTICULATE_FILTER, true);
 
         MonitoredSystemStatus status7 = MonitoredSystemStatus.findStatus(true, true, true);
-        MonitoredSystem system7 = new MonitoredSystem(EGR_VVT_SYSTEM.getName(), status7, 0x00, EGR_VVT_SYSTEM);
+        MonitoredSystem system7 = new MonitoredSystem(EGR_VVT_SYSTEM.getName(), status7, 0x00, EGR_VVT_SYSTEM, true);
 
         MonitoredSystemStatus status8 = MonitoredSystemStatus.findStatus(true, false, false);
-        MonitoredSystem system8 = new MonitoredSystem(EVAPORATIVE_SYSTEM.getName(), status8, 0x00, EVAPORATIVE_SYSTEM);
+        MonitoredSystem system8 = new MonitoredSystem(EVAPORATIVE_SYSTEM.getName(), status8, 0x00, EVAPORATIVE_SYSTEM,
+                                                      true);
 
         MonitoredSystemStatus status9 = MonitoredSystemStatus.findStatus(true, true, true);
-        MonitoredSystem system9 = new MonitoredSystem(EXHAUST_GAS_SENSOR.getName(), status9, 0x00, EXHAUST_GAS_SENSOR);
+        MonitoredSystem system9 = new MonitoredSystem(EXHAUST_GAS_SENSOR.getName(), status9, 0x00, EXHAUST_GAS_SENSOR,
+                                                      true);
 
         MonitoredSystemStatus status10 = MonitoredSystemStatus.findStatus(false, true, true);
         MonitoredSystem system10 = new MonitoredSystem(EXHAUST_GAS_SENSOR_HEATER.getName(), status10, 0x00,
-                EXHAUST_GAS_SENSOR_HEATER);
+                                                       EXHAUST_GAS_SENSOR_HEATER, true);
 
         MonitoredSystemStatus status11 = MonitoredSystemStatus.findStatus(false, true, true);
-        MonitoredSystem system11 = new MonitoredSystem(FUEL_SYSTEM.getName(), status11, 0x00, FUEL_SYSTEM);
+        MonitoredSystem system11 = new MonitoredSystem(FUEL_SYSTEM.getName(), status11, 0x00, FUEL_SYSTEM, true);
 
         MonitoredSystemStatus status12 = MonitoredSystemStatus.findStatus(false, false, false);
-        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST.getName(), status12, 0x00, HEATED_CATALYST);
+        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST.getName(), status12, 0x00, HEATED_CATALYST, true);
 
         MonitoredSystemStatus status13 = MonitoredSystemStatus.findStatus(false, true, true);
-        MonitoredSystem system13 = new MonitoredSystem(MISFIRE.getName(), status13, 0x00, MISFIRE);
+        MonitoredSystem system13 = new MonitoredSystem(MISFIRE.getName(), status13, 0x00, MISFIRE, true);
 
         MonitoredSystemStatus status14 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system14 = new MonitoredSystem(NMHC_CONVERTING_CATALYST.getName(), status14, 0x00,
-                NMHC_CONVERTING_CATALYST);
+                                                       NMHC_CONVERTING_CATALYST, true);
 
         MonitoredSystemStatus status15 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system15 = new MonitoredSystem(NOX_CATALYST_ABSORBER.getName(), status15, 0x00,
-                NOX_CATALYST_ABSORBER);
+                                                       NOX_CATALYST_ABSORBER, true);
 
         MonitoredSystemStatus status16 = MonitoredSystemStatus.findStatus(false, false, false);
         MonitoredSystem system16 = new MonitoredSystem(SECONDARY_AIR_SYSTEM.getName(), status16, 0x00,
-                SECONDARY_AIR_SYSTEM);
+                                                       SECONDARY_AIR_SYSTEM, true);
 
         systems.add(system1);
         systems.add(system2);
@@ -267,60 +269,62 @@ public class TableA6ValidatorTest {
 
         MonitoredSystemStatus status1 = MonitoredSystemStatus.findStatus(true, false, false);
         MonitoredSystem system1 = new MonitoredSystem(AC_SYSTEM_REFRIGERANT.getName(), status1, 0,
-                AC_SYSTEM_REFRIGERANT);
+                                                      AC_SYSTEM_REFRIGERANT, true);
 
         MonitoredSystemStatus status2 = MonitoredSystemStatus.findStatus(true, true, true);
         MonitoredSystem system2 = new MonitoredSystem(BOOST_PRESSURE_CONTROL_SYS.getName(), status2, 0x00,
-                BOOST_PRESSURE_CONTROL_SYS);
+                                                      BOOST_PRESSURE_CONTROL_SYS, true);
 
         MonitoredSystemStatus status3 = MonitoredSystemStatus.findStatus(true, false, false);
-        MonitoredSystem system3 = new MonitoredSystem(CATALYST.getName(), status3, 0x00, CATALYST);
+        MonitoredSystem system3 = new MonitoredSystem(CATALYST.getName(), status3, 0x00, CATALYST, true);
 
         MonitoredSystemStatus status4 = MonitoredSystemStatus.findStatus(false, true, true);
         MonitoredSystem system4 = new MonitoredSystem(COLD_START_AID_SYSTEM.getName(), status4, 0x00,
-                COLD_START_AID_SYSTEM);
+                                                      COLD_START_AID_SYSTEM, true);
 
         MonitoredSystemStatus status5 = MonitoredSystemStatus.findStatus(true, true, true);
         MonitoredSystem system5 = new MonitoredSystem(COMPREHENSIVE_COMPONENT.getName(), status5, 0x00,
-                COMPREHENSIVE_COMPONENT);
+                                                      COMPREHENSIVE_COMPONENT, true);
 
         MonitoredSystemStatus status6 = MonitoredSystemStatus.findStatus(true, true, true);
         MonitoredSystem system6 = new MonitoredSystem(DIESEL_PARTICULATE_FILTER.getName(), status6, 0x00,
-                DIESEL_PARTICULATE_FILTER);
+                                                      DIESEL_PARTICULATE_FILTER, true);
 
         MonitoredSystemStatus status7 = MonitoredSystemStatus.findStatus(true, true, true);
-        MonitoredSystem system7 = new MonitoredSystem(EGR_VVT_SYSTEM.getName(), status7, 0x00, EGR_VVT_SYSTEM);
+        MonitoredSystem system7 = new MonitoredSystem(EGR_VVT_SYSTEM.getName(), status7, 0x00, EGR_VVT_SYSTEM, true);
 
         MonitoredSystemStatus status8 = MonitoredSystemStatus.findStatus(true, false, false);
-        MonitoredSystem system8 = new MonitoredSystem(EVAPORATIVE_SYSTEM.getName(), status8, 0x00, EVAPORATIVE_SYSTEM);
+        MonitoredSystem system8 = new MonitoredSystem(EVAPORATIVE_SYSTEM.getName(), status8, 0x00, EVAPORATIVE_SYSTEM,
+                                                      true);
 
         MonitoredSystemStatus status9 = MonitoredSystemStatus.findStatus(true, true, true);
-        MonitoredSystem system9 = new MonitoredSystem(EXHAUST_GAS_SENSOR.getName(), status9, 0x00, EXHAUST_GAS_SENSOR);
+        MonitoredSystem system9 = new MonitoredSystem(EXHAUST_GAS_SENSOR.getName(), status9, 0x00, EXHAUST_GAS_SENSOR,
+                                                      true);
 
         MonitoredSystemStatus status10 = MonitoredSystemStatus.findStatus(false, false, false);
         MonitoredSystem system10 = new MonitoredSystem(EXHAUST_GAS_SENSOR_HEATER.getName(), status10, 0x00,
-                EXHAUST_GAS_SENSOR_HEATER);
+                                                       EXHAUST_GAS_SENSOR_HEATER, true);
 
         MonitoredSystemStatus status11 = MonitoredSystemStatus.findStatus(false, true, true);
-        MonitoredSystem system11 = new MonitoredSystem(FUEL_SYSTEM.getName(), status11, 0x00, FUEL_SYSTEM);
+        MonitoredSystem system11 = new MonitoredSystem(FUEL_SYSTEM.getName(), status11, 0x00, FUEL_SYSTEM, true);
 
         MonitoredSystemStatus status12 = MonitoredSystemStatus.findStatus(false, false, false);
-        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST.getName(), status12, 0x00, HEATED_CATALYST);
+        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST.getName(), status12, 0x00, HEATED_CATALYST, true);
 
         MonitoredSystemStatus status13 = MonitoredSystemStatus.findStatus(false, false, false);
-        MonitoredSystem system13 = new MonitoredSystem(MISFIRE.getName(), status13, 0x00, MISFIRE);
+        MonitoredSystem system13 = new MonitoredSystem(MISFIRE.getName(), status13, 0x00, MISFIRE, true);
 
         MonitoredSystemStatus status14 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system14 = new MonitoredSystem(NMHC_CONVERTING_CATALYST.getName(), status14, 0x00,
-                NMHC_CONVERTING_CATALYST);
+                                                       NMHC_CONVERTING_CATALYST, true);
 
         MonitoredSystemStatus status15 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system15 = new MonitoredSystem(NOX_CATALYST_ABSORBER.getName(), status15, 0x00,
-                NOX_CATALYST_ABSORBER);
+                                                       NOX_CATALYST_ABSORBER, true);
 
         MonitoredSystemStatus status16 = MonitoredSystemStatus.findStatus(false, false, false);
         MonitoredSystem system16 = new MonitoredSystem(SECONDARY_AIR_SYSTEM.getName(), status16, 0x00,
-                SECONDARY_AIR_SYSTEM);
+                                                       SECONDARY_AIR_SYSTEM, true);
 
         systems.add(system1);
         systems.add(system2);
@@ -418,60 +422,62 @@ public class TableA6ValidatorTest {
 
         MonitoredSystemStatus status1 = MonitoredSystemStatus.findStatus(true, true, false);
         MonitoredSystem system1 = new MonitoredSystem(AC_SYSTEM_REFRIGERANT.getName(), status1, 0,
-                AC_SYSTEM_REFRIGERANT);
+                                                      AC_SYSTEM_REFRIGERANT, true);
 
         MonitoredSystemStatus status2 = MonitoredSystemStatus.findStatus(true, true, false);
         MonitoredSystem system2 = new MonitoredSystem(BOOST_PRESSURE_CONTROL_SYS.getName(), status2, 0x00,
-                BOOST_PRESSURE_CONTROL_SYS);
+                                                      BOOST_PRESSURE_CONTROL_SYS, true);
 
         MonitoredSystemStatus status3 = MonitoredSystemStatus.findStatus(true, true, false);
-        MonitoredSystem system3 = new MonitoredSystem(CATALYST.getName(), status3, 0x00, CATALYST);
+        MonitoredSystem system3 = new MonitoredSystem(CATALYST.getName(), status3, 0x00, CATALYST, true);
 
         MonitoredSystemStatus status4 = MonitoredSystemStatus.findStatus(false, false, true);
         MonitoredSystem system4 = new MonitoredSystem(COLD_START_AID_SYSTEM.getName(), status4, 0x00,
-                COLD_START_AID_SYSTEM);
+                                                      COLD_START_AID_SYSTEM, true);
 
         MonitoredSystemStatus status5 = MonitoredSystemStatus.findStatus(true, false, true);
         MonitoredSystem system5 = new MonitoredSystem(COMPREHENSIVE_COMPONENT.getName(), status5, 0x00,
-                COMPREHENSIVE_COMPONENT);
+                                                      COMPREHENSIVE_COMPONENT, true);
 
         MonitoredSystemStatus status6 = MonitoredSystemStatus.findStatus(true, false, true);
         MonitoredSystem system6 = new MonitoredSystem(DIESEL_PARTICULATE_FILTER.getName(), status6, 0x00,
-                DIESEL_PARTICULATE_FILTER);
+                                                      DIESEL_PARTICULATE_FILTER, true);
 
         MonitoredSystemStatus status7 = MonitoredSystemStatus.findStatus(true, false, true);
-        MonitoredSystem system7 = new MonitoredSystem(EGR_VVT_SYSTEM.getName(), status7, 0x00, EGR_VVT_SYSTEM);
+        MonitoredSystem system7 = new MonitoredSystem(EGR_VVT_SYSTEM.getName(), status7, 0x00, EGR_VVT_SYSTEM, true);
 
         MonitoredSystemStatus status8 = MonitoredSystemStatus.findStatus(true, false, true);
-        MonitoredSystem system8 = new MonitoredSystem(EVAPORATIVE_SYSTEM.getName(), status8, 0x00, EVAPORATIVE_SYSTEM);
+        MonitoredSystem system8 = new MonitoredSystem(EVAPORATIVE_SYSTEM.getName(), status8, 0x00, EVAPORATIVE_SYSTEM,
+                                                      true);
 
         MonitoredSystemStatus status9 = MonitoredSystemStatus.findStatus(true, false, true);
-        MonitoredSystem system9 = new MonitoredSystem(EXHAUST_GAS_SENSOR.getName(), status9, 0x00, EXHAUST_GAS_SENSOR);
+        MonitoredSystem system9 = new MonitoredSystem(EXHAUST_GAS_SENSOR.getName(), status9, 0x00, EXHAUST_GAS_SENSOR,
+                                                      true);
 
         MonitoredSystemStatus status10 = MonitoredSystemStatus.findStatus(false, false, true);
         MonitoredSystem system10 = new MonitoredSystem(EXHAUST_GAS_SENSOR_HEATER.getName(), status10, 0x00,
-                EXHAUST_GAS_SENSOR_HEATER);
+                                                       EXHAUST_GAS_SENSOR_HEATER, true);
 
         MonitoredSystemStatus status11 = MonitoredSystemStatus.findStatus(false, true, false);
-        MonitoredSystem system11 = new MonitoredSystem(FUEL_SYSTEM.getName(), status11, 0x00, FUEL_SYSTEM);
+        MonitoredSystem system11 = new MonitoredSystem(FUEL_SYSTEM.getName(), status11, 0x00, FUEL_SYSTEM, true);
 
         MonitoredSystemStatus status12 = MonitoredSystemStatus.findStatus(false, true, false);
-        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST.getName(), status12, 0x00, HEATED_CATALYST);
+        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST.getName(), status12, 0x00, HEATED_CATALYST, true);
 
         MonitoredSystemStatus status13 = MonitoredSystemStatus.findStatus(false, true, false);
-        MonitoredSystem system13 = new MonitoredSystem(MISFIRE.getName(), status13, 0x00, MISFIRE);
+        MonitoredSystem system13 = new MonitoredSystem(MISFIRE.getName(), status13, 0x00, MISFIRE, true);
 
         MonitoredSystemStatus status14 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system14 = new MonitoredSystem(NMHC_CONVERTING_CATALYST.getName(), status14, 0x00,
-                NMHC_CONVERTING_CATALYST);
+                                                       NMHC_CONVERTING_CATALYST, true);
 
         MonitoredSystemStatus status15 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system15 = new MonitoredSystem(NOX_CATALYST_ABSORBER.getName(), status15, 0x00,
-                NOX_CATALYST_ABSORBER);
+                                                       NOX_CATALYST_ABSORBER, true);
 
         MonitoredSystemStatus status16 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system16 = new MonitoredSystem(SECONDARY_AIR_SYSTEM.getName(), status16, 0x00,
-                SECONDARY_AIR_SYSTEM);
+                                                       SECONDARY_AIR_SYSTEM, true);
 
         systems.add(system1);
         systems.add(system2);
@@ -568,60 +574,62 @@ public class TableA6ValidatorTest {
 
         MonitoredSystemStatus status1 = MonitoredSystemStatus.findStatus(true, true, false);
         MonitoredSystem system1 = new MonitoredSystem(AC_SYSTEM_REFRIGERANT.getName(), status1, 0,
-                AC_SYSTEM_REFRIGERANT);
+                                                      AC_SYSTEM_REFRIGERANT, true);
 
         MonitoredSystemStatus status2 = MonitoredSystemStatus.findStatus(true, true, false);
         MonitoredSystem system2 = new MonitoredSystem(BOOST_PRESSURE_CONTROL_SYS.getName(), status2, 0x00,
-                BOOST_PRESSURE_CONTROL_SYS);
+                                                      BOOST_PRESSURE_CONTROL_SYS, true);
 
         MonitoredSystemStatus status3 = MonitoredSystemStatus.findStatus(true, true, false);
-        MonitoredSystem system3 = new MonitoredSystem(CATALYST.getName(), status3, 0x00, CATALYST);
+        MonitoredSystem system3 = new MonitoredSystem(CATALYST.getName(), status3, 0x00, CATALYST, true);
 
         MonitoredSystemStatus status4 = MonitoredSystemStatus.findStatus(false, false, true);
         MonitoredSystem system4 = new MonitoredSystem(COLD_START_AID_SYSTEM.getName(), status4, 0x00,
-                COLD_START_AID_SYSTEM);
+                                                      COLD_START_AID_SYSTEM, true);
 
         MonitoredSystemStatus status5 = MonitoredSystemStatus.findStatus(true, false, true);
         MonitoredSystem system5 = new MonitoredSystem(COMPREHENSIVE_COMPONENT.getName(), status5, 0x00,
-                COMPREHENSIVE_COMPONENT);
+                                                      COMPREHENSIVE_COMPONENT, true);
 
         MonitoredSystemStatus status6 = MonitoredSystemStatus.findStatus(true, false, true);
         MonitoredSystem system6 = new MonitoredSystem(DIESEL_PARTICULATE_FILTER.getName(), status6, 0x00,
-                DIESEL_PARTICULATE_FILTER);
+                                                      DIESEL_PARTICULATE_FILTER, true);
 
         MonitoredSystemStatus status7 = MonitoredSystemStatus.findStatus(true, false, true);
-        MonitoredSystem system7 = new MonitoredSystem(EGR_VVT_SYSTEM.getName(), status7, 0x00, EGR_VVT_SYSTEM);
+        MonitoredSystem system7 = new MonitoredSystem(EGR_VVT_SYSTEM.getName(), status7, 0x00, EGR_VVT_SYSTEM, true);
 
         MonitoredSystemStatus status8 = MonitoredSystemStatus.findStatus(true, false, true);
-        MonitoredSystem system8 = new MonitoredSystem(EVAPORATIVE_SYSTEM.getName(), status8, 0x00, EVAPORATIVE_SYSTEM);
+        MonitoredSystem system8 = new MonitoredSystem(EVAPORATIVE_SYSTEM.getName(), status8, 0x00, EVAPORATIVE_SYSTEM,
+                                                      true);
 
         MonitoredSystemStatus status9 = MonitoredSystemStatus.findStatus(true, false, true);
-        MonitoredSystem system9 = new MonitoredSystem(EXHAUST_GAS_SENSOR.getName(), status9, 0x00, EXHAUST_GAS_SENSOR);
+        MonitoredSystem system9 = new MonitoredSystem(EXHAUST_GAS_SENSOR.getName(), status9, 0x00, EXHAUST_GAS_SENSOR,
+                                                      true);
 
         MonitoredSystemStatus status10 = MonitoredSystemStatus.findStatus(false, false, true);
         MonitoredSystem system10 = new MonitoredSystem(EXHAUST_GAS_SENSOR_HEATER.getName(), status10, 0x00,
-                EXHAUST_GAS_SENSOR_HEATER);
+                                                       EXHAUST_GAS_SENSOR_HEATER, true);
 
         MonitoredSystemStatus status11 = MonitoredSystemStatus.findStatus(false, true, false);
-        MonitoredSystem system11 = new MonitoredSystem(FUEL_SYSTEM.getName(), status11, 0x00, FUEL_SYSTEM);
+        MonitoredSystem system11 = new MonitoredSystem(FUEL_SYSTEM.getName(), status11, 0x00, FUEL_SYSTEM, true);
 
         MonitoredSystemStatus status12 = MonitoredSystemStatus.findStatus(false, true, false);
-        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST.getName(), status12, 0x00, HEATED_CATALYST);
+        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST.getName(), status12, 0x00, HEATED_CATALYST, true);
 
         MonitoredSystemStatus status13 = MonitoredSystemStatus.findStatus(false, true, false);
-        MonitoredSystem system13 = new MonitoredSystem(MISFIRE.getName(), status13, 0x00, MISFIRE);
+        MonitoredSystem system13 = new MonitoredSystem(MISFIRE.getName(), status13, 0x00, MISFIRE, true);
 
         MonitoredSystemStatus status14 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system14 = new MonitoredSystem(NMHC_CONVERTING_CATALYST.getName(), status14, 0x00,
-                NMHC_CONVERTING_CATALYST);
+                                                       NMHC_CONVERTING_CATALYST, true);
 
         MonitoredSystemStatus status15 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system15 = new MonitoredSystem(NOX_CATALYST_ABSORBER.getName(), status15, 0x00,
-                NOX_CATALYST_ABSORBER);
+                                                       NOX_CATALYST_ABSORBER, true);
 
         MonitoredSystemStatus status16 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system16 = new MonitoredSystem(SECONDARY_AIR_SYSTEM.getName(), status16, 0x00,
-                SECONDARY_AIR_SYSTEM);
+                                                       SECONDARY_AIR_SYSTEM, true);
 
         systems.add(system1);
         systems.add(system2);
@@ -738,60 +746,62 @@ public class TableA6ValidatorTest {
 
         MonitoredSystemStatus status1 = MonitoredSystemStatus.findStatus(true, false, false);
         MonitoredSystem system1 = new MonitoredSystem(AC_SYSTEM_REFRIGERANT.getName(), status1, 0,
-                AC_SYSTEM_REFRIGERANT);
+                                                      AC_SYSTEM_REFRIGERANT, true);
 
         MonitoredSystemStatus status2 = MonitoredSystemStatus.findStatus(true, true, true);
         MonitoredSystem system2 = new MonitoredSystem(BOOST_PRESSURE_CONTROL_SYS.getName(), status2, 0x00,
-                BOOST_PRESSURE_CONTROL_SYS);
+                                                      BOOST_PRESSURE_CONTROL_SYS, true);
 
         MonitoredSystemStatus status3 = MonitoredSystemStatus.findStatus(true, true, true);
-        MonitoredSystem system3 = new MonitoredSystem(CATALYST.getName(), status3, 0x00, CATALYST);
+        MonitoredSystem system3 = new MonitoredSystem(CATALYST.getName(), status3, 0x00, CATALYST, true);
 
         MonitoredSystemStatus status4 = MonitoredSystemStatus.findStatus(false, true, true);
         MonitoredSystem system4 = new MonitoredSystem(COLD_START_AID_SYSTEM.getName(), status4, 0x00,
-                COLD_START_AID_SYSTEM);
+                                                      COLD_START_AID_SYSTEM, true);
 
         MonitoredSystemStatus status5 = MonitoredSystemStatus.findStatus(true, true, true);
         MonitoredSystem system5 = new MonitoredSystem(COMPREHENSIVE_COMPONENT.getName(), status5, 0x00,
-                COMPREHENSIVE_COMPONENT);
+                                                      COMPREHENSIVE_COMPONENT, true);
 
         MonitoredSystemStatus status6 = MonitoredSystemStatus.findStatus(true, false, false);
         MonitoredSystem system6 = new MonitoredSystem(DIESEL_PARTICULATE_FILTER.getName(), status6, 0x00,
-                DIESEL_PARTICULATE_FILTER);
+                                                      DIESEL_PARTICULATE_FILTER, true);
 
         MonitoredSystemStatus status7 = MonitoredSystemStatus.findStatus(true, true, true);
-        MonitoredSystem system7 = new MonitoredSystem(EGR_VVT_SYSTEM.getName(), status7, 0x00, EGR_VVT_SYSTEM);
+        MonitoredSystem system7 = new MonitoredSystem(EGR_VVT_SYSTEM.getName(), status7, 0x00, EGR_VVT_SYSTEM, true);
 
         MonitoredSystemStatus status8 = MonitoredSystemStatus.findStatus(true, true, true);
-        MonitoredSystem system8 = new MonitoredSystem(EVAPORATIVE_SYSTEM.getName(), status8, 0x00, EVAPORATIVE_SYSTEM);
+        MonitoredSystem system8 = new MonitoredSystem(EVAPORATIVE_SYSTEM.getName(), status8, 0x00, EVAPORATIVE_SYSTEM,
+                                                      true);
 
         MonitoredSystemStatus status9 = MonitoredSystemStatus.findStatus(true, true, true);
-        MonitoredSystem system9 = new MonitoredSystem(EXHAUST_GAS_SENSOR.getName(), status9, 0x00, EXHAUST_GAS_SENSOR);
+        MonitoredSystem system9 = new MonitoredSystem(EXHAUST_GAS_SENSOR.getName(), status9, 0x00, EXHAUST_GAS_SENSOR,
+                                                      true);
 
         MonitoredSystemStatus status10 = MonitoredSystemStatus.findStatus(false, false, false);
         MonitoredSystem system10 = new MonitoredSystem(EXHAUST_GAS_SENSOR_HEATER.getName(), status10, 0x00,
-                EXHAUST_GAS_SENSOR_HEATER);
+                                                       EXHAUST_GAS_SENSOR_HEATER, true);
 
         MonitoredSystemStatus status11 = MonitoredSystemStatus.findStatus(true, true, true);
-        MonitoredSystem system11 = new MonitoredSystem(FUEL_SYSTEM.getName(), status11, 0x00, FUEL_SYSTEM);
+        MonitoredSystem system11 = new MonitoredSystem(FUEL_SYSTEM.getName(), status11, 0x00, FUEL_SYSTEM, true);
 
         MonitoredSystemStatus status12 = MonitoredSystemStatus.findStatus(false, true, true);
-        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST.getName(), status12, 0x00, HEATED_CATALYST);
+        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST.getName(), status12, 0x00, HEATED_CATALYST, true);
 
         MonitoredSystemStatus status13 = MonitoredSystemStatus.findStatus(false, false, false);
-        MonitoredSystem system13 = new MonitoredSystem(MISFIRE.getName(), status13, 0x00, MISFIRE);
+        MonitoredSystem system13 = new MonitoredSystem(MISFIRE.getName(), status13, 0x00, MISFIRE, true);
 
         MonitoredSystemStatus status14 = MonitoredSystemStatus.findStatus(false, false, false);
         MonitoredSystem system14 = new MonitoredSystem(NMHC_CONVERTING_CATALYST.getName(), status14, 0x00,
-                NMHC_CONVERTING_CATALYST);
+                                                       NMHC_CONVERTING_CATALYST, true);
 
         MonitoredSystemStatus status15 = MonitoredSystemStatus.findStatus(false, false, false);
         MonitoredSystem system15 = new MonitoredSystem(NOX_CATALYST_ABSORBER.getName(), status15, 0x00,
-                NOX_CATALYST_ABSORBER);
+                                                       NOX_CATALYST_ABSORBER, true);
 
         MonitoredSystemStatus status16 = MonitoredSystemStatus.findStatus(false, false, false);
         MonitoredSystem system16 = new MonitoredSystem(SECONDARY_AIR_SYSTEM.getName(), status16, 0x00,
-                SECONDARY_AIR_SYSTEM);
+                                                       SECONDARY_AIR_SYSTEM, true);
 
         systems.add(system1);
         systems.add(system2);
@@ -890,60 +900,62 @@ public class TableA6ValidatorTest {
 
         MonitoredSystemStatus status1 = MonitoredSystemStatus.findStatus(true, true, false);
         MonitoredSystem system1 = new MonitoredSystem(AC_SYSTEM_REFRIGERANT.getName(), status1, 0,
-                AC_SYSTEM_REFRIGERANT);
+                                                      AC_SYSTEM_REFRIGERANT, true);
 
         MonitoredSystemStatus status2 = MonitoredSystemStatus.findStatus(true, false, true);
         MonitoredSystem system2 = new MonitoredSystem(BOOST_PRESSURE_CONTROL_SYS.getName(), status2, 0x00,
-                BOOST_PRESSURE_CONTROL_SYS);
+                                                      BOOST_PRESSURE_CONTROL_SYS, true);
 
         MonitoredSystemStatus status3 = MonitoredSystemStatus.findStatus(true, false, true);
-        MonitoredSystem system3 = new MonitoredSystem(CATALYST.getName(), status3, 0x00, CATALYST);
+        MonitoredSystem system3 = new MonitoredSystem(CATALYST.getName(), status3, 0x00, CATALYST, true);
 
         MonitoredSystemStatus status4 = MonitoredSystemStatus.findStatus(false, false, true);
         MonitoredSystem system4 = new MonitoredSystem(COLD_START_AID_SYSTEM.getName(), status4, 0x00,
-                COLD_START_AID_SYSTEM);
+                                                      COLD_START_AID_SYSTEM, true);
 
         MonitoredSystemStatus status5 = MonitoredSystemStatus.findStatus(true, false, true);
         MonitoredSystem system5 = new MonitoredSystem(COMPREHENSIVE_COMPONENT.getName(), status5, 0x00,
-                COMPREHENSIVE_COMPONENT);
+                                                      COMPREHENSIVE_COMPONENT, true);
 
         MonitoredSystemStatus status6 = MonitoredSystemStatus.findStatus(true, true, false);
         MonitoredSystem system6 = new MonitoredSystem(DIESEL_PARTICULATE_FILTER.getName(), status6, 0x00,
-                DIESEL_PARTICULATE_FILTER);
+                                                      DIESEL_PARTICULATE_FILTER, true);
 
         MonitoredSystemStatus status7 = MonitoredSystemStatus.findStatus(true, false, true);
-        MonitoredSystem system7 = new MonitoredSystem(EGR_VVT_SYSTEM.getName(), status7, 0x00, EGR_VVT_SYSTEM);
+        MonitoredSystem system7 = new MonitoredSystem(EGR_VVT_SYSTEM.getName(), status7, 0x00, EGR_VVT_SYSTEM, true);
 
         MonitoredSystemStatus status8 = MonitoredSystemStatus.findStatus(true, false, true);
-        MonitoredSystem system8 = new MonitoredSystem(EVAPORATIVE_SYSTEM.getName(), status8, 0x00, EVAPORATIVE_SYSTEM);
+        MonitoredSystem system8 = new MonitoredSystem(EVAPORATIVE_SYSTEM.getName(), status8, 0x00, EVAPORATIVE_SYSTEM,
+                                                      true);
 
         MonitoredSystemStatus status9 = MonitoredSystemStatus.findStatus(true, false, true);
-        MonitoredSystem system9 = new MonitoredSystem(EXHAUST_GAS_SENSOR.getName(), status9, 0x00, EXHAUST_GAS_SENSOR);
+        MonitoredSystem system9 = new MonitoredSystem(EXHAUST_GAS_SENSOR.getName(), status9, 0x00, EXHAUST_GAS_SENSOR,
+                                                      true);
 
         MonitoredSystemStatus status10 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system10 = new MonitoredSystem(EXHAUST_GAS_SENSOR_HEATER.getName(), status10, 0x00,
-                EXHAUST_GAS_SENSOR_HEATER);
+                                                       EXHAUST_GAS_SENSOR_HEATER, true);
 
         MonitoredSystemStatus status11 = MonitoredSystemStatus.findStatus(false, true, false);
-        MonitoredSystem system11 = new MonitoredSystem(FUEL_SYSTEM.getName(), status11, 0x00, FUEL_SYSTEM);
+        MonitoredSystem system11 = new MonitoredSystem(FUEL_SYSTEM.getName(), status11, 0x00, FUEL_SYSTEM, true);
 
         MonitoredSystemStatus status12 = MonitoredSystemStatus.findStatus(false, true, false);
-        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST.getName(), status12, 0x00, HEATED_CATALYST);
+        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST.getName(), status12, 0x00, HEATED_CATALYST, true);
 
         MonitoredSystemStatus status13 = MonitoredSystemStatus.findStatus(false, true, false);
-        MonitoredSystem system13 = new MonitoredSystem(MISFIRE.getName(), status13, 0x00, MISFIRE);
+        MonitoredSystem system13 = new MonitoredSystem(MISFIRE.getName(), status13, 0x00, MISFIRE, true);
 
         MonitoredSystemStatus status14 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system14 = new MonitoredSystem(NMHC_CONVERTING_CATALYST.getName(), status14, 0x00,
-                NMHC_CONVERTING_CATALYST);
+                                                       NMHC_CONVERTING_CATALYST, true);
 
         MonitoredSystemStatus status15 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system15 = new MonitoredSystem(NOX_CATALYST_ABSORBER.getName(), status15, 0x00,
-                NOX_CATALYST_ABSORBER);
+                                                       NOX_CATALYST_ABSORBER, true);
 
         MonitoredSystemStatus status16 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system16 = new MonitoredSystem(SECONDARY_AIR_SYSTEM.getName(), status16, 0x00,
-                SECONDARY_AIR_SYSTEM);
+                                                       SECONDARY_AIR_SYSTEM, true);
 
         systems.add(system1);
         systems.add(system2);

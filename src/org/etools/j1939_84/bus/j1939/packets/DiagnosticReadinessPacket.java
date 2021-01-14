@@ -1,14 +1,28 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.AC_SYSTEM_REFRIGERANT;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.BOOST_PRESSURE_CONTROL_SYS;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.CATALYST;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.COLD_START_AID_SYSTEM;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.DIESEL_PARTICULATE_FILTER;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EGR_VVT_SYSTEM;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EVAPORATIVE_SYSTEM;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EXHAUST_GAS_SENSOR;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EXHAUST_GAS_SENSOR_HEATER;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.HEATED_CATALYST;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.NMHC_CONVERTING_CATALYST;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.NOX_CATALYST_ABSORBER;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.SECONDARY_AIR_SYSTEM;
+
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 
@@ -16,7 +30,6 @@ import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
  * A Super class for Diagnostic Readiness Packets
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public abstract class DiagnosticReadinessPacket extends GenericPacket {
 
@@ -31,7 +44,7 @@ public abstract class DiagnosticReadinessPacket extends GenericPacket {
         boolean notCompleted = (getByte(3) & completedMask) == completedMask;
         boolean supported = isOBDModule() && (getByte(3) & supportedMask) == supportedMask;
         MonitoredSystemStatus status = MonitoredSystemStatus.findStatus(isDM5(), supported, !notCompleted);
-        return new MonitoredSystem(name, status, getSourceAddress(), compositeSystem);
+        return new MonitoredSystem(name, status, getSourceAddress(), compositeSystem, isDM5());
     }
 
     private MonitoredSystem createNonContinuouslyMonitoredSystem(CompositeSystem compositeSystem) {
@@ -41,7 +54,7 @@ public abstract class DiagnosticReadinessPacket extends GenericPacket {
         boolean notCompleted = (getByte(lowerByte + 2) & mask) == mask;
         boolean supported = isOBDModule() && (getByte(lowerByte) & mask) == mask;
         MonitoredSystemStatus status = MonitoredSystemStatus.findStatus(isDM5(), supported, !notCompleted);
-        return new MonitoredSystem(name, status, getSourceAddress(), compositeSystem);
+        return new MonitoredSystem(name, status, getSourceAddress(), compositeSystem, isDM5());
     }
 
     @Override
@@ -93,32 +106,21 @@ public abstract class DiagnosticReadinessPacket extends GenericPacket {
      */
     public List<MonitoredSystem> getNonContinuouslyMonitoredSystems() {
         List<MonitoredSystem> systems = new ArrayList<>();
-        systems.add(
-                createNonContinuouslyMonitoredSystem(CompositeSystem.EGR_VVT_SYSTEM));
-        systems.add(
-                createNonContinuouslyMonitoredSystem(CompositeSystem.EXHAUST_GAS_SENSOR_HEATER));
-        systems.add(
-                createNonContinuouslyMonitoredSystem(CompositeSystem.EXHAUST_GAS_SENSOR));
-        systems.add(
-                createNonContinuouslyMonitoredSystem(CompositeSystem.AC_SYSTEM_REFRIGERANT));
-        systems.add(
-                createNonContinuouslyMonitoredSystem(CompositeSystem.SECONDARY_AIR_SYSTEM));
-        systems.add(
-                createNonContinuouslyMonitoredSystem(CompositeSystem.EVAPORATIVE_SYSTEM));
-        systems.add(
-                createNonContinuouslyMonitoredSystem(CompositeSystem.HEATED_CATALYST));
-        systems.add(
-                createNonContinuouslyMonitoredSystem(CompositeSystem.CATALYST));
-        systems.add(
-                createNonContinuouslyMonitoredSystem(CompositeSystem.NMHC_CONVERTING_CATALYST));
-        systems.add(
-                createNonContinuouslyMonitoredSystem(CompositeSystem.NOX_CATALYST_ABSORBER));
-        systems.add(
-                createNonContinuouslyMonitoredSystem(CompositeSystem.DIESEL_PARTICULATE_FILTER));
-        systems.add(
-                createNonContinuouslyMonitoredSystem(CompositeSystem.BOOST_PRESSURE_CONTROL_SYS));
-        systems.add(
-                createNonContinuouslyMonitoredSystem(CompositeSystem.COLD_START_AID_SYSTEM));
+        for (CompositeSystem compositeSystem : Arrays.asList(EGR_VVT_SYSTEM,
+                                                             EXHAUST_GAS_SENSOR_HEATER,
+                                                             EXHAUST_GAS_SENSOR,
+                                                             AC_SYSTEM_REFRIGERANT,
+                                                             SECONDARY_AIR_SYSTEM,
+                                                             EVAPORATIVE_SYSTEM,
+                                                             HEATED_CATALYST,
+                                                             CATALYST,
+                                                             NMHC_CONVERTING_CATALYST,
+                                                             NOX_CATALYST_ABSORBER,
+                                                             DIESEL_PARTICULATE_FILTER,
+                                                             BOOST_PRESSURE_CONTROL_SYS,
+                                                             COLD_START_AID_SYSTEM)) {
+            systems.add(createNonContinuouslyMonitoredSystem(compositeSystem));
+        }
 
         return systems;
     }
