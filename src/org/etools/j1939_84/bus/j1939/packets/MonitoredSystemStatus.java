@@ -1,5 +1,5 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
@@ -24,7 +24,7 @@ public interface MonitoredSystemStatus {
      *            true if the monitor is complete
      * @return the {@link MonitoredSystemStatus} that matches the criteria
      */
-    public static MonitoredSystemStatus findStatus(boolean isDm5, boolean enabled, boolean complete) {
+    static MonitoredSystemStatus findStatus(boolean isDm5, boolean enabled, boolean complete) {
         MonitoredSystemStatus[] values = isDm5 ? DM5MonitoredSystemStatus.values() : DM26MonitoredSystemStatus.values();
         return Arrays.stream(values)
                 .filter(s -> s.isEnabled() == enabled && s.isComplete() == complete).findFirst().orElse(null);

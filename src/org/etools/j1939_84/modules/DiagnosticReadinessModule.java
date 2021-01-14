@@ -82,7 +82,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return a List of {@link MonitoredSystem}
      */
     public static List<CompositeMonitoredSystem> getCompositeSystems(Collection<MonitoredSystem> monitoredSystems,
-            boolean isDM5) {
+                                                                     boolean isDM5) {
         Map<CompositeSystem, CompositeMonitoredSystem> map = new HashMap<>();
         for (MonitoredSystem system : monitoredSystems) {
             CompositeSystem key = system.getId();
@@ -109,10 +109,10 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return a {@link List} of {@link MonitoredSystem}s
      */
     public static List<CompositeMonitoredSystem> getCompositeSystems(List<? extends DiagnosticReadinessPacket> packets,
-            boolean isDM5) {
-        return getCompositeSystems(
-                packets.stream().flatMap(p -> p.getMonitoredSystems().stream()).collect(Collectors.toSet()),
-                isDM5);
+                                                                     boolean isDM5) {
+        return getCompositeSystems(packets.stream()
+                                           .flatMap(p -> p.getMonitoredSystems().stream())
+                                           .collect(Collectors.toSet()), isDM5);
     }
 
     /**
@@ -186,12 +186,12 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return the {@link List} of {@link DM20MonitorPerformanceRatioPacket}s
      */
     public List<DM20MonitorPerformanceRatioPacket> getDM20Packets(ResultsListener listener,
-            boolean fullString) {
+                                                                  boolean fullString) {
         return getPacketsFromGlobal("Global DM20 Request",
-                DM20MonitorPerformanceRatioPacket.PGN,
-                DM20MonitorPerformanceRatioPacket.class,
-                listener,
-                fullString).getPackets();
+                                    DM20MonitorPerformanceRatioPacket.PGN,
+                                    DM20MonitorPerformanceRatioPacket.class,
+                                    listener,
+                                    fullString).getPackets();
     }
 
     /**
@@ -209,13 +209,13 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
      */
     public BusResult<DM21DiagnosticReadinessPacket> getDM21Packets(ResultsListener listener, boolean fullString,
-            int obdModuleAddress) {
+                                                                   int obdModuleAddress) {
         return getPacketDS("Destination Specific DM21 Request",
-                DM21DiagnosticReadinessPacket.PGN,
-                DM21DiagnosticReadinessPacket.class,
-                listener,
-                fullString,
-                obdModuleAddress);
+                           DM21DiagnosticReadinessPacket.PGN,
+                           DM21DiagnosticReadinessPacket.class,
+                           listener,
+                           fullString,
+                           obdModuleAddress);
     }
 
     /**
@@ -230,13 +230,13 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return the {@link List} of {@link DM26TripDiagnosticReadinessPacket}s
      */
     public List<DM26TripDiagnosticReadinessPacket> getDM26Packets(ResultsListener listener,
-            boolean fullString) {
+                                                                  boolean fullString) {
 
         return getPacketsFromGlobal("Global DM26 Request",
-                DM26TripDiagnosticReadinessPacket.PGN,
-                DM26TripDiagnosticReadinessPacket.class,
-                listener,
-                fullString).getPackets();
+                                    DM26TripDiagnosticReadinessPacket.PGN,
+                                    DM26TripDiagnosticReadinessPacket.class,
+                                    listener,
+                                    fullString).getPackets();
 
     }
 
@@ -253,10 +253,10 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      */
     public List<DM5DiagnosticReadinessPacket> getDM5Packets(ResultsListener listener, boolean fullString) {
         return getPacketsFromGlobal("Global DM5 Request",
-                DM5DiagnosticReadinessPacket.PGN,
-                DM5DiagnosticReadinessPacket.class,
-                listener,
-                fullString).getPackets();
+                                    DM5DiagnosticReadinessPacket.PGN,
+                                    DM5DiagnosticReadinessPacket.class,
+                                    listener,
+                                    fullString).getPackets();
     }
 
     /**
@@ -400,10 +400,10 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      *         the formatted time when the process ended
      */
     public void reportMonitoredSystems(ResultsListener listener,
-            Collection<MonitoredSystem> initialValues,
-            Collection<MonitoredSystem> finalValues,
-            String initialTime,
-            String finalTime) {
+                                       Collection<MonitoredSystem> initialValues,
+                                       Collection<MonitoredSystem> finalValues,
+                                       String initialTime,
+                                       String finalTime) {
         // By design the total number will always be the same. If they are not,
         // cash in your chips because you can't trust anything
 
@@ -421,9 +421,9 @@ public class DiagnosticReadinessModule extends FunctionalModule {
         listener.onResult(separator);
         listener.onResult("| " + padLeft(padRight("Monitor", 16), 26) + " | Initial Status |  Last Status   |");
         listener.onResult("| " + padRight("", 26) + " | " + padRight("  " + initialDateTime[0], 14) + " | "
-                + padRight("  " + finalDateTime[0], 14) + " |");
+                                  + padRight("  " + finalDateTime[0], 14) + " |");
         listener.onResult("| " + padRight("", 26) + " | " + padRight(" " + initialDateTime[1], 14) + " | "
-                + padRight(" " + finalDateTime[1], 14) + " |");
+                                  + padRight(" " + finalDateTime[1], 14) + " |");
         listener.onResult(separator);
 
         for (int i = 0; i < startSystems.size(); i++) {
@@ -431,7 +431,7 @@ public class DiagnosticReadinessModule extends FunctionalModule {
             MonitoredSystem endSystem = endSystems.get(i);
             boolean diff = endSystem.getStatus() != startSystem.getStatus();
             listener.onResult("|" + (diff ? "*" : " ") + startSystem.getName() + " | " + getPaddedStatus(startSystem)
-                    + " | " + getPaddedStatus(endSystem) + (diff ? "*" : " ") + "|");
+                                      + " | " + getPaddedStatus(endSystem) + (diff ? "*" : " ") + "|");
         }
         listener.onResult(separator);
     }
@@ -464,14 +464,14 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      *         the formatted time when the process ended
      */
     public void reportPerformanceRatios(ResultsListener listener,
-            Collection<PerformanceRatio> initialValues,
-            Collection<PerformanceRatio> finalValues,
-            int initialIgnitionCycles,
-            int finalIgnitionCycles,
-            int initialObdCounts,
-            int finalObdCounts,
-            String initialTime,
-            String finalTime) {
+                                        Collection<PerformanceRatio> initialValues,
+                                        Collection<PerformanceRatio> finalValues,
+                                        int initialIgnitionCycles,
+                                        int finalIgnitionCycles,
+                                        int initialObdCounts,
+                                        int finalObdCounts,
+                                        String initialTime,
+                                        String finalTime) {
 
         // Sorts the lists by Source then by Ratio Name
         Comparator<? super PerformanceRatio> comparator = Comparator.comparing(o -> (o.getSource() + " " + o.getName()));
@@ -503,25 +503,27 @@ public class DiagnosticReadinessModule extends FunctionalModule {
         listener.onResult(separator1);
         listener.onResult("| " + sourceSpace + " | " + nameSpace + " |  Initial Status |   Last Status   |");
         listener.onResult("| " + sourceSpace + " | " + nameSpace + " |    " + initialDateTime[0] + "   |    "
-                + finalDateTime[0] + "   |");
+                                  + finalDateTime[0] + "   |");
         listener.onResult("| " + sourceSpace + " | " + nameSpace + " |   " + initialDateTime[1] + "  |   "
-                + finalDateTime[1] + "  |");
+                                  + finalDateTime[1] + "  |");
         listener.onResult(separator1);
 
         boolean diff = initialIgnitionCycles != finalIgnitionCycles;
         listener.onResult("|" + (diff ? "*" : " ") + sourceSpace + " | " + padRight("Ignition Cycles", nameLen) + " |  "
-                + padLeft("" + initialIgnitionCycles, 14) + " |  " + padLeft("" + finalIgnitionCycles, 13)
-                + (diff ? " *" : "  ") + "|");
+                                  + padLeft("" + initialIgnitionCycles, 14) + " |  " + padLeft("" + finalIgnitionCycles,
+                                                                                               13)
+                                  + (diff ? " *" : "  ") + "|");
 
         diff = initialObdCounts != finalObdCounts;
 
         listener.onResult("|" + (diff ? "*" : " ") + sourceSpace + " | "
-                + padRight("OBD Monitoring Conditions Count", nameLen) + " |  " + padLeft("" + initialObdCounts, 14)
-                + " |  " + padLeft("" + finalObdCounts, 13) + (diff ? " *" : "  ") + "|");
+                                  + padRight("OBD Monitoring Conditions Count",
+                                             nameLen) + " |  " + padLeft("" + initialObdCounts, 14)
+                                  + " |  " + padLeft("" + finalObdCounts, 13) + (diff ? " *" : "  ") + "|");
 
         listener.onResult(separator2);
         listener.onResult("| " + padRight("Src", srcLen) + " | " + padRight("Monitor", nameLen)
-                + " |  Num'r |  Den'r |  Num'r |  Den'r |");
+                                  + " |  Num'r |  Den'r |  Num'r |  Den'r |");
         listener.onResult(separator2);
 
         for (PerformanceRatio ratio1 : startingRatios) {
@@ -569,12 +571,12 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return the {@link List} of {@link DM20MonitorPerformanceRatioPacket}s
      */
     public RequestResult<DM20MonitorPerformanceRatioPacket> requestDM20(ResultsListener listener,
-            boolean fullString) {
+                                                                        boolean fullString) {
         return getPacketsFromGlobal("Global DM20 Request",
-                DM20MonitorPerformanceRatioPacket.PGN,
-                DM20MonitorPerformanceRatioPacket.class,
-                listener,
-                fullString);
+                                    DM20MonitorPerformanceRatioPacket.PGN,
+                                    DM20MonitorPerformanceRatioPacket.class,
+                                    listener,
+                                    fullString);
     }
 
     /**
@@ -589,14 +591,14 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return the {@link List} of {@link DM20MonitorPerformanceRatioPacket}s
      */
     public BusResult<DM20MonitorPerformanceRatioPacket> requestDM20(ResultsListener listener,
-            boolean fullString, int obdAddress) {
+                                                                    boolean fullString, int obdAddress) {
 
         return getPacketDS("Destination Specific DM20 Request to " + getAddressName(obdAddress),
-                DM20MonitorPerformanceRatioPacket.PGN,
-                DM20MonitorPerformanceRatioPacket.class,
-                listener,
-                fullString,
-                obdAddress);
+                           DM20MonitorPerformanceRatioPacket.PGN,
+                           DM20MonitorPerformanceRatioPacket.class,
+                           listener,
+                           fullString,
+                           obdAddress);
     }
 
     /**
@@ -610,12 +612,13 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      *         false to only include the returned raw packet in the report
      * @return the {@link List} of {@link DM21DiagnosticReadinessPacket}s
      */
-    public RequestResult<DM21DiagnosticReadinessPacket> requestDM21Packets(ResultsListener listener, boolean fullString) {
+    public RequestResult<DM21DiagnosticReadinessPacket> requestDM21Packets(ResultsListener listener,
+                                                                           boolean fullString) {
         return getPacketsFromGlobal("Global DM21 Request",
-                DM21DiagnosticReadinessPacket.PGN,
-                DM21DiagnosticReadinessPacket.class,
-                listener,
-                fullString);
+                                    DM21DiagnosticReadinessPacket.PGN,
+                                    DM21DiagnosticReadinessPacket.class,
+                                    listener,
+                                    fullString);
     }
 
     /**
@@ -632,10 +635,10 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     public RequestResult<DM5DiagnosticReadinessPacket> requestDM5(ResultsListener listener, boolean fullString) {
 
         return getPacketsFromGlobal("Global DM5 Request",
-                DM5DiagnosticReadinessPacket.PGN,
-                DM5DiagnosticReadinessPacket.class,
-                listener,
-                fullString);
+                                    DM5DiagnosticReadinessPacket.PGN,
+                                    DM5DiagnosticReadinessPacket.class,
+                                    listener,
+                                    fullString);
     }
 
     /**
@@ -652,14 +655,14 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      * @return the {@link List} of {@link DM5DiagnosticReadinessPacket}s
      */
     public BusResult<DM5DiagnosticReadinessPacket> requestDM5(ResultsListener listener, boolean fullString,
-            int obdAddress) {
+                                                              int obdAddress) {
 
         return getPacketDS("Destination Specific DM5 Request to " + getAddressName(obdAddress),
-                DM5DiagnosticReadinessPacket.PGN,
-                DM5DiagnosticReadinessPacket.class,
-                listener,
-                fullString,
-                obdAddress);
+                           DM5DiagnosticReadinessPacket.PGN,
+                           DM5DiagnosticReadinessPacket.class,
+                           listener,
+                           fullString,
+                           obdAddress);
     }
 
     /**
@@ -675,10 +678,10 @@ public class DiagnosticReadinessModule extends FunctionalModule {
      */
     public RequestResult<DM5DiagnosticReadinessPacket> requestDM5Packets(ResultsListener listener, boolean fullString) {
         List<DM5DiagnosticReadinessPacket> parsedPackets = getPacketsFromGlobal("Global DM5 Request",
-                DM5DiagnosticReadinessPacket.PGN,
-                DM5DiagnosticReadinessPacket.class,
-                listener,
-                fullString)
+                                                                                DM5DiagnosticReadinessPacket.PGN,
+                                                                                DM5DiagnosticReadinessPacket.class,
+                                                                                listener,
+                                                                                fullString)
                 // FIXME this ignores NACKs
                 .getPackets();
 
@@ -692,13 +695,13 @@ public class DiagnosticReadinessModule extends FunctionalModule {
     }
 
     private String rowForDM20(int sourceLength,
-            String source,
-            int nameLength,
-            String name,
-            Integer initialNumerator,
-            Integer initialDenominator,
-            Integer finalNumerator,
-            Integer finalDenominator) {
+                              String source,
+                              int nameLength,
+                              String name,
+                              Integer initialNumerator,
+                              Integer initialDenominator,
+                              Integer finalNumerator,
+                              Integer finalDenominator) {
 
         String iNum = initialNumerator == null ? "" : NumberFormatter.format(initialNumerator);
         String iDem = initialDenominator == null ? "" : NumberFormatter.format(initialDenominator);

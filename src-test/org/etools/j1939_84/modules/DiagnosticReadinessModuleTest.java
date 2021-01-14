@@ -5,7 +5,14 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.AC_SYSTEM_REFRIGERANT;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.BOOST_PRESSURE_CONTROL_SYS;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.CATALYST;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EGR_VVT_SYSTEM;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EXHAUST_GAS_SENSOR;
+import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.EXHAUST_GAS_SENSOR_HEATER;
 import static org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus.findStatus;
+import static org.etools.j1939_84.modules.DiagnosticReadinessModule.getCompositeSystems;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
@@ -17,42 +24,39 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Stream;
-
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
+import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
+import org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
  * Unit tests for the {@link DiagnosticReadinessModule}
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-                    justification = "The values returned are properly ignored on verify statements.")
+        justification = "The values returned are properly ignored on verify statements.")
 @RunWith(MockitoJUnitRunner.class)
 public class DiagnosticReadinessModuleTest {
 
@@ -73,45 +77,32 @@ public class DiagnosticReadinessModuleTest {
         instance.setJ1939(j1939);
     }
 
-    @After
-    public void tearDown() {
-        // verifyNoMoreInteractions(j1939);
-    }
-
     @Test
     public void testGetCompositeSystems() {
         Set<MonitoredSystem> monitoredSystems = new ConcurrentSkipListSet<>();
-        monitoredSystems.add(new MonitoredSystem("System123", findStatus(false, true, true), 1,
-                CompositeSystem.AC_SYSTEM_REFRIGERANT));
-        monitoredSystems.add(new MonitoredSystem("System123", findStatus(false, true, true), 2,
-                CompositeSystem.AC_SYSTEM_REFRIGERANT));
-        monitoredSystems.add(new MonitoredSystem("System123", findStatus(false, true, true), 3,
-                CompositeSystem.AC_SYSTEM_REFRIGERANT));
-        monitoredSystems.add(new MonitoredSystem("System456", findStatus(false, true, true), 1,
-                CompositeSystem.BOOST_PRESSURE_CONTROL_SYS));
-        monitoredSystems.add(new MonitoredSystem("System456", findStatus(false, true, false), 2,
-                CompositeSystem.BOOST_PRESSURE_CONTROL_SYS));
-        monitoredSystems.add(new MonitoredSystem("System456", findStatus(false, false, false), 3,
-                CompositeSystem.BOOST_PRESSURE_CONTROL_SYS));
-        monitoredSystems
-                .add(new MonitoredSystem("System789", findStatus(false, false, false), 1, CompositeSystem.CATALYST));
-        monitoredSystems
-                .add(new MonitoredSystem("System789", findStatus(false, false, false), 2, CompositeSystem.CATALYST));
-        monitoredSystems
-                .add(new MonitoredSystem("System789", findStatus(false, false, false), 3, CompositeSystem.CATALYST));
+        monitoredSystems.add(new MonitoredSystem("System123", getStatus(true, true), 1, AC_SYSTEM_REFRIGERANT, true));
+        monitoredSystems.add(new MonitoredSystem("System123", getStatus(true, true), 2, AC_SYSTEM_REFRIGERANT, true));
+        monitoredSystems.add(new MonitoredSystem("System123", getStatus(true, true), 3, AC_SYSTEM_REFRIGERANT, true));
+        monitoredSystems.add(new MonitoredSystem("System456",
+                                                 getStatus(true, true),
+                                                 1,
+                                                 BOOST_PRESSURE_CONTROL_SYS,
+                                                 true));
+        monitoredSystems.add(new MonitoredSystem("System456",
+                                                 getStatus(true, false), 2, BOOST_PRESSURE_CONTROL_SYS, true));
+        monitoredSystems.add(new MonitoredSystem("System456",
+                                                 getStatus(false, false), 3, BOOST_PRESSURE_CONTROL_SYS, true));
+        monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 1, CATALYST, true));
+        monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 2, CATALYST, true));
+        monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 3, CATALYST, true));
 
-        List<MonitoredSystem> expected = new ArrayList<>();
-        expected.add(new MonitoredSystem("System123", findStatus(false, true, true), -1,
-                CompositeSystem.AC_SYSTEM_REFRIGERANT));
-        expected.add(new MonitoredSystem("System456", findStatus(false, true, false), -1,
-                CompositeSystem.BOOST_PRESSURE_CONTROL_SYS));
-        expected.add(new MonitoredSystem("System789", findStatus(false, false, false), -1, CompositeSystem.CATALYST));
+        List<CompositeMonitoredSystem> expected = new ArrayList<>();
+        expected.add(new CompositeMonitoredSystem(new MonitoredSystem("System123", getStatus(true, true), -1, AC_SYSTEM_REFRIGERANT, true),true));
+        expected.add(new CompositeMonitoredSystem(new MonitoredSystem("System456", getStatus(true, false), -1, BOOST_PRESSURE_CONTROL_SYS, true), true));
+        expected.add(new CompositeMonitoredSystem(new MonitoredSystem("System789", getStatus(false, false), -1, CATALYST, true), true));
 
-        // FIXME
-        // List<CompositeMonitoredSystem> actual =
-        // DiagnosticReadinessModule.getCompositeSystems(monitoredSystems,
-        // false);
-        // assertEquals(expected, actual);
+        List<CompositeMonitoredSystem> actual = getCompositeSystems(monitoredSystems, true);
+        assertEquals(expected, actual);
     }
 
     @Test
@@ -129,7 +120,7 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
 
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
@@ -181,7 +172,7 @@ public class DiagnosticReadinessModuleTest {
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
@@ -226,7 +217,7 @@ public class DiagnosticReadinessModuleTest {
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
@@ -252,32 +243,6 @@ public class DiagnosticReadinessModuleTest {
 
         instance.getDM20Packets(listener, true);
         assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    // FIXME why was this test here? I changed it to use a ResultsListener.NOOP
-    // - Joe 11/19/2020
-    public void testGetDM20PacketWithNoListener() throws BusException {
-        final int pgn = DM20MonitorPerformanceRatioPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-
-        DM20MonitorPerformanceRatioPacket packet1 = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(pgn | BUS_ADDR, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
-        DM20MonitorPerformanceRatioPacket packet2 = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(pgn | BUS_ADDR, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
-        DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        ResultsListener listener = ResultsListener.NOOP;
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
-
-        List<DM20MonitorPerformanceRatioPacket> packets = instance.getDM20Packets(listener, false);
-        assertEquals(3, packets.size());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -370,7 +335,7 @@ public class DiagnosticReadinessModuleTest {
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
@@ -420,7 +385,7 @@ public class DiagnosticReadinessModuleTest {
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
@@ -453,7 +418,7 @@ public class DiagnosticReadinessModuleTest {
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
@@ -486,7 +451,7 @@ public class DiagnosticReadinessModuleTest {
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         List<DM26TripDiagnosticReadinessPacket> packets = instance.getDM26Packets(ResultsListener.NOOP, false);
         assertEquals(3, packets.size());
@@ -509,7 +474,7 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -545,7 +510,7 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -597,7 +562,7 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -615,30 +580,6 @@ public class DiagnosticReadinessModuleTest {
         instance.getDM5Packets(listener, true);
         assertEquals(expected, listener.getResults());
 
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testGetDM5PacketsWithNoListener() throws BusException {
-        final int pgn = DM5DiagnosticReadinessPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-
-        DM5DiagnosticReadinessPacket packet1 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
-        DM5DiagnosticReadinessPacket packet2 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
-        DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        ResultsListener listener = ResultsListener.NOOP;
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
-
-        List<DM5DiagnosticReadinessPacket> packets = instance.getDM5Packets(listener, false);
-        assertEquals(3, packets.size());
-        // FIXME verify report?
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
     }
@@ -735,8 +676,8 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 19, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet11.getPacket(),
-                packet2.getPacket(), packet22.getPacket(),
-                packet3.getPacket())).when(j1939).read(anyLong(), any());
+                           packet2.getPacket(), packet22.getPacket(),
+                           packet3.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -796,23 +737,25 @@ public class DiagnosticReadinessModuleTest {
 
     @Test
     public void testGetSystems() {
-        MonitoredSystem system01 = new MonitoredSystem("system1", findStatus(false, true, true), 0,
-                CompositeSystem.EGR_VVT_SYSTEM);
-        MonitoredSystem system02 = new MonitoredSystem("system2", findStatus(false, false, false), 0,
-                CompositeSystem.EXHAUST_GAS_SENSOR);
-        MonitoredSystem system03 = new MonitoredSystem("system3", findStatus(false, false, false), 0,
-                CompositeSystem.EXHAUST_GAS_SENSOR_HEATER);
+        MonitoredSystem system01 = new MonitoredSystem("system1", getStatus(true, true), 0, EGR_VVT_SYSTEM, true);
+        MonitoredSystem system02 = new MonitoredSystem("system2", getStatus(false, false), 0, EXHAUST_GAS_SENSOR, true);
+        MonitoredSystem system03 = new MonitoredSystem("system3",
+                                                       getStatus(false, false),
+                                                       0,
+                                                       EXHAUST_GAS_SENSOR_HEATER,
+                                                       true);
         Set<MonitoredSystem> systems0 = new HashSet<>();
         systems0.add(system01);
         systems0.add(system02);
         systems0.add(system03);
 
-        MonitoredSystem system11 = new MonitoredSystem("system1", findStatus(false, false, false), 1,
-                CompositeSystem.EGR_VVT_SYSTEM);
-        MonitoredSystem system12 = new MonitoredSystem("system2", findStatus(false, true, true), 1,
-                CompositeSystem.EXHAUST_GAS_SENSOR);
-        MonitoredSystem system13 = new MonitoredSystem("system3", findStatus(false, true, false), 1,
-                CompositeSystem.EXHAUST_GAS_SENSOR_HEATER);
+        MonitoredSystem system11 = new MonitoredSystem("system1", getStatus(false, false), 1, EGR_VVT_SYSTEM, true);
+        MonitoredSystem system12 = new MonitoredSystem("system2", getStatus(true, true), 1, EXHAUST_GAS_SENSOR, true);
+        MonitoredSystem system13 = new MonitoredSystem("system3",
+                                                       getStatus(true, false),
+                                                       1,
+                                                       EXHAUST_GAS_SENSOR_HEATER,
+                                                       true);
         Set<MonitoredSystem> systems1 = new HashSet<>();
         systems1.add(system11);
         systems1.add(system12);
@@ -848,7 +791,7 @@ public class DiagnosticReadinessModuleTest {
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
@@ -914,7 +857,7 @@ public class DiagnosticReadinessModuleTest {
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
@@ -927,22 +870,22 @@ public class DiagnosticReadinessModuleTest {
         expected += "DM26 from Body Controller (33): Warm-ups: 48, Time Since Engine Start: 8,208 seconds" + NL;
         expected += NL;
         expected += "Vehicle Composite of DM26:" + NL;
-        expected += "    A/C system refrigerant             supported,   not completed" + NL;
-        expected += "    Boost pressure control sys         supported,       completed" + NL;
-        expected += "    Catalyst                           supported,   not completed" + NL;
-        expected += "    Cold start aid system          not supported,       completed" + NL;
-        expected += "    Comprehensive component            supported,   not completed" + NL;
-        expected += "    Diesel Particulate Filter          supported,       completed" + NL;
-        expected += "    EGR/VVT system                 not supported,       completed" + NL;
-        expected += "    Evaporative system                 supported,   not completed" + NL;
-        expected += "    Exhaust Gas Sensor             not supported,   not completed" + NL;
-        expected += "    Exhaust Gas Sensor heater          supported,   not completed" + NL;
-        expected += "    Fuel System                    not supported,       completed" + NL;
-        expected += "    Heated catalyst                not supported,   not completed" + NL;
-        expected += "    Misfire                        not supported,       completed" + NL;
-        expected += "    NMHC converting catalyst       not supported,       completed" + NL;
-        expected += "    NOx catalyst/adsorber          not supported,   not completed" + NL;
-        expected += "    Secondary air system           not supported,       completed" + NL;
+        expected += "    A/C system refrigerant         enabled, not complete" + NL;
+        expected += "    Boost pressure control sys     enabled,     complete" + NL;
+        expected += "    Catalyst                       enabled, not complete" + NL;
+        expected += "    Cold start aid system      not enabled,     complete" + NL;
+        expected += "    Comprehensive component        enabled, not complete" + NL;
+        expected += "    Diesel Particulate Filter      enabled,     complete" + NL;
+        expected += "    EGR/VVT system             not enabled,     complete" + NL;
+        expected += "    Evaporative system             enabled, not complete" + NL;
+        expected += "    Exhaust Gas Sensor         not enabled, not complete" + NL;
+        expected += "    Exhaust Gas Sensor heater      enabled, not complete" + NL;
+        expected += "    Fuel System                not enabled,     complete" + NL;
+        expected += "    Heated catalyst            not enabled, not complete" + NL;
+        expected += "    Misfire                    not enabled,     complete" + NL;
+        expected += "    NMHC converting catalyst   not enabled,     complete" + NL;
+        expected += "    NOx catalyst/adsorber      not enabled, not complete" + NL;
+        expected += "    Secondary air system       not enabled,     complete" + NL;
 
         assertTrue(instance.reportDM26(listener));
         assertEquals(expected, listener.getResults());
@@ -986,7 +929,7 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -1002,22 +945,22 @@ public class DiagnosticReadinessModuleTest {
                 + NL;
         expected += NL;
         expected += "Vehicle Composite of DM5:" + NL;
-        expected += "    A/C system refrigerant             supported,   not completed" + NL;
-        expected += "    Boost pressure control sys         supported,       completed" + NL;
-        expected += "    Catalyst                           supported,   not completed" + NL;
-        expected += "    Cold start aid system          not supported,       completed" + NL;
-        expected += "    Comprehensive component            supported,   not completed" + NL;
-        expected += "    Diesel Particulate Filter          supported,       completed" + NL;
-        expected += "    EGR/VVT system                 not supported,       completed" + NL;
-        expected += "    Evaporative system                 supported,   not completed" + NL;
-        expected += "    Exhaust Gas Sensor             not supported,   not completed" + NL;
-        expected += "    Exhaust Gas Sensor heater          supported,   not completed" + NL;
-        expected += "    Fuel System                    not supported,       completed" + NL;
-        expected += "    Heated catalyst                not supported,   not completed" + NL;
-        expected += "    Misfire                        not supported,       completed" + NL;
-        expected += "    NMHC converting catalyst       not supported,       completed" + NL;
-        expected += "    NOx catalyst/adsorber          not supported,   not completed" + NL;
-        expected += "    Secondary air system           not supported,       completed" + NL;
+        expected += "    A/C system refrigerant         supported, not complete" + NL;
+        expected += "    Boost pressure control sys     supported,     complete" + NL;
+        expected += "    Catalyst                       supported, not complete" + NL;
+        expected += "    Cold start aid system      not supported,     complete" + NL;
+        expected += "    Comprehensive component        supported, not complete" + NL;
+        expected += "    Diesel Particulate Filter      supported,     complete" + NL;
+        expected += "    EGR/VVT system             not supported,     complete" + NL;
+        expected += "    Evaporative system             supported, not complete" + NL;
+        expected += "    Exhaust Gas Sensor         not supported, not complete" + NL;
+        expected += "    Exhaust Gas Sensor heater      supported, not complete" + NL;
+        expected += "    Fuel System                not supported,     complete" + NL;
+        expected += "    Heated catalyst            not supported, not complete" + NL;
+        expected += "    Misfire                    not supported,     complete" + NL;
+        expected += "    NMHC converting catalyst   not supported,     complete" + NL;
+        expected += "    NOx catalyst/adsorber      not supported, not complete" + NL;
+        expected += "    Secondary air system       not supported,     complete" + NL;
 
         assertTrue(instance.reportDM5(listener));
         assertEquals(expected, listener.getResults());
@@ -1054,10 +997,10 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet2 = new DM5DiagnosticReadinessPacket(
                 Packet.create(0, 0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         instance.reportMonitoredSystems(listener,
-                packet1.getMonitoredSystems(),
-                packet2.getMonitoredSystems(),
-                "2017-02-25T14:56:50.053",
-                "2017-02-25T14:56:52.513");
+                                        packet1.getMonitoredSystems(),
+                                        packet2.getMonitoredSystems(),
+                                        "2017-02-25T14:56:50.053",
+                                        "2017-02-25T14:56:52.513");
 
         String expected = "";
         expected += "10:15:30.0000 Vehicle Composite Results of DM5:" + NL;
@@ -1106,14 +1049,14 @@ public class DiagnosticReadinessModuleTest {
         DM20MonitorPerformanceRatioPacket packet2 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(0xC200, 0x00, data2));
         instance.reportPerformanceRatios(listener,
-                packet1.getRatios(),
-                packet2.getRatios(),
-                1,
-                1,
-                3,
-                4,
-                "2017-02-25T14:56:50.053",
-                "2017-02-25T14:56:52.513");
+                                         packet1.getRatios(),
+                                         packet2.getRatios(),
+                                         1,
+                                         1,
+                                         3,
+                                         4,
+                                         "2017-02-25T14:56:50.053",
+                                         "2017-02-25T14:56:52.513");
         String expected = "";
         expected += "10:15:30.0000 Vehicle Composite Results of DM20:" + NL;
         expected += "+-----+----------------------------------+-----------------+-----------------+" + NL;
@@ -1160,14 +1103,14 @@ public class DiagnosticReadinessModuleTest {
                 0xBC, 0x14, 0xF8, 0x06, 0x00, 0x06, 0x00 };
         DM20MonitorPerformanceRatioPacket packet2 = new DM20MonitorPerformanceRatioPacket(Packet.create(0, 0, data2));
         instance.reportPerformanceRatios(listener,
-                packet1.getRatios(),
-                packet2.getRatios(),
-                1,
-                1,
-                3,
-                4,
-                "2017-02-25T14:56:50.053",
-                "2017-02-25T14:56:52.513");
+                                         packet1.getRatios(),
+                                         packet2.getRatios(),
+                                         1,
+                                         1,
+                                         3,
+                                         4,
+                                         "2017-02-25T14:56:50.053",
+                                         "2017-02-25T14:56:52.513");
 
         String expected = "";
         expected += "10:15:30.0000 Vehicle Composite Results of DM20:" + NL;
@@ -1207,14 +1150,14 @@ public class DiagnosticReadinessModuleTest {
                 0xB8, 0x12, 0xF8, 0x03, 0x00, 0x04, 0x00 };
         DM20MonitorPerformanceRatioPacket packet2 = new DM20MonitorPerformanceRatioPacket(Packet.create(0, 0, data2));
         instance.reportPerformanceRatios(listener,
-                packet1.getRatios(),
-                packet2.getRatios(),
-                1,
-                1,
-                3,
-                4,
-                "2017-02-25T14:56:50.053",
-                "2017-02-25T14:56:52.513");
+                                         packet1.getRatios(),
+                                         packet2.getRatios(),
+                                         1,
+                                         1,
+                                         3,
+                                         4,
+                                         "2017-02-25T14:56:50.053",
+                                         "2017-02-25T14:56:52.513");
 
         String expected = "";
         expected += "10:15:30.0000 Vehicle Composite Results of DM20:" + NL;
@@ -1250,7 +1193,7 @@ public class DiagnosticReadinessModuleTest {
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
@@ -1303,7 +1246,7 @@ public class DiagnosticReadinessModuleTest {
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
@@ -1351,7 +1294,7 @@ public class DiagnosticReadinessModuleTest {
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
@@ -1399,7 +1342,7 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -1415,22 +1358,22 @@ public class DiagnosticReadinessModuleTest {
                 + NL;
         expected += NL;
         expected += "Vehicle Composite of DM5:" + NL;
-        expected += "    A/C system refrigerant             supported,   not completed" + NL;
-        expected += "    Boost pressure control sys         supported,       completed" + NL;
-        expected += "    Catalyst                           supported,   not completed" + NL;
-        expected += "    Cold start aid system          not supported,       completed" + NL;
-        expected += "    Comprehensive component            supported,   not completed" + NL;
-        expected += "    Diesel Particulate Filter          supported,       completed" + NL;
-        expected += "    EGR/VVT system                 not supported,       completed" + NL;
-        expected += "    Evaporative system                 supported,   not completed" + NL;
-        expected += "    Exhaust Gas Sensor             not supported,   not completed" + NL;
-        expected += "    Exhaust Gas Sensor heater          supported,   not completed" + NL;
-        expected += "    Fuel System                    not supported,       completed" + NL;
-        expected += "    Heated catalyst                not supported,   not completed" + NL;
-        expected += "    Misfire                        not supported,       completed" + NL;
-        expected += "    NMHC converting catalyst       not supported,       completed" + NL;
-        expected += "    NOx catalyst/adsorber          not supported,   not completed" + NL;
-        expected += "    Secondary air system           not supported,       completed" + NL;
+        expected += "    A/C system refrigerant         supported, not complete" + NL;
+        expected += "    Boost pressure control sys     supported,     complete" + NL;
+        expected += "    Catalyst                       supported, not complete" + NL;
+        expected += "    Cold start aid system      not supported,     complete" + NL;
+        expected += "    Comprehensive component        supported, not complete" + NL;
+        expected += "    Diesel Particulate Filter      supported,     complete" + NL;
+        expected += "    EGR/VVT system             not supported,     complete" + NL;
+        expected += "    Evaporative system             supported, not complete" + NL;
+        expected += "    Exhaust Gas Sensor         not supported, not complete" + NL;
+        expected += "    Exhaust Gas Sensor heater      supported, not complete" + NL;
+        expected += "    Fuel System                not supported,     complete" + NL;
+        expected += "    Heated catalyst            not supported, not complete" + NL;
+        expected += "    Misfire                    not supported,     complete" + NL;
+        expected += "    NMHC converting catalyst   not supported,     complete" + NL;
+        expected += "    NOx catalyst/adsorber      not supported, not complete" + NL;
+        expected += "    Secondary air system       not supported,     complete" + NL;
 
         instance.requestDM5Packets(listener, true);
         assertEquals(expected, listener.getResults());
@@ -1458,5 +1401,9 @@ public class DiagnosticReadinessModuleTest {
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
         verify(j1939, times(2)).read(anyLong(), any());
+    }
+
+    private static MonitoredSystemStatus getStatus(boolean enabled, boolean complete) {
+        return findStatus(true, enabled, complete);
     }
 }
