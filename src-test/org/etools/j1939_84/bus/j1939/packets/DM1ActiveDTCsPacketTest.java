@@ -51,7 +51,7 @@ public class DM1ActiveDTCsPacketTest {
     @Test
     public void testDM1ActiveDTCsPacket() {
         assertEquals(0x00, instance.getSourceAddress());
-        assertEquals("18FECA00 11 CD 61 02 13 00 21 06 1F 00 EE 10 04 00", instance.getPacket().toString());
+        assertEquals("18FECA00 [14] 11 CD 61 02 13 00 21 06 1F 00 EE 10 04 00", instance.getPacket().toString());
     }
 
     /**
