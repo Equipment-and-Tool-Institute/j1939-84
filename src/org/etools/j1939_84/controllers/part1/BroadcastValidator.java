@@ -11,13 +11,13 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.TreeMap;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
+import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.Outcome;
@@ -42,12 +42,21 @@ public class BroadcastValidator {
         this.j1939DaRepository = j1939DaRepository;
     }
 
-    public Map<Integer, List<GenericPacket>> buildPGNPacketsMap(List<GenericPacket> packets, int moduleAddress) {
-        TreeMap<Integer, List<GenericPacket>> foundPackets = new TreeMap<>();
-        packets.stream()
-                .filter(p -> p.getSourceAddress() == moduleAddress)
-                .forEach(p -> foundPackets.computeIfAbsent(p.getPacket().getPgn(), k -> new ArrayList<>())
-                        .add(p));
+    /**
+     * Map of PGN to (Map of Source Address to List of Packets)
+     */
+    public Map<Integer, Map<Integer, List<GenericPacket>>> buildPGNPacketsMap(List<GenericPacket> packets) {
+        Map<Integer, Map<Integer, List<GenericPacket>>> foundPackets = new TreeMap<>();
+        packets.forEach(p -> {
+            int pgn = p.getPacket().getPgn();
+            int sourceAddress = p.getSourceAddress();
+
+            Map<Integer, List<GenericPacket>> pgnPackets = foundPackets.getOrDefault(pgn, new TreeMap<>());
+            List<GenericPacket> modulePackets = pgnPackets.getOrDefault(sourceAddress, new ArrayList<>());
+            modulePackets.add(p);
+            pgnPackets.put(sourceAddress, modulePackets);
+            foundPackets.put(pgn, pgnPackets);
+        });
         return foundPackets;
     }
 
@@ -78,7 +87,7 @@ public class BroadcastValidator {
      * period
      *
      * @param pgns
-     *            the list of PGN ids
+     *         the list of PGN ids
      * @return the maximum broadcast period in seconds
      */
     public int getMaximumBroadcastPeriod(List<Integer> pgns) {
@@ -96,80 +105,89 @@ public class BroadcastValidator {
      * Determines if the given packets were broadcast at their specified rates.
      * Adds failures/warnings to the report if they are not within spec
      */
-    public void reportBroadcastPeriod(Map<Integer, List<GenericPacket>> packetMap,
-                                      int moduleSourceAddress,
+    public void reportBroadcastPeriod(Map<Integer, Map<Integer, List<GenericPacket>>> packetMap,
+                                      List<Integer> supportedSPNs,
                                       ResultsListener listener,
                                       int partNumber,
                                       int stepNumber) {
+
         // b. Gather/timestamp each parameter at least three times to be able to
         // verify frequency of broadcast.
-        for (Map.Entry<Integer, List<GenericPacket>> entry : packetMap.entrySet()) {
-
-            int pgn = entry.getKey();
+        packetMap.keySet().stream().sorted().forEach(pgn -> {
             PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
-            if (pgnDefinition.isOnRequest()) {
-                return;
+            boolean isSupported = pgnDefinition.getSpnDefinitions()
+                    .stream()
+                    .map(SpnDefinition::getSpnId)
+                    .anyMatch(supportedSPNs::contains);
+            boolean isOnRequest = pgnDefinition.getBroadcastPeriod() <= 0;
+
+            if (!isOnRequest && isSupported) {
+                Map<Integer, List<GenericPacket>> pgnPackets = packetMap.get(pgn);
+
+                pgnPackets.keySet().stream().sorted().forEach(moduleAddress -> {
+                    String moduleName = Lookup.getAddressName(moduleAddress);
+                    List<GenericPacket> samplePackets = pgnPackets.get(moduleAddress);
+
+                    if (samplePackets.size() < 3) {
+                        listener.onResult("");
+                        listener.onResult("PGN " + pgn + " from " + moduleName);
+                        samplePackets.forEach(p -> listener.onResult(p.getPacket().toTimeString()));
+                        addOutcome(listener,
+                                   partNumber,
+                                   stepNumber,
+                                   Outcome.INFO,
+                                   "Unable to determine period for PGN " + pgn + " from " + moduleName);
+                    } else {
+                        Packet packet0 = samplePackets.get(0).getPacket();
+                        Packet packet1 = samplePackets.get(1).getPacket();
+                        Packet packet2 = samplePackets.get(2).getPacket();
+
+                        listener.onResult("");
+                        listener.onResult("PGN " + pgn + " from " + moduleName);
+                        listener.onResult(packet0.toTimeString());
+                        listener.onResult(packet1.toTimeString());
+                        listener.onResult(packet2.toTimeString());
+
+                        LocalDateTime t0 = packet0.getTimestamp();
+                        LocalDateTime t1 = packet1.getTimestamp();
+                        long diff1 = ChronoUnit.MILLIS.between(t0, t1);
+
+                        LocalDateTime t2 = packet2.getTimestamp();
+                        long diff2 = ChronoUnit.MILLIS.between(t1, t2);
+
+                        long broadcastPeriod = pgnDefinition.getBroadcastPeriod();
+                        double maxBroadcastPeriod = broadcastPeriod * 1.1;
+                        double minBroadcastPeriod = broadcastPeriod * 0.9;
+
+                        // b. Fail if any parameter is not broadcast within -10% of the fixed, specified broadcast period.
+                        if (!pgnDefinition.isVariableBroadcast()
+                                && (diff1 < minBroadcastPeriod || diff2 < minBroadcastPeriod)) {
+                            long diff = Math.min(diff1, diff2);
+                            addOutcome(listener,
+                                       partNumber,
+                                       stepNumber,
+                                       Outcome.FAIL,
+                                       "Broadcast period of PGN " + pgn + " (" + diff + " ms) by module " + moduleName
+                                               + " is less than 90% specified broadcast period of " + broadcastPeriod + " ms.");
+                        }
+
+                        // b. Fail if any parameter is not broadcast within +10% of the
+                        // fixed, specified broadcast period.
+                        // c. Fail if any parameter in a variable period broadcast
+                        // message exceeds 110% of its recommended broadcast period.
+                        if (diff1 > maxBroadcastPeriod || diff2 > maxBroadcastPeriod) {
+                            long diff = Math.max(diff1, diff2);
+                            addOutcome(listener,
+                                       partNumber,
+                                       stepNumber,
+                                       Outcome.FAIL,
+                                       "Broadcast period of PGN " + pgn + " (" + diff + " ms) by module " + moduleName
+                                               + " is beyond 110% specified broadcast period of " + broadcastPeriod + " ms.");
+                        }
+                    }
+                });
             }
-
-            List<GenericPacket> samplePackets = entry.getValue();
-            if (samplePackets.size() < 3) {
-                listener.onResult("");
-                samplePackets.forEach(p -> listener.onResult(p.getPacket().toTimeString()));
-
-                addOutcome(listener,
-                        partNumber,
-                        stepNumber,
-                        Outcome.INFO,
-                        "Unable to determine period for PGN " + pgn + " from " + Lookup.getAddressName(
-                                moduleSourceAddress));
-            } else {
-                Packet packet0 = samplePackets.get(0).getPacket();
-                Packet packet1 = samplePackets.get(1).getPacket();
-                Packet packet2 = samplePackets.get(2).getPacket();
-
-                listener.onResult("");
-                listener.onResult(packet0.toTimeString());
-                listener.onResult(packet1.toTimeString());
-                listener.onResult(packet2.toTimeString());
-
-                LocalDateTime t0 = packet0.getTimestamp();
-                LocalDateTime t1 = packet1.getTimestamp();
-                long diff1 = ChronoUnit.MILLIS.between(t0, t1);
-
-                LocalDateTime t2 = packet2.getTimestamp();
-                long diff2 = ChronoUnit.MILLIS.between(t1, t2);
-
-                long broadcastPeriod = pgnDefinition.getBroadcastPeriod();
-                double maxBroadcastPeriod = broadcastPeriod * 1.1;
-                double minBroadcastPeriod = broadcastPeriod * 0.9;
-
-                // b. Fail if any parameter is not broadcast within -10% of the
-                // fixed, specified broadcast period.
-                if (!pgnDefinition.isVariableBroadcast()
-                        && (diff1 < minBroadcastPeriod || diff2 < minBroadcastPeriod)) {
-                    addOutcome(listener,
-                            partNumber,
-                            stepNumber,
-                            Outcome.FAIL,
-                            "Broadcast of " + pgn + " by OBD Module " + Lookup.getAddressName(moduleSourceAddress)
-                                    + " is less than 90% specified broadcast period.");
-                }
-
-                // b. Fail if any parameter is not broadcast within +10% of the
-                // fixed, specified broadcast period.
-                // c. Fail if any parameter in a variable period broadcast
-                // message exceeds 110% of its recommended broadcast period.
-                if (diff1 > maxBroadcastPeriod || diff2 > maxBroadcastPeriod) {
-                    addOutcome(listener,
-                            partNumber,
-                            stepNumber,
-                            Outcome.FAIL,
-                            "Broadcast of " + pgn + " by OBD Module " + Lookup.getAddressName(moduleSourceAddress)
-                                    + " is beyond 110% specified broadcast period.");
-                }
-
-            }
-        }
+        });
 
     }
 

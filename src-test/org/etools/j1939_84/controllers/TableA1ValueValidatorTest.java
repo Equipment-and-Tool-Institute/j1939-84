@@ -199,7 +199,7 @@ public class TableA1ValueValidatorTest {
         assertFalse(instance.isImplausible(3226, 1000.0, true, FuelType.DSL));
         assertFalse(instance.isImplausible(3226, (double) 0xFB00, true, FuelType.DSL));
         assertFalse(instance.isImplausible(3226, 500.0, false, FuelType.DSL));
-        assertFalse(instance.isImplausible(3226, (double) 0xFB00, false, FuelType.DSL));
+        assertFalse(instance.isImplausible(3226, (double) 3012.8, false, FuelType.DSL));
         assertTrue(instance.isImplausible(3226, 500.1, false, FuelType.DSL));
 
         assertTrue(instance.isImplausible(132, -0.1, true, FuelType.DSL));

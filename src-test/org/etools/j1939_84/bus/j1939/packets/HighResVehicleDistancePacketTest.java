@@ -38,7 +38,6 @@ public class HighResVehicleDistancePacketTest {
         HighResVehicleDistancePacket instance = new HighResVehicleDistancePacket(packet);
         assertEquals(1992.32, instance.getTotalVehicleDistance(), 0.0);
         String expected = "";
-        expected += "10:15:30.0000 18000000 80 14 06 00 11 22 33 44" + NL;
         expected += "High Resolution Vehicle Distance from Engine #1 (0): " + NL;
         expected += "  SPN   917, Total Vehicle Distance (High Resolution): 1992320.000000 m" + NL;
         expected += "  SPN   918, Trip Distance (High Resolution): 5721008725.000000 m" + NL;
@@ -52,7 +51,6 @@ public class HighResVehicleDistancePacketTest {
         HighResVehicleDistancePacket instance = new HighResVehicleDistancePacket(packet);
         assertEquals(ParsedPacket.ERROR, instance.getTotalVehicleDistance(), 0.0);
         String expected = "";
-        expected += "10:15:30.0000 18000000 00 00 00 FE 11 22 33 44" + NL;
         expected += "High Resolution Vehicle Distance from Engine #1 (0): " + NL;
         expected += "  SPN   917, Total Vehicle Distance (High Resolution): Error" + NL;
         expected += "  SPN   918, Trip Distance (High Resolution): 5721008725.000000 m" + NL;
@@ -67,7 +65,6 @@ public class HighResVehicleDistancePacketTest {
         assertEquals(ParsedPacket.NOT_AVAILABLE, instance.getTotalVehicleDistance(), 0.0);
 
         String expected = "";
-        expected += "10:15:30.0000 18000000 FF FF FF FF 11 22 33 44"+NL;
         expected += "High Resolution Vehicle Distance from Engine #1 (0): "+NL;
         expected += "  SPN   917, Total Vehicle Distance (High Resolution): Not Available"+NL;
         expected += "  SPN   918, Trip Distance (High Resolution): 5721008725.000000 m"+NL;

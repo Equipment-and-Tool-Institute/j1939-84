@@ -41,7 +41,6 @@ public class EngineSpeedPacketTest {
         EngineSpeedPacket instance = new EngineSpeedPacket(packet);
         assertEquals(300, instance.getEngineSpeed(), 0.0);
         String expected = "";
-        expected += "10:15:30.0000 18000000 11 22 33 60 09 66 77 88" + NL;
         expected += "Engine Speed from Engine #1 (0): " + NL;
         expected += "  SPN   899, Engine Torque Mode: 0001" + NL;
         expected += "  SPN  4154, Actual Engine - Percent Torque (Fractional): 0.125000 %" + NL;
@@ -63,7 +62,6 @@ public class EngineSpeedPacketTest {
         EngineSpeedPacket instance = new EngineSpeedPacket(packet);
         assertEquals(ParsedPacket.ERROR, instance.getEngineSpeed(), 0.0);
         String expected = "";
-        expected += "10:15:30.0000 18000000 11 22 33 FF FE 66 77 88" + NL;
         expected += "Engine Speed from Engine #1 (0): " + NL;
         expected += "  SPN   899, Engine Torque Mode: 0001" + NL;
         expected += "  SPN  4154, Actual Engine - Percent Torque (Fractional): 0.125000 %" + NL;
@@ -85,7 +83,6 @@ public class EngineSpeedPacketTest {
         EngineSpeedPacket instance = new EngineSpeedPacket(packet);
         assertEquals(ParsedPacket.NOT_AVAILABLE, instance.getEngineSpeed(), 0.0);
         String expected = "";
-        expected += "10:15:30.0000 18000000 11 22 33 FF FF 66 77 88" + NL;
         expected += "Engine Speed from Engine #1 (0): " + NL;
         expected += "  SPN   899, Engine Torque Mode: 0001" + NL;
         expected += "  SPN  4154, Actual Engine - Percent Torque (Fractional): 0.125000 %" + NL;

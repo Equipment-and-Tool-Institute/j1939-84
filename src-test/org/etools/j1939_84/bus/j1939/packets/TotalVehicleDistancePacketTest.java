@@ -38,7 +38,6 @@ public class TotalVehicleDistancePacketTest {
         assertEquals(49808.0, instance.getTotalVehicleDistance(), 0.0);
 
         String expected = "";
-        expected += "10:15:30.0000 18000000 11 22 33 44 80 14 06 00" + NL;
         expected += "Total Vehicle Distance from Engine #1 (0): " + NL;
         expected += "  SPN   244, Trip Distance: 143025218.125000 km" + NL;
         expected += "  SPN   245, Total Vehicle Distance: 49808.000000 km" + NL;
@@ -53,7 +52,6 @@ public class TotalVehicleDistancePacketTest {
         assertEquals(ParsedPacket.ERROR, instance.getTotalVehicleDistance(), 0.0);
 
         String expected = "";
-        expected += "10:15:30.0000 18000000 11 22 33 44 00 00 00 FE" + NL;
         expected += "Total Vehicle Distance from Engine #1 (0): " + NL;
         expected += "  SPN   244, Trip Distance: 143025218.125000 km" + NL;
         expected += "  SPN   245, Total Vehicle Distance: Error" + NL;
@@ -68,7 +66,6 @@ public class TotalVehicleDistancePacketTest {
         assertEquals(ParsedPacket.NOT_AVAILABLE, instance.getTotalVehicleDistance(), 0.0);
 
         String expected = "";
-        expected += "10:15:30.0000 18000000 11 22 33 44 FF FF FF FF" + NL;
         expected += "Total Vehicle Distance from Engine #1 (0): " + NL;
         expected += "  SPN   244, Trip Distance: 143025218.125000 km" + NL;
         expected += "  SPN   245, Total Vehicle Distance: Not Available" + NL;

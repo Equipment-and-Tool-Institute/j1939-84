@@ -4,15 +4,14 @@
 package org.etools.j1939_84.controllers.part1;
 
 import java.util.ArrayList;
-import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
@@ -66,8 +65,9 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  */
 public class Step26Controller extends StepController {
 
-    private static List<Integer> collectNotAvailableSPNs(List<Integer> requiredSpns, Stream<GenericPacket> stream) {
-        return stream
+    private static List<Integer> collectNotAvailableSPNs(List<Integer> requiredSpns,
+            Stream<GenericPacket> packetStream) {
+        return packetStream
                 .flatMap(p -> p.getSpns().stream())
                 .filter(Spn::isNotAvailable)
                 .map(Spn::getId)
@@ -128,102 +128,92 @@ public class Step26Controller extends StepController {
      * Reports if the given PGN was not received or if any supported SPNs were
      * received as Not Available
      *
-     * @param supportedSpns
-     *            the list Supported SPNs
+     * @param supportedSPNs
+     *         the list Supported SPNs
      * @param pgn
-     *            the PGN of interest
+     *         the PGN of interest
      * @param packets
-     *            the packet that may contain the PGN
+     *         the packet that may contain the PGN
      * @param moduleAddress
-     *            the module address of concern, can be null for Global messages
+     *         the module address of concern, can be null for Global messages
      * @return true if the given PGN wasn't received or any supported SPN is Not
-     *         Available
+     * Available
      */
-    private boolean checkForNotAvailableSPNs(List<Integer> supportedSpns,
-                                             int pgn,
-                                             List<GenericPacket> packets,
-                                             Integer moduleAddress) {
-        String message = null;
+    private List<String> checkForNotAvailableSPNs(List<Integer> supportedSPNs,
+            int pgn,
+            List<GenericPacket> packets,
+            Integer moduleAddress) {
+        Set<Integer> spns = new HashSet<>();
+
         if (packets.isEmpty()) {
+            spns.addAll(j1939DaRepository.findPgnDefinition(pgn)
+                    .getSpnDefinitions()
+                    .stream()
+                    .map(SpnDefinition::getSpnId)
+                    .filter(supportedSPNs::contains)
+                    .collect(Collectors.toSet()));
+
+            String message;
             if (moduleAddress != null) {
-                message = "No DS response for PGN " + pgn + " from " + getModuleName(moduleAddress);
+                message = "6.1.26.6.a - No DS response for PGN " + pgn + " from " + getModuleName(moduleAddress);
             } else {
-                message = "No Global response for PGN " + pgn;
+                message = "6.1.26.6.a - No Global response for PGN " + pgn;
             }
-        } else {
-            List<Integer> missingSpns = collectNotAvailableSPNs(supportedSpns, packets.stream());
-            if (!missingSpns.isEmpty()) {
-                String missedSpns = missingSpns.stream().map(String::valueOf).collect(Collectors.joining(", "));
-                if (moduleAddress != null) {
-                    message = "SPNs received as NOT AVAILABLE from " + getModuleName(moduleAddress) + ": " + missedSpns;
-                } else {
-                    message = "SPNs received as NOT AVAILABLE: " + missedSpns;
-                }
-            }
-        }
-        if (message != null) {
             addFailure(getPartNumber(), getStepNumber(), message);
+        } else {
+            List<Integer> missingSPNs = collectNotAvailableSPNs(supportedSPNs, packets.stream());
+            if (!missingSPNs.isEmpty()) {
+                spns.addAll(missingSPNs);
+            }
         }
-        return message != null;
+
+        return spns.stream().sorted().map(Object::toString).collect(Collectors.toList());
     }
 
     /**
      * Reports the PGNs there are supported by the module but not received and
      * the SPNs that were received by broadcast as Not Available
      *
-     * @param obdModuleInformation
-     *            the module information
+     * @param moduleSourceAddress
+     *         the module source address
      * @param foundPackets
-     *            the Map of PGNs to the List of those packets sent by the
-     *            module
-     * @param spns
-     *            the list of SPNs that are still of concern
+     *         the Map of PGNs to the List of those packets sent by the
+     *         module
+     * @param supportedSPNs
+     *         the list of SPNs that are still of concern
      * @return the List of SPNs which were not found
      */
-    private List<Integer> collectAndReportNotAvailableSPNs(OBDModuleInformation obdModuleInformation,
-                                                           Map<Integer, List<GenericPacket>> foundPackets,
-                                                           List<Integer> spns) {
-
-        int moduleSourceAddress = obdModuleInformation.getSourceAddress();
+    private List<Integer> collectAndReportNotAvailableSPNs(int moduleSourceAddress,
+            List<GenericPacket> foundPackets,
+            List<Integer> supportedSPNs) {
 
         // Find the PGN Definitions for the PGNs we expect to receive
-        List<Integer> requiredPgns = new ArrayList<>(busService.collectNonOnRequestPGNs(spns));
+        List<Integer> requiredPgns = new ArrayList<>(busService.collectNonOnRequestPGNs(supportedSPNs));
 
         List<Integer> missingSpns = new ArrayList<>();
 
-        requiredPgns.removeAll(foundPackets.keySet());
+        Set<Integer> foundPGNs = foundPackets.stream().map(p -> p.getPacket().getPgn()).collect(Collectors.toSet());
+        requiredPgns.removeAll(foundPGNs);
         if (!requiredPgns.isEmpty()) {
             // Expected PGNs were not received.
-            // Add those SPNs to the missingSpns List and create a list of them
-            // for the report
-            // a. Fail if not received for any broadcast SPN indicated as
-            // supported by the OBD ECU in DM24
+            // Add those SPNs to the missingSpns List and create a list of them for the report
+            // a. Fail if not received for any broadcast SPN indicated as supported by the OBD ECU in DM24
             // with the Source Address matching the received message) in DM24.
+            getListener().onResult("");
             requiredPgns.stream()
                     .map(j1939DaRepository::findPgnDefinition)
                     .flatMap(pgnDef -> pgnDef.getSpnDefinitions().stream())
                     .map(SpnDefinition::getSpnId)
-                    .filter(spns::contains)
+                    .filter(supportedSPNs::contains)
                     .distinct()
                     .sorted()
                     .peek(missingSpns::add)
-                    .map(spn -> "SPN " + spn + " was not broadcast by " + getModuleName(moduleSourceAddress))
+                    .map(spn -> "6.1.26.2.a - SPN " + spn + " was not broadcast by " + getModuleName(moduleSourceAddress))
                     .forEach(message -> addFailure(getPartNumber(), getStepNumber(), message));
         }
 
         // Find any Supported SPNs which has a value of Not Available
-        // a. Fail if unsupported (received as not available (as described in
-        // SAE J1939-71))
-        // for any broadcast SPN indicated as supported by the OBD ECU in DM24
-        // with the Source Address matching the received message) in DM24.
-        List<Integer> missedSpns = collectNotAvailableSPNs(spns,
-                foundPackets.values().stream().flatMap(Collection::stream));
-        missedSpns.forEach(spn -> {
-            String msg = "SPN " + spn + " was broadcast as NOT AVAILABLE by " + getModuleName(moduleSourceAddress);
-            addFailure(getPartNumber(), getStepNumber(), msg);
-        });
-
-        missingSpns.addAll(missedSpns);
+        missingSpns.addAll(collectNotAvailableSPNs(supportedSPNs, foundPackets.stream()));
 
         return missingSpns;
     }
@@ -246,138 +236,189 @@ public class Step26Controller extends StepController {
         FuelType fuelType = dataRepository.getVehicleInformation().getFuelType();
 
         // Collect all the Data Stream Supported SPNs from all OBD Modules.
-        List<Integer> supportedSpns = dataRepository.getObdModules()
+        List<Integer> supportedSPNs = dataRepository.getObdModules()
                 .stream()
                 .flatMap(m -> m.getDataStreamSpns().stream())
                 .map(SupportedSPN::getSpn)
                 .collect(Collectors.toList());
 
-        // 6.1.26.3.a. Identify SPNs provided in the data stream that are listed
-        // in Table A-1, but are not supported by any OBD ECU in its DM24
-        // response.
-        // 6.1.26.4.a. Fail/warn per Table A-1 column, “Action if SPN provided
-        // but not included in DM24”
-        tableA1Validator.reportMissingSPNs(supportedSpns, getListener(), fuelType, getPartNumber(), getStepNumber());
+        tableA1Validator.reportExpectedMessages(getListener());
 
-        // a. Gather broadcast data for all SPNs that are supported for data
+        // 6.1.26.1.a. Gather broadcast data for all SPNs that are supported for data
         // stream in the OBD ECU DM24 responses.
         // we need 3 samples plus time for a BAM, to 4 * maxPeriod
-        List<GenericPacket> packets = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 4);
+        Stream<GenericPacket> packetStream = busService.readBus(broadcastValidator.getMaximumBroadcastPeriod() * 4);
 
-        // This list will keep track of the PGNs which we need to listen for at
-        // the end of the test
-        List<Integer> broadcastPgns = new ArrayList<>();
+        List<GenericPacket> packets = packetStream
+                .peek(p ->
+                        // 6.1.26.2.a. Fail if unsupported (received as not available (as described in SAE J1939-71))
+                        // for any broadcast SPN indicated as supported by the OBD ECU in DM24
+                        // with the Source Address matching the received message) in DM24.
+                        tableA1Validator.reportNotAvailableSPNs(p,
+                                getListener(),
+                                getPartNumber(),
+                                getStepNumber(),
+                                "6.1.26.2.a"))
+                .peek(p ->
+                        // 6.1.26.2.d. Fail/warn if any broadcast data is not valid for KOEO conditions
+                        // as per Table A-1, Min Data Stream Support.
+                        tableA1Validator.reportImplausibleSPNValues(p,
+                                getListener(),
+                                false,
+                                fuelType,
+                                getPartNumber(),
+                                getStepNumber(),
+                                "6.1.26.2.d"))
+                .peek(p ->
+                        // 6.1.26.2.e. Fail/warn per Table A-1, if an expected SPN from the DM24 support
+                        // list from an OBD ECU is provided by a non-OBD ECU. (provided extraneously)
 
-        // Find and report any Supported SPNs which should have been received
-        // but weren't
+                        tableA1Validator.reportNonObdModuleProvidedSPNs(p,
+                                getListener(),
+                                getPartNumber(),
+                                getStepNumber(),
+                                "6.1.26.2.e"))
+                .peek(p ->
+                        // 6.1.26.3.a. Identify SPNs provided in the data stream that are listed
+                        // in Table A-1, but are not supported by any OBD ECU in its DM24 response.
+                        //6.1.26.4.a. Fail/warn per Table A-1 column, “Action if SPN provided but not included in DM24”.
+                        tableA1Validator.reportProvidedButNotSupportedSPNs(p,
+                                getListener(),
+                                fuelType,
+                                getPartNumber(),
+                                getStepNumber(),
+                                "6.1.26.4.a"))
+                .peek(p -> tableA1Validator.reportPacketIfNotReported(p, getListener()))
+                .collect(Collectors.toList());
+
+        // 6.1.26.2.f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
+        tableA1Validator.reportDuplicateSPNs(packets, getListener(), getPartNumber(), getStepNumber(), "6.1.26.2.f");
+
+        // Check the Broadcast Period of the received packets1
+        //Map of PGN to (Map of Source Address to List of Packets)
+        Map<Integer, Map<Integer, List<GenericPacket>>> foundPackets = broadcastValidator.buildPGNPacketsMap(packets);
+
+        broadcastValidator.reportBroadcastPeriod(foundPackets,
+                supportedSPNs,
+                getListener(),
+                getPartNumber(),
+                getStepNumber());
+
+        List<GenericPacket> onRequestPackets = new ArrayList<>();
+        // Find and report any Supported SPNs which should have been received but weren't
         for (OBDModuleInformation obdModule : dataRepository.getObdModules()) {
 
             int moduleAddress = obdModule.getSourceAddress();
 
-            // Check the Broadcast Period of the received packets1
-            Map<Integer, List<GenericPacket>> foundPackets = broadcastValidator.buildPGNPacketsMap(packets,
-                    moduleAddress);
-            broadcastValidator.reportBroadcastPeriod(foundPackets,
-                    moduleAddress,
-                    getListener(),
-                    getPartNumber(),
-                    getStepNumber());
-
             // Get the SPNs which are supported by the module
-            List<Integer> dataStreamSpns = obdModule.getDataStreamSpns()
+            List<Integer> dataStreamSPNs = obdModule.getDataStreamSpns()
                     .stream()
                     .map(SupportedSPN::getSpn)
                     .collect(Collectors.toList());
-            // Find SPNs sent a Not Available
-            List<Integer> missingSpns = collectAndReportNotAvailableSPNs(obdModule, foundPackets, dataStreamSpns);
 
-            String moduleName = Lookup.getAddressName(moduleAddress);
-
-            // DS Request for all SPNs that are sent on-request AND those were
-            // missed earlier
-            List<Integer> requestPgns = busService.getPgnsForDSRequest(missingSpns, dataStreamSpns);
-            for (int pgn : requestPgns) {
-                updateProgress("DS Request for " + pgn + " to " + moduleName);
-                List<GenericPacket> dsResponse = busService.dsRequest(pgn, moduleAddress);
-                packets.addAll(dsResponse);
-
-                boolean needToRequestGlobally = checkForNotAvailableSPNs(supportedSpns, pgn, dsResponse, moduleAddress);
-
-                if (needToRequestGlobally) {
-                    // Re-request the missing SPNs globally
-                    updateProgress("Global Request for PGN " + pgn);
-                    List<GenericPacket> globalPackets = busService.globalRequest(pgn);
-                    packets.addAll(globalPackets);
-                    checkForNotAvailableSPNs(supportedSpns, pgn, globalPackets, null);
-                }
-            }
-
-            // Gather the PGNs which are sent on Broadcast and needed to be
-            // requested
-            // There are some PGNs which are sent periodically once requested
-            broadcastPgns.addAll(busService.collectBroadcastPGNs(requestPgns));
-        }
-
-        // See if there are any PGNs that were missing which need to be listened
-        // for
-        // We listen for missing SPNs from all modules, rather than waiting
-        // foreach module
-        if (!broadcastPgns.isEmpty()) {
-
-            // Get the list of SPNs that that Support in the broadcastPgns
-            List<Integer> spns = broadcastPgns.stream()
-                    .map(j1939DaRepository::findPgnDefinition)
-                    .flatMap(pgnDef -> pgnDef.getSpnDefinitions().stream())
-                    .map(SpnDefinition::getSpnId)
-                    .filter(supportedSpns::contains)
-                    .distinct()
-                    .sorted()
+            // Find SPNs sent as Not Available and those that should have been sent
+            List<GenericPacket> modulePackets = packets.stream()
+                    .filter(p -> p.getSourceAddress() == moduleAddress)
                     .collect(Collectors.toList());
 
-            // Listen for the PGNs of interest
-            int waitTime = broadcastValidator.getMaximumBroadcastPeriod(broadcastPgns) * 4;
-            Predicate<GenericPacket> busFilter = p -> broadcastPgns.contains(p.getPacket().getPgn());
-            List<GenericPacket> broadcastPackets = busService.readBus(waitTime, busFilter);
-            packets.addAll(broadcastPackets);
+            List<Integer> missingSPNs = collectAndReportNotAvailableSPNs(moduleAddress,
+                    modulePackets,
+                    dataStreamSPNs);
 
-            for (OBDModuleInformation obdModule : dataRepository.getObdModules()) {
-                int moduleAddress = obdModule.getSourceAddress();
-                // Report on the broadcast periods and any Not Available SPNs
-                Map<Integer, List<GenericPacket>> foundPackets = broadcastValidator.buildPGNPacketsMap(broadcastPackets,
-                        moduleAddress);
-                broadcastValidator.reportBroadcastPeriod(foundPackets,
-                        moduleAddress,
-                        getListener(),
-                        getPartNumber(),
-                        getStepNumber());
-                collectAndReportNotAvailableSPNs(obdModule, foundPackets, spns);
+            // DS Request for all SPNs that are sent on-request AND those were missed earlier
+            List<Integer> requestPGNs = busService.getPGNsForDSRequest(missingSPNs, dataStreamSPNs);
+
+            //Remove the SPNs that were already received
+            Set<Integer> receivedSPNs = packets.stream()
+                    .filter(p -> p.getSourceAddress() == moduleAddress)
+                    .flatMap(p -> p.getSpns().stream())
+                    .filter(s -> !s.isNotAvailable())
+                    .map(Spn::getId)
+                    .collect(Collectors.toSet());
+            dataStreamSPNs.removeAll(receivedSPNs);
+
+            for (int pgn : requestPGNs) {
+                String spns = j1939DaRepository.findPgnDefinition(pgn)
+                        .getSpnDefinitions()
+                        .stream()
+                        .map(SpnDefinition::getSpnId)
+                        .filter(s -> missingSPNs.contains(s) || dataStreamSPNs.contains(s))
+                        .sorted()
+                        .map(Object::toString)
+                        .collect(Collectors.joining(", "));
+                String dsMessage = "DS Request for PGN " + pgn + " to " + Lookup.getAddressName(moduleAddress) + " for SPNs " + spns;
+                updateProgress(dsMessage);
+                List<GenericPacket> dsResponse = busService.dsRequest(pgn, moduleAddress, dsMessage)
+                        .peek(p -> tableA1Validator.reportNotAvailableSPNs(p,
+                                getListener(),
+                                getPartNumber(),
+                                getStepNumber(),
+                                "6.1.26.6.a"))
+                        .peek(p ->
+                                // 6.1.26.6.d. Fail/warn if any broadcast data is not valid for KOEO conditions
+                                // as per Table A-1, Min Data Stream Support.
+                                tableA1Validator.reportImplausibleSPNValues(p,
+                                        getListener(),
+                                        false,
+                                        fuelType,
+                                        getPartNumber(),
+                                        getStepNumber(),
+                                        "6.1.26.6.d"))
+                        .peek(p ->
+                                // 6.1.26.2.e. Fail/warn per Table A-1, if an expected SPN from the DM24 support
+                                // list from an OBD ECU is provided by a non-OBD ECU. (provided extraneously)
+                                tableA1Validator.reportNonObdModuleProvidedSPNs(p,
+                                        getListener(),
+                                        getPartNumber(),
+                                        getStepNumber(),
+                                        "6.1.26.6.e"))
+                        .collect(Collectors.toList());
+                onRequestPackets.addAll(dsResponse);
+
+                List<String> notAvailableSPNs = checkForNotAvailableSPNs(supportedSPNs, pgn, dsResponse, moduleAddress);
+
+                if (!notAvailableSPNs.isEmpty()) {
+                    // Re-request the missing SPNs globally
+                    String globalMessage = "Global Request for PGN " + pgn + " for SPNs "
+                            + String.join(", ", notAvailableSPNs);
+                    updateProgress(globalMessage);
+                    List<GenericPacket> globalPackets = busService.globalRequest(pgn, globalMessage)
+                            .peek(p -> tableA1Validator.reportNotAvailableSPNs(p,
+                                    getListener(),
+                                    getPartNumber(),
+                                    getStepNumber(),
+                                    "6.1.26.6.a"))
+                            .peek(p ->
+                                    // 6.1.26.6.d. Fail/warn if any broadcast data is not valid for KOEO conditions
+                                    // as per Table A-1, Min Data Stream Support.
+                                    tableA1Validator.reportImplausibleSPNValues(p,
+                                            getListener(),
+                                            false,
+                                            fuelType,
+                                            getPartNumber(),
+                                            getStepNumber(),
+                                            "6.1.26.6.d"))
+                            .peek(p ->
+                                    // 6.1.26.6.e. Fail/warn per Table A-1, if an expected SPN from the DM24 support
+                                    // list from an OBD ECU is provided by a non-OBD ECU. (provided extraneously)
+                                    tableA1Validator.reportNonObdModuleProvidedSPNs(p,
+                                            getListener(),
+                                            getPartNumber(),
+                                            getStepNumber(),
+                                            "6.1.26.6.e"))
+                            .collect(Collectors.toList());
+                    onRequestPackets.addAll(globalPackets);
+                    checkForNotAvailableSPNs(supportedSPNs, pgn, globalPackets, null);
+                }
             }
         }
 
-        for (int moduleAddress : dataRepository.getObdModuleAddresses()) {
-            // e. Fail/warn per Table A-1, if an expected SPN from the DM24
-            // support list from an OBD ECU is provided by a non-OBD ECU.
-            // (provided extraneously)
-            tableA1Validator.reportNonObdModuleProvidedSPNs(packets,
-                    moduleAddress,
-                    getListener(),
-                    getPartNumber(),
-                    getStepNumber());
-        }
-
-        // d. Fail/warn if any broadcast data is not valid for KOEO conditions
-        // as per Table A-1, Minimum Data Stream Support.
-        tableA1Validator.reportImplausibleSPNValues(packets,
-                supportedSpns,
+        // 6.1.26.6.f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
+        tableA1Validator.reportDuplicateSPNs(onRequestPackets,
                 getListener(),
-                false,
-                fuelType,
                 getPartNumber(),
-                getStepNumber());
-
-        // f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed
-        // in Table A-1
-        tableA1Validator.reportDuplicateSPNs(packets, getListener(), getPartNumber(), getStepNumber());
+                getStepNumber(),
+                "6.1.26.6.f");
 
         updateProgress("End Part 1 Step 26");
     }

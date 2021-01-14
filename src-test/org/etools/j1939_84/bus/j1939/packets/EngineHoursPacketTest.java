@@ -37,7 +37,6 @@ public class EngineHoursPacketTest {
         EngineHoursPacket instance = new EngineHoursPacket(packet);
         assertEquals(ParsedPacket.ERROR, instance.getEngineHours(), 0.0);
         String expected = "";
-        expected += "10:15:30.0000 18000000 00 00 00 FE 55 66 77 88" + NL;
         expected += "Engine Hours from Engine #1 (0): " + NL;
         expected += "  SPN   247, Engine Total Hours of Operation: Error" + NL;
         expected += "  SPN   249, Engine Total Revolutions: 2289526357000.000000 r" + NL;
@@ -51,7 +50,6 @@ public class EngineHoursPacketTest {
         EngineHoursPacket instance = new EngineHoursPacket(packet);
         assertEquals(210554060.75, instance.getEngineHours(), 0.0);
         String expected = "";
-        expected += "10:15:30.0000 18000000 FF FF FF FA 55 66 77 88" + NL;
         expected += "Engine Hours from Engine #1 (0): " + NL;
         expected += "  SPN   247, Engine Total Hours of Operation: 210554060.750000 h" + NL;
         expected += "  SPN   249, Engine Total Revolutions: 2289526357000.000000 r" + NL;
@@ -64,7 +62,6 @@ public class EngineHoursPacketTest {
         EngineHoursPacket instance = new EngineHoursPacket(packet);
         assertEquals(ParsedPacket.NOT_AVAILABLE, instance.getEngineHours(), 0.0);
         String expected = "";
-        expected += "10:15:30.0000 18000000 FF FF FF FF 55 66 77 88" + NL;
         expected += "Engine Hours from Engine #1 (0): " + NL;
         expected += "  SPN   247, Engine Total Hours of Operation: Not Available" + NL;
         expected += "  SPN   249, Engine Total Revolutions: 2289526357000.000000 r" + NL;
@@ -77,7 +74,6 @@ public class EngineHoursPacketTest {
         EngineHoursPacket instance = new EngineHoursPacket(packet);
         assertEquals(76.7, instance.getEngineHours(), 0.0);
         String expected = "";
-        expected += "10:15:30.0000 18000000 FE 05 00 00 55 66 77 88" + NL;
         expected += "Engine Hours from Engine #1 (0): " + NL;
         expected += "  SPN   247, Engine Total Hours of Operation: 76.700000 h" + NL;
         expected += "  SPN   249, Engine Total Revolutions: 2289526357000.000000 r" + NL;

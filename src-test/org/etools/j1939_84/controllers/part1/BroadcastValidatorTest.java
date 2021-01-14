@@ -29,6 +29,7 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
+import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -59,7 +60,7 @@ public class BroadcastValidatorTest {
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(dataRepository, j1939DaRepository);
+        verifyNoMoreInteractions(dataRepository);
     }
 
     @Test
@@ -93,78 +94,86 @@ public class BroadcastValidatorTest {
         //On Request
         packets.add(genericPacket(77777, 0, time(8000)));
 
-        PgnDefinition pgnDef1 = pgnDefinition(0);
+        PgnDefinition pgnDef1 = pgnDefinition(1000, 111);
         when(j1939DaRepository.findPgnDefinition(11111)).thenReturn(pgnDef1);
 
-        PgnDefinition pgnDef2 = pgnDefinition(0);
+        PgnDefinition pgnDef2 = pgnDefinition(1000, 222);
         when(j1939DaRepository.findPgnDefinition(22222)).thenReturn(pgnDef2);
 
-        PgnDefinition pgnDef3 = pgnDefinition(1000, false);
+        PgnDefinition pgnDef3 = pgnDefinition(1000, false, 333);
         when(j1939DaRepository.findPgnDefinition(33333)).thenReturn(pgnDef3);
 
-        PgnDefinition pgnDef4 = pgnDefinition(100, true);
+        PgnDefinition pgnDef4 = pgnDefinition(100, true, 444);
         when(j1939DaRepository.findPgnDefinition(44444)).thenReturn(pgnDef4);
 
-        PgnDefinition pgnDef5 = pgnDefinition(5000, false);
+        PgnDefinition pgnDef5 = pgnDefinition(5000, false, 555);
         when(j1939DaRepository.findPgnDefinition(55555)).thenReturn(pgnDef5);
 
-        PgnDefinition pgnDef6 = pgnDefinition(2000, false);
+        PgnDefinition pgnDef6 = pgnDefinition(2000, false, 666);
         when(j1939DaRepository.findPgnDefinition(66666)).thenReturn(pgnDef6);
 
-        PgnDefinition pgnDef7 = pgnDefinition(-1);
+        PgnDefinition pgnDef7 = pgnDefinition(-1, 777);
         when(j1939DaRepository.findPgnDefinition(77777)).thenReturn(pgnDef7);
 
         ResultsListener mockListener = mock(ResultsListener.class);
         TestResultsListener listener = new TestResultsListener(mockListener);
+
+        List<Integer> supportedSPNs = List.of(111, 222, 333, 444, 555, 666, 777);
         //Helper to make the map
-        Map<Integer, List<GenericPacket>> packetMap = instance.buildPGNPacketsMap(packets, 0);
-        instance.reportBroadcastPeriod(packetMap, 0, listener, 1, 26);
+        Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = instance.buildPGNPacketsMap(packets);
+        instance.reportBroadcastPeriod(packetMap, supportedSPNs, listener, 1, 26);
 
         verify(mockListener).addOutcome(1,
-                26,
-                INFO,
-                "Unable to determine period for PGN 11111 from Engine #1 (0)");
+                                        26,
+                                        INFO,
+                                        "Unable to determine period for PGN 11111 from Engine #1 (0)");
 
         verify(mockListener).addOutcome(1,
-                26,
-                INFO,
-                "Unable to determine period for PGN 22222 from Engine #1 (0)");
+                                        26,
+                                        INFO,
+                                        "Unable to determine period for PGN 22222 from Engine #1 (0)");
 
         verify(mockListener).addOutcome(1,
-                26,
-                FAIL,
-                "Broadcast of 55555 by OBD Module Engine #1 (0) is less than 90% specified broadcast period.");
+                                        26,
+                                        FAIL,
+                                        "Broadcast period of PGN 55555 (1000 ms) by module Engine #1 (0) is less than 90% specified broadcast period of 5000 ms.");
 
         verify(mockListener).addOutcome(1,
-                26,
-                FAIL,
-                "Broadcast of 66666 by OBD Module Engine #1 (0) is beyond 110% specified broadcast period.");
+                                        26,
+                                        FAIL,
+                                        "Broadcast period of PGN 66666 (2500 ms) by module Engine #1 (0) is beyond 110% specified broadcast period of 2000 ms.");
 
         String expected = "" + NL;
+        expected += "PGN 11111 from Engine #1 (0)" + NL;
         expected += "07:30:00.0000 - 11111" + NL;
         expected += "INFO: 6.1.26 - Unable to determine period for PGN 11111 from Engine #1 (0)" + NL;
         expected += NL;
+        expected += "PGN 22222 from Engine #1 (0)" + NL;
         expected += "07:30:00.1000 - 22222" + NL;
         expected += "07:30:00.2000 - 22222" + NL;
         expected += "INFO: 6.1.26 - Unable to determine period for PGN 22222 from Engine #1 (0)" + NL;
         expected += NL;
+        expected += "PGN 33333 from Engine #1 (0)" + NL;
         expected += "07:30:01.0000 - 33333" + NL;
         expected += "07:30:02.0010 - 33333" + NL;
         expected += "07:30:02.9990 - 33333" + NL;
         expected += NL;
+        expected += "PGN 44444 from Engine #1 (0)" + NL;
         expected += "07:30:05.0000 - 44444" + NL;
         expected += "07:30:05.0500 - 44444" + NL;
         expected += "07:30:05.1000 - 44444" + NL;
         expected += NL;
+        expected += "PGN 55555 from Engine #1 (0)" + NL;
         expected += "07:30:01.0000 - 55555" + NL;
         expected += "07:30:02.0000 - 55555" + NL;
         expected += "07:30:03.0000 - 55555" + NL;
-        expected += "FAIL: 6.1.26 - Broadcast of 55555 by OBD Module Engine #1 (0) is less than 90% specified broadcast period." + NL;
+        expected += "FAIL: 6.1.26 - Broadcast period of PGN 55555 (1000 ms) by module Engine #1 (0) is less than 90% specified broadcast period of 5000 ms." + NL;
         expected += NL;
+        expected += "PGN 66666 from Engine #1 (0)" + NL;
         expected += "07:30:02.0000 - 66666" + NL;
         expected += "07:30:04.5000 - 66666" + NL;
         expected += "07:30:07.0000 - 66666" + NL;
-        expected += "FAIL: 6.1.26 - Broadcast of 66666 by OBD Module Engine #1 (0) is beyond 110% specified broadcast period." + NL;
+        expected += "FAIL: 6.1.26 - Broadcast period of PGN 66666 (2500 ms) by module Engine #1 (0) is beyond 110% specified broadcast period of 2000 ms." + NL;
 
         assertEquals(expected, listener.getResults());
 
@@ -181,7 +190,7 @@ public class BroadcastValidatorTest {
 
     @Test
     public void buildPGNPacketsMapWithNoData() {
-        Map<Integer, List<GenericPacket>> actual = instance.buildPGNPacketsMap(Collections.emptyList(), 0);
+        Map<Integer, Map<Integer, List<GenericPacket>>> actual = instance.buildPGNPacketsMap(Collections.emptyList());
         assertTrue(actual.isEmpty());
     }
 
@@ -201,27 +210,26 @@ public class BroadcastValidatorTest {
 
         packets.add(genericPacket(33333, 0));
 
-        Map<Integer, List<GenericPacket>> actual = instance.buildPGNPacketsMap(packets, 0);
+        Map<Integer, Map<Integer, List<GenericPacket>>> actual = instance.buildPGNPacketsMap(packets);
 
         assertEquals(3, actual.size());
 
-        //Check the content of the list is right
-        assertEquals(1, actual.get(11111).size());
-        long packets1 = actual.get(11111).stream()
+        assertEquals(2, actual.get(11111).size());
+        long packets1 = actual.get(11111).get(0).stream()
                 .filter(p -> p.getPacket().getPgn() == 11111)
                 .filter(p -> p.getSourceAddress() == 0)
                 .count();
         assertEquals(1, packets1);
 
         assertEquals(2, actual.get(22222).size());
-        long packets2 = actual.get(22222).stream()
+        long packets2 = actual.get(22222).get(0).stream()
                 .filter(p -> p.getPacket().getPgn() == 22222)
                 .filter(p -> p.getSourceAddress() == 0)
                 .count();
         assertEquals(2, packets2);
 
-        assertEquals(3, actual.get(33333).size());
-        long packets3 = actual.get(33333).stream()
+        assertEquals(2, actual.get(33333).size());
+        long packets3 = actual.get(33333).get(0).stream()
                 .filter(p -> p.getPacket().getPgn() == 33333)
                 .filter(p -> p.getSourceAddress() == 0)
                 .count();
@@ -304,18 +312,19 @@ public class BroadcastValidatorTest {
         verify(dataRepository).getObdModules();
     }
 
-    private static PgnDefinition pgnDefinition(int broadcastPeriod) {
-        return BroadcastValidatorTest.pgnDefinition(broadcastPeriod, null);
+    private static PgnDefinition pgnDefinition(int broadcastPeriod, int... spns) {
+        return pgnDefinition(broadcastPeriod, null, spns);
     }
 
-    private static PgnDefinition pgnDefinition(int broadcastPeriod, Boolean isVariable) {
+    private static PgnDefinition pgnDefinition(int broadcastPeriod, Boolean isVariable, int... spns) {
+        List<SpnDefinition> spnDefs = new ArrayList<>();
+        for (int spn : spns) {
+            spnDefs.add(new SpnDefinition(spn, spn + "", 0, 0, 0));
+
+        }
         PgnDefinition mock = mock(PgnDefinition.class);
         when(mock.getBroadcastPeriod()).thenReturn(broadcastPeriod);
-        if (broadcastPeriod == -1) {
-            when(mock.isOnRequest()).thenReturn(true);
-        } else {
-            when(mock.isOnRequest()).thenReturn(false);
-        }
+        when(mock.getSpnDefinitions()).thenReturn(spnDefs);
         if (isVariable != null) {
             when(mock.isVariableBroadcast()).thenReturn(isVariable);
         }

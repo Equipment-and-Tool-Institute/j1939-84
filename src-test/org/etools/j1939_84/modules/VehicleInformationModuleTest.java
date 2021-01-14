@@ -601,7 +601,6 @@ public class VehicleInformationModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Vehicle Distance" + NL;
-        expected += "10:15:30.0000 18FEC102 02 02 02 02 02 02 02 02" + NL;
         expected += "High Resolution Vehicle Distance from Turbocharger (2): " + NL;
         expected += "  SPN   917, Total Vehicle Distance (High Resolution): 168430090.000000 m" + NL;
         expected += "  SPN   918, Trip Distance (High Resolution): 168430090.000000 m" + NL;
@@ -631,7 +630,6 @@ public class VehicleInformationModuleTest {
                 .read(TotalVehicleDistancePacket.class, 300, TimeUnit.MILLISECONDS);
         String expected = "";
         expected += "10:15:30.0000 Vehicle Distance" + NL;
-        expected += "10:15:30.0000 18FEE002 02 02 02 02 02 02 02 02" + NL;
         expected += "Total Vehicle Distance from Turbocharger (2): " + NL;
         expected += "  SPN   244, Trip Distance: 4210752.250000 km" + NL;
         expected += "  SPN   245, Total Vehicle Distance: 4210752.250000 km" + NL;

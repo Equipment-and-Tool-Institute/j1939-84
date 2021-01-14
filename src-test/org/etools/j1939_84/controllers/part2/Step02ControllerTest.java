@@ -410,7 +410,7 @@ public class Step02ControllerTest extends AbstractControllerTest {
                 "    NOx catalyst/adsorber              supported,   not completed" + NL +
                 "    Secondary air system           not supported,       completed" + NL +
                 NL + "WARN: 6.2.2.2.c - Listed below are the individually required monitors, except Continuous Component Monitoring (CCM)" + NL +
-                "  that have been reported as supported by more than one  OBD ECU:" + NL +
+                "  that have been reported as supported by more than one OBD ECU:" + NL +
                 "    Exhaust Gas Sensor heater" + NL +
                 "WARN: 6.2.2.3.a - OBD module Engine #1 (0) did not return a response to a destination specific DM5 request" + NL +
                 "WARN: 6.2.2.3.a - OBD module Instrument Cluster #1 (23) did not return a response to a destination specific DM5 request" + NL;

@@ -115,7 +115,7 @@ public class TableA1ValueValidator {
         case 3251:
             return !isEngineOn && value > 0;
         case 3226:
-            return !isEngineOn && value != 0xFB00 && value > 500;
+            return !isEngineOn && value != 3012.8 && value > 500;
         case 132:
             if (isEngineOn) {
                 return value < 0;

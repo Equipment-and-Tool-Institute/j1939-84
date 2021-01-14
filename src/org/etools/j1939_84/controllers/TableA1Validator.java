@@ -11,18 +11,23 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
+import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.model.FuelType;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
 
 public class TableA1Validator {
@@ -30,29 +35,30 @@ public class TableA1Validator {
     private static void addOutcome(ResultsListener listener,
             int partNumber,
             int stepNumber,
+            String section,
             Outcome outcome,
             String message) {
         listener.addOutcome(partNumber, stepNumber, outcome, message);
-        listener.onResult(outcome + ": 6." + partNumber + "." + stepNumber + " - " + message);
+        listener.onResult(outcome + ": " + section + " - " + message);
     }
 
     private static List<Integer> getFailureSPNs(FuelType fuelType) {
-        List<Integer> allRequiredSpns = new ArrayList<>();
-
-        // These SPNS must be provided by all vehicles
-        // noinspection CollectionAddAllCanBeReplacedWithConstructor
-        allRequiredSpns.addAll(List.of(27, 84, 91, 92, 108,
-                235, 247, 248,
-                512, 513, 514, 539, 540, 541, 542, 543, 544,
-                2791, 2978,
-                5837, 5829));
+        List<Integer> allRequiredSpns = new ArrayList<>(
+                List.of(27, 84, 91, 92,
+                        102, 108,
+                        235, 247, 248,
+                        512, 513, 514, 539, 540, 541, 542, 543, 544,
+                        1413,
+                        2791, 2978,
+                        3563,
+                        5837, 5829));
 
         if (fuelType.isCompressionIgnition()) {
-            // These are SPNs required for CI Engines
-            allRequiredSpns.addAll(List.of(5466, 3700, 6895, 7333, 3226));
+            allRequiredSpns.addAll(List.of(3226, 3700, 5466, 6895, 7333));
         } else if (fuelType.isSparkIgnition()) {
-            // These are SPNs required for SI Engines
-            allRequiredSpns.addAll(List.of(51, 3464, 4236, 4237, 4240, 3249, 3241, 3217, 3227));
+            allRequiredSpns.addAll(List.of(51,
+                    3249, 3241, 3217, 3227, 3464,
+                    4236, 4237, 4240));
         }
 
         return allRequiredSpns;
@@ -62,60 +68,65 @@ public class TableA1Validator {
         return new ArrayList<>(List.of(96, 110, 132, 157, 190, 5827, 5313));
     }
 
-    private static Collection<List<Integer>> getSPNGroups(FuelType fuelType) {
-        Collection<List<Integer>> spnGroups = new ArrayList<>();
-        spnGroups.add(List.of(110, 1637, 4076, 4193));
-        spnGroups.add(List.of(190, 723, 4201, 4202));
-        spnGroups.add(List.of(158, 168));
-        spnGroups.add(List.of(183, 1413, 1600));
-
-        spnGroups.add(List.of(102, 106, 1127, 3563));
-
-        if (fuelType.isCompressionIgnition()) {
-            spnGroups.add(List.of(94, 157, 164, 5313, 5314, 5578));
-            spnGroups.add(List.of(5454, 5827));
-            spnGroups.add(List.of(3251, 3609, 3610));
-            spnGroups.add(List.of(3516, 3518, 7346));
-            spnGroups.add(List.of(3031, 3515));
-        } else if (fuelType.isSparkIgnition()) {
-            spnGroups.add(List.of(94, 157, 5313, 5578));
-        }
-
-        return spnGroups;
-    }
-
     private static List<Integer> getWarningSPNs(FuelType fuelType) {
-        List<Integer> allWarningSPNs = new ArrayList<>();
-        allWarningSPNs.add(158);
+        List<Integer> allWarningSPNs = new ArrayList<>(List.of(
+                94, 106, 110, 157, 158, 168, 183, 190,
+                723,
+                1127, 1600, 1637,
+                4076, 4193, 4201, 4202,
+                5313, 5578
+        ));
+
         if (fuelType.isCompressionIgnition()) {
-            allWarningSPNs.add(5466);
+            allWarningSPNs.addAll(List.of(164,
+                    3031, 3251, 3515, 3516, 3518, 3609, 3610,
+                    5314, 5454, 5466, 5827,
+                    7346));
         }
         return allWarningSPNs;
     }
 
-    private static boolean packetContainsSupportedSPNs(Collection<Integer> supportedSpns, GenericPacket packet) {
+    private static List<String> getSupportedSPNs(Collection<Integer> supportedSPNs, GenericPacket packet) {
         return packet.getPgnDefinition()
                 .getSpnDefinitions()
                 .stream()
-                .mapToInt(SpnDefinition::getSpnId)
-                .anyMatch(supportedSpns::contains);
+                .map(SpnDefinition::getSpnId)
+                .filter(supportedSPNs::contains)
+                .sorted()
+                .map(Object::toString)
+                .collect(Collectors.toList());
     }
 
-    private static String stringifySpns(List<Integer> spns) {
-        return spns.stream().map(Object::toString).collect(Collectors.joining(", "));
-    }
+    // Map of Source Address to SPN for SPNs with invalid values (to avoid duplicate reporting)
+    private final Map<Integer, Set<Integer>> invalidSPNs = new HashMap<>();
+
+    // Map of Source Address to SPN for SPNs with value of Not Available (to avoid duplicate reporting)
+    private final Map<Integer, Set<Integer>> notAvailableSPNs = new HashMap<>();
+
+    // Map of Source Address to PGNs for packets already written to the log
+    private final Map<Integer, Set<Integer>> foundPackets = new HashMap<>();
 
     private final DataRepository dataRepository;
 
     private final TableA1ValueValidator valueValidator;
+    private final J1939DaRepository j1939DaRepository;
 
     public TableA1Validator(DataRepository dataRepository) {
-        this(new TableA1ValueValidator(dataRepository), dataRepository);
+        this(new TableA1ValueValidator(dataRepository), dataRepository, new J1939DaRepository());
     }
 
-    TableA1Validator(TableA1ValueValidator valueValidator, DataRepository dataRepository) {
+    TableA1Validator(TableA1ValueValidator valueValidator,
+            DataRepository dataRepository,
+            J1939DaRepository j1939DaRepository) {
         this.dataRepository = dataRepository;
         this.valueValidator = valueValidator;
+        this.j1939DaRepository = j1939DaRepository;
+    }
+
+    public void reset() {
+        invalidSPNs.clear();
+        notAvailableSPNs.clear();
+        foundPackets.clear();
     }
 
     /**
@@ -124,148 +135,216 @@ public class TableA1Validator {
     public void reportDuplicateSPNs(List<GenericPacket> packets,
             ResultsListener listener,
             int partNumber,
-            int stepNumber) {
-        // f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed
-        // in Table A-1
+            int stepNumber,
+            String section) {
+        // f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
         Map<Integer, Integer> uniques = new HashMap<>();
-        Set<Integer> reportedSpns = new HashSet<>();
+        Map<Integer, Outcome> duplicateSPNs = new HashMap<>();
 
         for (GenericPacket packet : packets) {
             for (Spn spn : packet.getSpns()) {
-                int spnId = spn.getId();
-                Integer address = uniques.get(spnId);
-                if (address == null) {
-                    uniques.put(spnId, packet.getSourceAddress());
-                } else if (address != packet.getSourceAddress()) {
-                    Outcome outcome = Lookup.getOutcomeForDuplicateSpn(spnId);
-                    if (outcome != PASS && !reportedSpns.contains(spnId)) {
-                        reportedSpns.add(spnId);
-                        addOutcome(listener,
-                                partNumber,
-                                stepNumber,
-                                outcome, "SPN " + spnId + " provided by more than one module");
+                if (!spn.isNotAvailable()) {
+                    int spnId = spn.getId();
+                    Integer address = uniques.get(spnId);
+                    if (address == null) {
+                        uniques.put(spnId, packet.getSourceAddress());
+                    } else if (address != packet.getSourceAddress()) {
+                        Outcome outcome = Lookup.getOutcomeForDuplicateSpn(spnId);
+                        if (outcome != PASS && !duplicateSPNs.containsKey(spnId)) {
+                            duplicateSPNs.put(spnId, outcome);
+                        }
                     }
                 }
             }
         }
+
+        duplicateSPNs.entrySet()
+                .stream()
+                .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                .forEach(entry ->
+                        addOutcome(listener,
+                                partNumber,
+                                stepNumber,
+                                section,
+                                entry.getValue(),
+                                "SPN " + entry.getKey() + " provided by more than one module"));
     }
 
     /**
-     * Reports on SPN values which are implausible given the key state and fuel
-     * type
+     * Reports on SPN values which are implausible given the key state and fuel type
      */
-    public void reportImplausibleSPNValues(List<GenericPacket> packets,
-            Collection<Integer> supportedSpns,
+    public void reportImplausibleSPNValues(GenericPacket packet,
             ResultsListener listener,
             boolean isEngineOn,
             FuelType fuelType,
             int partNumber,
-            int stepNumber) {
-        // Map of Source Address to PGNs for packets already written to the log
-        Map<Integer, Set<Integer>> foundPackets = new HashMap<>();
+            int stepNumber,
+            String section) {
 
-        // Map of Source Address to SPN for SPNs with invalid values (to avoid
-        // duplicate reporting)
-        Map<Integer, Set<Integer>> invalidSPNs = new HashMap<>();
+        int moduleAddress = packet.getSourceAddress();
+        OBDModuleInformation obdModule = dataRepository.getObdModule(moduleAddress);
+        if (obdModule == null) {
+            return;
+        }
 
-        // d. Fail/warn if any broadcast data is not valid for KOEO conditions
-        // as per Table A-1, Min Data Stream Support.
-        for (GenericPacket packet : packets) {
+        Collection<Integer> moduleSPNs = obdModule
+                .getDataStreamSpns()
+                .stream()
+                .map(SupportedSPN::getSpn)
+                .collect(Collectors.toSet());
 
-            boolean isReported = false;
+        packet.getSpns()
+                .stream()
+                .sorted(Comparator.comparingInt(Spn::getId))
+                .forEach(spn -> {
+                    int spnId = spn.getId();
+                    Double value = spn.getValue();
+                    if ((spn.isError() && moduleSPNs.contains(spnId))
+                            || valueValidator.isImplausible(spnId, value, isEngineOn, fuelType)) {
+                        Set<Integer> invalid = invalidSPNs.getOrDefault(moduleAddress, new HashSet<>());
+                        if (!invalid.contains(spnId)) {
+                            reportPacketIfNotReported(packet, listener);
+                            String message;
+                            if (spn.isError()) {
+                                message = "SA " + moduleAddress + " reported value for SPN " + spnId + " (ERROR) is implausible";
+                            } else {
+                                message = "SA " + moduleAddress + " reported value for SPN " + spnId + " (" + value + ") is implausible";
+                            }
+                            addOutcome(listener, partNumber, stepNumber, section, Outcome.WARN, message);
+                            invalid.add(spnId);
+                            invalidSPNs.put(moduleAddress, invalid);
+                        }
+                    }
+                });
+    }
 
+    private Set<Integer> getReportedPGNs(int moduleAddress) {
+        return foundPackets.getOrDefault(moduleAddress, new HashSet<>());
+    }
+
+    private boolean isReported(GenericPacket packet) {
+        return getReportedPGNs(packet.getSourceAddress()).contains(packet.getPacket().getPgn());
+    }
+
+    public void reportPacketIfNotReported(GenericPacket packet, ResultsListener listener) {
+        if (!isReported(packet)) {
             int moduleAddress = packet.getSourceAddress();
             int pgn = packet.getPacket().getPgn();
 
-            Set<Integer> modulePackets = foundPackets.getOrDefault(moduleAddress, new HashSet<>());
-            if (!modulePackets.contains(pgn)) {
-                if (packetContainsSupportedSPNs(supportedSpns, packet)) {
-                    // Only report on Support SPNs
-                    listener.onResult("Found: " + packet.toString());
-                    isReported = true;
-                }
-                modulePackets.add(pgn);
-                foundPackets.put(moduleAddress, modulePackets);
-            }
-
-            boolean isInvalid = false;
-            for (Spn spn : packet.getSpns()) {
-                int spnId = spn.getId();
-                Double value = spn.getValue();
-                if (valueValidator.isImplausible(spnId, value, isEngineOn, fuelType)) {
-                    Set<Integer> invalid = invalidSPNs.getOrDefault(moduleAddress, new HashSet<>());
-                    if (!invalid.contains(spnId)) {
-                        isInvalid = true;
-                        String message = "Value for SPN " + spnId + " (" + value + ") is implausible";
-                        addOutcome(listener, partNumber, stepNumber, Outcome.WARN, message);
-                        invalid.add(spnId);
-                        invalidSPNs.put(moduleAddress, invalid);
-                    }
-                }
-            }
-
-            if (isInvalid && !isReported) {
+            boolean isNonObdModule = dataRepository.getObdModule(moduleAddress) == null;
+            Collection<Integer> spns = isNonObdModule ?
+                    getModuleSupportedSPNs() :
+                    getModuleSupportedSPNs(moduleAddress);
+            List<String> supportedSPNs = getSupportedSPNs(spns, packet);
+            if (!supportedSPNs.isEmpty()) {
+                listener.onResult("");
+                listener.onResult("PGN " + pgn + " with Supported SPNs " + String.join(", ", supportedSPNs));
                 listener.onResult("Found: " + packet.toString());
             }
+
+            Set<Integer> modulePackets = getReportedPGNs(moduleAddress);
+            modulePackets.add(pgn);
+            foundPackets.put(moduleAddress, modulePackets);
+        }
+    }
+
+    public void reportNotAvailableSPNs(GenericPacket packet,
+            ResultsListener listener,
+            int partNumber,
+            int stepNumber,
+            String section) {
+
+        int moduleAddress = packet.getSourceAddress();
+        Collection<Integer> moduleSPNs = getModuleSupportedSPNs(moduleAddress);
+
+        // Find any Supported SPNs which has a value of Not Available
+        packet.getSpns().stream()
+                .filter(Spn::isNotAvailable)
+                .map(Spn::getId)
+                .filter(moduleSPNs::contains)
+                .sorted()
+                .forEach(spn -> {
+                    Set<Integer> naSPNs = notAvailableSPNs.getOrDefault(moduleAddress, new HashSet<>());
+                    if (!naSPNs.contains(spn)) {
+                        naSPNs.add(spn);
+                        notAvailableSPNs.put(moduleAddress, naSPNs);
+                        reportPacketIfNotReported(packet, listener);
+                        String msg = "SPN " + spn + " was received as NOT AVAILABLE from " + Lookup.getAddressName(
+                                moduleAddress);
+                        addOutcome(listener,
+                                partNumber,
+                                stepNumber,
+                                section,
+                                Outcome.FAIL,
+                                msg);
+                    }
+                });
+    }
+
+    private Collection<Integer> getModuleSupportedSPNs() {
+        return dataRepository.getObdModules()
+                .stream()
+                .flatMap(m -> m.getDataStreamSpns().stream())
+                .map(SupportedSPN::getSpn)
+                .collect(Collectors.toSet());
+    }
+
+    private Set<Integer> getModuleSupportedSPNs(int moduleAddress) {
+        OBDModuleInformation obdModule = dataRepository.getObdModule(moduleAddress);
+        if (obdModule == null) {
+            return Collections.emptySet();
+        } else {
+            return obdModule
+                    .getDataStreamSpns()
+                    .stream()
+                    .map(SupportedSPN::getSpn)
+                    .collect(Collectors.toSet());
         }
     }
 
     /**
-     * Writes a Failure/Warning for any Supported SPNs which aren't supported by
-     * any OBD Modules
+     * Writes a Failure/Warning for any SPNs found in the data stream which aren't in the DM24
      */
-    public void reportMissingSPNs(List<Integer> supportedSpns,
+    public void reportProvidedButNotSupportedSPNs(GenericPacket packet,
             ResultsListener listener,
             FuelType fuelType,
             int partNumber,
-            int stepNumber) {
+            int stepNumber,
+            String section) {
 
-        // This processes the SPNs in steps
-        // The first step is to report the SPNs which *must* be provided and
-        // result in a FAIL if they are not
-        // The second are SPNs which results in WARN
-        // Then SPNs which are reported at INFO
-        // Then SPNs for which only one in the group is required
+        Collection<Integer> providedSPNs = packet.getSpns()
+                .stream()
+                .filter(s -> !s.isNotAvailable())
+                .map(Spn::getId)
+                .filter(s -> !getModuleSupportedSPNs(packet.getSourceAddress()).contains(s))
+                .collect(Collectors.toSet());
 
-        // The resultant missing SPNs
-        Map<Outcome, List<Integer>> missingSpns = new HashMap<>();
+        Map<Integer, Outcome> outcomes = new HashMap<>();
 
         // Failure SPNs
-        List<Integer> allRequiredSpns = getFailureSPNs(fuelType);
-        allRequiredSpns.removeAll(supportedSpns);
-        Collections.sort(allRequiredSpns);
-        missingSpns.put(FAIL, allRequiredSpns);
+        List<Integer> failureSPNs = getFailureSPNs(fuelType);
+        providedSPNs.stream().filter(failureSPNs::contains).forEach(s -> outcomes.put(s, FAIL));
 
         // Warnings SPNs
-        List<Integer> warningSpns = getWarningSPNs(fuelType);
-        warningSpns.removeAll(supportedSpns);
-        Collections.sort(warningSpns);
-        missingSpns.put(WARN, warningSpns);
+        List<Integer> warningSPNs = getWarningSPNs(fuelType);
+        providedSPNs.stream().filter(warningSPNs::contains).forEach(s -> outcomes.put(s, WARN));
 
         // INFO SPNs
-        List<Integer> infoSpns = getInfoSPNs();
-        infoSpns.removeAll(supportedSpns);
-        Collections.sort(infoSpns);
-        missingSpns.put(INFO, infoSpns);
+        List<Integer> infoSPNs = getInfoSPNs();
+        providedSPNs.stream().filter(infoSPNs::contains).forEach(s -> outcomes.put(s, INFO));
 
-        // For any Missing SPNs write an outcome to the report
-        for (Outcome outcome : Outcome.values()) {
-            List<Integer> value = missingSpns.get(outcome);
-            if (value != null) {
-                for (int spn : value) {
-                    addOutcome(listener, partNumber, stepNumber, outcome, "Required SPN " + spn + " is not supported");
-                }
-            }
-        }
-
-        // Report on SPN Groups
-        for (List<Integer> spns : getSPNGroups(fuelType)) {
-            if (spns.stream().noneMatch(supportedSpns::contains)) {
+        if (!outcomes.isEmpty()) {
+            reportPacketIfNotReported(packet, listener);
+            outcomes.keySet().stream().sorted().forEach(spn -> {
+                Outcome outcome = outcomes.get(spn);
                 addOutcome(listener,
                         partNumber,
                         stepNumber,
-                        FAIL, "At least one of these SPNs is not supported: " + stringifySpns(spns));
-            }
+                        section,
+                        outcome,
+                        "Provided SPN " + spn + " is not supported by " + Lookup.getAddressName(packet.getSourceAddress()));
+            });
+            listener.onResult("");
         }
     }
 
@@ -273,37 +352,90 @@ public class TableA1Validator {
      * Writes a Failures/Warning to the report if an OBD Supported SPN is
      * provided by a Non-OBD Module.
      */
-    public void reportNonObdModuleProvidedSPNs(List<GenericPacket> packets,
-            int obdModuleAddress,
+    public void reportNonObdModuleProvidedSPNs(GenericPacket packet,
             ResultsListener listener,
             int partNumber,
-            int stepNumber) {
+            int stepNumber,
+            String section) {
 
-        // e. Fail/warn per Table A-1, if an expected SPN from the DM24 support
-        // list from an OBD ECU is provided by a non-OBD
-        // ECU. (provided extraneously)
-        List<Integer> supportedSpns = dataRepository.getObdModule(obdModuleAddress)
-                .getDataStreamSpns()
+        Collection<Integer> supportedSPNs = getModuleSupportedSPNs();
+
+        if (dataRepository.getObdModule(packet.getSourceAddress()) == null) {
+            packet.getSpns().stream()
+                    .filter(spn -> !spn.isNotAvailable())
+                    .map(Spn::getId)
+                    .filter(supportedSPNs::contains)
+                    .distinct()
+                    .sorted()
+                    .forEach(id -> {
+                        Outcome outcome = Lookup.getOutcomeForNonObdModuleProvidingSpn(id);
+                        if (outcome != PASS) {
+                            reportPacketIfNotReported(packet, listener);
+                            addOutcome(listener,
+                                    partNumber,
+                                    stepNumber,
+                                    section,
+                                    outcome,
+                                    "SPN " + id + " provided by non-OBD Module");
+                        }
+                    });
+        }
+    }
+
+    public void reportExpectedMessages(ResultsListener listener) {
+        listener.onResult("Expecting the following messages:");
+        dataRepository.getObdModuleAddresses()
                 .stream()
-                .map(SupportedSPN::getSpn)
-                .collect(Collectors.toList());
+                .sorted()
+                .map(dataRepository::getObdModule)
+                .forEach(moduleInfo -> {
+                    Map<Integer, List<Integer>> pgnMap = getMessages(moduleInfo.getDataStreamSpns(), listener);
+                    Stream<Integer> pgns = pgnMap.keySet().stream().sorted();
+                    pgns.forEach(pgn -> {
 
-        packets.stream()
-                .filter(p -> dataRepository.getObdModule(p.getSourceAddress()) == null)
-                .flatMap(p -> p.getSpns().stream())
-                .filter(spn -> !spn.isNotAvailable())
-                .map(Spn::getId)
-                .filter(supportedSpns::contains)
-                .forEach(id -> {
-                    Outcome outcome = Lookup.getOutcomeForNonObdModuleProvidingSpn(id);
-                    if (outcome != PASS) {
-                        addOutcome(listener,
-                                partNumber,
-                                stepNumber,
-                                outcome,
-                                "SPN " + id + " provided by non-OBD Module");
+                        String spns = pgnMap.get(pgn).stream().map(Object::toString).collect(Collectors.joining(", "));
+                        String msg = "PGN " + pgn + " from SA " + moduleInfo.getSourceAddress() + " with SPNs " + spns;
+
+                        PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
+                        if(pgnDefinition != null) {
+                            if (pgnDefinition.isOnRequest()) {
+                                msg = "  Req " + msg;
+                            } else {
+                                msg =  "  B't " + msg;
+                            }
+                        } else {
+                            msg = "  ??? " + msg;
+                        }
+
+                        listener.onResult(msg);
+                    });
+                });
+    }
+
+    private Map<Integer, List<Integer>> getMessages(List<SupportedSPN> supportedSPNs, ResultsListener listener) {
+        Map<Integer, List<Integer>> pgnMap = new HashMap<>();
+        supportedSPNs.stream()
+                .map(SupportedSPN::getSpn)
+                .distinct()
+                .forEach(spn -> {
+                    Integer pgn = j1939DaRepository.getPgnForSpn(spn);
+                    if (pgn == null) {
+                        listener.onResult("Unable to find PGN for SPN " + spn);
+                    } else {
+                        List<Integer> spns = pgnMap.getOrDefault(pgn, new ArrayList<>());
+                        spns.add(spn);
+                        pgnMap.put(pgn, spns);
                     }
                 });
+
+        //Sort SPNs
+        for (int pgn : pgnMap.keySet()) {
+            List<Integer> spns = pgnMap.get(pgn);
+            spns.sort(Comparator.comparingInt(s -> s));
+            pgnMap.put(pgn, spns);
+        }
+
+        return pgnMap;
     }
 
 }

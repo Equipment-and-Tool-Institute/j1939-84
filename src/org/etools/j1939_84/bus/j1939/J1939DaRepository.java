@@ -43,7 +43,7 @@ public class J1939DaRepository {
     static private void loadLookUpTables() {
         if (pgnLut == null) {
             // parse the selected columns from J1939DA. The source data is
-            // unaltered, so some procesing is required to convert byte.bit
+            // unaltered, so some processing is required to convert byte.bit
             // specifications into ints.
             final InputStream is = Resources.class.getResourceAsStream("j1939da-extract.csv");
             final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
@@ -106,7 +106,7 @@ public class J1939DaRepository {
                         .collect(Collectors.toList());
                 pgnLut = table.stream()
                         .flatMap(row -> row[0] == null ? Stream.empty() : Stream.of((PgnDefinition) row[0]))
-                        .collect(Collectors.toMap(pgnDef -> pgnDef.getId(), pgnDef -> pgnDef,
+                        .collect(Collectors.toMap(PgnDefinition::getId, pgnDef -> pgnDef,
                                 (a, b) -> new PgnDefinition(a.getId(),
                                         a.getLabel(),
                                         a.getAcronym(),
@@ -122,7 +122,7 @@ public class J1939DaRepository {
                 spnLut = table.stream()
                         .map(row -> ((SpnDefinition) row[1]))
                         .filter(Objects::nonNull)
-                        .collect(Collectors.toMap(s -> s.getSpnId(), s -> s, (a, b) -> a));
+                        .collect(Collectors.toMap(SpnDefinition::getSpnId, s -> s, (a, b) -> a));
 
                 spnToPgnMap = new HashMap<>();
                 for (PgnDefinition pgnDefinition : pgnLut.values()) {
