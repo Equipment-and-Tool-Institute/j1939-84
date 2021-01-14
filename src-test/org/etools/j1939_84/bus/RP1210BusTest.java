@@ -374,7 +374,7 @@ public class RP1210BusTest {
         try {
             assertNull(instance.send(packet));
         } catch (BusException e) {
-            assertEquals("Failed to send: 18123456 77 88 99 AA BB CC DD EE", e.getMessage());
+            assertEquals("Failed to send: 18123456 [8] 77 88 99 AA BB CC DD EE", e.getMessage());
         }
         Callable<Short> callable = submitCaptor.getValue();
         callable.call();
@@ -515,7 +515,7 @@ public class RP1210BusTest {
                 any(byte[].class),
                 eq((short) 2048),
                 eq((short) 0));
-        verify(logger).log(Level.WARNING, "Another module is using this address: 181234A5 77 88 99 AA BB CC DD EE");
+        verify(logger).log(Level.WARNING, "Another module is using this address: 181234A5 [8] 77 88 99 AA BB CC DD EE");
     }
 
     @Test

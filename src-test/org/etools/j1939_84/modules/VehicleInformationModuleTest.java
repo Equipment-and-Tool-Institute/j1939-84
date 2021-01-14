@@ -86,7 +86,7 @@ public class VehicleInformationModuleTest {
     public void testGetEngineFamilyName() throws Exception {
         DM56EngineFamilyPacket response = mock(DM56EngineFamilyPacket.class);
         when(response.getFamilyName()).thenReturn("family");
-        doReturn(new RequestResult<DM56EngineFamilyPacket>(false, response)).when(j1939)
+        doReturn(new RequestResult<>(false, response)).when(j1939)
                 .requestGlobalResult(null, ResultsListener.NOOP,
                         false, DM56EngineFamilyPacket.class);
 
@@ -122,7 +122,7 @@ public class VehicleInformationModuleTest {
         when(response1.getFamilyName()).thenReturn("name1");
         DM56EngineFamilyPacket response2 = mock(DM56EngineFamilyPacket.class);
         when(response2.getFamilyName()).thenReturn("name2");
-        doReturn(new RequestResult<DM56EngineFamilyPacket>(false, response1, response2)).when(j1939)
+        doReturn(new RequestResult<>(false, response1, response2)).when(j1939)
                 .requestGlobalResult(null, ResultsListener.NOOP, false, DM56EngineFamilyPacket.class);
 
         try {
@@ -141,7 +141,7 @@ public class VehicleInformationModuleTest {
     public void testGetEngineModelYear() throws Exception {
         DM56EngineFamilyPacket response = mock(DM56EngineFamilyPacket.class);
         when(response.getEngineModelYear()).thenReturn(123);
-        doReturn(new RequestResult<DM56EngineFamilyPacket>(false, response)).when(j1939)
+        doReturn(new RequestResult<>(false, response)).when(j1939)
                 .requestGlobalResult(null, ResultsListener.NOOP,
                         false, DM56EngineFamilyPacket.class);
 
@@ -176,7 +176,7 @@ public class VehicleInformationModuleTest {
         when(response1.getEngineModelYear()).thenReturn(123);
         DM56EngineFamilyPacket response2 = mock(DM56EngineFamilyPacket.class);
         when(response2.getEngineModelYear()).thenReturn(456);
-        doReturn(new RequestResult<DM56EngineFamilyPacket>(false, response1, response2)).when(j1939)
+        doReturn(new RequestResult<>(false, response1, response2)).when(j1939)
                 .requestGlobalResult(null,
                         ResultsListener.NOOP, false, DM56EngineFamilyPacket.class);
 
@@ -197,7 +197,7 @@ public class VehicleInformationModuleTest {
     public void testGetVin() throws Exception {
         VehicleIdentificationPacket response = mock(VehicleIdentificationPacket.class);
         when(response.getVin()).thenReturn("vin");
-        doReturn(new RequestResult<VehicleIdentificationPacket>(false, response)).when(j1939)
+        doReturn(new RequestResult<>(false, response)).when(j1939)
                 .requestGlobalResult(null, ResultsListener.NOOP,
                         false, VehicleIdentificationPacket.class);
 
@@ -235,7 +235,7 @@ public class VehicleInformationModuleTest {
         when(response1.getVin()).thenReturn("vin1");
         VehicleIdentificationPacket response2 = mock(VehicleIdentificationPacket.class);
         when(response2.getVin()).thenReturn("vin2");
-        doReturn(new RequestResult<VehicleIdentificationPacket>(false, response1, response2))
+        doReturn(new RequestResult<>(false, response1, response2))
                 .when(j1939).requestGlobalResult(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class);
 
         try {
@@ -259,7 +259,7 @@ public class VehicleInformationModuleTest {
         AddressClaimPacket packet2 = new AddressClaimPacket(Packet.parse("18EEFF3D 00 00 00 00 00 00 00 00"));
         AddressClaimPacket packet3 = new AddressClaimPacket(Packet.parse("18EEFF00 00 00 40 05 00 00 65 14"));
 
-        doReturn(new RequestResult<AddressClaimPacket>(false, packet1, packet2, packet3))
+        doReturn(new RequestResult<>(false, packet1, packet2, packet3))
                 .when(j1939)
                 .requestResult("Global Request for Address Claim",
                         listener,
@@ -286,7 +286,7 @@ public class VehicleInformationModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0xFF);
 
         AddressClaimPacket packet1 = new AddressClaimPacket(Packet.parse("18EEFF55 10 F7 45 01 00 45 00 01"));
-        doReturn(new RequestResult<AddressClaimPacket>(false, packet1))
+        doReturn(new RequestResult<>(false, packet1))
                 .when(j1939).requestResult("Global Request for Address Claim",
                 listener,
                 true,
@@ -347,7 +347,7 @@ public class VehicleInformationModuleTest {
                 true,
                 DM19CalibrationInformationPacket.class,
                 requestPacket))
-                .thenReturn(new RequestResult<DM19CalibrationInformationPacket>(false, packet1, packet2, packet3));
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         instance.reportCalibrationInformation(ResultsListener.NOOP);
         verify(j1939).createRequestPacket(pgn, 0xFF);
@@ -437,7 +437,7 @@ public class VehicleInformationModuleTest {
                 true,
                 ComponentIdentificationPacket.class,
                 requestPacket))
-                .thenReturn(new RequestResult<ComponentIdentificationPacket>(false, packet1, packet2, packet3));
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         instance.reportComponentIdentification(ResultsListener.NOOP);
 
@@ -508,7 +508,7 @@ public class VehicleInformationModuleTest {
         DM56EngineFamilyPacket packet1 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x00, bytes));
         DM56EngineFamilyPacket packet2 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x17, bytes));
         DM56EngineFamilyPacket packet3 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x21, bytes));
-        doReturn(new RequestResult<DM56EngineFamilyPacket>(false, packet1, packet2, packet3))
+        doReturn(new RequestResult<>(false, packet1, packet2, packet3))
                 .when(j1939).requestGlobal("Global DM56 Request", ResultsListener.NOOP, true,
                 DM56EngineFamilyPacket.class,
                 requestPacket);
@@ -552,7 +552,7 @@ public class VehicleInformationModuleTest {
 
         EngineHoursPacket packet1 = new EngineHoursPacket(Packet.create(pgn, 0x00, 1, 2, 3, 4, 5, 6, 7, 8));
         EngineHoursPacket packet2 = new EngineHoursPacket(Packet.create(pgn, 0x01, 8, 7, 6, 5, 4, 3, 2, 1));
-        doReturn(new RequestResult<EngineHoursPacket>(false, packet1, packet2)).when(j1939)
+        doReturn(new RequestResult<>(false, packet1, packet2)).when(j1939)
                 .requestResult("Engine Hours Request",
                         ResultsListener.NOOP,
                         true,
@@ -671,7 +671,7 @@ public class VehicleInformationModuleTest {
         VehicleIdentificationPacket packet1 = new VehicleIdentificationPacket(Packet.create(pgn, 0x00, vinBytes));
         VehicleIdentificationPacket packet2 = new VehicleIdentificationPacket(Packet.create(pgn, 0x17, vinBytes));
         VehicleIdentificationPacket packet3 = new VehicleIdentificationPacket(Packet.create(pgn, 0x21, vinBytes));
-        doReturn(new RequestResult<VehicleIdentificationPacket>(false, packet1, packet2, packet3))
+        doReturn(new RequestResult<>(false, packet1, packet2, packet3))
                 .when(j1939).requestResult("Global VIN Request",
                 ResultsListener.NOOP, true, VehicleIdentificationPacket.class,
                 requestPacket);
@@ -700,9 +700,9 @@ public class VehicleInformationModuleTest {
         doReturn(Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "10:15:30.0000 Global VIN Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 EC FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] EC FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 EC FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] EC FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         List<VehicleIdentificationPacket> packets = instance.reportVin(listener);

@@ -124,10 +124,10 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C2 00 (TX)" + NL;
-        expected += "10:15:30.0000 18C2A500 11 22 33 44 55 66 77 88" + NL;
-        expected += "10:15:30.0000 18C2A517 01 02 03 04 05 06 07 08" + NL;
-        expected += "10:15:30.0000 18C2A521 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
+        expected += "10:15:30.0000 18C2A500 [8] 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18C2A517 [8] 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18C2A521 [8] 10 20 30 40 50 60 70 80" + NL;
 
         instance.getDM20Packets(listener, false);
         assertEquals(expected, listener.getResults());
@@ -147,9 +147,9 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C2 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C2 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
         instance.getDM20Packets(listener, true);
         assertEquals(expected, listener.getResults());
@@ -176,20 +176,20 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C2 00 (TX)" + NL;
-        expected += "10:15:30.0000 18C2A500 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
+        expected += "10:15:30.0000 18C2A500 [8] 11 22 33 44 55 66 77 88" + NL;
         expected += "DM20 from Engine #1 (0):  [" + NL;
         expected += "                                                     Num'r /  Den'r" + NL;
         expected += "Ignition Cycles                                               8,721" + NL;
         expected += "OBD Monitoring Conditions Encountered                        17,459" + NL;
         expected += "]" + NL;
-        expected += "10:15:30.0000 18C2A517 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18C2A517 [8] 01 02 03 04 05 06 07 08" + NL;
         expected += "DM20 from Instrument Cluster #1 (23):  [" + NL;
         expected += "                                                     Num'r /  Den'r" + NL;
         expected += "Ignition Cycles                                                 513" + NL;
         expected += "OBD Monitoring Conditions Encountered                         1,027" + NL;
         expected += "]" + NL;
-        expected += "10:15:30.0000 18C2A521 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18C2A521 [8] 10 20 30 40 50 60 70 80" + NL;
         expected += "DM20 from Body Controller (33):  [" + NL;
         expected += "                                                     Num'r /  Den'r" + NL;
         expected += "Ignition Cycles                                               8,208" + NL;
@@ -221,20 +221,20 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C2 00 (TX)" + NL;
-        expected += "10:15:30.0000 18C2A501 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
+        expected += "10:15:30.0000 18C2A501 [8] 11 22 33 44 55 66 77 88" + NL;
         expected += "DM20 from Engine #2 (1):  [" + NL;
         expected += "                                                     Num'r /  Den'r" + NL;
         expected += "Ignition Cycles                                               8,721" + NL;
         expected += "OBD Monitoring Conditions Encountered                        17,459" + NL;
         expected += "]" + NL;
-        expected += "10:15:30.0000 18C2A517 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18C2A517 [8] 01 02 03 04 05 06 07 08" + NL;
         expected += "DM20 from Instrument Cluster #1 (23):  [" + NL;
         expected += "                                                     Num'r /  Den'r" + NL;
         expected += "Ignition Cycles                                                 513" + NL;
         expected += "OBD Monitoring Conditions Encountered                         1,027" + NL;
         expected += "]" + NL;
-        expected += "10:15:30.0000 18C2A521 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18C2A521 [8] 10 20 30 40 50 60 70 80" + NL;
         expected += "DM20 from Body Controller (33):  [" + NL;
         expected += "                                                     Num'r /  Den'r" + NL;
         expected += "Ignition Cycles                                               8,208" + NL;
@@ -261,8 +261,8 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM21 Request" + NL;
-        expected += "10:15:30.0000 18EA21A5 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.0000 18C1A521 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18EA21A5 [3] 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18C1A521 [8] 10 20 30 40 50 60 70 80" + NL;
 
         instance.getDM21Packets(listener, false, 0x21);
         assertEquals(expected, listener.getResults());
@@ -282,7 +282,7 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM21 Request" + NL;
-        expected += "10:15:30.0000 18EA17A5 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EA17A5 [3] 00 C1 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
         instance.getDM21Packets(listener, true, 0x17);
@@ -305,8 +305,8 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Destination Specific DM21 Request" + NL;
-        expected += "10:15:30.0000 18EA21A5 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.0000 18C1A521 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18EA21A5 [3] 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18C1A521 [8] 10 20 30 40 50 60 70 80" + NL;
         expected += "DM21 from Body Controller (33): [" + NL;
         expected += "  Distance Traveled While MIL is Activated:     8,208 km (5,100.215 mi)" + NL;
         expected += "  Time Run by Engine While MIL is Activated:    24,656 minutes" + NL;
@@ -339,10 +339,10 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FDB800 11 22 33 44 55 66 77 88" + NL;
-        expected += "10:15:30.0000 18FDB817 01 02 03 04 05 06 07 08" + NL;
-        expected += "10:15:30.0000 18FDB821 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FDB800 [8] 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18FDB817 [8] 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18FDB821 [8] 10 20 30 40 50 60 70 80" + NL;
         instance.getDM26Packets(listener, false);
         assertEquals(expected, listener.getResults());
 
@@ -360,9 +360,9 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
         instance.getDM26Packets(listener, true);
         assertEquals(expected, listener.getResults());
@@ -389,12 +389,12 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FDB800 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FDB800 [8] 11 22 33 44 55 66 77 88" + NL;
         expected += "DM26 from Engine #1 (0): Warm-ups: 51, Time Since Engine Start: 8,721 seconds" + NL;
-        expected += "10:15:30.0000 18FDB817 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18FDB817 [8] 01 02 03 04 05 06 07 08" + NL;
         expected += "DM26 from Instrument Cluster #1 (23): Warm-ups: 3, Time Since Engine Start: 513 seconds" + NL;
-        expected += "10:15:30.0000 18FDB821 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18FDB821 [8] 10 20 30 40 50 60 70 80" + NL;
         expected += "DM26 from Body Controller (33): Warm-ups: 48, Time Since Engine Start: 8,208 seconds" + NL;
 
         instance.getDM26Packets(listener, true);
@@ -422,12 +422,12 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FDB801 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FDB801 [8] 11 22 33 44 55 66 77 88" + NL;
         expected += "DM26 from Engine #2 (1): Warm-ups: 51, Time Since Engine Start: 8,721 seconds" + NL;
-        expected += "10:15:30.0000 18FDB817 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18FDB817 [8] 01 02 03 04 05 06 07 08" + NL;
         expected += "DM26 from Instrument Cluster #1 (23): Warm-ups: 3, Time Since Engine Start: 513 seconds" + NL;
-        expected += "10:15:30.0000 18FDB821 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18FDB821 [8] 10 20 30 40 50 60 70 80" + NL;
         expected += "DM26 from Body Controller (33): Warm-ups: 48, Time Since Engine Start: 8,208 seconds" + NL;
 
         instance.getDM26Packets(listener, true);
@@ -478,14 +478,14 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FECE01 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FECE01 [8] 11 22 33 44 55 66 77 88" + NL;
         expected += "DM5 from Engine #2 (1): OBD Compliance: Reserved for SAE/Unknown (51), Active Codes: 17, Previously Active Codes: 34"
                 + NL;
-        expected += "10:15:30.0000 18FECE17 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18FECE17 [8] 01 02 03 04 05 06 07 08" + NL;
         expected += "DM5 from Instrument Cluster #1 (23): OBD Compliance: OBD and OBD II (3), Active Codes: 1, Previously Active Codes: 2"
                 + NL;
-        expected += "10:15:30.0000 18FECE21 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18FECE21 [8] 10 20 30 40 50 60 70 80" + NL;
         expected += "DM5 from Body Controller (33): OBD Compliance: Reserved for SAE/Unknown (48), Active Codes: 16, Previously Active Codes: 32"
                 + NL;
 
@@ -514,10 +514,10 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FECE00 11 22 33 44 55 66 77 88" + NL;
-        expected += "10:15:30.0000 18FECE17 01 02 03 04 05 06 07 08" + NL;
-        expected += "10:15:30.0000 18FECE21 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FECE00 [8] 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18FECE17 [8] 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18FECE21 [8] 10 20 30 40 50 60 70 80" + NL;
 
         instance.getDM5Packets(listener, false);
         assertEquals(expected, listener.getResults());
@@ -537,9 +537,9 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
         instance.getDM5Packets(listener, true);
         assertEquals(expected, listener.getResults());
@@ -566,14 +566,14 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FECE00 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FECE00 [8] 11 22 33 44 55 66 77 88" + NL;
         expected += "DM5 from Engine #1 (0): OBD Compliance: Reserved for SAE/Unknown (51), Active Codes: 17, Previously Active Codes: 34"
                 + NL;
-        expected += "10:15:30.0000 18FECE17 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18FECE17 [8] 01 02 03 04 05 06 07 08" + NL;
         expected += "DM5 from Instrument Cluster #1 (23): OBD Compliance: OBD and OBD II (3), Active Codes: 1, Previously Active Codes: 2"
                 + NL;
-        expected += "10:15:30.0000 18FECE21 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18FECE21 [8] 10 20 30 40 50 60 70 80" + NL;
         expected += "DM5 from Body Controller (33): OBD Compliance: Reserved for SAE/Unknown (48), Active Codes: 16, Previously Active Codes: 32"
                 + NL;
 
@@ -681,12 +681,12 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FECE00 11 22 14 44 55 66 77 88" + NL;
-        expected += "10:15:30.0000 18FECE00 11 22 14 44 55 66 77 88" + NL;
-        expected += "10:15:30.0000 18FECE17 01 02 03 04 05 06 07 08" + NL;
-        expected += "10:15:30.0000 18FECE17 01 02 03 04 05 06 07 08" + NL;
-        expected += "10:15:30.0000 18FECE21 10 20 13 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FECE00 [8] 11 22 14 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18FECE00 [8] 11 22 14 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18FECE17 [8] 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18FECE17 [8] 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18FECE21 [8] 10 20 13 40 50 60 70 80" + NL;
         expected += "Engine #1 (0) reported as an HD-OBD Module." + NL;
         expected += "Body Controller (33) reported as an HD-OBD Module." + NL;
 
@@ -795,20 +795,20 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C2 00 (TX)" + NL;
-        expected += "10:15:30.0000 18C2A500 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
+        expected += "10:15:30.0000 18C2A500 [8] 11 22 33 44 55 66 77 88" + NL;
         expected += "DM20 from Engine #1 (0):  [" + NL;
         expected += "                                                     Num'r /  Den'r" + NL;
         expected += "Ignition Cycles                                               8,721" + NL;
         expected += "OBD Monitoring Conditions Encountered                        17,459" + NL;
         expected += "]" + NL;
-        expected += "10:15:30.0000 18C2A517 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18C2A517 [8] 01 02 03 04 05 06 07 08" + NL;
         expected += "DM20 from Instrument Cluster #1 (23):  [" + NL;
         expected += "                                                     Num'r /  Den'r" + NL;
         expected += "Ignition Cycles                                                 513" + NL;
         expected += "OBD Monitoring Conditions Encountered                         1,027" + NL;
         expected += "]" + NL;
-        expected += "10:15:30.0000 18C2A521 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18C2A521 [8] 10 20 30 40 50 60 70 80" + NL;
         expected += "DM20 from Body Controller (33):  [" + NL;
         expected += "                                                     Num'r /  Den'r" + NL;
         expected += "Ignition Cycles                                               8,208" + NL;
@@ -832,9 +832,9 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C2 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C2 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
         assertFalse(instance.reportDM20(listener));
         assertEquals(expected, listener.getResults());
@@ -861,12 +861,12 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FDB800 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FDB800 [8] 11 22 33 44 55 66 77 88" + NL;
         expected += "DM26 from Engine #1 (0): Warm-ups: 51, Time Since Engine Start: 8,721 seconds" + NL;
-        expected += "10:15:30.0000 18FDB817 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18FDB817 [8] 01 02 03 04 05 06 07 08" + NL;
         expected += "DM26 from Instrument Cluster #1 (23): Warm-ups: 3, Time Since Engine Start: 513 seconds" + NL;
-        expected += "10:15:30.0000 18FDB821 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18FDB821 [8] 10 20 30 40 50 60 70 80" + NL;
         expected += "DM26 from Body Controller (33): Warm-ups: 48, Time Since Engine Start: 8,208 seconds" + NL;
         expected += NL;
         expected += "Vehicle Composite of DM26:" + NL;
@@ -904,9 +904,9 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 B8 FD 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
         assertFalse(instance.reportDM26(listener));
         assertEquals(expected, listener.getResults());
@@ -933,14 +933,14 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FECE00 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FECE00 [8] 11 22 33 44 55 66 77 88" + NL;
         expected += "DM5 from Engine #1 (0): OBD Compliance: Reserved for SAE/Unknown (51), Active Codes: 17, Previously Active Codes: 34"
                 + NL;
-        expected += "10:15:30.0000 18FECE17 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18FECE17 [8] 01 02 03 04 05 06 07 08" + NL;
         expected += "DM5 from Instrument Cluster #1 (23): OBD Compliance: OBD and OBD II (3), Active Codes: 1, Previously Active Codes: 2"
                 + NL;
-        expected += "10:15:30.0000 18FECE21 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18FECE21 [8] 10 20 30 40 50 60 70 80" + NL;
         expected += "DM5 from Body Controller (33): OBD Compliance: Reserved for SAE/Unknown (48), Active Codes: 16, Previously Active Codes: 32"
                 + NL;
         expected += NL;
@@ -979,9 +979,9 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
         assertFalse(instance.reportDM5(listener));
         assertEquals(expected, listener.getResults());
@@ -1197,10 +1197,10 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.0000 18C1A500 11 22 33 44 55 66 77 88" + NL;
-        expected += "10:15:30.0000 18C1A517 01 02 03 04 05 06 07 08" + NL;
-        expected += "10:15:30.0000 18C1A521 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18C1A500 [8] 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18C1A517 [8] 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18C1A521 [8] 10 20 30 40 50 60 70 80" + NL;
 
         instance.requestDM21Packets(listener, false);
         assertEquals(expected, listener.getResults());
@@ -1221,9 +1221,9 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
         instance.requestDM21Packets(listener, true);
         assertEquals(expected, listener.getResults());
@@ -1250,22 +1250,22 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.0000 18C1A500 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18C1A500 [8] 11 22 33 44 55 66 77 88" + NL;
         expected += "DM21 from Engine #1 (0): [" + NL;
         expected += "  Distance Traveled While MIL is Activated:     8,721 km (5,418.978 mi)" + NL;
         expected += "  Time Run by Engine While MIL is Activated:    26,197 minutes" + NL;
         expected += "  Distance Since DTCs Cleared:                  17,459 km (10,848.52 mi)" + NL;
         expected += "  Time Since DTCs Cleared:                      34,935 minutes" + NL;
         expected += "]" + NL;
-        expected += "10:15:30.0000 18C1A517 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18C1A517 [8] 01 02 03 04 05 06 07 08" + NL;
         expected += "DM21 from Instrument Cluster #1 (23): [" + NL;
         expected += "  Distance Traveled While MIL is Activated:     513 km (318.763 mi)" + NL;
         expected += "  Time Run by Engine While MIL is Activated:    1,541 minutes" + NL;
         expected += "  Distance Since DTCs Cleared:                  1,027 km (638.148 mi)" + NL;
         expected += "  Time Since DTCs Cleared:                      2,055 minutes" + NL;
         expected += "]" + NL;
-        expected += "10:15:30.0000 18C1A521 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18C1A521 [8] 10 20 30 40 50 60 70 80" + NL;
         expected += "DM21 from Body Controller (33): [" + NL;
         expected += "  Distance Traveled While MIL is Activated:     8,208 km (5,100.215 mi)" + NL;
         expected += "  Time Run by Engine While MIL is Activated:    24,656 minutes" + NL;
@@ -1298,22 +1298,22 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 00 C1 00 (TX)" + NL;
-        expected += "10:15:30.0000 18C1A501 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
+        expected += "10:15:30.0000 18C1A501 [8] 11 22 33 44 55 66 77 88" + NL;
         expected += "DM21 from Engine #2 (1): [" + NL;
         expected += "  Distance Traveled While MIL is Activated:     8,721 km (5,418.978 mi)" + NL;
         expected += "  Time Run by Engine While MIL is Activated:    26,197 minutes" + NL;
         expected += "  Distance Since DTCs Cleared:                  17,459 km (10,848.52 mi)" + NL;
         expected += "  Time Since DTCs Cleared:                      34,935 minutes" + NL;
         expected += "]" + NL;
-        expected += "10:15:30.0000 18C1A517 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18C1A517 [8] 01 02 03 04 05 06 07 08" + NL;
         expected += "DM21 from Instrument Cluster #1 (23): [" + NL;
         expected += "  Distance Traveled While MIL is Activated:     513 km (318.763 mi)" + NL;
         expected += "  Time Run by Engine While MIL is Activated:    1,541 minutes" + NL;
         expected += "  Distance Since DTCs Cleared:                  1,027 km (638.148 mi)" + NL;
         expected += "  Time Since DTCs Cleared:                      2,055 minutes" + NL;
         expected += "]" + NL;
-        expected += "10:15:30.0000 18C1A521 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18C1A521 [8] 10 20 30 40 50 60 70 80" + NL;
         expected += "DM21 from Body Controller (33): [" + NL;
         expected += "  Distance Traveled While MIL is Activated:     8,208 km (5,100.215 mi)" + NL;
         expected += "  Time Run by Engine While MIL is Activated:    24,656 minutes" + NL;
@@ -1346,14 +1346,14 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FECE00 11 22 33 44 55 66 77 88" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18FECE00 [8] 11 22 33 44 55 66 77 88" + NL;
         expected += "DM5 from Engine #1 (0): OBD Compliance: Reserved for SAE/Unknown (51), Active Codes: 17, Previously Active Codes: 34"
                 + NL;
-        expected += "10:15:30.0000 18FECE17 01 02 03 04 05 06 07 08" + NL;
+        expected += "10:15:30.0000 18FECE17 [8] 01 02 03 04 05 06 07 08" + NL;
         expected += "DM5 from Instrument Cluster #1 (23): OBD Compliance: OBD and OBD II (3), Active Codes: 1, Previously Active Codes: 2"
                 + NL;
-        expected += "10:15:30.0000 18FECE21 10 20 30 40 50 60 70 80" + NL;
+        expected += "10:15:30.0000 18FECE21 [8] 10 20 30 40 50 60 70 80" + NL;
         expected += "DM5 from Body Controller (33): OBD Compliance: Reserved for SAE/Unknown (48), Active Codes: 16, Previously Active Codes: 32"
                 + NL;
         expected += NL;
@@ -1392,9 +1392,9 @@ public class DiagnosticReadinessModuleTest {
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 CE FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
         instance.requestDM5Packets(listener, true);
         assertEquals(expected, listener.getResults());

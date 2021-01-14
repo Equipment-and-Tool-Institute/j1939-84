@@ -94,7 +94,7 @@ public class J1939TPTest {
             Stream<Packet> s = bus.read(J1939TP.T1 * 5, TimeUnit.MILLISECONDS);
             bus.send(Packet.parse("18EC00F9 10 09 00 02 FF 00 EA 00"));
             // verify exactly 3 CTS
-            assertEquals(3, s.filter(p -> p.toString().startsWith("18ECF900 11")).count());
+            assertEquals(3, s.filter(p -> p.toString().startsWith("18ECF900 [8] 11")).count());
         }
     }
 
