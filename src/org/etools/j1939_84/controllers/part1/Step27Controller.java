@@ -8,12 +8,13 @@ import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -34,10 +35,10 @@ public class Step27Controller extends StepController {
 
     Step27Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
-                new EngineSpeedModule(),
-                new BannerModule(),
-                new VehicleInformationModule(),
-                DateTimeModule.getInstance());
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             DateTimeModule.getInstance());
     }
 
     Step27Controller(Executor executor,
@@ -46,13 +47,13 @@ public class Step27Controller extends StepController {
                      VehicleInformationModule vehicleInformationModule,
                      DateTimeModule dateTimeModule) {
         super(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dateTimeModule,
-                PART_NUMBER,
-                STEP_NUMBER,
-                TOTAL_STEPS);
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              dateTimeModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
     }
 
     @Override
@@ -98,15 +99,17 @@ public class Step27Controller extends StepController {
         // First of all, let's figure out if we have a failure
         boolean hasFailure = getPartResult(PART_NUMBER).getStepResults()
                 .stream()
-                .anyMatch(s -> s.getOutcome() == Outcome.FAIL);
+                .anyMatch(s -> s.getOutcome() == FAIL);
         if (hasFailure) {
             // We have a failure, display the question
             QuestionListener questionListener = answerType -> {
                 // end test if user doesn't want to continue
                 if (answerType == NO) {
-                    getListener().addOutcome(1, 27, ABORT, "Aborting - user ended test");
+                    getListener().addOutcome(getPartNumber(), getStepNumber(), INCOMPLETE, "Stopping test - user ended test");
                     try {
-                        setEnding(Ending.ABORTED);
+                        getListener().onResult("User cancelled the test at Part " + getPartNumber() + " Step " + getStepNumber());
+                        setEnding(Ending.STOPPED);
+                        incrementProgress("User cancelled testing");
                     } catch (InterruptedException ignored) {
                     }
                 }
@@ -125,7 +128,8 @@ public class Step27Controller extends StepController {
      * Ensures the Key is on with the Engine Off and prompts the user to make
      * the proper adjustments.
      *
-     * @throws InterruptedException if the user cancels the operation
+     * @throws InterruptedException
+     *         if the user cancels the operation
      */
     private void ensureKeyOnEngineOn() throws InterruptedException {
         try {
@@ -138,6 +142,8 @@ public class Step27Controller extends StepController {
             }
         } catch (InterruptedException e) {
             getListener().addOutcome(getPartNumber(), getStepNumber(), ABORT, "User cancelled operation");
+            setEnding(Ending.STOPPED);
+            incrementProgress("User cancelled testing");
             throw e;
         }
     }

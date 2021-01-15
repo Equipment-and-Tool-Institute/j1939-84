@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers;
 
 import java.util.List;
+import javax.swing.JOptionPane;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.StepResult;
@@ -22,7 +23,8 @@ public interface ResultsListener {
      */
     public enum MessageType {
         // The values correspond to JOptionPane Types
-        ERROR(2), INFO(1), PLAIN(-1), QUESTION(0), WARNING(2);
+
+        ERROR(JOptionPane.OK_CANCEL_OPTION), INFO(JOptionPane.INFORMATION_MESSAGE), PLAIN(JOptionPane.PLAIN_MESSAGE), QUESTION(JOptionPane.YES_NO_OPTION), WARNING(JOptionPane.OK_CANCEL_OPTION);
 
         private final int value;
 

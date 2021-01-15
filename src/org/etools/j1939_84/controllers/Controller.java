@@ -160,7 +160,7 @@ public abstract class Controller {
     /**
      * How the execution ended
      */
-    private Ending ending;
+    private static Ending ending;
 
     /**
      * The {@link EngineSpeedModule} used to determine if the engine is

@@ -4,12 +4,16 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
+import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import javax.swing.JOptionPane;
 import org.etools.j1939_84.controllers.DataRepository;
+import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.controllers.StepController;
@@ -56,7 +60,9 @@ public class Step01Controller extends StepController {
             @Override public void onResult(VehicleInformation vehInfo) {
                 if (vehInfo == null) {
                     try {
-                        setEnding(Ending.ABORTED);
+                        getListener().onResult("User cancelled the test at Part " + getPartNumber() + " Step " + getStepNumber());
+                        setEnding(Ending.STOPPED);
+                        incrementProgress("User cancelled testing");
                     } catch (InterruptedException e) {
                         // This will be caught later.
                     }
@@ -88,8 +94,19 @@ public class Step01Controller extends StepController {
         message += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts)." + NL;
         message += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions."
                 + NL;
-
-        getListener().onUrgentMessage(message, "Start Part 1", MessageType.WARNING);
+        QuestionListener questionListener = answerType -> {
+            //end test if user hits cancel button
+            if(answerType == CANCEL){
+                getListener().addOutcome(getPartNumber(), getStepNumber(), INCOMPLETE, "Stopping test - user ended test");
+                try{
+                    getListener().onResult("User cancelled the test at Part " + getPartNumber() + " Step " + getStepNumber());
+                    setEnding(Ending.STOPPED);
+                    incrementProgress("User cancelled testing");
+                }catch (InterruptedException ignored){
+                }
+            }
+        };
+        getListener().onUrgentMessage(message, "Start Part 1", WARNING, questionListener);
     }
 
     /**
@@ -110,8 +127,8 @@ public class Step01Controller extends StepController {
             }
         } catch (InterruptedException e) {
             getListener().addOutcome(1, 2, ABORT, "User cancelled operation");
-            setEnding(Ending.ABORTED);
-            updateProgress("User Aborted");
+            setEnding(Ending.STOPPED);
+            incrementProgress("User Aborted");
         }
     }
 
