@@ -9,14 +9,12 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -145,31 +143,19 @@ public class Step13ControllerTest extends AbstractControllerTest {
                 Packet.create(PGN, 0x17, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00));
         DM5DiagnosticReadinessPacket packet21 = new DM5DiagnosticReadinessPacket(
                 Packet.create(PGN, 0x21, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00));
+
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(
-                false, List.of(packet0, packet17, packet21), Collections.emptyList());
+                false, packet0, packet17, packet21);
         when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalRequestResponse);
 
-        BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false, packet0);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x00))).thenReturn(busResult0x00);
-        BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false, packet17);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x17))).thenReturn(busResult0x17);
-        BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false, packet21);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x21))).thenReturn(busResult0x21);
+        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse)))
+                .thenReturn(true);
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
-                true);
-
-        when(dataRepository.getObdModuleAddresses()).thenReturn(new ArrayList<>() {
-            {
-                add(0x00);
-                add(0x17);
-                add(0x21);
-            }
-        });
+        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of());
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
 
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
@@ -200,9 +186,8 @@ public class Step13ControllerTest extends AbstractControllerTest {
         AcknowledgmentPacket packet44 = new AcknowledgmentPacket(
                 Packet.create(PGN, 0x44, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
-                                                                                                Collections.emptyList(),
-                                                                                                Collections.singletonList(
-                                                                                                        packet44));
+                                                                                                List.of(),
+                                                                                                List.of(packet44));
         when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalRequestResponse);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
@@ -218,27 +203,30 @@ public class Step13ControllerTest extends AbstractControllerTest {
         when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
                 false);
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(new ArrayList<>() {
-            {
-                add(0x00);
-                add(0x17);
-                add(0x21);
-            }
-        });
+        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21));
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.13.1.a - Global DM5 request did not receive any response packets");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.1.13.2.c - No OBD ECU provided DM5 with readiness bits showing monitor support");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                                        "6.1.13.3.a - Destination Specific DM5 requests to OBD modules did not return any responses");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.13.4.b - NACK not received from OBD ECUs that did not respond to global query");
-
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.13.4.b. - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.13.4.b. - OBD module Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.13.4.b. - OBD module Body Controller (33) did not provide a response to Global query and did not provide a NACK for the DS query");
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
         assertEquals("", listener.getMessages());
@@ -246,7 +234,9 @@ public class Step13ControllerTest extends AbstractControllerTest {
 
         String expectedResults = "FAIL: 6.1.13.1.a - Global DM5 request did not receive any response packets" + NL;
         expectedResults += "FAIL: 6.1.13.2.c - No OBD ECU provided DM5 with readiness bits showing monitor support" + NL;
-        expectedResults += "WARN: 6.1.13.3.a - Destination Specific DM5 requests to OBD modules did not return any responses" + NL;
+        expectedResults += "FAIL: 6.1.13.4.b. - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
+        expectedResults += "FAIL: 6.1.13.4.b. - OBD module Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
+        expectedResults += "FAIL: 6.1.13.4.b. - OBD module Body Controller (33) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -263,39 +253,26 @@ public class Step13ControllerTest extends AbstractControllerTest {
         final int ackPgn = AcknowledgmentPacket.PGN;
         AcknowledgmentPacket packet23 = new AcknowledgmentPacket(
                 Packet.create(ackPgn, 0x23, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(
-                false, Arrays.asList(packet0, packet21),
-                Collections.singletonList(packet23));
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalRequestResponse);
+        RequestResult<DM5DiagnosticReadinessPacket> globalResponse = new RequestResult<>(
+                false, List.of(packet0, packet21), List.of(packet23));
+        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalResponse);
 
-        BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
-                                                                                Optional.empty());
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x00))).thenReturn(busResult0x00);
-        BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false,
-                                                                                Optional.empty());
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x17))).thenReturn(busResult0x17);
-        BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false,
-                                                                                packet21V2);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x21))).thenReturn(busResult0x21);
-        BusResult<DM5DiagnosticReadinessPacket> busResult0x23 = new BusResult<>(false,
-                                                                                packet23);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x23))).thenReturn(busResult0x23);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x00)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x17)))
+                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x21)))
+                .thenReturn(new BusResult<>(false, packet21V2));
+        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x23)))
+                .thenReturn(new BusResult<>(false, packet23));
 
-        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
-                false);
+        when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalResponse))).thenReturn(false);
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(new ArrayList<>() {
-            {
-                add(0x00);
-                add(0x17);
-                add(0x21);
-                add(0x23);
-            }
-        });
+        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0x00, 0x17, 0x21, 0x23));
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
         String expected2dWarning = "6.1.13.2.d - An individual required monitor is supported by more than one OBD ECU" + NL +
                 "Boost pressure control sys has reporting from more than one OBD ECU" + NL +
                 "Diesel Particulate Filter  has reporting from more than one OBD ECU" + NL +
@@ -307,19 +284,25 @@ public class Step13ControllerTest extends AbstractControllerTest {
                 "NMHC converting catalyst   has reporting from more than one OBD ECU" + NL +
                 "NOx catalyst/adsorber      has reporting from more than one OBD ECU";
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.1.13.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0" + NL
                                                 + "  Reported active fault count = 3" + NL + "  Reported previously active fault count = 16");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                                        expected2dWarning);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, expected2dWarning);
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.1.13.4.a - Difference compared to data received during global request");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.13.4.b - NACK not received from OBD ECUs that did not respond to global query");
-
-        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.13.4.b. - OBD module Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.13.4.b. - OBD module Hitch Control (35) did not provide a response to Global query and did not provide a NACK for the DS query");
+        verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalResponse));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -346,6 +329,10 @@ public class Step13ControllerTest extends AbstractControllerTest {
         expectedResults += "  Reported active fault count = 3" + NL;
         expectedResults += "  Reported previously active fault count = 16" + NL;
         expectedResults += "WARN: " + expected2dWarning + NL;
+        expectedResults += "FAIL: 6.1.13.4.a - Difference compared to data received during global request" + NL;
+        expectedResults += "FAIL: 6.1.13.4.b. - OBD module Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
+        expectedResults += "FAIL: 6.1.13.4.b. - OBD module Hitch Control (35) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
+
         assertEquals(expectedResults, listener.getResults());
     }
 }

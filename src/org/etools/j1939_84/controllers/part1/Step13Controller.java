@@ -4,17 +4,14 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static org.etools.j1939_84.model.Outcome.FAIL;
 
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-import org.etools.j1939_84.bus.Either;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
@@ -155,51 +152,17 @@ public class Step13Controller extends StepController {
 
         List<Integer> obdAddresses = dataRepository.getObdModuleAddresses();
         // 6.1.13.3.a. DS DM5 to each OBD ECU.
-        List<Either<DM5DiagnosticReadinessPacket, AcknowledgmentPacket>> destinationSpecificPackets = obdAddresses
+        List<BusResult<DM5DiagnosticReadinessPacket>> destinationSpecificPackets = obdAddresses
                 .stream()
-                .flatMap(address -> diagnosticReadinessModule.requestDM5(getListener(), true, address)
-                        .getPacket()
-                        .stream())
-                .collect(Collectors.toList());
-        if (destinationSpecificPackets.isEmpty()) {
-            addWarning("6.1.13.3.a - Destination Specific DM5 requests to OBD modules did not return any responses");
-        }
-
-        List<DM5DiagnosticReadinessPacket> dsDM5s = destinationSpecificPackets.stream()
-                .filter(r -> r.left.isPresent())
-                .map(p -> p.left.get())
-                .collect(Collectors.toList());
-
-        List<DM5DiagnosticReadinessPacket> unmatchedPackets = response.getPackets().stream()
-                .filter(packet -> !dsDM5s.contains(packet))
+                .map(address -> diagnosticReadinessModule.requestDM5(getListener(), true, address))
                 .collect(Collectors.toList());
 
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.
-        if (!unmatchedPackets.isEmpty()) {
-            getListener().addOutcome(getPartNumber(),
-                                     getStepNumber(),
-                                     FAIL,
-                                     "6.1.13.4.a - Difference compared to data received during global request");
-        }
+        List<DM5DiagnosticReadinessPacket> dsDM5s = filterPackets(destinationSpecificPackets);
+        compareRequestPackets(obdGlobalPackets, dsDM5s, "6.1.13.4.a");
 
-        // 6.1.13.4.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
-        Collection<Integer> nackAddresses = destinationSpecificPackets.stream()
-                .filter(r -> r.right.isPresent())
-                .map(r -> r.right.get())
-                .filter(packet -> packet.getResponse() == NACK).map(p -> p.getSourceAddress())
-                .collect(Collectors.toSet());
-        //Removed the addresses that returned a nack
-        obdAddresses.removeAll(nackAddresses);
-        //Removed the addresses that responded
-        Collection<Integer> responseAddresses = response.getPackets().stream()
-                .map(p -> p.getSourceAddress())
-                .collect(Collectors.toSet());
-        obdAddresses.removeAll(responseAddresses);
-        if (!obdAddresses.isEmpty()) {
-            getListener().addOutcome(getPartNumber(),
-                                     getStepNumber(),
-                                     FAIL,
-                                     "6.1.13.4.b - NACK not received from OBD ECUs that did not respond to global query");
-        }
+        // 6.1.13.4.a. Fail if any difference compared to data received during global request.
+        List<AcknowledgmentPacket> dsAcks = filterAcks(destinationSpecificPackets);
+        checkForNACKs(obdGlobalPackets, dsAcks, dataRepository.getObdModuleAddresses(), "6.1.13.4.b.");
     }
 }

@@ -1,5 +1,5 @@
-/**
- * Copyright 2020 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
 
@@ -73,11 +73,8 @@ public class Step23ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
@@ -92,11 +89,8 @@ public class Step23ControllerTest extends AbstractControllerTest {
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verifyNoMoreInteractions(executor,
                                  engineSpeedModule,
                                  bannerModule,
@@ -132,9 +126,9 @@ public class Step23ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM31(any());
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                                       "6.1.23.2 - a. Fail if any received ECU response does not report MIL off");
+                                                       "6.1.23.2.a - An ECU response does not report MIL off");
 
-        String expectedResults = "FAIL: 6.1.23.2 - a. Fail if any received ECU response does not report MIL off" + NL;
+        String expectedResults = "FAIL: 6.1.23.2.a - An ECU response does not report MIL off" + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());

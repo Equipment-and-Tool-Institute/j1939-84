@@ -404,8 +404,6 @@ public class Step14ControllerTest extends AbstractControllerTest {
                                         "6.1.14.2.e - Response indicates time since engine start is not zero" + NL +
                                                 "DM26 from Engine #2 (1): Warm-ups: 51, Time Since Engine Start: 8,721 seconds"
                                                 + NL);
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                                        "6.1.14.4.a - Destination Specific DM5 requests to OBD modules did not return any responses");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.14.2.e - Response indicates time since engine start is not zero" + NL +
                                                 "DM26 from Transmission #1 (3): Warm-ups: 10, Time Since Engine Start: 8,721 seconds" + NL);
@@ -419,12 +417,6 @@ public class Step14ControllerTest extends AbstractControllerTest {
                                                 + NL + "Diesel Particulate Filter  has reporting from more than one OBD ECU"
                                                 + NL + "Evaporative system         has reporting from more than one OBD ECU"
                                                 + NL + "Exhaust Gas Sensor heater  has reporting from more than one OBD ECU");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                                        "6.1.14.4.a - Destination Specific DM5 requests to OBD modules did not return any responses");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.14.5.a - Difference compared to data received during global request");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.14.5.b - NACK not received from OBD ECUs that did not respond to global query");
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
@@ -487,12 +479,6 @@ public class Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "Evaporative system         has reporting from more than one OBD ECU"
                 + NL;
         expectedResults += "Exhaust Gas Sensor heater  has reporting from more than one OBD ECU"
-                + NL;
-        expectedResults += "WARN: 6.1.14.4.a - Destination Specific DM5 requests to OBD modules did not return any responses"
-                + NL;
-        expectedResults += "FAIL: 6.1.14.5.a - Difference compared to data received during global request"
-                + NL;
-        expectedResults += "FAIL: 6.1.14.5.b - NACK not received from OBD ECUs that did not respond to global query"
                 + NL;
         assertEquals(expectedResults, listener.getResults());
     }

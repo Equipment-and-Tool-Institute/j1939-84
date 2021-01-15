@@ -1,5 +1,5 @@
-/**
- * Copyright 2020 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
 
@@ -10,6 +10,7 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.*;
 
 /**
@@ -62,15 +63,14 @@ public class Step24Controller extends StepController {
 
         dtcModule.setJ1939(getJ1939());
 
-        // 6.1.24.1 Actions:
-        // a.. DS DM25 (send Request (PGN 59904) for PGN 64951 (SPNs 3300,
+        // 6.1.24.1.a. DS DM25 (send Request (PGN 59904) for PGN 64951 (SPNs 3300,
         // 1214-1215)) to each OBD ECU that responded to DS DM24 with supported
         // freeze frame SPNs.
 
         // First get the correct OBD Modules per requirements
         List<Integer> obdModuleAddresses = dataRepository.getObdModules().stream()
                 .filter(module -> !module.getFreezeFrameSpns().isEmpty())
-                .map(m -> m.getSourceAddress())
+                .map(OBDModuleInformation::getSourceAddress)
                 .collect(Collectors.toList());
 
         // Get the responses from each of the modules required
@@ -91,14 +91,11 @@ public class Step24Controller extends StepController {
                 })
                 .collect(Collectors.toList());
 
-        // 6.1.24.2 Fail criteria:
-        // a. Fail if any OBD ECU provides freeze frame data other than no
-        // freeze frame data stored [i.e., bytes 1-5= 0x00 and
-        // bytes 6-8 = 0xFF]
+        // 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no
+        // freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]
         if (!dm25Packets.isEmpty()) {
             // Verify the no data & DTC didn't cause freeze frame
-            addFailure(
-                    "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+            addFailure("6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
         }
     }
 }

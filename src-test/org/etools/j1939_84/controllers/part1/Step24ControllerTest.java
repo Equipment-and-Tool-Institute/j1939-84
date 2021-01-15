@@ -1,5 +1,5 @@
-/**
- * Copyright 2020 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
 
@@ -81,11 +81,8 @@ public class Step24ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
@@ -100,11 +97,8 @@ public class Step24ControllerTest extends AbstractControllerTest {
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
 
-    /**
-     * @throws java.lang.Exception
-     */
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         verifyNoMoreInteractions(executor,
                                  engineSpeedModule,
                                  bannerModule,
@@ -150,9 +144,9 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
 
-        String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
+        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
                 + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -194,9 +188,9 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
 
-        String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
+        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
                 + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -238,9 +232,9 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
 
-        String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
+        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
                 + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -282,9 +276,9 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
 
-        String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
+        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
                 + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -326,9 +320,9 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
 
-        String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
+        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
                 + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -370,9 +364,9 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
 
-        String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
+        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
                 + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -414,9 +408,9 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
 
-        String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
+        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
                 + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -458,9 +452,9 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
 
-        String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
+        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
                 + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -502,9 +496,9 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
 
-        String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
+        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
                 + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -546,9 +540,9 @@ public class Step24ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]");
+                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
 
-        String expectedResults = "FAIL: 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]"
+        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
                 + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());

@@ -5,18 +5,14 @@ package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -120,11 +116,11 @@ public class Step21ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testEmptyPacketFailure() {
-        List<Integer> obdModuleAddresses = Collections.singletonList(0x01);
+        List<Integer> obdModuleAddresses = List.of(0x01);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
         when(dtcModule.requestDM27(any(), eq(true)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, List.of(), List.of()));
         when(dtcModule.requestDM27(any(), eq(true), eq(0x01)))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
 
@@ -135,13 +131,12 @@ public class Step21ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM27(any(), eq(true));
         verify(dtcModule).requestDM27(any(), eq(true), eq(0x01));
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                                        "6.1.21.3 OBD module Engine #2 (1) did not return a response to a destination specific request");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                                        "6.1.21.3 OBD module Engine #2 (1) did not return a response to a destination specific request");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
 
-        String expectedResults = "WARN: 6.1.21.3 OBD module Engine #2 (1) did not return a response to a destination specific request"
-                + NL;
+        String expectedResults = "FAIL: 6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -158,24 +153,14 @@ public class Step21ControllerTest extends AbstractControllerTest {
                 Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
                 Packet.create(PGN, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
-        List<Integer> obdModuleAddresses = new ArrayList<>() {
-            {
-                add(0x01);
-                add(0x03);
-            }
-        };
+        List<Integer> obdModuleAddresses = List.of(1, 3);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
         DM27AllPendingDTCsPacket obdPacket3 = new DM27AllPendingDTCsPacket(
                 Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
 
         when(dtcModule.requestDM27(any(), eq(true)))
-                .thenReturn(new RequestResult<>(false, new ArrayList<>() {
-                    {
-                        add(packet1);
-                        add(packet3);
-                    }
-                }, Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, List.of(packet1, packet3), List.of()));
 
         when(dtcModule.requestDM27(any(), eq(true), eq(0x01)))
                 .thenReturn(new BusResult<>(false, packet1));
@@ -190,19 +175,19 @@ public class Step21ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM27(any(), eq(true), eq(0x01));
         verify(dtcModule).requestDM27(any(), eq(true), eq(0x03));
 
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                                  "6.1.21.2.a - Fail if any OBD ECU reports an all pending DTC");
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                                  "6.1.21.2.b - Fail if any ECU does not report MIL off");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.21.4.a Fail if any difference compared to data received during global request");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.a - An OBD ECU reported an all pending DTC");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.21.2.b - An ECU did not report MIL off");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.4.a - Difference compared to data received during global request");
 
-        String expectedResults = "FAIL: 6.1.21.2.a - Fail if any OBD ECU reports an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Fail if any ECU does not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.21.2.a - Fail if any OBD ECU reports an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Fail if any ECU does not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.21.4.a Fail if any difference compared to data received during global request"
-                + NL;
+        String expectedResults = "FAIL: 6.1.21.2.a - An OBD ECU reported an all pending DTC" + NL;
+        expectedResults += "FAIL: 6.1.21.2.b - An ECU did not report MIL off" + NL;
+        expectedResults += "FAIL: 6.1.21.4.a - Difference compared to data received during global request" + NL;
 
         assertEquals(expectedResults, listener.getResults());
     }
@@ -246,19 +231,16 @@ public class Step21ControllerTest extends AbstractControllerTest {
                 Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
 
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77,
-                              0x88));
+                Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77, 0x88));
 
-        List<Integer> obdModuleAddresses = Arrays.asList(0x01, 0x03);
+        List<Integer> obdModuleAddresses = List.of(0x01, 0x03);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
-        when(dtcModule.requestDM27(any(), eq(true)))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(),
-                                                Collections.singletonList(ackPacket)));
-        when(dtcModule.requestDM27(any(), eq(true), eq(0x01)))
-                .thenReturn(new BusResult<>(false, ackPacket));
-        when(dtcModule.requestDM27(any(), eq(true), eq(0x03)))
-                .thenReturn(new BusResult<>(false, packet3));
+        when(dtcModule.requestDM27(any(), eq(true))).thenReturn(new RequestResult<>(false,
+                                                                                    List.of(),
+                                                                                    List.of(ackPacket)));
+        when(dtcModule.requestDM27(any(), eq(true), eq(0x01))).thenReturn(new BusResult<>(false, ackPacket));
+        when(dtcModule.requestDM27(any(), eq(true), eq(0x03))).thenReturn(new BusResult<>(false, packet3));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -268,7 +250,18 @@ public class Step21ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM27(any(), eq(true), eq(0x01));
         verify(dtcModule).requestDM27(any(), eq(true), eq(0x03));
 
-        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
+        String expected = "";
+        expected+="FAIL: 6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query"+NL;
+        expected+="FAIL: 6.1.21.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query"+NL;
+        assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -286,8 +279,7 @@ public class Step21ControllerTest extends AbstractControllerTest {
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
                 Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77,
-                              0x88));
+                Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77, 0x88));
 
         List<Integer> obdModuleAddresses = Arrays.asList(0x01, 0x03);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
@@ -295,13 +287,11 @@ public class Step21ControllerTest extends AbstractControllerTest {
         DM27AllPendingDTCsPacket packet3b = new DM27AllPendingDTCsPacket(
                 Packet.create(PGN, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
 
-        when(dtcModule.requestDM27(any(), eq(true)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet3),
-                                                Collections.singletonList(ackPacket)));
-        when(dtcModule.requestDM27(any(), eq(true), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
-        when(dtcModule.requestDM27(any(), eq(true), eq(0x03)))
-                .thenReturn(new BusResult<>(false, packet3b));
+        when(dtcModule.requestDM27(any(), eq(true))).thenReturn(new RequestResult<>(false,
+                                                                                    List.of(packet3),
+                                                                                    List.of(ackPacket)));
+        when(dtcModule.requestDM27(any(), eq(true), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(dtcModule.requestDM27(any(), eq(true), eq(0x03))).thenReturn(new BusResult<>(false, packet3b));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -311,20 +301,25 @@ public class Step21ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM27(any(), eq(true), eq(0x01));
         verify(dtcModule).requestDM27(any(), eq(true), eq(0x03));
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.21.2.a - Fail if any OBD ECU reports an all pending DTC");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.21.2.b - Fail if any ECU does not report MIL off");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.21.4.a Fail if any difference compared to data received during global request");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.21.4.b Fail if NACK not received from OBD ECUs that did not respond to global query");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.a - An OBD ECU reported an all pending DTC");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.21.2.b - An ECU did not report MIL off");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.4.a - Difference compared to data received during global request");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
 
-        String expectedResults = "FAIL: 6.1.21.2.a - Fail if any OBD ECU reports an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Fail if any ECU does not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.21.4.a Fail if any difference compared to data received during global request"
+        String expectedResults = "FAIL: 6.1.21.2.a - An OBD ECU reported an all pending DTC" + NL;
+        expectedResults += "FAIL: 6.1.21.2.b - An ECU did not report MIL off" + NL;
+        expectedResults += "FAIL: 6.1.21.4.a - Difference compared to data received during global request"
                 + NL;
-        expectedResults += "FAIL: 6.1.21.4.b Fail if NACK not received from OBD ECUs that did not respond to global query"
+        expectedResults += "FAIL: 6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query"
                 + NL;
 
         assertEquals(expectedResults, listener.getResults());
@@ -352,12 +347,9 @@ public class Step21ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
         when(dtcModule.requestDM27(any(), eq(true)))
-                .thenReturn(new RequestResult<>(false, Arrays.asList(packet1, packet3),
-                                                Collections.singletonList(ackPacket)));
-        when(dtcModule.requestDM27(any(), eq(true), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
-        when(dtcModule.requestDM27(any(), eq(true), eq(0x03)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
+                .thenReturn(new RequestResult<>(false, List.of(packet1, packet3), List.of(ackPacket)));
+        when(dtcModule.requestDM27(any(), eq(true), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(dtcModule.requestDM27(any(), eq(true), eq(0x03))).thenReturn(new BusResult<>(false, Optional.empty()));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
@@ -367,23 +359,14 @@ public class Step21ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM27(any(), eq(true), eq(0x01));
         verify(dtcModule).requestDM27(any(), eq(true), eq(0x03));
 
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                                  "6.1.21.2.a - Fail if any OBD ECU reports an all pending DTC");
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                                  "6.1.21.2.b - Fail if any ECU does not report MIL off");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                                        "6.1.21.3 OBD module Transmission #1 (3) did not return a response to a destination specific request");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.21.4.a Fail if any difference compared to data received during global request");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.a - An OBD ECU reported an all pending DTC");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.21.2.b - An ECU did not report MIL off");
 
-        String expectedResults = "FAIL: 6.1.21.2.a - Fail if any OBD ECU reports an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Fail if any ECU does not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.21.2.a - Fail if any OBD ECU reports an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Fail if any ECU does not report MIL off" + NL;
-        expectedResults += "WARN: 6.1.21.3 OBD module Transmission #1 (3) did not return a response to a destination specific request"
-                + NL;
-        expectedResults += "FAIL: 6.1.21.4.a Fail if any difference compared to data received during global request"
-                + NL;
+        String expectedResults = "FAIL: 6.1.21.2.a - An OBD ECU reported an all pending DTC" + NL;
+        expectedResults += "FAIL: 6.1.21.2.b - An ECU did not report MIL off" + NL;
 
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -401,11 +384,11 @@ public class Step21ControllerTest extends AbstractControllerTest {
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
                 Packet.create(PGN, 0x01, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
 
-        List<Integer> obdModuleAddresses = Collections.singletonList(0x01);
+        List<Integer> obdModuleAddresses = List.of(0x01);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
         when(dtcModule.requestDM27(any(), eq(true)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet1), Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
         when(dtcModule.requestDM27(any(), eq(true), eq(0x01)))
                 .thenReturn(new BusResult<>(false, packet1));
 
@@ -430,18 +413,15 @@ public class Step21ControllerTest extends AbstractControllerTest {
     public void testPacketWithDTCsErrors() {
 
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x01, 0x00, 0xFF, 0x00, 0x00, 0x61, 0x02, 0x13,
-                              0x81));
+                Packet.create(PGN, 0x01, 0x00, 0xFF, 0x00, 0x00, 0x61, 0x02, 0x13, 0x81));
         DM27AllPendingDTCsPacket packet2 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x02, 0x00, 0xFF, 0x00, 0x00, 0x61, 0x02, 0x13,
-                              0x81));
+                Packet.create(PGN, 0x02, 0x00, 0xFF, 0x00, 0x00, 0x61, 0x02, 0x13, 0x81));
 
-        List<Integer> obdModuleAddresses = Collections.singletonList(0x01);
+        List<Integer> obdModuleAddresses = List.of(0x01);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
         when(dtcModule.requestDM27(any(), eq(true)))
-                .thenReturn(new RequestResult<>(false, Arrays.asList(packet1, packet2),
-                                                Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, Arrays.asList(packet1, packet2), List.of()));
         when(dtcModule.requestDM27(any(), eq(true), eq(0x01)))
                 .thenReturn(new BusResult<>(false, packet1));
 
@@ -452,14 +432,12 @@ public class Step21ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM27(any(), eq(true));
         verify(dtcModule).requestDM27(any(), eq(true), eq(0x01));
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.21.2.a - Fail if any OBD ECU reports an all pending DTC");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.21.4.a Fail if any difference compared to data received during global request");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.a - An OBD ECU reported an all pending DTC");
 
-        String expectedResults = "FAIL: 6.1.21.2.a - Fail if any OBD ECU reports an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.4.a Fail if any difference compared to data received during global request"
-                + NL;
+        String expectedResults = "FAIL: 6.1.21.2.a - An OBD ECU reported an all pending DTC" + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
