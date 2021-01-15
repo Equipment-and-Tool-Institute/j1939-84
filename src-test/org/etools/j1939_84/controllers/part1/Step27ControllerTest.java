@@ -9,6 +9,7 @@ import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
 import static org.etools.j1939_84.model.Outcome.PASS;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -126,6 +127,7 @@ public class Step27ControllerTest extends AbstractControllerTest {
         urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1." + NL;
         urgentMessages += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
         urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?" + NL;
+        verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 2") , eq(QUESTION), any());
 
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
@@ -139,8 +141,8 @@ public class Step27ControllerTest extends AbstractControllerTest {
         String expectedTitle2 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING));
 
-        String outcomeMessage = "Aborting - user ended test";
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, Outcome.ABORT, outcomeMessage);
+        String outcomeMessage = "Stopping test - user ended test";
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, INCOMPLETE, outcomeMessage);
 
         String expectedMessages = "Part 1, Step 27 - Part 1 to Part 2 Transition" + NL;
         expectedMessages += "Part 1, Step 27 b.i - Ensuring Key On, Engine On" + NL;
@@ -157,6 +159,7 @@ public class Step27ControllerTest extends AbstractControllerTest {
         assertEquals(expectedMilestones, listener.getMilestones());
 
         String expectedResults = "Allowing engine to idle for 60 seconds" + NL;
+        expectedResults += "User cancelled the test at Part 1 Step 27" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         assertEquals("", listener.getMilestones());
