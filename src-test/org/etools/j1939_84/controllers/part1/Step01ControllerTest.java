@@ -3,9 +3,13 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
+import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
+import static org.mockito.ArgumentMatchers.any;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -35,7 +39,9 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
+import org.mockito.ArgumentMatcher;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 /**
@@ -186,7 +192,7 @@ public class Step01ControllerTest {
         verify(dataRepository, atLeastOnce()).getVehicleInformation();
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule).isEngineNotRunning();
-        verify(mockListener).onUrgentMessage(urgentMessages, expectedTitle, WARNING);
+        verify(mockListener).onUrgentMessage(eq(urgentMessages), eq(expectedTitle), eq(WARNING), any());
         verify(mockListener).onVehicleInformationReceived(vehicleInfo);
         verify(vehicleInformationModule).setJ1939(j1939);
 
@@ -258,20 +264,20 @@ public class Step01ControllerTest {
         verify(dataRepository, atLeastOnce()).getVehicleInformation();
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule).isEngineNotRunning();
-        verify(mockListener).onUrgentMessage(urgentMessages, "Start Part 1", WARNING);
+        verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 1"), eq(WARNING), any());
         verify(vehicleInformationModule).setJ1939(j1939);
 
         String expectedMessages = "";
-        expectedMessages += "Part 1, Step 1 a-c Displaying Warning Message\n";
-        expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off\n";
-        expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information\n";
+        expectedMessages += "Part 1, Step 1 a-c Displaying Warning Message" + NL;
+        expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off" + NL;
+        expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information" + NL;
         expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
 
-        String expectedResults = "";
+        String expectedResults = "User cancelled the test at Part 1 Step 1" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -307,16 +313,14 @@ public class Step01ControllerTest {
         verify(engineSpeedModule, atLeastOnce()).isEngineNotRunning();
         verify(vehicleInformationModule).setJ1939(j1939);
 
+        String urgentMessages = "Ready to begin Part 1" + NL;
+        urgentMessages += "a. Confirm the vehicle is in a safe location and condition for the test." + NL;
+        urgentMessages += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts)." + NL;
+        urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions." + NL;
+        verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 1"), eq(WARNING), any());
+        verify(mockListener).onUrgentMessage("Please turn the Engine OFF with Key ON", "Adjust Key Switch", WARNING);
         verify(mockListener).addOutcome(1, 2, ABORT, "User cancelled operation");
 
-        String urgentMessages = "";
-        urgentMessages += "Ready to begin Part 1\n";
-        urgentMessages += "a. Confirm the vehicle is in a safe location and condition for the test.\n";
-        urgentMessages += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts).\n";
-        urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions.\n";
-        verify(mockListener).onUrgentMessage(urgentMessages, "Start Part 1", WARNING);
-
-        verify(mockListener).onUrgentMessage("Please turn the Engine OFF with Key ON", "Adjust Key Switch", WARNING);
 
         String expectedMessages = "";
         expectedMessages += "Part 1, Step 1 a-c Displaying Warning Message\n";
