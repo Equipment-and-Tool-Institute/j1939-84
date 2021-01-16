@@ -169,8 +169,6 @@ public class Step07Controller extends StepController {
                         addFailure(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.iv Received CVN is all 0x00");
                     }
                 }
-                // TODO 6.1.7.2.b.iv. Fail if CVN padded incorrectly (must use 0x00 in MSB for unused bytes)
-                // TODO 6.1.7.3.c.v. Warn if CVN padded incorrectly (must use 0x00 in MSB for unused bytes)
             }
         }
 

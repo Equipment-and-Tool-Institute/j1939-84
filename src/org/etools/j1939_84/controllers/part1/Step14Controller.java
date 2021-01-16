@@ -13,6 +13,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
@@ -82,10 +83,8 @@ public class Step14Controller extends StepController {
         diagnosticReadinessModule.setJ1939(getJ1939());
         dtcModule.setJ1939(getJ1939());
 
-        // 6.1.14.1.a. Global DM26 (send Request (PGN 59904) for PGN 64952 (SPNs
-        // 3301-3305)).
-        // i. Create list by ECU address of all data and current status for
-        // use later in the test.
+        // 6.1.14.1.a. Global DM26 (send Request (PGN 59904) for PGN 64952 (SPNs 3301-3305)).
+        // i. Create list by ECU address of all data and current status for use later in the test.
         RequestResult<DM26TripDiagnosticReadinessPacket> globalResponse = dtcModule.requestDM26(getListener());
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
         if (!globalResponse.getPackets().isEmpty()) {
@@ -185,31 +184,19 @@ public class Step14Controller extends StepController {
 
             // 6.1.14.4.a. DS DM26 to each OBD ECU.
             List<DM26TripDiagnosticReadinessPacket> destinationSpecificPackets = new ArrayList<>();
+            List<AcknowledgmentPacket> dsAcks = new ArrayList<>();
             dataRepository.getObdModuleAddresses().forEach(address -> {
-                List<DM26TripDiagnosticReadinessPacket> packets = dtcModule.requestDM26(getListener(), address)
-                        .getPackets();
-                destinationSpecificPackets.addAll(packets);
+                RequestResult<DM26TripDiagnosticReadinessPacket> result = dtcModule.requestDM26(getListener(), address);
+                destinationSpecificPackets.addAll(result.getPackets());
+                dsAcks.addAll(result.getAcks());
             });
-            if (destinationSpecificPackets.isEmpty()) {
-                addWarning("6.1.14.4.a - Destination Specific DM5 requests to OBD modules did not return any responses");
-            }
 
             // 6.1.14.5.a. Fail if any difference compared to data received during global request.
-            List<DM26TripDiagnosticReadinessPacket> differentPackets = globalResponse.getPackets().stream()
-                    .filter(packet -> !destinationSpecificPackets.contains(packet))
-                    .collect(Collectors.toList());
-            if (!differentPackets.isEmpty()) {
-                addFailure("6.1.14.5.a - Difference compared to data received during global request");
-            }
+            compareRequestPackets(globalResponse.getPackets(), destinationSpecificPackets, "6.1.14.5.a");
 
             // 6.1.14.5.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
-            List<DM26TripDiagnosticReadinessPacket> nacksRemovedPackets = differentPackets.stream()
-                    .filter(packet -> globalResponse.getAcks().stream()
-                            .anyMatch(ack -> ack.getSourceAddress() != packet.getSourceAddress()))
-                    .collect(Collectors.toList());
-            if (!nacksRemovedPackets.isEmpty()) {
-                addFailure("6.1.14.5.b - NACK not received from OBD ECUs that did not respond to global query");
-            }
+            checkForNACKs(globalResponse.getPackets(), dsAcks, obdModuleAddresses,"6.1.14.5.b");
+
         } else {
             // 6.1.14.2.f. Fail if no OBD ECU provides DM26.
             addFailure("6.1.14.2.f - No OBD ECU provided DM26");
