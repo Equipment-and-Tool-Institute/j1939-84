@@ -8,6 +8,7 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.logging.Level;
@@ -78,20 +79,27 @@ public class RP1210 {
     public List<Adapter> getAdapters() throws BusException {
         if (adapters == null) {
             adapters = new ArrayList<>();
-            if (J1939_84.isTesting()) {
-                adapters.add(LOOP_BACK_ADAPTER);
-                File simulationDir = new File("simulations");
-                if (simulationDir.exists() && simulationDir.listFiles() != null) {
-                    for (File sim : simulationDir.listFiles()) {
-                        if (sim.isFile()) {
-                            adapters.add(new Adapter("SIM: " + sim.getName(), sim.getName(), SIM_DEV_ID));
-                        }
-                    }
-                }
-            }
+            adapters.addAll(getSyntheticAdapters());
             adapters.addAll(parse());
             Collections.sort(adapters, (o1, o2) -> o1.getName().compareTo(o2.getName()));
         }
+        return adapters;
+    }
+
+    private Collection<? extends Adapter> getSyntheticAdapters() {
+        List<Adapter> adapters = new ArrayList<>();
+        if (J1939_84.isTesting()) {
+            adapters.add(LOOP_BACK_ADAPTER);
+            File simulationDir = new File("simulations");
+            if (simulationDir.exists() && simulationDir.listFiles() != null) {
+                for (File sim : simulationDir.listFiles()) {
+                    if (sim.isFile()) {
+                        adapters.add(new Adapter("SIM: " + sim.getName(), sim.getName(), SIM_DEV_ID));
+                    }
+                }
+            }
+        }
+
         return adapters;
     }
 

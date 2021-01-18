@@ -173,6 +173,13 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
                         "Failure",
                         JOptionPane.ERROR_MESSAGE,
                         false);
+                // second time avoids reparsing and will pickup synthetic
+                // adapters.
+                try {
+                    adapters.addAll(rp1210.getAdapters());
+                } catch (BusException e1) {
+                    getLogger().log(Level.SEVERE, "Unable to load any adapters.", e1);
+                }
             }
         }
         return adapters;
@@ -267,7 +274,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
             }
 
             @Override
-            public void onUrgentMessage(String message, String title, MessageType type, QuestionListener questionListener) {
+            public void onUrgentMessage(String message, String title, MessageType type,
+                                        QuestionListener questionListener) {
                 getView().displayDialog(message, title, type.getValue(), true, questionListener);
             }
 
