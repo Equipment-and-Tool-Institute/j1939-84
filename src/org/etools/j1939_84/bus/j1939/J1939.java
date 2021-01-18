@@ -70,7 +70,7 @@ public class J1939 {
     /**
      * The default time to wait for a response (200 ms + 10%)
      */
-    private static final int DEFAULT_TIMEOUT = 220;
+    private static final int DEFAULT_TIMEOUT = 230;
 
     /**
      * The default time unit for responses
