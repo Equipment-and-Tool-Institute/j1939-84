@@ -65,85 +65,85 @@ public class Part01ControllerTest {
     private ReportFileModule reportFileModule;
 
     @Mock
-    private Step01Controller step01Controller;
+    private Part01Step01Controller part01Step01Controller;
 
     @Mock
-    private Step02Controller step02Controller;
+    private Part01Step02Controller part01Step02Controller;
 
     @Mock
-    private Step03Controller step03Controller;
+    private Part01Step03Controller part01Step03Controller;
 
     @Mock
-    private Step04Controller step04Controller;
+    private Part01Step04Controller part01Step04Controller;
 
     @Mock
-    private Step05Controller step05Controller;
+    private Part01Step05Controller part01Step05Controller;
 
     @Mock
-    private Step06Controller step06Controller;
+    private Part01Step06Controller part01Step06Controller;
 
     @Mock
-    private Step07Controller step07Controller;
+    private Part01Step07Controller part01Step07Controller;
 
     @Mock
-    private Step08Controller step08Controller;
+    private Part01Step08Controller part01Step08Controller;
 
     @Mock
-    private Step09Controller step09Controller;
+    private Part01Step09Controller part01Step09Controller;
 
     @Mock
-    private Step10Controller step10Controller;
+    private Part01Step10Controller part01Step10Controller;
 
     @Mock
-    private Step11Controller step11Controller;
+    private Part01Step11Controller part01Step11Controller;
 
     @Mock
-    private Step12Controller step12Controller;
+    private Part01Step12Controller part01Step12Controller;
 
     @Mock
-    private Step13Controller step13Controller;
+    private Part01Step13Controller part01Step13Controller;
 
     @Mock
-    private Step14Controller step14Controller;
+    private Part01Step14Controller part01Step14Controller;
 
     @Mock
-    private Step15Controller step15Controller;
+    private Part01Step15Controller part01Step15Controller;
 
     @Mock
-    private Step16Controller step16Controller;
+    private Part01Step16Controller part01Step16Controller;
 
     @Mock
-    private Step17Controller step17Controller;
+    private Part01Step17Controller part01Step17Controller;
 
     @Mock
-    private Step18Controller step18Controller;
+    private Part01Step18Controller part01Step18Controller;
 
     @Mock
-    private Step19Controller step19Controller;
+    private Part01Step19Controller part01Step19Controller;
 
     @Mock
-    private Step20Controller step20Controller;
+    private Part01Step20Controller part01Step20Controller;
 
     @Mock
-    private Step21Controller step21Controller;
+    private Part01Step21Controller part01Step21Controller;
 
     @Mock
-    private Step22Controller step22Controller;
+    private Part01Step22Controller part01Step22Controller;
 
     @Mock
-    private Step23Controller step23Controller;
+    private Part01Step23Controller part01Step23Controller;
 
     @Mock
-    private Step24Controller step24Controller;
+    private Part01Step24Controller part01Step24Controller;
 
     @Mock
-    private Step25Controller step25Controller;
+    private Part01Step25Controller part01Step25Controller;
 
     @Mock
-    private Step26Controller step26Controller;
+    private Part01Step26Controller part01Step26Controller;
 
     @Mock
-    private Step27Controller step27Controller;
+    private Part01Step27Controller part01Step27Controller;
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
@@ -158,33 +158,33 @@ public class Part01ControllerTest {
                                         bannerModule,
                                         vehicleInformationModule,
                                         DateTimeModule.getInstance(),
-                                        step01Controller,
-                                        step02Controller,
-                                        step03Controller,
-                                        step04Controller,
-                                        step05Controller,
-                                        step06Controller,
-                                        step07Controller,
-                                        step08Controller,
-                                        step09Controller,
-                                        step10Controller,
-                                        step11Controller,
-                                        step12Controller,
-                                        step13Controller,
-                                        step14Controller,
-                                        step15Controller,
-                                        step16Controller,
-                                        step17Controller,
-                                        step18Controller,
-                                        step19Controller,
-                                        step20Controller,
-                                        step21Controller,
-                                        step22Controller,
-                                        step23Controller,
-                                        step24Controller,
-                                        step25Controller,
-                                        step26Controller,
-                                        step27Controller);
+                                        part01Step01Controller,
+                                        part01Step02Controller,
+                                        part01Step03Controller,
+                                        part01Step04Controller,
+                                        part01Step05Controller,
+                                        part01Step06Controller,
+                                        part01Step07Controller,
+                                        part01Step08Controller,
+                                        part01Step09Controller,
+                                        part01Step10Controller,
+                                        part01Step11Controller,
+                                        part01Step12Controller,
+                                        part01Step13Controller,
+                                        part01Step14Controller,
+                                        part01Step15Controller,
+                                        part01Step16Controller,
+                                        part01Step17Controller,
+                                        part01Step18Controller,
+                                        part01Step19Controller,
+                                        part01Step20Controller,
+                                        part01Step21Controller,
+                                        part01Step22Controller,
+                                        part01Step23Controller,
+                                        part01Step24Controller,
+                                        part01Step25Controller,
+                                        part01Step26Controller,
+                                        part01Step27Controller);
     }
 
     @After
@@ -193,33 +193,33 @@ public class Part01ControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 step01Controller,
-                                 step02Controller,
-                                 step03Controller,
-                                 step04Controller,
-                                 step05Controller,
-                                 step06Controller,
-                                 step07Controller,
-                                 step08Controller,
-                                 step09Controller,
-                                 step10Controller,
-                                 step11Controller,
-                                 step12Controller,
-                                 step13Controller,
-                                 step14Controller,
-                                 step15Controller,
-                                 step16Controller,
-                                 step17Controller,
-                                 step18Controller,
-                                 step19Controller,
-                                 step20Controller,
-                                 step21Controller,
-                                 step22Controller,
-                                 step23Controller,
-                                 step24Controller,
-                                 step25Controller,
-                                 step26Controller,
-                                 step27Controller);
+                                 part01Step01Controller,
+                                 part01Step02Controller,
+                                 part01Step03Controller,
+                                 part01Step04Controller,
+                                 part01Step05Controller,
+                                 part01Step06Controller,
+                                 part01Step07Controller,
+                                 part01Step08Controller,
+                                 part01Step09Controller,
+                                 part01Step10Controller,
+                                 part01Step11Controller,
+                                 part01Step12Controller,
+                                 part01Step13Controller,
+                                 part01Step14Controller,
+                                 part01Step15Controller,
+                                 part01Step16Controller,
+                                 part01Step17Controller,
+                                 part01Step18Controller,
+                                 part01Step19Controller,
+                                 part01Step20Controller,
+                                 part01Step21Controller,
+                                 part01Step22Controller,
+                                 part01Step23Controller,
+                                 part01Step24Controller,
+                                 part01Step25Controller,
+                                 part01Step26Controller,
+                                 part01Step27Controller);
     }
 
     /**
@@ -237,33 +237,33 @@ public class Part01ControllerTest {
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
             justification = "The method is called just to get some exception.")
     public void testPart01Controller() {
-        List<StepController> stepControllers = List.of(step01Controller,
-                                                       step02Controller,
-                                                       step03Controller,
-                                                       step04Controller,
-                                                       step05Controller,
-                                                       step06Controller,
-                                                       step07Controller,
-                                                       step08Controller,
-                                                       step09Controller,
-                                                       step10Controller,
-                                                       step11Controller,
-                                                       step12Controller,
-                                                       step13Controller,
-                                                       step14Controller,
-                                                       step15Controller,
-                                                       step16Controller,
-                                                       step17Controller,
-                                                       step18Controller,
-                                                       step19Controller,
-                                                       step20Controller,
-                                                       step21Controller,
-                                                       step22Controller,
-                                                       step23Controller,
-                                                       step24Controller,
-                                                       step25Controller,
-                                                       step26Controller,
-                                                       step27Controller);
+        List<StepController> stepControllers = List.of(part01Step01Controller,
+                                                       part01Step02Controller,
+                                                       part01Step03Controller,
+                                                       part01Step04Controller,
+                                                       part01Step05Controller,
+                                                       part01Step06Controller,
+                                                       part01Step07Controller,
+                                                       part01Step08Controller,
+                                                       part01Step09Controller,
+                                                       part01Step10Controller,
+                                                       part01Step11Controller,
+                                                       part01Step12Controller,
+                                                       part01Step13Controller,
+                                                       part01Step14Controller,
+                                                       part01Step15Controller,
+                                                       part01Step16Controller,
+                                                       part01Step17Controller,
+                                                       part01Step18Controller,
+                                                       part01Step19Controller,
+                                                       part01Step20Controller,
+                                                       part01Step21Controller,
+                                                       part01Step22Controller,
+                                                       part01Step23Controller,
+                                                       part01Step24Controller,
+                                                       part01Step25Controller,
+                                                       part01Step26Controller,
+                                                       part01Step27Controller);
 
         for (int i = 1; i <= 27; i++) {
             when(stepControllers.get(i - 1).getStepNumber()).thenReturn(i);
@@ -276,33 +276,33 @@ public class Part01ControllerTest {
         runnableCaptor.getValue().run();
 
         InOrder inOrder = inOrder(
-                step01Controller,
-                step02Controller,
-                step03Controller,
-                step04Controller,
-                step05Controller,
-                step06Controller,
-                step07Controller,
-                step08Controller,
-                step09Controller,
-                step10Controller,
-                step11Controller,
-                step12Controller,
-                step13Controller,
-                step14Controller,
-                step15Controller,
-                step16Controller,
-                step17Controller,
-                step18Controller,
-                step19Controller,
-                step20Controller,
-                step21Controller,
-                step22Controller,
-                step23Controller,
-                step24Controller,
-                step25Controller,
-                step26Controller,
-                step27Controller);
+                part01Step01Controller,
+                part01Step02Controller,
+                part01Step03Controller,
+                part01Step04Controller,
+                part01Step05Controller,
+                part01Step06Controller,
+                part01Step07Controller,
+                part01Step08Controller,
+                part01Step09Controller,
+                part01Step10Controller,
+                part01Step11Controller,
+                part01Step12Controller,
+                part01Step13Controller,
+                part01Step14Controller,
+                part01Step15Controller,
+                part01Step16Controller,
+                part01Step17Controller,
+                part01Step18Controller,
+                part01Step19Controller,
+                part01Step20Controller,
+                part01Step21Controller,
+                part01Step22Controller,
+                part01Step23Controller,
+                part01Step24Controller,
+                part01Step25Controller,
+                part01Step26Controller,
+                part01Step27Controller);
 
         for (StepController StepController : stepControllers) {
             inOrder.verify(StepController).run(any(ResultsListener.class), eq(j1939));

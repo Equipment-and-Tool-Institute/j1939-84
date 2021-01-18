@@ -35,7 +35,7 @@ public class Part02Controller extends PartController {
                              BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
                              DateTimeModule dateTimeModule, DataRepository dataRepository) {
         this(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule,
-             new Step01Controller(), new Step02Controller(dataRepository),
+             new Part02Step01Controller(), new Part02Step02Controller(dataRepository),
              new Part02Step03Controller(dataRepository));
 
     }
@@ -48,13 +48,13 @@ public class Part02Controller extends PartController {
                             BannerModule bannerModule,
                             VehicleInformationModule vehicleInformationModule,
                             DateTimeModule dateTimeModule,
-                            Step01Controller step01Controller, Step02Controller step02Controller,
-                            Part02Step03Controller part02Step03Controller) {
+                            Part02Step01Controller step01Controller, Part02Step02Controller step02Controller,
+                            Part02Step03Controller step03Controller) {
         super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
 
         stepControllers.add(step01Controller);
         stepControllers.add(step02Controller);
-        stepControllers.add(part02Step03Controller);
+        stepControllers.add(step03Controller);
     }
 
     @Override

@@ -65,13 +65,13 @@ public class Part02ControllerTest {
     private ReportFileModule reportFileModule;
 
     @Mock
-    private Step01Controller step01Controller;
+    private Part02Step01Controller step01Controller;
 
     @Mock
-    private Step02Controller step02Controller;
+    private Part02Step02Controller step02Controller;
 
     @Mock
-    private Part02Step03Controller part02Step03Controller;
+    private Part02Step03Controller step03Controller;
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
@@ -88,7 +88,7 @@ public class Part02ControllerTest {
                                         DateTimeModule.getInstance(),
                                         step01Controller,
                                         step02Controller,
-                                        part02Step03Controller);
+                                        step03Controller);
     }
 
     @After
@@ -99,7 +99,7 @@ public class Part02ControllerTest {
                                  vehicleInformationModule,
                                  step01Controller,
                                  step02Controller,
-                                 part02Step03Controller);
+                                 step03Controller);
     }
 
     /**
@@ -116,7 +116,7 @@ public class Part02ControllerTest {
     public void testPart02Controller() {
         List<StepController> stepControllers = List.of(step01Controller,
                                                        step02Controller,
-                                                       part02Step03Controller);
+                                                       step03Controller);
 
         for (int i = 0; i < stepControllers.size(); i++) {
             when(stepControllers.get(i).getStepNumber()).thenReturn(i + 1);
@@ -131,7 +131,7 @@ public class Part02ControllerTest {
         InOrder inOrder = inOrder(
                 step01Controller,
                 step02Controller,
-                part02Step03Controller);
+                step03Controller);
 
         for (StepController StepController : stepControllers) {
             inOrder.verify(StepController).run(any(ResultsListener.class), eq(j1939));
