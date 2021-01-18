@@ -247,6 +247,7 @@ public class RP1210Bus implements Bus {
                     if (packet.getSource() == getAddress() && !packet.isTransmitted()) {
                         getLogger().log(Level.WARNING, "Another module is using this address: " + packet);
                     }
+                    getLogger().log(Level.FINE, packet.toTimeString());
                     queue.add(packet);
                 } else if (rtn == -RP1210Library.ERR_RX_QUEUE_FULL) {
                     // RX queue full, remedy is to reread.
