@@ -35,8 +35,8 @@ public class Part02Controller extends PartController {
     private Part02Controller(Executor executor, EngineSpeedModule engineSpeedModule,
                              BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
                              DateTimeModule dateTimeModule, DataRepository dataRepository) {
-        this(executor, engineSpeedModule, bannerModule, vehicleInformationModule,dateTimeModule,
-                new Step01Controller(), new Step02Controller(dataRepository));
+        this(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule,
+             new Part02Step01Controller(), new Part02Step02Controller(dataRepository));
 
     }
     /**
@@ -47,11 +47,11 @@ public class Part02Controller extends PartController {
                             BannerModule bannerModule,
                             VehicleInformationModule vehicleInformationModule,
                             DateTimeModule dateTimeModule,
-                            Step01Controller step01Controller, Step02Controller step02Controller) {
+                            Part02Step01Controller part02Step01Controller, Part02Step02Controller part02Step02Controller) {
         super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
 
-        stepControllers.add(step01Controller);
-        stepControllers.add(step02Controller);
+        stepControllers.add(part02Step01Controller);
+        stepControllers.add(part02Step02Controller);
     }
 
     @Override

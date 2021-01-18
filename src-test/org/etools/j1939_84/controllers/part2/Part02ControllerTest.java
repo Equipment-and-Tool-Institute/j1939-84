@@ -65,10 +65,10 @@ public class Part02ControllerTest {
     private ReportFileModule reportFileModule;
 
     @Mock
-    private Step01Controller step01Controller;
+    private Part02Step01Controller part02Step01Controller;
 
     @Mock
-    private Step02Controller step02Controller;
+    private Part02Step02Controller part02Step02Controller;
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
@@ -83,8 +83,8 @@ public class Part02ControllerTest {
                                         bannerModule,
                                         vehicleInformationModule,
                                         DateTimeModule.getInstance(),
-                                        step01Controller,
-                                        step02Controller);
+                                        part02Step01Controller,
+                                        part02Step02Controller);
     }
 
     @After
@@ -93,8 +93,8 @@ public class Part02ControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 step01Controller,
-                                 step02Controller);
+                                 part02Step01Controller,
+                                 part02Step02Controller);
     }
 
     /**
@@ -112,8 +112,8 @@ public class Part02ControllerTest {
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
             justification = "The method is called just to get some exception.")
     public void testPart01Controller() {
-        List<StepController> stepControllers = List.of(step01Controller,
-                                                       step02Controller);
+        List<StepController> stepControllers = List.of(part02Step01Controller,
+                                                       part02Step02Controller);
 
         for (int i = 0; i < stepControllers.size(); i++) {
             when(stepControllers.get(i).getStepNumber()).thenReturn(i + 1);
@@ -126,8 +126,8 @@ public class Part02ControllerTest {
         runnableCaptor.getValue().run();
 
         InOrder inOrder = inOrder(
-                step01Controller,
-                step02Controller);
+                part02Step01Controller,
+                part02Step02Controller);
 
         for (StepController StepController : stepControllers) {
             inOrder.verify(StepController).run(any(ResultsListener.class), eq(j1939));

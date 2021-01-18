@@ -38,19 +38,19 @@ public class Part01Controller extends PartController {
                              BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
                              DataRepository dataRepository, DateTimeModule dateTimeModule) {
         this(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule,
-             new Step01Controller(dataRepository), new Step02Controller(), new Step03Controller(dataRepository),
-             new Step04Controller(dataRepository), new Step05Controller(dataRepository),
-             new Step06Controller(dataRepository), new Step07Controller(dataRepository),
-             new Step08Controller(dataRepository), new Step09Controller(dataRepository),
-             new Step10Controller(dataRepository), new Step11Controller(dataRepository),
-             new Step12Controller(dataRepository), new Step13Controller(dataRepository),
-             new Step14Controller(dataRepository), new Step15Controller(dataRepository),
-             new Step16Controller(dataRepository), new Step17Controller(dataRepository),
-             new Step18Controller(dataRepository), new Step19Controller(dataRepository),
-             new Step20Controller(dataRepository), new Step21Controller(dataRepository),
-             new Step22Controller(dataRepository), new Step23Controller(),
-             new Step24Controller(dataRepository), new Step25Controller(dataRepository),
-             new Step26Controller(dataRepository), new Step27Controller());
+             new Part01Step01Controller(dataRepository), new Part01Step02Controller(), new Part01Step03Controller(dataRepository),
+             new Part01Step04Controller(dataRepository), new Part01Step05Controller(dataRepository),
+             new Part01Step06Controller(dataRepository), new Part01Step07Controller(dataRepository),
+             new Part01Step08Controller(dataRepository), new Part01Step09Controller(dataRepository),
+             new Part01Step10Controller(dataRepository), new Part01Step11Controller(dataRepository),
+             new Part01Step12Controller(dataRepository), new Part01Step13Controller(dataRepository),
+             new Part01Step14Controller(dataRepository), new Part01Step15Controller(dataRepository),
+             new Part01Step16Controller(dataRepository), new Part01Step17Controller(dataRepository),
+             new Part01Step18Controller(dataRepository), new Part01Step19Controller(dataRepository),
+             new Part01Step20Controller(dataRepository), new Part01Step21Controller(dataRepository),
+             new Part01Step22Controller(dataRepository), new Part01Step23Controller(),
+             new Part01Step24Controller(dataRepository), new Part01Step25Controller(dataRepository),
+             new Part01Step26Controller(dataRepository), new Part01Step27Controller());
     }
 
     /**
@@ -61,62 +61,62 @@ public class Part01Controller extends PartController {
                             BannerModule bannerModule,
                             VehicleInformationModule vehicleInformationModule,
                             DateTimeModule dateTimeModule,
-                            Step01Controller step01Controller,
-                            Step02Controller step02Controller,
-                            Step03Controller step03Controller,
-                            Step04Controller step04Controller,
-                            Step05Controller step05Controller,
-                            Step06Controller step06Controller,
-                            Step07Controller step07Controller,
-                            Step08Controller step08Controller,
-                            Step09Controller step09Controller,
-                            Step10Controller step10Controller,
-                            Step11Controller step11Controller,
-                            Step12Controller step12Controller,
-                            Step13Controller step13Controller,
-                            Step14Controller step14Controller,
-                            Step15Controller step15Controller,
-                            Step16Controller step16Controller,
-                            Step17Controller step17Controller,
-                            Step18Controller step18Controller,
-                            Step19Controller step19Controller,
-                            Step20Controller step20Controller,
-                            Step21Controller step21Controller,
-                            Step22Controller step22Controller,
-                            Step23Controller step23Controller,
-                            Step24Controller step24Controller,
-                            Step25Controller step25Controller,
-                            Step26Controller step26Controller,
-                            Step27Controller step27Controller) {
+                            Part01Step01Controller part01Step01Controller,
+                            Part01Step02Controller part01Step02Controller,
+                            Part01Step03Controller part01Step03Controller,
+                            Part01Step04Controller part01Step04Controller,
+                            Part01Step05Controller part01Step05Controller,
+                            Part01Step06Controller part01Step06Controller,
+                            Part01Step07Controller part01Step07Controller,
+                            Part01Step08Controller part01Step08Controller,
+                            Part01Step09Controller part01Step09Controller,
+                            Part01Step10Controller part01Step10Controller,
+                            Part01Step11Controller part01Step11Controller,
+                            Part01Step12Controller part01Step12Controller,
+                            Part01Step13Controller part01Step13Controller,
+                            Part01Step14Controller part01Step14Controller,
+                            Part01Step15Controller part01Step15Controller,
+                            Part01Step16Controller part01Step16Controller,
+                            Part01Step17Controller part01Step17Controller,
+                            Part01Step18Controller part01Step18Controller,
+                            Part01Step19Controller part01Step19Controller,
+                            Part01Step20Controller part01Step20Controller,
+                            Part01Step21Controller part01Step21Controller,
+                            Part01Step22Controller part01Step22Controller,
+                            Part01Step23Controller part01Step23Controller,
+                            Part01Step24Controller part01Step24Controller,
+                            Part01Step25Controller part01Step25Controller,
+                            Part01Step26Controller part01Step26Controller,
+                            Part01Step27Controller part01Step27Controller) {
         super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
 
-        stepControllers.add(step01Controller);
-        stepControllers.add(step02Controller);
-        stepControllers.add(step03Controller);
-        stepControllers.add(step04Controller);
-        stepControllers.add(step05Controller);
-        stepControllers.add(step06Controller);
-        stepControllers.add(step07Controller);
-        stepControllers.add(step08Controller);
-        stepControllers.add(step09Controller);
-        stepControllers.add(step10Controller);
-        stepControllers.add(step11Controller);
-        stepControllers.add(step12Controller);
-        stepControllers.add(step13Controller);
-        stepControllers.add(step14Controller);
-        stepControllers.add(step15Controller);
-        stepControllers.add(step16Controller);
-        stepControllers.add(step17Controller);
-        stepControllers.add(step18Controller);
-        stepControllers.add(step19Controller);
-        stepControllers.add(step20Controller);
-        stepControllers.add(step21Controller);
-        stepControllers.add(step22Controller);
-        stepControllers.add(step23Controller);
-        stepControllers.add(step24Controller);
-        stepControllers.add(step25Controller);
-        stepControllers.add(step26Controller);
-        stepControllers.add(step27Controller);
+        stepControllers.add(part01Step01Controller);
+        stepControllers.add(part01Step02Controller);
+        stepControllers.add(part01Step03Controller);
+        stepControllers.add(part01Step04Controller);
+        stepControllers.add(part01Step05Controller);
+        stepControllers.add(part01Step06Controller);
+        stepControllers.add(part01Step07Controller);
+        stepControllers.add(part01Step08Controller);
+        stepControllers.add(part01Step09Controller);
+        stepControllers.add(part01Step10Controller);
+        stepControllers.add(part01Step11Controller);
+        stepControllers.add(part01Step12Controller);
+        stepControllers.add(part01Step13Controller);
+        stepControllers.add(part01Step14Controller);
+        stepControllers.add(part01Step15Controller);
+        stepControllers.add(part01Step16Controller);
+        stepControllers.add(part01Step17Controller);
+        stepControllers.add(part01Step18Controller);
+        stepControllers.add(part01Step19Controller);
+        stepControllers.add(part01Step20Controller);
+        stepControllers.add(part01Step21Controller);
+        stepControllers.add(part01Step22Controller);
+        stepControllers.add(part01Step23Controller);
+        stepControllers.add(part01Step24Controller);
+        stepControllers.add(part01Step25Controller);
+        stepControllers.add(part01Step26Controller);
+        stepControllers.add(part01Step27Controller);
     }
 
     @Override
