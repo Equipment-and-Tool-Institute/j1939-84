@@ -7,7 +7,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartController;
@@ -29,16 +28,18 @@ public class Part02Controller extends PartController {
 
     public Part02Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(),DateTimeModule.getInstance(), dataRepository);
+             new VehicleInformationModule(), DateTimeModule.getInstance(), dataRepository);
     }
 
     private Part02Controller(Executor executor, EngineSpeedModule engineSpeedModule,
                              BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
                              DateTimeModule dateTimeModule, DataRepository dataRepository) {
-        this(executor, engineSpeedModule, bannerModule, vehicleInformationModule,dateTimeModule,
-                new Step01Controller(), new Step02Controller(dataRepository));
+        this(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule,
+             new Step01Controller(), new Step02Controller(dataRepository),
+             new Part02Step03Controller(dataRepository));
 
     }
+
     /**
      * Constructor exposed for testing
      */
@@ -47,11 +48,13 @@ public class Part02Controller extends PartController {
                             BannerModule bannerModule,
                             VehicleInformationModule vehicleInformationModule,
                             DateTimeModule dateTimeModule,
-                            Step01Controller step01Controller, Step02Controller step02Controller) {
+                            Step01Controller step01Controller, Step02Controller step02Controller,
+                            Part02Step03Controller part02Step03Controller) {
         super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
 
         stepControllers.add(step01Controller);
         stepControllers.add(step02Controller);
+        stepControllers.add(part02Step03Controller);
     }
 
     @Override
@@ -65,5 +68,7 @@ public class Part02Controller extends PartController {
     }
 
     @Override
-    public List<StepController> getStepControllers() { return stepControllers;}
+    public List<StepController> getStepControllers() {
+        return stepControllers;
+    }
 }

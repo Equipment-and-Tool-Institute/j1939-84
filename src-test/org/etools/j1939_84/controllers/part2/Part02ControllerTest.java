@@ -71,6 +71,9 @@ public class Part02ControllerTest {
     private Step02Controller step02Controller;
 
     @Mock
+    private Part02Step03Controller part02Step03Controller;
+
+    @Mock
     private VehicleInformationModule vehicleInformationModule;
 
     @Before
@@ -84,7 +87,8 @@ public class Part02ControllerTest {
                                         vehicleInformationModule,
                                         DateTimeModule.getInstance(),
                                         step01Controller,
-                                        step02Controller);
+                                        step02Controller,
+                                        part02Step03Controller);
     }
 
     @After
@@ -94,7 +98,8 @@ public class Part02ControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  step01Controller,
-                                 step02Controller);
+                                 step02Controller,
+                                 part02Step03Controller);
     }
 
     /**
@@ -105,15 +110,13 @@ public class Part02ControllerTest {
         assertEquals("Display Name", "Part 2 Test", instance.getDisplayName());
     }
 
-    /**
-     * Test method for {@link Part02Controller#Part02Controller()}.
-     */
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
             justification = "The method is called just to get some exception.")
-    public void testPart01Controller() {
+    public void testPart02Controller() {
         List<StepController> stepControllers = List.of(step01Controller,
-                                                       step02Controller);
+                                                       step02Controller,
+                                                       part02Step03Controller);
 
         for (int i = 0; i < stepControllers.size(); i++) {
             when(stepControllers.get(i).getStepNumber()).thenReturn(i + 1);
@@ -127,7 +130,8 @@ public class Part02ControllerTest {
 
         InOrder inOrder = inOrder(
                 step01Controller,
-                step02Controller);
+                step02Controller,
+                part02Step03Controller);
 
         for (StepController StepController : stepControllers) {
             inOrder.verify(StepController).run(any(ResultsListener.class), eq(j1939));
