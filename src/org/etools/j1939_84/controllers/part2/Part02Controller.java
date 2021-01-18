@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part2;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -36,8 +37,14 @@ public class Part02Controller extends PartController {
                              DateTimeModule dateTimeModule, DataRepository dataRepository) {
         this(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule,
              new Part02Step01Controller(), new Part02Step02Controller(dataRepository),
-             new Part02Step03Controller(dataRepository));
-
+             new Part02Step03Controller(dataRepository), new Part02Step04Controller(dataRepository),
+             new Part02Step05Controller(dataRepository), new Part02Step06Controller(dataRepository),
+             new Part02Step07Controller(dataRepository), new Part02Step08Controller(dataRepository),
+             new Part02Step09Controller(dataRepository), new Part02Step10Controller(dataRepository),
+             new Part02Step11Controller(dataRepository), new Part02Step12Controller(dataRepository),
+             new Part02Step13Controller(dataRepository), new Part02Step14Controller(dataRepository),
+             new Part02Step15Controller(dataRepository), new Part02Step16Controller(dataRepository),
+             new Part02Step17Controller(dataRepository), new Part02Step18Controller(dataRepository));
     }
 
     /**
@@ -48,13 +55,9 @@ public class Part02Controller extends PartController {
                             BannerModule bannerModule,
                             VehicleInformationModule vehicleInformationModule,
                             DateTimeModule dateTimeModule,
-                            Part02Step01Controller step01Controller, Part02Step02Controller step02Controller,
-                            Part02Step03Controller step03Controller) {
+                            StepController... stepControllers) {
         super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
-
-        stepControllers.add(step01Controller);
-        stepControllers.add(step02Controller);
-        stepControllers.add(step03Controller);
+        this.stepControllers.addAll(Arrays.asList(stepControllers));
     }
 
     @Override

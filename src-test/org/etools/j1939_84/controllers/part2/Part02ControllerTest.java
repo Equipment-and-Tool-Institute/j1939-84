@@ -74,6 +74,51 @@ public class Part02ControllerTest {
     private Part02Step03Controller step03Controller;
 
     @Mock
+    private Part02Step03Controller step04Controller;
+
+    @Mock
+    private Part02Step03Controller step05Controller;
+
+    @Mock
+    private Part02Step03Controller step06Controller;
+
+    @Mock
+    private Part02Step03Controller step07Controller;
+
+    @Mock
+    private Part02Step03Controller step08Controller;
+
+    @Mock
+    private Part02Step03Controller step09Controller;
+
+    @Mock
+    private Part02Step03Controller step10Controller;
+
+    @Mock
+    private Part02Step03Controller step11Controller;
+
+    @Mock
+    private Part02Step03Controller step12Controller;
+
+    @Mock
+    private Part02Step03Controller step13Controller;
+
+    @Mock
+    private Part02Step03Controller step14Controller;
+
+    @Mock
+    private Part02Step03Controller step15Controller;
+
+    @Mock
+    private Part02Step03Controller step16Controller;
+
+    @Mock
+    private Part02Step03Controller step17Controller;
+
+    @Mock
+    private Part02Step03Controller step18Controller;
+
+    @Mock
     private VehicleInformationModule vehicleInformationModule;
 
     @Before
@@ -88,7 +133,22 @@ public class Part02ControllerTest {
                                         DateTimeModule.getInstance(),
                                         step01Controller,
                                         step02Controller,
-                                        step03Controller);
+                                        step03Controller,
+                                        step04Controller,
+                                        step05Controller,
+                                        step06Controller,
+                                        step07Controller,
+                                        step08Controller,
+                                        step09Controller,
+                                        step10Controller,
+                                        step11Controller,
+                                        step12Controller,
+                                        step13Controller,
+                                        step14Controller,
+                                        step15Controller,
+                                        step16Controller,
+                                        step17Controller,
+                                        step18Controller);
     }
 
     @After
@@ -99,7 +159,22 @@ public class Part02ControllerTest {
                                  vehicleInformationModule,
                                  step01Controller,
                                  step02Controller,
-                                 step03Controller);
+                                 step03Controller,
+                                 step04Controller,
+                                 step05Controller,
+                                 step06Controller,
+                                 step07Controller,
+                                 step08Controller,
+                                 step09Controller,
+                                 step10Controller,
+                                 step11Controller,
+                                 step12Controller,
+                                 step13Controller,
+                                 step14Controller,
+                                 step15Controller,
+                                 step16Controller,
+                                 step17Controller,
+                                 step18Controller);
     }
 
     /**
@@ -116,7 +191,22 @@ public class Part02ControllerTest {
     public void testPart02Controller() {
         List<StepController> stepControllers = List.of(step01Controller,
                                                        step02Controller,
-                                                       step03Controller);
+                                                       step03Controller,
+                                                       step04Controller,
+                                                       step05Controller,
+                                                       step06Controller,
+                                                       step07Controller,
+                                                       step08Controller,
+                                                       step09Controller,
+                                                       step10Controller,
+                                                       step11Controller,
+                                                       step12Controller,
+                                                       step13Controller,
+                                                       step14Controller,
+                                                       step15Controller,
+                                                       step16Controller,
+                                                       step17Controller,
+                                                       step18Controller);
 
         for (int i = 0; i < stepControllers.size(); i++) {
             when(stepControllers.get(i).getStepNumber()).thenReturn(i + 1);
@@ -131,7 +221,22 @@ public class Part02ControllerTest {
         InOrder inOrder = inOrder(
                 step01Controller,
                 step02Controller,
-                step03Controller);
+                step03Controller,
+                step04Controller,
+                step05Controller,
+                step06Controller,
+                step07Controller,
+                step08Controller,
+                step09Controller,
+                step10Controller,
+                step11Controller,
+                step12Controller,
+                step13Controller,
+                step14Controller,
+                step15Controller,
+                step16Controller,
+                step17Controller,
+                step18Controller);
 
         for (StepController StepController : stepControllers) {
             inOrder.verify(StepController).run(any(ResultsListener.class), eq(j1939));
