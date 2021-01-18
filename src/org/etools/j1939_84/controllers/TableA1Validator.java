@@ -33,11 +33,11 @@ import org.etools.j1939_84.model.Outcome;
 public class TableA1Validator {
 
     private static void addOutcome(ResultsListener listener,
-            int partNumber,
-            int stepNumber,
-            String section,
-            Outcome outcome,
-            String message) {
+                                   int partNumber,
+                                   int stepNumber,
+                                   String section,
+                                   Outcome outcome,
+                                   String message) {
         listener.addOutcome(partNumber, stepNumber, outcome, message);
         listener.onResult(outcome + ": " + section + " - " + message);
     }
@@ -57,8 +57,8 @@ public class TableA1Validator {
             allRequiredSpns.addAll(List.of(3226, 3700, 5466, 6895, 7333));
         } else if (fuelType.isSparkIgnition()) {
             allRequiredSpns.addAll(List.of(51,
-                    3249, 3241, 3217, 3227, 3464,
-                    4236, 4237, 4240));
+                                           3249, 3241, 3217, 3227, 3464,
+                                           4236, 4237, 4240));
         }
 
         return allRequiredSpns;
@@ -79,9 +79,9 @@ public class TableA1Validator {
 
         if (fuelType.isCompressionIgnition()) {
             allWarningSPNs.addAll(List.of(164,
-                    3031, 3251, 3515, 3516, 3518, 3609, 3610,
-                    5314, 5454, 5466, 5827,
-                    7346));
+                                          3031, 3251, 3515, 3516, 3518, 3609, 3610,
+                                          5314, 5454, 5466, 5827,
+                                          7346));
         }
         return allWarningSPNs;
     }
@@ -103,6 +103,9 @@ public class TableA1Validator {
     // Map of Source Address to SPN for SPNs with value of Not Available (to avoid duplicate reporting)
     private final Map<Integer, Set<Integer>> notAvailableSPNs = new HashMap<>();
 
+    // Map of Source Address to SPN for SPNs provided by not supported (to avoid duplicate reporting)
+    private final Map<Integer, Set<Integer>> providedNotSupportedSPNs = new HashMap<>();
+
     // Map of Source Address to PGNs for packets already written to the log
     private final Map<Integer, Set<Integer>> foundPackets = new HashMap<>();
 
@@ -116,8 +119,8 @@ public class TableA1Validator {
     }
 
     TableA1Validator(TableA1ValueValidator valueValidator,
-            DataRepository dataRepository,
-            J1939DaRepository j1939DaRepository) {
+                     DataRepository dataRepository,
+                     J1939DaRepository j1939DaRepository) {
         this.dataRepository = dataRepository;
         this.valueValidator = valueValidator;
         this.j1939DaRepository = j1939DaRepository;
@@ -133,10 +136,10 @@ public class TableA1Validator {
      * Writes a Failure/Warning if any SPNs is provided by more than one module
      */
     public void reportDuplicateSPNs(List<GenericPacket> packets,
-            ResultsListener listener,
-            int partNumber,
-            int stepNumber,
-            String section) {
+                                    ResultsListener listener,
+                                    int partNumber,
+                                    int stepNumber,
+                                    String section) {
         // f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
         Map<Integer, Integer> uniques = new HashMap<>();
         Map<Integer, Outcome> duplicateSPNs = new HashMap<>();
@@ -162,24 +165,24 @@ public class TableA1Validator {
                 .stream()
                 .sorted(Comparator.comparingInt(Map.Entry::getKey))
                 .forEach(entry ->
-                        addOutcome(listener,
-                                partNumber,
-                                stepNumber,
-                                section,
-                                entry.getValue(),
-                                "SPN " + entry.getKey() + " provided by more than one module"));
+                                 addOutcome(listener,
+                                            partNumber,
+                                            stepNumber,
+                                            section,
+                                            entry.getValue(),
+                                            "SPN " + entry.getKey() + " provided by more than one module"));
     }
 
     /**
      * Reports on SPN values which are implausible given the key state and fuel type
      */
     public void reportImplausibleSPNValues(GenericPacket packet,
-            ResultsListener listener,
-            boolean isEngineOn,
-            FuelType fuelType,
-            int partNumber,
-            int stepNumber,
-            String section) {
+                                           ResultsListener listener,
+                                           boolean isEngineOn,
+                                           FuelType fuelType,
+                                           int partNumber,
+                                           int stepNumber,
+                                           String section) {
 
         int moduleAddress = packet.getSourceAddress();
         OBDModuleInformation obdModule = dataRepository.getObdModule(moduleAddress);
@@ -249,10 +252,10 @@ public class TableA1Validator {
     }
 
     public void reportNotAvailableSPNs(GenericPacket packet,
-            ResultsListener listener,
-            int partNumber,
-            int stepNumber,
-            String section) {
+                                       ResultsListener listener,
+                                       int partNumber,
+                                       int stepNumber,
+                                       String section) {
 
         int moduleAddress = packet.getSourceAddress();
         Collection<Integer> moduleSPNs = getModuleSupportedSPNs(moduleAddress);
@@ -272,11 +275,11 @@ public class TableA1Validator {
                         String msg = "SPN " + spn + " was received as NOT AVAILABLE from " + Lookup.getAddressName(
                                 moduleAddress);
                         addOutcome(listener,
-                                partNumber,
-                                stepNumber,
-                                section,
-                                Outcome.FAIL,
-                                msg);
+                                   partNumber,
+                                   stepNumber,
+                                   section,
+                                   Outcome.FAIL,
+                                   msg);
                     }
                 });
     }
@@ -306,17 +309,18 @@ public class TableA1Validator {
      * Writes a Failure/Warning for any SPNs found in the data stream which aren't in the DM24
      */
     public void reportProvidedButNotSupportedSPNs(GenericPacket packet,
-            ResultsListener listener,
-            FuelType fuelType,
-            int partNumber,
-            int stepNumber,
-            String section) {
+                                                  ResultsListener listener,
+                                                  FuelType fuelType,
+                                                  int partNumber,
+                                                  int stepNumber,
+                                                  String section) {
 
+        int sourceAddress = packet.getSourceAddress();
         Collection<Integer> providedSPNs = packet.getSpns()
                 .stream()
                 .filter(s -> !s.isNotAvailable())
                 .map(Spn::getId)
-                .filter(s -> !getModuleSupportedSPNs(packet.getSourceAddress()).contains(s))
+                .filter(s -> !getModuleSupportedSPNs(sourceAddress).contains(s))
                 .collect(Collectors.toSet());
 
         Map<Integer, Outcome> outcomes = new HashMap<>();
@@ -334,17 +338,21 @@ public class TableA1Validator {
         providedSPNs.stream().filter(infoSPNs::contains).forEach(s -> outcomes.put(s, INFO));
 
         if (!outcomes.isEmpty()) {
-            reportPacketIfNotReported(packet, listener);
             outcomes.keySet().stream().sorted().forEach(spn -> {
-                Outcome outcome = outcomes.get(spn);
-                addOutcome(listener,
-                        partNumber,
-                        stepNumber,
-                        section,
-                        outcome,
-                        "Provided SPN " + spn + " is not supported by " + Lookup.getAddressName(packet.getSourceAddress()));
+                Set<Integer> reportedSPNs = providedNotSupportedSPNs.getOrDefault(sourceAddress, new HashSet<>());
+                if (!reportedSPNs.contains(spn)) {
+                    reportPacketIfNotReported(packet, listener);
+                    addOutcome(listener,
+                               partNumber,
+                               stepNumber,
+                               section,
+                               outcomes.get(spn),
+                               "Provided SPN " + spn + " is not supported by " + Lookup.getAddressName(sourceAddress));
+                    listener.onResult("");
+                    reportedSPNs.add(spn);
+                    providedNotSupportedSPNs.put(sourceAddress, reportedSPNs);
+                }
             });
-            listener.onResult("");
         }
     }
 
@@ -353,10 +361,10 @@ public class TableA1Validator {
      * provided by a Non-OBD Module.
      */
     public void reportNonObdModuleProvidedSPNs(GenericPacket packet,
-            ResultsListener listener,
-            int partNumber,
-            int stepNumber,
-            String section) {
+                                               ResultsListener listener,
+                                               int partNumber,
+                                               int stepNumber,
+                                               String section) {
 
         Collection<Integer> supportedSPNs = getModuleSupportedSPNs();
 
@@ -372,11 +380,11 @@ public class TableA1Validator {
                         if (outcome != PASS) {
                             reportPacketIfNotReported(packet, listener);
                             addOutcome(listener,
-                                    partNumber,
-                                    stepNumber,
-                                    section,
-                                    outcome,
-                                    "SPN " + id + " provided by non-OBD Module");
+                                       partNumber,
+                                       stepNumber,
+                                       section,
+                                       outcome,
+                                       "SPN " + id + " provided by non-OBD Module");
                         }
                     });
         }
@@ -397,11 +405,11 @@ public class TableA1Validator {
                         String msg = "PGN " + pgn + " from SA " + moduleInfo.getSourceAddress() + " with SPNs " + spns;
 
                         PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
-                        if(pgnDefinition != null) {
+                        if (pgnDefinition != null) {
                             if (pgnDefinition.isOnRequest()) {
                                 msg = "  Req " + msg;
                             } else {
-                                msg =  "  B't " + msg;
+                                msg = "  B't " + msg;
                             }
                         } else {
                             msg = "  ??? " + msg;
