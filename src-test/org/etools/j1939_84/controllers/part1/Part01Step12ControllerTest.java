@@ -19,8 +19,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
@@ -161,13 +161,14 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForCompressionIgnition(any(), any())).thenReturn(true);
 
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -214,13 +215,14 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForCompressionIgnition(any(), any())).thenReturn(false);
 
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -256,13 +258,14 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -331,6 +334,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -371,13 +375,14 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -434,6 +439,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -482,13 +488,14 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptySet());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(Set.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -545,12 +552,13 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.12.1.c #" + slotNumber + " SLOT identifier is invalid");
@@ -576,7 +584,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         when(vehicleInformation.getFuelType()).thenReturn(BI_DSL);
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
-        when(tableA7Validator.findDuplicates(Collections.emptyList())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(List.of())).thenReturn(List.of());
 
         runTest();
 
@@ -624,14 +632,15 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
-
+        verify(dataRepository).putObdModule(eq(0), any());
+        
         verify(obdTestsModule).setJ1939(j1939);
 
         verify(tableA7Validator).findDuplicates(scaledTestsResults);
@@ -681,14 +690,14 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.findDuplicates(scaledTestsResults))
-                .thenReturn(Collections.singletonList(scaledTestResult));
+        when(tableA7Validator.findDuplicates(scaledTestsResults)).thenReturn(List.of(scaledTestResult));
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(mockListener, times(2)).addOutcome(PART_NUMBER,
                                                   STEP_NUMBER,
@@ -747,13 +756,14 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
 
-        when(tableA7Validator.findDuplicates(any())).thenReturn(Collections.emptyList());
+        when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(false);
 
         runTest();
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(obdTestsModule).setJ1939(j1939);
 

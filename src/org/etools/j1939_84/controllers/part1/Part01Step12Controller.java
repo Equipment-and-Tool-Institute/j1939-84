@@ -92,9 +92,10 @@ public class Part01Step12Controller extends StepController {
         // Record it the DM30 for each module
         for (OBDModuleInformation obdModule : dataRepository.getObdModules()) {
             List<ScaledTestResult> moduleTestResults = new ArrayList<>();
+            int sourceAddress = obdModule.getSourceAddress();
             for (SupportedSPN spn : obdModule.getTestResultSpns()) {
                 List<ScaledTestResult> testResults =
-                        obdTestsModule.getDM30Packets(getListener(), obdModule.getSourceAddress(), spn)
+                        obdTestsModule.getDM30Packets(getListener(), sourceAddress, spn)
                                 .stream()
                                 .peek(p -> verifyDM30PacketSupported(p, spn))
                                 .flatMap(p -> p.getTestResults().stream())
@@ -102,6 +103,7 @@ public class Part01Step12Controller extends StepController {
                 moduleTestResults.addAll(testResults);
             }
             obdModule.setScaledTestResults(moduleTestResults);
+            dataRepository.putObdModule(sourceAddress, obdModule);
             vehicleTestResults.addAll(moduleTestResults);
         }
 

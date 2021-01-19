@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers.part1;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket.PGN;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -17,12 +18,9 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -33,7 +31,12 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.modules.*;
+import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticReadinessModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.ReportFileModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.junit.After;
 import org.junit.Before;
@@ -50,7 +53,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class Part01Step25ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 1;
-    private static final int PGN = DM20MonitorPerformanceRatioPacket.PGN;
     private static final int STEP_NUMBER = 25;
 
     @Mock
@@ -103,12 +105,12 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                diagnosticReadinessModule,
-                mockListener);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 dataRepository,
+                                 diagnosticReadinessModule,
+                                 mockListener);
     }
 
     /**
@@ -125,15 +127,16 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                 0x62, // Lamp Status/Support
                 0x1D, // Lamp Status/State
         };
-        DM20MonitorPerformanceRatioPacket packet = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(PGN, 0x00, data));
+        DM20MonitorPerformanceRatioPacket packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN,
+                                                                                                       0x00,
+                                                                                                       data));
 
         OBDModuleInformation obd = new OBDModuleInformation(0x00);
         obd.setPerformanceRatios(packet.getRatios());
         when(diagnosticReadinessModule.requestDM20(any(), eq(true), eq(0x00)))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
 
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obd));
+        when(dataRepository.getObdModules()).thenReturn(List.of(obd));
 
         runTest();
 
@@ -143,9 +146,9 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).requestDM20(any(), eq(true), eq(0x00));
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                "Engine #1 (0) did not response to the DS20 request");
+                                                       "Engine #1 (0) did not respond to the DS DM20 request");
 
-        String expectedResults = "WARN: Engine #1 (0) did not response to the DS20 request" + NL;
+        String expectedResults = "WARN: Engine #1 (0) did not respond to the DS DM20 request" + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -198,14 +201,15 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                 0xFF, // SPN of Applicable System Monitor
                 0xFF, // SPN of Applicable System Monitor
                 0xFF, // SPN of Applicable System Monitor
-                0xFF, // Appplicable System Monitor Numerator
-                0xFE, // Appplicable System Monitor Numerator
-                0xFF, // Appplicable System Monitor Denominator
-                0xFF // Appplicable System Monitor Denominator
+                0xFF, // Applicable System Monitor Numerator
+                0xFE, // Applicable System Monitor Numerator
+                0xFF, // Applicable System Monitor Denominator
+                0xFF // Applicable System Monitor Denominator
         };
 
-        DM20MonitorPerformanceRatioPacket packet = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(PGN, 0x00, data));
+        DM20MonitorPerformanceRatioPacket packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN,
+                                                                                                       0x00,
+                                                                                                       data));
 
         int[] data1 = {
                 0x00, // Ignition Cycle Counter
@@ -215,10 +219,10 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                 0x00, // SPN of Applicable System Monitor
                 0x00, // SPN of Applicable System Monitor
                 0x00, // SPN of Applicable System Monitor
-                0x00, // Appplicable System Monitor Numerator
-                0x00, // Appplicable System Monitor Numerator
-                0x00, // Appplicable System Monitor Denominator
-                0x00, // Appplicable System Monitor Denominator
+                0x00, // Applicable System Monitor Numerator
+                0x00, // Applicable System Monitor Numerator
+                0x00, // Applicable System Monitor Denominator
+                0x00, // Applicable System Monitor Denominator
         };
         DM20MonitorPerformanceRatioPacket packet1 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(PGN, 0x01, data1));
@@ -230,8 +234,9 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                 0xB8, 0x12, 0xF8, 0x03, 0x00, 0x04, 0x00,
                 // Three
                 0xBC, 0x14, 0xF8, 0x05, 0x00, 0x06, 0x00 };
-        DM20MonitorPerformanceRatioPacket packet2 = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(PGN, 0x02, data2));
+        DM20MonitorPerformanceRatioPacket packet2 = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN,
+                                                                                                        0x02,
+                                                                                                        data2));
 
         when(diagnosticReadinessModule.requestDM20(any(), eq(true), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
@@ -246,11 +251,14 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         obd1.setPerformanceRatios(packet1.getRatios());
         OBDModuleInformation obd2 = new OBDModuleInformation(0x02);
         obd2.setPerformanceRatios(packet2.getRatios());
-        when(dataRepository.getObdModules()).thenReturn(new ArrayList<>(Arrays.asList(obd, obd1, obd2)));
+        when(dataRepository.getObdModules()).thenReturn(List.of(obd, obd1, obd2));
 
         runTest();
 
         verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(eq(1), any());
+        verify(dataRepository).putObdModule(eq(2), any());
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
         verify(diagnosticReadinessModule).requestDM20(any(), eq(true), eq(0x00));
@@ -276,19 +284,21 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                 0x62, // Lamp Status/Support
                 0x1D, // Lamp Status/State
         };
-        DM20MonitorPerformanceRatioPacket packet = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(PGN, 0x00, data));
+        DM20MonitorPerformanceRatioPacket packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN,
+                                                                                                       0x00,
+                                                                                                       data));
 
         OBDModuleInformation obd = new OBDModuleInformation(0x00);
         obd.setPerformanceRatios(packet.getRatios());
         when(diagnosticReadinessModule.requestDM20(any(), eq(true), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
 
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obd));
+        when(dataRepository.getObdModules()).thenReturn(List.of(obd));
 
         runTest();
 
         verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
         verify(diagnosticReadinessModule).requestDM20(any(), eq(true), eq(0x00));
@@ -333,8 +343,9 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                 0x00, // Applicable System Monitor Denominator
                 0x00 // Applicable System Monitor Denominator
         };
-        DM20MonitorPerformanceRatioPacket packet1 = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(PGN, 0x01, data1));
+        DM20MonitorPerformanceRatioPacket packet1 = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN,
+                                                                                                        0x01,
+                                                                                                        data1));
 
         // Make the ratios from the dataRepository different from those in the
         // packet return via requestDM20
@@ -343,7 +354,7 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         when(diagnosticReadinessModule.requestDM20(any(), eq(true), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
 
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obd));
+        when(dataRepository.getObdModules()).thenReturn(List.of(obd));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x01);
         obdInfo.setPerformanceRatios(packet1.getRatios());
@@ -351,20 +362,21 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
         verify(diagnosticReadinessModule).requestDM20(any(), eq(true), eq(0x00));
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.25.2.b - Difference compared to data received during global request earlier"
-                        + NL
-                        + "Engine #1 (0) had a difference between stored performance ratios and destination specific requested DM20 response ratios");
+                                                       STEP_NUMBER,
+                                                       FAIL,
+                                                       "6.1.25.2.b - Difference compared to data received during global request earlier"
+                                                               + NL
+                                                               + "Engine #1 (0) had a difference between stored performance ratios and DS requested DM20 response ratios");
 
         String expectedResults = "FAIL: 6.1.25.2.b - Difference compared to data received during global request earlier"
                 + NL
-                + "Engine #1 (0) had a difference between stored performance ratios and destination specific requested DM20 response ratios"
+                + "Engine #1 (0) had a difference between stored performance ratios and DS requested DM20 response ratios"
                 + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -385,13 +397,14 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                 0xFF, // SPN of Applicable System Monitor
                 0xFF, // SPN of Applicable System Monitor
                 0xFF, // SPN of Applicable System Monitor
-                0xFF, // Appplicable System Monitor Numerator
-                0xFE, // Appplicable System Monitor Numerator
-                0xFF, // Appplicable System Monitor Denominator
-                0xFF // Appplicable System Monitor Denominator
+                0xFF, // Applicable System Monitor Numerator
+                0xFE, // Applicable System Monitor Numerator
+                0xFF, // Applicable System Monitor Denominator
+                0xFF // Applicable System Monitor Denominator
         };
-        DM20MonitorPerformanceRatioPacket packet = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(PGN, 0x00, data));
+        DM20MonitorPerformanceRatioPacket packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN,
+                                                                                                       0x00,
+                                                                                                       data));
 
         AcknowledgmentPacket ackPacket = mock(AcknowledgmentPacket.class);
         when(ackPacket.getResponse()).thenReturn(ACK);
@@ -411,11 +424,12 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         obdInfo1.setPerformanceRatios(packet.getRatios());
         OBDModuleInformation obdInfo2 = new OBDModuleInformation(0x02);
         obdInfo2.setPerformanceRatios(packet.getRatios());
-        when(dataRepository.getObdModules()).thenReturn(new ArrayList<>(Arrays.asList(obdInfo, obdInfo1, obdInfo2)));
+        when(dataRepository.getObdModules()).thenReturn(List.of(obdInfo, obdInfo1, obdInfo2));
 
         runTest();
 
         verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
         verify(diagnosticReadinessModule).requestDM20(any(), eq(true), eq(0x00));
@@ -423,9 +437,9 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).requestDM20(any(), eq(true), eq(0x02));
 
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.25.2.c - NACK not received from OBD ECUs that did not respond to global query");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.25.2.c - NACK not received from OBD ECUs that did not respond to global query");
 
         String expectedResult = "FAIL: 6.1.25.2.c - NACK not received from OBD ECUs that did not respond to global query"
                 + NL;
@@ -448,38 +462,40 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                 0xFF, // SPN of Applicable System Monitor
                 0xFF, // SPN of Applicable System Monitor
                 0xFF, // SPN of Applicable System Monitor
-                0xFF, // Appplicable System Monitor Numerator
-                0xFE, // Appplicable System Monitor Numerator
-                0xFF, // Appplicable System Monitor Denominator
-                0xFF // Appplicable System Monitor Denominator
+                0xFF, // Applicable System Monitor Numerator
+                0xFE, // Applicable System Monitor Numerator
+                0xFF, // Applicable System Monitor Denominator
+                0xFF // Applicable System Monitor Denominator
         };
 
         // 0xA5, 0xA5, 0x5A, 0x5A, 0xFF, 0xFF, 0xFF, 0xFF, 0xFE, 0xFF, 0xFF
-        DM20MonitorPerformanceRatioPacket packet = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(PGN, 0x00, data));
+        DM20MonitorPerformanceRatioPacket packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN,
+                                                                                                       0x00,
+                                                                                                       data));
 
         when(diagnosticReadinessModule.requestDM20(any(), eq(true), eq(0x00)))
                 .thenReturn(new BusResult<>(true, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
         obdInfo.setPerformanceRatios(packet.getRatios());
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));
+        when(dataRepository.getObdModules()).thenReturn(List.of(obdInfo));
 
         runTest();
 
         verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
         verify(diagnosticReadinessModule).requestDM20(any(), eq(true), eq(0x00));
 
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.25.2.a - Retry was required to obtain DM20 response:"
-                        + NL + "Engine #1 (0) required a retry when requesting its destination specific DM20");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.25.2.a - Retry was required to obtain DM20 response:"
+                                                + NL + "Engine #1 (0) required a retry when DS requesting DM20");
 
         String expectedResult = "FAIL: 6.1.25.2.a - Retry was required to obtain DM20 response:" + NL
-                + "Engine #1 (0) required a retry when requesting its destination specific DM20" + NL;
+                + "Engine #1 (0) required a retry when DS requesting DM20" + NL;
         assertEquals(expectedResult, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -499,23 +515,25 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                 0xFF, // SPN of Applicable System Monitor
                 0xFF, // SPN of Applicable System Monitor
                 0xFF, // SPN of Applicable System Monitor
-                0xFF, // Appplicable System Monitor Numerator
-                0xFE, // Appplicable System Monitor Numerator
-                0xFF, // Appplicable System Monitor Denominator
-                0xFF // Appplicable System Monitor Denominator
+                0xFF, // Applicable System Monitor Numerator
+                0xFE, // Applicable System Monitor Numerator
+                0xFF, // Applicable System Monitor Denominator
+                0xFF // Applicable System Monitor Denominator
         };
-        DM20MonitorPerformanceRatioPacket packet = new DM20MonitorPerformanceRatioPacket(
-                Packet.create(PGN, 0x00, data));
+        DM20MonitorPerformanceRatioPacket packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN,
+                                                                                                       0x00,
+                                                                                                       data));
         when(diagnosticReadinessModule.requestDM20(any(), eq(true), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
         obdInfo.setPerformanceRatios(packet.getRatios());
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));
+        when(dataRepository.getObdModules()).thenReturn(List.of(obdInfo));
 
         runTest();
 
         verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(eq(0), any());
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
         verify(diagnosticReadinessModule).requestDM20(any(), eq(true), eq(0x00));

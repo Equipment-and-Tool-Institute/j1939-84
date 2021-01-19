@@ -12,7 +12,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
@@ -21,7 +20,6 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class OBDModuleInformation implements Cloneable {
 
@@ -57,6 +55,10 @@ public class OBDModuleInformation implements Cloneable {
 
     @Override
     public OBDModuleInformation clone() {
+        try {
+            super.clone();
+        } catch (CloneNotSupportedException ignored) {
+        }
         OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress());
         obdInfo.setCalibrationInformation(getCalibrationInformation());
         obdInfo.setFunction(getFunction());
@@ -107,7 +109,9 @@ public class OBDModuleInformation implements Cloneable {
      * @return the freezeFrameSpns
      */
     public List<SupportedSPN> getFreezeFrameSpns() {
-        return getSupportedSpns().stream().filter(SupportedSPN::supportsExpandedFreezeFrame).collect(Collectors.toList());
+        return getSupportedSpns().stream()
+                .filter(SupportedSPN::supportsExpandedFreezeFrame)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -160,16 +164,16 @@ public class OBDModuleInformation implements Cloneable {
     @Override
     public int hashCode() {
         return Objects.hash(sourceAddress,
-                scaledTestResults,
-                supportedSpns,
-                obdCompliance,
-                calibrationInformation,
-                monitoredSystems);
+                            scaledTestResults,
+                            supportedSpns,
+                            obdCompliance,
+                            calibrationInformation,
+                            monitoredSystems);
     }
 
     /**
      * @param calibrationInformation
-     *            the calibrationInformation to set
+     *         the calibrationInformation to set
      */
     public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {
         this.calibrationInformation.clear();
@@ -178,7 +182,7 @@ public class OBDModuleInformation implements Cloneable {
 
     /**
      * @param function
-     *            the function to set
+     *         the function to set
      */
     public void setFunction(int function) {
         this.function = function;
@@ -186,7 +190,7 @@ public class OBDModuleInformation implements Cloneable {
 
     /**
      * @param monitoredSystems
-     *            the calibrationInformation to set
+     *         the calibrationInformation to set
      */
     public void setMonitoredSystems(Set<MonitoredSystem> monitoredSystems) {
         this.monitoredSystems.clear();
@@ -195,7 +199,7 @@ public class OBDModuleInformation implements Cloneable {
 
     /**
      * @param obdCompliance
-     *            the obdCompliance to set
+     *         the obdCompliance to set
      */
     public void setObdCompliance(byte obdCompliance) {
         this.obdCompliance = obdCompliance;
@@ -203,7 +207,7 @@ public class OBDModuleInformation implements Cloneable {
 
     /**
      * @param performanceRatios
-     *            the performanceRatios to set
+     *         the performanceRatios to set
      */
     public void setPerformanceRatios(Collection<PerformanceRatio> performanceRatios) {
         this.performanceRatios.clear();
@@ -217,7 +221,7 @@ public class OBDModuleInformation implements Cloneable {
 
     /**
      * @param supportedSpns
-     *            the supportedSpns to set
+     *         the supportedSpns to set
      */
     public void setSupportedSpns(List<SupportedSPN> supportedSpns) {
         this.supportedSpns.clear();

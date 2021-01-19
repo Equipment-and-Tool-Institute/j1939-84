@@ -66,44 +66,50 @@ public class Part01Step25Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-
         diagnosticReadinessModule.setJ1939(getJ1939());
         // 6.1.25.1.a. DS DM20 (send Request (PGN 59904) for PGN 49664 to each OBD ECU.
         dataRepository.getObdModules().forEach(module -> {
             // Request DM20 from the module
-            BusResult<DM20MonitorPerformanceRatioPacket> dm20BusResult = diagnosticReadinessModule
-                    .requestDM20(getListener(), true, module.getSourceAddress());
+            int moduleAddress = module.getSourceAddress();
+            BusResult<DM20MonitorPerformanceRatioPacket> dm20BusResult =
+                    diagnosticReadinessModule.requestDM20(getListener(), true, moduleAddress);
+
             // 6.1.25.2.a. Fail if retry was required to obtain DM20 response.
+            String moduleName = getAddressName(moduleAddress);
             if (dm20BusResult.isRetryUsed()) {
                 addFailure("6.1.25.2.a - Retry was required to obtain DM20 response:" + NL
-                        + getAddressName(module.getSourceAddress())
-                        + " required a retry when requesting its destination specific DM20");
+                        + moduleName + " required a retry when DS requesting DM20");
             }
-            // 6.1.25.1.b. If no response (transport protocol RTS or NACK(Busy) in 220
-            // ms), then retry DS DM20 request to the OBD ECU. [Do not attempt
-            // retry for NACKs that indicate not supported] - handled at the
-            // j1939 request layer
 
-            Optional<Either<DM20MonitorPerformanceRatioPacket, AcknowledgmentPacket>> packet = dm20BusResult.getPacket();
-            if (packet.isPresent()) {
-                Either<DM20MonitorPerformanceRatioPacket, AcknowledgmentPacket> ratio = packet.get();
-                if (ratio.left.isPresent()) {
+            // 6.1.25.1.b. If no response, then retry DS DM20 request to the OBD ECU. [Do not attempt
+            // retry for NACKs that indicate not supported] - handled at the j1939 request layer
+            Optional<Either<DM20MonitorPerformanceRatioPacket, AcknowledgmentPacket>> optionalEither = dm20BusResult.getPacket();
+            if (optionalEither.isPresent()) {
+                Either<DM20MonitorPerformanceRatioPacket, AcknowledgmentPacket> result = optionalEither.get();
+                Optional<DM20MonitorPerformanceRatioPacket> optionalLeft = result.left;
+                if (optionalLeft.isPresent()) {
+                    DM20MonitorPerformanceRatioPacket dm20 = optionalLeft.get();
+
                     //6.1.25.1.a.i. Store ignition cycle counter value (SPN 3048) for later use.
-                    module.setIgnitionCycleCounterValue(ratio.left.get().getIgnitionCycles());
+                    module.setIgnitionCycleCounterValue(dm20.getIgnitionCycles());
+                    dataRepository.putObdModule(moduleAddress, module);
+
                     // 6.1.25.2.b. Fail if any difference compared to data received during global request earlier
-                    if (!CollectionUtils.areTwoCollectionsEqual(module.getPerformanceRatios(),
-                            ratio.left.get().getRatios())) {
+                    if (!CollectionUtils.areTwoCollectionsEqual(module.getPerformanceRatios(), dm20.getRatios())) {
                         String failureMessage = "6.1.25.2.b - Difference compared to data received during global request earlier" + NL;
-                        failureMessage += getAddressName(module.getSourceAddress());
-                        failureMessage += " had a difference between stored performance ratios and destination specific requested DM20 response ratios";
+                        failureMessage += moduleName;
+                        failureMessage += " had a difference between stored performance ratios and DS requested DM20 response ratios";
                         addFailure(failureMessage);
                     }
-                } else if (ratio.right.isEmpty() || ratio.right.get().getResponse() != Response.NACK) {
-                    // 6.1.25.2.c. Fail if NACK not received from OBD ECUs that did not respond to global query in test 1.8.
-                    addFailure("6.1.25.2.c - NACK not received from OBD ECUs that did not respond to global query");
+                } else {
+                    Optional<AcknowledgmentPacket> optionalRight = result.right;
+                    if (optionalRight.isEmpty() || optionalRight.get().getResponse() != Response.NACK) {
+                        // 6.1.25.2.c. Fail if NACK not received from OBD ECUs that did not respond to global query in test 1.8.
+                        addFailure("6.1.25.2.c - NACK not received from OBD ECUs that did not respond to global query");
+                    }
                 }
             } else {
-                addWarning(getAddressName(module.getSourceAddress()) + " did not response to the DS20 request");
+                addWarning(moduleName + " did not respond to the DS DM20 request");
             }
         });
     }
