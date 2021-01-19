@@ -62,6 +62,7 @@ public class OBDModuleInformation implements Cloneable {
         OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress());
         obdInfo.setCalibrationInformation(getCalibrationInformation());
         obdInfo.setFunction(getFunction());
+        obdInfo.setIgnitionCycleCounterValue(getIgnitionCycleCounterValue());
         obdInfo.setObdCompliance(getObdCompliance());
         obdInfo.setPerformanceRatios(getPerformanceRatios());
         obdInfo.setScaledTestResults(getScaledTestResults());
