@@ -165,8 +165,6 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
 
         VehicleInformation vehicleInformation = new VehicleInformation();
-        System.out.println("vehicleInformation.getCalIds()" + vehicleInformation.getCalIds());
-        System.out.println("dm19.getCalibrationInformation().size()" + dm19.getCalibrationInformation().size());
         vehicleInformation.setEmissionUnits(1);
 
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
