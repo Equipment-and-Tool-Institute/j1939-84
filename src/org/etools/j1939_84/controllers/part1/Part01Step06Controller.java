@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Equipment & Tool Institute
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part1;
 
@@ -24,11 +24,11 @@ public class Part01Step06Controller extends StepController {
 
     Part01Step06Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-                new EngineSpeedModule(),
-                new BannerModule(),
-                new VehicleInformationModule(),
-                dataRepository,
-                DateTimeModule.getInstance());
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             dataRepository,
+             DateTimeModule.getInstance());
     }
 
     Part01Step06Controller(Executor executor,
@@ -38,13 +38,13 @@ public class Part01Step06Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dateTimeModule,
-                PART_NUMBER,
-                STEP_NUMBER,
-                TOTAL_STEPS);
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              dateTimeModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }
 
@@ -52,29 +52,49 @@ public class Part01Step06Controller extends StepController {
     protected void run() throws Throwable {
 
         // DM56: Model year and certification engine family
-        List<DM56EngineFamilyPacket> packets = getVehicleInformationModule().reportEngineFamily(getListener());
+        List<DM56EngineFamilyPacket> packets = getVehicleInformationModule().requestDM56(getListener());
         if (packets.isEmpty()) {
             getListener().onResult("DM56 is not supported");
             return;
         }
 
         for (DM56EngineFamilyPacket packet : packets) {
-            if (packet.getEngineModelYear() != dataRepository.getVehicleInformation().getEngineModelYear()) {
-                addFailure(1, 6, "6.1.6.2.a - Engine model year does not match user input");
+            int sourceAddress = packet.getSourceAddress();
+            var obdModuleInfo = dataRepository.getObdModule(sourceAddress);
+            if (obdModuleInfo != null) {
+                obdModuleInfo.setModelYear(packet.getModelYearField());
+                obdModuleInfo.setEngineFamilyName(packet.getFamilyName());
+                dataRepository.putObdModule(obdModuleInfo);
             }
+        }
 
-            String modelYearField = packet.getModelYearField();
-            String type = modelYearField.substring(4, 5);
+        int engineModelYear = dataRepository.getVehicleInformation().getEngineModelYear();
+        for (DM56EngineFamilyPacket packet : packets) {
+            if (packet.getEngineModelYear() != engineModelYear) {
+                addFailure("6.1.6.2.a - Engine model year does not match user input");
+                break;
+            }
+        }
+
+        for (DM56EngineFamilyPacket packet : packets) {
+            String type = packet.getModelYearField().substring(4, 5);
             if ("V".equals(type)) {
-                addFailure(1, 6, "6.1.6.2.b - Indicates 'V' instead of 'E' for cert type");
+                addFailure("6.1.6.2.b - Indicates 'V' instead of 'E' for cert type");
+                break;
             }
+        }
 
+        for (DM56EngineFamilyPacket packet : packets) {
+            String modelYearField = packet.getModelYearField();
             String expected = packet.getEngineModelYear() + "E-MY";
 
             if (!expected.equals(modelYearField)) {
-                addFailure(1, 6, "6.1.6.2.c - Not formatted correctly");
+                addFailure("6.1.6.2.c - Not formatted correctly");
+                break;
             }
+        }
 
+        for (DM56EngineFamilyPacket packet : packets) {
             // TODO: See the citation for Karl Simon’s manufacturer guidance in 2.1.3.
             // The description of the coding for engine model year is defined in CSID-07-03,
             // a manufacturer letter that is available from US EPA at
@@ -89,14 +109,14 @@ public class Part01Step06Controller extends StepController {
 
             if ((-1 < asteriskIndex && asteriskIndex <= 12)
                     || (char13 != Character.MIN_VALUE && char13 != '*' && familyName.contains("*"))) {
-                addFailure(1,
-                        6,
+                addFailure(
                         "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
+                break;
             } else if (familyName.length() < 13 || !familyName.contains("*") && char13 != Character.MIN_VALUE) {
-                addFailure(1,
-                        6,
-                        "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+                addFailure("6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
+                break;
             }
         }
     }
+
 }

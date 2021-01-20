@@ -27,14 +27,6 @@ public class OBDModuleInformation implements Cloneable {
 
     private int function;
 
-    public int getIgnitionCycleCounterValue() {
-        return ignitionCycleCounterValue;
-    }
-
-    public void setIgnitionCycleCounterValue(int ignitionCycleCounterValue) {
-        this.ignitionCycleCounterValue = ignitionCycleCounterValue;
-    }
-
     private int ignitionCycleCounterValue;
 
     private final Set<MonitoredSystem> monitoredSystems = new HashSet<>();
@@ -48,6 +40,10 @@ public class OBDModuleInformation implements Cloneable {
     private final int sourceAddress;
 
     private final List<SupportedSPN> supportedSpns = new ArrayList<>();
+
+    private String engineFamilyName = "";
+
+    private String modelYear = "";
 
     public OBDModuleInformation(int sourceAddress) {
         this.sourceAddress = sourceAddress;
@@ -63,11 +59,13 @@ public class OBDModuleInformation implements Cloneable {
         obdInfo.setCalibrationInformation(getCalibrationInformation());
         obdInfo.setFunction(getFunction());
         obdInfo.setIgnitionCycleCounterValue(getIgnitionCycleCounterValue());
+        obdInfo.setMonitoredSystems(getMonitoredSystems());
         obdInfo.setObdCompliance(getObdCompliance());
         obdInfo.setPerformanceRatios(getPerformanceRatios());
         obdInfo.setScaledTestResults(getScaledTestResults());
         obdInfo.setSupportedSpns(getSupportedSpns());
-        obdInfo.setMonitoredSystems(getMonitoredSystems());
+        obdInfo.setEngineFamilyName(getEngineFamilyName());
+        obdInfo.setModelYear(getModelYear());
 
         return obdInfo;
     }
@@ -83,62 +81,54 @@ public class OBDModuleInformation implements Cloneable {
         }
 
         OBDModuleInformation that = (OBDModuleInformation) obj;
-        return Objects.equals(sourceAddress, that.sourceAddress)
-                && Objects.equals(supportedSpns, that.supportedSpns)
-                && Objects.equals(scaledTestResults, that.scaledTestResults)
-                && Objects.equals(obdCompliance, that.obdCompliance)
+
+        return Objects.equals(calibrationInformation, that.calibrationInformation)
                 && Objects.equals(function, that.function)
-                && Objects.equals(calibrationInformation, that.calibrationInformation)
-                && Objects.equals(monitoredSystems, that.monitoredSystems);
+                && Objects.equals(ignitionCycleCounterValue, that.ignitionCycleCounterValue)
+                && Objects.equals(monitoredSystems, that.monitoredSystems)
+                && Objects.equals(obdCompliance, that.obdCompliance)
+                && Objects.equals(performanceRatios, that.performanceRatios)
+                && Objects.equals(scaledTestResults, that.scaledTestResults)
+                && Objects.equals(sourceAddress, that.sourceAddress)
+                && Objects.equals(supportedSpns, that.supportedSpns)
+                && Objects.equals(engineFamilyName, that.engineFamilyName)
+                && Objects.equals(modelYear, that.modelYear);
     }
 
-    /**
-     * @return the calibrationInformation
-     */
+    public int getIgnitionCycleCounterValue() {
+        return ignitionCycleCounterValue;
+    }
+
+    public void setIgnitionCycleCounterValue(int ignitionCycleCounterValue) {
+        this.ignitionCycleCounterValue = ignitionCycleCounterValue;
+    }
+
     public List<CalibrationInformation> getCalibrationInformation() {
         return calibrationInformation;
     }
 
-    /**
-     * @return the supportedSpns
-     */
     public List<SupportedSPN> getDataStreamSpns() {
         return getSupportedSpns().stream().filter(SupportedSPN::supportsDataStream).collect(Collectors.toList());
     }
 
-    /**
-     * @return the freezeFrameSpns
-     */
     public List<SupportedSPN> getFreezeFrameSpns() {
         return getSupportedSpns().stream()
                 .filter(SupportedSPN::supportsExpandedFreezeFrame)
                 .collect(Collectors.toList());
     }
 
-    /**
-     * @return the function
-     */
     public int getFunction() {
         return function;
     }
 
-    /**
-     * @return the monitoredSystems
-     */
     public Set<MonitoredSystem> getMonitoredSystems() {
         return monitoredSystems;
     }
 
-    /**
-     * @return the obdCompliance
-     */
     public byte getObdCompliance() {
         return obdCompliance;
     }
 
-    /**
-     * @return the performanceRatios
-     */
     public Set<PerformanceRatio> getPerformanceRatios() {
         return performanceRatios;
     }
@@ -151,9 +141,6 @@ public class OBDModuleInformation implements Cloneable {
         return sourceAddress;
     }
 
-    /**
-     * @return the supportedSpns
-     */
     public List<SupportedSPN> getSupportedSpns() {
         return supportedSpns;
     }
@@ -165,51 +152,36 @@ public class OBDModuleInformation implements Cloneable {
     @Override
     public int hashCode() {
         return Objects.hash(sourceAddress,
+                            calibrationInformation,
+                            function,
+                            ignitionCycleCounterValue,
+                            monitoredSystems,
+                            obdCompliance,
+                            performanceRatios,
                             scaledTestResults,
                             supportedSpns,
-                            obdCompliance,
-                            calibrationInformation,
-                            monitoredSystems);
+                            engineFamilyName,
+                            modelYear);
     }
 
-    /**
-     * @param calibrationInformation
-     *         the calibrationInformation to set
-     */
     public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {
         this.calibrationInformation.clear();
         this.calibrationInformation.addAll(calibrationInformation);
     }
 
-    /**
-     * @param function
-     *         the function to set
-     */
     public void setFunction(int function) {
         this.function = function;
     }
 
-    /**
-     * @param monitoredSystems
-     *         the calibrationInformation to set
-     */
     public void setMonitoredSystems(Set<MonitoredSystem> monitoredSystems) {
         this.monitoredSystems.clear();
         this.monitoredSystems.addAll(monitoredSystems);
     }
 
-    /**
-     * @param obdCompliance
-     *         the obdCompliance to set
-     */
     public void setObdCompliance(byte obdCompliance) {
         this.obdCompliance = obdCompliance;
     }
 
-    /**
-     * @param performanceRatios
-     *         the performanceRatios to set
-     */
     public void setPerformanceRatios(Collection<PerformanceRatio> performanceRatios) {
         this.performanceRatios.clear();
         this.performanceRatios.addAll(performanceRatios);
@@ -220,13 +192,25 @@ public class OBDModuleInformation implements Cloneable {
         this.scaledTestResults.addAll(scaledTestResults);
     }
 
-    /**
-     * @param supportedSpns
-     *         the supportedSpns to set
-     */
     public void setSupportedSpns(List<SupportedSPN> supportedSpns) {
         this.supportedSpns.clear();
         this.supportedSpns.addAll(supportedSpns);
+    }
+
+    public String getEngineFamilyName() {
+        return engineFamilyName;
+    }
+
+    public void setEngineFamilyName(String engineFamilyName) {
+        this.engineFamilyName = engineFamilyName;
+    }
+
+    public String getModelYear() {
+        return modelYear;
+    }
+
+    public void setModelYear(String modelYear) {
+        this.modelYear = modelYear;
     }
 
     @Override
@@ -235,9 +219,18 @@ public class OBDModuleInformation implements Cloneable {
         result += "sourceAddress is : " + sourceAddress + NL;
         result += "obdCompliance is : " + getObdCompliance() + NL;
         result += "function is : " + getFunction() + NL;
-        result += "Supported SPNs: " + NL
-                + getSupportedSpns().stream().map(SupportedSPN::toString).collect(Collectors.joining(","));
+        result += "ignition cycles is : " + getIgnitionCycleCounterValue() + NL;
+        result += "engine family name is : " + getEngineFamilyName() + NL;
+        result += "model year is : " + getModelYear() + NL;
+        result += "Scaled Test Results: " + getScaledTestResults() + NL;
+        result += "Performance Ratios: " + getPerformanceRatios() + NL;
+        result += "Monitored Systems: " + getMonitoredSystems() + NL;
+        result += "Supported SPNs: " + NL + formattedSupportedSpns();
         return result;
+    }
+
+    private String formattedSupportedSpns() {
+        return getSupportedSpns().stream().map(SupportedSPN::toString).collect(Collectors.joining(","));
     }
 
 }

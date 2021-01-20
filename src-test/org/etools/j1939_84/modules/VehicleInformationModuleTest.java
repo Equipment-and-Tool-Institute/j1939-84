@@ -513,7 +513,7 @@ public class VehicleInformationModuleTest {
                 DM56EngineFamilyPacket.class,
                 requestPacket);
 
-        List<DM56EngineFamilyPacket> packets = instance.reportEngineFamily(ResultsListener.NOOP);
+        List<DM56EngineFamilyPacket> packets = instance.requestDM56(ResultsListener.NOOP);
         assertEquals(3, packets.size());
         assertEquals(packet1, packets.get(0));
         assertEquals(packet2, packets.get(1));
@@ -535,7 +535,7 @@ public class VehicleInformationModuleTest {
                 DM56EngineFamilyPacket.class,
                 requestPacket);
 
-        List<DM56EngineFamilyPacket> packets = instance.reportEngineFamily(ResultsListener.NOOP);
+        List<DM56EngineFamilyPacket> packets = instance.requestDM56(ResultsListener.NOOP);
         assertEquals(0, packets.size());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);

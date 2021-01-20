@@ -28,31 +28,6 @@ public abstract class FunctionalModule {
     protected FunctionalModule() {
     }
 
-    /**
-     * Helper method to generate a report
-     *
-     * @param <T>
-     *            the class of the Packet that will received
-     * @param listener
-     *            the {@link ResultsListener} that will be given the results
-     * @param title
-     *            the Title of the report section
-     * @param clazz
-     *            the Class of a ParsedPacket that's expected to be returned
-     *            from the vehicle
-     * @param request
-     *            the {@link Packet} that will be sent to solicit responses from
-     *            the vehicle modules
-     *
-     * @return the List of Packets that were received
-     */
-    protected <T extends GenericPacket> RequestResult<T> generateReport(ResultsListener listener,
-                                                                       String title,
-                                                                       Class<T> clazz,
-                                                                       Packet request) {
-        return getJ1939().requestResult(title, listener, true, clazz, request);
-    }
-
     protected String getDate() {
         return getDateTimeModule().getDate();
     }
@@ -82,7 +57,6 @@ public abstract class FunctionalModule {
                                                                 boolean fullString,
                                                                 int address) {
         Packet request = getJ1939().createRequestPacket(pgn, address);
-
         return getJ1939().requestDS(title, listener, fullString, clazz, request);
     }
 
@@ -100,7 +74,7 @@ public abstract class FunctionalModule {
      * @param listener
      *            the {@link ResultsListener} that will be notified of the
      *            traffic
-     * @param fullString
+     * @param isFullString
      *            true to include the full string of the results in the report;
      *            false to only include the returned raw packet in the report
      * @return the List of packets returned
@@ -109,12 +83,9 @@ public abstract class FunctionalModule {
                                                                              int pgn,
                                                                              Class<T> clazz,
                                                                              ResultsListener listener,
-                                                                             boolean fullString) { // FIXME
-                                                                                                   // is
-                                                                                                   // full
+                                                                             boolean isFullString) {
         Packet request = getJ1939().createRequestPacket(pgn, J1939.GLOBAL_ADDR);
-
-        return getJ1939().requestGlobal(title, listener, fullString, clazz, request);
+        return getJ1939().requestGlobal(title, listener, isFullString, clazz, request);
     }
 
     /**

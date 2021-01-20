@@ -208,6 +208,12 @@ public class Part01Step03ControllerTest {
         expectedObd += "sourceAddress is : 0" + NL;
         expectedObd += "obdCompliance is : 4" + NL;
         expectedObd += "function is : -1" + NL;
+        expectedObd += "ignition cycles is : 0" + NL;
+        expectedObd += "engine family name is : " + NL;
+        expectedObd += "model year is : " + NL;
+        expectedObd += "Scaled Test Results: []" + NL;
+        expectedObd += "Performance Ratios: []" + NL;
+        expectedObd += "Monitored Systems: []" + NL;
         expectedObd += "Supported SPNs: " + NL;
         assertEquals(expectedObd, obdInfo1.toString());
     }

@@ -1,9 +1,10 @@
-/**
- * Copyright (c) 2020. Equipment & Tool Institute
+/*
+ * Copyright (c) 2021. Equipment & Tool Institute
  */
 package org.etools.j1939_84.model;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.DM5MonitoredSystemStatus.NOT_SUPPORTED_COMPLETE;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -12,8 +13,12 @@ import static org.junit.Assert.assertTrue;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
-
+import java.util.Set;
+import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
+import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
+import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.junit.Before;
 import org.junit.Test;
@@ -22,8 +27,8 @@ import org.junit.Test;
  * Unit Test for the {@link OBDModuleInformation} class
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
+@SuppressWarnings("ALL")
 public class OBDModuleInformationTest {
 
     private static List<SupportedSPN> makeListOfSupportedSPNs(int[] data) {
@@ -54,10 +59,41 @@ public class OBDModuleInformationTest {
         instance = new OBDModuleInformation(0);
         instance.setObdCompliance((byte) 4);
         instance.setSupportedSpns(makeListOfSupportedSPNs(null));
+        instance.setIgnitionCycleCounterValue(42);
+        instance.setEngineFamilyName("Big Bore");
+        instance.setModelYear("Next Year");
+        instance.setFunction(29);
 
-        instance2 = new OBDModuleInformation(0);
-        instance2.setObdCompliance((byte) 4);
-        instance2.setSupportedSpns(makeListOfSupportedSPNs(null));
+        var calInfo = new CalibrationInformation("Cal id", "CVN", new byte[] { 0 }, new byte[] { 0 });
+        instance.setCalibrationInformation(List.of(calInfo));
+
+        MonitoredSystem monitoredSystem = new MonitoredSystem("test",
+                                                   NOT_SUPPORTED_COMPLETE,
+                                                   0,
+                                                   CompositeSystem.CATALYST,
+                                                   true);
+        instance.setMonitoredSystems(Set.of(monitoredSystem));
+
+        PerformanceRatio performanceRatio = new PerformanceRatio(999, 0, 25, 50);
+        instance.setPerformanceRatios(List.of(performanceRatio));
+
+        ScaledTestResult scaledTestResult = new ScaledTestResult(new int[] { 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12 });
+        instance.setScaledTestResults(List.of(scaledTestResult));
+
+        {
+            instance2 = new OBDModuleInformation(0);
+            instance2.setObdCompliance((byte) 4);
+            instance2.setSupportedSpns(makeListOfSupportedSPNs(null));
+            instance2.setIgnitionCycleCounterValue(42);
+            instance2.setEngineFamilyName("Big Bore");
+            instance2.setModelYear("Next Year");
+            instance2.setFunction(29);
+
+            instance2.setCalibrationInformation(List.of(calInfo));
+            instance2.setMonitoredSystems(Set.of(monitoredSystem));
+            instance2.setPerformanceRatios(List.of(performanceRatio));
+            instance2.setScaledTestResults(List.of(scaledTestResult));
+        }
 
         instance3 = instance.clone();
     }
@@ -157,7 +193,13 @@ public class OBDModuleInformationTest {
         String expectedObd = "OBD Module Information: " + NL;
         expectedObd += "sourceAddress is : " + 0 + NL;
         expectedObd += "obdCompliance is : " + 4 + NL;
-        expectedObd += "function is : " + 0 + NL;
+        expectedObd += "function is : 29" + NL;
+        expectedObd += "ignition cycles is : 42" + NL;
+        expectedObd += "engine family name is : Big Bore" + NL;
+        expectedObd += "model year is : Next Year" + NL;
+        expectedObd += "Scaled Test Results: [SPN 770 FMI 4 (SLOT 1541) Result: Test Failed. Min: 3,083, Value: 2,055, Max: 2,569]" + NL;
+        expectedObd += "Performance Ratios: [SPN  999 Trip Gear Down Distance: 0 / 25]" + NL;
+        expectedObd += "Monitored Systems: [    test not supported,     complete]" + NL;
         expectedObd += "Supported SPNs: " + NL;
         expectedObd += "SPN 513 - Actual Engine - Percent Torque,SPN 0 - Unknown,SPN 524030 - Manufacturer Assignable SPN";
         assertEquals(expectedObd, instance.toString());
