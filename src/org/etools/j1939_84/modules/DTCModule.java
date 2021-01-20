@@ -85,10 +85,7 @@ public class DTCModule extends FunctionalModule {
         String title = address == GLOBAL_ADDR ? "Global DM28 Request"
                 : "Destination Specific DM28 Request to " + Lookup.getAddressName(address);
 
-        return generateReport(listener,
-                title,
-                DM28PermanentEmissionDTCPacket.class,
-                request);
+        return getJ1939().requestResult(title, listener, true, DM28PermanentEmissionDTCPacket.class, request);
     }
 
     /**
@@ -206,10 +203,7 @@ public class DTCModule extends FunctionalModule {
         String title = address == GLOBAL_ADDR ? "Global DM21 Request"
                 : "Destination Specific DM21 Request to " + Lookup.getAddressName(address);
 
-        return generateReport(listener,
-                title,
-                DM21DiagnosticReadinessPacket.class,
-                request);
+        return getJ1939().requestResult(title, listener, true, DM21DiagnosticReadinessPacket.class, request);
     }
 
     /**
@@ -291,10 +285,7 @@ public class DTCModule extends FunctionalModule {
         String title = address == GLOBAL_ADDR ? "Global DM26 Request"
                 : "Destination Specific DM26 Request to " + Lookup.getAddressName(address);
 
-        return generateReport(listener,
-                title,
-                DM26TripDiagnosticReadinessPacket.class,
-                request);
+        return getJ1939().requestResult(title, listener, true, DM26TripDiagnosticReadinessPacket.class, request);
     }
 
     /**
@@ -375,10 +366,7 @@ public class DTCModule extends FunctionalModule {
 
         Packet request = getJ1939().createRequestPacket(DM29DtcCounts.PGN, GLOBAL_ADDR);
 
-        return generateReport(listener,
-                "Global DM29 Request",
-                DM29DtcCounts.class,
-                request);
+        return getJ1939().requestResult("Global DM29 Request", listener, true, DM29DtcCounts.class, request);
     }
 
     /**
@@ -427,10 +415,7 @@ public class DTCModule extends FunctionalModule {
         String title = address == GLOBAL_ADDR ? "Global DM31 Request"
                 : "Destination Specific DM31 Request to " + Lookup.getAddressName(address);
 
-        return generateReport(listener,
-                title,
-                DM31DtcToLampAssociation.class,
-                request);
+        return getJ1939().requestResult(title, listener, true, DM31DtcToLampAssociation.class, request);
     }
 
     /**
@@ -463,10 +448,10 @@ public class DTCModule extends FunctionalModule {
         String title = address == GLOBAL_ADDR ? "Global DM33 Request"
                 : "Destination Specific DM33 Request to " + Lookup.getAddressName(address);
 
-        return generateReport(listener,
-                title,
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
-                request);
+        return getJ1939().requestResult(title,
+                                        listener, true,
+                                        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
+                                        request);
     }
 
     /**

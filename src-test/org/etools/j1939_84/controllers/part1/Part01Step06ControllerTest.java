@@ -4,16 +4,14 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -21,7 +19,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.Outcome;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -55,15 +53,13 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
      * unnecessary mocks.
      */
     @SuppressWarnings("SameParameterValue")
-    private static DM56EngineFamilyPacket createDM56(Integer sourceAddress,
+    private static DM56EngineFamilyPacket createDM56(int sourceAddress,
                                                      Integer engineYear,
                                                      String modelYear,
                                                      Integer vehicleYear,
                                                      String familyName) {
         DM56EngineFamilyPacket packet = mock(DM56EngineFamilyPacket.class);
-        if (sourceAddress != null) {
-            when(packet.getSourceAddress()).thenReturn(sourceAddress);
-        }
+        when(packet.getSourceAddress()).thenReturn(sourceAddress);
         if (engineYear != null) {
             when(packet.getEngineModelYear()).thenReturn(engineYear);
         }
@@ -82,7 +78,6 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
     @Mock
     private BannerModule bannerModule;
 
-    @Mock
     private DataRepository dataRepository;
 
     @Mock
@@ -107,10 +102,17 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    private DateTimeModule dateTimeModule;
-
     @Before
     public void setUp() throws Exception {
+
+        dataRepository = new DataRepository();
+
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setEngineModelYear(2006);
+        dataRepository.setVehicleInformation(vehicleInformation);
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        dataRepository.putObdModule(0, obdModuleInformation);
 
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
@@ -133,9 +135,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 dataRepository,
-                                 mockListener,
-                                 reportFileModule);
+                                 mockListener);
     }
 
     /**
@@ -147,42 +147,27 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
     public void testAsteriskTerminationGreaterThanTwelve() {
         String famName = familyName.replace("*", "44*");
 
-        List<DM56EngineFamilyPacket> parsedPackets = Collections
-                .singletonList(createDM56(null, 2006, "2006E-MY", null, famName));
-        when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
-
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getVehicleInformation().getEngineModelYear()).thenReturn(2006);
+        List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(0, 2006, "2006E-MY", null, famName));
+        when(vehicleInformationModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
-        verify(dataRepository, times(2)).getVehicleInformation();
+        var obdModule = dataRepository.getObdModule(0);
+        assertEquals("2006E-MY", obdModule.getModelYear());
+        assertEquals(famName, obdModule.getEngineFamilyName());
 
         verify(mockListener).addOutcome(1,
                                         6,
-                                        Outcome.FAIL,
+                                        FAIL,
                                         "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
 
-        verify(reportFileModule).addOutcome(1,
-                                            6,
-                                            Outcome.FAIL,
-                                            "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
-        verify(reportFileModule).addOutcome(1,
-                                            6,
-                                            Outcome.FAIL,
-                                            "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
-
-        verify(vehicleInformationModule).reportEngineFamily(any());
+        verify(vehicleInformationModule).requestDM56(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)"
-                        + NL,
+                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)" + NL,
                 listener.getResults());
     }
 
@@ -194,37 +179,28 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.6.2.e",
             description = "Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)"))
-    public void testAstriskPositionLessThanTwelve() {
+    public void testAsteriskPositionLessThanTwelve() {
         String famName = familyName.replace("A", "*");
 
-        List<DM56EngineFamilyPacket> parsedPackets = Collections.singletonList(createDM56(null,
-                                                                                          2006,
-                                                                                          "2006E-MY",
-                                                                                          null,
-                                                                                          famName));
-        when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
-
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getVehicleInformation().getEngineModelYear()).thenReturn(2006);
+        List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(0,
+                                                                        2006,
+                                                                        "2006E-MY",
+                                                                        null,
+                                                                        famName));
+        when(vehicleInformationModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
-        verify(dataRepository, times(2)).getVehicleInformation();
+        var obdModule = dataRepository.getObdModule(0);
+        assertEquals("2006E-MY", obdModule.getModelYear());
+        assertEquals(famName, obdModule.getEngineFamilyName());
 
         verify(mockListener).addOutcome(1,
                                         6,
-                                        Outcome.FAIL,
+                                        FAIL,
                                         "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
 
-        verify(reportFileModule).onResult(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
-        verify(reportFileModule).addOutcome(1,
-                                            6,
-                                            Outcome.FAIL,
-                                            "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
-
-        verify(vehicleInformationModule).reportEngineFamily(any());
+        verify(vehicleInformationModule).requestDM56(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -240,26 +216,19 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
      */
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.6.2.a", description = "Engine model year does not match user input"))
-    public void testEngineModelYearDoesntMatch() {
-        List<DM56EngineFamilyPacket> parsedPackets = Collections
-                .singletonList(createDM56(null, 2006, "2006E-MY", null, familyName));
-        when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
-
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getVehicleInformation().getEngineModelYear()).thenReturn(2010);
+    public void testEngineModelYearDoesNotMatch() {
+        List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(0, 2010, "2010E-MY", null, familyName));
+        when(vehicleInformationModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
-        verify(dataRepository, times(2)).getVehicleInformation();
+        var obdModule = dataRepository.getObdModule(0);
+        assertEquals("2010E-MY", obdModule.getModelYear());
+        assertEquals(familyName, obdModule.getEngineFamilyName());
 
-        verify(mockListener).addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.a - Engine model year does not match user input");
+        verify(mockListener).addOutcome(1, 6, FAIL, "6.1.6.2.a - Engine model year does not match user input");
 
-        verify(reportFileModule).onResult("FAIL: 6.1.6.2.a - Engine model year does not match user input");
-        verify(reportFileModule)
-                .addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.a - Engine model year does not match user input");
-
-        verify(vehicleInformationModule).reportEngineFamily(any());
+        verify(vehicleInformationModule).requestDM56(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -277,35 +246,21 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
     public void testFamilyNameLessThan13Characters() {
         String famName = familyName.replace(" OBD*", "");
 
-        List<DM56EngineFamilyPacket> parsedPackets = Collections
-                .singletonList(createDM56(null, 2006, "2006E-MY", null, famName));
-        when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
-
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getVehicleInformation().getEngineModelYear()).thenReturn(2006);
+        List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(0, 2006, "2006E-MY", null, famName));
+        when(vehicleInformationModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
-        verify(dataRepository, times(2)).getVehicleInformation();
+        var obdModule = dataRepository.getObdModule(0);
+        assertEquals("2006E-MY", obdModule.getModelYear());
+        assertEquals(famName, obdModule.getEngineFamilyName());
 
         verify(mockListener).addOutcome(1,
                                         6,
-                                        Outcome.FAIL,
+                                        FAIL,
                                         "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
 
-        verify(reportFileModule).addOutcome(1,
-                                            6,
-                                            Outcome.FAIL,
-                                            "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
-        verify(reportFileModule).addOutcome(1,
-                                            6,
-                                            Outcome.FAIL,
-                                            "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
-
-        verify(vehicleInformationModule).reportEngineFamily(any());
+        verify(vehicleInformationModule).requestDM56(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -326,19 +281,16 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         // Remove asterisk from name to test valid null termination
         String famName = familyName.replace('*', Character.MIN_VALUE);
 
-        List<DM56EngineFamilyPacket> parsedPackets = Collections
-                .singletonList(createDM56(null, 2006, "2006E-MY", null, famName));
-        when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
-
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getVehicleInformation().getEngineModelYear()).thenReturn(2006);
+        List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(0, 2006, "2006E-MY", null, famName));
+        when(vehicleInformationModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
-        verify(dataRepository, times(2)).getVehicleInformation();
+        var obdModule = dataRepository.getObdModule(0);
+        assertEquals("2006E-MY", obdModule.getModelYear());
+        assertEquals(famName, obdModule.getEngineFamilyName());
 
-        verify(vehicleInformationModule).reportEngineFamily(any());
+        verify(vehicleInformationModule).requestDM56(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -357,35 +309,21 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         // Remove asterisk from name to test valid null termination
         String famName = familyName.replace("*", "4");
 
-        List<DM56EngineFamilyPacket> parsedPackets = Collections
-                .singletonList(createDM56(null, 2006, "2006E-MY", null, famName));
-        when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
-
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getVehicleInformation().getEngineModelYear()).thenReturn(2006);
+        List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(0, 2006, "2006E-MY", null, famName));
+        when(vehicleInformationModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
-        verify(dataRepository, times(2)).getVehicleInformation();
+        var obdModule = dataRepository.getObdModule(0);
+        assertEquals("2006E-MY", obdModule.getModelYear());
+        assertEquals(famName, obdModule.getEngineFamilyName());
 
         verify(mockListener).addOutcome(1,
                                         6,
-                                        Outcome.FAIL,
+                                        FAIL,
                                         "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
 
-        verify(reportFileModule).addOutcome(1,
-                                            6,
-                                            Outcome.FAIL,
-                                            "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
-        verify(reportFileModule).addOutcome(1,
-                                            6,
-                                            Outcome.FAIL,
-                                            "6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");
-
-        verify(vehicleInformationModule).reportEngineFamily(any());
+        verify(vehicleInformationModule).requestDM56(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -414,32 +352,20 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
             @TestItem(verifies = "6.1.6.2.c") },
             description = "Indicates 'V' instead of 'E' for cert type" + "<br/>" + "&nbsp"
                     + "Not formatted correctly")
-
     public void testModelYearField() {
-        List<DM56EngineFamilyPacket> parsedPackets = Collections
-                .singletonList(createDM56(null, 2006, "2006V-MY", null, familyName));
-        when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
-
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getVehicleInformation().getEngineModelYear()).thenReturn(2006);
+        List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(0, 2006, "2006V-MY", null, familyName));
+        when(vehicleInformationModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
-        verify(dataRepository, times(2)).getVehicleInformation();
+        var obdModule = dataRepository.getObdModule(0);
+        assertEquals("2006V-MY", obdModule.getModelYear());
+        assertEquals(familyName, obdModule.getEngineFamilyName());
 
-        verify(mockListener)
-                .addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.b - Indicates 'V' instead of 'E' for cert type");
-        verify(mockListener).addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.c - Not formatted correctly");
+        verify(mockListener).addOutcome(1, 6, FAIL, "6.1.6.2.b - Indicates 'V' instead of 'E' for cert type");
+        verify(mockListener).addOutcome(1, 6, FAIL, "6.1.6.2.c - Not formatted correctly");
 
-        verify(reportFileModule).onResult("FAIL: 6.1.6.2.b - Indicates 'V' instead of 'E' for cert type");
-        verify(reportFileModule)
-                .addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.b - Indicates 'V' instead of 'E' for cert type");
-
-        verify(reportFileModule).onResult("FAIL: 6.1.6.2.c - Not formatted correctly");
-        verify(reportFileModule).addOutcome(1, 6, Outcome.FAIL, "6.1.6.2.c - Not formatted correctly");
-
-        verify(vehicleInformationModule).reportEngineFamily(any());
+        verify(vehicleInformationModule).requestDM56(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -456,8 +382,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.6", description = "No packets are returned"))
     public void testPacketsEmpty() {
-        List<DM56EngineFamilyPacket> packets = new ArrayList<>();
-        when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(packets);
+        when(vehicleInformationModule.requestDM56(any())).thenReturn(List.of());
 
         runTest();
 
@@ -465,9 +390,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMilestones());
         assertEquals("DM56 is not supported" + NL, listener.getResults());
 
-        verify(reportFileModule).onResult("DM56 is not supported");
-
-        verify(vehicleInformationModule).reportEngineFamily(any());
+        verify(vehicleInformationModule).requestDM56(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -481,19 +404,16 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
     @Test
     @TestDoc(value = @TestItem(verifies = "6.1.6", description = "Happy Path with no errors and one packet"))
     public void testRunHappyPath() {
-        List<DM56EngineFamilyPacket> parsedPackets = Collections
-                .singletonList(createDM56(null, 2006, "2006E-MY", null, familyName));
-        when(vehicleInformationModule.reportEngineFamily(any())).thenReturn(parsedPackets);
-
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.getVehicleInformation().getEngineModelYear()).thenReturn(2006);
+        List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(0, 2006, "2006E-MY", null, familyName));
+        when(vehicleInformationModule.requestDM56(any())).thenReturn(parsedPackets);
 
         runTest();
 
-        verify(dataRepository, times(2)).getVehicleInformation();
+        var obdModule = dataRepository.getObdModule(0);
+        assertEquals("2006E-MY", obdModule.getModelYear());
+        assertEquals(familyName, obdModule.getEngineFamilyName());
 
-        verify(vehicleInformationModule).reportEngineFamily(any());
+        verify(vehicleInformationModule).requestDM56(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());

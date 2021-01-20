@@ -52,16 +52,16 @@ public class DataRepository {
         return isAfterCodeClear;
     }
 
-    public int obdModuleCount() {
-        return obdModules.size();
-    }
-
     public boolean isObdModule(int sourceAddress) {
         return obdModules.containsKey(sourceAddress);
     }
 
     public void putObdModule(int sourceAddress, OBDModuleInformation information) {
         obdModules.put(sourceAddress, information);
+    }
+
+    public void putObdModule(OBDModuleInformation obdModuleInformation) {
+        obdModules.put(obdModuleInformation.getSourceAddress(), obdModuleInformation);
     }
 
     public void setIsAfterCodeClear(boolean isAfterCodeClear) {
