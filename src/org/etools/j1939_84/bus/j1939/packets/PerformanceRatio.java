@@ -3,8 +3,9 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import java.util.Comparator;
 import java.util.Objects;
-
+import javax.annotation.Nonnull;
 import org.etools.j1939_84.NumberFormatter;
 import org.etools.j1939_84.bus.j1939.Lookup;
 
@@ -14,7 +15,7 @@ import org.etools.j1939_84.bus.j1939.Lookup;
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
-public class PerformanceRatio {
+public class PerformanceRatio implements Comparable<PerformanceRatio> {
 
     private final int denominator;
     private String name;
@@ -27,13 +28,13 @@ public class PerformanceRatio {
      * Constructor
      *
      * @param spn
-     *            the Suspect Parameter Number
+     *         the Suspect Parameter Number
      * @param numerator
-     *            the value of the numerator
+     *         the value of the numerator
      * @param denominator
-     *            the value of the denominator
+     *         the value of the denominator
      * @param sourceAddress
-     *            the source address of the module this ratio is from
+     *         the source address of the module this ratio is from
      */
     public PerformanceRatio(int spn, int numerator, int denominator, int sourceAddress) {
         this.spn = spn;
@@ -139,4 +140,8 @@ public class PerformanceRatio {
                 + NumberFormatter.format(getDenominator());
     }
 
+    @Override
+    public int compareTo(@Nonnull PerformanceRatio performanceRatio) {
+        return Objects.compare(this, performanceRatio, Comparator.comparingInt(PerformanceRatio::getSpn));
+    }
 }
