@@ -97,7 +97,7 @@ public class DTCModuleTest {
                 + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
 
         assertEquals(expected, listener.getResults());
@@ -150,14 +150,14 @@ public class DTCModuleTest {
                 + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
         expected += "10:15:30.0000 18FECA01 [14] 11 01 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM1 from Engine #2 (1): MIL: alternate off, RSL: slow flash, AWL: alternate off, PL: fast flash"
                 + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
 
         assertEquals(expected, listener.getResults());
@@ -231,7 +231,7 @@ public class DTCModuleTest {
         expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -525,7 +525,7 @@ public class DTCModuleTest {
         expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -628,7 +628,7 @@ public class DTCModuleTest {
         expected += "DM12 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
 
         RequestResult<DM12MILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
@@ -847,7 +847,7 @@ public class DTCModuleTest {
         expected += "DM23 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -946,7 +946,7 @@ public class DTCModuleTest {
         expected += "DM23 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1414,7 +1414,7 @@ public class DTCModuleTest {
         expected += "DM27 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1526,7 +1526,7 @@ public class DTCModuleTest {
         expected += "DM27 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1621,7 +1621,7 @@ public class DTCModuleTest {
         expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -1928,7 +1928,7 @@ public class DTCModuleTest {
         expected += "DM2 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -2011,7 +2011,7 @@ public class DTCModuleTest {
         expected += "MIL: off, RSL: other, AWL: off, PL: other" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 35 times" + NL;
         expected += "MIL: other, RSL: other, AWL: other, PL: other" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
         expected += "]" + NL;
 
@@ -2086,7 +2086,7 @@ public class DTCModuleTest {
         expected += "MIL: off, RSL: other, AWL: off, PL: other" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 35 times" + NL;
         expected += "MIL: other, RSL: other, AWL: other, PL: other" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
         expected += "]" + NL;
 
@@ -2325,7 +2325,7 @@ public class DTCModuleTest {
         expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
 
         TestResultsListener listener = new TestResultsListener();
@@ -2432,7 +2432,7 @@ public class DTCModuleTest {
         expected += "DM6 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
 
         TestResultsListener listener = new TestResultsListener();

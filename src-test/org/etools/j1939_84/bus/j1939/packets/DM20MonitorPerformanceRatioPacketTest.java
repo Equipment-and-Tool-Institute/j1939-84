@@ -91,12 +91,12 @@ public class DM20MonitorPerformanceRatioPacketTest {
 
         String expected = "";
         expected += "DM20 from Engine #1 (0):  [" + NL;
-        expected += "                                                                  Num'r /  Den'r" + NL;
-        expected += "Ignition Cycles                                                               12" + NL;
-        expected += "OBD Monitoring Conditions Encountered                                          1" + NL;
-        expected += "SPN 5322 Aftertreatment NMHC Converting Catalyst System Monitor       0 /      1" + NL;
-        expected += "SPN 4792 Aftertreatment 1 Selective Catalytic Reduction System        3 /      4" + NL;
-        expected += "SPN 5308 Aftertreatment 1 NOx Adsorber Catalyst System Monitor        5 /      6" + NL;
+        expected += "                                                       Num'r /  Den'r" + NL;
+        expected += "Ignition Cycles                                                    12" + NL;
+        expected += "OBD Monitoring Conditions Encountered                               1" + NL;
+        expected += "SPN 5322 AFT NMHC Converting Catalyst System Monitor       0 /      1" + NL;
+        expected += "SPN 4792 AFT 1 Selective Catalytic Reduction System        3 /      4" + NL;
+        expected += "SPN 5308 AFT 1 NOx Adsorber Catalyst System Monitor        5 /      6" + NL;
         expected += "]";
         assertEquals(expected, instance.toString());
     }

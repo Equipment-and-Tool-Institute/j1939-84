@@ -81,19 +81,24 @@ public class J1939DaRepository {
                                 SpnDefinition spnDef = null;
                                 String spnIdStr = line[5];
                                 if (!spnIdStr.isBlank()) {
-                                    spnDef = new SpnDefinition(Integer.parseInt(spnIdStr), line[6], startByte,
-                                            startBit,
-                                            line[7].isBlank() ? -1 : Integer.parseInt(line[7]));
+                                    String label = shortenLabel(line[6]);
+                                    spnDef = new SpnDefinition(Integer.parseInt(spnIdStr), label, startByte,
+                                                               startBit,
+                                                               line[7].isBlank() ? -1 : Integer.parseInt(line[7]));
                                 }
                                 String pgnIdStr = line[0];
                                 PgnDefinition pgnDef = null;
-                                // we don't care about the PGN that have no
-                                // SPNs.
+                                // we don't care about the PGN that have no SPNs.
                                 if (spnDef != null && !pgnIdStr.isBlank()) {
                                     int transmissionRate = parseTransmissionRate(line[3]);
-                                    pgnDef = new PgnDefinition(Integer.parseInt(pgnIdStr), line[1], line[2],
-                                            transmissionRate == 0, transmissionRate < 0, Math.abs(transmissionRate),
-                                            Collections.singletonList(spnDef));
+                                    String label = shortenLabel(line[1]);
+                                    pgnDef = new PgnDefinition(Integer.parseInt(pgnIdStr),
+                                                               label,
+                                                               line[2],
+                                                               transmissionRate == 0,
+                                                               transmissionRate < 0,
+                                                               Math.abs(transmissionRate),
+                                                               Collections.singletonList(spnDef));
                                 }
                                 return new Object[] { pgnDef, spnDef };
                             } catch (ParseError e) {
@@ -108,12 +113,12 @@ public class J1939DaRepository {
                         .flatMap(row -> row[0] == null ? Stream.empty() : Stream.of((PgnDefinition) row[0]))
                         .collect(Collectors.toMap(PgnDefinition::getId, pgnDef -> pgnDef,
                                 (a, b) -> new PgnDefinition(a.getId(),
-                                        a.getLabel(),
-                                        a.getAcronym(),
-                                        a.isOnRequest(),
-                                        a.isVariableBroadcast(),
-                                        a.getBroadcastPeriod(),
-                                        Stream.concat(a.getSpnDefinitions().stream(), b
+                                                        shortenLabel(a.getLabel()),
+                                                        a.getAcronym(),
+                                                        a.isOnRequest(),
+                                                        a.isVariableBroadcast(),
+                                                        a.getBroadcastPeriod(),
+                                                        Stream.concat(a.getSpnDefinitions().stream(), b
                                                 .getSpnDefinitions()
                                                 .stream())
                                                 .sorted(Comparator
@@ -137,6 +142,13 @@ public class J1939DaRepository {
         }
     }
 
+    private static String shortenLabel(String label) {
+        label = label.replaceAll("Aftertreatment", "AFT");
+        label = label.replaceAll("Diesel Particulate Filter", "DPF");
+        label = label.replaceAll("Diesel Exhaust Fluid", "DEF");
+        return label;
+    }
+
     static public void main(String... a) {
         loadLookUpTables();
         List<PgnDefinition> pgns = new ArrayList<>(pgnLut.values());
@@ -144,8 +156,9 @@ public class J1939DaRepository {
         for (PgnDefinition d : pgns) {
             System.err.format("PGN: %6d: %6d %s%n", d.getId(), d.getBroadcastPeriod(), d.getLabel());
             for (SpnDefinition s : d.getSpnDefinitions()) {
+                Slot slot = Slot.findSlot(s.getSlotNumber());
                 System.err.format("  SPN: %6d: %3d.%-3d %3d %6d %s%n", s.getSpnId(), s.getStartByte(), s.getStartBit(),
-                        Slot.findSlot(s.getSlotNumber()).getLength(), s.getSlotNumber(), s.getLabel());
+                                  slot != null ? slot.getLength() : -1, s.getSlotNumber(), s.getLabel());
             }
         }
     }

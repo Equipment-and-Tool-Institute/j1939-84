@@ -21,7 +21,7 @@ public class LookupTest {
     public void testGetAddressName() {
         assertEquals("Engine #1 (0)", Lookup.getAddressName(0));
         assertEquals("Global (255)", Lookup.getAddressName(255));
-        assertEquals("Diesel Particulate Filter Controller (85)", Lookup.getAddressName(85));
+        assertEquals("DPF Controller (85)", Lookup.getAddressName(85));
         assertEquals("Unknown (-1)", Lookup.getAddressName(-1));
     }
 

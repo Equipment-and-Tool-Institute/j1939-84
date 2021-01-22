@@ -79,13 +79,13 @@
 78,Fan Drive Controller
 79,Seat Control #2
 80,Parking brake controller
-81,Aftertreatment #1 system gas intake
-82,Aftertreatment #1 system gas outlet
+81,AFT #1 system gas intake
+82,AFT #1 system gas outlet
 83,Safety Restraint System
 84,Cab Display #2
-85,Diesel Particulate Filter Controller
-86,Aftertreatment #2 system gas intake
-87,Aftertreatment #2 system gas outlet
+85,DPF Controller
+86,AFT #2 system gas intake
+87,AFT #2 system gas outlet
 88,Safety Restraint System #2
 89,Atmospheric Sensor
 90,Powertrain Control Module

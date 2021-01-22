@@ -113,20 +113,20 @@ public class OBDTestsModuleTest {
         when(j1939.createRequestPacket(64950, 0x55)).thenReturn(dm24RequestPacket2);
         DM24SPNSupportPacket atDm24Packet = new DM24SPNSupportPacket(
                 Packet.create(64950, 0x55, 0xA7, 0x13, 0x1C, 0x00, 0x0C, 0x11, 0x18, 0x00, 0x9A, 0x0C, 0x18, 0x00));
-        when(j1939.requestDS("Direct DM24 Request to Diesel Particulate Filter Controller (85)", listener, true,
+        when(j1939.requestDS("Direct DM24 Request to DPF Controller (85)", listener, true,
                 DM24SPNSupportPacket.class,
                 dm24RequestPacket2))
                 .thenReturn(new BusResult<>(false, atDm24Packet));
 
         DM30ScaledTestResultsPacket atDm30PacketSpn4364 = new DM30ScaledTestResultsPacket(
                 Packet.create(0xA400, 0x55, 0xF7, 0x0C, 0x11, 0x00, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF));
-        when(j1939.requestDm7("Direct DM30 Requests to Diesel Particulate Filter Controller (85)", listener,
+        when(j1939.requestDm7("Direct DM30 Requests to DPF Controller (85)", listener,
                 Packet.create(0xE355, BUS_ADDR, true, 0xF7, 0x0C, 0x11, 0x1F, 0xFF, 0xFF, 0xFF, 0xFF)))
                 .thenReturn(new BusResult<>(false, atDm30PacketSpn4364));
 
         DM30ScaledTestResultsPacket atDm30PacketSpn3226 = new DM30ScaledTestResultsPacket(
                 Packet.create(0xA400, 0x55, 0xF7, 0x9A, 0x0C, 0x0A, 0x00, 0x01, 0x00, 0xFB, 0xFF, 0xFF, 0xFF, 0xFF));
-        when(j1939.requestDm7("Direct DM30 Requests to Diesel Particulate Filter Controller (85)", listener,
+        when(j1939.requestDm7("Direct DM30 Requests to DPF Controller (85)", listener,
                 Packet.create(0xE355, BUS_ADDR, true, 0xF7, 0x9A, 0x0C, 0x1F, 0xFF, 0xFF, 0xFF, 0xFF)))
                 .thenReturn(new BusResult<>(false, atDm30PacketSpn3226));
 
@@ -146,20 +146,20 @@ public class OBDTestsModuleTest {
         expected += "]" + NL;
         expected += "" + NL;
         expected += NL;
-        expected += "DM24 from Diesel Particulate Filter Controller (85): " + NL;
+        expected += "DM24 from DPF Controller (85): " + NL;
         expected += "(Supporting Scaled Test Results) [" + NL;
-        expected += "  SPN 3226 - Aftertreatment 1 Outlet NOx 1" + NL;
-        expected += "  SPN 4364 - Aftertreatment 1 SCR Conversion Efficiency" + NL;
+        expected += "  SPN 3226 - AFT 1 Outlet NOx 1" + NL;
+        expected += "  SPN 4364 - AFT 1 SCR Conversion Efficiency" + NL;
         expected += "]" + NL;
         expected += "(Supports Data Stream Results) [" + NL;
-        expected += "  SPN 3226 - Aftertreatment 1 Outlet NOx 1" + NL;
-        expected += "  SPN 4364 - Aftertreatment 1 SCR Conversion Efficiency" + NL;
-        expected += "  SPN 5031 - Aftertreatment 1 Outlet NOx Sensor Heater Ratio" + NL;
+        expected += "  SPN 3226 - AFT 1 Outlet NOx 1" + NL;
+        expected += "  SPN 4364 - AFT 1 SCR Conversion Efficiency" + NL;
+        expected += "  SPN 5031 - AFT 1 Outlet NOx Sensor Heater Ratio" + NL;
         expected += "]" + NL;
         expected += "(Supports Freeze Frame Results) [" + NL;
-        expected += "  SPN 3226 - Aftertreatment 1 Outlet NOx 1" + NL;
-        expected += "  SPN 4364 - Aftertreatment 1 SCR Conversion Efficiency" + NL;
-        expected += "  SPN 5031 - Aftertreatment 1 Outlet NOx Sensor Heater Ratio" + NL;
+        expected += "  SPN 3226 - AFT 1 Outlet NOx 1" + NL;
+        expected += "  SPN 4364 - AFT 1 SCR Conversion Efficiency" + NL;
+        expected += "  SPN 5031 - AFT 1 Outlet NOx Sensor Heater Ratio" + NL;
         expected += "]" + NL;
         expected += "" + NL;
         expected += NL;
@@ -174,7 +174,7 @@ public class OBDTestsModuleTest {
         expected += "DM30 from 85: SPN 4364 FMI 0 (SLOT 65531) Result: Test Passed. Min: N/A, Value: 65,535, Max: N/A" + NL;
         expected += "" + NL;
         expected += "Incomplete Tests: [" + NL;
-        expected += "  Diesel Particulate Filter Controller (85): SPN 3226 FMI 10 (SLOT 256) Result: Test Not Complete." + NL;
+        expected += "  DPF Controller (85): SPN 3226 FMI 10 (SLOT 256) Result: Test Not Complete." + NL;
         expected += "  Engine #1 (0): SPN 102 FMI 18 (SLOT 208) Result: Test Not Complete." + NL;
         expected += "  Engine #1 (0): SPN 512 FMI 18 (SLOT 208) Result: Test Not Complete." + NL;
         expected += "  Engine #1 (0): SPN 520348 FMI 31 (SLOT 208) Result: Test Not Complete." + NL;
@@ -188,7 +188,7 @@ public class OBDTestsModuleTest {
         verify(j1939).createRequestPacket(64950, 0x55);
         verify(j1939).requestDS("Direct DM24 Request to Engine #1 (0)", listener, true, DM24SPNSupportPacket.class,
                 dm24RequestPacket1);
-        verify(j1939).requestDS("Direct DM24 Request to Diesel Particulate Filter Controller (85)", listener, true,
+        verify(j1939).requestDS("Direct DM24 Request to DPF Controller (85)", listener, true,
                 DM24SPNSupportPacket.class, dm24RequestPacket2);
         verify(j1939, times(5)).requestDm7(any(), eq(listener), any(Packet.class));
     }

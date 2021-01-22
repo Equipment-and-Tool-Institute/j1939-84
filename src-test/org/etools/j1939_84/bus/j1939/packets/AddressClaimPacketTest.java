@@ -22,7 +22,7 @@ public class AddressClaimPacketTest {
     public void test1() {
         AddressClaimPacket instance = new AddressClaimPacket(Packet.parse("18EEFF55 10 F7 45 01 00 45 00 01"));
         String expected = "";
-        expected += "Diesel Particulate Filter Controller (85) reported as: {" + NL;
+        expected += "DPF Controller (85) reported as: {" + NL;
         expected += "  Industry Group: Global" + NL;
         expected += "  Vehicle System: Non-specific System, System Instance: 1" + NL;
         expected += "  Function: Engine Emission Aftertreatment System, Functional Instance: 0, ECU Instance: 0" + NL;

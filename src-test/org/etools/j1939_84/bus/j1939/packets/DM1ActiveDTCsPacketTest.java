@@ -126,7 +126,7 @@ public class DM1ActiveDTCsPacketTest {
         String expected = "DM1 from Engine #1 (0): MIL: off, RSL: slow flash, AWL: off, PL: fast flash" + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times";
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times";
         assertEquals(expected, instance.toString());
     }
 

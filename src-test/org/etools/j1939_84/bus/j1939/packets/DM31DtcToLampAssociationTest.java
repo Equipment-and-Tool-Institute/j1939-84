@@ -102,7 +102,7 @@ public class DM31DtcToLampAssociationTest {
         expected += "MIL: off, RSL: other, AWL: off, PL: other" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 35 times" + NL;
         expected += "MIL: other, RSL: other, AWL: other, PL: other" + NL;
-        expected += "DTC 4334:4 - Aftertreatment 1 Diesel Exhaust Fluid Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times" + NL;
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times" + NL;
         expected += "]";
         assertEquals(expected, instance.toString());
 
