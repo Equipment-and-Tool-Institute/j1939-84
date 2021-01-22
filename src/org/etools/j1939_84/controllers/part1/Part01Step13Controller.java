@@ -107,12 +107,16 @@ public class Part01Step13Controller extends StepController {
         sectionA6Validator.verify(getListener(), getPartNumber(), getStepNumber(), response);
 
         // 6.1.13.2.b. Fail if any OBD ECU reports active/previously active fault DTCs count not = 0/0.
-        obdGlobalPackets.forEach(packet -> {
-            if (packet.getActiveCodeCount() != 0 || packet.getPreviouslyActiveCodeCount() != 0) {
-                addFailure(
-                        "6.1.13.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0"
-                                + NL + "  Reported active fault count = " + packet.getActiveCodeCount() + NL
-                                + "  Reported previously active fault count = " + packet.getPreviouslyActiveCodeCount());
+        obdGlobalPackets.stream()
+                .filter(p -> p.getActiveCodeCount() != (byte) 0xFF)
+                .filter(p -> p.getPreviouslyActiveCodeCount() != (byte) 0xFF)
+                .forEach(packet -> {
+            byte acc = packet.getActiveCodeCount();
+            byte pacc = packet.getPreviouslyActiveCodeCount();
+            if (acc != 0 || pacc != 0) {
+                addFailure("6.1.13.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0"
+                                   + NL + "  Reported active fault count = " + acc + NL
+                                   + "  Reported previously active fault count = " + pacc);
             }
         });
 
