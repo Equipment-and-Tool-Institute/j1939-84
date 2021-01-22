@@ -9,7 +9,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
@@ -18,8 +17,13 @@ import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 
 public class GenericPacket extends ParsedPacket {
 
-    private static final PgnDefinition UNKNOWN_PGN = new PgnDefinition(-1, "Unknown", "Uknown", false, false, 0,
-            Collections.emptyList());
+    private static final PgnDefinition UNKNOWN_PGN = new PgnDefinition(-1,
+                                                                       "Unknown",
+                                                                       "UKN",
+                                                                       false,
+                                                                       false,
+                                                                       0,
+                                                                       Collections.emptyList());
     private final SpnDataParser parser;
     private final PgnDefinition pgnDefinition;
     private List<Spn> spns;

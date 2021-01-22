@@ -1,20 +1,18 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-
 import org.etools.j1939_84.bus.Packet;
+import org.junit.Test;
 
 /**
  * Unit Test for {@link DM21DiagnosticReadinessPacket} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class DM21DiagnosticReadinessPacketTest {
 
@@ -92,8 +90,7 @@ public class DM21DiagnosticReadinessPacketTest {
 
     @Test
     public void testValue() {
-        Packet packet = Packet.create(0, 0, 0x10, 0x27, 0x20, 0x4E, 0x30, 0x75, 0x40, 0x9C);
-        DM21DiagnosticReadinessPacket instance = new DM21DiagnosticReadinessPacket(packet);
+        DM21DiagnosticReadinessPacket instance = DM21DiagnosticReadinessPacket.create(0, 10000, 20000, 30000, 40000);
         assertEquals(20000, instance.getKmSinceDTCsCleared(), 0.0);
         assertEquals(12427.423799999999, instance.getMilesSinceDTCsCleared(), 0.0);
         assertEquals(40000, instance.getMinutesSinceDTCsCleared(), 0.0);
