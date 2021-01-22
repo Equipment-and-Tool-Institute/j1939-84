@@ -1,9 +1,10 @@
-/**
- * Copyright 2020 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts.PGN;
 import static org.junit.Assert.assertEquals;
 
 import org.etools.j1939_84.bus.Packet;
@@ -12,29 +13,14 @@ import org.junit.Test;
 
 /**
  * Unit tests the {@link DM25ExpandedFreezeFrameTest} class
- *
  */
 public class DM29DtcCountsTest {
 
     private DM29DtcCounts instance;
-    private Packet packet;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
     public void setUp() throws Exception {
-        packet = Packet.create(DM29DtcCounts.PGN,
-                0,
-                0x09,
-                0x20,
-                0x47,
-                0x31,
-                0x01,
-                0xFF,
-                0xFF,
-                0xFF);
-
+        Packet packet = Packet.create(PGN, 0, 0x09, 0x20, 0x47, 0x31, 0x01, 0xFF, 0xFF, 0xFF);
         instance = new DM29DtcCounts(packet);
     }
 
@@ -110,7 +96,7 @@ public class DM29DtcCountsTest {
      */
     @Test
     public void testPGN() {
-        assertEquals(40448, DM29DtcCounts.PGN);
+        assertEquals(40448, PGN);
     }
 
     /**
@@ -125,6 +111,24 @@ public class DM29DtcCountsTest {
         expected += "Emission-Related MIL-On DTC Count                               71" + NL;
         expected += "Emission-Related Previously MIL-On DTC Count                    49" + NL;
         expected += "Emission-Related Permanent DTC Count                             1";
+        assertEquals(expected, instance.toString());
+    }
+
+    /**
+     * Test method for
+     * {@link org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts#toString()}.
+     */
+    @Test
+    public void testToStringWithNA() {
+        Packet packet = Packet.create(PGN, 0, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+
+        instance = new DM29DtcCounts(packet);
+        String expected = "DM29 from Engine #1 (0): " + NL;
+        expected += "Emission-Related Pending DTC Count                           error" + NL;
+        expected += "All Pending DTC Count                                not available" + NL;
+        expected += "Emission-Related MIL-On DTC Count                    not available" + NL;
+        expected += "Emission-Related Previously MIL-On DTC Count         not available" + NL;
+        expected += "Emission-Related Permanent DTC Count                 not available";
         assertEquals(expected, instance.toString());
     }
 
