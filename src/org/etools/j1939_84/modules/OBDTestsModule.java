@@ -216,7 +216,7 @@ public class OBDTestsModule extends FunctionalModule {
             int spn) {
         Packet request = createDM7Packet(address, spn);
         BusResult<DM30ScaledTestResultsPacket> result = getJ1939()
-                .requestDm7("DM30 for DM7 from " + Lookup.getAddressName(address) + " for SPN " + spn, listener, request);
+                .requestDm7("DM7 for DM30 from " + Lookup.getAddressName(address) + " for SPN " + spn, listener, request);
 
         listener.onResult("");
         return result.requestResult();
