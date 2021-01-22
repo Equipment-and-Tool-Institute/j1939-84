@@ -12,7 +12,6 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -270,7 +269,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.12.1.a No test result for an SPN indicated as supported is actually reported from the ECU that indicated support");
+                                        "6.1.12.1.a - No test result for Supported SPN 0 from Engine #1 (0)");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -281,7 +280,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
-        String expectedResults = "FAIL: 6.1.12.1.a No test result for an SPN indicated as supported is actually reported from the ECU that indicated support" + NL;
+        String expectedResults = "FAIL: 6.1.12.1.a - No test result for Supported SPN 0 from Engine #1 (0)" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -387,7 +386,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
+                                        "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -399,7 +398,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMilestones());
 
         assertEquals(
-                "FAIL: 6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly" + NL,
+                "FAIL: 6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly" + NL,
                 listener.getResults());
     }
 
@@ -444,7 +443,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
+                                        "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -455,7 +454,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly" + NL,
+                "FAIL: 6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly" + NL,
                 listener.getResults());
     }
 
@@ -500,7 +499,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
+                                        "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -510,7 +509,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly" + NL;
+        String expectedResults = "FAIL: 6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly" + NL;
 
         assertEquals(expectedResults, listener.getResults());
     }
@@ -561,7 +560,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).putObdModule(eq(0), any());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.12.1.c #" + slotNumber + " SLOT identifier is invalid");
+                                        "6.1.12.1.c - #1 SLOT identifier for SPN 157 from Engine #1 (0) is invalid");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -571,7 +570,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.1.12.1.c #" + slotNumber + " SLOT identifier is invalid" + NL;
+        String expectedResults = "FAIL: 6.1.12.1.c - #1 SLOT identifier for SPN 157 from Engine #1 (0) is invalid" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -584,8 +583,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         when(vehicleInformation.getFuelType()).thenReturn(BI_DSL);
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
-        when(tableA7Validator.findDuplicates(List.of())).thenReturn(List.of());
-
         runTest();
 
         verify(dataRepository).getObdModules();
@@ -594,7 +591,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(obdTestsModule).setJ1939(j1939);
 
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
-        verify(tableA7Validator).findDuplicates(any());
 
         verify(vehicleInformation).getFuelType();
 
@@ -640,7 +636,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
         verify(dataRepository).putObdModule(eq(0), any());
-        
+
         verify(obdTestsModule).setJ1939(j1939);
 
         verify(tableA7Validator).findDuplicates(scaledTestsResults);
@@ -699,14 +695,18 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
         verify(dataRepository).putObdModule(eq(0), any());
 
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER,
-                                                  STEP_NUMBER,
-                                                  FAIL,
-                                                  "6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.12.1.b - Test result for SPN 157 FMI 18 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.1.12.1.d SPN 157 FMI 18 returned duplicates");
+                                        "6.1.12.1.d - Engine #1 (0) returned duplicate test results for SPN 157 FMI 18");
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -716,9 +716,10 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly" + NL +
-                "FAIL: 6.1.12.1.b Test result does not report the test result/min test limit/max test limit initialized properly" + NL +
-                "WARN: 6.1.12.1.d SPN 157 FMI 18 returned duplicates" + NL;
+        String expectedResults = "";
+        expectedResults += "FAIL: 6.1.12.1.b - Test result for SPN 157 FMI 18 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly" + NL;
+        expectedResults += "FAIL: 6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly" + NL;
+        expectedResults += "WARN: 6.1.12.1.d - Engine #1 (0) returned duplicate test results for SPN 157 FMI 18" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
