@@ -12,9 +12,20 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  * Parses the DM21 Diagnostic Readiness Packet
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class DM21DiagnosticReadinessPacket extends GenericPacket {
+
+    public static DM21DiagnosticReadinessPacket create(int source,
+                                                       int kmWithMIL,
+                                                       int kmSinceCodeClear,
+                                                       int minutesWithMIL,
+                                                       int minutesSinceCodeClear) {
+        byte[] bytes = join(toBytes(kmWithMIL),
+                            toBytes(kmSinceCodeClear),
+                            toBytes(minutesWithMIL),
+                            toBytes(minutesSinceCodeClear));
+        return new DM21DiagnosticReadinessPacket(Packet.create(PGN, source, bytes));
+    }
 
     public static final int PGN = 49408;
 

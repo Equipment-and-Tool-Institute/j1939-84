@@ -91,6 +91,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
     @Mock
     private BannerModule bannerModule;
+
     @Mock
     private DataRepository dataRepository;
 
@@ -352,11 +353,6 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
         verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
 
-//        verify(mockListener).addOutcome(1,
-//                                        11,
-//                                        FAIL,
-//                                        "6.1.11.4.e - DS responses differ from global responses");
-
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
@@ -590,9 +586,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         packets.add(packet5);
 
         Packet ackPacket = Packet.create(AcknowledgmentPacket.PGN, 21, new byte[] { 1, 0, 0, 0, 0, 0, 0, 0 });
-        AcknowledgmentPacket packet3 = new AcknowledgmentPacket(ackPacket); //mock(AcknowledgmentPacket.class);
-        //        when(packet3.getResponse()).thenReturn(Response.NACK);
-        //        when(packet3.getSourceAddress()).thenReturn(21);
+        AcknowledgmentPacket packet3 = new AcknowledgmentPacket(ackPacket);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
                 .thenReturn(new BusResult<>(false, packet3));
 
