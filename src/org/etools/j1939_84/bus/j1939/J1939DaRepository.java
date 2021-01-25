@@ -11,9 +11,11 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.logging.Level;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -38,7 +40,7 @@ public class J1939DaRepository {
 
     private static Map<Integer, SpnDefinition> spnLut;
 
-    private static Map<Integer, Integer> spnToPgnMap = null;
+    private static Map<Integer, Set<Integer>> spnToPgnMap = null;
 
     static private void loadLookUpTables() {
         if (pgnLut == null) {
@@ -132,7 +134,9 @@ public class J1939DaRepository {
                 spnToPgnMap = new HashMap<>();
                 for (PgnDefinition pgnDefinition : pgnLut.values()) {
                     for (SpnDefinition spnDefinition : pgnDefinition.getSpnDefinitions()) {
-                        spnToPgnMap.put(spnDefinition.getSpnId(), pgnDefinition.getId());
+                        Set<Integer> pgns = spnToPgnMap.getOrDefault(spnDefinition.getSpnId(), new HashSet<>());
+                        pgns.add(pgnDefinition.getId());
+                        spnToPgnMap.put(spnDefinition.getSpnId(), pgns);
                     }
                 }
             } catch (Exception e) {
@@ -334,7 +338,7 @@ public class J1939DaRepository {
         return Collections.unmodifiableMap(spnLut);
     }
 
-    public Integer getPgnForSpn(int spn) {
+    public Set<Integer> getPgnForSpn(int spn) {
         loadLookUpTables();
         return spnToPgnMap.get(spn);
     }

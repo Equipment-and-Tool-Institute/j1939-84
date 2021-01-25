@@ -288,7 +288,7 @@ public class Part01Step26Controller extends StepController {
                                 getPartNumber(),
                                 getStepNumber(),
                                 "6.1.26.4.a"))
-                .peek(p -> tableA1Validator.reportPacketIfNotReported(p, getListener()))
+                .peek(p -> tableA1Validator.reportPacketIfNotReported(p, getListener(), false))
                 .collect(Collectors.toList());
 
         // 6.1.26.2.f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1

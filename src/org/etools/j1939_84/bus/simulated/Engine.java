@@ -137,6 +137,9 @@ public class Engine implements AutoCloseable {
                 TimeUnit.MILLISECONDS,
                 () -> Packet.create(61444, ADDR, combine(NA3, engineOn[0] ? ENGINE_SPEED : ENGINE_SPEED_ZERO, NA3)));
         sim.schedule(100, 100, TimeUnit.MILLISECONDS, () -> Packet.create(65248, ADDR, combine(NA4, DISTANCE)));
+
+        sim.schedule(50, 50,TimeUnit.MILLISECONDS, () -> Packet.create(0x0C, 0xF00A, 0x00, false,
+                                                                       (byte) 0x00, (byte)0x00, (byte)0x00, (byte)0x00, (byte)0xFF,(byte) 0xFF, (byte)0xFF, (byte)0xFF));
         sim.response(p -> isRequestFor(65259, p), () -> Packet.create(65259, ADDR, COMPONENT_ID));
         // 65278,Auxiliary Water Pump Pressure,AWPP,1 s,1,73,Auxiliary Pump Pressure,49
         // When the DM24 is reported as supporting SPN 73, this will begin the count down to report the key

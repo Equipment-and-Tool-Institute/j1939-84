@@ -7,6 +7,7 @@ package org.etools.j1939_84.controllers.part1;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -73,6 +74,7 @@ public class BroadcastValidator {
                 .map(SupportedSPN::getSpn)
                 .map(j1939DaRepository::getPgnForSpn)
                 .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
                 .map(j1939DaRepository::findPgnDefinition)
                 .filter(Objects::nonNull)
                 .mapToInt(PgnDefinition::getBroadcastPeriod)
