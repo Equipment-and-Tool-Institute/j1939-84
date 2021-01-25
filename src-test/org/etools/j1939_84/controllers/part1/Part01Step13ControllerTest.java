@@ -138,7 +138,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
     public void testRun() {
 
         DM5DiagnosticReadinessPacket packet0 = new DM5DiagnosticReadinessPacket(
-                Packet.create(PGN, 0x00, 0x00, 0x00, 0x14, 0x37, 0xE0, 0x1E, 0xE0, 0x1E));
+                Packet.create(PGN, 0x00, 0xFF, 0xFF, 0x14, 0x37, 0xE0, 0x1E, 0xE0, 0x1E));
         DM5DiagnosticReadinessPacket packet17 = new DM5DiagnosticReadinessPacket(
                 Packet.create(PGN, 0x17, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00));
         DM5DiagnosticReadinessPacket packet21 = new DM5DiagnosticReadinessPacket(
