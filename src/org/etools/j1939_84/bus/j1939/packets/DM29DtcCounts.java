@@ -119,19 +119,23 @@ public class DM29DtcCounts extends GenericPacket {
     public String toString() {
         String result = "";
         result += getStringPrefix() + NL;
-        result += String.format("%1$-45s %2$20d",
-                "Emission-Related Pending DTC Count",
-                getEmissionRelatedPendingDTCCount()) + NL;
-        result += String.format("%1$-45s %2$20d", "All Pending DTC Count", getAllPendingDTCCount()) + NL;
-        result += String.format("%1$-45s %2$20d",
-                "Emission-Related MIL-On DTC Count",
-                getEmissionRelatedMILOnDTCCount()) + NL;
-        result += String.format("%1$-45s %2$20d",
-                "Emission-Related Previously MIL-On DTC Count",
-                getEmissionRelatedPreviouslyMILOnDTCCount()) + NL;
-        result += String.format("%1$-45s %2$20d",
-                "Emission-Related Permanent DTC Count",
-                getEmissionRelatedPermanentDTCCount());
+
+        String count = getValueWithUnits((byte) getEmissionRelatedPendingDTCCount(), null);
+        result += String.format("%1$-45s %2$20s", "Emission-Related Pending DTC Count", count) + NL;
+
+        count = getValueWithUnits((byte) getAllPendingDTCCount(), null);
+        result += String.format("%1$-45s %2$20s", "All Pending DTC Count", count) + NL;
+
+        count = getValueWithUnits((byte) getEmissionRelatedMILOnDTCCount(), null);
+        result += String.format("%1$-45s %2$20s", "Emission-Related MIL-On DTC Count", count) + NL;
+
+        count = getValueWithUnits((byte) getEmissionRelatedPreviouslyMILOnDTCCount(), null);
+        result += String.format("%1$-45s %2$20s", "Emission-Related Previously MIL-On DTC Count", count) + NL;
+
+        count = getValueWithUnits((byte) getEmissionRelatedPermanentDTCCount(), null);
+        result += String.format("%1$-45s %2$20s", "Emission-Related Permanent DTC Count", count);
         return result;
     }
+
+
 }
