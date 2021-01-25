@@ -122,10 +122,13 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      */
     private String vin;
 
+    private boolean isOverridden;
+
     /**
      * The decoder used to determine if the VIN is valid
      */
     private final VinDecoder vinDecoder;
+
 
     /**
      * Constructor
@@ -304,6 +307,12 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         validate();
     }
 
+    @Override
+    public void onOverrideChanged(boolean checked) {
+        this.isOverridden = checked;
+        validate();
+    }
+
     /**
      * Validates the information in the form to determine if the user can
      * proceed
@@ -325,6 +334,11 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         enabled &= certificationIntent != null && certificationIntent.trim().length() > 0;
         enabled &= numberOfTripsForFaultBImplant > 0;
 
-        view.setOkButtonEnabled(enabled);
+        if (enabled) {
+            isOverridden = false;
+        }
+        view.setOverrideControlVisible(!enabled);
+
+        view.setOkButtonEnabled(enabled || isOverridden);
     }
 }
