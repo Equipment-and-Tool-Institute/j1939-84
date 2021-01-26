@@ -1,5 +1,5 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
@@ -7,16 +7,13 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
-
-import org.junit.Test;
-
 import org.etools.j1939_84.bus.Packet;
+import org.junit.Test;
 
 /**
  * Unit test for the {@link DM30ScaledTestResultsPacket} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class DM30ScaledTestResultsPacketTest {
 
@@ -27,9 +24,8 @@ public class DM30ScaledTestResultsPacketTest {
 
     @Test
     public void testWithOne() {
-        int[] data = new int[] { 0xF7, 0x22, 0x0D, 0x1F, 0xD0, 0x00, 0xB7, 0x03, 0xE8, 0x03, 0x20, 0x03 };
-        Packet packet = Packet.create(0, 0, data);
-        DM30ScaledTestResultsPacket instance = new DM30ScaledTestResultsPacket(packet);
+        ScaledTestResult testResult0 = ScaledTestResult.create(247, 3362, 31, 208, 951, 1000, 800);
+        DM30ScaledTestResultsPacket instance = DM30ScaledTestResultsPacket.create(0, testResult0);
         final List<ScaledTestResult> testResults = instance.getTestResults();
         assertEquals(1, testResults.size());
         {

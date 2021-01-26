@@ -167,7 +167,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -221,7 +221,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -264,7 +264,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -333,7 +333,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -381,7 +381,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -438,7 +438,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -494,7 +494,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -557,7 +557,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.12.1.c - #1 SLOT identifier for SPN 157 from Engine #1 (0) is invalid");
@@ -635,7 +635,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
         verify(obdTestsModule).setJ1939(j1939);
 
@@ -693,7 +693,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -764,7 +764,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModules();
         verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
         verify(obdTestsModule).setJ1939(j1939);
 

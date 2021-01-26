@@ -114,7 +114,7 @@ public class Part01Step12Controller extends StepController {
                 moduleTestResults.addAll(testResults);
             }
             obdModule.setScaledTestResults(moduleTestResults);
-            dataRepository.putObdModule(sourceAddress, obdModule);
+            dataRepository.putObdModule(obdModule);
             vehicleTestResults.addAll(moduleTestResults);
         }
 
