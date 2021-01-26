@@ -14,11 +14,20 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  * Parses the DM30 Scaled Test Results packet
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class DM30ScaledTestResultsPacket extends GenericPacket {
 
     public static final int PGN = 41984;
+
+    public static DM30ScaledTestResultsPacket create(int source, ScaledTestResult... testResults) {
+
+        int[] data = new int[0];
+        for (ScaledTestResult testResult : testResults) {
+            data = join(data, testResult.getData());
+        }
+
+        return new DM30ScaledTestResultsPacket(Packet.create(PGN, source, data));
+    }
 
     private List<ScaledTestResult> testResults;
 

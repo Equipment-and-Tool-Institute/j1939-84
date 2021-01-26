@@ -1,5 +1,5 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
@@ -31,9 +31,21 @@ public class ParsedPacket {
         return new byte[] { (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF) };
     }
 
+    public static int[] toInts(int value) {
+        return new int[] { (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF) };
+    }
+
     public static byte[] join(byte[]... byteArrays) {
         byte[] bytes = new byte[0];
         for (byte[] byteArray : byteArrays) {
+            bytes = ArrayUtils.addAll(bytes, byteArray);
+        }
+        return bytes;
+    }
+
+    public static int[] join(int[]... byteArrays) {
+        int[] bytes = new int[0];
+        for (int[] byteArray : byteArrays) {
             bytes = ArrayUtils.addAll(bytes, byteArray);
         }
         return bytes;

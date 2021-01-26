@@ -3,6 +3,9 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.join;
+import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.toInts;
+
 import java.util.Arrays;
 import org.etools.j1939_84.NumberFormatter;
 
@@ -12,6 +15,28 @@ import org.etools.j1939_84.NumberFormatter;
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 public class ScaledTestResult {
+
+    public static ScaledTestResult create(int testIdentifier,
+                                          int spn,
+                                          int fmi,
+                                          int slotNumber,
+                                          int testValue,
+                                          int testMaximum,
+                                          int testMinimum) {
+
+        int[] data = new int[4];
+        data[0] = (testIdentifier & 0xFF);
+        data[1] = (byte) (spn & 0xFF);
+        data[2] = (byte) ((spn >> 8) & 0xFF);
+        data[3] = (byte) (((spn >> 16 & 0xE0)) + (fmi & 0x1F));
+
+        data = join(data, toInts(slotNumber));
+        data = join(data, toInts(testValue));
+        data = join(data, toInts(testMaximum));
+        data = join(data, toInts(testMinimum));
+
+        return new ScaledTestResult(data);
+    }
 
     /**
      * The Possible Outcomes of the Test
@@ -45,6 +70,7 @@ public class ScaledTestResult {
     private final int testMaximum;
     private final int testMinimum;
     private final int testValue;
+    private final int[] data;
 
     /**
      * Constructor
@@ -53,6 +79,7 @@ public class ScaledTestResult {
      *         the data that contains the {@link ScaledTestResult}
      */
     public ScaledTestResult(int[] data) {
+        this.data = data;
         testIdentifier = data[0];
         spn = SupportedSPN.parseSPN(Arrays.copyOfRange(data, 1, 4));
         fmi = data[3] & 0x1F;
@@ -60,6 +87,10 @@ public class ScaledTestResult {
         testValue = (data[7] << 8) | data[6];
         testMaximum = (data[9] << 8) | data[8];
         testMinimum = (data[11] << 8) | data[10];
+    }
+
+    public int[] getData() {
+        return data;
     }
 
     /**
