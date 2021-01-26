@@ -339,8 +339,10 @@ public class DM24SPNSupportPacketTest {
         expected += "  SPN 92 - Engine Percent Load At Current Speed" + NL;
         expected += "]" + NL;
         expected += "(Supports Data Stream Results) [" + NL;
+        expected += "  No Supported SPNs" + NL;
         expected += "]" + NL;
         expected += "(Supports Freeze Frame Results) [" + NL;
+        expected += "  No Supported SPNs" + NL;
         expected += "]" + NL;
         assertEquals(expected, instance.toString());
     }
@@ -393,8 +395,10 @@ public class DM24SPNSupportPacketTest {
                 + "  SPN 513 - Actual Engine - Percent Torque" + NL
                 + "]" + NL
                 + "(Supports Data Stream Results) [" + NL
+                + "  No Supported SPNs" + NL
                 + "]" + NL
                 + "(Supports Freeze Frame Results) [" + NL
+                + "  No Supported SPNs" + NL
                 + "]" + NL;
         assertEquals(expected, instance.toString());
     }

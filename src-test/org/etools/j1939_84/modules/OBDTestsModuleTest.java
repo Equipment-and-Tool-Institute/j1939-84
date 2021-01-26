@@ -141,8 +141,10 @@ public class OBDTestsModuleTest {
         expected += "  SPN 520348 - Manufacturer Assignable SPN" + NL;
         expected += "]" + NL;
         expected += "(Supports Data Stream Results) [" + NL;
+        expected +="  No Supported SPNs" + NL;
         expected += "]" + NL;
         expected += "(Supports Freeze Frame Results) [" + NL;
+        expected +="  No Supported SPNs" + NL;
         expected += "]" + NL;
         expected += "" + NL;
         expected += NL;
@@ -239,8 +241,10 @@ public class OBDTestsModuleTest {
         expected += "  SPN 102 - Engine Intake Manifold #1 Pressure" + NL;
         expected += "]" + NL;
         expected += "(Supports Data Stream Results) [" + NL;
+        expected +="  No Supported SPNs" + NL;
         expected += "]" + NL;
         expected += "(Supports Freeze Frame Results) [" + NL;
+        expected +="  No Supported SPNs" + NL;
         expected += "]" + NL;
         expected += NL;
         expected += NL;
@@ -280,8 +284,10 @@ public class OBDTestsModuleTest {
         expected += "  SPN 102 - Engine Intake Manifold #1 Pressure" + NL;
         expected += "]" + NL;
         expected += "(Supports Data Stream Results) [" + NL;
+        expected +="  No Supported SPNs" + NL;
         expected += "]" + NL;
         expected += "(Supports Freeze Frame Results) [" + NL;
+        expected +="  No Supported SPNs" + NL;
         expected += "]" + NL;
         expected += NL;
         expected += NL;
@@ -315,6 +321,7 @@ public class OBDTestsModuleTest {
         String expected = "";
         expected += "DM24 from Engine #1 (0): " + NL;
         expected += "(Supporting Scaled Test Results) [" + NL;
+        expected +="  No Supported SPNs" + NL;
         expected += "]" + NL;
         expected += "(Supports Data Stream Results) [" + NL;
         expected += "  SPN 102 - Engine Intake Manifold #1 Pressure" + NL;

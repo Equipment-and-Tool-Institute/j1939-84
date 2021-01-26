@@ -40,7 +40,11 @@ public class DM24SPNSupportPacket extends GenericPacket {
     private String createListingOfSpnForReporting(List<SupportedSPN> supportedSPNs, String reportTitle) {
         StringBuilder sb = new StringBuilder();
         sb.append("(").append(reportTitle).append(")").append(" [").append(NL);
-        supportedSPNs.forEach(supportedSPN -> sb.append("  ").append(supportedSPN).append(NL));
+        if (supportedSPNs.isEmpty()) {
+            sb.append("  No Supported SPNs").append(NL);
+        } else {
+            supportedSPNs.forEach(supportedSPN -> sb.append("  ").append(supportedSPN).append(NL));
+        }
         sb.append("]").append(NL);
         return sb.toString();
     }
