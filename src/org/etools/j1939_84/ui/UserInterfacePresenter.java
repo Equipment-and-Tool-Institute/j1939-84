@@ -173,7 +173,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
                         "Failure",
                         JOptionPane.ERROR_MESSAGE,
                         false);
-                // second time avoids re-parsing and will pickup synthetic adapters.
+                // second time avoids re-parsing and will pickup synthetic
+                // adapters.
                 try {
                     adapters.addAll(rp1210.getAdapters());
                 } catch (BusException e1) {
@@ -190,7 +191,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
     @Override
     public J1939 getNewJ1939() {
-        return new J1939(bus);
+        return new J1939(bus, overallController.getDataRepository());
     }
 
     /**

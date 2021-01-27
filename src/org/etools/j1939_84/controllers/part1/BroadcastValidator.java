@@ -68,7 +68,7 @@ public class BroadcastValidator {
      * @return the maximum period in seconds
      */
     public int getMaximumBroadcastPeriod() {
-        return dataRepository.getObdModules()
+        return Math.max(dataRepository.getObdModules()
                 .stream()
                 .flatMap(m -> m.getDataStreamSpns().stream())
                 .map(SupportedSPN::getSpn)
@@ -81,7 +81,7 @@ public class BroadcastValidator {
                 .filter(period -> period > 0)
                 .map(period -> period / 1000)
                 .max()
-                .orElse(5);
+                .orElse(5), 5);
     }
 
     /**

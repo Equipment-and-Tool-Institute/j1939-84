@@ -54,6 +54,7 @@ import org.etools.j1939_84.bus.j1939.packets.HighResVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.TotalVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -147,28 +148,35 @@ public class J1939 {
      */
     private final Bus bus;
 
+    private final DataRepository dataRepository;
+
     private final J1939DaRepository j1939DaRepository;
 
     /**
      * For Mockito
      */
     public J1939() {
-        this(new EchoBus(0xA5));
+        this(new EchoBus(0xA5), new DataRepository());
     }
 
     /**
-     * Constructor
+     * Constructor to be used with tests
      *
      * @param bus
      *            the {@link Bus} used to communicate with the vehicle
      */
     public J1939(Bus bus) {
-        this(bus, new J1939DaRepository());
+        this(bus, new DataRepository());
     }
 
-    public J1939(Bus bus, J1939DaRepository j1939DaRepository) {
+    public J1939(Bus bus, DataRepository dataRepository) {
+        this(bus, new J1939DaRepository(), dataRepository);
+    }
+
+    public J1939(Bus bus, J1939DaRepository j1939DaRepository, DataRepository dataRepository) {
         this.bus = bus;
         this.j1939DaRepository = j1939DaRepository;
+        this.dataRepository = dataRepository;
     }
 
     /**

@@ -10,6 +10,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.AdditionalMatchers.aryEq;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
@@ -410,6 +411,7 @@ public class RP1210BusTest {
         Packet actual = packetCaptor.getValue();
 
         assertEquals(packet, actual);
+        verify(logger).log(eq(Level.FINE), anyString());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
                 any(byte[].class),
                 eq((short) 2048),
@@ -471,6 +473,7 @@ public class RP1210BusTest {
         Packet actual = packetCaptor.getValue();
 
         assertEquals(packet, actual);
+        verify(logger).log(eq(Level.FINE), anyString());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
                 any(byte[].class),
                 eq((short) 2048),
@@ -511,6 +514,7 @@ public class RP1210BusTest {
         Packet actual = packetCaptor.getValue();
 
         assertEquals(packet, actual);
+        verify(logger).log(eq(Level.FINE), anyString());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
                 any(byte[].class),
                 eq((short) 2048),

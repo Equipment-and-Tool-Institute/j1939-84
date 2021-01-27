@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.part1.Part01Controller;
 import org.etools.j1939_84.controllers.part2.Part02Controller;
 import org.etools.j1939_84.modules.BannerModule;
@@ -30,36 +31,41 @@ public class OverallController extends Controller {
 
     private final List<Controller> controllers = new ArrayList<>();
 
+    private final DataRepository dataRepository;
+
     public OverallController() {
         this(new DataRepository());
     }
 
     private OverallController(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), new EngineSpeedModule(), new BannerModule(),
-             new VehicleInformationModule(), DateTimeModule.getInstance(),
-             new Part01Controller(dataRepository),new Part02Controller(dataRepository), new Part03Controller(), new Part04Controller(),
-             new Part05Controller(), new Part06Controller(), new Part07Controller(), new Part08Controller(),
-             new Part09Controller(), new Part10Controller(), new Part11Controller(), new Part12Controller());
+        this(Executors.newSingleThreadScheduledExecutor(), dataRepository, new EngineSpeedModule(), new BannerModule(),
+                new VehicleInformationModule(), DateTimeModule.getInstance(),
+                new Part01Controller(dataRepository), new Part02Controller(dataRepository), new Part03Controller(),
+                new Part04Controller(),
+                new Part05Controller(), new Part06Controller(), new Part07Controller(), new Part08Controller(),
+                new Part09Controller(), new Part10Controller(), new Part11Controller(), new Part12Controller());
+
     }
 
-    private OverallController(Executor executor,
-                             EngineSpeedModule engineSpeedModule,
-                             BannerModule bannerModule,
-                             VehicleInformationModule vehicleInformationModule,
-                             DateTimeModule dateTimeModule,
-                             Part01Controller part1Controller,
-                             Part02Controller part2Controller,
-                             Part03Controller part3Controller,
-                             Part04Controller part4Controller,
-                             Part05Controller part5Controller,
-                             Part06Controller part6Controller,
-                             Part07Controller part7Controller,
-                             Part08Controller part8Controller,
-                             Part09Controller part9Controller,
-                             Part10Controller part10Controller,
-                             Part11Controller part11Controller,
-                             Part12Controller part12Controller) {
+    private OverallController(Executor executor, DataRepository dataRepository,
+            EngineSpeedModule engineSpeedModule,
+            BannerModule bannerModule,
+            VehicleInformationModule vehicleInformationModule,
+            DateTimeModule dateTimeModule,
+            Part01Controller part1Controller,
+            Part02Controller part2Controller,
+            Part03Controller part3Controller,
+            Part04Controller part4Controller,
+            Part05Controller part5Controller,
+            Part06Controller part6Controller,
+            Part07Controller part7Controller,
+            Part08Controller part8Controller,
+            Part09Controller part9Controller,
+            Part10Controller part10Controller,
+            Part11Controller part11Controller,
+            Part12Controller part12Controller) {
         super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
+        this.dataRepository = dataRepository;
         controllers.add(part1Controller);
         controllers.add(part2Controller);
         controllers.add(part3Controller);
@@ -72,6 +78,10 @@ public class OverallController extends Controller {
         controllers.add(part10Controller);
         controllers.add(part11Controller);
         controllers.add(part12Controller);
+    }
+
+    public DataRepository getDataRepository() {
+        return dataRepository;
     }
 
     @Override
