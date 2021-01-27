@@ -209,15 +209,15 @@ public class UserInterfacePresenterTest {
         when(rp1210.getAdapters()).thenThrow(new BusException("Surprise", new Exception()));
         assertEquals(0, instance.getAdapters().size());
 
-        // Doesn't happen again
-        assertEquals(0, instance.getAdapters().size());
-
-        verify(rp1210).getAdapters();
+        verify(rp1210, times(2)).getAdapters();
 
         verify(view).displayDialog("The List of Communication Adapters could not be loaded.",
-                "Failure",
-                JOptionPane.ERROR_MESSAGE,
-                false);
+                                   "Failure",
+                                   JOptionPane.ERROR_MESSAGE,
+                                   false);
+
+        // Doesn't happen again
+        assertEquals(0, instance.getAdapters().size());
     }
 
     @Test

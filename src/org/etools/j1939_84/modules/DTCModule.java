@@ -67,15 +67,6 @@ public class DTCModule extends FunctionalModule {
         List<DM1ActiveDTCsPacket> packets = new ArrayList<>(allPackets);
         packets.sort(Comparator.comparing(o -> o.getPacket().getTimestamp()));
 
-        if (packets.isEmpty()) {
-            listener.onResult(getTime() + " No published DM1 messages were identified");
-        } else {
-            for (DM1ActiveDTCsPacket p : packets) {
-                listener.onResult(getDateTimeModule().format(p.getPacket().getTimestamp()) + " " + p.getPacket());
-                listener.onResult(p.toString());
-            }
-        }
-
         return new RequestResult<>(false, packets, Collections.emptyList());
     }
 

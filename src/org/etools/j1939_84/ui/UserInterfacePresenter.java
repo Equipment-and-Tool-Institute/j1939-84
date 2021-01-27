@@ -173,8 +173,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
                         "Failure",
                         JOptionPane.ERROR_MESSAGE,
                         false);
-                // second time avoids reparsing and will pickup synthetic
-                // adapters.
+                // second time avoids re-parsing and will pickup synthetic adapters.
                 try {
                     adapters.addAll(rp1210.getAdapters());
                 } catch (BusException e1) {

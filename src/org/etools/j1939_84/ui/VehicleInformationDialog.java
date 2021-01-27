@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2019. Equipment & Tool Institute
+/*
+ * Copyright (c) 2021. Equipment & Tool Institute
  */
 package org.etools.j1939_84.ui;
 
@@ -12,10 +12,10 @@ import java.awt.GridBagLayout;
 import java.awt.Insets;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-
 import javax.swing.ComboBoxModel;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
+import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
 import javax.swing.JFormattedTextField;
@@ -28,7 +28,6 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.SpinnerNumberModel;
 import javax.swing.text.AbstractDocument;
-
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.VehicleInformationListener;
@@ -40,7 +39,6 @@ import org.etools.j1939_84.ui.widgets.VinSanitizingDocumentFilter;
  * Dialog used to collect information about the vehicle
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class VehicleInformationDialog extends JDialog implements VehicleInformationContract.View {
 
@@ -50,7 +48,7 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
      * Creates and return {@link GridBagConstraints} for the column with Labels
      *
      * @param gridy
-     *            the y coordinate in the grid
+     *         the y coordinate in the grid
      * @return {@link GridBagConstraints}
      */
     private static GridBagConstraints getLabelGbc(int gridy) {
@@ -70,9 +68,9 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
      * Creates and returns {@link GridBagConstraints} from the Validation Column
      *
      * @param gridx
-     *            the x coordinate on the grid
+     *         the x coordinate on the grid
      * @param gridy
-     *            the y coordinate on the grid
+     *         the y coordinate on the grid
      * @return {@link GridBagConstraints}
      */
     private static GridBagConstraints getValidationGbc(int gridx, int gridy) {
@@ -88,9 +86,9 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
      * Creates and returns {@link GridBagConstraints} for the Value Column
      *
      * @param gridy
-     *            the y coordinate in the grid
+     *         the y coordinate in the grid
      * @param fill
-     *            true to completely fill the cel
+     *         true to completely fill the cel
      * @return {@link GridBagConstraints}
      */
     private static GridBagConstraints getValueGbc(int gridy, boolean fill) {
@@ -135,6 +133,10 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
 
     private JSpinner numberOfTripsForFaultBImplantSpinner;
 
+    private JLabel overrideLabel;
+
+    private JCheckBox overrideCheckBox;
+
     private JButton okButton;
 
     private transient final VehicleInformationContract.Presenter presenter;
@@ -155,9 +157,9 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
      * Constructor exposed for testing
      *
      * @param presenter
-     *            the {@link VehicleInformationContract.Presenter}
+     *         the {@link VehicleInformationContract.Presenter}
      * @param frame
-     *            main application frame
+     *         main application frame
      */
     /* package */ VehicleInformationDialog(JFrame frame, VehicleInformationContract.Presenter presenter) {
         super(frame);
@@ -169,12 +171,12 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
      * Creates a new instance of the Dialog
      *
      * @param frame
-     *            main application frame
+     *         main application frame
      * @param listener
-     *            the {@link VehicleInformationListener} that will be returned
-     *            the information entered by the user
+     *         the {@link VehicleInformationListener} that will be returned
+     *         the information entered by the user
      * @param j1939
-     *            the vehicle bus
+     *         the vehicle bus
      */
     /* package */ VehicleInformationDialog(JFrame frame, VehicleInformationListener listener, J1939 j1939) {
         super(frame);
@@ -379,12 +381,15 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
             mainPanel.add(new JLabel("Number Of Trips For Fault B Implant"), getLabelGbc(9));
             mainPanel.add(getNumberOfTripsForFaultBImplantJSpinner(), getValueGbc(9, false));
 
+            mainPanel.add(getOverrideLabel(), getLabelGbc(10));
+            mainPanel.add(getOverrideControl(), getValueGbc(10, false));
+
             GridBagConstraints buttonPanelGbc = new GridBagConstraints();
             buttonPanelGbc.insets = new Insets(0, 0, 0, 5);
             buttonPanelGbc.anchor = GridBagConstraints.WEST;
             buttonPanelGbc.gridwidth = 2;
             buttonPanelGbc.gridx = 1;
-            buttonPanelGbc.gridy = 10;
+            buttonPanelGbc.gridy = 11;
             mainPanel.add(getButtonPanel(), buttonPanelGbc);
         }
         return mainPanel;
@@ -402,6 +407,21 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
                                     (int) numberOfTripsForFaultBImplantSpinner.getValue()));
         }
         return numberOfTripsForFaultBImplantSpinner;
+    }
+
+    private JLabel getOverrideLabel() {
+        if (overrideLabel == null) {
+            overrideLabel = new JLabel("Override Errors");
+        }
+        return overrideLabel;
+    }
+
+    private JCheckBox getOverrideControl() {
+        if (overrideCheckBox == null) {
+            overrideCheckBox = new JCheckBox();
+            overrideCheckBox.addActionListener(actionEvent -> presenter.onOverrideChanged(overrideCheckBox.isSelected()));
+        }
+        return overrideCheckBox;
     }
 
     private JButton getOkButton() {
@@ -546,10 +566,18 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     public void setVisible(boolean b) {
         super.setVisible(b);
         if (b) {
-            new Thread(() -> presenter.initialize()).start();
+            new Thread(presenter::initialize).start();
         } else {
             super.dispose();
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
+        }
+    }
+
+    @Override public void setOverrideControlVisible(boolean isVisible) {
+        getOverrideControl().setVisible(isVisible);
+        getOverrideLabel().setVisible(isVisible);
+        if (!isVisible) {
+            getOverrideControl().setSelected(false);
         }
     }
 }

@@ -17,7 +17,6 @@ import org.junit.Test;
  * Unit tests for the {@link ScaledTestResult} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class ScaledTestResultTest {
 
@@ -119,8 +118,7 @@ public class ScaledTestResultTest {
 
     @Test
     public void testPassed() {
-        int[] data = new int[] { 0xF7, 0xC7, 0x14, 0x02, 0x1F, 0x01, 0x00, 0x30, 0x00, 0x50, 0x00, 0x10 };
-        ScaledTestResult instance = new ScaledTestResult(data);
+        ScaledTestResult instance = ScaledTestResult.create(247, 5319, 2, 287, 12288, 20480, 4096);
         assertEquals(5319, instance.getSpn());
         assertEquals(2, instance.getFmi());
         assertEquals(287, instance.getSlot().getId());

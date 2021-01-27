@@ -181,6 +181,7 @@ public class VehicleInformationPresenterTest {
         verify(view, times(1)).setVehicleModelYearValid(false);
         verify(view, times(5)).setVehicleModelYearValid(true);
         verify(view, times(6)).setOkButtonEnabled(false);
+        verify(view, times(6)).setOverrideControlVisible(true);
     }
 
     @Test
@@ -210,6 +211,7 @@ public class VehicleInformationPresenterTest {
         verify(view, times(1)).setVehicleModelYearValid(false);
         verify(view, times(5)).setVehicleModelYearValid(true);
         verify(view, times(6)).setOkButtonEnabled(false);
+        verify(view, times(6)).setOverrideControlVisible(true);
     }
 
     @Test
@@ -239,6 +241,7 @@ public class VehicleInformationPresenterTest {
         verify(view, times(1)).setVehicleModelYearValid(false);
         verify(view, times(5)).setVehicleModelYearValid(true);
         verify(view, times(6)).setOkButtonEnabled(false);
+        verify(view, times(6)).setOverrideControlVisible(true);
     }
 
     @Test
@@ -268,6 +271,7 @@ public class VehicleInformationPresenterTest {
         verify(view, times(1)).setVehicleModelYearValid(false);
         verify(view, times(5)).setVehicleModelYearValid(true);
         verify(view, times(6)).setOkButtonEnabled(false);
+        verify(view, times(6)).setOverrideControlVisible(true);
     }
 
     @Test
@@ -297,6 +301,7 @@ public class VehicleInformationPresenterTest {
         verify(view, times(2)).setVehicleModelYearValid(false);
         verify(view, times(4)).setVehicleModelYearValid(true);
         verify(view, times(6)).setOkButtonEnabled(false);
+        verify(view, times(6)).setOverrideControlVisible(true);
     }
 
     @Test
@@ -325,6 +330,7 @@ public class VehicleInformationPresenterTest {
         verify(view, times(1)).setVehicleModelYearValid(false);
         verify(view, times(5)).setVehicleModelYearValid(true);
         verify(view, times(6)).setOkButtonEnabled(false);
+        verify(view, times(6)).setOverrideControlVisible(true);
     }
 
     @Test
@@ -357,6 +363,8 @@ public class VehicleInformationPresenterTest {
         verify(view, times(7)).setVehicleModelYearValid(true);
         verify(view, times(7)).setOkButtonEnabled(false);
         verify(view, times(1)).setOkButtonEnabled(true);
+        verify(view, times(7)).setOverrideControlVisible(true);
+        verify(view, times(1)).setOverrideControlVisible(false);
 
         instance.onOkButtonClicked();
         verify(view).setVisible(false);

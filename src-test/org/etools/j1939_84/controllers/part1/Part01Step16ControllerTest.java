@@ -9,7 +9,6 @@ import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -29,6 +28,7 @@ import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
@@ -55,7 +55,6 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
     @Mock
     private BannerModule bannerModule;
 
-    @Mock
     private DataRepository dataRepository;
 
     @Mock
@@ -89,6 +88,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
 
     @Before
     public void setUp() {
+        dataRepository = new DataRepository();
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
@@ -129,7 +129,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, packet1));
         when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new BusResult<>(false, packet1));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0));
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
         runTest();
 
@@ -137,16 +137,15 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM2(any(), eq(true));
         verify(dtcModule).requestDM2(any(), eq(true), eq(0));
 
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
-
         verify(mockListener).addOutcome(1,
                                         16,
                                         FAIL,
-                                        "6.1.16.2.a - OBD ECU reported a previously active DTC");
+                                        "6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.16.2.a - OBD ECU reported a previously active DTC" + NL, listener.getResults());
+        assertEquals("FAIL: 6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC" + NL,
+                     listener.getResults());
     }
 
     @Test
@@ -163,29 +162,29 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
     @TestDoc({ @TestItem(verifies = "6.1.16.2.a,b") })
     public void testMILNotSupported() {
         DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
+        Packet packet = mock(Packet.class);
+        when(packet.getBytes()).thenReturn(new byte[0]);
+        when(packet1.getPacket()).thenReturn(packet);
         when(packet1.getSourceAddress()).thenReturn(0);
-        when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OTHER);
-        when(dtcModule.requestDM2(any(), eq(true)))
-                .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
+        when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.NOT_SUPPORTED);
+        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, packet1));
+        when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new BusResult<>(false, packet1));
 
-        // Return the modules address so that we can do the destination specific calls
-        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of());
-
+        dataRepository.putObdModule(new OBDModuleInformation(0));
         runTest();
 
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM2(any(), eq(true));
-
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
+        verify(dtcModule).requestDM2(any(), eq(true), eq(0));
 
         verify(mockListener).addOutcome(1,
                                         16,
                                         FAIL,
-                                        "6.1.16.2.b - OBD ECU does not report MIL off");
+                                        "6.1.16.2.b - OBD ECU Engine #1 (0) did not report MIL off");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.16.2.b - OBD ECU does not report MIL off" + NL, listener.getResults());
+        assertEquals("FAIL: 6.1.16.2.b - OBD ECU Engine #1 (0) did not report MIL off" + NL, listener.getResults());
     }
 
     @Test
@@ -196,18 +195,14 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(packet1.getSourceAddress()).thenReturn(0);
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
-        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(
-                new RequestResult<>(false, List.of(packet1), List.of(packet3)));
-
-        // Return the modules address so that we can do the destination specific calls
-        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of());
+        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false,
+                                                                                   List.of(packet1),
+                                                                                   List.of(packet3)));
 
         runTest();
 
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM2(any(), eq(true));
-
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -229,8 +224,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, packet1));
         when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new BusResult<>(false, packet1));
 
-        // Return the modules address so that we can do the destination specific calls
-        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0));
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
         runTest();
 
@@ -238,22 +232,20 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM2(any(), eq(true));
         verify(dtcModule).requestDM2(any(), eq(true), eq(0));
 
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
-
         verify(mockListener).addOutcome(1,
                                         16,
                                         FAIL,
-                                        "6.1.16.2.a - OBD ECU reported a previously active DTC");
+                                        "6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC");
         verify(mockListener).addOutcome(1,
                                         16,
                                         FAIL,
-                                        "6.1.16.2.b - OBD ECU does not report MIL off");
+                                        "6.1.16.2.b - OBD ECU Engine #1 (0) did not report MIL off");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         String expected = "";
-        expected += "FAIL: 6.1.16.2.a - OBD ECU reported a previously active DTC" + NL;
-        expected += "FAIL: 6.1.16.2.b - OBD ECU does not report MIL off" + NL;
+        expected += "FAIL: 6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC" + NL;
+        expected += "FAIL: 6.1.16.2.b - OBD ECU Engine #1 (0) did not report MIL off" + NL;
         assertEquals(expected, listener.getResults());
     }
 
@@ -261,36 +253,25 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
     @TestDoc({ @TestItem(verifies = "6.1.16.4.a,b,c") })
     public void testNonOBDMilOn() {
         DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
-        when(packet1.getDtcs()).thenReturn(List.of());
         when(packet1.getSourceAddress()).thenReturn(0);
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.ON);
         when(dtcModule.requestDM2(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
-
-        // Return the modules address so that we can do the destination specific calls
-        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of());
 
         runTest();
 
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM2(any(), eq(true));
 
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
-
         verify(mockListener).addOutcome(1,
                                         16,
                                         FAIL,
-                                        "6.1.16.2.b - OBD ECU does not report MIL off");
-        verify(mockListener).addOutcome(1,
-                                        16,
-                                        FAIL,
-                                        "6.1.16.2.c - Non-OBD ECU does not report MIL off or not supported");
+                                        "6.1.16.2.c - Non-OBD ECU Engine #1 (0) did not report MIL off or not supported");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         String expected = "";
-        expected += "FAIL: 6.1.16.2.b - OBD ECU does not report MIL off" + NL;
-        expected += "FAIL: 6.1.16.2.c - Non-OBD ECU does not report MIL off or not supported" + NL;
+        expected += "FAIL: 6.1.16.2.c - Non-OBD ECU Engine #1 (0) did not report MIL off or not supported" + NL;
         assertEquals(expected, listener.getResults());
     }
 
@@ -303,8 +284,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
 
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(requestResult(packet1));
 
-        // Set up the destination specific packets we will be returning when
-        // requested
+        // Set up the destination specific packets we will be returning when requested
         DM2PreviouslyActiveDTC packet2 = new DM2PreviouslyActiveDTC(
                 Packet.create(PGN, 0, new byte[] { 0x00, (byte) 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
 
@@ -318,7 +298,8 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
                 .thenReturn(new BusResult<>(false, packet4));
 
         // Return the modules address so that we can do the destination specific calls
-        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0, 3));
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(3));
 
         runTest();
 
@@ -326,8 +307,6 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM2(any(), eq(true));
         verify(dtcModule).requestDM2(any(), eq(true), eq(0));
         verify(dtcModule).requestDM2(any(), eq(true), eq(3));
-
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(1,
                                         16,
@@ -374,7 +353,8 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
                 .thenReturn(new BusResult<>(false, packet4));
 
         // Return the modules address so that we can do the destination specific calls
-        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0, 3));
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(3));
 
         runTest();
 
@@ -382,8 +362,6 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM2(any(), eq(true));
         verify(dtcModule).requestDM2(any(), eq(true), eq(0));
         verify(dtcModule).requestDM2(any(), eq(true), eq(3));
-
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
 
         verify(mockListener).addOutcome(1,
                                         16,
@@ -417,7 +395,8 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(dtcModule.requestDM2(any(), eq(true), eq(3)))
                 .thenReturn(new BusResult<>(false, packet4));
 
-        when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0, 3));
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(3));
 
         runTest();
 
@@ -425,8 +404,6 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM2(any(), eq(true));
         verify(dtcModule).requestDM2(any(), eq(true), eq(0));
         verify(dtcModule).requestDM2(any(), eq(true), eq(3));
-
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());

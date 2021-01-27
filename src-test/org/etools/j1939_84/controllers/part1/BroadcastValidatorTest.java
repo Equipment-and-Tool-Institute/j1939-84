@@ -22,6 +22,7 @@ import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.Packet;
@@ -275,10 +276,10 @@ public class BroadcastValidatorTest {
         when(module2.getDataStreamSpns()).thenReturn(supportedSPNs2);
         modules.add(module2);
 
-        when(j1939DaRepository.getPgnForSpn(111)).thenReturn(11111);
-        when(j1939DaRepository.getPgnForSpn(222)).thenReturn(22222);
+        when(j1939DaRepository.getPgnForSpn(111)).thenReturn(Set.of(11111));
+        when(j1939DaRepository.getPgnForSpn(222)).thenReturn(Set.of(22222));
         when(j1939DaRepository.getPgnForSpn(333)).thenReturn(null);
-        when(j1939DaRepository.getPgnForSpn(444)).thenReturn(44444);
+        when(j1939DaRepository.getPgnForSpn(444)).thenReturn(Set.of(44444));
 
         PgnDefinition pgnDefinition1 = pgnDefinition(1000);
         when(j1939DaRepository.findPgnDefinition(11111)).thenReturn(pgnDefinition1);

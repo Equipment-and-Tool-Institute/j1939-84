@@ -81,24 +81,14 @@ public class DTCModuleTest {
                 Packet.create(65226, 0x00, 0x11, 0x01, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
                         0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
 
-        doReturn(Stream.of(packet.getPacket(), packet.getPacket(), packet.getPacket())).when(j1939).read(anyLong(),
-                any());
+        doReturn(Stream.of(packet.getPacket(), packet.getPacket(), packet.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
 
-        RequestResult<DM1ActiveDTCsPacket> expectedResult = new RequestResult<>(false,
-                List.of(packet),
-                List.of());
+        RequestResult<DM1ActiveDTCsPacket> expectedResult = new RequestResult<>(false, packet);
         assertEquals(expectedResult, instance.readDM1(listener));
 
         String expected = "10:15:30.0000 Reading the bus for published DM1 messages" + NL;
-        expected += "10:15:30.0000 18FECA00 [14] 11 01 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM1 from Engine #1 (0): MIL: alternate off, RSL: slow flash, AWL: alternate off, PL: fast flash"
-                + NL;
-        expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
-        expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
-                + NL;
 
         assertEquals(expected, listener.getResults());
         verify(j1939).read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS);
@@ -111,13 +101,10 @@ public class DTCModuleTest {
 
         TestResultsListener listener = new TestResultsListener();
 
-        RequestResult<DM1ActiveDTCsPacket> expectedResult = new RequestResult<>(false,
-                List.of(),
-                List.of());
+        RequestResult<DM1ActiveDTCsPacket> expectedResult = new RequestResult<>(false);
         assertEquals(expectedResult, instance.readDM1(listener));
 
         String expected = "10:15:30.0000 Reading the bus for published DM1 messages" + NL;
-        expected += "10:15:30.0000 No published DM1 messages were identified" + NL;
         assertEquals(expected, listener.getResults());
         verify(j1939).read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS);
         verify(j1939).read(anyLong(), any());
@@ -145,21 +132,6 @@ public class DTCModuleTest {
         assertEquals(expectedResult, instance.readDM1(listener));
 
         String expected = "10:15:30.0000 Reading the bus for published DM1 messages" + NL;
-        expected += "10:15:30.0000 18FECA00 [14] 11 01 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM1 from Engine #1 (0): MIL: alternate off, RSL: slow flash, AWL: alternate off, PL: fast flash"
-                + NL;
-        expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
-        expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
-                + NL;
-        expected += "10:15:30.0000 18FECA01 [14] 11 01 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM1 from Engine #2 (1): MIL: alternate off, RSL: slow flash, AWL: alternate off, PL: fast flash"
-                + NL;
-        expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
-        expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
-                + NL;
-
         assertEquals(expected, listener.getResults());
         verify(j1939).read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS);
         verify(j1939).read(anyLong(), any());

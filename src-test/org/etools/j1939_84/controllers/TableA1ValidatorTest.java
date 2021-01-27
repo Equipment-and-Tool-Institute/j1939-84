@@ -6,13 +6,13 @@ package org.etools.j1939_84.controllers;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 import org.etools.j1939_84.bus.Packet;
@@ -25,6 +25,7 @@ import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
+import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -38,7 +39,6 @@ public class TableA1ValidatorTest {
     @Mock
     private TableA1ValueValidator valueValidator;
 
-    @Mock
     private DataRepository dataRepository;
 
     @Mock
@@ -51,12 +51,13 @@ public class TableA1ValidatorTest {
 
     @Before
     public void setUp() {
-        instance = new TableA1Validator(valueValidator, dataRepository, j1939DaRepository);
+        dataRepository = new DataRepository();
+        instance = new TableA1Validator(valueValidator, dataRepository, j1939DaRepository, new TestDateTimeModule());
     }
 
     @After
     public void tearDown() throws Exception {
-        verifyNoMoreInteractions(valueValidator, dataRepository, j1939DaRepository, listener);
+        verifyNoMoreInteractions(valueValidator, j1939DaRepository, listener);
     }
 
     @Test
@@ -64,6 +65,7 @@ public class TableA1ValidatorTest {
         List<GenericPacket> packets = new ArrayList<>();
         {
             GenericPacket packet1 = mock(GenericPacket.class);
+            when(packet1.toString()).thenReturn("packet1");
             List<Spn> packet1Spns = new ArrayList<>();
             packet1Spns.add(mockSpn(1, 100.0));
             packet1Spns.add(mockSpn(2, 200.0));
@@ -71,6 +73,8 @@ public class TableA1ValidatorTest {
 
             Packet packet1Packet = mock(Packet.class);
             when(packet1Packet.getPgn()).thenReturn(11111);
+            when(packet1Packet.getTimestamp()).thenReturn(LocalDateTime.MIN);
+            when(packet1Packet.toString()).thenReturn("packet1 packet");
             when(packet1.getPacket()).thenReturn(packet1Packet);
             PgnDefinition pgnDefinition = mockPgnDef(1, 2);
             when(packet1.getPgnDefinition()).thenReturn(pgnDefinition);
@@ -80,6 +84,7 @@ public class TableA1ValidatorTest {
 
         {
             GenericPacket packet2 = mock(GenericPacket.class);
+            when(packet2.toString()).thenReturn("packet2");
             List<Spn> packet2Spns = new ArrayList<>();
             packet2Spns.add(mockSpn(3, 100.0));
             packet2Spns.add(mockSpn(4, 200.0));
@@ -87,6 +92,8 @@ public class TableA1ValidatorTest {
 
             Packet packet2Packet = mock(Packet.class);
             when(packet2Packet.getPgn()).thenReturn(22222);
+            when(packet2Packet.getTimestamp()).thenReturn(LocalDateTime.MIN);
+            when(packet2Packet.toString()).thenReturn("packet2 packet");
             when(packet2.getPacket()).thenReturn(packet2Packet);
             PgnDefinition pgnDefinition = mockPgnDef(3, 4);
             when(packet2.getPgnDefinition()).thenReturn(pgnDefinition);
@@ -124,16 +131,11 @@ public class TableA1ValidatorTest {
         when(valueValidator.isImplausible(7, 100.0, true, FuelType.DSL)).thenReturn(false);
         when(valueValidator.isImplausible(8, 200.0, true, FuelType.DSL)).thenReturn(false);
 
-        when(dataRepository.getObdModule(0)).thenReturn(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(0));
 
         for (GenericPacket packet : packets) {
             instance.reportImplausibleSPNValues(packet, listener, true, FuelType.DSL, 1, 26, "6.1.26");
         }
-
-        verify(dataRepository, atLeastOnce()).getObdModule(0);
-//        verify(listener).onResult("Found: packet1");
-//        verify(listener).onResult("Found: packet2");
-//        verify(listener).onResult("Found: packet3");
 
         verify(valueValidator).isImplausible(1, 100.0, true, FuelType.DSL);
         verify(valueValidator).isImplausible(2, 200.0, true, FuelType.DSL);
@@ -144,10 +146,18 @@ public class TableA1ValidatorTest {
         verify(valueValidator).isImplausible(7, 100.0, true, FuelType.DSL);
         verify(valueValidator).isImplausible(8, 200.0, true, FuelType.DSL);
 
-        verify(listener).addOutcome(1, 26, WARN, "SA 0 reported value for SPN 2 (200.0) is implausible");
-        verify(listener).onResult("WARN: 6.1.26 - SA 0 reported value for SPN 2 (200.0) is implausible");
-        verify(listener).addOutcome(1, 26, WARN, "SA 0 reported value for SPN 3 (100.0) is implausible");
-        verify(listener).onResult("WARN: 6.1.26 - SA 0 reported value for SPN 3 (100.0) is implausible");
+        verify(listener).onResult("PGN 11111 with Supported SPNs ");
+        verify(listener).onResult("10:15:30.0000 packet1 packet");
+        verify(listener).onResult("Found: packet1");
+        verify(listener, times(2)).onResult("");
+        verify(listener).addOutcome(1, 26, WARN, "N.8 Engine #1 (0) reported value for SPN 2 (200.0) is implausible");
+        verify(listener).onResult("WARN: 6.1.26 - N.8 Engine #1 (0) reported value for SPN 2 (200.0) is implausible");
+
+        verify(listener).onResult("PGN 22222 with Supported SPNs ");
+        verify(listener).onResult("10:15:30.0000 packet2 packet");
+        verify(listener).onResult("Found: packet2");
+        verify(listener).addOutcome(1, 26, WARN, "N.8 Engine #1 (0) reported value for SPN 3 (100.0) is implausible");
+        verify(listener).onResult("WARN: 6.1.26 - N.8 Engine #1 (0) reported value for SPN 3 (100.0) is implausible");
     }
 
     @Test
@@ -162,18 +172,19 @@ public class TableA1ValidatorTest {
         supportedSpns.add(mockSupportedSpn(92));//Provided
         when(obdModuleInformation.getDataStreamSpns()).thenReturn(supportedSpns);
 
-        when(dataRepository.getObdModule(0)).thenReturn(obdModuleInformation);
-        when(dataRepository.getObdModules()).thenReturn(List.of(obdModuleInformation));
+        dataRepository.putObdModule(obdModuleInformation);
 
         List<GenericPacket> packets = new ArrayList<>();
 
         {
             GenericPacket packet1 = mock(GenericPacket.class);
-            when(packet1.getSourceAddress()).thenReturn(21);
+            when(packet1.getSourceAddress()).thenReturn(2);
             PgnDefinition pgnDef = mockPgnDef(544, 190, 158, 96, 92);
             when(packet1.getPgnDefinition()).thenReturn(pgnDef);
             Packet packet1Packet = mock(Packet.class);
             when(packet1Packet.getPgn()).thenReturn(61445);
+            when(packet1Packet.getTimestamp()).thenReturn(LocalDateTime.MIN);
+            when(packet1Packet.toString()).thenReturn("packet1 packet");
             when(packet1.getPacket()).thenReturn(packet1Packet);
             when(packet1.toString()).thenReturn("packet1");
 
@@ -197,20 +208,17 @@ public class TableA1ValidatorTest {
             instance.reportNonObdModuleProvidedSPNs(packet, listener, 1, 26, "6.1.26");
         }
 
-        verify(dataRepository, times(3)).getObdModules();
-        verify(dataRepository).getObdModule(0);
-        verify(dataRepository, times(2)).getObdModule(21);
-
-        verify(listener).onResult("");
+        verify(listener, times(4)).onResult("");
         verify(listener).onResult("PGN 61445 with Supported SPNs 92, 96, 158, 190, 544");
+        verify(listener).onResult("10:15:30.0000 packet1 packet");
         verify(listener).onResult("Found: packet1");
 
-        verify(listener).addOutcome(1, 26, FAIL, "SPN 544 provided by non-OBD Module");
-        verify(listener).onResult("FAIL: 6.1.26 - SPN 544 provided by non-OBD Module");
-        verify(listener).addOutcome(1, 26, WARN, "SPN 190 provided by non-OBD Module");
-        verify(listener).onResult("WARN: 6.1.26 - SPN 190 provided by non-OBD Module");
-        verify(listener).addOutcome(1, 26, Outcome.INFO, "SPN 96 provided by non-OBD Module");
-        verify(listener).onResult("INFO: 6.1.26 - SPN 96 provided by non-OBD Module");
+        verify(listener).addOutcome(1, 26, FAIL, "N.6 SPN 544 provided by non-OBD Module Turbocharger (2)");
+        verify(listener).onResult("FAIL: 6.1.26 - N.6 SPN 544 provided by non-OBD Module Turbocharger (2)");
+        verify(listener).addOutcome(1, 26, WARN, "N.6 SPN 190 provided by non-OBD Module Turbocharger (2)");
+        verify(listener).onResult("WARN: 6.1.26 - N.6 SPN 190 provided by non-OBD Module Turbocharger (2)");
+        verify(listener).addOutcome(1, 26, Outcome.INFO, "N.6 SPN 96 provided by non-OBD Module Turbocharger (2)");
+        verify(listener).onResult("INFO: 6.1.26 - N.6 SPN 96 provided by non-OBD Module Turbocharger (2)");
     }
 
     @Test
@@ -246,10 +254,10 @@ public class TableA1ValidatorTest {
 
         instance.reportDuplicateSPNs(packets, listener, 1, 26, "6.1.26");
 
-        verify(listener).addOutcome(1, 26, FAIL, "SPN 92 provided by more than one module");
-        verify(listener).onResult("FAIL: 6.1.26 - SPN 92 provided by more than one module");
-        verify(listener).addOutcome(1, 26, WARN, "SPN 84 provided by more than one module");
-        verify(listener).onResult("WARN: 6.1.26 - SPN 84 provided by more than one module");
+        verify(listener).addOutcome(1, 26, FAIL, "N.5 SPN 92 provided by more than one module");
+        verify(listener).onResult("FAIL: 6.1.26 - N.5 SPN 92 provided by more than one module");
+        verify(listener).addOutcome(1, 26, WARN, "N.5 SPN 84 provided by more than one module");
+        verify(listener).onResult("WARN: 6.1.26 - N.5 SPN 84 provided by more than one module");
     }
 
     private static SupportedSPN mockSupportedSpn(int id) {

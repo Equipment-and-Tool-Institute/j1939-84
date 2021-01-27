@@ -1,24 +1,42 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import java.util.Objects;
-
 import org.etools.j1939_84.bus.j1939.Lookup;
 
 /**
  * Class that contains the data about Supported SPNs
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class SupportedSPN {
+
+    public static SupportedSPN create(int spn,
+                                      boolean isScaledTestResult,
+                                      boolean isDataStream,
+                                      boolean isFreezeFrame,
+                                      int length) {
+        byte byte1 = (byte) (spn & 0xFF);
+        byte byte2 = (byte) ((spn >> 8) & 0xFF);
+
+        byte byte3 = (byte) 0xFF;
+        byte3 &= (byte) (((spn >> 16) & 0xE0) + 0x1F);
+        byte3 &= (byte) (isFreezeFrame ? 0xFE : 0xFF);
+        byte3 &= (byte) (isDataStream ? 0xFD : 0xFF);
+        byte3 &= (byte) (isScaledTestResult ? 0xFB : 0xFF);
+
+        byte byte4 = (byte) (length & 0xFF);
+
+        return new SupportedSPN(new int[] { byte1, byte2, byte3, byte4 });
+    }
+
     /**
      * Parses the data to return the SPN
      *
      * @param data
-     *             the data to parse
+     *         the data to parse
      * @return the SPN
      */
     public static int parseSPN(int[] data) {
@@ -36,13 +54,16 @@ public class SupportedSPN {
 
     private final int support;
 
+    private final int[] data;
+
     /**
      * Constructor
      *
      * @param data
-     *             the data that contains the information
+     *         the data that contains the information
      */
     public SupportedSPN(int[] data) {
+        this.data = data;
         support = data[2] & 0x07;
         spn = SupportedSPN.parseSPN(data);
         length = (byte) (data[3] & 0xFF);
@@ -82,11 +103,13 @@ public class SupportedSPN {
         return spn;
     }
 
+    public int[] getData() {
+        return data;
+    }
+
     @Override
     public int hashCode() {
-        return Objects.hash(support,
-                spn,
-                length);
+        return Objects.hash(support, spn, length);
     }
 
     /**

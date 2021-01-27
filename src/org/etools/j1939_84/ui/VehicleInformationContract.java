@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2019. Equipment & Tool Institute
+/*
+ * Copyright (c) 2021. Equipment & Tool Institute
  */
 package org.etools.j1939_84.ui;
 
@@ -14,7 +14,7 @@ import org.etools.j1939_84.model.FuelType;
  */
 public interface VehicleInformationContract {
 
-    public interface Presenter {
+    interface Presenter {
 
         /**
          * Called to initialize the presenter. This should be called when the
@@ -102,13 +102,15 @@ public interface VehicleInformationContract {
          */
         void onVinChanged(String vin);
 
+        void onOverrideChanged(boolean checked);
+
     }
 
-    public interface View {
+    interface View {
         /**
          * Sets the Number of Calibration IDs expected on the Vehicle
          *
-         * @param count
+         * @param calIds
          *            the number of Calibration IDs expected on the Vehicle
          */
         void setCalIds(int calIds);
@@ -194,5 +196,7 @@ public interface VehicleInformationContract {
          *            true to show the dialog; false to hide the dialog;
          */
         void setVisible(boolean isVisible);
+
+        void setOverrideControlVisible(boolean isVisible);
     }
 }

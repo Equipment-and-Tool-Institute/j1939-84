@@ -91,7 +91,33 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    private DateTimeModule dateTimeModule;
+    @Before
+    public void setUp() throws Exception {
+
+        listener = new TestResultsListener(mockListener);
+        DateTimeModule.setInstance(null);
+
+        instance = new Part01Step08Controller(executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              diagnosticReadinessModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance());
+
+        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+
+    }
+
+    @After
+    public void tearDown() throws Exception {
+
+        verifyNoMoreInteractions(executor,
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 diagnosticReadinessModule);
+    }
 
     @Test
     public void ignitionTypeNotSupported() {
@@ -136,13 +162,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     public void minimumExpectedSPNsCompressionIgnition() {
 
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-        List<Integer> SPNs = new ArrayList<>();
-        int[] SPN1 = { 5322, 5318, 3058, 3064, 5321, 3055 };
-        SPNs.add(SPN1[2]);
-        SPNs.add(SPN1[3]);
-        SPNs.add(SPN1[4]);
-        SPNs.add(SPN1[5]);
-
+        List<Integer> SPNs = List.of(3058, 3064, 5321, 3055);
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
         globalDM20s.add(dm20);
@@ -166,18 +186,11 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
-
-        verify(reportFileModule)
-                .onResult("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
-        verify(reportFileModule).addOutcome(1,
-                                            8,
-                                            FAIL,
-                                            "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
+                                        "6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 5318, 5322 None of these SPNs are supported: 4364, 4792, 5308");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported." + NL,
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 5318, 5322 None of these SPNs are supported: 4364, 4792, 5308" + NL,
                      listener.getResults());
     }
 
@@ -185,17 +198,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     public void minimumExpectedSPNsSparkIgnition() {
 
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-        List<Integer> SPNs = new ArrayList<>();
-        int[] SPN3 = { 3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057 };
-        SPNs.add(SPN3[1]);
-        SPNs.add(SPN3[2]);
-        SPNs.add(SPN3[3]);
-        SPNs.add(SPN3[4]);
-        SPNs.add(SPN3[5]);
-        SPNs.add(SPN3[6]);
-        SPNs.add(SPN3[7]);
-        SPNs.add(SPN3[8]);
-
+        List<Integer> SPNs = List.of(3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
         globalDM20s.add(dm20);
@@ -219,36 +222,18 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.");
-
-        verify(reportFileModule)
-                .onResult("FAIL: 6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.");
-        verify(reportFileModule).addOutcome(1,
-                                            8,
-                                            FAIL,
-                                            "6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.");
+                                        "6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 3054");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for spark ignition are not supported." + NL,
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 3054" + NL,
                      listener.getResults());
     }
 
     @Test
     public void obdModuleNull() {
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-        List<Integer> SPNs = new ArrayList<>();
-        int[] SPN1 = { 5322, 5318, 3058, 3064, 5321, 3055 };
-        int[] SPN2 = { 4792, 5308, 4364 };
-        SPNs.add(SPN1[0]);
-        SPNs.add(SPN1[1]);
-        SPNs.add(SPN1[2]);
-        SPNs.add(SPN1[3]);
-        SPNs.add(SPN1[4]);
-        SPNs.add(SPN1[5]);
-        SPNs.add(SPN2[0]);
-        SPNs.add(SPN2[1]);
-        SPNs.add(SPN2[2]);
+        List<Integer> SPNs = List.of(5322, 5318, 3058, 3064, 5321, 3055, 4792);
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
@@ -271,50 +256,11 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
     }
 
-    @Before
-    public void setUp() throws Exception {
-
-        listener = new TestResultsListener(mockListener);
-        DateTimeModule.setInstance(null);
-
-        instance = new Part01Step08Controller(executor,
-                                              engineSpeedModule,
-                                              bannerModule,
-                                              vehicleInformationModule,
-                                              diagnosticReadinessModule,
-                                              dataRepository,
-                                              DateTimeModule.getInstance());
-
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
-
-    }
-
-    @After
-    public void tearDown() throws Exception {
-
-        verifyNoMoreInteractions(executor,
-                                 engineSpeedModule,
-                                 bannerModule,
-                                 vehicleInformationModule,
-                                 diagnosticReadinessModule);
-    }
-
     @Test
     public void testCompressionIgnition() {
 
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-        List<Integer> SPNs = new ArrayList<>();
-        int[] SPN1 = { 5322, 5318, 3058, 3064, 5321, 3055 };
-        int[] SPN2 = { 4792, 5308, 4364 };
-        SPNs.add(SPN1[0]);
-        SPNs.add(SPN1[1]);
-        SPNs.add(SPN1[2]);
-        SPNs.add(SPN1[3]);
-        SPNs.add(SPN1[4]);
-        SPNs.add(SPN1[5]);
-        SPNs.add(SPN2[0]);
-        SPNs.add(SPN2[1]);
-        SPNs.add(SPN2[2]);
+        List<Integer> SPNs = List.of(5322, 5318, 3058, 3064, 5321, 3055, 4364);
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
@@ -360,11 +306,11 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
+                                        "6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 3055, 3058, 3064, 5318, 5321, 5322 None of these SPNs are supported: 4364, 4792, 5308");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported." + NL,
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 3055, 3058, 3064, 5318, 5321, 5322 None of these SPNs are supported: 4364, 4792, 5308" + NL,
                      listener.getResults());
     }
 
@@ -388,11 +334,11 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - minimum expected SPNs for spark ignition are not supported.");
+                                        "6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 3050, 3051, 3053, 3054, 3055, 3056, 3057, 3058, 3306");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for spark ignition are not supported." + NL,
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 3050, 3051, 3053, 3054, 3055, 3056, 3057, 3058, 3306" + NL,
                      listener.getResults());
     }
 
@@ -410,17 +356,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     public void testNoSpnNPacketsMatch() {
 
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-        List<Integer> spns = new ArrayList<>() {
-            {
-                add(5322);
-                add(5318);
-                add(3058);
-                add(3064);
-                add(5321);
-                add(3055);
-            }
-        };
-
+        List<Integer> spns = List.of(5322, 5318, 3058, 3064, 5321, 3055);
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(spns);
 
         globalDM20s.add(dm20);
@@ -439,18 +375,11 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         8,
                                         FAIL,
-                                        "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
-
-        verify(reportFileModule)
-                .onResult("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
-        verify(reportFileModule).addOutcome(1,
-                                            8,
-                                            FAIL,
-                                            "6.1.8.2.a - minimum expected SPNs for compression ignition are not supported.");
+                                        "6.1.8.2.a - minimum expected SPNs are not supported. None of these SPNs are supported: 4364, 4792, 5308");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs for compression ignition are not supported." + NL,
+        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs are not supported. None of these SPNs are supported: 4364, 4792, 5308" + NL,
                      listener.getResults());
     }
 
@@ -458,17 +387,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     public void testSparkIgnition() {
 
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-        List<Integer> SPNs = new ArrayList<>();
-        int[] SPN3 = { 3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057 };
-        SPNs.add(SPN3[0]);
-        SPNs.add(SPN3[1]);
-        SPNs.add(SPN3[2]);
-        SPNs.add(SPN3[3]);
-        SPNs.add(SPN3[4]);
-        SPNs.add(SPN3[5]);
-        SPNs.add(SPN3[6]);
-        SPNs.add(SPN3[7]);
-        SPNs.add(SPN3[8]);
+        List<Integer> SPNs = List.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 

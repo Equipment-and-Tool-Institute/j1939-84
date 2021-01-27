@@ -272,7 +272,6 @@ public class Part01Step26Controller extends StepController {
                 .peek(p ->
                         // 6.1.26.2.e. Fail/warn per Table A-1, if an expected SPN from the DM24 support
                         // list from an OBD ECU is provided by a non-OBD ECU. (provided extraneously)
-
                         tableA1Validator.reportNonObdModuleProvidedSPNs(p,
                                 getListener(),
                                 getPartNumber(),
@@ -288,7 +287,7 @@ public class Part01Step26Controller extends StepController {
                                 getPartNumber(),
                                 getStepNumber(),
                                 "6.1.26.4.a"))
-                .peek(p -> tableA1Validator.reportPacketIfNotReported(p, getListener()))
+                .peek(p -> tableA1Validator.reportPacketIfNotReported(p, getListener(), false))
                 .collect(Collectors.toList());
 
         // 6.1.26.2.f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1

@@ -1,5 +1,5 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
@@ -16,11 +16,20 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  * Parses the SPN Support (DM24) Packet
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class DM24SPNSupportPacket extends GenericPacket {
 
-    public static final int PGN = 64950;
+    public static final int PGN = 64950; //0xFDB6
+
+    public static DM24SPNSupportPacket create(int source, SupportedSPN... spns) {
+
+        int[] data = new int[0];
+        for (SupportedSPN spn : spns) {
+            data = join(data, spn.getData());
+        }
+
+        return new DM24SPNSupportPacket(Packet.create(PGN, source, data));
+    }
 
     private List<SupportedSPN> spns;
 
@@ -31,7 +40,11 @@ public class DM24SPNSupportPacket extends GenericPacket {
     private String createListingOfSpnForReporting(List<SupportedSPN> supportedSPNs, String reportTitle) {
         StringBuilder sb = new StringBuilder();
         sb.append("(").append(reportTitle).append(")").append(" [").append(NL);
-        supportedSPNs.forEach(supportedSPN -> sb.append("  ").append(supportedSPN).append(NL));
+        if (supportedSPNs.isEmpty()) {
+            sb.append("  No Supported SPNs").append(NL);
+        } else {
+            supportedSPNs.forEach(supportedSPN -> sb.append("  ").append(supportedSPN).append(NL));
+        }
         sb.append("]").append(NL);
         return sb.toString();
     }
@@ -72,7 +85,7 @@ public class DM24SPNSupportPacket extends GenericPacket {
      * Parses a portion of the packet to create a {@link SupportedSPN}
      *
      * @param index
-     *              the index at which the parsing starts
+     *         the index at which the parsing starts
      * @return a {@link SupportedSPN}
      */
     private SupportedSPN parseSpn(int index) {

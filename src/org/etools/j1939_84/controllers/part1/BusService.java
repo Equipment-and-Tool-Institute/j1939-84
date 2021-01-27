@@ -56,6 +56,7 @@ public class BusService {
         return spns.stream()
                 .map(j1939DaRepository::getPgnForSpn)
                 .filter(Objects::nonNull)
+                .flatMap(Collection::stream)
                 .distinct()
                 .map(j1939DaRepository::findPgnDefinition)
                 .filter(Objects::nonNull)
