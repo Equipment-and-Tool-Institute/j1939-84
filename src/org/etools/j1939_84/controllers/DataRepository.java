@@ -11,15 +11,35 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 
 public class DataRepository {
 
-    private double koeoEngineReferenceTorque;
+    private static DataRepository instance = new DataRepository();
+
+    public static void clearInstance() {
+        instance = null;
+    }
+
+    public static DataRepository getInstance() {
+        if (instance == null) {
+            instance = new DataRepository();
+        }
+        return instance;
+    }
+
+    /** Used by tests to get a clean repository. */
+    public static DataRepository newInstance() {
+        clearInstance();
+        return getInstance();
+    }
 
     private boolean isAfterCodeClear;
+
+    private double koeoEngineReferenceTorque;
 
     /**
      * Map of OBD Module Source Address to {@link OBDModuleInformation}
@@ -27,6 +47,13 @@ public class DataRepository {
     private final Map<Integer, OBDModuleInformation> obdModules = new HashMap<>();
 
     private VehicleInformation vehicleInformation;
+
+    private DataRepository() {
+    }
+
+    public double getKoeoEngineReferenceTorque() {
+        return koeoEngineReferenceTorque;
+    }
 
     public OBDModuleInformation getObdModule(int sourceAddress) {
         OBDModuleInformation info = obdModules.get(sourceAddress);
@@ -68,15 +95,11 @@ public class DataRepository {
         this.isAfterCodeClear = isAfterCodeClear;
     }
 
-    public void setVehicleInformation(VehicleInformation vehicleInformation) {
-        this.vehicleInformation = vehicleInformation;
-    }
-
-    public double getKoeoEngineReferenceTorque() {
-        return koeoEngineReferenceTorque;
-    }
-
     public void setKoeoEngineReferenceTorque(double koeoEngineReferenceTorque) {
         this.koeoEngineReferenceTorque = koeoEngineReferenceTorque;
+    }
+
+    public void setVehicleInformation(VehicleInformation vehicleInformation) {
+        this.vehicleInformation = vehicleInformation;
     }
 }

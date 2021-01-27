@@ -31,10 +31,8 @@ public class OverallController extends Controller {
 
     private final List<Controller> controllers = new ArrayList<>();
 
-    private final DataRepository dataRepository;
-
     public OverallController() {
-        this(new DataRepository());
+        this(DataRepository.getInstance());
     }
 
     private OverallController(DataRepository dataRepository) {
@@ -65,7 +63,6 @@ public class OverallController extends Controller {
             Part11Controller part11Controller,
             Part12Controller part12Controller) {
         super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
-        this.dataRepository = dataRepository;
         controllers.add(part1Controller);
         controllers.add(part2Controller);
         controllers.add(part3Controller);
@@ -78,10 +75,6 @@ public class OverallController extends Controller {
         controllers.add(part10Controller);
         controllers.add(part11Controller);
         controllers.add(part12Controller);
-    }
-
-    public DataRepository getDataRepository() {
-        return dataRepository;
     }
 
     @Override

@@ -14,13 +14,13 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Either;
@@ -35,6 +35,7 @@ import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
 import org.etools.j1939_84.bus.j1939.packets.HighResVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.TotalVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.RequestResult;
@@ -47,13 +48,15 @@ import org.junit.runner.RunWith;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Unit tests for the {@link VehicleInformationModule} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-        justification = "The values returned are properly ignored on verify statements.")
+                    justification = "The values returned are properly ignored on verify statements.")
 @RunWith(MockitoJUnitRunner.class)
 public class VehicleInformationModuleTest {
 
@@ -73,6 +76,7 @@ public class VehicleInformationModuleTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         instance = new VehicleInformationModule();
         instance.setJ1939(j1939);
+        DataRepository.clearInstance();
     }
 
     @After
@@ -82,7 +86,7 @@ public class VehicleInformationModuleTest {
 
     @Test
     @TestDoc(description = "Verify that engine family from the DM56 is correctly cached.",
-            dependsOn = "DM56EngineFamilyPacketTest")
+             dependsOn = "DM56EngineFamilyPacketTest")
     public void testGetEngineFamilyName() throws Exception {
         DM56EngineFamilyPacket response = mock(DM56EngineFamilyPacket.class);
         when(response.getFamilyName()).thenReturn("family");
@@ -99,7 +103,7 @@ public class VehicleInformationModuleTest {
 
     @Test
     @TestDoc(description = "Verify that engine family from a missing DM56 is correctly not detected.",
-            dependsOn = "DM56EngineFamilyPacketTest")
+             dependsOn = "DM56EngineFamilyPacketTest")
     public void testGetEngineFamilyNameNoResponse() {
         doReturn(RequestResult.empty()).when(j1939).requestGlobalResult(null, ResultsListener.NOOP, false,
                 DM56EngineFamilyPacket.class);
@@ -116,7 +120,7 @@ public class VehicleInformationModuleTest {
 
     @Test
     @TestDoc(description = "Verify that multiple family names that are not equal results in error.",
-            dependsOn = "DM56EngineFamilyPacketTest")
+             dependsOn = "DM56EngineFamilyPacketTest")
     public void testGetEngineFamilyNameWithDifferentResponses() {
         DM56EngineFamilyPacket response1 = mock(DM56EngineFamilyPacket.class);
         when(response1.getFamilyName()).thenReturn("name1");
@@ -137,7 +141,7 @@ public class VehicleInformationModuleTest {
 
     @Test
     @TestDoc(description = "Verify that engine model year from the DM56 is correctly cached.",
-            dependsOn = "DM56EngineFamilyPacketTest")
+             dependsOn = "DM56EngineFamilyPacketTest")
     public void testGetEngineModelYear() throws Exception {
         DM56EngineFamilyPacket response = mock(DM56EngineFamilyPacket.class);
         when(response.getEngineModelYear()).thenReturn(123);
@@ -170,7 +174,7 @@ public class VehicleInformationModuleTest {
 
     @Test
     @TestDoc(description = "Verify that multiple model years that are not equal results in error.",
-            dependsOn = "DM56EngineFamilyPacketTest")
+             dependsOn = "DM56EngineFamilyPacketTest")
     public void testGetEngineModelYearWithDifferentResponses() {
         DM56EngineFamilyPacket response1 = mock(DM56EngineFamilyPacket.class);
         when(response1.getEngineModelYear()).thenReturn(123);
@@ -192,8 +196,8 @@ public class VehicleInformationModuleTest {
 
     @Test
     @TestDoc(@TestItem(verifies = "6.1.5.1.a",
-            description = "Verified that the VIN is requested with a global request.",
-            dependsOn = "VehicleIdentificationPacketTest"))
+                       description = "Verified that the VIN is requested with a global request.",
+                       dependsOn = "VehicleIdentificationPacketTest"))
     public void testGetVin() throws Exception {
         VehicleIdentificationPacket response = mock(VehicleIdentificationPacket.class);
         when(response.getVin()).thenReturn("vin");
@@ -210,8 +214,8 @@ public class VehicleInformationModuleTest {
 
     @Test
     @TestDoc(@TestItem(verifies = "6.1.5.2.a",
-            description = "Verify if a VIN request is not answered, error is thrown.",
-            dependsOn = "VehicleIdentificationPacketTest"))
+                       description = "Verify if a VIN request is not answered, error is thrown.",
+                       dependsOn = "VehicleIdentificationPacketTest"))
     public void testGetVinNoResponse() {
         doReturn(RequestResult.empty()).when(j1939).requestGlobalResult(null, ResultsListener.NOOP, false,
                 VehicleIdentificationPacket.class);
@@ -228,8 +232,8 @@ public class VehicleInformationModuleTest {
 
     @Test
     @TestDoc(@TestItem(verifies = "6.1.5.2.b",
-            description = "Verify if a VIN request generates two different responses, error is thrown.",
-            dependsOn = "VehicleIdentificationPacketTest"))
+                       description = "Verify if a VIN request generates two different responses, error is thrown.",
+                       dependsOn = "VehicleIdentificationPacketTest"))
     public void testGetVinWithDifferentResponses() {
         VehicleIdentificationPacket response1 = mock(VehicleIdentificationPacket.class);
         when(response1.getVin()).thenReturn("vin1");
@@ -288,10 +292,10 @@ public class VehicleInformationModuleTest {
         AddressClaimPacket packet1 = new AddressClaimPacket(Packet.parse("18EEFF55 10 F7 45 01 00 45 00 01"));
         doReturn(new RequestResult<>(false, packet1))
                 .when(j1939).requestResult("Global Request for Address Claim",
-                listener,
-                true,
-                AddressClaimPacket.class,
-                requestPacket);
+                        listener,
+                        true,
+                        AddressClaimPacket.class,
+                        requestPacket);
 
         instance.reportAddressClaim(listener);
         assertEquals("Error: No module reported Function 0" + NL, listener.getResults());
@@ -347,7 +351,7 @@ public class VehicleInformationModuleTest {
                 true,
                 DM19CalibrationInformationPacket.class,
                 requestPacket))
-                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
+                        .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         instance.reportCalibrationInformation(ResultsListener.NOOP);
         verify(j1939).createRequestPacket(pgn, 0xFF);
@@ -437,7 +441,7 @@ public class VehicleInformationModuleTest {
                 true,
                 ComponentIdentificationPacket.class,
                 requestPacket))
-                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
+                        .thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
 
         instance.reportComponentIdentification(ResultsListener.NOOP);
 
@@ -510,8 +514,8 @@ public class VehicleInformationModuleTest {
         DM56EngineFamilyPacket packet3 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x21, bytes));
         doReturn(new RequestResult<>(false, packet1, packet2, packet3))
                 .when(j1939).requestGlobal("Global DM56 Request", ResultsListener.NOOP, true,
-                DM56EngineFamilyPacket.class,
-                requestPacket);
+                        DM56EngineFamilyPacket.class,
+                        requestPacket);
 
         List<DM56EngineFamilyPacket> packets = instance.requestDM56(ResultsListener.NOOP);
         assertEquals(3, packets.size());
@@ -673,8 +677,8 @@ public class VehicleInformationModuleTest {
         VehicleIdentificationPacket packet3 = new VehicleIdentificationPacket(Packet.create(pgn, 0x21, vinBytes));
         doReturn(new RequestResult<>(false, packet1, packet2, packet3))
                 .when(j1939).requestResult("Global VIN Request",
-                ResultsListener.NOOP, true, VehicleIdentificationPacket.class,
-                requestPacket);
+                        ResultsListener.NOOP, true, VehicleIdentificationPacket.class,
+                        requestPacket);
 
         List<VehicleIdentificationPacket> packets = instance.reportVin(ResultsListener.NOOP);
         assertEquals(3, packets.size());
@@ -693,15 +697,12 @@ public class VehicleInformationModuleTest {
     @Test
     public void testReportVinWithNoResponses() throws BusException {
         final int pgn = VehicleIdentificationPacket.PGN;
-
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0xFF);
 
-        doReturn(Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
+        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 
         String expected = "10:15:30.0000 Global VIN Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] EC FE 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] EC FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
@@ -709,7 +710,7 @@ public class VehicleInformationModuleTest {
         assertEquals(0, packets.size());
         assertEquals(expected, listener.getResults());
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(2)).read(anyLong(), any());
+        verify(j1939).read(anyLong(), any());
     }
 
 }

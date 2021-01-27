@@ -23,7 +23,11 @@ import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 public class RequestResult<T extends ParsedPacket> {
 
     public static <S extends ParsedPacket> RequestResult<S> empty() {
-        return new RequestResult<>(true, Collections.emptyList());
+        return empty(true);
+    }
+
+    public static <S extends ParsedPacket> RequestResult<S> empty(boolean retry) {
+        return new RequestResult<>(retry, Collections.emptyList());
     }
 
     private final List<AcknowledgmentPacket> acks;
@@ -55,7 +59,7 @@ public class RequestResult<T extends ParsedPacket> {
     @SafeVarargs
     public RequestResult(boolean retryUsed, T... packets) {
         this.retryUsed = retryUsed;
-        this.packets = Objects.requireNonNull(Arrays.asList(packets));
+        this.packets = Arrays.asList(packets);
         this.acks = Collections.emptyList();
     }
 
@@ -63,7 +67,7 @@ public class RequestResult<T extends ParsedPacket> {
     public <TP extends AcknowledgmentPacket> RequestResult(boolean retryUsed, TP... packets) {
         this.retryUsed = retryUsed;
         this.packets = Collections.emptyList();
-        this.acks = Objects.requireNonNull(Arrays.asList(packets));
+        this.acks = Arrays.asList(packets);
     }
 
     @Override

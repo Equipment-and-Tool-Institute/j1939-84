@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
@@ -79,6 +80,8 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     @Mock
     private J1939 j1939;
 
+    private TestResultsListener listener;
+
     @Mock
     private ResultsListener mockListener;
 
@@ -91,13 +94,11 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    private TestResultsListener listener;
-
     @Before
     public void setUp() throws Exception {
         DateTimeModule.setInstance(null);
 
-        dataRepository = new DataRepository();
+        dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
 
         instance = new Part02Step03Controller(
@@ -115,11 +116,11 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                                 engineSpeedModule,
-                                 bannerModule,
-                                 vehicleInformationModule,
-                                 obdTestsModule,
-                                 mockListener);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                obdTestsModule,
+                mockListener);
     }
 
     @Test
@@ -179,18 +180,20 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
         verify(obdTestsModule).requestDM24(any(), eq(1));
 
         String expected = "";
-        expected += "FAIL: 6.2.3.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4" + NL;
-        expected += "FAIL: 6.2.3.2.a - Message data received from Engine #2 (1) differs from that provided in part 6.1.4" + NL;
+        expected += "FAIL: 6.2.3.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4"
+                + NL;
+        expected += "FAIL: 6.2.3.2.a - Message data received from Engine #2 (1) differs from that provided in part 6.1.4"
+                + NL;
         assertEquals(expected, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.2.3.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4");
+                STEP_NUMBER,
+                FAIL,
+                "6.2.3.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4");
         verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.2.3.2.a - Message data received from Engine #2 (1) differs from that provided in part 6.1.4");
+                STEP_NUMBER,
+                FAIL,
+                "6.2.3.2.a - Message data received from Engine #2 (1) differs from that provided in part 6.1.4");
     }
 
     @Test
@@ -199,15 +202,8 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
         assertEquals("Display Name", "Part 2 Step 3", instance.getDisplayName());
     }
 
-    @Test
-    @TestDoc(description = "Verify that there is only one step in 6.2.3.")
-    public void testGetTotalSteps() {
-        assertEquals("Total Steps", 0, instance.getTotalSteps());
-    }
-
     /**
-     * Test method for
-     * {@link StepController#getStepNumber()}.
+     * Test method for {@link StepController#getStepNumber()}.
      */
     @Test
     public void testGetStepNumber() {
@@ -215,8 +211,14 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    @TestDoc(description = "Verify that there is only one step in 6.2.3.")
+    public void testGetTotalSteps() {
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
+    }
+
+    @Test
     @TestDoc(value = @TestItem(verifies = "6.2.3.2.b"),
-            description = "Verify that step completes without errors when none of the fail criteria are met.")
+             description = "Verify that step completes without errors when none of the fail criteria are met.")
     public void testNoFailures() {
 
         {

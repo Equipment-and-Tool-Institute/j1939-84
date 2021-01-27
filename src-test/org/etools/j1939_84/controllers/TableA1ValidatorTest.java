@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
@@ -36,28 +37,93 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class TableA1ValidatorTest {
 
-    @Mock
-    private TableA1ValueValidator valueValidator;
+    private static PgnDefinition mockPgnDef(int... spns) {
+        PgnDefinition pgnDef = mock(PgnDefinition.class);
+        List<SpnDefinition> spnDefs = new ArrayList<>();
+        for (int spn : spns) {
+            spnDefs.add(mockSpnDef(spn));
+        }
+        when(pgnDef.getSpnDefinitions()).thenReturn(spnDefs);
+        return pgnDef;
+    }
+
+    @SuppressWarnings("SameParameterValue")
+    private static Spn mockSpn(int id, boolean isNotAvailable) {
+        Spn mock = mock(Spn.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.isNotAvailable()).thenReturn(isNotAvailable);
+        return mock;
+    }
+
+    private static Spn mockSpn(int id, Double value) {
+        Spn mock = mock(Spn.class);
+        when(mock.getId()).thenReturn(id);
+        when(mock.getValue()).thenReturn(value);
+        return mock;
+    }
+
+    private static SpnDefinition mockSpnDef(int id) {
+        SpnDefinition mock = mock(SpnDefinition.class);
+        when(mock.getSpnId()).thenReturn(id);
+        return mock;
+    }
+
+    private static SupportedSPN mockSupportedSpn(int id) {
+        SupportedSPN mock = mock(SupportedSPN.class);
+        when(mock.getSpn()).thenReturn(id);
+        return mock;
+    }
 
     private DataRepository dataRepository;
-
-    @Mock
-    private J1939DaRepository j1939DaRepository;
 
     private TableA1Validator instance;
 
     @Mock
+    private J1939DaRepository j1939DaRepository;
+
+    @Mock
     private ResultsListener listener;
 
-    @Before
-    public void setUp() {
-        dataRepository = new DataRepository();
-        instance = new TableA1Validator(valueValidator, dataRepository, j1939DaRepository, new TestDateTimeModule());
-    }
+    @Mock
+    private TableA1ValueValidator valueValidator;
 
-    @After
-    public void tearDown() throws Exception {
-        verifyNoMoreInteractions(valueValidator, j1939DaRepository, listener);
+    @Test
+    public void reportDuplicateSPNs() {
+        List<GenericPacket> packets = new ArrayList<>();
+
+        {
+            GenericPacket packet1 = mock(GenericPacket.class);
+            when(packet1.getSourceAddress()).thenReturn(0);
+            List<Spn> packet1Spns = new ArrayList<>();
+            packet1Spns.add(mockSpn(92, 100.0)); // FAIL
+            packet1Spns.add(mockSpn(512, 100.0)); // No Fail
+            packet1Spns.add(mockSpn(84, 100.0)); // WARN
+            packet1Spns.add(mockSpn(158, 200.0)); // PASS
+            packet1Spns.add(mockSpn(3, 300.0));
+            when(packet1.getSpns()).thenReturn(packet1Spns);
+            packets.add(packet1);
+            packets.add(packet1);
+        }
+
+        {
+            GenericPacket packet2 = mock(GenericPacket.class);
+            when(packet2.getSourceAddress()).thenReturn(21);
+            List<Spn> packet2Spns = new ArrayList<>();
+            packet2Spns.add(mockSpn(92, 100.0));
+            packet2Spns.add(mockSpn(84, 100.0));
+            packet2Spns.add(mockSpn(158, 100.0));
+            packet2Spns.add(mockSpn(4, 400.0));
+            when(packet2.getSpns()).thenReturn(packet2Spns);
+            packets.add(packet2);
+            packets.add(packet2);
+        }
+
+        instance.reportDuplicateSPNs(packets, listener, 1, 26, "6.1.26");
+
+        verify(listener).addOutcome(1, 26, FAIL, "N.5 SPN 92 provided by more than one module");
+        verify(listener).onResult("FAIL: 6.1.26 - N.5 SPN 92 provided by more than one module");
+        verify(listener).addOutcome(1, 26, WARN, "N.5 SPN 84 provided by more than one module");
+        verify(listener).onResult("WARN: 6.1.26 - N.5 SPN 84 provided by more than one module");
     }
 
     @Test
@@ -109,7 +175,7 @@ public class TableA1ValidatorTest {
             when(packet.getSpns()).thenReturn(spns);
 
             packets.add(packet);
-            packets.add(packet); //Proves we only print it once
+            packets.add(packet); // Proves we only print it once
         }
 
         {
@@ -165,11 +231,11 @@ public class TableA1ValidatorTest {
 
         OBDModuleInformation obdModuleInformation = mock(OBDModuleInformation.class);
         List<SupportedSPN> supportedSpns = new ArrayList<>();
-        supportedSpns.add(mockSupportedSpn(544));//FAIL
-        supportedSpns.add(mockSupportedSpn(190));//WARN
-        supportedSpns.add(mockSupportedSpn(158));//PASS
-        supportedSpns.add(mockSupportedSpn(96));//INFO
-        supportedSpns.add(mockSupportedSpn(92));//Provided
+        supportedSpns.add(mockSupportedSpn(544));// FAIL
+        supportedSpns.add(mockSupportedSpn(190));// WARN
+        supportedSpns.add(mockSupportedSpn(158));// PASS
+        supportedSpns.add(mockSupportedSpn(96));// INFO
+        supportedSpns.add(mockSupportedSpn(92));// Provided
         when(obdModuleInformation.getDataStreamSpns()).thenReturn(supportedSpns);
 
         dataRepository.putObdModule(obdModuleInformation);
@@ -221,79 +287,14 @@ public class TableA1ValidatorTest {
         verify(listener).onResult("INFO: 6.1.26 - N.6 SPN 96 provided by non-OBD Module Turbocharger (2)");
     }
 
-    @Test
-    public void reportDuplicateSPNs() {
-        List<GenericPacket> packets = new ArrayList<>();
-
-        {
-            GenericPacket packet1 = mock(GenericPacket.class);
-            when(packet1.getSourceAddress()).thenReturn(0);
-            List<Spn> packet1Spns = new ArrayList<>();
-            packet1Spns.add(mockSpn(92, 100.0)); //FAIL
-            packet1Spns.add(mockSpn(512, 100.0)); //No Fail
-            packet1Spns.add(mockSpn(84, 100.0)); //WARN
-            packet1Spns.add(mockSpn(158, 200.0)); //PASS
-            packet1Spns.add(mockSpn(3, 300.0));
-            when(packet1.getSpns()).thenReturn(packet1Spns);
-            packets.add(packet1);
-            packets.add(packet1);
-        }
-
-        {
-            GenericPacket packet2 = mock(GenericPacket.class);
-            when(packet2.getSourceAddress()).thenReturn(21);
-            List<Spn> packet2Spns = new ArrayList<>();
-            packet2Spns.add(mockSpn(92, 100.0));
-            packet2Spns.add(mockSpn(84, 100.0));
-            packet2Spns.add(mockSpn(158, 100.0));
-            packet2Spns.add(mockSpn(4, 400.0));
-            when(packet2.getSpns()).thenReturn(packet2Spns);
-            packets.add(packet2);
-            packets.add(packet2);
-        }
-
-        instance.reportDuplicateSPNs(packets, listener, 1, 26, "6.1.26");
-
-        verify(listener).addOutcome(1, 26, FAIL, "N.5 SPN 92 provided by more than one module");
-        verify(listener).onResult("FAIL: 6.1.26 - N.5 SPN 92 provided by more than one module");
-        verify(listener).addOutcome(1, 26, WARN, "N.5 SPN 84 provided by more than one module");
-        verify(listener).onResult("WARN: 6.1.26 - N.5 SPN 84 provided by more than one module");
+    @Before
+    public void setUp() {
+        dataRepository = DataRepository.newInstance();
+        instance = new TableA1Validator(valueValidator, dataRepository, j1939DaRepository, new TestDateTimeModule());
     }
 
-    private static SupportedSPN mockSupportedSpn(int id) {
-        SupportedSPN mock = mock(SupportedSPN.class);
-        when(mock.getSpn()).thenReturn(id);
-        return mock;
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private static Spn mockSpn(int id, boolean isNotAvailable) {
-        Spn mock = mock(Spn.class);
-        when(mock.getId()).thenReturn(id);
-        when(mock.isNotAvailable()).thenReturn(isNotAvailable);
-        return mock;
-    }
-
-    private static Spn mockSpn(int id, Double value) {
-        Spn mock = mock(Spn.class);
-        when(mock.getId()).thenReturn(id);
-        when(mock.getValue()).thenReturn(value);
-        return mock;
-    }
-
-    private static PgnDefinition mockPgnDef(int... spns) {
-        PgnDefinition pgnDef = mock(PgnDefinition.class);
-        List<SpnDefinition> spnDefs = new ArrayList<>();
-        for (int spn : spns) {
-            spnDefs.add(mockSpnDef(spn));
-        }
-        when(pgnDef.getSpnDefinitions()).thenReturn(spnDefs);
-        return pgnDef;
-    }
-
-    private static SpnDefinition mockSpnDef(int id) {
-        SpnDefinition mock = mock(SpnDefinition.class);
-        when(mock.getSpnId()).thenReturn(id);
-        return mock;
+    @After
+    public void tearDown() throws Exception {
+        verifyNoMoreInteractions(valueValidator, j1939DaRepository, listener);
     }
 }

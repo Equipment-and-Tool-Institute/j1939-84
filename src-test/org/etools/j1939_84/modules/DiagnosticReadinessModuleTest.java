@@ -20,17 +20,16 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.ConcurrentSkipListSet;
 import java.util.stream.Stream;
+
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -42,6 +41,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.junit.Before;
@@ -50,17 +50,23 @@ import org.junit.runner.RunWith;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Unit tests for the {@link DiagnosticReadinessModule}
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-        justification = "The values returned are properly ignored on verify statements.")
+                    justification = "The values returned are properly ignored on verify statements.")
 @RunWith(MockitoJUnitRunner.class)
 public class DiagnosticReadinessModuleTest {
 
     private static final int BUS_ADDR = 0xA5;
+
+    private static MonitoredSystemStatus getStatus(boolean enabled, boolean complete) {
+        return findStatus(true, enabled, complete);
+    }
 
     private DiagnosticReadinessModule instance;
 
@@ -75,6 +81,7 @@ public class DiagnosticReadinessModuleTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         instance = new DiagnosticReadinessModule();
         instance.setJ1939(j1939);
+        DataRepository.clearInstance();
     }
 
     @Test
@@ -84,22 +91,25 @@ public class DiagnosticReadinessModuleTest {
         monitoredSystems.add(new MonitoredSystem("System123", getStatus(true, true), 2, AC_SYSTEM_REFRIGERANT, true));
         monitoredSystems.add(new MonitoredSystem("System123", getStatus(true, true), 3, AC_SYSTEM_REFRIGERANT, true));
         monitoredSystems.add(new MonitoredSystem("System456",
-                                                 getStatus(true, true),
-                                                 1,
-                                                 BOOST_PRESSURE_CONTROL_SYS,
-                                                 true));
+                getStatus(true, true),
+                1,
+                BOOST_PRESSURE_CONTROL_SYS,
+                true));
         monitoredSystems.add(new MonitoredSystem("System456",
-                                                 getStatus(true, false), 2, BOOST_PRESSURE_CONTROL_SYS, true));
+                getStatus(true, false), 2, BOOST_PRESSURE_CONTROL_SYS, true));
         monitoredSystems.add(new MonitoredSystem("System456",
-                                                 getStatus(false, false), 3, BOOST_PRESSURE_CONTROL_SYS, true));
+                getStatus(false, false), 3, BOOST_PRESSURE_CONTROL_SYS, true));
         monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 1, CATALYST, true));
         monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 2, CATALYST, true));
         monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 3, CATALYST, true));
 
         List<CompositeMonitoredSystem> expected = new ArrayList<>();
-        expected.add(new CompositeMonitoredSystem(new MonitoredSystem("System123", getStatus(true, true), -1, AC_SYSTEM_REFRIGERANT, true),true));
-        expected.add(new CompositeMonitoredSystem(new MonitoredSystem("System456", getStatus(true, false), -1, BOOST_PRESSURE_CONTROL_SYS, true), true));
-        expected.add(new CompositeMonitoredSystem(new MonitoredSystem("System789", getStatus(false, false), -1, CATALYST, true), true));
+        expected.add(new CompositeMonitoredSystem(
+                new MonitoredSystem("System123", getStatus(true, true), -1, AC_SYSTEM_REFRIGERANT, true), true));
+        expected.add(new CompositeMonitoredSystem(
+                new MonitoredSystem("System456", getStatus(true, false), -1, BOOST_PRESSURE_CONTROL_SYS, true), true));
+        expected.add(new CompositeMonitoredSystem(
+                new MonitoredSystem("System789", getStatus(false, false), -1, CATALYST, true), true));
 
         List<CompositeMonitoredSystem> actual = getCompositeSystems(monitoredSystems, true);
         assertEquals(expected, actual);
@@ -120,7 +130,7 @@ public class DiagnosticReadinessModuleTest {
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
 
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
@@ -149,13 +159,11 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM20 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
         instance.getDM20Packets(listener, true);
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939, times(2)).read(anyLong(), any());
+        verify(j1939).read(anyLong(), any());
     }
 
     @Test
@@ -172,7 +180,7 @@ public class DiagnosticReadinessModuleTest {
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
@@ -217,7 +225,7 @@ public class DiagnosticReadinessModuleTest {
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
@@ -335,7 +343,7 @@ public class DiagnosticReadinessModuleTest {
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
@@ -362,13 +370,11 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM26 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
         instance.getDM26Packets(listener, true);
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939, times(2)).read(anyLong(), any());
+        verify(j1939).read(anyLong(), any());
     }
 
     @Test
@@ -385,7 +391,7 @@ public class DiagnosticReadinessModuleTest {
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
@@ -418,7 +424,7 @@ public class DiagnosticReadinessModuleTest {
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
@@ -451,7 +457,7 @@ public class DiagnosticReadinessModuleTest {
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         List<DM26TripDiagnosticReadinessPacket> packets = instance.getDM26Packets(ResultsListener.NOOP, false);
         assertEquals(3, packets.size());
@@ -474,7 +480,7 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -510,7 +516,7 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -539,13 +545,11 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM5 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
         instance.getDM5Packets(listener, true);
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939, times(2)).read(anyLong(), any());
+        verify(j1939).read(anyLong(), any());
     }
 
     @Test
@@ -562,7 +566,7 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -676,8 +680,8 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 19, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet11.getPacket(),
-                           packet2.getPacket(), packet22.getPacket(),
-                           packet3.getPacket())).when(j1939).read(anyLong(), any());
+                packet2.getPacket(), packet22.getPacket(),
+                packet3.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -740,10 +744,10 @@ public class DiagnosticReadinessModuleTest {
         MonitoredSystem system01 = new MonitoredSystem("system1", getStatus(true, true), 0, EGR_VVT_SYSTEM, true);
         MonitoredSystem system02 = new MonitoredSystem("system2", getStatus(false, false), 0, EXHAUST_GAS_SENSOR, true);
         MonitoredSystem system03 = new MonitoredSystem("system3",
-                                                       getStatus(false, false),
-                                                       0,
-                                                       EXHAUST_GAS_SENSOR_HEATER,
-                                                       true);
+                getStatus(false, false),
+                0,
+                EXHAUST_GAS_SENSOR_HEATER,
+                true);
         Set<MonitoredSystem> systems0 = new HashSet<>();
         systems0.add(system01);
         systems0.add(system02);
@@ -752,10 +756,10 @@ public class DiagnosticReadinessModuleTest {
         MonitoredSystem system11 = new MonitoredSystem("system1", getStatus(false, false), 1, EGR_VVT_SYSTEM, true);
         MonitoredSystem system12 = new MonitoredSystem("system2", getStatus(true, true), 1, EXHAUST_GAS_SENSOR, true);
         MonitoredSystem system13 = new MonitoredSystem("system3",
-                                                       getStatus(true, false),
-                                                       1,
-                                                       EXHAUST_GAS_SENSOR_HEATER,
-                                                       true);
+                getStatus(true, false),
+                1,
+                EXHAUST_GAS_SENSOR_HEATER,
+                true);
         Set<MonitoredSystem> systems1 = new HashSet<>();
         systems1.add(system11);
         systems1.add(system12);
@@ -791,7 +795,7 @@ public class DiagnosticReadinessModuleTest {
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
@@ -834,13 +838,11 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM20 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] 00 C2 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
         assertFalse(instance.reportDM20(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939, times(2)).read(anyLong(), any());
+        verify(j1939).read(anyLong(), any());
     }
 
     @Test
@@ -857,7 +859,7 @@ public class DiagnosticReadinessModuleTest {
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
@@ -906,13 +908,11 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM26 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] B8 FD 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
         assertFalse(instance.reportDM26(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(2)).read(anyLong(), any());
+        verify(j1939).read(anyLong(), any());
     }
 
     @Test
@@ -929,7 +929,7 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -981,13 +981,11 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM5 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
         assertFalse(instance.reportDM5(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(2)).read(anyLong(), any());
+        verify(j1939).read(anyLong(), any());
     }
 
     @Test
@@ -997,10 +995,10 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet2 = new DM5DiagnosticReadinessPacket(
                 Packet.create(0, 0, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
         instance.reportMonitoredSystems(listener,
-                                        packet1.getMonitoredSystems(),
-                                        packet2.getMonitoredSystems(),
-                                        "2017-02-25T14:56:50.053",
-                                        "2017-02-25T14:56:52.513");
+                packet1.getMonitoredSystems(),
+                packet2.getMonitoredSystems(),
+                "2017-02-25T14:56:50.053",
+                "2017-02-25T14:56:52.513");
 
         String expected = "";
         expected += "10:15:30.0000 Vehicle Composite Results of DM5:" + NL;
@@ -1049,14 +1047,14 @@ public class DiagnosticReadinessModuleTest {
         DM20MonitorPerformanceRatioPacket packet2 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(0xC200, 0x00, data2));
         instance.reportPerformanceRatios(listener,
-                                         packet1.getRatios(),
-                                         packet2.getRatios(),
-                                         1,
-                                         1,
-                                         3,
-                                         4,
-                                         "2017-02-25T14:56:50.053",
-                                         "2017-02-25T14:56:52.513");
+                packet1.getRatios(),
+                packet2.getRatios(),
+                1,
+                1,
+                3,
+                4,
+                "2017-02-25T14:56:50.053",
+                "2017-02-25T14:56:52.513");
         String expected = "";
         expected += "10:15:30.0000 Vehicle Composite Results of DM20:" + NL;
         expected += "+-----+----------------------------------+-----------------+-----------------+" + NL;
@@ -1103,14 +1101,14 @@ public class DiagnosticReadinessModuleTest {
                 0xBC, 0x14, 0xF8, 0x06, 0x00, 0x06, 0x00 };
         DM20MonitorPerformanceRatioPacket packet2 = new DM20MonitorPerformanceRatioPacket(Packet.create(0, 0, data2));
         instance.reportPerformanceRatios(listener,
-                                         packet1.getRatios(),
-                                         packet2.getRatios(),
-                                         1,
-                                         1,
-                                         3,
-                                         4,
-                                         "2017-02-25T14:56:50.053",
-                                         "2017-02-25T14:56:52.513");
+                packet1.getRatios(),
+                packet2.getRatios(),
+                1,
+                1,
+                3,
+                4,
+                "2017-02-25T14:56:50.053",
+                "2017-02-25T14:56:52.513");
 
         String expected = "";
         expected += "10:15:30.0000 Vehicle Composite Results of DM20:" + NL;
@@ -1150,14 +1148,14 @@ public class DiagnosticReadinessModuleTest {
                 0xB8, 0x12, 0xF8, 0x03, 0x00, 0x04, 0x00 };
         DM20MonitorPerformanceRatioPacket packet2 = new DM20MonitorPerformanceRatioPacket(Packet.create(0, 0, data2));
         instance.reportPerformanceRatios(listener,
-                                         packet1.getRatios(),
-                                         packet2.getRatios(),
-                                         1,
-                                         1,
-                                         3,
-                                         4,
-                                         "2017-02-25T14:56:50.053",
-                                         "2017-02-25T14:56:52.513");
+                packet1.getRatios(),
+                packet2.getRatios(),
+                1,
+                1,
+                3,
+                4,
+                "2017-02-25T14:56:50.053",
+                "2017-02-25T14:56:52.513");
 
         String expected = "";
         expected += "10:15:30.0000 Vehicle Composite Results of DM20:" + NL;
@@ -1193,7 +1191,7 @@ public class DiagnosticReadinessModuleTest {
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
@@ -1223,13 +1221,11 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM21 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] 00 C1 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
         instance.requestDM21Packets(listener, true);
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(2)).read(anyLong(), any());
+        verify(j1939).read(anyLong(), any());
     }
 
     @Test
@@ -1246,7 +1242,7 @@ public class DiagnosticReadinessModuleTest {
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
@@ -1294,7 +1290,7 @@ public class DiagnosticReadinessModuleTest {
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
@@ -1342,7 +1338,7 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
@@ -1394,16 +1390,10 @@ public class DiagnosticReadinessModuleTest {
         expected += "10:15:30.0000 Global DM5 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
         instance.requestDM5Packets(listener, true);
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0xFF);
-        verify(j1939, times(2)).read(anyLong(), any());
-    }
-
-    private static MonitoredSystemStatus getStatus(boolean enabled, boolean complete) {
-        return findStatus(true, enabled, complete);
+        verify(j1939).read(anyLong(), any());
     }
 }

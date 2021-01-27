@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
@@ -88,17 +89,17 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
 
     @Before
     public void setUp() {
-        dataRepository = new DataRepository();
+        dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
         instance = new Part01Step16Controller(executor,
-                                              engineSpeedModule,
-                                              bannerModule,
-                                              vehicleInformationModule,
-                                              dtcModule,
-                                              dataRepository,
-                                              DateTimeModule.getInstance());
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                dtcModule,
+                dataRepository,
+                DateTimeModule.getInstance());
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
 
@@ -107,11 +108,11 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
-                                 engineSpeedModule,
-                                 bannerModule,
-                                 vehicleInformationModule,
-                                 mockListener,
-                                 dtcModule);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                mockListener,
+                dtcModule);
     }
 
     @Test
@@ -138,14 +139,14 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM2(any(), eq(true), eq(0));
 
         verify(mockListener).addOutcome(1,
-                                        16,
-                                        FAIL,
-                                        "6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC");
+                16,
+                FAIL,
+                "6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("FAIL: 6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC" + NL,
-                     listener.getResults());
+                listener.getResults());
     }
 
     @Test
@@ -178,9 +179,9 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM2(any(), eq(true), eq(0));
 
         verify(mockListener).addOutcome(1,
-                                        16,
-                                        FAIL,
-                                        "6.1.16.2.b - OBD ECU Engine #1 (0) did not report MIL off");
+                16,
+                FAIL,
+                "6.1.16.2.b - OBD ECU Engine #1 (0) did not report MIL off");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -196,8 +197,8 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false,
-                                                                                   List.of(packet1),
-                                                                                   List.of(packet3)));
+                List.of(packet1),
+                List.of(packet3)));
 
         runTest();
 
@@ -233,13 +234,13 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM2(any(), eq(true), eq(0));
 
         verify(mockListener).addOutcome(1,
-                                        16,
-                                        FAIL,
-                                        "6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC");
+                16,
+                FAIL,
+                "6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC");
         verify(mockListener).addOutcome(1,
-                                        16,
-                                        FAIL,
-                                        "6.1.16.2.b - OBD ECU Engine #1 (0) did not report MIL off");
+                16,
+                FAIL,
+                "6.1.16.2.b - OBD ECU Engine #1 (0) did not report MIL off");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -264,9 +265,9 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM2(any(), eq(true));
 
         verify(mockListener).addOutcome(1,
-                                        16,
-                                        FAIL,
-                                        "6.1.16.2.c - Non-OBD ECU Engine #1 (0) did not report MIL off or not supported");
+                16,
+                FAIL,
+                "6.1.16.2.c - Non-OBD ECU Engine #1 (0) did not report MIL off or not supported");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -284,7 +285,8 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
 
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(requestResult(packet1));
 
-        // Set up the destination specific packets we will be returning when requested
+        // Set up the destination specific packets we will be returning when
+        // requested
         DM2PreviouslyActiveDTC packet2 = new DM2PreviouslyActiveDTC(
                 Packet.create(PGN, 0, new byte[] { 0x00, (byte) 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
 
@@ -297,7 +299,8 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(dtcModule.requestDM2(any(), eq(true), eq(3)))
                 .thenReturn(new BusResult<>(false, packet4));
 
-        // Return the modules address so that we can do the destination specific calls
+        // Return the modules address so that we can do the destination specific
+        // calls
         dataRepository.putObdModule(new OBDModuleInformation(0));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
@@ -309,14 +312,15 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM2(any(), eq(true), eq(3));
 
         verify(mockListener).addOutcome(1,
-                                        16,
-                                        FAIL,
-                                        "6.1.16.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
+                16,
+                FAIL,
+                "6.1.16.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.16.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query" + NL,
+                "FAIL: 6.1.16.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query"
+                        + NL,
                 listener.getResults());
     }
 
@@ -337,7 +341,8 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         // global response
         when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, packet1, packet3));
 
-        // Set up the destination specific packets we will be returning when requested
+        // Set up the destination specific packets we will be returning when
+        // requested
         DM2PreviouslyActiveDTC packet2 = mock(DM2PreviouslyActiveDTC.class);
         when(packet2.getSourceAddress()).thenReturn(0);
         Packet packet2Packet = mock(Packet.class);
@@ -352,7 +357,8 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(dtcModule.requestDM2(any(), eq(true), eq(3)))
                 .thenReturn(new BusResult<>(false, packet4));
 
-        // Return the modules address so that we can do the destination specific calls
+        // Return the modules address so that we can do the destination specific
+        // calls
         dataRepository.putObdModule(new OBDModuleInformation(0));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
@@ -364,14 +370,14 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(dtcModule).requestDM2(any(), eq(true), eq(3));
 
         verify(mockListener).addOutcome(1,
-                                        16,
-                                        FAIL,
-                                        "6.1.16.4.a - Difference compared to data received during global request");
+                16,
+                FAIL,
+                "6.1.16.4.a - Difference compared to data received during global request");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("FAIL: 6.1.16.4.a - Difference compared to data received during global request" + NL,
-                     listener.getResults());
+                listener.getResults());
     }
 
     @Test
@@ -382,7 +388,8 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(dtcModule.requestDM2(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
 
-        // Set up the destination specific packets we will be returning when requested
+        // Set up the destination specific packets we will be returning when
+        // requested
         DM2PreviouslyActiveDTC packet2 = new DM2PreviouslyActiveDTC(
                 Packet.create(PGN, 0, new byte[] { 0x00, (byte) 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
         when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new BusResult<>(false, packet2));

@@ -38,11 +38,17 @@ public class J1939DaRepository {
 
     }
 
+    final private static J1939DaRepository instance = new J1939DaRepository();
+
     private static Map<Integer, PgnDefinition> pgnLut;
 
     private static Map<Integer, SpnDefinition> spnLut;
 
     private static Map<Integer, Set<Integer>> spnToPgnMap = null;
+
+    public static J1939DaRepository getInstance() {
+        return instance;
+    }
 
     static private void loadLookUpTables() {
         if (pgnLut == null) {

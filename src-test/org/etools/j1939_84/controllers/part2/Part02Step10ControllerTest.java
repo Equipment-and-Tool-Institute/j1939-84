@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
@@ -81,16 +82,16 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
     @Before
     public void setUp() {
         listener = new TestResultsListener(mockListener);
-        dataRepository = new DataRepository();
+        dataRepository = DataRepository.newInstance();
         DateTimeModule.setInstance(null);
 
         instance = new Part02Step10Controller(executor,
-                                              engineSpeedModule,
-                                              bannerModule,
-                                              dataRepository,
-                                              vehicleInformationModule,
-                                              obdTestsModule,
-                                              DateTimeModule.getInstance());
+                engineSpeedModule,
+                bannerModule,
+                dataRepository,
+                vehicleInformationModule,
+                obdTestsModule,
+                DateTimeModule.getInstance());
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -98,10 +99,79 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
-                                 engineSpeedModule,
-                                 bannerModule,
-                                 vehicleInformationModule,
-                                 mockListener);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                mockListener);
+    }
+
+    @Test
+    public void testFailureForMissingTestResult() {
+
+        OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
+
+        ScaledTestResult testResult1 = ScaledTestResult.create(247, 5319, 2, 287, 12288, 20480, 4096);
+        ScaledTestResult testResult2 = ScaledTestResult.create(247, 5319, 3, 287, 12288, 20480, 4096);
+        obdModule0.setScaledTestResults(List.of(testResult1, testResult2));
+
+        SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
+        obdModule0.setSupportedSpns(List.of(spn1));
+
+        dataRepository.putObdModule(obdModule0);
+
+        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(spn1)))
+                .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult1)));
+
+        runTest();
+
+        verify(obdTestsModule).setJ1939(j1939);
+
+        verify(mockListener).addOutcome(PART,
+                STEP,
+                FAIL,
+                "6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals(
+                "FAIL: 6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12"
+                        + NL,
+                listener.getResults());
+    }
+
+    @Test
+    public void testFailureForNewTestResult() {
+
+        OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
+
+        ScaledTestResult testResult1 = ScaledTestResult.create(247, 5319, 2, 287, 12288, 20480, 4096);
+        ScaledTestResult testResult2 = ScaledTestResult.create(247, 5319, 3, 287, 0, 0, 0);
+        obdModule0.setScaledTestResults(List.of(testResult1));
+
+        SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
+        obdModule0.setSupportedSpns(List.of(spn1));
+
+        dataRepository.putObdModule(obdModule0);
+
+        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(spn1)))
+                .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult1),
+                        DM30ScaledTestResultsPacket.create(0, testResult2)));
+
+        runTest();
+
+        verify(obdTestsModule).setJ1939(j1939);
+
+        verify(mockListener).addOutcome(PART,
+                STEP,
+                FAIL,
+                "6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals(
+                "FAIL: 6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12"
+                        + NL,
+                listener.getResults());
     }
 
     @Test
@@ -117,18 +187,6 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
     @Test
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 0, instance.getTotalSteps());
-    }
-
-    @Test
-    public void testNoOBDModules() {
-
-        runTest();
-
-        verify(obdTestsModule).setJ1939(j1939);
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -164,70 +222,15 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testFailureForNewTestResult() {
-
-        OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
-
-        ScaledTestResult testResult1 = ScaledTestResult.create(247, 5319, 2, 287, 12288, 20480, 4096);
-        ScaledTestResult testResult2 = ScaledTestResult.create(247, 5319, 3, 287, 0, 0, 0);
-        obdModule0.setScaledTestResults(List.of(testResult1));
-
-        SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
-        obdModule0.setSupportedSpns(List.of(spn1));
-
-        dataRepository.putObdModule(obdModule0);
-
-        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(spn1)))
-                .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult1),
-                                    DM30ScaledTestResultsPacket.create(0, testResult2)));
+    public void testNoOBDModules() {
 
         runTest();
 
         verify(obdTestsModule).setJ1939(j1939);
 
-        verify(mockListener).addOutcome(PART,
-                                        STEP,
-                                        FAIL,
-                                        "6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12");
-
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                "FAIL: 6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12" + NL,
-                listener.getResults());
-    }
-
-    @Test
-    public void testFailureForMissingTestResult() {
-
-        OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
-
-        ScaledTestResult testResult1 = ScaledTestResult.create(247, 5319, 2, 287, 12288, 20480, 4096);
-        ScaledTestResult testResult2 = ScaledTestResult.create(247, 5319, 3, 287, 12288, 20480, 4096);
-        obdModule0.setScaledTestResults(List.of(testResult1, testResult2));
-
-        SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
-        obdModule0.setSupportedSpns(List.of(spn1));
-
-        dataRepository.putObdModule(obdModule0);
-
-        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(spn1)))
-                .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult1)));
-
-        runTest();
-
-        verify(obdTestsModule).setJ1939(j1939);
-
-        verify(mockListener).addOutcome(PART,
-                                        STEP,
-                                        FAIL,
-                                        "6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12");
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals(
-                "FAIL: 6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12" + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -255,14 +258,14 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         verify(obdTestsModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(PART,
-                                        STEP,
-                                        WARN,
-                                        "6.2.10.3.a - All test results from Engine #1 (0) are still initialized");
+                STEP,
+                WARN,
+                "6.2.10.3.a - All test results from Engine #1 (0) are still initialized");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("WARN: 6.2.10.3.a - All test results from Engine #1 (0) are still initialized" + NL,
-                     listener.getResults());
+                listener.getResults());
     }
 
 }

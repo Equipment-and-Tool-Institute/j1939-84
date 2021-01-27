@@ -57,7 +57,6 @@ import org.etools.j1939_84.bus.j1939.packets.TotalVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.FunctionalModule;
@@ -131,6 +130,19 @@ public class J1939 {
         }
     }
 
+    static public void main(String... a) {
+        System.err.println("my string".matches(".*[^\\p{Print}].*")); // false
+                                                                      // because
+                                                                      // there
+                                                                      // are no
+                                                                      // non-printable
+        System.err.println("my\07string".matches(".*[^\\p{Print}].*")); // true
+                                                                        // because
+                                                                        // there
+                                                                        // is a
+                                                                        // non-printable
+    }
+
     /**
      * filter by pgn
      */
@@ -150,17 +162,11 @@ public class J1939 {
      */
     private final Bus bus;
 
-    private final DataRepository dataRepository;
-
-    private final J1939DaRepository j1939DaRepository;
-
     /**
      * For Mockito
      */
     public J1939() {
-        this(new EchoBus(0xA5), new DataRepository());
-        // assume SA 0 for tests
-        dataRepository.putObdModule(new OBDModuleInformation(0));
+        this(new EchoBus(0xA5));
     }
 
     /**
@@ -170,17 +176,7 @@ public class J1939 {
      *            the {@link Bus} used to communicate with the vehicle
      */
     public J1939(Bus bus) {
-        this(bus, new DataRepository());
-    }
-
-    public J1939(Bus bus, DataRepository dataRepository) {
-        this(bus, new J1939DaRepository(), dataRepository);
-    }
-
-    public J1939(Bus bus, J1939DaRepository j1939DaRepository, DataRepository dataRepository) {
         this.bus = bus;
-        this.j1939DaRepository = j1939DaRepository;
-        this.dataRepository = dataRepository;
     }
 
     /**
@@ -373,7 +369,7 @@ public class J1939 {
             return new VehicleIdentificationPacket(packet);
 
         default:
-            return new GenericPacket(packet, j1939DaRepository.findPgnDefinition(pgn));
+            return new GenericPacket(packet, J1939DaRepository.getInstance().findPgnDefinition(pgn));
         }
     }
 
@@ -622,7 +618,8 @@ public class J1939 {
             listener.onResult(getDateTimeModule().getTime() + " " + title);
         }
 
-        Collection<Integer> obdAddressess = Collections.unmodifiableCollection(dataRepository.getObdModuleAddresses());
+        Collection<Integer> obdAddressess = Collections
+                .unmodifiableCollection(DataRepository.getInstance().getObdModuleAddresses());
 
         List<Either<T, AcknowledgmentPacket>> rl = requestGlobalOnce(pgn, requestPacket, listener,
                 fullString);
@@ -630,7 +627,9 @@ public class J1939 {
         Map<Integer, Either<T, AcknowledgmentPacket>> results = rl
                 .stream()
                 .filter(r -> (boolean) r.resolve(p -> true, p -> p.getResponse() != Response.BUSY))
-                .collect(Collectors.toMap(e -> ((ParsedPacket) e.resolve()).getSourceAddress(), e -> e));
+                // if there are multiple responses from the same address, use
+                // first
+                .collect(Collectors.toMap(e -> ((ParsedPacket) e.resolve()).getSourceAddress(), e -> e, (a, b) -> a));
 
         if (!results.keySet().containsAll(obdAddressess)) {
             // then not all OBD modules were heard, so re-request from global

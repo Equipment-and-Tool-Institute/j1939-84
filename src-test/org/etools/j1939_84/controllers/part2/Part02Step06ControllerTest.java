@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -39,7 +40,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 @TestDoc(value = @TestItem(verifies = "Part 2 Step 6",
-        description = "DM56: Model year and certification engine family"))
+                           description = "DM56: Model year and certification engine family"))
 public class Part02Step06ControllerTest extends AbstractControllerTest {
 
     private static DM56EngineFamilyPacket createDM56(String modelYear, String familyName) {
@@ -76,7 +77,7 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
     @Before
     public void setUp() throws Exception {
 
-        DataRepository dataRepository = new DataRepository();
+        DataRepository dataRepository = DataRepository.newInstance();
 
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         obdModuleInformation0.setEngineFamilyName("Engine Family");
@@ -105,31 +106,73 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                                 engineSpeedModule,
-                                 bannerModule,
-                                 vehicleInformationModule,
-                                 mockListener);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                mockListener);
     }
 
     @Test
-    public void testNoPackets() {
+    @TestDoc(value = @TestItem(verifies = "6.2.6.2.a",
+                               description = "Engine Family is different from part 1"))
+    public void testCompareEngineFamily() {
 
-        when(vehicleInformationModule.requestDM56(any(), eq(0))).thenReturn(List.of());
-        when(vehicleInformationModule.requestDM56(any(), eq(1))).thenReturn(List.of());
+        DM56EngineFamilyPacket packet0 = createDM56("Model Year", "Engine Family");
+        when(vehicleInformationModule.requestDM56(any(), eq(0))).thenReturn(List.of(packet0));
+
+        DM56EngineFamilyPacket packet1 = createDM56("Model Year Other", "Engine Family Different");
+        when(vehicleInformationModule.requestDM56(any(), eq(1))).thenReturn(List.of(packet1));
 
         runTest();
 
         verify(vehicleInformationModule).requestDM56(any(), eq(0));
         verify(vehicleInformationModule).requestDM56(any(), eq(1));
 
+        verify(mockListener).addOutcome(2,
+                6,
+                FAIL,
+                "6.2.6.2.a - Engine #2 (1) reported different Engine Family Name when compared to data received in part 1");
+
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(NL+NL, listener.getResults());
+        assertEquals(NL + NL +
+                "FAIL: 6.2.6.2.a - Engine #2 (1) reported different Engine Family Name when compared to data received in part 1"
+                + NL,
+                listener.getResults());
     }
 
     @Test
     @TestDoc(value = @TestItem(verifies = "6.2.6.2.a",
-            description = "Model year and Engine Family are same as part 1"))
+                               description = "Model year is different from part 1"))
+    public void testCompareModelYear() {
+
+        DM56EngineFamilyPacket packet0 = createDM56("Model Year Different", "Engine Family");
+        when(vehicleInformationModule.requestDM56(any(), eq(0))).thenReturn(List.of(packet0));
+
+        DM56EngineFamilyPacket packet1 = createDM56("Model Year Other", "Engine Family Other");
+        when(vehicleInformationModule.requestDM56(any(), eq(1))).thenReturn(List.of(packet1));
+
+        runTest();
+
+        verify(vehicleInformationModule).requestDM56(any(), eq(0));
+        verify(vehicleInformationModule).requestDM56(any(), eq(1));
+
+        verify(mockListener).addOutcome(2,
+                6,
+                FAIL,
+                "6.2.6.2.a - Engine #1 (0) reported different Model Year when compared to data received in part 1");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals(
+                NL + "FAIL: 6.2.6.2.a - Engine #1 (0) reported different Model Year when compared to data received in part 1"
+                        + NL + NL,
+                listener.getResults());
+    }
+
+    @Test
+    @TestDoc(value = @TestItem(verifies = "6.2.6.2.a",
+                               description = "Model year and Engine Family are same as part 1"))
     public void testNoFailures() {
 
         DM56EngineFamilyPacket packet0 = createDM56("Model Year", "Engine Family");
@@ -145,63 +188,23 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(NL+NL, listener.getResults());
+        assertEquals(NL + NL, listener.getResults());
     }
 
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.2.6.2.a",
-            description = "Model year is different from part 1"))
-    public void testCompareModelYear() {
+    public void testNoPackets() {
 
-        DM56EngineFamilyPacket packet0 = createDM56("Model Year Different", "Engine Family");
-        when(vehicleInformationModule.requestDM56(any(), eq(0))).thenReturn(List.of(packet0));
-
-        DM56EngineFamilyPacket packet1 = createDM56("Model Year Other", "Engine Family Other");
-        when(vehicleInformationModule.requestDM56(any(), eq(1))).thenReturn(List.of(packet1));
+        when(vehicleInformationModule.requestDM56(any(), eq(0))).thenReturn(List.of());
+        when(vehicleInformationModule.requestDM56(any(), eq(1))).thenReturn(List.of());
 
         runTest();
 
         verify(vehicleInformationModule).requestDM56(any(), eq(0));
         verify(vehicleInformationModule).requestDM56(any(), eq(1));
 
-        verify(mockListener).addOutcome(2,
-                                        6,
-                                        FAIL,
-                                        "6.2.6.2.a - Engine #1 (0) reported different Model Year when compared to data received in part 1");
-
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                NL + "FAIL: 6.2.6.2.a - Engine #1 (0) reported different Model Year when compared to data received in part 1" + NL + NL,
-                listener.getResults());
-    }
-
-    @Test
-    @TestDoc(value = @TestItem(verifies = "6.2.6.2.a",
-            description = "Engine Family is different from part 1"))
-    public void testCompareEngineFamily() {
-
-        DM56EngineFamilyPacket packet0 = createDM56("Model Year", "Engine Family");
-        when(vehicleInformationModule.requestDM56(any(), eq(0))).thenReturn(List.of(packet0));
-
-        DM56EngineFamilyPacket packet1 = createDM56("Model Year Other", "Engine Family Different");
-        when(vehicleInformationModule.requestDM56(any(), eq(1))).thenReturn(List.of(packet1));
-
-        runTest();
-
-        verify(vehicleInformationModule).requestDM56(any(), eq(0));
-        verify(vehicleInformationModule).requestDM56(any(), eq(1));
-
-        verify(mockListener).addOutcome(2,
-                                        6,
-                                        FAIL,
-                                        "6.2.6.2.a - Engine #2 (1) reported different Engine Family Name when compared to data received in part 1");
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals(NL+NL+
-                "FAIL: 6.2.6.2.a - Engine #2 (1) reported different Engine Family Name when compared to data received in part 1" + NL,
-                listener.getResults());
+        assertEquals(NL + NL, listener.getResults());
     }
 
 }

@@ -21,6 +21,7 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.EchoBus;
@@ -54,7 +55,8 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-@SuppressWarnings("ConstantConditions") @RunWith(MockitoJUnitRunner.class)
+@SuppressWarnings("ConstantConditions")
+@RunWith(MockitoJUnitRunner.class)
 public class J1939Test {
 
     final private static class TestPacket extends GenericPacket {
@@ -84,7 +86,8 @@ public class J1939Test {
 
     private ArgumentCaptor<Packet> sendPacketCaptor;
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent") @Test
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    @Test
     public void aTestTP() throws Exception {
         final String VIN = "Some VINs are garbage, but this test doesn't care.";
         try (EchoBus echoBus = new EchoBus(0xF9)) {
@@ -239,7 +242,8 @@ public class J1939Test {
 
         int spn = 1024;
 
-        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
+        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF,
+                (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
 
         DM30ScaledTestResultsPacket packet = instance.requestDm7(null, ResultsListener.NOOP, requestPacket).getPacket()
                 .flatMap(e -> e.left)
@@ -262,7 +266,8 @@ public class J1939Test {
 
         int spn = 1024;
 
-        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
+        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF,
+                (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
 
         Object packet = instance.requestDm7(null, ResultsListener.NOOP, requestPacket).getPacket().orElse(null);
         assertNull(packet);
@@ -285,7 +290,8 @@ public class J1939Test {
 
         int spn = 1024;
 
-        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
+        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF,
+                (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
 
         Object packet = instance.requestDm7(null, ResultsListener.NOOP, requestPacket).getPacket().orElse(null);
         assertNotNull(packet);
@@ -375,7 +381,7 @@ public class J1939Test {
                 .stream()
                 .flatMap(e -> e.left.stream());
         assertEquals(0, response.count());
-        verify(bus, times(2)).send(request);
+        verify(bus).send(request);
     }
 
     @Test
@@ -420,7 +426,7 @@ public class J1939Test {
                 .stream()
                 .map(e -> (AcknowledgmentPacket) e.resolve())
                 .collect(Collectors.toList());
-        assertEquals(2, responses.size());
+        assertEquals(1, responses.size());
 
         assertEquals("NACK", responses.get(0).getResponse().toString());
         assertEquals("ACK", responses.get(1).getResponse().toString());

@@ -191,7 +191,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
     @Override
     public J1939 getNewJ1939() {
-        return new J1939(bus, overallController.getDataRepository());
+        return new J1939(bus);
     }
 
     /**
