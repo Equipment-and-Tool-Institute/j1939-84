@@ -262,7 +262,7 @@ public class VehicleInformationModule extends FunctionalModule {
      *
      * @param listener
      *         the {@link ResultsListener} that will be given the report
-     * @return {@link List} of {@link DM19CalibrationInformationPacket}
+     * @return {@link List} of {@link ComponentIdentificationPacket}
      */
     public RequestResult<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener) {
         Packet request = getJ1939().createRequestPacket(ComponentIdentificationPacket.PGN, GLOBAL_ADDR);
