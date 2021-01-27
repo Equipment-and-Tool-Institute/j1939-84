@@ -6,6 +6,7 @@ package org.etools.j1939_84.bus.j1939;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
@@ -56,6 +57,7 @@ import org.etools.j1939_84.bus.j1939.packets.TotalVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.FunctionalModule;
@@ -157,6 +159,8 @@ public class J1939 {
      */
     public J1939() {
         this(new EchoBus(0xA5), new DataRepository());
+        // assume SA 0 for tests
+        dataRepository.putObdModule(new OBDModuleInformation(0));
     }
 
     /**
@@ -613,52 +617,55 @@ public class J1939 {
                                                                     boolean fullString,
                                                                     final int pgn,
                                                                     Packet requestPacket) {
-
+        boolean retry = false;
         if (title != null) {
             listener.onResult(getDateTimeModule().getTime() + " " + title);
         }
 
-        List<Either<T, AcknowledgmentPacket>> results = requestGlobalOnce(pgn, requestPacket, listener, fullString);
-        List<AcknowledgmentPacket> busyNACKs = results.stream().flatMap(e -> e.right.stream())
-                .filter(p -> p.getResponse() == Response.BUSY)
-                .collect(Collectors.toList());
-        // FIXME no results is not supposed to be a retry, but Joe's A26 fails
-        // on the bench
-        boolean retry = !busyNACKs.isEmpty() || results.isEmpty();
-        if (retry) {
-            log("busy NACK for request: " + requestPacket + " -> " + busyNACKs);
+        Collection<Integer> obdAddressess = Collections.unmodifiableCollection(dataRepository.getObdModuleAddresses());
 
-            // then re-request from global and combine results
-            results = requestGlobalOnce(pgn, requestPacket, listener, fullString);
+        List<Either<T, AcknowledgmentPacket>> rl = requestGlobalOnce(pgn, requestPacket, listener,
+                fullString);
+        // Treat busy NACK same as no response
+        Map<Integer, Either<T, AcknowledgmentPacket>> results = rl
+                .stream()
+                .filter(r -> (boolean) r.resolve(p -> true, p -> p.getResponse() != Response.BUSY))
+                .collect(Collectors.toMap(e -> ((ParsedPacket) e.resolve()).getSourceAddress(), e -> e));
 
-            // find any results in the first request that are not in the second
-            // FIXME
-
-            busyNACKs = results.stream().flatMap(e -> e.right.stream()).filter(p -> p.getResponse() == Response.BUSY)
-                    .collect(Collectors.toList());
-            if (!busyNACKs.isEmpty() || results.isEmpty()) {
-                log("second busy NACK for request: " + requestPacket + " -> " + busyNACKs);
-            }
+        if (!results.keySet().containsAll(obdAddressess)) {
+            // then not all OBD modules were heard, so re-request from global
+            // and combine results
+            retry = true;
+            List<Either<T, AcknowledgmentPacket>> results2 = requestGlobalOnce(pgn, requestPacket, listener,
+                    fullString);
+            // replace old results with new successes
+            results.putAll(results2.stream()
+                    .filter(r -> (boolean) r.resolve(p -> true, p -> p.getResponse() != Response.BUSY))
+                    .collect(Collectors.toMap(e -> ((ParsedPacket) e.resolve()).getSourceAddress(), e -> e)));
         }
-        // now try the DS request
-        Collection<Either<T, AcknowledgmentPacket>> list = busyNACKs.stream()
-                .flatMap(p -> {
-                    Packet dsRequest = createRequestPacket(pgn, p.getSourceAddress());
-                    Optional<Either<T, AcknowledgmentPacket>> response = requestDSOnce(listener, fullString, pgn,
-                            dsRequest);
-                    if (response.flatMap(e -> e.right.map(ack -> ack.getResponse() == Response.BUSY)).orElse(false)) {
-                        log("first DS request after global busy NACK: " + dsRequest + " -> " + response);
-                        response = requestDSOnce(listener, fullString, pgn, dsRequest);
+
+        if (!results.keySet().containsAll(obdAddressess)) {
+            // then not all OBD modules were heard, so DS request from each
+            // module
+            obdAddressess.stream().filter(a -> !results.containsKey(a))
+                    .forEach(sa -> {
+                        Packet dsRequest = createRequestPacket(pgn, sa);
+                        Optional<Either<T, AcknowledgmentPacket>> response = requestDSOnce(listener, fullString, pgn,
+                                dsRequest);
                         if (response.flatMap(e -> e.right.map(ack -> ack.getResponse() == Response.BUSY))
                                 .orElse(false)) {
-                            log("second DS request after global busy NACK: " + dsRequest + " -> " + response);
+                            log("first DS request after global busy NACK: " + dsRequest + " -> " + response);
+                            response = requestDSOnce(listener, fullString, pgn, dsRequest);
+                            if (response.flatMap(e -> e.right.map(ack -> ack.getResponse() == Response.BUSY))
+                                    .orElse(false)) {
+                                log("second DS request after global busy NACK: " + dsRequest + " -> " + response);
+                            }
                         }
-                    }
-                    return response.stream();
-                })
-                .collect(Collectors.toList());
-        results.addAll(list);
-        return new RequestResult<>(retry, results);
+                        response.ifPresent(r -> results.put(sa, r));
+                    });
+        }
+        return new RequestResult<>(retry,
+                results.keySet().stream().sorted().map(k -> results.get(k)).collect(Collectors.toList()));
     }
 
     /**
@@ -678,7 +685,7 @@ public class J1939 {
             Stream<Packet> stream = read(DEFAULT_TIMEOUT, DEFAULT_TIMEOUT_UNITS);
             Packet sent = bus.send(request);
             if (sent != null) {
-                listener.onResult(getDateTimeModule().format(sent.getTimestamp()) + " " + sent.toString());
+                listener.onResult(sent.toTimeString());
             } else {
                 log("Failed to send: " + request);
             }
