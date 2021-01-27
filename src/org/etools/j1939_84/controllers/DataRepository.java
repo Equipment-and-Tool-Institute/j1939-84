@@ -56,6 +56,7 @@ public class DataRepository {
         return obdModules.containsKey(sourceAddress);
     }
 
+    @Deprecated
     public void putObdModule(int sourceAddress, OBDModuleInformation information) {
         obdModules.put(sourceAddress, information);
     }

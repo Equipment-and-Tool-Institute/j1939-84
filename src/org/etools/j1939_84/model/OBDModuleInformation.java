@@ -25,6 +25,8 @@ public class OBDModuleInformation implements Cloneable {
 
     private final List<CalibrationInformation> calibrationInformation = new ArrayList<>();
 
+    private ComponentIdentification componentIdentification = null;
+
     private int function;
 
     private int ignitionCycleCounterValue;
@@ -57,6 +59,7 @@ public class OBDModuleInformation implements Cloneable {
         }
         OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress());
         obdInfo.setCalibrationInformation(getCalibrationInformation());
+        obdInfo.setComponentInformationIdentification(getComponentIdentification());
         obdInfo.setFunction(getFunction());
         obdInfo.setIgnitionCycleCounterValue(getIgnitionCycleCounterValue());
         obdInfo.setMonitoredSystems(getMonitoredSystems());
@@ -83,6 +86,7 @@ public class OBDModuleInformation implements Cloneable {
         OBDModuleInformation that = (OBDModuleInformation) obj;
 
         return Objects.equals(calibrationInformation, that.calibrationInformation)
+                && Objects.equals(this.componentIdentification, that.componentIdentification)
                 && Objects.equals(function, that.function)
                 && Objects.equals(ignitionCycleCounterValue, that.ignitionCycleCounterValue)
                 && Objects.equals(monitoredSystems, that.monitoredSystems)
@@ -105,6 +109,10 @@ public class OBDModuleInformation implements Cloneable {
 
     public List<CalibrationInformation> getCalibrationInformation() {
         return calibrationInformation;
+    }
+
+    public ComponentIdentification getComponentIdentification() {
+        return componentIdentification;
     }
 
     public List<SupportedSPN> getDataStreamSpns() {
@@ -167,6 +175,10 @@ public class OBDModuleInformation implements Cloneable {
     public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {
         this.calibrationInformation.clear();
         this.calibrationInformation.addAll(calibrationInformation);
+    }
+
+    public void setComponentInformationIdentification(ComponentIdentification componentIdentification) {
+        this.componentIdentification = componentIdentification;
     }
 
     public void setFunction(int function) {

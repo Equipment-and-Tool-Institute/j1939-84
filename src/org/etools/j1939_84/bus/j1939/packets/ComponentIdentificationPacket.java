@@ -1,11 +1,15 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
+import java.io.IOException;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.Lookup;
+import org.etools.j1939_84.model.ComponentIdentification;
 
 /**
  * Parses the Component Identification Packet
@@ -20,6 +24,31 @@ public class ComponentIdentificationPacket extends GenericPacket {
         return new ComponentIdentificationPacket(Packet.create(PGN,
                                                                address,
                                                                (str + "*" + str + "*" + str + "*" + str).getBytes()));
+    }
+
+    /*
+     * Helper method for unit testing purposes.  Allows us to easily create
+     * a packet from the expected human readable data type.  String are joined
+     * together to create a byte reprentation of the data values joined together
+     *  with an '*" for parsing.
+     */
+    public static ComponentIdentificationPacket createComponentIdPacket(Integer sourceAddress,
+                                                                         String make,
+                                                                         String model,
+                                                                         String serialNumber,
+                                                                         String unitNumber) throws IOException {
+
+        byte[] bytes = join(make.getBytes(UTF_8),
+                            "*".getBytes(UTF_8),
+                            model.getBytes(UTF_8),
+                            "*".getBytes(UTF_8),
+                            serialNumber.getBytes(UTF_8),
+                            "*".getBytes(UTF_8),
+                            unitNumber.getBytes(UTF_8));
+
+        return new ComponentIdentificationPacket(Packet.create(
+                PGN, sourceAddress, bytes));
+
     }
 
     /**
@@ -45,7 +74,7 @@ public class ComponentIdentificationPacket extends GenericPacket {
         String str = new String(packet.getBytes());
         String[] array = str.split("\\*", -1);
         for (int i = 0; i < 4 && i < array.length; i++) {
-            parts[i] = array[i].trim();
+            parts[i] = array[i];
         }
     }
 
@@ -89,6 +118,17 @@ public class ComponentIdentificationPacket extends GenericPacket {
     public String getUnitNumber() {
         return parts[3];
     }
+
+    /**
+     * Returns the Unit Number, never null
+     *
+     * @return {@link ComponentIdentification}
+     */
+    public ComponentIdentification getComponentIdentification() {
+        return (new ComponentIdentification(this));
+    }
+
+
 
     @Override
     public String toString() {
