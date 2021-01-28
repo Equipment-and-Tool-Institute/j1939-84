@@ -82,7 +82,7 @@ public class TableA1ValueValidator {
         case 84:
             return value != 0;
         case 108:
-            return !isEngineOn && (value < 25 || value > 100);
+            return !isEngineOn && (value < 25 || value > 110);
         case 158:
         case 168:
             return isEngineOn && value < 6;
