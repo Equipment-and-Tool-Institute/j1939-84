@@ -516,6 +516,18 @@ public class J1939 {
         }
     }
 
+    public List<AcknowledgmentPacket> requestDm11(ResultsListener listener) {
+        listener.onResult(getDateTimeModule().getTime() + " " + "Global DM11 Request");
+
+        Packet requestPacket = createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
+        final int pgn = getPgn(DM11ClearActiveDTCsPacket.class);
+        var responses = requestGlobalOnce(pgn, requestPacket, listener, true);
+
+        return responses.stream()
+                .flatMap(e -> e.right.stream())
+                .collect(Collectors.toList());
+    }
+
     /**
      * Request a packet from a specific address. As long as the module responds
      * "busy", retry for up to 1.2s. Fail after 3 non-responses.

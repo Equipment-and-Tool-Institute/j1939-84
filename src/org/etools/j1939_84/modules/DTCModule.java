@@ -15,8 +15,8 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
-import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
@@ -86,20 +86,18 @@ public class DTCModule extends FunctionalModule {
      * @param listener
      *         the {@link ResultsListener} that will be given the report
      */
-    public RequestResult<DM11ClearActiveDTCsPacket> requestDM11(ResultsListener listener) {
+    public List<AcknowledgmentPacket> requestDM11(ResultsListener listener) {
         listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
-        Packet requestPacket = getJ1939().createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
 
-        var results = getJ1939()
-                .requestResult("Global DM11 Request", listener, true, DM11ClearActiveDTCsPacket.class, requestPacket);
+        List<AcknowledgmentPacket> responses = getJ1939().requestDm11(listener);
 
-        if (!results.getAcks().isEmpty() && results.getAcks().stream().allMatch(t -> t.getResponse() == Response.ACK)) {
+        if (!responses.isEmpty() && responses.stream().allMatch(t -> t.getResponse() == Response.ACK)) {
             listener.onResult(DTCS_CLEARED);
         } else {
             listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
         }
 
-        return results;
+        return responses;
     }
 
     /**
