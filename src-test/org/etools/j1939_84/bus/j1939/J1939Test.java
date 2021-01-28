@@ -21,7 +21,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.EchoBus;
@@ -55,8 +54,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-@SuppressWarnings("ConstantConditions")
-@RunWith(MockitoJUnitRunner.class)
+@SuppressWarnings("ConstantConditions") @RunWith(MockitoJUnitRunner.class)
 public class J1939Test {
 
     final private static class TestPacket extends GenericPacket {
@@ -86,8 +84,7 @@ public class J1939Test {
 
     private ArgumentCaptor<Packet> sendPacketCaptor;
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
-    @Test
+    @SuppressWarnings("OptionalGetWithoutIsPresent") @Test
     public void aTestTP() throws Exception {
         final String VIN = "Some VINs are garbage, but this test doesn't care.";
         try (EchoBus echoBus = new EchoBus(0xF9)) {
@@ -232,31 +229,6 @@ public class J1939Test {
     }
 
     /**
-     * This sends request for DM7 but gets back a DM30
-     */
-    @Test
-    public void testRequestDM7() throws Exception {
-        Packet packet1 = Packet.create(DM30ScaledTestResultsPacket.PGN
-                | 0xA5, 0x00, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0x0A, 0x0B, 0x0C, 0x0D);
-        when(bus.read(220, TimeUnit.MILLISECONDS)).thenReturn(Stream.of(packet1));
-
-        int spn = 1024;
-
-        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF,
-                (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
-
-        DM30ScaledTestResultsPacket packet = instance.requestDm7(null, ResultsListener.NOOP, requestPacket).getPacket()
-                .flatMap(e -> e.left)
-                .orElse(null);
-        assertNotNull(packet);
-
-        verify(bus).send(sendPacketCaptor.capture());
-        Packet request = sendPacketCaptor.getValue();
-        assertEquals(DM7CommandTestsPacket.PGN, request.getPgn());
-        assertEquals(BUS_ADDR, request.getSource());
-    }
-
-    /**
      * This sends request for DM7 but times out
      */
     @Test
@@ -266,8 +238,7 @@ public class J1939Test {
 
         int spn = 1024;
 
-        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF,
-                (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
+        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
 
         Object packet = instance.requestDm7(null, ResultsListener.NOOP, requestPacket).getPacket().orElse(null);
         assertNull(packet);
@@ -290,8 +261,7 @@ public class J1939Test {
 
         int spn = 1024;
 
-        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF,
-                (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
+        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
 
         Object packet = instance.requestDm7(null, ResultsListener.NOOP, requestPacket).getPacket().orElse(null);
         assertNotNull(packet);
@@ -381,7 +351,7 @@ public class J1939Test {
                 .stream()
                 .flatMap(e -> e.left.stream());
         assertEquals(0, response.count());
-        verify(bus).send(request);
+        verify(bus, times(2)).send(request);
     }
 
     @Test
@@ -411,7 +381,7 @@ public class J1939Test {
 
     @Test
     public void testRequestMultipleReturnsAck() throws Exception {
-        final Packet packet1 = Packet.create(0xE8FF, 0x17, 0x01, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD4, 0xFE, 0x00);
+        final Packet packet1 = Packet.create(0xE8FF, 0x17, 0x01, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00);
         final Packet packet2 = Packet.create(0xE8FF, 0x17, 0x00, 0xFF, 0xFF, 0xFF, 0x44, 0xD3, 0xFE, 0x00);
         final Packet packet3 = Packet.create(0xEAFF, 0x44, 0x00, 0xFF, 0xFF, 0xFF);
         final Packet packet4 = Packet.create(0xE8FF, 0x17, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00);
@@ -426,10 +396,10 @@ public class J1939Test {
                 .stream()
                 .map(e -> (AcknowledgmentPacket) e.resolve())
                 .collect(Collectors.toList());
-        assertEquals(1, responses.size());
+        assertEquals(2, responses.size());
 
-        // assertEquals("NACK", responses.get(0).getResponse().toString());
-        assertEquals("ACK", responses.get(0).getResponse().toString());
+        assertEquals("NACK", responses.get(0).getResponse().toString());
+        assertEquals("ACK", responses.get(1).getResponse().toString());
 
         verify(bus).send(sendPacketCaptor.capture());
         List<Packet> packets = sendPacketCaptor.getAllValues();
