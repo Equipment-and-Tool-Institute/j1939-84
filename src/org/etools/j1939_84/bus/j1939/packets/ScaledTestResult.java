@@ -3,8 +3,8 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
-import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.join;
 import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.toInts;
+import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.Arrays;
 import org.etools.j1939_84.NumberFormatter;

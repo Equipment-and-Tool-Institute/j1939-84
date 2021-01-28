@@ -4,8 +4,8 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static org.etools.j1939_84.utils.CollectionUtils.join;
 
-import java.io.IOException;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.Lookup;
@@ -36,19 +36,14 @@ public class ComponentIdentificationPacket extends GenericPacket {
                                                                          String make,
                                                                          String model,
                                                                          String serialNumber,
-                                                                         String unitNumber) throws IOException {
+                                                                         String unitNumber) {
 
-        byte[] bytes = join(make.getBytes(UTF_8),
-                            "*".getBytes(UTF_8),
-                            model.getBytes(UTF_8),
-                            "*".getBytes(UTF_8),
-                            serialNumber.getBytes(UTF_8),
-                            "*".getBytes(UTF_8),
+        byte[] bytes = join(make.getBytes(UTF_8), "*".getBytes(UTF_8),
+                            model.getBytes(UTF_8), "*".getBytes(UTF_8),
+                            serialNumber.getBytes(UTF_8), "*".getBytes(UTF_8),
                             unitNumber.getBytes(UTF_8));
 
-        return new ComponentIdentificationPacket(Packet.create(
-                PGN, sourceAddress, bytes));
-
+        return new ComponentIdentificationPacket(Packet.create(PGN, sourceAddress, bytes));
     }
 
     /**

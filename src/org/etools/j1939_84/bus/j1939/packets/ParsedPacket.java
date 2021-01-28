@@ -5,7 +5,6 @@ package org.etools.j1939_84.bus.j1939.packets;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import org.apache.commons.lang3.ArrayUtils;
 import org.etools.j1939_84.NumberFormatter;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.Lookup;
@@ -33,22 +32,6 @@ public class ParsedPacket {
 
     public static int[] toInts(int value) {
         return new int[] { (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF) };
-    }
-
-    public static byte[] join(byte[]... byteArrays) {
-        byte[] bytes = new byte[0];
-        for (byte[] byteArray : byteArrays) {
-            bytes = ArrayUtils.addAll(bytes, byteArray);
-        }
-        return bytes;
-    }
-
-    public static int[] join(int[]... byteArrays) {
-        int[] bytes = new int[0];
-        for (int[] byteArray : byteArrays) {
-            bytes = ArrayUtils.addAll(bytes, byteArray);
-        }
-        return bytes;
     }
 
     /**
