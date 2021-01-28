@@ -130,19 +130,6 @@ public class J1939 {
         }
     }
 
-    static public void main(String... a) {
-        System.err.println("my string".matches(".*[^\\p{Print}].*")); // false
-                                                                      // because
-                                                                      // there
-                                                                      // are no
-                                                                      // non-printable
-        System.err.println("my\07string".matches(".*[^\\p{Print}].*")); // true
-                                                                        // because
-                                                                        // there
-                                                                        // is a
-                                                                        // non-printable
-    }
-
     /**
      * filter by pgn
      */
@@ -618,20 +605,26 @@ public class J1939 {
             listener.onResult(getDateTimeModule().getTime() + " " + title);
         }
 
-        Collection<Integer> obdAddressess = Collections
-                .unmodifiableCollection(DataRepository.getInstance().getObdModuleAddresses());
+        // expect responses from all OBD modules and anything that responds BUSY
+        Collection<Integer> expectedAddressess = DataRepository.getInstance().getObdModuleAddresses();
 
         List<Either<T, AcknowledgmentPacket>> rl = requestGlobalOnce(pgn, requestPacket, listener,
                 fullString);
         // Treat busy NACK same as no response
         Map<Integer, Either<T, AcknowledgmentPacket>> results = rl
                 .stream()
-                .filter(r -> (boolean) r.resolve(p -> true, p -> p.getResponse() != Response.BUSY))
+                .filter(r -> (boolean) r.resolve(p -> true, p -> {
+                    if (p.getResponse() != Response.BUSY) {
+                        return true;
+                    }
+                    expectedAddressess.add(p.getSourceAddress());
+                    return false;
+                }))
                 // if there are multiple responses from the same address, use
                 // first
                 .collect(Collectors.toMap(e -> ((ParsedPacket) e.resolve()).getSourceAddress(), e -> e, (a, b) -> a));
 
-        if (!results.keySet().containsAll(obdAddressess)) {
+        if (!results.keySet().containsAll(expectedAddressess)) {
             // then not all OBD modules were heard, so re-request from global
             // and combine results
             retry = true;
@@ -639,14 +632,20 @@ public class J1939 {
                     fullString);
             // replace old results with new successes
             results.putAll(results2.stream()
-                    .filter(r -> (boolean) r.resolve(p -> true, p -> p.getResponse() != Response.BUSY))
+                    .filter(r -> (boolean) r.resolve(p -> true, p -> {
+                        if (p.getResponse() != Response.BUSY) {
+                            return true;
+                        }
+                        expectedAddressess.add(p.getSourceAddress());
+                        return false;
+                    }))
                     .collect(Collectors.toMap(e -> ((ParsedPacket) e.resolve()).getSourceAddress(), e -> e)));
         }
 
-        if (!results.keySet().containsAll(obdAddressess)) {
+        if (!results.keySet().containsAll(expectedAddressess)) {
             // then not all OBD modules were heard, so DS request from each
             // module
-            obdAddressess.stream().filter(a -> !results.containsKey(a))
+            expectedAddressess.stream().filter(a -> !results.containsKey(a))
                     .forEach(sa -> {
                         Packet dsRequest = createRequestPacket(pgn, sa);
                         Optional<Either<T, AcknowledgmentPacket>> response = requestDSOnce(listener, fullString, pgn,
