@@ -3,21 +3,17 @@
  */
 package org.etools.j1939_84.controllers.part2;
 
-import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket.createComponentIdPacket;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
-import static org.etools.j1939_84.utils.CollectionUtils.join;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -76,17 +72,13 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
     @Mock
     private J1939 j1939;
 
-    private TestResultsListener listener;
+    @Mock
+    private ReportFileModule reportFileModule;
 
     @Mock
     private ResultsListener mockListener;
 
-    @Mock
-    private OBDModuleInformation obdModuleInformation;
-
-    @Mock
-    private ReportFileModule reportFileModule;
-
+    private TestResultsListener listener;
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
@@ -95,17 +87,8 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         OBDModuleInformation module = new OBDModuleInformation(sourceAddress);
         module.setFunction(function);
 
-        byte[] bytes = join(make.getBytes(UTF_8),
-                            "*".getBytes(UTF_8),
-                            model.getBytes(UTF_8),
-                            "*".getBytes(UTF_8),
-                            serialNumber.getBytes(UTF_8),
-                            "*".getBytes(UTF_8),
-                            unitNumber.getBytes(UTF_8));
-
-        ComponentIdentificationPacket componentIdentificationPacket = new ComponentIdentificationPacket(
-                Packet.create(ComponentIdentificationPacket.PGN, sourceAddress, bytes)
-        );
+        ComponentIdentificationPacket componentIdentificationPacket = createComponentIdPacket(
+                sourceAddress, make, model, serialNumber, unitNumber);
         module.setComponentInformationIdentification(componentIdentificationPacket.getComponentIdentification());
         return module;
     }
@@ -141,33 +124,28 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         verifyNoMoreInteractions(executor,
                                  engineSpeedModule,
                                  bannerModule,
-                                 obdModuleInformation,
                                  vehicleInformationModule,
                                  dataRepository,
-                                 mockListener,
-                                 reportFileModule);
+                                 mockListener);
     }
 
     @Test
     public void testDestinationSpecificPacketsEmpty() {
-        ComponentIdentificationPacket packet0x00 = null;
-        ComponentIdentificationPacket packet0x01 = null;
-        ComponentIdentificationPacket packet0x02 = null;
-        packet0x00 = createComponentIdPacket(0x00,
-                                             "BatMan",
-                                             "TheBatCave",
-                                             "ST109823456",
-                                             "Land");
-        packet0x01 = createComponentIdPacket(0x01,
-                                             "AquaMan",
-                                             "TheWater",
-                                             "ST109888765",
-                                             "Ocean");
-        packet0x02 = createComponentIdPacket(0x02,
-                                             "SuperMan",
-                                             "TheCrystalIcePalace",
-                                             "ST109823456",
-                                             "Air");
+        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
+                                                                           "BatMan",
+                                                                           "TheBatCave",
+                                                                           "ST109823456",
+                                                                           "Land");
+        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
+                                                                           "AquaMan",
+                                                                           "TheWater",
+                                                                           "ST109888765",
+                                                                           "Ocean");
+        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
+                                                                           "SuperMan",
+                                                                           "TheCrystalIcePalace",
+                                                                           "ST109823456",
+                                                                           "Air");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        0,
                                                                        "BatMan",
@@ -225,24 +203,11 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.2.7.2.a There are no positive responses to a DS Component ID request from Transmission #1 (3)");
+                                        "6.2.7.2.a - There are no positive responses to a DS Component ID request from Transmission #1 (3)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
                                         "6.2.7.5.a - Transmission #1 (3) did not provide a positive respond to global query while engine running");
-
-        verify(reportFileModule).addOutcome(PART_NUMBER,
-                                            STEP_NUMBER,
-                                            FAIL,
-                                            "6.2.7.2.a There are no positive responses to a DS Component ID request from Transmission #1 (3)");
-        verify(reportFileModule).addOutcome(PART_NUMBER,
-                                            STEP_NUMBER,
-                                            WARN,
-                                            "6.2.7.5.a - Transmission #1 (3) did not provide a positive respond to global query while engine running");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.2.7.2.a There are no positive responses to a DS Component ID request from Transmission #1 (3)");
-        verify(reportFileModule).onResult(
-                "WARN: 6.2.7.5.a - Transmission #1 (3) did not provide a positive respond to global query while engine running");
 
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).reportComponentIdentification(any());
@@ -254,7 +219,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.2.7.2.a There are no positive responses to a DS Component ID request from Transmission #1 (3)" + NL;
+        String expectedResults = "FAIL: 6.2.7.2.a - There are no positive responses to a DS Component ID request from Transmission #1 (3)" + NL;
         expectedResults += "WARN: 6.2.7.5.a - Transmission #1 (3) did not provide a positive respond to global query while engine running" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
@@ -280,30 +245,26 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
     @Test
     public void testGlobalRequestDoesNotMatchDestinationSpecificRequest() {
 
-        ComponentIdentificationPacket packet0x00 = null;
-        ComponentIdentificationPacket packet0x01 = null;
-        ComponentIdentificationPacket packet0x02 = null;
-        ComponentIdentificationPacket packet0x03 = null;
-        packet0x00 = createComponentIdPacket(0x00,
-                                             "BatMan",
-                                             "TheBtCave",
-                                             "ST109823456",
-                                             "Land");
-        packet0x01 = createComponentIdPacket(0x01,
-                                             "AquaMan",
-                                             "TheWater",
-                                             "ST109888765",
-                                             "Ocean");
-        packet0x02 = createComponentIdPacket(0x02,
-                                             "SuperMan",
-                                             "TheCrystalIcePalace",
-                                             "ST10983456",
-                                             "Air");
-        packet0x03 = createComponentIdPacket(0x03,
-                                             "WonderWoman",
-                                             "TheLair",
-                                             "WW109877654",
-                                             "Lasso");
+        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
+                                                                           "BatMan",
+                                                                           "TheBtCave",
+                                                                           "ST109823456",
+                                                                           "Land");
+        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
+                                                                           "AquaMan",
+                                                                           "TheWater",
+                                                                           "ST109888765",
+                                                                           "Ocean");
+        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
+                                                                           "SuperMan",
+                                                                           "TheCrystalIcePalace",
+                                                                           "ST10983456",
+                                                                           "Air");
+        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
+                                                                           "WonderWoman",
+                                                                           "TheLair",
+                                                                           "WW109877654",
+                                                                           "Lasso");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        0,
                                                                        "BatMan",
@@ -342,7 +303,8 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
         // Global request response
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet0x00, packet0x01, packet0x02, packet0x03),
+                .thenReturn(new RequestResult<>(false,
+                                                List.of(packet0x00, packet0x01, packet0x02, packet0x03),
                                                 List.of()));
 
         // Destination specific responses
@@ -376,31 +338,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.7.2.b - Transmission #1 (3) reported component identification as: ComponentIdentification{make='WonderWoman', model='TheLair', serialNumber='WW109877654', unitNumber='Lasso'}, Part 01 Step 09 reported it as: ComponentIdentification{make='WW', model='TheLair', serialNumber='WW109877654', unitNumber='Lasso'}");
 
-        verify(reportFileModule).addOutcome(PART_NUMBER,
-                                            STEP_NUMBER,
-                                            FAIL,
-                                            "6.2.7.2.b - Engine #1 (0) reported component identification as: ComponentIdentification{make='BatMan', model='TheBtCave', serialNumber='ST109823456', unitNumber='Land'}, Part 01 Step 09 reported it as: ComponentIdentification{make='BatMan', model='TheBatCave', serialNumber='ST109823456', unitNumber='Land'}");
-        verify(reportFileModule).addOutcome(PART_NUMBER,
-                                            STEP_NUMBER,
-                                            FAIL,
-                                            "6.2.7.2.b - Engine #2 (1) reported component identification as: ComponentIdentification{make='AquaMan', model='TheWater', serialNumber='ST109888765', unitNumber='Ocean'}, Part 01 Step 09 reported it as: ComponentIdentification{make='AquaMan', model='TheWater', serialNumber='ST109888765', unitNumber='Ocan'}");
-        verify(reportFileModule).addOutcome(PART_NUMBER,
-                                            STEP_NUMBER,
-                                            FAIL,
-                                            "6.2.7.2.b - Turbocharger (2) reported component identification as: ComponentIdentification{make='SuperMan', model='TheCrystalIcePalace', serialNumber='ST10983456', unitNumber='Air'}, Part 01 Step 09 reported it as: ComponentIdentification{make='SuperMan', model='TheCrystalIcePalace', serialNumber='ST109823456', unitNumber='Air'}");
-        verify(reportFileModule).addOutcome(PART_NUMBER,
-                                            STEP_NUMBER,
-                                            FAIL,
-                                            "6.2.7.2.b - Transmission #1 (3) reported component identification as: ComponentIdentification{make='WonderWoman', model='TheLair', serialNumber='WW109877654', unitNumber='Lasso'}, Part 01 Step 09 reported it as: ComponentIdentification{make='WW', model='TheLair', serialNumber='WW109877654', unitNumber='Lasso'}");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.2.7.2.b - Engine #1 (0) reported component identification as: ComponentIdentification{make='BatMan', model='TheBtCave', serialNumber='ST109823456', unitNumber='Land'}, Part 01 Step 09 reported it as: ComponentIdentification{make='BatMan', model='TheBatCave', serialNumber='ST109823456', unitNumber='Land'}");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.2.7.2.b - Engine #2 (1) reported component identification as: ComponentIdentification{make='AquaMan', model='TheWater', serialNumber='ST109888765', unitNumber='Ocean'}, Part 01 Step 09 reported it as: ComponentIdentification{make='AquaMan', model='TheWater', serialNumber='ST109888765', unitNumber='Ocan'}");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.2.7.2.b - Turbocharger (2) reported component identification as: ComponentIdentification{make='SuperMan', model='TheCrystalIcePalace', serialNumber='ST10983456', unitNumber='Air'}, Part 01 Step 09 reported it as: ComponentIdentification{make='SuperMan', model='TheCrystalIcePalace', serialNumber='ST109823456', unitNumber='Air'}");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.2.7.2.b - Transmission #1 (3) reported component identification as: ComponentIdentification{make='WonderWoman', model='TheLair', serialNumber='WW109877654', unitNumber='Lasso'}, Part 01 Step 09 reported it as: ComponentIdentification{make='WW', model='TheLair', serialNumber='WW109877654', unitNumber='Lasso'}");
-
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
@@ -420,30 +357,26 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPath() {
 
-        ComponentIdentificationPacket packet0x00 = null;
-        ComponentIdentificationPacket packet0x01 = null;
-        ComponentIdentificationPacket packet0x02 = null;
-        ComponentIdentificationPacket packet0x03 = null;
-        packet0x00 = createComponentIdPacket(0x00,
-                                             "BatMan",
-                                             "TheBatCave",
-                                             "ST109823456",
-                                             "Land");
-        packet0x01 = createComponentIdPacket(0x01,
-                                             "AquaMan",
-                                             "TheWater",
-                                             "ST109888765",
-                                             "Ocean");
-        packet0x02 = createComponentIdPacket(0x02,
-                                             "SuperMan",
-                                             "TheCrystalIcePalace",
-                                             "ST109823456",
-                                             "Air");
-        packet0x03 = createComponentIdPacket(0x03,
-                                             "WonderWoman",
-                                             "TheLair",
-                                             "WW109877654",
-                                             "Lasso");
+        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
+                                                                           "BatMan",
+                                                                           "TheBatCave",
+                                                                           "ST109823456",
+                                                                           "Land");
+        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
+                                                                           "AquaMan",
+                                                                           "TheWater",
+                                                                           "ST109888765",
+                                                                           "Ocean");
+        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
+                                                                           "SuperMan",
+                                                                           "TheCrystalIcePalace",
+                                                                           "ST109823456",
+                                                                           "Air");
+        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
+                                                                           "WonderWoman",
+                                                                           "TheLair",
+                                                                           "WW109877654",
+                                                                           "Lasso");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        0,
                                                                        "BatMan",
@@ -514,30 +447,26 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoFunctionZeroObds() {
 
-        ComponentIdentificationPacket packet0x00 = null;
-        ComponentIdentificationPacket packet0x01 = null;
-        ComponentIdentificationPacket packet0x02 = null;
-        ComponentIdentificationPacket packet0x03 = null;
-        packet0x00 = createComponentIdPacket(0x00,
-                                             "BatMan",
-                                             "TheBatCave",
-                                             "ST109823456",
-                                             "Land");
-        packet0x01 = createComponentIdPacket(0x01,
-                                             "AquaMan",
-                                             "TheWater",
-                                             "ST109888765",
-                                             "Ocean");
-        packet0x02 = createComponentIdPacket(0x02,
-                                             "SuperMan",
-                                             "TheCrystalIcePalace",
-                                             "ST109823456",
-                                             "Air");
-        packet0x03 = createComponentIdPacket(0x03,
-                                             "WonderWoman",
-                                             "TheLair",
-                                             "WW109877654",
-                                             "Lasso");
+        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
+                                                                           "BatMan",
+                                                                           "TheBatCave",
+                                                                           "ST109823456",
+                                                                           "Land");
+        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
+                                                                           "AquaMan",
+                                                                           "TheWater",
+                                                                           "ST109888765",
+                                                                           "Ocean");
+        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
+                                                                           "SuperMan",
+                                                                           "TheCrystalIcePalace",
+                                                                           "ST109823456",
+                                                                           "Air");
+        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
+                                                                           "WonderWoman",
+                                                                           "TheLair",
+                                                                           "WW109877654",
+                                                                           "Lasso");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        4,
                                                                        "BatMan",
@@ -594,12 +523,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.2.7.4.b - No OBD module claimed function 0");
 
-        verify(reportFileModule).addOutcome(PART_NUMBER,
-                                            STEP_NUMBER,
-                                            FAIL,
-                                            "6.2.7.4.b - No OBD module claimed function 0");
-        verify(reportFileModule).onResult("FAIL: 6.2.7.4.b - No OBD module claimed function 0");
-
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).reportComponentIdentification(any());
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
@@ -616,36 +539,31 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testZeroFunctionPacketGlobalPacketDiffersFromGlobalResponse() {
-        ComponentIdentificationPacket packet0x00 = null;
-        ComponentIdentificationPacket packet0x00ds = null;
-        ComponentIdentificationPacket packet0x01 = null;
-        ComponentIdentificationPacket packet0x02 = null;
-        ComponentIdentificationPacket packet0x03 = null;
-        packet0x00 = createComponentIdPacket(0x00,
-                                             "BatMan",
-                                             "TheBatCave",
-                                             "ST109823456",
-                                             "Land");
-        packet0x00ds = createComponentIdPacket(0x00,
-                                               "CatWoman",
-                                               "TheBatCave",
-                                               "CW019823456",
-                                               "Roofs");
-        packet0x01 = createComponentIdPacket(0x01,
-                                             "AquaMan",
-                                             "TheWater",
-                                             "ST109888765",
-                                             "Ocean");
-        packet0x02 = createComponentIdPacket(0x02,
-                                             "SuperMan",
-                                             "TheCrystalIcePalace",
-                                             "ST109823456",
-                                             "Air");
-        packet0x03 = createComponentIdPacket(0x03,
-                                             "WonderWoman",
-                                             "TheLair",
-                                             "WW109877654",
-                                             "Lasso");
+        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
+                                                                           "BatMan",
+                                                                           "TheBatCave",
+                                                                           "ST109823456",
+                                                                           "Land");
+        ComponentIdentificationPacket packet0x00ds = createComponentIdPacket(0x00,
+                                                                             "CatWoman",
+                                                                             "TheBatCave",
+                                                                             "CW019823456",
+                                                                             "Roofs");
+        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
+                                                                           "AquaMan",
+                                                                           "TheWater",
+                                                                           "ST109888765",
+                                                                           "Ocean");
+        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
+                                                                           "SuperMan",
+                                                                           "TheCrystalIcePalace",
+                                                                           "ST109823456",
+                                                                           "Air");
+        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
+                                                                           "WonderWoman",
+                                                                           "TheLair",
+                                                                           "WW109877654",
+                                                                           "Lasso");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        0,
                                                                        "BatMan",
@@ -709,19 +627,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.7.4.b - The Component ID Global responses do not contain a match for Engine #1 (0), which claimed function 0 in Part 1 Step 9");
 
-        verify(reportFileModule).addOutcome(PART_NUMBER,
-                                            STEP_NUMBER,
-                                            FAIL,
-                                            "6.2.7.2.b - Engine #1 (0) reported component identification as: ComponentIdentification{make='CatWoman', model='TheBatCave', serialNumber='CW019823456', unitNumber='Roofs'}, Part 01 Step 09 reported it as: ComponentIdentification{make='BatMan', model='TheBatCave', serialNumber='ST109823456', unitNumber='Land'}");
-        verify(reportFileModule).addOutcome(PART_NUMBER,
-                                            STEP_NUMBER,
-                                            FAIL,
-                                            "6.2.7.4.b - The Component ID Global responses do not contain a match for Engine #1 (0), which claimed function 0 in Part 1 Step 9");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.2.7.2.b - Engine #1 (0) reported component identification as: ComponentIdentification{make='CatWoman', model='TheBatCave', serialNumber='CW019823456', unitNumber='Roofs'}, Part 01 Step 09 reported it as: ComponentIdentification{make='BatMan', model='TheBatCave', serialNumber='ST109823456', unitNumber='Land'}");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.2.7.4.b - The Component ID Global responses do not contain a match for Engine #1 (0), which claimed function 0 in Part 1 Step 9");
-
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).reportComponentIdentification(any());
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
@@ -740,30 +645,26 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testMoreThanOneModuleWithFunctionZeroFailure() {
-        ComponentIdentificationPacket packet0x00 = null;
-        ComponentIdentificationPacket packet0x01 = null;
-        ComponentIdentificationPacket packet0x02 = null;
-        ComponentIdentificationPacket packet0x03 = null;
-        packet0x00 = createComponentIdPacket(0x00,
-                                             "BatMan",
-                                             "TheBatCave",
-                                             "ST109823456",
-                                             "Land");
-        packet0x01 = createComponentIdPacket(0x01,
-                                             "AquaMan",
-                                             "TheWater",
-                                             "ST109888765",
-                                             "Ocean");
-        packet0x02 = createComponentIdPacket(0x02,
-                                             "SuperMan",
-                                             "TheCrystalIcePalace",
-                                             "ST109823456",
-                                             "Air");
-        packet0x03 = createComponentIdPacket(0x03,
-                                             "WonderWoman",
-                                             "TheLair",
-                                             "WW109877654",
-                                             "Lasso");
+        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
+                                                                           "BatMan",
+                                                                           "TheBatCave",
+                                                                           "ST109823456",
+                                                                           "Land");
+        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
+                                                                           "AquaMan",
+                                                                           "TheWater",
+                                                                           "ST109888765",
+                                                                           "Ocean");
+        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
+                                                                           "SuperMan",
+                                                                           "TheCrystalIcePalace",
+                                                                           "ST109823456",
+                                                                           "Air");
+        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
+                                                                           "WonderWoman",
+                                                                           "TheLair",
+                                                                           "WW109877654",
+                                                                           "Lasso");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        0,
                                                                        "BatMan",
@@ -823,13 +724,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.7.4.b - The Component ID Global responses do not contain a match for Engine #1 (0), which claimed function 0 in Part 1 Step 9");
 
-        verify(reportFileModule).addOutcome(PART_NUMBER,
-                                            STEP_NUMBER,
-                                            FAIL,
-                                            "6.2.7.4.b - The Component ID Global responses do not contain a match for Engine #1 (0), which claimed function 0 in Part 1 Step 9");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.2.7.4.b - The Component ID Global responses do not contain a match for Engine #1 (0), which claimed function 0 in Part 1 Step 9");
-
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).reportComponentIdentification(any());
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
@@ -846,30 +740,26 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testPacketsEmptyFailureGlobalRequest() {
-        ComponentIdentificationPacket packet0x00 = null;
-        ComponentIdentificationPacket packet0x01 = null;
-        ComponentIdentificationPacket packet0x02 = null;
-        ComponentIdentificationPacket packet0x03 = null;
-        packet0x00 = createComponentIdPacket(0x00,
-                                             "BatMan",
-                                             "TheBatCave",
-                                             "ST109823456",
-                                             "Land");
-        packet0x01 = createComponentIdPacket(0x01,
-                                             "AquaMan",
-                                             "TheWater",
-                                             "ST109888765",
-                                             "Ocean");
-        packet0x02 = createComponentIdPacket(0x02,
-                                             "SuperMan",
-                                             "TheCrystalIcePalace",
-                                             "ST109823456",
-                                             "Air");
-        packet0x03 = createComponentIdPacket(0x03,
-                                             "WonderWoman",
-                                             "TheLair",
-                                             "WW109877654",
-                                             "Lasso");
+        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
+                                                                           "BatMan",
+                                                                           "TheBatCave",
+                                                                           "ST109823456",
+                                                                           "Land");
+        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
+                                                                           "AquaMan",
+                                                                           "TheWater",
+                                                                           "ST109888765",
+                                                                           "Ocean");
+        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
+                                                                           "SuperMan",
+                                                                           "TheCrystalIcePalace",
+                                                                           "ST109823456",
+                                                                           "Air");
+        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
+                                                                           "WonderWoman",
+                                                                           "TheLair",
+                                                                           "WW109877654",
+                                                                           "Lasso");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        0,
                                                                        "BatMan",
@@ -929,13 +819,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.7.4.b - No packet was received for Engine #1 (0) which claimed function 0 in Part 1 Step 9");
 
-        verify(reportFileModule).addOutcome(PART_NUMBER,
-                                            STEP_NUMBER,
-                                            FAIL,
-                                            "6.2.7.4.b - No packet was received for Engine #1 (0) which claimed function 0 in Part 1 Step 9");
-        verify(reportFileModule).onResult(
-                "FAIL: 6.2.7.4.b - No packet was received for Engine #1 (0) which claimed function 0 in Part 1 Step 9");
-
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).reportComponentIdentification(any());
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
@@ -952,9 +835,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testAckReturnedToDsRequest() {
-        ComponentIdentificationPacket packet0x00 = null;
-        ComponentIdentificationPacket packet0x01 = null;
-        ComponentIdentificationPacket packet0x02 = null;
         AcknowledgmentPacket packet0x03 = new AcknowledgmentPacket(Packet.create(0xE800 | 0xA5,
                                                                                  0x00,
                                                                                  0x01,
@@ -966,21 +846,21 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
                                                                                  0xFE,
                                                                                  0x00));
 
-        packet0x00 = createComponentIdPacket(0x00,
-                                             "BatMan",
-                                             "TheBatCave",
-                                             "ST109823456",
-                                             "Land");
-        packet0x01 = createComponentIdPacket(0x01,
-                                             "AquaMan",
-                                             "TheWater",
-                                             "ST109888765",
-                                             "Ocean");
-        packet0x02 = createComponentIdPacket(0x02,
-                                             "SuperMan",
-                                             "TheCrystalIcePalace",
-                                             "ST109823456",
-                                             "Air");
+        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
+                                                                           "BatMan",
+                                                                           "TheBatCave",
+                                                                           "ST109823456",
+                                                                           "Land");
+        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
+                                                                           "AquaMan",
+                                                                           "TheWater",
+                                                                           "ST109888765",
+                                                                           "Ocean");
+        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
+                                                                           "SuperMan",
+                                                                           "TheCrystalIcePalace",
+                                                                           "ST109823456",
+                                                                           "Air");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        0,
                                                                        "BatMan",
@@ -1040,13 +920,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         WARN,
                                         "6.2.7.5.a - Transmission #1 (3) did not provide a positive respond to global query while engine running");
-
-        verify(reportFileModule).addOutcome(PART_NUMBER,
-                                            STEP_NUMBER,
-                                            WARN,
-                                            "6.2.7.5.a - Transmission #1 (3) did not provide a positive respond to global query while engine running");
-        verify(reportFileModule).onResult(
-                "WARN: 6.2.7.5.a - Transmission #1 (3) did not provide a positive respond to global query while engine running");
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));

@@ -7,13 +7,11 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.stream.Collector;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.ComponentIdentification;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -70,7 +68,6 @@ public class Part02Step07Controller extends StepController {
         List<OBDModuleInformation> zeroFunctionObdModules = new ArrayList<>();
 
         final ComponentIdentificationPacket[] dsFunctionZeroPacket = { null };
-        //System.out.println("modules in dataRepo: " + dataRepository.getObdModules().size());
         //6.2.7 Component ID: Make, Model, Serial Number Support
         dataRepository.getObdModules().stream()
                 //get modules that responded in Part01 from dataRepo
@@ -88,37 +85,38 @@ public class Part02Step07Controller extends StepController {
                                 //  6.2.7.2.b Fail criteria: Fail if there is any difference between the
                                 //  part 2 response and the part 1 response, as PGN 65259 data is defined
                                 //  to be static values.
-                                if (p.left.isPresent()) {
-                                    // PGN 65259 -> ComponentIdentificationPacket
-                                    ComponentIdentificationPacket packet = p.left.get();
-                                    if(module.getFunction() == 0){
-                                        dsFunctionZeroPacket[0] = packet;
+                                // PGN 65259 -> ComponentIdentificationPacket
+                                p.left.ifPresent(leftPacket -> {
+                                    if (module.getFunction() == 0) {
+                                        dsFunctionZeroPacket[0] = leftPacket;
+                                        // Filter the modules responded to be only
+                                        // ones with function = 0 (engine function)
+                                        // - needed for 6.2.7.4.a check
+                                        zeroFunctionObdModules.add(module);
                                     }
-                                    if(!packet.getComponentIdentification().equals( module.getComponentIdentification()))
-                                        addFailure("6.2.7.2.b - " + moduleName +
-                                                           " reported component identification as: " + packet.getComponentIdentification().toString() +
-                                                           ", Part 01 Step 09 reported it as: " + module.getComponentIdentification().toString());
+                                    if (!leftPacket.getComponentIdentification()
+                                            .equals(module.getComponentIdentification())) {
+                                        addFailure("6.2.7.2.b - " + moduleName + " reported component identification as: "
+                                                           + leftPacket.getComponentIdentification().toString() +
+                                                           ", Part 01 Step 09 reported it as: " +
+                                                           module.getComponentIdentification().toString());
                                     }
+                                });
                             }, () -> {
                                 //6.2.7.2 Fail criteria:
                                 // a. Fail if any device does not support PGN 65259 with the engine running that supported PGN 65259 with the engine off in part 1.
-                                addFailure("6.2.7.2.a There are no positive responses to a DS Component ID request from "
-                                                   + moduleName);
+                                addFailure(
+                                        "6.2.7.2.a - There are no positive responses to a DS Component ID request from "
+                                                + moduleName);
                             });
                     //6.2.7.5 Warn criteria2 for OBD ECUs other than function 0:
                     // a. Warn if Component ID not supported for the global query
                     // in 6.2.7.3 with engine running.
-                    if(module.getFunction() != 0 &&
+                    if (module.getFunction() != 0 &&
                             globalPackets.stream()
                                     //not supported means didn't respond?
-                                    .noneMatch(packet -> packet.getSourceAddress() == moduleAddress)){
+                                    .noneMatch(packet -> packet.getSourceAddress() == moduleAddress)) {
                         addWarning("6.2.7.5.a - " + moduleName + " did not provide a positive respond to global query while engine running");
-                    }
-                    // Filter the modules responded to be only ones with function = 0 (engine function)
-                    // needed for 6.2.7.4.a check
-                    if(module.getFunction() == 0){
-                        zeroFunctionObdModules.add(module);
-
                     }
                 });
 
@@ -134,7 +132,7 @@ public class Part02Step07Controller extends StepController {
         //6.2.7.4.b Fail if the global response does not match the
         // destination specific response from function 0.
         ComponentIdentificationPacket zeroFunctionPacket = null;
-        if(!zeroFunctionPackets.isEmpty()) {
+        if (!zeroFunctionPackets.isEmpty()) {
             zeroFunctionPacket = zeroFunctionPackets.get(0);
         }
 
@@ -143,9 +141,9 @@ public class Part02Step07Controller extends StepController {
             // b. Fail if the global response does not match the destination
             // specific response from function 0.
             String errorMessage = "6.2.7.4.b - ";
-            if(zeroFunctionObdModules.isEmpty()){
-                errorMessage +=  "No OBD module claimed function 0";
-            } else if( zeroFunctionPackets.isEmpty() || zeroFunctionPacket == null) {
+            if (zeroFunctionObdModules.isEmpty()) {
+                errorMessage += "No OBD module claimed function 0";
+            } else if (zeroFunctionPackets.isEmpty() || zeroFunctionPacket == null) {
                 errorMessage += "No packet was received for " +
                         Lookup.getAddressName(function0SourceAddress) +
                         " which claimed function 0 in Part 1 Step 9";
@@ -154,9 +152,7 @@ public class Part02Step07Controller extends StepController {
                         + Lookup.getAddressName(zeroFunctionPacket.getSourceAddress())
                         + ", which claimed function 0 in Part 1 Step 9";
             }
-            addFailure(getPartNumber(),
-                       getStepNumber(),
-                       errorMessage);
+            addFailure(errorMessage);
         }
     }
 }
