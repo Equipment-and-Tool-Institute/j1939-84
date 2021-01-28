@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.TreeSet;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.logging.Level;
@@ -108,6 +109,26 @@ public class J1939 {
      */
     static public Packet createRequestPacket(int pgn, int addr, int tool) {
         return Packet.create(REQUEST_PGN | addr, tool, true, pgn, pgn >> 8, pgn >> 16);
+    }
+
+    /**
+     * Helper method to find first results that are not busy NACKs with the side
+     * effect of adding source address of busy NACKs to expectedAddresses.
+     */
+    static private <T extends GenericPacket> Map<Integer, Either<T, AcknowledgmentPacket>> findTerminalResults(Collection<Integer> expectedAddressess,
+                                                                                                               List<Either<T, AcknowledgmentPacket>> results) {
+        return results
+                .stream()
+                .filter(r -> (boolean) r.resolve(p -> true, p -> {
+                    if (p.getResponse() != Response.BUSY) {
+                        return true;
+                    }
+                    expectedAddressess.add(p.getSourceAddress());
+                    return false;
+                }))
+                // if there are multiple responses from the same address, use
+                // first
+                .collect(Collectors.toMap(e -> ((ParsedPacket) e.resolve()).getSourceAddress(), e -> e, (a, b) -> a));
     }
 
     static private Logger getLogger() {
@@ -606,64 +627,51 @@ public class J1939 {
         }
 
         // expect responses from all OBD modules and anything that responds BUSY
-        Collection<Integer> expectedAddressess = DataRepository.getInstance().getObdModuleAddresses();
+        Collection<Integer> expectedAddressess = new TreeSet<>(DataRepository.getInstance().getObdModuleAddresses());
 
-        List<Either<T, AcknowledgmentPacket>> rl = requestGlobalOnce(pgn, requestPacket, listener,
-                fullString);
-        // Treat busy NACK same as no response
-        Map<Integer, Either<T, AcknowledgmentPacket>> results = rl
-                .stream()
-                .filter(r -> (boolean) r.resolve(p -> true, p -> {
-                    if (p.getResponse() != Response.BUSY) {
-                        return true;
-                    }
-                    expectedAddressess.add(p.getSourceAddress());
-                    return false;
-                }))
-                // if there are multiple responses from the same address, use
-                // first
-                .collect(Collectors.toMap(e -> ((ParsedPacket) e.resolve()).getSourceAddress(), e -> e, (a, b) -> a));
+        // Record successful results and NACKs. Treat busy NACK same as no
+        // response.
+        Map<Integer, Either<T, AcknowledgmentPacket>> results = findTerminalResults(expectedAddressess,
+                requestGlobalOnce(pgn, requestPacket, listener, fullString));
 
         if (!results.keySet().containsAll(expectedAddressess)) {
             // then not all OBD modules were heard, so re-request from global
             // and combine results
             retry = true;
-            List<Either<T, AcknowledgmentPacket>> results2 = requestGlobalOnce(pgn, requestPacket, listener,
-                    fullString);
-            // replace old results with new successes
-            results.putAll(results2.stream()
-                    .filter(r -> (boolean) r.resolve(p -> true, p -> {
-                        if (p.getResponse() != Response.BUSY) {
-                            return true;
-                        }
-                        expectedAddressess.add(p.getSourceAddress());
-                        return false;
-                    }))
-                    .collect(Collectors.toMap(e -> ((ParsedPacket) e.resolve()).getSourceAddress(), e -> e)));
+            // replace old results with new successful results and NACKs. Treat
+            // busy NACK same as no response.
+            results.putAll(
+                    findTerminalResults(expectedAddressess,
+                            requestGlobalOnce(pgn, requestPacket, listener, fullString)));
         }
 
         if (!results.keySet().containsAll(expectedAddressess)) {
             // then not all OBD modules were heard, so DS request from each
-            // module
-            expectedAddressess.stream().filter(a -> !results.containsKey(a))
+            // module that we do not have a terminal result from
+            expectedAddressess.stream()
+                    .filter(a -> !results.containsKey(a))
                     .forEach(sa -> {
                         Packet dsRequest = createRequestPacket(pgn, sa);
                         Optional<Either<T, AcknowledgmentPacket>> response = requestDSOnce(listener, fullString, pgn,
                                 dsRequest);
-                        if (response.flatMap(e -> e.right.map(ack -> ack.getResponse() == Response.BUSY))
-                                .orElse(false)) {
+
+                        response.filter(r -> r.right.map(nack -> nack.getResponse() != Response.BUSY).orElse(true))
+                                .ifPresent(r -> results.put(sa, r));
+
+                        if (!results.keySet().containsAll(expectedAddressess)) {
+                            // still busy, try one last time
                             log("first DS request after global busy NACK: " + dsRequest + " -> " + response);
                             response = requestDSOnce(listener, fullString, pgn, dsRequest);
-                            if (response.flatMap(e -> e.right.map(ack -> ack.getResponse() == Response.BUSY))
-                                    .orElse(false)) {
+                            if (response.flatMap(e -> e.left).isEmpty()) {
                                 log("second DS request after global busy NACK: " + dsRequest + " -> " + response);
                             }
+                            response.ifPresent(r -> results.put(sa, r));
                         }
-                        response.ifPresent(r -> results.put(sa, r));
                     });
         }
         return new RequestResult<>(retry,
                 results.keySet().stream().sorted().map(k -> results.get(k)).collect(Collectors.toList()));
+
     }
 
     /**
