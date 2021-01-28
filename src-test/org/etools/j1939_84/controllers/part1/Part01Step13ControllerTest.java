@@ -273,35 +273,86 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
-        String expected2dWarning = "6.1.13.2.d - An individual required monitor is supported by more than one OBD ECU" + NL +
-                "Boost pressure control sys has reporting from more than one OBD ECU" + NL +
-                "Diesel Particulate Filter  has reporting from more than one OBD ECU" + NL +
-                "EGR/VVT system             has reporting from more than one OBD ECU" + NL +
-                "Exhaust Gas Sensor         has reporting from more than one OBD ECU" + NL +
-                "Exhaust Gas Sensor heater  has reporting from more than one OBD ECU" + NL +
-                "Fuel System                has reporting from more than one OBD ECU" + NL +
-                "Misfire                    has reporting from more than one OBD ECU" + NL +
-                "NMHC converting catalyst   has reporting from more than one OBD ECU" + NL +
-                "NOx catalyst/adsorber      has reporting from more than one OBD ECU";
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.13.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0" + NL
+                                        "6.1.13.2.b - OBD ECU Engine #1 (0) reported active/previously active fault DTCs count not = 0/0" + NL
                                                 + "  Reported active fault count = 3" + NL + "  Reported previously active fault count = 16");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, expected2dWarning);
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.13.4.a - Difference compared to data received during global request");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.13.4.b. - OBD module Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.13.4.b. - OBD module Hitch Control (35) did not provide a response to Global query and did not provide a NACK for the DS query");
+
+        verify(mockListener).addOutcome(
+                1,
+                13,
+                WARN,
+                "6.1.13.2.d - Required monitor Boost pressure control sys is supported by more than one OBD ECU"
+        );
+        verify(mockListener).addOutcome(
+                1,
+                13,
+                WARN,
+                "6.1.13.2.d - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU"
+        );
+        verify(mockListener).addOutcome(
+                1,
+                13,
+                WARN,
+                "6.1.13.2.d - Required monitor EGR/VVT system is supported by more than one OBD ECU"
+        );
+        verify(mockListener).addOutcome(
+                1,
+                13,
+                WARN,
+                "6.1.13.2.d - Required monitor Exhaust Gas Sensor is supported by more than one OBD ECU"
+        );
+        verify(mockListener).addOutcome(
+                1,
+                13,
+                WARN,
+                "6.1.13.2.d - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU"
+        );
+        verify(mockListener).addOutcome(
+                1,
+                13,
+                WARN,
+                "6.1.13.2.d - Required monitor Fuel System is supported by more than one OBD ECU"
+        );
+        verify(mockListener).addOutcome(
+                1,
+                13,
+                WARN,
+                "6.1.13.2.d - Required monitor Misfire is supported by more than one OBD ECU"
+        );
+        verify(mockListener).addOutcome(
+                1,
+                13,
+                WARN,
+                "6.1.13.2.d - Required monitor NMHC converting catalyst is supported by more than one OBD ECU"
+        );
+        verify(mockListener).addOutcome(
+                1,
+                13,
+                WARN,
+                "6.1.13.2.d - Required monitor NOx catalyst/adsorber is supported by more than one OBD ECU"
+        );
+        verify(mockListener).addOutcome(
+                1,
+                13,
+                FAIL,
+                "6.1.13.4.a - Difference compared to data received during global request"
+        );
+        verify(mockListener).addOutcome(
+                1,
+                13,
+                FAIL,
+                "6.1.13.4.b. - OBD module Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query"
+        );
+        verify(mockListener).addOutcome(
+                1,
+                13,
+                FAIL,
+                "6.1.13.4.b. - OBD module Hitch Control (35) did not provide a response to Global query and did not provide a NACK for the DS query"
+        );
+
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalResponse));
 
         assertEquals("", listener.getMessages());
@@ -325,10 +376,18 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                 "    Secondary air system       not supported,     complete" + NL;
 
         String expectedResults = expectedVehicleComposite + NL;
-        expectedResults += "FAIL: 6.1.13.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0" + NL;
+        expectedResults += "FAIL: 6.1.13.2.b - OBD ECU Engine #1 (0) reported active/previously active fault DTCs count not = 0/0" + NL;
         expectedResults += "  Reported active fault count = 3" + NL;
         expectedResults += "  Reported previously active fault count = 16" + NL;
-        expectedResults += "WARN: " + expected2dWarning + NL;
+        expectedResults += "WARN: 6.1.13.2.d - Required monitor Boost pressure control sys is supported by more than one OBD ECU" + NL;
+        expectedResults += "WARN: 6.1.13.2.d - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU" + NL;
+        expectedResults += "WARN: 6.1.13.2.d - Required monitor EGR/VVT system is supported by more than one OBD ECU" + NL;
+        expectedResults += "WARN: 6.1.13.2.d - Required monitor Exhaust Gas Sensor is supported by more than one OBD ECU" + NL;
+        expectedResults += "WARN: 6.1.13.2.d - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU" + NL;
+        expectedResults += "WARN: 6.1.13.2.d - Required monitor Fuel System is supported by more than one OBD ECU" + NL;
+        expectedResults += "WARN: 6.1.13.2.d - Required monitor Misfire is supported by more than one OBD ECU" + NL;
+        expectedResults += "WARN: 6.1.13.2.d - Required monitor NMHC converting catalyst is supported by more than one OBD ECU" + NL;
+        expectedResults += "WARN: 6.1.13.2.d - Required monitor NOx catalyst/adsorber is supported by more than one OBD ECU" + NL;
         expectedResults += "FAIL: 6.1.13.4.a - Difference compared to data received during global request" + NL;
         expectedResults += "FAIL: 6.1.13.4.b. - OBD module Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
         expectedResults += "FAIL: 6.1.13.4.b. - OBD module Hitch Control (35) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;

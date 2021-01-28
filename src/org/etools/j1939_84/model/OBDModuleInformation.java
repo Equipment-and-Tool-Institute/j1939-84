@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
@@ -46,6 +47,8 @@ public class OBDModuleInformation implements Cloneable {
     private String engineFamilyName = "";
 
     private String modelYear = "";
+
+    private DM26TripDiagnosticReadinessPacket lastDM26;
 
     public OBDModuleInformation(int sourceAddress) {
         this.sourceAddress = sourceAddress;
@@ -245,4 +248,11 @@ public class OBDModuleInformation implements Cloneable {
         return getSupportedSpns().stream().map(SupportedSPN::toString).collect(Collectors.joining(","));
     }
 
+    public DM26TripDiagnosticReadinessPacket getLastDM26() {
+        return lastDM26;
+    }
+
+    public void setLastDM26(DM26TripDiagnosticReadinessPacket lastDM26) {
+        this.lastDM26 = lastDM26;
+    }
 }

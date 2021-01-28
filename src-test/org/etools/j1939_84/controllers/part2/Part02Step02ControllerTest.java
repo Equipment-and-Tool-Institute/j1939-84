@@ -228,15 +228,13 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.2.2.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0" + NL +
+                                        "6.2.2.2.b - OBD ECU Engine #1 (0) reported active/previously active fault DTCs count not = 0/0" + NL +
                                                 "  Reported active fault count = 1" + NL +
                                                 "  Reported previously active fault count = 0");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        "6.2.2.2.c - Listed below are the individually required monitors, except Continuous Component Monitoring (CCM)" + NL +
-                                                "  that have been reported as supported by more than one OBD ECU:" + NL +
-                                                "    Exhaust Gas Sensor heater");
+                                        "6.2.2.2.c - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -264,12 +262,10 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                 "    NMHC converting catalyst       supported, not complete" + NL +
                 "    NOx catalyst/adsorber          supported, not complete" + NL +
                 "    Secondary air system       not supported,     complete" + NL +
-                NL + "FAIL: 6.2.2.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0" + NL +
+                NL + "FAIL: 6.2.2.2.b - OBD ECU Engine #1 (0) reported active/previously active fault DTCs count not = 0/0" + NL +
                 "  Reported active fault count = 1" + NL +
                 "  Reported previously active fault count = 0" + NL +
-                "WARN: 6.2.2.2.c - Listed below are the individually required monitors, except Continuous Component Monitoring (CCM)" + NL +
-                "  that have been reported as supported by more than one OBD ECU:" + NL +
-                "    Exhaust Gas Sensor heater" + NL +
+                "WARN: 6.2.2.2.c - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU" + NL +
                 "FAIL: 6.2.2.4.a - Difference compared to data received during global request" + NL;
 
         assertEquals(expectedResults, listener.getResults());
@@ -368,12 +364,12 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x17));
         verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x21));
 
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        WARN,
-                                        "6.2.2.2.c - Listed below are the individually required monitors, except Continuous Component Monitoring (CCM)" + NL +
-                                                "  that have been reported as supported by more than one OBD ECU:" + NL +
-                                                "    Exhaust Gas Sensor heater");
+        verify(mockListener).addOutcome(
+                PART_NUMBER,
+                STEP_NUMBER,
+                WARN,
+                "6.2.2.2.c - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU"
+        );
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
@@ -405,9 +401,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                 "    NMHC converting catalyst       supported, not complete" + NL +
                 "    NOx catalyst/adsorber          supported, not complete" + NL +
                 "    Secondary air system       not supported,     complete" + NL +
-                NL + "WARN: 6.2.2.2.c - Listed below are the individually required monitors, except Continuous Component Monitoring (CCM)" + NL +
-                "  that have been reported as supported by more than one OBD ECU:" + NL +
-                "    Exhaust Gas Sensor heater" + NL +
+                NL + "WARN: 6.2.2.2.c - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU" + NL +
                 "WARN: 6.2.2.3.a - OBD module Engine #1 (0) did not return a response to a destination specific DM5 request" + NL +
                 "WARN: 6.2.2.3.a - OBD module Instrument Cluster #1 (23) did not return a response to a destination specific DM5 request" + NL;
         assertEquals(expectedResults, listener.getResults());

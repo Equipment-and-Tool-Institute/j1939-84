@@ -4,17 +4,15 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.modules.DiagnosticReadinessModule.getCompositeSystems;
 
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.BusResult;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
-import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -31,7 +29,6 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  * <p>
  * The controller for 6.1.13 DM5: Diagnostic Readiness 1: Monitor Readiness
  */
-
 public class Part01Step13Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
@@ -81,20 +78,16 @@ public class Part01Step13Controller extends StepController {
         diagnosticReadinessModule.setJ1939(getJ1939());
 
         // 6.1.13.1.a. Global DM5 (send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)).
-        RequestResult<DM5DiagnosticReadinessPacket> response = diagnosticReadinessModule.requestDM5(getListener(),
-                                                                                                    true);
+        RequestResult<DM5DiagnosticReadinessPacket> response = diagnosticReadinessModule.requestDM5(getListener(), true);
         List<DM5DiagnosticReadinessPacket> obdGlobalPackets = response.getPackets().stream()
                 .filter(DM5DiagnosticReadinessPacket::isObd)
                 .collect(Collectors.toList());
         if (!obdGlobalPackets.isEmpty()) {
-            // got responses from the global request so log success
             // 6.1.13.1.b. Display monitor readiness composite value in log for OBD ECU replies only.
-
-            List<CompositeMonitoredSystem> systems = DiagnosticReadinessModule.getCompositeSystems(obdGlobalPackets,
-                                                                                                   true);
             getListener().onResult("");
             getListener().onResult("Vehicle Composite of DM5:");
-            getListener().onResult(systems.stream()
+            getListener().onResult(getCompositeSystems(obdGlobalPackets, true)
+                                           .stream()
                                            .sorted()
                                            .map(MonitoredSystem::toString)
                                            .collect(Collectors.toList()));
@@ -111,14 +104,17 @@ public class Part01Step13Controller extends StepController {
                 .filter(p -> p.getActiveCodeCount() != (byte) 0xFF)
                 .filter(p -> p.getPreviouslyActiveCodeCount() != (byte) 0xFF)
                 .forEach(packet -> {
-            byte acc = packet.getActiveCodeCount();
-            byte pacc = packet.getPreviouslyActiveCodeCount();
-            if (acc != 0 || pacc != 0) {
-                addFailure("6.1.13.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0"
-                                   + NL + "  Reported active fault count = " + acc + NL
-                                   + "  Reported previously active fault count = " + pacc);
-            }
-        });
+                    byte acc = packet.getActiveCodeCount();
+                    byte pacc = packet.getPreviouslyActiveCodeCount();
+                    if (acc != 0 || pacc != 0) {
+                        String moduleName = Lookup.getAddressName(packet.getSourceAddress());
+                        String msg = "";
+                        msg += "6.1.13.2.b - OBD ECU " + moduleName + " reported active/previously active fault DTCs count not = 0/0" + NL;
+                        msg += "  Reported active fault count = " + acc + NL;
+                        msg += "  Reported previously active fault count = " + pacc;
+                        addFailure(msg);
+                    }
+                });
 
         // 6.1.13.2.c. Fail if no OBD ECU provides DM5 with readiness bits showing monitor support.
         List<DM5DiagnosticReadinessPacket> dm5PacketsShowingMonitorSupport = obdGlobalPackets.stream()
@@ -133,26 +129,7 @@ public class Part01Step13Controller extends StepController {
         // 6.1.13.2.d. Warn if any individual required monitor, except Continuous
         // Component Monitoring (CCM) is supported by more than one OBD ECU.
         // Get the list of duplicate composite systems
-        List<CompositeSystem> compositeSystems = obdGlobalPackets.stream()
-                .flatMap(packet -> packet.getMonitoredSystems().stream()
-                        .filter(system -> system.getId() != CompositeSystem.COMPREHENSIVE_COMPONENT)
-                        .filter(system -> system.getStatus().isEnabled()))
-                .map(MonitoredSystem::getId)
-                .collect(Collectors.toList());
-
-        // reduce list to a single copy of each duplicate
-        Set<CompositeSystem> duplicateCompositeSystems = compositeSystems.stream()
-                .filter(system -> Collections.frequency(compositeSystems, system) > 1)
-                .collect(Collectors.toSet());
-        if (duplicateCompositeSystems.size() > 0) {
-            StringBuilder warning = new StringBuilder(
-                    "6.1.13.2.d - An individual required monitor is supported by more than one OBD ECU");
-            duplicateCompositeSystems.stream().sorted().forEach(system ->
-                                                                        warning.append(NL)
-                                                                                .append(system.getName())
-                                                                                .append(" has reporting from more than one OBD ECU"));
-            addWarning(warning.toString());
-        }
+        reportDuplicateCompositeSystems(obdGlobalPackets,"6.1.13.2.d");
 
         List<Integer> obdAddresses = dataRepository.getObdModuleAddresses();
         // 6.1.13.3.a. DS DM5 to each OBD ECU.

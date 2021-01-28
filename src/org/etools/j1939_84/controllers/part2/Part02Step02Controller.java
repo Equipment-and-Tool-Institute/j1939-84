@@ -8,15 +8,13 @@ import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
 import static org.etools.j1939_84.modules.DiagnosticReadinessModule.getCompositeSystems;
 
 import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.BusResult;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
-import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -100,37 +98,21 @@ public class Part02Step02Controller extends StepController {
         sectionA6Validator.verify(getListener(), getPartNumber(), getStepNumber(), globalDM5Result);
 
         //6.2.2.2.b. Fail if any OBD ECU reports active/previously active fault DTC count not = 0/0.
-        obdGlobalPackets.forEach(packet -> {
-            byte activeCount = packet.getActiveCodeCount();
-            byte prevCount = packet.getPreviouslyActiveCodeCount();
-            if (activeCount != 0 || prevCount != 0) {
-                addFailure("6.2.2.2.b - An OBD ECU reported active/previously active fault DTCs count not = 0/0"
-                                   + NL + "  Reported active fault count = " + activeCount + NL
-                                   + "  Reported previously active fault count = " + prevCount);
-            }
-        });
+        obdGlobalPackets.stream()
+                .filter(p -> p.getActiveCodeCount() != (byte) 0xFF)
+                .filter(p -> p.getPreviouslyActiveCodeCount() != (byte) 0xFF)
+                .forEach(packet -> {
+                    byte activeCount = packet.getActiveCodeCount();
+                    byte prevCount = packet.getPreviouslyActiveCodeCount();
+                    if (activeCount != 0 || prevCount != 0) {
+                        addFailure("6.2.2.2.b - OBD ECU " + Lookup.getAddressName(packet.getSourceAddress()) + " reported active/previously active fault DTCs count not = 0/0"
+                                           + NL + "  Reported active fault count = " + activeCount + NL
+                                           + "  Reported previously active fault count = " + prevCount);
+                    }
+                });
 
         //6.2.2.2.c. Warn if any individual required monitor, except Continuous Component Monitoring (CCM) is supported by more than one OBD ECU.
-        List<CompositeSystem> compositeSystems = globalDM5Packets.stream()
-                .flatMap(packet -> packet.getMonitoredSystems().stream()
-                        .filter(system -> system.getId() != CompositeSystem.COMPREHENSIVE_COMPONENT)
-                        .filter(system -> system.getStatus().isEnabled()))
-                .map(MonitoredSystem::getId)
-                .collect(Collectors.toList());
-
-        // reduce list to a single copy of each duplicate
-        Set<CompositeSystem> duplicateCompositeSystems = compositeSystems.stream()
-                .filter(system -> Collections.frequency(compositeSystems, system) > 1)
-                .collect(Collectors.toSet());
-        if (duplicateCompositeSystems.size() > 0) {
-            StringBuilder warning = new StringBuilder(
-                    "6.2.2.2.c - Listed below are the individually required monitors, except Continuous Component Monitoring (CCM)"
-                            + NL + "  that have been reported as supported by more than one OBD ECU:");
-            duplicateCompositeSystems.stream().sorted().forEach(system -> warning.append(NL)
-                    .append("    ")
-                    .append(system.getName().trim()));
-            addWarning(warning.toString());
-        }
+        reportDuplicateCompositeSystems(globalDM5Packets, "6.2.2.2.c");
 
         //6.2.2.3.a. DS DM5 to each OBD ECU.
         List<DM5DiagnosticReadinessPacket> destinationSpecificPackets = new ArrayList<>();
