@@ -4,10 +4,12 @@
 package org.etools.j1939_84.controllers;
 
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.model.Outcome.INFO;
 
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
@@ -15,7 +17,10 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
+import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
@@ -49,6 +54,11 @@ public abstract class StepController extends Controller {
 
     protected void addWarning(String message) {
         addWarning(getPartNumber(), getStepNumber(), message);
+    }
+
+    protected void addInfo(String message) {
+        getListener().addOutcome(partNumber, stepNumber, INFO, message);
+        getListener().onResult("INFO: " + message);
     }
 
     @Override
@@ -109,6 +119,24 @@ public abstract class StepController extends Controller {
                 .sorted()
                 .map(address -> section + " - OBD module " + Lookup.getAddressName(address) + " did not provide a response to Global query and did not provide a NACK for the DS query")
                 .forEach(this::addFailure);
+    }
+
+    protected void reportDuplicateCompositeSystems(List<? extends DiagnosticReadinessPacket> packets, String section) {
+        List<CompositeSystem> compositeSystems = packets.stream()
+                .flatMap(packet -> packet.getMonitoredSystems().stream())
+                .filter(system -> system.getStatus().isEnabled())
+                .map(MonitoredSystem::getId)
+                .filter(system -> system != CompositeSystem.COMPREHENSIVE_COMPONENT)
+                .collect(Collectors.toList());
+
+        compositeSystems.stream()
+                .filter(system -> Collections.frequency(compositeSystems, system) > 1)
+                .distinct()
+                .sorted()
+                .map(CompositeSystem::getName)
+                .map(String::trim)
+                .map(m -> section + " - Required monitor " + m + " is supported by more than one OBD ECU")
+                .forEach(this::addWarning);
     }
 
     protected static <T extends GenericPacket> List<T> filterRequestResultPackets(List<RequestResult<T>> results) {
