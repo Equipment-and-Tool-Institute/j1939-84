@@ -3,10 +3,12 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import static java.util.Map.entry;
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket.createComponentIdPacket;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939_84.utils.CollectionUtils.join;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -15,15 +17,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.Map.Entry;
 import java.util.Optional;
 import java.util.concurrent.Executor;
-import java.util.stream.Collectors;
+import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
@@ -83,31 +83,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
     private static final int STEP_NUMBER = 9;
 
-    /*
-     * All values must be checked prior to mocking so that we are not creating
-     * unnecessary mocks.
-     */
-    private static ComponentIdentificationPacket createComponentIdPacket(Integer sourceAddress,
-                                                                         String make,
-                                                                         String model,
-                                                                         String serialNumber) {
-        ComponentIdentificationPacket packet = mock(ComponentIdentificationPacket.class);
-        if (sourceAddress != null) {
-            when(packet.getSourceAddress()).thenReturn(sourceAddress);
-        }
-        if (make != null) {
-            when(packet.getMake()).thenReturn(make);
-        }
-        if (model != null) {
-            when(packet.getModel()).thenReturn(model);
-        }
-        if (serialNumber != null) {
-            when(packet.getSerialNumber()).thenReturn(serialNumber);
-        }
-
-        return packet;
-    }
-
     @Mock
     private BannerModule bannerModule;
 
@@ -131,13 +106,30 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private OBDModuleInformation obdModuleInformation;
-
-    @Mock
     private ReportFileModule reportFileModule;
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
+
+    private OBDModuleInformation createOBDModuleInformation(Integer sourceAddress, Integer function, String make,
+                                                            String model, String serialNumber, String unitNumber) {
+        OBDModuleInformation module = new OBDModuleInformation(sourceAddress);
+        module.setFunction(function);
+
+        byte[] bytes = join(make.getBytes(UTF_8),
+                            "*".getBytes(UTF_8),
+                            model.getBytes(UTF_8),
+                            "*".getBytes(UTF_8),
+                            serialNumber.getBytes(UTF_8),
+                            "*".getBytes(UTF_8),
+                            unitNumber.getBytes(UTF_8));
+
+        ComponentIdentificationPacket componentIdentificationPacket = new ComponentIdentificationPacket(
+                Packet.create(ComponentIdentificationPacket.PGN, sourceAddress, bytes)
+        );
+        module.setComponentInformationIdentification(componentIdentificationPacket.getComponentIdentification());
+        return module;
+    }
 
     private OBDModuleInformation createOBDModuleInformation(Integer sourceAddress, Integer function) {
         OBDModuleInformation module = mock(OBDModuleInformation.class);
@@ -182,7 +174,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         verifyNoMoreInteractions(executor,
                                  engineSpeedModule,
                                  bannerModule,
-                                 obdModuleInformation,
                                  vehicleInformationModule,
                                  dataRepository,
                                  mockListener,
@@ -190,69 +181,59 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testDestinationSpecificPacketsEmpty() {
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                                                                       "Bat",
+    public void testDestinationSpecificPacketsEmpty() throws IOException {
+        ComponentIdentificationPacket packet = createComponentIdPacket(0x00,
+                                                                       "BatMan",
                                                                        "TheBatCave",
-                                                                       "ST109823456");
+                                                                       "ST109823456",
+                                                                       "Land");
 
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 4),
-                entry(1, 1),
-                entry(2, 2),
-                entry(3, 3));
+        OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
+                                                                    0,
+                                                                    "BatMan",
+                                                                    "TheBatCave",
+                                                                    "ST109823456",
+                                                                    "Land");
 
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
+        when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                .thenReturn(new RequestResult<>(false, List.of(packet),
                                                 Collections.emptyList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        // Return and empty list of modules
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
         verify(dataRepository).getObdModules();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_1_A);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_B);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_D);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
 
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_1_A);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_B);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
+        verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_D);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
 
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_1_A);
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_B);
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A);
+        verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_D);
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A);
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B);
 
         String functionZeroWarning = "0 module(s) have claimed function 0 - only one module should";
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + functionZeroWarning);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
         verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x00));
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -260,6 +241,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         String expectedResults = FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_1_A + NL + WARN.toString() + COLON_SPACE + functionZeroWarning + NL +
                 FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_B + NL +
                 WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A + NL +
+                WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_D + NL +
                 FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A + NL +
                 FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B + NL;
         assertEquals(expectedResults, listener.getResults());
@@ -283,52 +265,37 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testGlobalRequestDoesNotMatchDestinationSpecificRequest() {
+    public void testGlobalRequestDoesNotMatchDestinationSpecificRequest() throws IOException {
+        ComponentIdentificationPacket packet = ComponentIdentificationPacket.createComponentIdPacket(0,
+                                                                                                     "Bat",
+                                                                                                     "TheBatCave",
+                                                                                                     "ST109823456",
+                                                                                                     "");
 
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                                                                       "Bat",
+        OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
+                                                                       0,
+                                                                       "BatMan",
                                                                        "TheBatCave",
-                                                                       "ST109823456");
+                                                                       "ST109823456",
+                                                                       "Land");
 
-        Map<Integer, Integer> moduleAddressFunction = new HashMap<>() {
-            {
-                put(0, 0);
-                put(1, 1);
-                put(2, 2);
-                put(3, 3);
-            }
-        };
-
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
+        when(dataRepository.getObdModule(eq(0x00))).thenReturn(obdMoule0x00);
+        when(dataRepository.getObdModules()).thenReturn(List.of(obdMoule0x00));
 
         // Global request response
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(),
-                                                Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, List.of(),
+                                                List.of()));
 
         // Destination specific responses
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
-            obdModuleInformations
-                    .add(createOBDModuleInformation(address
-                                                            .getKey(), address.getValue()));
-        }
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository).getObdModule(eq(0x00));
         verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(obdMoule0x00);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_4_A_4_B);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
@@ -346,9 +313,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
         verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
@@ -362,46 +326,92 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testHappyPath() {
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                                                                       "Bat",
+    public void testHappyPath() throws IOException {
+        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0,
+                                                                           "Bat",
+                                                                           "TheBatCave",
+                                                                           "ST109823456",
+                                                                           "");
+        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
+                                                                           "AquaMan",
+                                                                           "TheWater",
+                                                                           "ST109888765",
+                                                                           "Ocean");
+        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
+                                                                           "SuperMan",
+                                                                           "TheCrystalIcePalace",
+                                                                           "ST109823456",
+                                                                           "Air");
+        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
+                                                                           "WonderWoman",
+                                                                           "TheLair",
+                                                                           "WW109877654",
+                                                                           "Lasso");
+
+        OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
+                                                                       0,
+                                                                       "BatMan",
                                                                        "TheBatCave",
-                                                                       "ST109823456");
+                                                                       "ST109823456",
+                                                                       "Land");
 
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 0),
-                entry(1, 1),
-                entry(2, 2),
-                entry(3, 3));
+        OBDModuleInformation obdModule0x01 = createOBDModuleInformation(0x01,
+                                                                        1,
+                                                                        "AquaMan",
+                                                                        "TheWater",
+                                                                        "ST109888765",
+                                                                        "Ocean");
 
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
+        OBDModuleInformation obdModule0x02 = createOBDModuleInformation(0x02,
+                                                                        2,
+                                                                        "SuperMan",
+                                                                        "TheCrystalIcePalace",
+                                                                        "ST109823456",
+                                                                        "Air");
+
+        OBDModuleInformation obdModule0x03 = createOBDModuleInformation(0x03,
+                                                                        3,
+                                                                        "WonderWoman",
+                                                                        "TheLair",
+                                                                        "WW109877654",
+                                                                        "Lasso");
+
+        List<OBDModuleInformation> obdModules = new ArrayList<>();
+        obdModules.add(obdMoule0x00);
+        obdModules.add(obdModule0x01);
+        obdModules.add(obdModule0x02);
+        obdModules.add(obdModule0x03);
+
+        when(dataRepository.getObdModules()).thenReturn(obdModules);
+        when(dataRepository.getObdModule(0x00)).thenReturn(obdMoule0x00);
+        when(dataRepository.getObdModule(0x01)).thenReturn(obdModule0x01);
+        when(dataRepository.getObdModule(0x02)).thenReturn(obdModule0x02);
+        when(dataRepository.getObdModule(0x03)).thenReturn(obdModule0x03);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                .thenReturn(new RequestResult<>(false, List.of(packet0x00, packet0x01, packet0x02, packet0x03),
                                                 Collections.emptyList()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
-            obdModuleInformations
-                    .add(createOBDModuleInformation(address
-                                                            .getKey(), address.getValue()));
-        }
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
+                .thenReturn(new BusResult<>(false, packet0x00));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x01)))
+                .thenReturn(new BusResult<>(false, packet0x01));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x02)))
+                .thenReturn(new BusResult<>(false, packet0x02));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x03)))
+                .thenReturn(new BusResult<>(false, packet0x03));
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
         verify(dataRepository).getObdModules();
+        verify(dataRepository).getObdModule(eq(0x00));
+        verify(dataRepository).getObdModule(eq(0x01));
+        verify(dataRepository).getObdModule(eq(0x02));
+        verify(dataRepository).getObdModule(eq(0x03));
+        verify(dataRepository).putObdModule(obdMoule0x00);
+        verify(dataRepository).putObdModule(obdModule0x01);
+        verify(dataRepository).putObdModule(obdModule0x02);
+        verify(dataRepository).putObdModule(obdModule0x03);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -416,21 +426,23 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testMakeContainsNonPrintableAsciiCharacterFailure() {
+    public void testMakeContainsNonPrintableAsciiCharacterFailure() throws IOException {
         char unprintableAsciiLineFeed = 0xa;
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
                                                                        "Bat" + unprintableAsciiLineFeed,
                                                                        "TheBatCave",
-                                                                       "ST109823456");
+                                                                       "ST109823456",
+                                                                       "");
 
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 0),
-                entry(1, 1),
-                entry(2, 2),
-                entry(3, 3));
+        OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
+                                                                       0,
+                                                                       "BatMan",
+                                                                       "TheBatCave",
+                                                                       "ST109823456",
+                                                                       "Land");
 
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
+        when(dataRepository.getObdModule(eq(0x00))).thenReturn(obdMoule0x00);
+        when(dataRepository.getObdModules()).thenReturn(List.of(obdMoule0x00));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
@@ -438,25 +450,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
-            obdModuleInformations
-                    .add(createOBDModuleInformation(address
-                                                            .getKey(), address.getValue()));
-        }
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository).getObdModule(eq(0x00));
         verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(obdMoule0x00);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
@@ -464,9 +463,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
         verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
@@ -476,59 +472,42 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testMakeFieldMoreThanFiveCharacters() {
+    public void testMakeFieldMoreThanFiveCharacters() throws IOException {
 
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
                                                                        "BatMan",
                                                                        "TheBatCave",
-                                                                       "ST109823456");
+                                                                       "ST109823456",
+                                                                       "");
 
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 0),
-                entry(1, 1),
-                entry(2, 2),
-                entry(3, 3));
+        OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
+                                                                    0,
+                                                                    "BatMan",
+                                                                    "TheBatCave",
+                                                                    "ST109823456",
+                                                                    "Land");
 
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()).stream()
-                                    .sorted().collect(Collectors.toList()));
-
+        when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
+        when(dataRepository.getObdModule(0x00)).thenReturn(obdModule);
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
                                                 Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
-            obdModuleInformations
-                    .add(createOBDModuleInformation(address
-                                                            .getKey(), address.getValue()));
-        }
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
         verify(dataRepository).getObdModules();
+        verify(dataRepository).getObdModule(eq(0x00));
+        verify(dataRepository).putObdModule(obdModule);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
 
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
-
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_B);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
         verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
@@ -539,20 +518,22 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testMakeFiveCharactersWarning() {
+    public void testMakeFiveCharactersWarning() throws IOException {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
                                                                        "BatMan",
                                                                        "TheBatCave",
-                                                                       "ST109823456");
+                                                                       "ST109823456",
+                                                                       "");
 
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 0),
-                entry(1, 1),
-                entry(2, 2),
-                entry(3, 3));
+        OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
+                                                                    0,
+                                                                    "BatMan",
+                                                                    "TheBatCave",
+                                                                    "ST109823456",
+                                                                    "Land");
 
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
+        when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
+        when(dataRepository.getObdModule(0x00)).thenReturn(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
@@ -560,25 +541,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
-            obdModuleInformations
-                    .add(createOBDModuleInformation(address
-                                                            .getKey(), address.getValue()));
-        }
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository).getObdModule(eq(0x00));
         verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(obdModule);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
 
@@ -586,9 +554,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_B);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
         verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
@@ -598,46 +563,35 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testMakeLessTwoAsciiCharactersWarning() {
+    public void testMakeLessTwoAsciiCharactersWarning() throws IOException {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
                                                                        "B",
                                                                        "TheBatCave",
-                                                                       "ST109823456");
+                                                                       "ST109823456",
+                                                                       "Land");
 
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 0),
-                entry(1, 1),
-                entry(2, 2),
-                entry(3, 3));
+        OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
+                                                                    0,
+                                                                    "B",
+                                                                    "TheBatCave",
+                                                                    "ST109823456",
+                                                                    "Land");
 
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
+        when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
+        when(dataRepository.getObdModule(0x00)).thenReturn(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                                                Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, List.of(packet),
+                                                List.of()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
-            obdModuleInformations
-                    .add(createOBDModuleInformation(address
-                                                            .getKey(), address.getValue()));
-        }
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository).getObdModule(eq(0x00));
         verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(obdModule);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_C);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_C);
@@ -645,9 +599,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_C);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
         verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
@@ -659,47 +610,37 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testModelContainsNonPrintableAsciiCharacterFailure() {
-        char unprintableAsciiCarriageReturn = 0xd;
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
+    public void testModelContainsNonPrintableAsciiCharacterFailure() throws IOException {
+        //char unprintableAsciiNull = 0x0;
+        char unprintableAsciiCarriageReturn = 0xD;//0xD;
+        String model = unprintableAsciiCarriageReturn + "TheBatCave";
+        ComponentIdentificationPacket packet = createComponentIdPacket(0x00,
                                                                        "Bat",
-                                                                       ("TheBatCave" + unprintableAsciiCarriageReturn),
-                                                                       "ST109823456");
+                                                                       model,
+                                                                       "ST109823456",
+                                                                       "Land");
 
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 0),
-                entry(1, 1),
-                entry(2, 2),
-                entry(3, 3));
+        OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
+                                                                    0,
+                                                                    "Bat",
+                                                                    model,
+                                                                    "ST109823456",
+                                                                    "Land");
 
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
+        when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
+        when(dataRepository.getObdModule(0x00)).thenReturn(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                .thenReturn(new RequestResult<>(false, List.of(packet),
                                                 Collections.emptyList()));
-
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
-            obdModuleInformations
-                    .add(createOBDModuleInformation(address
-                                                            .getKey(), address.getValue()));
-        }
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository).getObdModule(eq(0x00));
         verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(obdModule);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
 
@@ -708,9 +649,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
         verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
@@ -720,20 +658,22 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testModelLessThanOneCharactersWarning() {
+    public void testModelLessThanOneCharactersWarning() throws IOException {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
                                                                        "Bat",
                                                                        "",
-                                                                       "ST123456");
+                                                                       "ST123456",
+                                                                       "");
 
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 0),
-                entry(1, 1),
-                entry(2, 2),
-                entry(3, 3));
+        OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
+                                                                    0,
+                                                                    "Bat",
+                                                                    "TheBatCave",
+                                                                    "ST109823456",
+                                                                    "Land");
 
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
+        when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
+        when(dataRepository.getObdModule(eq(0x00))).thenReturn(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
@@ -741,25 +681,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
-            obdModuleInformations
-                    .add(createOBDModuleInformation(address
-                                                            .getKey(), address.getValue()));
-        }
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository).getObdModule(eq(0x00));
         verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(obdModule);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_D);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_D);
@@ -767,9 +694,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_D);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
         verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
@@ -780,66 +704,59 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testMoreThanOneModuleWithFunctionZeroFailure() {
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                                                                       "Bat",
+    public void testMoreThanOneModuleWithFunctionZeroFailure() throws IOException {
+        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0,
+                                                                           "Bat",
+                                                                           "TheBatCave",
+                                                                           "ST123456",
+                                                                           "");
+
+        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
+                                                                           "AquaMan",
+                                                                           "TheWater",
+                                                                           "ST109888765",
+                                                                           "Ocean");
+
+        OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
+                                                                       0,
+                                                                       "BatMan",
                                                                        "TheBatCave",
-                                                                       "ST123456");
-        ComponentIdentificationPacket packet1 = createComponentIdPacket(1,
-                                                                        "WW",
-                                                                        "TheInvisibleJet",
-                                                                        "IJ345612");
-        List<ComponentIdentificationPacket> packets = new ArrayList<>() {
-            {
-                add(packet);
-                add(packet1);
-            }
-        };
+                                                                       "ST109823456",
+                                                                       "Land");
 
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 0),
-                entry(1, 0),
-                entry(2, 2),
-                entry(3, 3));
-
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
+        OBDModuleInformation obdModule0x01 = createOBDModuleInformation(0x01,
+                                                                        0,
+                                                                        "AquaMan",
+                                                                        "TheWater",
+                                                                        "ST109888765",
+                                                                        "Ocean");
+        when(dataRepository.getObdModules())
+                .thenReturn(List.of(obdMoule0x00, obdModule0x01));
+        when(dataRepository.getObdModule(eq(0x00))).thenReturn(obdMoule0x00);
+        when(dataRepository.getObdModule(eq(0x01))).thenReturn(obdModule0x01);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packets,
+                .thenReturn(new RequestResult<>(false, List.of(packet0x00, packet0x01),
                                                 Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+                .thenReturn(new BusResult<>(false, packet0x00));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, packet1));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
-            obdModuleInformations
-                    .add(createOBDModuleInformation(address
-                                                            .getKey(), address.getValue()));
-        }
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+                .thenReturn(new BusResult<>(false, packet0x01));
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository).getObdModule(eq(0x00));
+        verify(dataRepository).getObdModule(eq(0x01));
         verify(dataRepository).getObdModules();
-
-        int twice = 2;
+        verify(dataRepository).putObdModule(obdMoule0x00);
+        verify(dataRepository).putObdModule(obdModule0x01);
 
         String expected2ModulesWarnMessage = "2 module(s) have claimed function 0 - only one module should";
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + expected2ModulesWarnMessage);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(twice));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
         verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
@@ -849,20 +766,22 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testPacketsEmptyFailureGlobalRequest() {
+    public void testPacketsEmptyFailureGlobalRequest() throws IOException {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
                                                                        "Bat",
                                                                        "TheBatCave",
-                                                                       "ST109823456");
+                                                                       "ST109823456",
+                                                                       "");
 
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 0),
-                entry(1, 1),
-                entry(2, 2),
-                entry(3, 3));
+        OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
+                                                                    0,
+                                                                    "BatMan",
+                                                                    "TheBatCave",
+                                                                    "ST109823456",
+                                                                    "Land");
 
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
+        when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
+        when(dataRepository.getObdModule(0x00)).thenReturn(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false, Collections.emptyList(),
@@ -870,25 +789,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
-            obdModuleInformations
-                    .add(createOBDModuleInformation(address
-                                                            .getKey(), address.getValue()));
-        }
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository).getObdModule(eq(0x00));
         verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(obdModule);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_4_A_4_B);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
@@ -906,9 +812,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
         verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
@@ -923,53 +826,102 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testSerialNumberContainsAsciiNonPrintableCharacterFailure() {
+    public void testSerialNumberContainsAsciiNonPrintableCharacterFailure() throws IOException {
         char unprintableAsciiNull = 0x0;
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                                                                       "Bat",
-                                                                       "TheBatCave",
-                                                                       ("ST" + unprintableAsciiNull + "109823456"));
+        String serialNumber = "ST" + unprintableAsciiNull + "109823456";
+        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
+                                                                           "Bat",
+                                                                           "TheBatCave",
+                                                                           serialNumber,
+                                                                           "");
 
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 0),
-                entry(1, 1),
-                entry(2, 2),
-                entry(3, 3));
+        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
+                                                                           "AquaMan",
+                                                                           "TheWater",
+                                                                           "ST109888765",
+                                                                           "Ocean");
 
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
+        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
+                                                                           "SuperMan",
+                                                                           "TheCrystalIcePalace",
+                                                                           "ST109823456",
+                                                                           "Air");
+
+        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
+                                                                           "WonderWoman",
+                                                                           "TheLair",
+                                                                           "WW109877654",
+                                                                           "Lasso");
+
+        OBDModuleInformation obdModule0x00 = createOBDModuleInformation(0x00,
+                                                                        0,
+                                                                        "BatMan",
+                                                                        "TheBatCave",
+                                                                        serialNumber,
+                                                                        "Land");
+
+        OBDModuleInformation obdModule0x01 = createOBDModuleInformation(0x01,
+                                                                        1,
+                                                                        "AquaMan",
+                                                                        "TheWater",
+                                                                        "ST109888765",
+                                                                        "Ocean");
+
+        OBDModuleInformation obdModule0x02 = createOBDModuleInformation(0x02,
+                                                                        2,
+                                                                        "SuperMan",
+                                                                        "TheCrystalIcePalace",
+                                                                        "ST109823456",
+                                                                        "Air");
+
+        OBDModuleInformation obdModule0x03 = createOBDModuleInformation(0x03,
+                                                                        3,
+                                                                        "WonderWoman",
+                                                                        "TheLair",
+                                                                        "WW109877654",
+                                                                        "Lasso");
+
+        List<OBDModuleInformation> obdModules = new ArrayList<>();
+        obdModules.add(obdModule0x00);
+        obdModules.add(obdModule0x01);
+        obdModules.add(obdModule0x02);
+        obdModules.add(obdModule0x03);
+
+        when(dataRepository.getObdModules()).thenReturn(obdModules);
+        when(dataRepository.getObdModule(eq(0x00))).thenReturn(obdModule0x00);
+        when(dataRepository.getObdModule(eq(0x01))).thenReturn(obdModule0x01);
+        when(dataRepository.getObdModule(eq(0x02))).thenReturn(obdModule0x02);
+        when(dataRepository.getObdModule(eq(0x03))).thenReturn(obdModule0x03);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                                                Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false,
+                                                List.of(packet0x00, packet0x01, packet0x02, packet0x03),
+                                                List.of()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+                .thenReturn(new BusResult<>(false, packet0x00));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
+                .thenReturn(new BusResult<>(false, packet0x01));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
+                .thenReturn(new BusResult<>(false, packet0x02));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
-            obdModuleInformations
-                    .add(createOBDModuleInformation(address
-                                                            .getKey(), address.getValue()));
-        }
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+                .thenReturn(new BusResult<>(false, packet0x03));
 
         runTest();
 
-        // verify(dataRepository).getObdModule(eq(0));
-        verify(dataRepository).getObdModuleAddresses();
         verify(dataRepository).getObdModules();
+        verify(dataRepository).getObdModule(eq(0x00));
+        verify(dataRepository).getObdModule(eq(0x01));
+        verify(dataRepository).getObdModule(eq(0x02));
+        verify(dataRepository).getObdModule(eq(0x03));
+        verify(dataRepository).putObdModule(obdModule0x00);
+        verify(dataRepository).putObdModule(obdModule0x01);
+        verify(dataRepository).putObdModule(obdModule0x02);
+        verify(dataRepository).putObdModule(obdModule0x03);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
 
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
-
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
@@ -985,46 +937,35 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testSerialNumberEightCharactersWarning() {
+    public void testSerialNumberEightCharactersWarning() throws IOException {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
                                                                        "Bat",
                                                                        "TheBatCave",
-                                                                       "S123456");
+                                                                       "S123456",
+                                                                       "");
 
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 0),
-                entry(1, 1),
-                entry(2, 2),
-                entry(3, 3));
+        OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
+                                                                       0,
+                                                                       "BatMan",
+                                                                       "TheBatCave",
+                                                                       "ST109823456",
+                                                                       "Land");
 
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
+        when(dataRepository.getObdModules()).thenReturn(List.of(obdMoule0x00));
+        when(dataRepository.getObdModule(0x00)).thenReturn(obdMoule0x00);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
-                                                Collections.emptyList()));
+                .thenReturn(new RequestResult<>(false, List.of(packet),
+                                                List.of()));
 
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
-            obdModuleInformations
-                    .add(createOBDModuleInformation(address
-                                                            .getKey(), address.getValue()));
-        }
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
         verify(dataRepository).getObdModules();
+        verify(dataRepository).getObdModule(eq(0x00));
+        verify(dataRepository).putObdModule(eq(obdMoule0x00));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
@@ -1035,10 +976,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         verify(reportFileModule).onResult(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x00));
         verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
@@ -1050,46 +988,35 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testSerialNumberEndsWithNonNumericCharacterInLastSixCharactersFailure() {
+    public void testSerialNumberEndsWithNonNumericCharacterInLastSixCharactersFailure() throws IOException {
         ComponentIdentificationPacket packet = createComponentIdPacket(0,
                                                                        "Bat",
                                                                        "TheBatCave",
-                                                                       "ST109823J456");
+                                                                       "ST109823J456",
+                                                                       "Land");
 
-        Map<Integer, Integer> moduleAddressFunction = Map.ofEntries(
-                entry(0, 0),
-                entry(1, 1),
-                entry(2, 2),
-                entry(3, 3));
+        OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
+                                                                       0,
+                                                                       "Bat",
+                                                                       "TheBatCave",
+                                                                       "ST109823J456",
+                                                                       "Land");
 
-        when(dataRepository.getObdModuleAddresses())
-                .thenReturn(moduleAddressFunction.keySet().stream().sorted().collect(Collectors.toList()));
+        when(dataRepository.getObdModule(eq(0x00))).thenReturn(obdMoule0x00);
+        when(dataRepository.getObdModules()).thenReturn(List.of(obdMoule0x00));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet),
+                .thenReturn(new RequestResult<>(false, List.of(packet),
                                                 Collections.emptyList()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        List<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        for (Entry<Integer, Integer> address : moduleAddressFunction.entrySet()) {
-            obdModuleInformations
-                    .add(createOBDModuleInformation(address
-                                                            .getKey(), address.getValue()));
-        }
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository).getObdModule(eq(0x00));
         verify(dataRepository).getObdModules();
+        verify(dataRepository).putObdModule(obdMoule0x00);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_C);
         verify(reportFileModule).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_C);
@@ -1097,9 +1024,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         verify(reportFileModule).onResult(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_C);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
         verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly

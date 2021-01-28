@@ -236,20 +236,6 @@ public class ComponentIdentificationPacketTest {
 	}
 
 	@Test
-	public void testSpacesAreTrimmed() {
-		byte[] data = (MAKE + "     *     " + MODEL + "     *     " + SN + "     *     " + UN + "     *     ")
-				.getBytes(StandardCharsets.UTF_8);
-		Packet packet = Packet.create(0, 0, data);
-		ComponentIdentificationPacket instance = new ComponentIdentificationPacket(packet);
-		assertEquals(MAKE, instance.getMake());
-		assertEquals(MODEL, instance.getModel());
-		assertEquals(SN, instance.getSerialNumber());
-		assertEquals(UN, instance.getUnitNumber());
-		String expected = "Found Engine #1 (0): Make: Solid Design, Model: J1939-84 Tool, Serial: 000001, Unit: 1234567890";
-		assertEquals(expected, instance.toString());
-	}
-
-	@Test
 	public void testThreeStars() {
 		byte[] data = (MAKE + "*" + MODEL + "*" + SN + "*" + UN).getBytes(StandardCharsets.UTF_8);
 		Packet packet = Packet.create(0, 0, data);
@@ -285,21 +271,6 @@ public class ComponentIdentificationPacketTest {
 		assertEquals("", instance.getSerialNumber());
 		assertEquals(UN, instance.getUnitNumber());
 		String expected = "Found Engine #1 (0): Make: , Model: , Serial: , Unit: 1234567890";
-		assertEquals(expected, instance.toString());
-	}
-
-	@Test
-	public void testWithNulls() {
-		byte[] data = new byte[] { 0x44, 0x54, 0x44, 0x53, 0x43, 0x2A, 0x34, 0x37, 0x31, 0x4E, 0x31, 0x36, 0x2A, 0x00,
-				0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x2A, 0x20, 0x20, 0x20,
-				0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x20, 0x2A };
-		Packet packet = Packet.create(0xFEEB, 0x00, data);
-		ComponentIdentificationPacket instance = new ComponentIdentificationPacket(packet);
-		assertEquals("DTDSC", instance.getMake());
-		assertEquals("471N16", instance.getModel());
-		assertEquals("", instance.getSerialNumber());
-		assertEquals("", instance.getUnitNumber());
-		String expected = "Found Engine #1 (0): Make: DTDSC, Model: 471N16, Serial: , Unit: ";
 		assertEquals(expected, instance.toString());
 	}
 
