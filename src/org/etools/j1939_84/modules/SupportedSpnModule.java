@@ -116,7 +116,7 @@ public class SupportedSpnModule {
         boolean result = true;
         for (SpnGroup spnGroup : getRequiredDataStreamSpns(fuelType)) {
             if (!spnGroup.isSatisfied(spns)) {
-                listener.onResult("Required Data Stream SPNs are not supported: " + spnGroup);
+                listener.onResult("Required Data Stream SPNs are not supported. " + spnGroup);
                 result = false;
             }
         }
@@ -128,7 +128,7 @@ public class SupportedSpnModule {
         boolean result = true;
         for (SpnGroup spnGroup : REQUIRED_FREEZE_FRAME_SPNS) {
             if (!spnGroup.isSatisfied(spns)) {
-                listener.onResult("Required Freeze Frame SPNs are not supported: " + spnGroup);
+                listener.onResult("Required Freeze Frame SPNs are not supported. " + spnGroup);
                 result = false;
             }
         }

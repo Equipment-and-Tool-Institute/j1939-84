@@ -1,5 +1,5 @@
-/**
- * Copyright (c) 2019. Equipment & Tool Institute
+/*
+ * Copyright (c) 2021. Equipment & Tool Institute
  */
 package org.etools.j1939_84.model;
 
@@ -20,11 +20,11 @@ public class SpnGroup {
     }
 
     public boolean isSatisfied(Collection<Integer> supportedSpnValues) {
-        return supportedSpnValues.stream().anyMatch(spn -> spns.contains(spn));
+        return supportedSpnValues.stream().anyMatch(spns::contains);
     }
 
     @Override
     public String toString() {
-        return "SPNs: " + spns.stream().map(i -> i.toString()).collect(Collectors.joining(","));
+        return "SPNs: " + spns.stream().map(Object::toString).collect(Collectors.joining(", "));
     }
 }

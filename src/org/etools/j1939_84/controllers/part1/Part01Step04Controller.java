@@ -26,7 +26,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
- *
+ * <p>
  * The controller for DM24: SPN support
  */
 public class Part01Step04Controller extends StepController {
@@ -47,7 +47,7 @@ public class Part01Step04Controller extends StepController {
              new OBDTestsModule(),
              new SupportedSpnModule(),
              dataRepository,
-                DateTimeModule.getInstance());
+             DateTimeModule.getInstance());
     }
 
     Part01Step04Controller(Executor executor,
@@ -124,7 +124,7 @@ public class Part01Step04Controller extends StepController {
         if (!dataStreamOk) {
             // 6.1.4.2.b. Fail if one or more minimum expected SPNs for data stream
             // not supported per section A.1, Minimum Support Table, from the OBD ECU(s).
-            addFailure("6.1.4.2.b - One or more SPNs for data stream is not supported");
+            addFailure("6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         }
 
         // 6.1.4.1.e. Create ECU specific list of supported freeze frame SPNs.

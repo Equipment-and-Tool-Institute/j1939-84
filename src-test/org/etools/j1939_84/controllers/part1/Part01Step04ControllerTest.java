@@ -166,20 +166,20 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
 
         String expected ="";
-        expected +="FAIL: 6.1.4.2.b - One or more SPNs for data stream is not supported"+NL;
+        expected +="FAIL: 6.1.4.2.b - N.2 One or more SPNs for data stream is not supported"+NL;
         expected +="FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported"+NL;
         assertEquals(expected, listener.getResults());
 
         verify(mockListener)
                 .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                        "6.1.4.2.b - One or more SPNs for data stream is not supported");
+                        "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         verify(mockListener)
                 .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                         "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
 
         verify(reportFileModule)
                 .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                        "6.1.4.2.b - One or more SPNs for data stream is not supported");
+                        "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         verify(reportFileModule)
                 .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                         "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
@@ -245,7 +245,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         String expected ="";
         expected +="FAIL: 6.1.4.2.a - Retry was required to obtain DM24 response from Engine #2 (1)"+NL;
-        expected +="FAIL: 6.1.4.2.b - One or more SPNs for data stream is not supported"+NL;
+        expected +="FAIL: 6.1.4.2.b - N.2 One or more SPNs for data stream is not supported"+NL;
         expected +="FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported"+NL;
         assertEquals(expected, listener.getResults());
 
@@ -256,7 +256,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                 STEP_NUMBER,
                 FAIL,
-                "6.1.4.2.b - One or more SPNs for data stream is not supported");
+                "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         verify(mockListener).addOutcome(PART_NUMBER,
                 STEP_NUMBER,
                 FAIL,
