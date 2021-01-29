@@ -8,12 +8,13 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.BusResult;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -43,7 +44,7 @@ public class Part01Step21Controller extends StepController {
              new VehicleInformationModule(),
              new DTCModule(),
              dataRepository,
-                DateTimeModule.getInstance());
+             DateTimeModule.getInstance());
     }
 
     Part01Step21Controller(Executor executor,
@@ -71,25 +72,30 @@ public class Part01Step21Controller extends StepController {
         dtcModule.setJ1939(getJ1939());
 
         // 6.1.21.1.a. Global DM27 (send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 3038, 1706)).
-        RequestResult<DM27AllPendingDTCsPacket> globalResponse = dtcModule.requestDM27(getListener(), true);
+
+        List<DM27AllPendingDTCsPacket> globalPackets = dtcModule.requestDM27(getListener(), true).getPackets();
+
+        // 6.1.21.2.a. Fail if any OBD ECU reports an all pending DTC.
+        globalPackets.stream()
+                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .peek(p -> {
+                    var obdModule = dataRepository.getObdModule(p.getSourceAddress());
+                    obdModule.setLastDM27(p);
+                    dataRepository.putObdModule(obdModule);
+                })
+                .filter(p -> !p.getDtcs().isEmpty())
+                .map(ParsedPacket::getSourceAddress)
+                .map(Lookup::getAddressName)
+                .forEach(moduleName -> addFailure("6.1.21.2.a - " + moduleName + " reported an all pending DTC"));
+
+        // 6.1.21.2.b. Fail if any ECU does not report MIL off
+        globalPackets.stream()
+                .filter(p -> p.getMalfunctionIndicatorLampStatus() != LampStatus.OFF)
+                .map(ParsedPacket::getSourceAddress)
+                .map(Lookup::getAddressName)
+                .forEach(moduleName -> addFailure("6.1.21.2.b - " + moduleName + " did not report MIL off"));
 
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
-        List<DM27AllPendingDTCsPacket> globalPackets = globalResponse.getPackets();
-
-        for (DM27AllPendingDTCsPacket packet : globalPackets) {
-            // 6.1.21.2.a. Fail if any OBD ECU reports an all pending DTC.
-            if (!packet.getDtcs().isEmpty() && obdModuleAddresses.contains(packet.getSourceAddress())) {
-                addFailure("6.1.21.2.a - An OBD ECU reported an all pending DTC");
-                break;
-            }
-        }
-        for (DM27AllPendingDTCsPacket packet : globalPackets) {
-            // 6.1.21.2.b. Fail if any ECU does not report MIL off
-            if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF) {
-                addFailure("6.1.21.2.b - An ECU did not report MIL off");
-                break;
-            }
-        }
 
         // 6.1.21.3.a. DS DM28 to each OBD ECU.
         List<BusResult<DM27AllPendingDTCsPacket>> dsResults = obdModuleAddresses.stream()
