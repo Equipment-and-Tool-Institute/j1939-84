@@ -678,10 +678,10 @@ public class J1939 {
      * Request from global only once.
      */
     @SuppressWarnings("unchecked")
-    private <T extends GenericPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
-                                                                                              Packet request,
-                                                                                              ResultsListener listener,
-                                                                                              boolean fullString) {
+    public <T extends GenericPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
+                                                                                             Packet request,
+                                                                                             ResultsListener listener,
+                                                                                             boolean fullString) {
         if (request.getDestination() != GLOBAL_ADDR) {
             throw new IllegalArgumentException("Request not to global.");
         }
@@ -697,10 +697,17 @@ public class J1939 {
             }
             result = stream
                     .filter(globalFilter(pgn))
-                    .peek(p -> listener.onResult(p.toTimeString()))
+                    // Collect all of the packet, even though they are not
+                    // complete. They were all announced in time.
+                    .collect(Collectors.toList()).stream()
                     .map(rawPacket -> {
                         try {
-                            return (Either<T, AcknowledgmentPacket>) process(rawPacket);
+                            listener.onResult(rawPacket.toTimeString());
+                            var pp = (Either<T, AcknowledgmentPacket>) process(rawPacket);
+                            if (fullString) {
+                                listener.onResult(pp.resolve().toString());
+                            }
+                            return pp;
                         } catch (PacketException e) {
                             // This is not a complete packet. Should be logged
                             // as a failure elsewhere.
@@ -708,11 +715,6 @@ public class J1939 {
                         }
                     })
                     .filter(Objects::nonNull)
-                    .peek(p -> {
-                        if (fullString) {
-                            listener.onResult(p.resolve().toString());
-                        }
-                    })
                     .collect(Collectors.toList());
             if (result.isEmpty()) {
                 listener.onResult(FunctionalModule.TIMEOUT_MESSAGE);

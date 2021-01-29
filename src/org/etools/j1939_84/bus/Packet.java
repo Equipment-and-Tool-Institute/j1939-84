@@ -122,9 +122,11 @@ public class Packet {
             int id = (header & 0xFFFF00) >> 8;
             int source = header & 0xFF;
 
-            byte[] bytes = new byte[parts.length - 1];
-            for (int i = 1; i < parts.length; i++) {
-                bytes[i - 1] = (byte) (Integer.parseInt(parts[i].trim(), 16) & 0xFF);
+            // skip the length indication
+            int offset = parts[1].startsWith("[") ? 2 : 1;
+            byte[] bytes = new byte[parts.length - offset];
+            for (int i = offset; i < parts.length; i++) {
+                bytes[i - offset] = (byte) (Integer.parseInt(parts[i].trim(), 16) & 0xFF);
             }
 
             return Packet.create(priority, id, source, tx, bytes);
