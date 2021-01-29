@@ -139,6 +139,20 @@ public abstract class StepController extends Controller {
                 .forEach(this::addWarning);
     }
 
+    protected void pause(String message, long secondsToSleep) {
+        long stopTime = getDateTimeModule().getTimeAsLong() + (secondsToSleep * 1000L);
+        long secondsToGo;
+        while (true) {
+            secondsToGo = (stopTime - getDateTimeModule().getTimeAsLong()) / 1000;
+            if (secondsToGo > 0) {
+                getListener().onProgress(String.format(message, secondsToGo));
+                getDateTimeModule().pauseFor(1000);
+            } else {
+                break;
+            }
+        }
+    }
+
     protected static <T extends GenericPacket> List<T> filterRequestResultPackets(List<RequestResult<T>> results) {
         return results.stream().flatMap(r -> r.getPackets().stream()).collect(Collectors.toList());
     }

@@ -7,8 +7,10 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -30,16 +32,15 @@ public class Part01Step10Controller extends StepController {
 
     private final DTCModule dtcModule;
     private final DataRepository dataRepository;
-    private final DateTimeModule dateTimeModule;
 
     Part01Step10Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-                new EngineSpeedModule(),
-                new BannerModule(),
-                new VehicleInformationModule(),
-                new DTCModule(),
-                DateTimeModule.getInstance(),
-                dataRepository);
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new DTCModule(),
+             DateTimeModule.getInstance(),
+             dataRepository);
     }
 
     protected Part01Step10Controller(Executor executor,
@@ -50,15 +51,14 @@ public class Part01Step10Controller extends StepController {
                                      DateTimeModule dateTimeModule,
                                      DataRepository dataRepository) {
         super(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dateTimeModule,
-                PART_NUMBER,
-                STEP_NUMBER,
-                TOTAL_STEPS);
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              dateTimeModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.dtcModule = dtcModule;
-        this.dateTimeModule = dateTimeModule;
         this.dataRepository = dataRepository;
     }
 
@@ -66,37 +66,30 @@ public class Part01Step10Controller extends StepController {
     protected void run() throws Throwable {
         dtcModule.setJ1939(getJ1939());
 
-        // 6.1.10 DM11: Diagnostic Data Clear/Reset for Active DTCs
+        // 6.1.10.1.a. Global DM11 (send Request (PGN 59904) for PGN 65235).
+        // 6.1.10.1.b. Record all ACK/NACK/BUSY/Access Denied responses (for PGN 65235) in the log.
         List<AcknowledgmentPacket> globalDM11Packets = dtcModule.requestDM11(getListener())
-                .getAcks()
                 .stream()
                 .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
                 .collect(Collectors.toList());
 
-        // c. Allow 5 s to elapse before proceeding with test step 6.1.10.2.
-        long stopTime = dateTimeModule.getTimeAsLong() + (5L * 1000L);
-        long secondsToGo;
-        while (true) {
-            secondsToGo = (stopTime - dateTimeModule.getTimeAsLong()) / 1000;
-            if (secondsToGo > 0) {
-                getListener().onProgress(String.format("Waiting for %1$d seconds", secondsToGo));
-                dateTimeModule.pauseFor(1000);
-            } else {
-                break;
-            }
-        }
-
         // 6.1.10.2.a. Fail if NACK received from any HD OBD ECU
-        boolean nacked = globalDM11Packets.stream().anyMatch(packet -> packet.getResponse() == Response.NACK);
-        if (nacked) {
-            addWarning(1, 10, "6.1.10.3.a - The request for DM11 was NACK'ed");
-        }
+        globalDM11Packets.stream()
+                .filter(packet -> packet.getResponse() == Response.NACK)
+                .map(ParsedPacket::getSourceAddress)
+                .map(Lookup::getAddressName)
+                .forEach(moduleName -> addFailure("6.1.10.3.a - The request for DM11 was NACK'ed by " + moduleName));
 
-        // 6.1.10.3.a. Warn if ACK received from any HD OBD ECU.16
-        boolean acked = globalDM11Packets.stream().anyMatch(packet -> packet.getResponse() == Response.ACK);
-        if (acked) {
-            addWarning(1, 10, "6.1.10.3.a - The request for DM11 was ACK'ed");
-        }
+        // 6.1.10.3.a. Warn if ACK received from any HD OBD ECU.
+        globalDM11Packets.stream()
+                .filter(packet -> packet.getResponse() == Response.ACK)
+                .map(ParsedPacket::getSourceAddress)
+                .map(Lookup::getAddressName)
+                .forEach(moduleName -> addWarning("6.1.10.3.a - The request for DM11 was ACK'ed by " + moduleName));
+
+        // 6.1.10.1.c. Allow 5 s to elapse before proceeding with test step 6.1.10.2.
+        pause("Waiting for %1$d seconds", 5L);
+
     }
 
 }
