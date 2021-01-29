@@ -8,15 +8,11 @@ import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
@@ -26,6 +22,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
@@ -48,14 +45,12 @@ import org.mockito.junit.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Part01Step22ControllerTest extends AbstractControllerTest {
-    private static final int PART_NUMBER = 1;
-    private static final int PGN = DM29DtcCounts.PGN;
-    private static final int STEP_NUMBER = 22;
+    private static final int PART = 1;
+    private static final int STEP = 22;
 
     @Mock
     private BannerModule bannerModule;
 
-    @Mock
     private DataRepository dataRepository;
 
     @Mock
@@ -85,7 +80,7 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
 
     @Before
     public void setUp() {
-
+        dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
@@ -107,295 +102,8 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 dataRepository,
                                  dtcModule,
                                  mockListener);
-    }
-
-    /**
-     * Test method for
-     * {@link Part01Step22Controller##run()}
-     * with the packets in error condition.
-     */
-    @Test
-    public void testAckPacketFailures() {
-        DM29DtcCounts packet1 = new DM29DtcCounts(
-                Packet.create(PGN, 0x01, 0x00, 0x00, 0x01, 0x00, 0x55, 0x66, 0x77, 0x88));
-        DM29DtcCounts packet2 = new DM29DtcCounts(
-                Packet.create(PGN, 0x04, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00));
-        AcknowledgmentPacket ack3 = new AcknowledgmentPacket(
-                Packet.create(0xE8FF, 0x03, 0x00, 0x00, 0x00, 0x02, 0xFF, 0xFF, 0xFF, 0xFF));
-        AcknowledgmentPacket ack21 = new AcknowledgmentPacket(
-                Packet.create(0xE8FF, 0x21, 0x01, 0xFF, 0xFF, 0xFF, 0xF9, 0xCE, 0xFE, 0x00));
-
-        List<Integer> obdModuleAddresses = new ArrayList<>() {
-            {
-                add(0x01);
-                add(0x03);
-                add(0x04);
-            }
-        };
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
-
-        new DM29DtcCounts(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x00, 0x44, 0x55, 0x66, 0x77, 0x88));
-
-        when(dtcModule.requestDM29(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1, packet2), List.of(ack3, ack21)));
-        when(dtcModule.requestDM29(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
-        when(dtcModule.requestDM29(any(), eq(0x03))).thenReturn(new BusResult<>(false, ack3));
-        when(dtcModule.requestDM29(any(), eq(0x04))).thenReturn(new BusResult<>(false, ack21));
-
-        runTest();
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM29(any());
-        verify(dtcModule).requestDM29(any(), eq(0x01));
-        verify(dtcModule).requestDM29(any(), eq(0x03));
-        verify(dtcModule).requestDM29(any(), eq(0x04));
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.22.2.a - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.22.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
-
-        String expectedResults = "FAIL: 6.1.22.2.a - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
-                + NL;
-        expectedResults += "FAIL: 6.1.22.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query"
-                + NL;
-
-        assertEquals(expectedResults, listener.getResults());
-    }
-
-    /**
-     * Test method for
-     * {@link Part01Step22Controller##run()}
-     * with the packets in error condition.
-     */
-    @Test
-    public void testDM27SupportedFailures() {
-        DM29DtcCounts packet1 = new DM29DtcCounts(
-                Packet.create(PGN, 0x01, 0x00, 0x00, 0x01, 0x00, 0x55, 0x66, 0x77, 0x88));
-        DM29DtcCounts packet2 = new DM29DtcCounts(
-                Packet.create(PGN, 0x02, 0x00, 0x01, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00));
-        DM29DtcCounts packet3 = new DM29DtcCounts(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x00, 0x02, 0xFF, 0xFF, 0xFF, 0xFF));
-
-        List<Integer> obdModuleAddresses = List.of(0x01, 0x03);
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
-
-        DM29DtcCounts obdPacket3 = new DM29DtcCounts(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x00, 0x44, 0x55, 0x66, 0x77, 0x88));
-
-        when(dtcModule.requestDM29(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1, packet2, packet3), List.of()));
-
-        when(dtcModule.requestDM29(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
-        when(dtcModule.requestDM29(any(), eq(0x03))).thenReturn(new BusResult<>(false, obdPacket3));
-
-        runTest();
-        verify(dataRepository).getObdModuleAddresses();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM29(any());
-        verify(dtcModule).requestDM29(any(), eq(0x01));
-        verify(dtcModule).requestDM29(any(), eq(0x03));
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.22.2.a - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.22.2.c - A non-OBD ECU reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)");
-
-        String expectedResults = "FAIL: 6.1.22.2.a - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
-                + NL;
-        expectedResults += "FAIL: 6.1.22.2.c - A non-OBD ECU reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"
-                + NL;
-        expectedResults += "FAIL: 6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)"
-                + NL;
-
-        assertEquals(expectedResults, listener.getResults());
-    }
-
-    /**
-     * Test method for
-     * {@link Part01Step22Controller##run()}
-     * with the packets in error condition.
-     */
-    @Test
-    public void testDM27UnsupportedFailures() {
-        DM29DtcCounts packet1 = new DM29DtcCounts(
-                Packet.create(PGN, 0x01, 0x11, 0xFF, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
-        DM29DtcCounts packet2 = new DM29DtcCounts(
-                Packet.create(PGN, 0x02, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
-        DM29DtcCounts packet3 = new DM29DtcCounts(
-                Packet.create(PGN, 0x03, 0x00, 0xFF, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
-        DM29DtcCounts packet4 = new DM29DtcCounts(
-                Packet.create(PGN, 0x04, 0x01, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
-        DM29DtcCounts packet5 = new DM29DtcCounts(
-                Packet.create(PGN, 0x05, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
-
-        List<Integer> obdModuleAddresses = List.of(0x01, 0x03);
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
-
-        DM29DtcCounts obdPacket3 = new DM29DtcCounts(
-                Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
-
-        when(dtcModule.requestDM29(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(packet1, packet2, packet3, packet4, packet5),
-                                                List.of()));
-
-        when(dtcModule.requestDM29(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
-        when(dtcModule.requestDM29(any(), eq(0x03))).thenReturn(new BusResult<>(false, obdPacket3));
-
-        runTest();
-        verify(dataRepository).getObdModuleAddresses();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM29(any());
-        verify(dtcModule).requestDM29(any(), eq(0x01));
-        verify(dtcModule).requestDM29(any(), eq(0x03));
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.22.2.a - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.22.2.b - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.22.2.c - A non-OBD ECU reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)");
-
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.1.22.2.a - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
-                + NL;
-        expectedResults += "FAIL: 6.1.22.2.b - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0"
-                + NL;
-        expectedResults += "FAIL: 6.1.22.2.c - A non-OBD ECU reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"
-                + NL;
-        expectedResults += "FAIL: 6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)"
-                + NL;
-
-        assertEquals(expectedResults, listener.getResults());
-    }
-
-    /**
-     * Test method for
-     * {@link Part01Step22Controller#run()} with
-     * no response to any request.
-     */
-    @Test
-    public void testEmptyPacketFailure() {
-        List<Integer> obdModuleAddresses = Collections.singletonList(0x01);
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
-
-        when(dtcModule.requestDM29(any())).thenReturn(new RequestResult<>(false, List.of(), List.of()));
-        when(dtcModule.requestDM29(any(), eq(0x01))).thenReturn(new BusResult<>(false, Optional.empty()));
-
-        runTest();
-        verify(dataRepository).getObdModuleAddresses();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM29(any());
-        verify(dtcModule).requestDM29(any(), eq(0x01));
-
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.22.2.d - No OBD ECU provided DM29");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.22.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
-
-        String expectedResults = "FAIL: 6.1.22.2.d - No OBD ECU provided DM29" + NL;
-        expectedResults += "FAIL: 6.1.22.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-    }
-
-    /**
-     * Test method for
-     * {@link Part01Step22Controller##run()}
-     * with the packets in error condition.
-     */
-    @Test
-    public void testFailures() {
-        DM29DtcCounts packet1 = new DM29DtcCounts(
-                Packet.create(PGN, 0x01, 0x00, 0xFF, 0x00, 0x00, 0x55, 0x66, 0x77, 0x88));
-        DM29DtcCounts packet2 = new DM29DtcCounts(
-                Packet.create(PGN, 0x02, 0x00, 0x00, 0x00, 0x02, 0x00, 0x00, 0x00, 0x00));
-        DM29DtcCounts packet3 = new DM29DtcCounts(
-                Packet.create(PGN, 0x03, 0x00, 0xFF, 0x00, 0x02, 0xFF, 0xFF, 0xFF, 0xFF));
-        List<Integer> obdModuleAddresses = List.of(0x01, 0x03);
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
-
-        DM29DtcCounts obdPacket3 = new DM29DtcCounts(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x00, 0x44, 0x55, 0x66, 0x77, 0x88));
-
-        when(dtcModule.requestDM29(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1, packet2, packet3), List.of()));
-
-        when(dtcModule.requestDM29(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
-        when(dtcModule.requestDM29(any(), eq(0x03)))
-                .thenReturn(new BusResult<>(false, obdPacket3));
-
-        runTest();
-        verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM29(any());
-        verify(dtcModule).requestDM29(any(), eq(0x01));
-        verify(dtcModule).requestDM29(any(), eq(0x03));
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.22.2.a - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.22.2.c - A non-OBD ECU reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.22.2.b - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)");
-
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.1.22.2.a - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
-                + NL;
-        expectedResults += "FAIL: 6.1.22.2.b - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0"
-                + NL;
-        expectedResults += "FAIL: 6.1.22.2.c - A non-OBD ECU reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"
-                + NL;
-        expectedResults += "FAIL: 6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)"
-                + NL;
-
-        assertEquals(expectedResults, listener.getResults());
     }
 
     /**
@@ -404,8 +112,7 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testGetDisplayName() {
-        String name = "Part " + PART_NUMBER + " Step " + STEP_NUMBER;
-        assertEquals("Display Name", name, instance.getDisplayName());
+        assertEquals("Part " + PART + " Step " + STEP, instance.getDisplayName());
     }
 
     /**
@@ -414,7 +121,7 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testGetStepNumber() {
-        assertEquals(STEP_NUMBER, instance.getStepNumber());
+        assertEquals(STEP, instance.getStepNumber());
     }
 
     /**
@@ -434,17 +141,14 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoErrors() {
 
-        DM29DtcCounts packet1 = new DM29DtcCounts(
-                Packet.create(PGN, 0x01, 0x00, 0x00, 0x00, 0x00, 0x00));
+        DM29DtcCounts packet1 = DM29DtcCounts.create(1, 0, 0, 0, 0, 0);
 
-        List<Integer> obdModuleAddresses = List.of(0x01);
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
+        dataRepository.putObdModule(new OBDModuleInformation(1));
 
         when(dtcModule.requestDM29(any())).thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
         when(dtcModule.requestDM29(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
 
         runTest();
-        verify(dataRepository).getObdModuleAddresses();
 
         verify(dtcModule).setJ1939(j1939);
         verify(dtcModule).requestDM29(any());
@@ -453,6 +157,280 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
+    }
+
+    /**
+     * Test method for
+     * {@link Part01Step22Controller##run()}
+     * with the packets in error condition.
+     */
+    @Test
+    public void testAckPacketFailures() {
+        DM29DtcCounts packet1 = DM29DtcCounts.create(0x01, 0x00, 0x00, 0x01, 0x00, 0x55);
+        DM29DtcCounts packet2 = DM29DtcCounts.create(0x04, 0x00, 0x01, 0x00, 0x02, 0x00);
+        AcknowledgmentPacket ack3 = new AcknowledgmentPacket(
+                Packet.create(0xE8FF, 0x03, 0x00, 0x00, 0x00, 0x02, 0xFF));
+        AcknowledgmentPacket ack21 = new AcknowledgmentPacket(
+                Packet.create(0xE8FF, 0x21, 0x01, 0xFF, 0xFF, 0xFF, 0xF9));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(3));
+        dataRepository.putObdModule(new OBDModuleInformation(4));
+
+        when(dtcModule.requestDM29(any()))
+                .thenReturn(new RequestResult<>(false, List.of(packet1, packet2), List.of(ack3, ack21)));
+        when(dtcModule.requestDM29(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(dtcModule.requestDM29(any(), eq(0x03))).thenReturn(new BusResult<>(false, ack3));
+        when(dtcModule.requestDM29(any(), eq(0x04))).thenReturn(new BusResult<>(false, ack21));
+
+        runTest();
+
+        verify(dtcModule).setJ1939(j1939);
+        verify(dtcModule).requestDM29(any());
+        verify(dtcModule).requestDM29(any(), eq(0x01));
+        verify(dtcModule).requestDM29(any(), eq(0x03));
+        verify(dtcModule).requestDM29(any(), eq(0x04));
+
+        String expectedResults = "";
+        expectedResults += "FAIL: 6.1.22.2.a - Engine #2 (1) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0" + NL;
+        expectedResults += "FAIL: 6.1.22.2.a - Transmission #2 (4) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0" + NL;
+        expectedResults += "FAIL: 6.1.22.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
+
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.2.a - Engine #2 (1) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.2.a - Transmission #2 (4) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
+    }
+
+    /**
+     * Test method for
+     * {@link Part01Step22Controller##run()}
+     * with the packets in error condition.
+     */
+    @Test
+    public void testDM27SupportedFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(3));
+
+        DM29DtcCounts packet1 = DM29DtcCounts.create(0x01, 0x00, 0x00, 0x01, 0x00, 0x55);
+        DM29DtcCounts packet2 = DM29DtcCounts.create(0x02, 0x00, 0x01, 0x00, 0x02, 0x00);
+        DM29DtcCounts packet3 = DM29DtcCounts.create(0x03, 0x00, 0x00, 0x00, 0x02, 0xFF);
+
+        DM29DtcCounts obdPacket3 = DM29DtcCounts.create(0x03, 0x00, 0x00, 0x00, 0x44, 0x55);
+
+        when(dtcModule.requestDM29(any())).thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
+
+        when(dtcModule.requestDM29(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(dtcModule.requestDM29(any(), eq(0x03))).thenReturn(new BusResult<>(false, obdPacket3));
+
+        runTest();
+
+        verify(dtcModule).setJ1939(j1939);
+        verify(dtcModule).requestDM29(any());
+        verify(dtcModule).requestDM29(any(), eq(0x01));
+        verify(dtcModule).requestDM29(any(), eq(0x03));
+
+        String expectedResults = "";
+        expectedResults += "FAIL: 6.1.22.2.a - Engine #2 (1) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0" + NL;
+        expectedResults += "FAIL: 6.1.22.2.a - Turbocharger (2) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0" + NL;
+        expectedResults += "FAIL: 6.1.22.2.a - Transmission #1 (3) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0" + NL;
+        expectedResults += "FAIL: 6.1.22.2.c - A non-OBD ECU Turbocharger (2) reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0" + NL;
+        expectedResults += "FAIL: 6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
+
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(mockListener).addOutcome(PART, STEP, FAIL,
+                "6.1.22.2.a - Engine #2 (1) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
+        );
+        verify(mockListener).addOutcome(PART, STEP, FAIL,
+                "6.1.22.2.a - Turbocharger (2) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
+        );
+        verify(mockListener).addOutcome(PART, STEP, FAIL,
+                "6.1.22.2.a - Transmission #1 (3) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
+        );
+        verify(mockListener).addOutcome(PART, STEP, FAIL,
+                "6.1.22.2.c - A non-OBD ECU Turbocharger (2) reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"
+        );
+        verify(mockListener).addOutcome(PART, STEP, FAIL,
+                "6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)"
+        );
+
+    }
+
+    /**
+     * Test method for
+     * {@link Part01Step22Controller##run()}
+     * with the packets in error condition.
+     */
+    @Test
+    public void testDM27UnsupportedFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(3));
+
+        DM29DtcCounts packet1 = DM29DtcCounts.create(0x01, 0x11, 0xFF, 0x33, 0x44, 0x55);
+        DM29DtcCounts packet2 = DM29DtcCounts.create(0x02, 0x00, 0x00, 0x04, 0x00, 0xFF);
+        DM29DtcCounts packet3 = DM29DtcCounts.create(0x03, 0x00, 0xFF, 0x04, 0x00, 0xFF);
+        DM29DtcCounts packet4 = DM29DtcCounts.create(0x04, 0x01, 0x00, 0x00, 0x00, 0xFF);
+        DM29DtcCounts packet5 = DM29DtcCounts.create(0x05, 0x00, 0x00, 0x00, 0x00, 0xFF);
+
+        DM29DtcCounts obdPacket3 = DM29DtcCounts.create(0x03, 0x11, 0x22, 0x13, 0x44, 0x55);
+
+        when(dtcModule.requestDM29(any()))
+                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3, packet4, packet5));
+
+        when(dtcModule.requestDM29(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(dtcModule.requestDM29(any(), eq(0x03))).thenReturn(new BusResult<>(false, obdPacket3));
+
+        runTest();
+
+        verify(dtcModule).setJ1939(j1939);
+        verify(dtcModule).requestDM29(any());
+        verify(dtcModule).requestDM29(any(), eq(0x01));
+        verify(dtcModule).requestDM29(any(), eq(0x03));
+
+        String expectedResults = "";
+        expectedResults += "FAIL: 6.1.22.2.a - Turbocharger (2) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0" + NL;
+        expectedResults += "FAIL: 6.1.22.2.a - Transmission #2 (4) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0" + NL;
+        expectedResults += "FAIL: 6.1.22.2.a - Shift Console - Primary (5) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0" + NL;
+        expectedResults += "FAIL: 6.1.22.2.b - Engine #2 (1) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0" + NL;
+        expectedResults += "FAIL: 6.1.22.2.b - Transmission #1 (3) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0" + NL;
+        expectedResults += "FAIL: 6.1.22.2.c - A non-OBD ECU Turbocharger (2) reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0" + NL;
+        expectedResults += "FAIL: 6.1.22.2.c - A non-OBD ECU Transmission #2 (4) reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0" + NL;
+        expectedResults += "FAIL: 6.1.22.2.c - A non-OBD ECU Shift Console - Primary (5) reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0" + NL;
+        expectedResults += "FAIL: 6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
+
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(mockListener).addOutcome(PART, STEP, FAIL,
+                "6.1.22.2.a - Turbocharger (2) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
+        );
+        verify(mockListener).addOutcome(PART, STEP, FAIL,
+                "6.1.22.2.a - Transmission #2 (4) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
+        );
+        verify(mockListener).addOutcome(PART, STEP, FAIL,
+                "6.1.22.2.a - Shift Console - Primary (5) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
+        );
+        verify(mockListener).addOutcome(PART, STEP, FAIL,
+                "6.1.22.2.b - Engine #2 (1) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0"
+        );
+        verify(mockListener).addOutcome(PART, STEP, FAIL,
+                "6.1.22.2.b - Transmission #1 (3) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0"
+        );
+        verify(mockListener).addOutcome(PART, STEP, FAIL,
+                "6.1.22.2.c - A non-OBD ECU Turbocharger (2) reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"
+        );
+        verify(mockListener).addOutcome(PART, STEP, FAIL,
+                "6.1.22.2.c - A non-OBD ECU Transmission #2 (4) reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"
+        );
+        verify(mockListener).addOutcome(PART, STEP, FAIL,
+                "6.1.22.2.c - A non-OBD ECU Shift Console - Primary (5) reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"
+        );
+        verify(mockListener).addOutcome(PART, STEP, FAIL,
+                "6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)"
+        );
+
+    }
+
+    /**
+     * Test method for
+     * {@link Part01Step22Controller#run()} with
+     * no response to any request.
+     */
+    @Test
+    public void testEmptyPacketFailure() {
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        when(dtcModule.requestDM29(any())).thenReturn(new RequestResult<>(true));
+        when(dtcModule.requestDM29(any(), eq(0x01))).thenReturn(new BusResult<>(true));
+
+        runTest();
+
+        verify(dtcModule).setJ1939(j1939);
+        verify(dtcModule).requestDM29(any());
+        verify(dtcModule).requestDM29(any(), eq(0x01));
+
+        verify(mockListener).addOutcome(PART, STEP, FAIL, "6.1.22.2.d - No OBD ECU provided DM29");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
+
+        String expectedResults = "";
+        expectedResults += "FAIL: 6.1.22.2.d - No OBD ECU provided DM29" + NL;
+        expectedResults += "FAIL: 6.1.22.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
+        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+    }
+
+    /**
+     * Test method for
+     * {@link Part01Step22Controller##run()}
+     * with the packets in error condition.
+     */
+    @Test
+    public void testFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(3));
+
+        DM29DtcCounts packet1 = DM29DtcCounts.create(0x01, 0x00, 0xFF, 0x00, 0x00, 0x55);
+        DM29DtcCounts packet2 = DM29DtcCounts.create(0x02, 0x00, 0x00, 0x00, 0x02, 0x00);
+        DM29DtcCounts packet3 = DM29DtcCounts.create(0x03, 0x00, 0xFF, 0x00, 0x02, 0xFF);
+
+        DM29DtcCounts obdPacket3 = DM29DtcCounts.create(0x03, 0x00, 0x00, 0x00, 0x44, 0x55);
+
+        when(dtcModule.requestDM29(any())).thenReturn(new RequestResult<>(false, packet1, packet2, packet3));
+
+        when(dtcModule.requestDM29(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(dtcModule.requestDM29(any(), eq(0x03))).thenReturn(new BusResult<>(false, obdPacket3));
+
+        runTest();
+
+        verify(dtcModule).setJ1939(j1939);
+        verify(dtcModule).requestDM29(any());
+        verify(dtcModule).requestDM29(any(), eq(0x01));
+        verify(dtcModule).requestDM29(any(), eq(0x03));
+
+        String expectedResults = "";
+        expectedResults += "FAIL: 6.1.22.2.a - Turbocharger (2) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0" + NL;
+        expectedResults += "FAIL: 6.1.22.2.b - Engine #2 (1) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0" + NL;
+        expectedResults += "FAIL: 6.1.22.2.b - Transmission #1 (3) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0" + NL;
+        expectedResults += "FAIL: 6.1.22.2.c - A non-OBD ECU Turbocharger (2) reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0" + NL;
+        expectedResults += "FAIL: 6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
+
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.2.a - Turbocharger (2) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.2.c - A non-OBD ECU Turbocharger (2) reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.2.b - Engine #2 (1) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.2.b - Transmission #1 (3) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)");
+
     }
 
 }

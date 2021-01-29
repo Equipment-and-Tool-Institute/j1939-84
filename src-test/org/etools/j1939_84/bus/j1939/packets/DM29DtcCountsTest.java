@@ -19,9 +19,8 @@ public class DM29DtcCountsTest {
     private DM29DtcCounts instance;
 
     @Before
-    public void setUp() throws Exception {
-        Packet packet = Packet.create(PGN, 0, 0x09, 0x20, 0x47, 0x31, 0x01, 0xFF, 0xFF, 0xFF);
-        instance = new DM29DtcCounts(packet);
+    public void setUp() {
+        instance = DM29DtcCounts.create(0, 9, 32, 71, 49, 1);
     }
 
     /**
@@ -30,9 +29,9 @@ public class DM29DtcCountsTest {
      */
     @Test
     public void testGetAllPendingDTCCount() {
-        assertEquals(0x20, instance.getAllPendingDTCCount());
+        assertEquals(32, instance.getAllPendingDTCCount());
         // Verify the value is cached
-        assertEquals(0x20, instance.getAllPendingDTCCount());
+        assertEquals(32, instance.getAllPendingDTCCount());
     }
 
     /**
@@ -41,9 +40,9 @@ public class DM29DtcCountsTest {
      */
     @Test
     public void testGetEmissionRelatedMILOnDTCCount() {
-        assertEquals(0x47, instance.getEmissionRelatedMILOnDTCCount());
+        assertEquals(71, instance.getEmissionRelatedMILOnDTCCount());
         // Verify the value is cached
-        assertEquals(0x47, instance.getEmissionRelatedMILOnDTCCount());
+        assertEquals(71, instance.getEmissionRelatedMILOnDTCCount());
     }
 
     /**
@@ -52,9 +51,9 @@ public class DM29DtcCountsTest {
      */
     @Test
     public void testGetEmissionRelatedPendingDTCCount() {
-        assertEquals(0x09, instance.getEmissionRelatedPendingDTCCount());
+        assertEquals(9, instance.getEmissionRelatedPendingDTCCount());
         // Verify the value is cached
-        assertEquals(0x09, instance.getEmissionRelatedPendingDTCCount());
+        assertEquals(9, instance.getEmissionRelatedPendingDTCCount());
 
     }
 
@@ -64,9 +63,9 @@ public class DM29DtcCountsTest {
      */
     @Test
     public void testGetEmissionRelatedPermanentDTCCount() {
-        assertEquals(0x01, instance.getEmissionRelatedPermanentDTCCount());
+        assertEquals(1, instance.getEmissionRelatedPermanentDTCCount());
         // Verify the value is cached
-        assertEquals(0x01, instance.getEmissionRelatedPermanentDTCCount());
+        assertEquals(1, instance.getEmissionRelatedPermanentDTCCount());
     }
 
     /**
@@ -75,9 +74,9 @@ public class DM29DtcCountsTest {
      */
     @Test
     public void testGetEmissionRelatedPreviouslyMILOnDTCCount() {
-        assertEquals(0x31, instance.getEmissionRelatedPreviouslyMILOnDTCCount());
+        assertEquals(49, instance.getEmissionRelatedPreviouslyMILOnDTCCount());
         // Verify the value is cached
-        assertEquals(0x31, instance.getEmissionRelatedPreviouslyMILOnDTCCount());
+        assertEquals(49, instance.getEmissionRelatedPreviouslyMILOnDTCCount());
 
     }
 
