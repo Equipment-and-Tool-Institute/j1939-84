@@ -183,11 +183,11 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                                   "6.1.18.2.b - An ECU did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.18.4.a - Difference compared to data received during global request");
+                                        "6.1.18.4.a - Difference compared to data received during global request from Transmission #1 (3)");
 
         String expectedResults = "FAIL: 6.1.18.2.a - An ECU reported active DTCs" + NL;
         expectedResults += "FAIL: 6.1.18.2.b - An ECU did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.18.4.a - Difference compared to data received during global request"
+        expectedResults += "FAIL: 6.1.18.4.a - Difference compared to data received during global request from Transmission #1 (3)"
                 + NL;
 
         assertEquals(expectedResults, listener.getResults());
@@ -263,11 +263,11 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                                   "6.1.18.2.b - An ECU did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.18.4.a - Difference compared to data received during global request");
+                                        "6.1.18.4.a - Difference compared to data received during global request from Transmission #1 (3)");
 
         String expectedResults = "FAIL: 6.1.18.2.a - An ECU reported active DTCs" + NL;
         expectedResults += "FAIL: 6.1.18.2.b - An ECU did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.18.4.a - Difference compared to data received during global request" + NL;
+        expectedResults += "FAIL: 6.1.18.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
 
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());

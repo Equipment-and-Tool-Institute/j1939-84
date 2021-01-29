@@ -217,13 +217,13 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.22.4.a - Difference compared to data received during global request");
+                                        "6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)");
 
         String expectedResults = "FAIL: 6.1.22.2.a - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
                 + NL;
         expectedResults += "FAIL: 6.1.22.2.c - A non-OBD ECU reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"
                 + NL;
-        expectedResults += "FAIL: 6.1.22.4.a - Difference compared to data received during global request"
+        expectedResults += "FAIL: 6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)"
                 + NL;
 
         assertEquals(expectedResults, listener.getResults());
@@ -284,7 +284,7 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.22.4.a - Difference compared to data received during global request");
+                                        "6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)");
 
         String expectedResults = "";
         expectedResults += "FAIL: 6.1.22.2.a - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
@@ -293,7 +293,7 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
                 + NL;
         expectedResults += "FAIL: 6.1.22.2.c - A non-OBD ECU reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"
                 + NL;
-        expectedResults += "FAIL: 6.1.22.4.a - Difference compared to data received during global request"
+        expectedResults += "FAIL: 6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)"
                 + NL;
 
         assertEquals(expectedResults, listener.getResults());
@@ -383,7 +383,7 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.22.4.a - Difference compared to data received during global request");
+                                        "6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)");
 
         String expectedResults = "";
         expectedResults += "FAIL: 6.1.22.2.a - An ECU did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"
@@ -392,7 +392,7 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
                 + NL;
         expectedResults += "FAIL: 6.1.22.2.c - A non-OBD ECU reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"
                 + NL;
-        expectedResults += "FAIL: 6.1.22.4.a - Difference compared to data received during global request"
+        expectedResults += "FAIL: 6.1.22.4.a - Difference compared to data received during global request from Transmission #1 (3)"
                 + NL;
 
         assertEquals(expectedResults, listener.getResults());

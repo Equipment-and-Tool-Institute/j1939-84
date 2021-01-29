@@ -187,7 +187,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         verify(readinessModule).requestDM20(any(), eq(true));
         verify(readinessModule).requestDM20(any(), eq(true), eq(0x00));
 
-        String expected = "FAIL: 6.2.4.4.a - Difference compared to data received during global request" + NL;
+        String expected = "FAIL: 6.2.4.4.a - Difference compared to data received during global request from Engine #1 (0)" + NL;
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -195,7 +195,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                 STEP_NUMBER,
                 Outcome.FAIL,
-                "6.2.4.4.a - Difference compared to data received during global request");
+                "6.2.4.4.a - Difference compared to data received during global request from Engine #1 (0)");
     }
 
     @Test

@@ -269,7 +269,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
                 1,
                 14,
                 FAIL,
-                "6.1.14.5.a - Difference compared to data received during global request"
+                "6.1.14.5.a - Difference compared to data received during global request from Transmission #1 (3)"
         );
 
         String expectedResults = "" + NL;
@@ -308,7 +308,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "WARN: 6.1.14.3.a - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU" + NL;
         expectedResults += "WARN: 6.1.14.3.a - Required monitor Evaporative system is supported by more than one OBD ECU" + NL;
         expectedResults += "WARN: 6.1.14.3.a - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU" + NL;
-        expectedResults += "FAIL: 6.1.14.5.a - Difference compared to data received during global request" + NL;
+        expectedResults += "FAIL: 6.1.14.5.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
 
         assertEquals(expectedResults, listener.getResults());
     }

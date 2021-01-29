@@ -117,9 +117,9 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(2,
                 9,
                 FAIL,
-                "6.2.9.4.a - Difference compared to data received during global request");
+                "6.2.9.4.a - Difference compared to data received during global request from Engine #1 (0)");
 
-        assertEquals("FAIL: 6.2.9.4.a - Difference compared to data received during global request" + NL,
+        assertEquals("FAIL: 6.2.9.4.a - Difference compared to data received during global request from Engine #1 (0)" + NL,
                 listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());

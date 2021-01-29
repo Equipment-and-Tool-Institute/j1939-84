@@ -90,8 +90,8 @@ public abstract class StepController extends Controller {
                 byte[] dsBytes = dsOptional.get().getPacket().getBytes();
                 byte[] globalBytes = globalPacket.getPacket().getBytes();
                 if (!Arrays.equals(dsBytes, globalBytes)) {
-                    addFailure(section + " - Difference compared to data received during global request");
-                    break; //Only report the error once
+                    String moduleName = Lookup.getAddressName(dsOptional.get().getSourceAddress());
+                    addFailure(section + " - Difference compared to data received during global request from " + moduleName);
                 }
             }
         }

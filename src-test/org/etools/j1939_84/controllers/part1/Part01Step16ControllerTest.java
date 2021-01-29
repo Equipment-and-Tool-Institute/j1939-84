@@ -372,11 +372,11 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                 16,
                 FAIL,
-                "6.1.16.4.a - Difference compared to data received during global request");
+                "6.1.16.4.a - Difference compared to data received during global request from Engine #1 (0)");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.16.4.a - Difference compared to data received during global request" + NL,
+        assertEquals("FAIL: 6.1.16.4.a - Difference compared to data received during global request from Engine #1 (0)" + NL,
                 listener.getResults());
     }
 

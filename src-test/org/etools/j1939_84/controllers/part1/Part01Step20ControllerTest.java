@@ -186,11 +186,11 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                                   "6.1.20.2.b - An ECU did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.20.4.a - Difference compared to data received during global request");
+                                        "6.1.20.4.a - Difference compared to data received during global request from Transmission #1 (3)");
 
         String expectedResults = "FAIL: 6.1.20.2.a - An ECU reported permanent DTCs" + NL;
         expectedResults += "FAIL: 6.1.20.2.b - An ECU did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.20.4.a - Difference compared to data received during global request" + NL;
+        expectedResults += "FAIL: 6.1.20.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
 
         assertEquals(expectedResults, listener.getResults());
     }
@@ -266,7 +266,7 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.20.2.b - An ECU did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.20.4.a - Difference compared to data received during global request");
+                                        "6.1.20.4.a - Difference compared to data received during global request from Transmission #1 (3)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -274,7 +274,7 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
 
         String expectedResults = "FAIL: 6.1.20.2.a - An ECU reported permanent DTCs" + NL;
         expectedResults += "FAIL: 6.1.20.2.b - An ECU did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.20.4.a - Difference compared to data received during global request" + NL;
+        expectedResults += "FAIL: 6.1.20.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
         expectedResults += "FAIL: 6.1.20.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
 
         assertEquals(expectedResults, listener.getResults());

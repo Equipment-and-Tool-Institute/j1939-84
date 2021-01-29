@@ -338,7 +338,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                 1,
                 13,
                 FAIL,
-                "6.1.13.4.a - Difference compared to data received during global request"
+                "6.1.13.4.a - Difference compared to data received during global request from Body Controller (33)"
         );
         verify(mockListener).addOutcome(
                 1,
@@ -388,7 +388,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
         expectedResults += "WARN: 6.1.13.2.d - Required monitor Misfire is supported by more than one OBD ECU" + NL;
         expectedResults += "WARN: 6.1.13.2.d - Required monitor NMHC converting catalyst is supported by more than one OBD ECU" + NL;
         expectedResults += "WARN: 6.1.13.2.d - Required monitor NOx catalyst/adsorber is supported by more than one OBD ECU" + NL;
-        expectedResults += "FAIL: 6.1.13.4.a - Difference compared to data received during global request" + NL;
+        expectedResults += "FAIL: 6.1.13.4.a - Difference compared to data received during global request from Body Controller (33)" + NL;
         expectedResults += "FAIL: 6.1.13.4.b. - OBD module Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
         expectedResults += "FAIL: 6.1.13.4.b. - OBD module Hitch Control (35) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
 
