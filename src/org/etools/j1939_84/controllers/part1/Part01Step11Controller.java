@@ -3,14 +3,12 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -25,7 +23,6 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  * <p>
  * The controller for 6.1.11 DM21: Diagnostic readiness 2
  */
-
 public class Part01Step11Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
@@ -63,6 +60,7 @@ public class Part01Step11Controller extends StepController {
         this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dataRepository = dataRepository;
     }
+
     @Override
     protected void run() throws Throwable {
         diagnosticReadinessModule.setJ1939(getJ1939());
@@ -74,45 +72,29 @@ public class Part01Step11Controller extends StepController {
         if (globalPackets.isEmpty()) {
             addFailure(1, 11, "6.1.11.1.e - No OBD ECU provided a DM21 message");
         } else {
-            for (DM21DiagnosticReadinessPacket packet : globalPackets) {
-                // 6.1.11.2.a. Fail if any ECU reports distance with MIL on (SPN 3069) is not zero.
-                if (packet.getKmSinceDTCsCleared() != 0 || packet.getMilesSinceDTCsCleared() != 0) {
-                    addFailure(1,
-                               11,
-                               "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
-                    break;
-                }
-            }
+            // 6.1.11.2.a. Fail if any ECU reports distance with MIL on (SPN 3069) is not zero.
+            globalPackets.stream()
+                    .filter(packet -> isNotZero(packet.getKmSinceDTCsCleared()))
+                    .map(p -> Lookup.getAddressName(p.getSourceAddress()))
+                    .forEach(moduleName -> addFailure("6.1.11.1.a - " + moduleName + " reported distance with MIL on (SPN 3069) is not zero"));
 
-            for (DM21DiagnosticReadinessPacket packet : globalPackets) {
-                // 6.1.11.2.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero.
-                if (packet.getKmWhileMILIsActivated() != 0 || packet.getMilesWhileMILIsActivated() != 0) {
-                    addFailure(1,
-                               11,
-                               "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
-                    break;
-                }
-            }
+            // 6.1.11.2.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero.
+            globalPackets.stream()
+                    .filter(packet -> isNotZero(packet.getKmWhileMILIsActivated()))
+                    .map(p -> Lookup.getAddressName(p.getSourceAddress()))
+                    .forEach(moduleName -> addFailure("6.1.11.1.b - " + moduleName + " reported distance SCC (SPN 3294) is not zero"));
 
-            for (DM21DiagnosticReadinessPacket packet : globalPackets) {
-                // 6.1.11.2.c. Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)
-                if (packet.getMinutesWhileMILIsActivated() != 0) {
-                    addFailure(1,
-                               11,
-                               "6.1.11.1.c - An ECU reported time with MIL on (SPN 3295) is not zero");
-                    break;
-                }
-            }
+            // 6.1.11.2.c. Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)
+            globalPackets.stream()
+                    .filter(packet -> isNotZero(packet.getMinutesWhileMILIsActivated()))
+                    .map(p -> Lookup.getAddressName(p.getSourceAddress()))
+                    .forEach(moduleName -> addFailure("6.1.11.1.c - " + moduleName + " reported time with MIL on (SPN 3295) is not zero"));
 
-            for (DM21DiagnosticReadinessPacket packet : globalPackets) {
-                // 6.1.11.2.d. Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported).
-                if (packet.getMinutesSinceDTCsCleared() > 1) {
-                    addFailure(1,
-                               11,
-                               "6.1.11.1.d - An ECU reported time SCC (SPN 3296) > 1 minute");
-                    break;
-                }
-            }
+            // 6.1.11.2.d. Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported).
+            globalPackets.stream()
+                    .filter(packet -> Double.valueOf(packet.getMinutesSinceDTCsCleared()).intValue() > 1)
+                    .map(p -> Lookup.getAddressName(p.getSourceAddress()))
+                    .forEach(moduleName -> addFailure("6.1.11.1.d - " + moduleName + " reported time SCC (SPN 3296) > 1 minute"));
         }
 
         // 6.1.11.3.a. DS DM21 to each OBD ECU
@@ -125,52 +107,40 @@ public class Part01Step11Controller extends StepController {
 
         // ignore missing responses and NACKs
         List<DM21DiagnosticReadinessPacket> dsPackets = filterPackets(dsResults);
-        for (DM21DiagnosticReadinessPacket packet : dsPackets) {
-            // 6.1.11.4.a. Fail if any ECU reports distance with MIL on (SPN 3069) is not zero.
-            if (packet.getKmSinceDTCsCleared() != 0 || packet.getMilesSinceDTCsCleared() != 0) {
-                addFailure(1,
-                           11,
-                           "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
-                break;
-            }
-        }
 
-        for (DM21DiagnosticReadinessPacket packet : dsPackets) {
-            // 6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero.
-            if (packet.getKmWhileMILIsActivated() != 0 || packet.getMilesWhileMILIsActivated() != 0) {
-                addFailure(1,
-                           11,
-                           "6.1.11.4.b - An ECU reported distance SCC (SPN 3294) is not zero");
-                break;
-            }
-        }
+        // 6.1.11.4.a. Fail if any ECU reports distance with MIL on (SPN 3069) is not zero.
+        dsPackets.stream()
+                .filter(packet -> isNotZero(packet.getKmSinceDTCsCleared()))
+                .map(p -> Lookup.getAddressName(p.getSourceAddress()))
+                .forEach(moduleName -> addFailure("6.1.11.4.a - " + moduleName + " reported distance with MIL on (SPN 3069) is not zero"));
 
-        for (DM21DiagnosticReadinessPacket packet : dsPackets) {
-            // 6.1.11.4.c. Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)
-            if (packet.getMinutesWhileMILIsActivated() != 0) {
-                addFailure(1,
-                           11,
-                           "6.1.11.4.c - An ECU reported time with MIL on (SPN 3295) is not zero");
-                break;
-            }
-        }
+        // 6.1.11.4.b. Fail if any ECU reports distance SCC (SPN 3294) is not zero.
+        dsPackets.stream()
+                .filter(packet -> isNotZero(packet.getKmWhileMILIsActivated()))
+                .map(p -> Lookup.getAddressName(p.getSourceAddress()))
+                .forEach(moduleName -> addFailure("6.1.11.4.b - " + moduleName + " reported distance SCC (SPN 3294) is not zero"));
 
-        for (DM21DiagnosticReadinessPacket packet : dsPackets) {
-            // 6.1.11.4.d. Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported).
-            if (packet.getMinutesSinceDTCsCleared() != 0) {
-                addFailure(1,
-                           11,
-                           "6.1.11.4.d - An ECU reported time SCC (SPN 3296) > 1 minute");
-                break;
-            }
-        }
+        // 6.1.11.4.c. Fail if any ECU reports time with MIL on (SPN 3295) is not zero (if supported)
+        dsPackets.stream()
+                .filter(packet -> isNotZero(packet.getMinutesWhileMILIsActivated()))
+                .map(p -> Lookup.getAddressName(p.getSourceAddress()))
+                .forEach(moduleName -> addFailure("6.1.11.4.c - " + moduleName + " reported time with MIL on (SPN 3295) is not zero"));
+
+        // 6.1.11.4.d. Fail if any ECU reports time SCC (SPN 3296) > 1 minute (if supported).
+        dsPackets.stream()
+                .filter(packet -> isNotZero(packet.getMinutesSinceDTCsCleared()))
+                .map(p -> Lookup.getAddressName(p.getSourceAddress()))
+                .forEach(moduleName -> addFailure("6.1.11.4.d - " + moduleName + " reported time SCC (SPN 3296) > 1 minute"));
 
         // 6.1.11.4.e Fail if any difference compared to data received during global request.
         compareRequestPackets(globalPackets, dsPackets, "6.1.11.4.e");
 
         // 6.1.11.4.f Fail if NACK not received from OBD ECUs that did not respond to global query.
-        List<AcknowledgmentPacket> dsAcks = filterAcks(dsResults);
-        checkForNACKs(globalPackets, dsAcks, obdModuleAddresses, "6.1.11.4.f");
+        checkForNACKs(globalPackets, filterAcks(dsResults), obdModuleAddresses, "6.1.11.4.f");
+    }
+
+    private static boolean isNotZero(double value) {
+        return Double.valueOf(value).intValue() != 0;
     }
 
 }

@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket.create;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,7 +17,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
-import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -41,53 +41,12 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 /**
- * The unit test for {@link Part01Step06Controller}
+ * The unit test for {@link Part01Step11Controller}
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  */
 @RunWith(MockitoJUnitRunner.class)
 public class Part01Step11ControllerTest extends AbstractControllerTest {
-
-    /*
-     * All values must be checked prior to mocking so that we are not creating
-     * unnecessary mocks.
-     */
-    private static DM21DiagnosticReadinessPacket createDM21Packet(Integer sourceAddress,
-                                                                  Double kmSinceDtcCleared,
-                                                                  Double kmWhileMILIsActivated,
-                                                                  Double milesSinceDTCsCleared,
-                                                                  Double milesWhileMILIsActivated,
-                                                                  Double minutesSinceDTCsCleared,
-                                                                  Double minutesWhileMILIsActivated) {
-        DM21DiagnosticReadinessPacket packet = mock(DM21DiagnosticReadinessPacket.class);
-        if (sourceAddress != null) {
-            when(packet.getSourceAddress()).thenReturn(sourceAddress);
-        }
-        if (kmSinceDtcCleared != null) {
-            when(packet.getKmSinceDTCsCleared()).thenReturn(kmSinceDtcCleared);
-        }
-        if (kmWhileMILIsActivated != null) {
-            when(packet.getKmWhileMILIsActivated()).thenReturn(kmWhileMILIsActivated);
-        }
-        if (milesSinceDTCsCleared != null) {
-            when(packet.getMilesSinceDTCsCleared()).thenReturn(milesSinceDTCsCleared);
-        }
-        if (milesWhileMILIsActivated != null) {
-            when(packet.getMilesWhileMILIsActivated()).thenReturn(milesWhileMILIsActivated);
-        }
-        if (minutesSinceDTCsCleared != null) {
-            when(packet.getMinutesSinceDTCsCleared()).thenReturn(minutesSinceDTCsCleared);
-        }
-        if (minutesWhileMILIsActivated != null) {
-            when(packet.getMinutesWhileMILIsActivated()).thenReturn(minutesWhileMILIsActivated);
-        }
-
-        Packet packetPacket = mock(Packet.class);
-        when(packet.getPacket()).thenReturn(packetPacket);
-        when(packetPacket.getBytes()).thenReturn(new byte[0]);
-
-        return packet;
-    }
 
     @Mock
     private BannerModule bannerModule;
@@ -154,11 +113,11 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, List.of(), List.of()));
 
-        DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
 
-        DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
 
@@ -224,17 +183,17 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, globalPackets, List.of()));
 
-        DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
 
-        DM21DiagnosticReadinessPacket packet3 = createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
                 .thenReturn(new BusResult<>(false, packet3));
 
@@ -267,15 +226,15 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, globalPackets, List.of()));
         // return the set of OBD module addresses when requested
-        DM21DiagnosticReadinessPacket packet1 = createDM21Packet(9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet1 = create(9, 0, 0, 0, 0);
         globalPackets.add(packet1);
 
-        DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
@@ -286,7 +245,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(packet2.getResponse()).thenReturn(Response.NACK);
         when(packet2.getSourceAddress()).thenReturn(9);
 
-        DM21DiagnosticReadinessPacket packet3 = createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
                 .thenReturn(new BusResult<>(false, packet3));
 
@@ -320,15 +279,15 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, globalPackets, List.of()));
         // return the set of OBD module addresses when requested
-        DM21DiagnosticReadinessPacket packet1 = createDM21Packet(9, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet1 = create(9, 0, 0, 0, 0);
         globalPackets.add(packet1);
 
-        DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
@@ -339,7 +298,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(packet2.getResponse()).thenReturn(Response.NACK);
         when(packet2.getSourceAddress()).thenReturn(16);
 
-        DM21DiagnosticReadinessPacket packet3 = createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
                 .thenReturn(new BusResult<>(false, packet3));
 
@@ -379,12 +338,12 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, packets, List.of()));
         // return the set of OBD module addresses when requested
 
-        DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
@@ -419,13 +378,13 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, packets, List.of()));
         // return the set of OBD module addresses when requested
 
-        DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
 
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 15.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 15, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
@@ -449,17 +408,17 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
+                                        "6.1.11.1.a - Cruise Control (17) reported distance with MIL on (SPN 3069) is not zero");
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
+                                        "6.1.11.4.a - Cruise Control (17) reported distance with MIL on (SPN 3069) is not zero");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero"
+        String expectedResult = "FAIL: 6.1.11.1.a - Cruise Control (17) reported distance with MIL on (SPN 3069) is not zero"
                 + NL
-                + "FAIL: 6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero" + NL;
+                + "FAIL: 6.1.11.4.a - Cruise Control (17) reported distance with MIL on (SPN 3069) is not zero" + NL;
         assertEquals(expectedResult, listener.getResults());
     }
 
@@ -471,12 +430,12 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, packets, List.of()));
 
-        DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 10.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 10, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
@@ -500,119 +459,16 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
+                                        "6.1.11.1.b - Cruise Control (17) reported distance SCC (SPN 3294) is not zero");
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.4.b - An ECU reported distance SCC (SPN 3294) is not zero");
+                                        "6.1.11.4.b - Cruise Control (17) reported distance SCC (SPN 3294) is not zero");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero" + NL
-                + "FAIL: 6.1.11.4.b - An ECU reported distance SCC (SPN 3294) is not zero" + NL;
-        assertEquals(expectedResult, listener.getResults());
-    }
-
-    @Test
-    public void testMilesSinceDTCsCleared() {
-        List<Integer> obdAddressSet = List.of(0, 17, 21);
-        // return the set of OBD module addresses when requested
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
-
-        List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
-                .thenReturn(new RequestResult<>(false, packets, List.of()));
-
-        DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new BusResult<>(false, packet4));
-        packets.add(packet4);
-
-        DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 15.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new BusResult<>(false, packet5));
-        packets.add(packet5);
-
-        AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
-        when(packet3.getResponse()).thenReturn(Response.NACK);
-        when(packet3.getSourceAddress()).thenReturn(21);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new BusResult<>(false, packet3));
-
-        runTest();
-
-        verify(dataRepository).getObdModuleAddresses();
-
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(0));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
-        verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
-
-        verify(mockListener).addOutcome(1,
-                                        11,
-                                        FAIL,
-                                        "6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
-        verify(mockListener).addOutcome(1,
-                                        11,
-                                        FAIL,
-                                        "6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero");
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.a - An ECU reported distance with MIL on (SPN 3069) is not zero"
-                + NL
-                + "FAIL: 6.1.11.4.a - An ECU reported distance with MIL on (SPN 3069) is not zero" + NL;
-        assertEquals(expectedResult, listener.getResults());
-    }
-
-    @Test
-    public void testMilesWhileMILIsActivated() {
-        List<Integer> obdAddressSet = List.of(0, 17, 21);
-        when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
-
-        List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
-                .thenReturn(new RequestResult<>(false, packets, List.of()));
-
-        DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
-                .thenReturn(new BusResult<>(false, packet4));
-        packets.add(packet4);
-
-        DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 10.0, 0.0, 0.0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
-                .thenReturn(new BusResult<>(false, packet5));
-        packets.add(packet5);
-
-        Packet ackPacket = Packet.create(AcknowledgmentPacket.PGN, 21, new byte[] { 1, 0, 0, 0, 0, 0, 0, 0 });
-        AcknowledgmentPacket packet3 = new AcknowledgmentPacket(ackPacket);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
-                .thenReturn(new BusResult<>(false, packet3));
-
-        runTest();
-
-        verify(dataRepository).getObdModuleAddresses();
-
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(0));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
-
-        verify(mockListener).addOutcome(1,
-                                        11,
-                                        FAIL,
-                                        "6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero");
-        verify(mockListener).addOutcome(1,
-                                        11,
-                                        FAIL,
-                                        "6.1.11.4.b - An ECU reported distance SCC (SPN 3294) is not zero");
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.b - An ECU reported distance SCC (SPN 3294) is not zero" + NL
-                + "FAIL: 6.1.11.4.b - An ECU reported distance SCC (SPN 3294) is not zero" + NL;
+        String expectedResult = "FAIL: 6.1.11.1.b - Cruise Control (17) reported distance SCC (SPN 3294) is not zero" + NL
+                + "FAIL: 6.1.11.4.b - Cruise Control (17) reported distance SCC (SPN 3294) is not zero" + NL;
         assertEquals(expectedResult, listener.getResults());
     }
 
@@ -628,12 +484,12 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
                 .thenReturn(new RequestResult<>(false, packets, List.of()));
 
-        DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 20.0, 0.0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 20);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
@@ -656,17 +512,17 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.1.d - An ECU reported time SCC (SPN 3296) > 1 minute");
+                                        "6.1.11.1.d - Cruise Control (17) reported time SCC (SPN 3296) > 1 minute");
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.4.d - An ECU reported time SCC (SPN 3296) > 1 minute");
+                                        "6.1.11.4.d - Cruise Control (17) reported time SCC (SPN 3296) > 1 minute");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.d - An ECU reported time SCC (SPN 3296) > 1 minute"
+        String expectedResult = "FAIL: 6.1.11.1.d - Cruise Control (17) reported time SCC (SPN 3296) > 1 minute"
                 + NL
-                + "FAIL: 6.1.11.4.d - An ECU reported time SCC (SPN 3296) > 1 minute" + NL;
+                + "FAIL: 6.1.11.4.d - Cruise Control (17) reported time SCC (SPN 3296) > 1 minute" + NL;
         assertEquals(expectedResult, listener.getResults());
 
     }
@@ -681,17 +537,17 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                 .thenReturn(new RequestResult<>(false, packets, List.of()));
         // return the set of OBD module addresses when requested
 
-        DM21DiagnosticReadinessPacket packet4 = createDM21Packet(0, 0.0, 0.0, 0.0, 0.0, 0.0, 25.0);
+        DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 25, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
-        DM21DiagnosticReadinessPacket packet5 = createDM21Packet(17, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
-        DM21DiagnosticReadinessPacket packet6 = createDM21Packet(21, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0);
+        DM21DiagnosticReadinessPacket packet6 = create(21, 0, 0, 0, 0);
         when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
                 .thenReturn(new BusResult<>(false, packet6));
         packets.add(packet6);
@@ -709,17 +565,17 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.1.c - An ECU reported time with MIL on (SPN 3295) is not zero");
+                                        "6.1.11.1.c - Engine #1 (0) reported time with MIL on (SPN 3295) is not zero");
         verify(mockListener).addOutcome(1,
                                         11,
                                         FAIL,
-                                        "6.1.11.4.c - An ECU reported time with MIL on (SPN 3295) is not zero");
+                                        "6.1.11.4.c - Engine #1 (0) reported time with MIL on (SPN 3295) is not zero");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.c - An ECU reported time with MIL on (SPN 3295) is not zero"
+        String expectedResult = "FAIL: 6.1.11.1.c - Engine #1 (0) reported time with MIL on (SPN 3295) is not zero"
                 + NL
-                + "FAIL: 6.1.11.4.c - An ECU reported time with MIL on (SPN 3295) is not zero"
+                + "FAIL: 6.1.11.4.c - Engine #1 (0) reported time with MIL on (SPN 3295) is not zero"
                 + NL;
         assertEquals(expectedResult, listener.getResults());
 
