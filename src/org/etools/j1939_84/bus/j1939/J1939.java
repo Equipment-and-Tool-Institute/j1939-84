@@ -16,7 +16,6 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
@@ -45,6 +44,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
+import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
@@ -348,6 +348,9 @@ public class J1939 {
 
         case DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN:
             return new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(packet);
+
+        case DM34NTEStatus.PGN:
+            return new DM34NTEStatus(packet);
 
         case DM56EngineFamilyPacket.PGN:
             return new DM56EngineFamilyPacket(packet);
