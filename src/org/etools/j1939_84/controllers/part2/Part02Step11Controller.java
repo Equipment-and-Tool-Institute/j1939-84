@@ -70,7 +70,9 @@ public class Part02Step11Controller extends StepController {
 
         // 6.2.11.1.a. Global DM27 (send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 3038, 1706)).
         List<DM27AllPendingDTCsPacket> globalPackets = dtcModule.requestDM27(getListener(), true).getPackets();
-        Set<Integer> globalPacketAddresses  = globalPackets.stream().map(ParsedPacket::getSourceAddress).collect(Collectors.toSet());
+        Set<Integer> globalPacketAddresses = globalPackets.stream()
+                .map(ParsedPacket::getSourceAddress)
+                .collect(Collectors.toSet());
 
         // 6.2.11.2.a. (if supported) Fail if any OBD ECU that supported DM27 in step 6.1.20 fails to respond.
         dataRepository.getObdModules()
@@ -80,6 +82,16 @@ public class Part02Step11Controller extends StepController {
                 .filter(o -> !globalPacketAddresses.contains(o))
                 .map(Lookup::getAddressName)
                 .forEach(moduleName -> addFailure("6.2.11.2.a - " + moduleName + " supported DM27 in part 1 but failed to respond"));
+
+        //Refresh the last DM27 as this required later in Part 2
+        dataRepository.getObdModules().forEach(obdModuleInformation -> {
+            var dm27 = globalPackets.stream()
+                    .filter(p -> p.getSourceAddress() == obdModuleInformation.getSourceAddress())
+                    .findFirst()
+                    .orElse(null);
+            obdModuleInformation.setLastDM27(dm27);
+            dataRepository.putObdModule(obdModuleInformation);
+        });
 
         // 6.2.11.2.b. (if supported) Fail if any OBD ECU reports an all pending DTC.
         globalPackets.stream()
