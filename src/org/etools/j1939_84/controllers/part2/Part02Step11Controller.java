@@ -96,15 +96,15 @@ public class Part02Step11Controller extends StepController {
                 .map(Lookup::getAddressName)
                 .forEach(moduleName -> addFailure("6.2.11.2.c - " + moduleName + " did not report MIL off"));
 
-        List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
-
         // 6.2.11.3.a. DS DM27 to each OBD ECU that supported DM27.
-        List<BusResult<DM27AllPendingDTCsPacket>> dsResults = obdModuleAddresses.stream()
+        List<DM27AllPendingDTCsPacket> dsPackets = dataRepository.getObdModuleAddresses()
+                .stream()
                 .map(address -> dtcModule.requestDM27(getListener(), true, address))
+                .map(BusResult::requestResult)
+                .flatMap(r -> r.getPackets().stream())
                 .collect(Collectors.toList());
 
         // 6.2.11.4.a. Fail if any difference compared to data received during global request.
-        List<DM27AllPendingDTCsPacket> dsPackets = filterPackets(dsResults);
         compareRequestPackets(globalPackets, dsPackets, "6.2.11.4.a");
     }
 }
