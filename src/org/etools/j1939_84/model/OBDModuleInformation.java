@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
@@ -49,6 +50,8 @@ public class OBDModuleInformation implements Cloneable {
     private String modelYear = "";
 
     private DM26TripDiagnosticReadinessPacket lastDM26;
+
+    private DM27AllPendingDTCsPacket lastDM27;
 
     public OBDModuleInformation(int sourceAddress) {
         this.sourceAddress = sourceAddress;
@@ -254,5 +257,13 @@ public class OBDModuleInformation implements Cloneable {
 
     public void setLastDM26(DM26TripDiagnosticReadinessPacket lastDM26) {
         this.lastDM26 = lastDM26;
+    }
+
+    public DM27AllPendingDTCsPacket getLastDM27() {
+        return lastDM27;
+    }
+
+    public void setLastDM27(DM27AllPendingDTCsPacket lastDM27) {
+        this.lastDM27 = lastDM27;
     }
 }
