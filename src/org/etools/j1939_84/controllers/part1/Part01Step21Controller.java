@@ -72,17 +72,20 @@ public class Part01Step21Controller extends StepController {
         dtcModule.setJ1939(getJ1939());
 
         // 6.1.21.1.a. Global DM27 (send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 3038, 1706)).
-
         List<DM27AllPendingDTCsPacket> globalPackets = dtcModule.requestDM27(getListener(), true).getPackets();
+
+        //Save the packet for later use
+        globalPackets.stream()
+                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .forEach(p -> {
+                    var obdModule = dataRepository.getObdModule(p.getSourceAddress());
+                    obdModule.setLastDM27(p);
+                    dataRepository.putObdModule(obdModule);
+                });
 
         // 6.1.21.2.a. Fail if any OBD ECU reports an all pending DTC.
         globalPackets.stream()
                 .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
-                .peek(p -> {
-                    var obdModule = dataRepository.getObdModule(p.getSourceAddress());
-                    obdModule.setLastDM27(p);
-                    dataRepository.putObdModule(obdModule);
-                })
                 .filter(p -> !p.getDtcs().isEmpty())
                 .map(ParsedPacket::getSourceAddress)
                 .map(Lookup::getAddressName)

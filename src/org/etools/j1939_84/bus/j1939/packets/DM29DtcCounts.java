@@ -90,8 +90,17 @@ public class DM29DtcCounts extends GenericPacket {
         return "DM29";
     }
 
-    public boolean isDM27Supported() {
-        return (byte) (getPacket().get(1)) != (byte) 0xFF;
+    public boolean hasNonZeroCounts(Boolean allPendingSupported) {
+        boolean result = false;
+        if (allPendingSupported != null) {
+            result = getAllPendingDTCCount() != (allPendingSupported ? 0 : (byte) 0xFF);
+        }
+
+        return result
+                || getEmissionRelatedPendingDTCCount() != 0
+                || getEmissionRelatedMILOnDTCCount() != 0
+                || getEmissionRelatedPreviouslyMILOnDTCCount() != 0
+                || getEmissionRelatedPermanentDTCCount() != 0;
     }
 
     private void parsePacket() {

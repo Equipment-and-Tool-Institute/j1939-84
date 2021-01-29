@@ -13,6 +13,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -74,24 +75,24 @@ public class Part01Step22Controller extends StepController {
         // 6.1.22.2.a. For ECUs that support DM27, fail if any ECU does not report
         // pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0
         globalPackets.stream()
-                .filter(DM29DtcCounts::isDM27Supported)
-                .filter(Part01Step22Controller::hasDTCs)
+                .filter(p -> p.hasNonZeroCounts(true))
                 .map(ParsedPacket::getSourceAddress)
+                .filter(this::supportsDM27)
                 .map(Lookup::getAddressName)
                 .forEach(moduleName -> addFailure("6.1.22.2.a - " + moduleName + " did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"));
 
         // 6.1.22.2.b. For ECUs that do not support DM27, fail if any ECU does not
-        // report pending/all pending/MIL on/previous MIL on/permanent =0/0xFF/0/0/0.
+        // report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0.
         globalPackets.stream()
-                .filter(dm29 -> !dm29.isDM27Supported())
-                .filter(Part01Step22Controller::hasDTCs)
+                .filter(p -> p.hasNonZeroCounts(false))
                 .map(ParsedPacket::getSourceAddress)
+                .filter(address -> !supportsDM27(address))
                 .map(Lookup::getAddressName)
                 .forEach(moduleName -> addFailure("6.1.22.2.b - " + moduleName + " did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0"));
 
         // 6.1.22.2.c. For non-OBD ECUs, fail if any ECU reports pending, MIL-on, previously MIL-on or permanent DTC count greater than 0
         globalPackets.stream()
-                .filter(Part01Step22Controller::hasDTCs)
+                .filter(p -> p.hasNonZeroCounts(null))
                 .map(ParsedPacket::getSourceAddress)
                 .filter(address -> !dataRepository.isObdModule(address))
                 .map(Lookup::getAddressName)
@@ -122,10 +123,11 @@ public class Part01Step22Controller extends StepController {
         checkForNACKs(globalPackets, filterAcks(dsResults), obdModuleAddresses, "6.1.22.4.b");
     }
 
-    private static boolean hasDTCs(DM29DtcCounts dm29) {
-        return dm29.getEmissionRelatedPendingDTCCount() != 0
-                || dm29.getEmissionRelatedMILOnDTCCount() != 0
-                || dm29.getEmissionRelatedPreviouslyMILOnDTCCount() != 0
-                || dm29.getEmissionRelatedPermanentDTCCount() != 0;
+    private boolean supportsDM27(int address) {
+        return dataRepository.getObdModules()
+                .stream()
+                .filter(m -> m.getLastDM27() != null)
+                .map(OBDModuleInformation::getSourceAddress)
+                .anyMatch(a -> a == address);
     }
 }
