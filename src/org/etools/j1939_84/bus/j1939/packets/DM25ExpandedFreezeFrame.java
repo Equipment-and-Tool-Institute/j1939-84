@@ -1,5 +1,5 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
@@ -9,22 +9,19 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link ParsedPacket} for Expanded Freeze Frame Codes (DM25)
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 public class DM25ExpandedFreezeFrame extends GenericPacket {
-    // Hex value of PGN = 00FDB7
-    public static final int PGN = 64951;
+    public static final int PGN = 64951; //0xFDB7
 
     private List<FreezeFrame> freezeFrames;
 
     public DM25ExpandedFreezeFrame(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
     }
 
     /**
@@ -85,10 +82,14 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(getStringPrefix() + NL);
-        sb.append("Freeze Frames: [" + NL);
-        for (FreezeFrame frameFrame : getFreezeFrames()) {
-            sb.append(frameFrame + NL);
+        sb.append(getStringPrefix()).append(NL);
+        sb.append("Freeze Frames: [").append(NL);
+        if (getFreezeFrames().isEmpty()) {
+            sb.append("No Freeze Frames").append(NL);
+        } else {
+            for (FreezeFrame frameFrame : getFreezeFrames()) {
+                sb.append(frameFrame).append(NL);
+            }
         }
         sb.append("]");
 

@@ -1,7 +1,7 @@
 /*
  * Copyright 2021 Equipment & Tool Institute
  */
-package org.etools.j1939_84.controllers.part1;
+package org.etools.j1939_84.controllers.part2;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
@@ -38,16 +38,11 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-/**
- * The unit test for {@link Part01Step24Controller}
- *
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- */
 @RunWith(MockitoJUnitRunner.class)
-public class Part01Step24ControllerTest extends AbstractControllerTest {
-    private static final int PART_NUMBER = 1;
+public class Part02Step14ControllerTest extends AbstractControllerTest {
+    private static final int PART_NUMBER = 2;
     private static final int PGN = DM25ExpandedFreezeFrame.PGN;
-    private static final int STEP_NUMBER = 24;
+    private static final int STEP_NUMBER = 14;
 
     @Mock
     private BannerModule bannerModule;
@@ -63,7 +58,7 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
     @Mock
     private Executor executor;
 
-    private Part01Step24Controller instance;
+    private Part02Step14Controller instance;
 
     @Mock
     private J1939 j1939;
@@ -85,13 +80,13 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
-        instance = new Part01Step24Controller(executor,
+        instance = new Part02Step14Controller(executor,
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              dtcModule,
                                               dataRepository,
-                                              DateTimeModule.getInstance());
+                                              DateTimeModule.getInstance(),
+                                              dtcModule);
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -153,9 +148,9 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.1.24.2.a - Engine #1 (0) provided freeze frame data other than no freeze frame data stored");
+                                                       "6.2.14.2.a - Engine #1 (0) provided freeze frame data other than no freeze frame data stored");
 
-        String expectedResults = "FAIL: 6.1.24.2.a - Engine #1 (0) provided freeze frame data other than no freeze frame data stored" + NL;
+        String expectedResults = "FAIL: 6.2.14.2.a - Engine #1 (0) provided freeze frame data other than no freeze frame data stored" + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());

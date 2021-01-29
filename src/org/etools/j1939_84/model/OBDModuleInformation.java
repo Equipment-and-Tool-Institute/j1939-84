@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
@@ -49,6 +50,8 @@ public class OBDModuleInformation implements Cloneable {
 
     private String modelYear = "";
 
+    private DM25ExpandedFreezeFrame lastDM25;
+
     private DM26TripDiagnosticReadinessPacket lastDM26;
 
     private DM27AllPendingDTCsPacket lastDM27;
@@ -75,6 +78,8 @@ public class OBDModuleInformation implements Cloneable {
         obdInfo.setSupportedSpns(getSupportedSpns());
         obdInfo.setEngineFamilyName(getEngineFamilyName());
         obdInfo.setModelYear(getModelYear());
+        obdInfo.setLastDM26(getLastDM26());
+        obdInfo.setLastDM27(getLastDM27());
 
         return obdInfo;
     }
@@ -102,7 +107,10 @@ public class OBDModuleInformation implements Cloneable {
                 && Objects.equals(sourceAddress, that.sourceAddress)
                 && Objects.equals(supportedSpns, that.supportedSpns)
                 && Objects.equals(engineFamilyName, that.engineFamilyName)
-                && Objects.equals(modelYear, that.modelYear);
+                && Objects.equals(modelYear, that.modelYear)
+                && Objects.equals(lastDM25, that.lastDM25)
+                && Objects.equals(lastDM26, that.lastDM26)
+                && Objects.equals(lastDM27, that.lastDM27);
     }
 
     public int getIgnitionCycleCounterValue() {
@@ -175,7 +183,10 @@ public class OBDModuleInformation implements Cloneable {
                             scaledTestResults,
                             supportedSpns,
                             engineFamilyName,
-                            modelYear);
+                            modelYear,
+                            lastDM25,
+                            lastDM26,
+                            lastDM27);
     }
 
     public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {
@@ -231,6 +242,30 @@ public class OBDModuleInformation implements Cloneable {
         this.modelYear = modelYear;
     }
 
+    public DM25ExpandedFreezeFrame getLastDM25() {
+        return lastDM25;
+    }
+
+    public void setLastDM25(DM25ExpandedFreezeFrame lastDM25) {
+        this.lastDM25 = lastDM25;
+    }
+
+    public DM26TripDiagnosticReadinessPacket getLastDM26() {
+        return lastDM26;
+    }
+
+    public void setLastDM26(DM26TripDiagnosticReadinessPacket lastDM26) {
+        this.lastDM26 = lastDM26;
+    }
+
+    public DM27AllPendingDTCsPacket getLastDM27() {
+        return lastDM27;
+    }
+
+    public void setLastDM27(DM27AllPendingDTCsPacket lastDM27) {
+        this.lastDM27 = lastDM27;
+    }
+
     @Override
     public String toString() {
         String result = "OBD Module Information: " + NL;
@@ -251,19 +286,4 @@ public class OBDModuleInformation implements Cloneable {
         return getSupportedSpns().stream().map(SupportedSPN::toString).collect(Collectors.joining(","));
     }
 
-    public DM26TripDiagnosticReadinessPacket getLastDM26() {
-        return lastDM26;
-    }
-
-    public void setLastDM26(DM26TripDiagnosticReadinessPacket lastDM26) {
-        this.lastDM26 = lastDM26;
-    }
-
-    public DM27AllPendingDTCsPacket getLastDM27() {
-        return lastDM27;
-    }
-
-    public void setLastDM27(DM27AllPendingDTCsPacket lastDM27) {
-        this.lastDM27 = lastDM27;
-    }
 }
