@@ -56,16 +56,17 @@ public class DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTimeTest 
 
     @Test
     public void testGetName() {
-        assertEquals("DM33", instance.getName());
+        assertEquals("DM33 Emission Increasing AECD Active Time", instance.getName());
     }
 
     @Test
     public void testToString() {
-        String expected = "DM33 Emission Increasing AECD Active Time" + NL;
+        String expected = "DM33 Emission Increasing AECD Active Time from Engine #1 (0): {" + NL;
         expected += "EI-AECD Number = 1: Timer 1 = 68395 minutes; Timer 2 = 771115 minutes" + NL;
         expected += "EI-AECD Number = 2: Timer 1 = errored; Timer 2 = n/a" + NL;
         expected += "EI-AECD Number = 3: Timer 1 = errored; Timer 2 = 199468 minutes" + NL;
-        expected += "EI-AECD Number = 4: Timer 1 = errored; Timer 2 = n/a";
+        expected += "EI-AECD Number = 4: Timer 1 = errored; Timer 2 = n/a" + NL;
+        expected += "}" + NL;
         assertEquals(expected, instance.toString());
     }
 

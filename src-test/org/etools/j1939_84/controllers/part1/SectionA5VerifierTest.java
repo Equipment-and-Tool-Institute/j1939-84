@@ -1131,8 +1131,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         expectedMessages += "Pre DTC all clear code sent retrieved the DM33 packet :" + NL;
         expectedMessages += "   dm33Packet17.toString()" + NL + "   dm33Packet21.toString()" + NL;
         expectedMessages += "Post DTC all clear code sent retrieved the DM33 packet :" + NL;
-        expectedMessages += "   DM33 Emission Increasing AECD Active Time" + NL;
+        expectedMessages += "   DM33 Emission Increasing AECD Active Time from Engine #1 (0): {" + NL;
         expectedMessages += "EI-AECD Number = 1: Timer 1 = 0 minutes; Timer 2 = n/a" + NL;
+        expectedMessages +="}"+NL+NL;
         expectedMessages += "   dm33Packet17.toString()" + NL;
         expectedMessages += "   dm33Packet21.toString()";
         assertEquals(expectedMessages, listener.getMessages());
@@ -1200,8 +1201,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         expectedMessages += "   dm33Packet17.toString()" + NL;
         expectedMessages += "   dm33Packet21.toString()" + NL;
         expectedMessages += "Post DTC all clear code sent retrieved the DM33 packet :" + NL;
-        expectedMessages += "   DM33 Emission Increasing AECD Active Time" + NL;
+        expectedMessages += "   DM33 Emission Increasing AECD Active Time from Engine #1 (0): {" + NL;
         expectedMessages += "EI-AECD Number = 1: Timer 1 = 0 minutes; Timer 2 = n/a" + NL;
+        expectedMessages += "}"+NL+NL;
         expectedMessages += "   dm33Packet17.toString()";
         assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());

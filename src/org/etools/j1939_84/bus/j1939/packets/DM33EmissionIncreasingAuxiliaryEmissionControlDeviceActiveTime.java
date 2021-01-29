@@ -39,7 +39,7 @@ public class DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime exte
 
     @Override
     public String getName() {
-        return "DM33";
+        return "DM33 Emission Increasing AECD Active Time";
     }
 
     private void parsePacket() {
@@ -53,8 +53,9 @@ public class DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime exte
 
     @Override
     public String toString() {
-        StringBuilder sb = new StringBuilder("DM33 Emission Increasing AECD Active Time");
+        StringBuilder sb = new StringBuilder(getStringPrefix()).append("{");
         getEiAecdEngineHoursTimers().forEach(timer -> sb.append(NL).append(timer.toString()));
+        sb.append(NL).append("}").append(NL);
         return sb.toString();
     }
 

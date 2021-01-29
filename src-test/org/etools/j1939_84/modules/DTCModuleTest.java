@@ -272,9 +272,7 @@ public class DTCModuleTest {
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM11ClearActiveDTCsPacket> expectedResult = new RequestResult<>(false,
-                                                                                      packet1);
-        assertEquals(expectedResult, instance.requestDM11(listener));
+        assertEquals(List.of(packet1), instance.requestDM11(listener));
 
         String expected = "";
         expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
@@ -304,7 +302,7 @@ public class DTCModuleTest {
         expected += "ERROR: Clearing Diagnostic Trouble Codes failed." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        assertEquals(RequestResult.empty(false), instance.requestDM11(listener));
+        assertEquals(List.of(), instance.requestDM11(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
@@ -335,9 +333,7 @@ public class DTCModuleTest {
         expected += "Diagnostic Trouble Codes were successfully cleared." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM11ClearActiveDTCsPacket> expectedResult = new RequestResult<>(false, List.of(),
-                                                                                      List.of(packet1));
-        assertEquals(expectedResult, instance.requestDM11(listener));
+        assertEquals(List.of(packet1), instance.requestDM11(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
@@ -349,7 +345,7 @@ public class DTCModuleTest {
         final int pgn = DM11ClearActiveDTCsPacket.PGN;
 
         TestResultsListener listener = new TestResultsListener();
-        assertEquals(RequestResult.empty(false), instance.requestDM11(listener));
+        assertEquals(List.of(), instance.requestDM11(listener));
 
         String expected = "";
         expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
@@ -395,11 +391,7 @@ public class DTCModuleTest {
         expected += "Diagnostic Trouble Codes were successfully cleared." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM11ClearActiveDTCsPacket> expectedResult = new RequestResult<>(false, List.of(),
-                                                                                      List.of(packet1,
-                                                                                              packet2,
-                                                                                              packet3));
-        assertEquals(expectedResult, instance.requestDM11(listener));
+        assertEquals(List.of(packet1, packet2, packet3), instance.requestDM11(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
@@ -441,11 +433,7 @@ public class DTCModuleTest {
         expected += "ERROR: Clearing Diagnostic Trouble Codes failed." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM11ClearActiveDTCsPacket> expectedResult = new RequestResult<>(false, List.of(),
-                                                                                      List.of(packet1,
-                                                                                              packet2,
-                                                                                              packet3));
-        assertEquals(expectedResult, instance.requestDM11(listener));
+        assertEquals(List.of(packet1, packet2, packet3), instance.requestDM11(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
@@ -2025,29 +2013,26 @@ public class DTCModuleTest {
                 // 1 with FF for timer 1 and FE for timer 2
                 0x04, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE,
                 (byte) 0xFF };
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime packet1 = new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(
-                Packet.create(pgn,
-                              0x00,
-                              data));
+        var packet1 = new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(Packet.create(pgn, 0x00, data));
 
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+
+        TestResultsListener listener = new TestResultsListener();
+        assertEquals(new RequestResult<>(false, packet1), instance.requestDM33(listener));
 
         String expected = "";
         expected += "10:15:30.0000 Global DM33 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 A1 00 (TX)" + NL;
         expected += "10:15:30.0000 18A10000 [36] 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
                 + NL;
-        expected += "DM33 Emission Increasing AECD Active Time" + NL;
+        expected += "DM33 Emission Increasing AECD Active Time from Engine #1 (0): {" + NL;
         expected += "EI-AECD Number = 1: Timer 1 = 68395 minutes; Timer 2 = 771115 minutes" + NL;
         expected += "EI-AECD Number = 2: Timer 1 = errored; Timer 2 = n/a" + NL;
         expected += "EI-AECD Number = 3: Timer 1 = errored; Timer 2 = 199468 minutes" + NL;
         expected += "EI-AECD Number = 4: Timer 1 = errored; Timer 2 = n/a" + NL;
+        expected += "}" + NL;
+        expected += NL;
 
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> expectedResult = new RequestResult<>(
-                false,
-                List.of(packet1), List.of());
-        assertEquals(expectedResult, instance.requestDM33(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -2071,10 +2056,7 @@ public class DTCModuleTest {
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> expectedResult = new RequestResult<>(
-                false,
-                List.of(), List.of());
-
+        var expectedResult = new RequestResult<>(false);
         assertEquals(expectedResult, instance.requestDM33(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -2096,27 +2078,24 @@ public class DTCModuleTest {
                 // 1 with FF for timer 1 and FE for timer 2
                 0x04, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE,
                 (byte) 0xFF };
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime packet1 = new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(
-                Packet.create(pgn,
-                              GLOBAL_ADDR,
-                              data));
+        var packet1 = new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(Packet.create(pgn, 0, data));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM33 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] 00 A1 00 (TX)" + NL;
-        expected += "10:15:30.0000 18A100FF [36] 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
+        expected += "10:15:30.0000 18A10000 [36] 01 2B 0B 01 00 2B C4 0B 00 02 FE FE FE FE FF FF FF FF 03 FE FE FE FE 2C 0B 03 00 04 FF FF FF FE FE FE FE FF"
                 + NL;
-        expected += "DM33 Emission Increasing AECD Active Time" + NL;
+        expected += "DM33 Emission Increasing AECD Active Time from Engine #1 (0): {" + NL;
         expected += "EI-AECD Number = 1: Timer 1 = 68395 minutes; Timer 2 = 771115 minutes" + NL;
         expected += "EI-AECD Number = 2: Timer 1 = errored; Timer 2 = n/a" + NL;
         expected += "EI-AECD Number = 3: Timer 1 = errored; Timer 2 = 199468 minutes" + NL;
         expected += "EI-AECD Number = 4: Timer 1 = errored; Timer 2 = n/a" + NL;
+        expected += "}" + NL;
+        expected+=NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> expectedResult = new RequestResult<>(
-                false,
-                List.of(packet1), List.of());
+        var expectedResult = new RequestResult<>(false, packet1);
         assertEquals(expectedResult, instance.requestDM33(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
