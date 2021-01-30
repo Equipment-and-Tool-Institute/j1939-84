@@ -43,7 +43,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
-import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
+import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
@@ -346,8 +346,8 @@ public class J1939 {
         case DM31DtcToLampAssociation.PGN:
             return new DM31DtcToLampAssociation(packet);
 
-        case DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN:
-            return new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(packet);
+        case DM33EmissionIncreasingAECDActiveTime.PGN:
+            return new DM33EmissionIncreasingAECDActiveTime(packet);
 
         case DM34NTEStatus.PGN:
             return new DM34NTEStatus(packet);

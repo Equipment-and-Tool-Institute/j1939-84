@@ -36,7 +36,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
-import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
+import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -2003,7 +2003,7 @@ public class DTCModuleTest {
     @Test
     public void testRequestDM33DestinationSpecificEmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime()
             throws BusException {
-        final int pgn = DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN;
+        final int pgn = DM33EmissionIncreasingAECDActiveTime.PGN;
 
         byte[] data = { 0x01, 0x2B, 0x0B, 0x01, 0x00, 0x2B, (byte) 0xC4, 0x0B, 0x00,
                 // 1 with FE for timer 1 and FF for timer 2
@@ -2013,7 +2013,7 @@ public class DTCModuleTest {
                 // 1 with FF for timer 1 and FE for timer 2
                 0x04, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE,
                 (byte) 0xFF };
-        var packet1 = new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(Packet.create(pgn, 0x00, data));
+        var packet1 = new DM33EmissionIncreasingAECDActiveTime(Packet.create(pgn, 0x00, data));
 
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
@@ -2043,7 +2043,7 @@ public class DTCModuleTest {
 
     @Test
     public void testRequestDM33DestinationSpecificNoResponse() throws BusException {
-        final int pgn = DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN;
+        final int pgn = DM33EmissionIncreasingAECDActiveTime.PGN;
 
         Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
@@ -2068,7 +2068,7 @@ public class DTCModuleTest {
 
     @Test
     public void testRequestDM33GlobalEmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime() throws BusException {
-        final int pgn = DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN;
+        final int pgn = DM33EmissionIncreasingAECDActiveTime.PGN;
 
         byte[] data = { 0x01, 0x2B, 0x0B, 0x01, 0x00, 0x2B, (byte) 0xC4, 0x0B, 0x00,
                 // 1 with FE for timer 1 and FF for timer 2
@@ -2078,7 +2078,7 @@ public class DTCModuleTest {
                 // 1 with FF for timer 1 and FE for timer 2
                 0x04, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE,
                 (byte) 0xFF };
-        var packet1 = new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(Packet.create(pgn, 0, data));
+        var packet1 = new DM33EmissionIncreasingAECDActiveTime(Packet.create(pgn, 0, data));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
@@ -2107,7 +2107,7 @@ public class DTCModuleTest {
 
     @Test
     public void testRequestDM33GlobalNoResponse() throws BusException {
-        final int pgn = DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN;
+        final int pgn = DM33EmissionIncreasingAECDActiveTime.PGN;
 
         doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
 

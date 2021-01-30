@@ -31,7 +31,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
-import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
+import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DTCLampStatus;
@@ -1029,8 +1029,8 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
             }
         };
 
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet0 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet0 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         int[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x04, 0x00,
                 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x06, 0x00, 0x00, 0x00, 0x00,
                 0xFF, 0xFF, 0xFF, 0xFF, 0x0B, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF,
@@ -1040,14 +1040,14 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 0xFF };
         Packet.create(0, 0, data);
         when(dm33Packet0.getSourceAddress()).thenReturn(0x00);
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet17 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet17 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet17.getSourceAddress()).thenReturn(0x17);
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet21 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet21 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
 
-        List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> dm33Packets = new ArrayList<>() {
+        List<DM33EmissionIncreasingAECDActiveTime> dm33Packets = new ArrayList<>() {
             {
                 add(dm33Packet0);
                 add(dm33Packet17);
@@ -1097,19 +1097,19 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
             }
         };
 
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet0 = new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(
-                Packet.create(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, 0x00,
-                        0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet17 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet0 = new DM33EmissionIncreasingAECDActiveTime(
+                Packet.create(DM33EmissionIncreasingAECDActiveTime.PGN, 0x00,
+                              0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+        DM33EmissionIncreasingAECDActiveTime dm33Packet17 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet17.getSourceAddress()).thenReturn(0x17);
         when(dm33Packet17.toString()).thenReturn("dm33Packet17.toString()");
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet21 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet21 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
         when(dm33Packet21.toString()).thenReturn("dm33Packet21.toString()");
 
-        List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> dm33Packets = new ArrayList<>() {
+        List<DM33EmissionIncreasingAECDActiveTime> dm33Packets = new ArrayList<>() {
             {
                 add(dm33Packet17);
                 add(dm33Packet21);
@@ -1166,19 +1166,19 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
             }
         };
 
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet0 = new DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime(
-                Packet.create(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, 0x00,
-                        0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet17 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet0 = new DM33EmissionIncreasingAECDActiveTime(
+                Packet.create(DM33EmissionIncreasingAECDActiveTime.PGN, 0x00,
+                              0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+        DM33EmissionIncreasingAECDActiveTime dm33Packet17 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet17.toString()).thenReturn("dm33Packet17.toString()");
         when(dm33Packet17.getSourceAddress()).thenReturn(0x17);
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet21 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet21 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet21.toString()).thenReturn("dm33Packet21.toString()");
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
 
-        List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> dm33Packets = new ArrayList<>() {
+        List<DM33EmissionIncreasingAECDActiveTime> dm33Packets = new ArrayList<>() {
             {
                 add(dm33Packet17);
                 add(dm33Packet21);
@@ -1815,20 +1815,20 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DTCLampStatus dtcLampStatusDM31 = mock(DTCLampStatus.class);
         when(dm31Packet.getDtcLampStatuses()).thenReturn(Collections.singletonList(dtcLampStatusDM31));
 
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet0 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet0 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet0.getSourceAddress()).thenReturn(0x00);
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet17 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet17 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet17.getSourceAddress()).thenReturn(0x17);
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet21 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet21 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
 
         EngineHoursPacket engineHoursPacket = mock(EngineHoursPacket.class);
         when(engineHoursPacket.toString()).thenReturn("Engine Hours from Engine #1 (0): 210,554,060.75 hours");
 
-        List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> dm33Packets = new ArrayList<>() {
+        List<DM33EmissionIncreasingAECDActiveTime> dm33Packets = new ArrayList<>() {
             {
                 add(dm33Packet0);
                 add(dm33Packet17);
@@ -2219,23 +2219,23 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         DM31DtcToLampAssociation dm31Packet = mock(DM31DtcToLampAssociation.class);
 
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet0 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet0 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet0.getSourceAddress()).thenReturn(0);
         when(dm33Packet0.toString()).thenReturn("DM33 from source address 0");
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet17 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet17 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet17.getSourceAddress()).thenReturn(0x17);
         when(dm33Packet17.toString()).thenReturn("DM33 from source address 17");
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet21 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet21 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
         when(dm33Packet21.toString()).thenReturn("DM33 from source address 21");
 
         EngineHoursPacket engineHoursPacket = mock(EngineHoursPacket.class);
         when(engineHoursPacket.toString()).thenReturn("Engine Hours from Engine #1 (0): 210,554,060.75 hours");
 
-        List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> dm33Packets = new ArrayList<>() {
+        List<DM33EmissionIncreasingAECDActiveTime> dm33Packets = new ArrayList<>() {
             {
                 add(dm33Packet0);
                 add(dm33Packet21);
@@ -2582,8 +2582,8 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         DM31DtcToLampAssociation dm31Packet = mock(DM31DtcToLampAssociation.class);
 
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet0 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet0 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         int[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x04, 0x00,
                 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x06, 0x00, 0x00, 0x00, 0x00,
                 0xFF, 0xFF, 0xFF, 0xFF, 0x0B, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF,
@@ -2593,16 +2593,16 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 0xFF };
         Packet.create(0, 0, data);
         when(dm33Packet0.getSourceAddress()).thenReturn(0x00);
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet17 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet17 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet17.getSourceAddress()).thenReturn(0x17);
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet21 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet21 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
 
         EngineHoursPacket engineHoursPacket = mock(EngineHoursPacket.class);
 
-        List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> dm33Packets = new ArrayList<>() {
+        List<DM33EmissionIncreasingAECDActiveTime> dm33Packets = new ArrayList<>() {
             {
                 add(dm33Packet0);
                 add(dm33Packet17);
@@ -2837,8 +2837,8 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         DM31DtcToLampAssociation dm31Packet = mock(DM31DtcToLampAssociation.class);
 
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet0 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet0 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         int[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x04, 0x00,
                 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x06, 0x00, 0x00, 0x00, 0x00,
                 0xFF, 0xFF, 0xFF, 0xFF, 0x0B, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF,
@@ -2848,16 +2848,16 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 0xFF };
         Packet.create(0, 0, data);
         when(dm33Packet0.getSourceAddress()).thenReturn(0x00);
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet17 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet17 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet17.getSourceAddress()).thenReturn(0x17);
-        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime dm33Packet21 = mock(
-                DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class);
+        DM33EmissionIncreasingAECDActiveTime dm33Packet21 = mock(
+                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
 
         EngineHoursPacket engineHoursPacket = mock(EngineHoursPacket.class);
 
-        List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> dm33Packets = new ArrayList<>() {
+        List<DM33EmissionIncreasingAECDActiveTime> dm33Packets = new ArrayList<>() {
             {
                 add(dm33Packet0);
                 add(dm33Packet17);

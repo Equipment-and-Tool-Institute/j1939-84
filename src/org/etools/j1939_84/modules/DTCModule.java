@@ -28,7 +28,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
-import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
+import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -415,7 +415,7 @@ public class DTCModule extends FunctionalModule {
      *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> requestDM33(
+    public RequestResult<DM33EmissionIncreasingAECDActiveTime> requestDM33(
             ResultsListener listener) {
         return requestDM33(listener, GLOBAL_ADDR);
     }
@@ -428,18 +428,18 @@ public class DTCModule extends FunctionalModule {
      *         the {@link ResultsListener} that will be given the report
      * @return true if there were any DTCs returned
      */
-    public RequestResult<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> requestDM33(
+    public RequestResult<DM33EmissionIncreasingAECDActiveTime> requestDM33(
             ResultsListener listener,
             int address) {
         Packet request = getJ1939()
-                .createRequestPacket(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, address);
+                .createRequestPacket(DM33EmissionIncreasingAECDActiveTime.PGN, address);
 
         String title = address == GLOBAL_ADDR ? "Global DM33 Request"
                 : "Destination Specific DM33 Request to " + Lookup.getAddressName(address);
 
         return getJ1939().requestResult(title,
                                         listener, true,
-                                        DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.class,
+                                        DM33EmissionIncreasingAECDActiveTime.class,
                                         request);
     }
 

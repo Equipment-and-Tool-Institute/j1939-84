@@ -21,7 +21,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
-import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
+import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
@@ -74,7 +74,7 @@ public class SectionA5Verifier {
 
     public boolean verify(List<DM28PermanentEmissionDTCPacket> previousDM28Packets,
             List<DM20MonitorPerformanceRatioPacket> previousDM20Packets,
-            List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> previousDM33Packets,
+            List<DM33EmissionIncreasingAECDActiveTime> previousDM33Packets,
             List<EngineHoursPacket> previousEngineHoursPackets,
             ResultsListener listener) {
 
@@ -403,12 +403,12 @@ public class SectionA5Verifier {
         return true;
     }
 
-    public boolean verifyDM33(List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> previousDM33Packets,
+    public boolean verifyDM33(List<DM33EmissionIncreasingAECDActiveTime> previousDM33Packets,
             ResultsListener listener, List<Integer> obdModuleAddresses) {
         // 9. Engine runtime information
         // a. DM33 EI-AECD information shall not be reset/cleared for any
         // non-zero values present before code clear.
-        List<DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime> dm33Packets = new ArrayList<>();
+        List<DM33EmissionIncreasingAECDActiveTime> dm33Packets = new ArrayList<>();
         obdModuleAddresses.forEach(address -> dm33Packets.addAll(new ArrayList<>(dtcModule.requestDM33(listener, address).getPackets())));
 
         previousDM33Packets.sort(Comparator.comparingInt(ParsedPacket::getSourceAddress));
