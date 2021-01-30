@@ -3,9 +3,8 @@
  */
 package org.etools.j1939_84.modules;
 
-import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
@@ -14,7 +13,6 @@ import org.etools.j1939_84.model.RequestResult;
  * Super class for all Functional Modules
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public abstract class FunctionalModule {
 
@@ -50,42 +48,17 @@ public abstract class FunctionalModule {
         return j1939;
     }
 
-    protected <T extends GenericPacket> BusResult<T> getPacketDS(String title,
-                                                                int pgn,
-                                                                Class<T> clazz,
-                                                                ResultsListener listener,
-                                                                boolean fullString,
-                                                                int address) {
-        Packet request = getJ1939().createRequestPacket(pgn, address);
-        return getJ1939().requestDS(title, listener, fullString, clazz, request);
-    }
-
-    /**
-     * Helper method to request packets from the vehicle
-     *
-     * @param <T>
-     *            The class of packets that will be returned
-     * @param title
-     *            the section title for inclusion in report
-     * @param pgn
-     *            the PGN that's being requested
-     * @param clazz
-     *            the {@link Class} of packet that will be returned
-     * @param listener
-     *            the {@link ResultsListener} that will be notified of the
-     *            traffic
-     * @param isFullString
-     *            true to include the full string of the results in the report;
-     *            false to only include the returned raw packet in the report
-     * @return the List of packets returned
-     */
-    protected <T extends GenericPacket> RequestResult<T> getPacketsFromGlobal(String title,
-                                                                             int pgn,
-                                                                             Class<T> clazz,
-                                                                             ResultsListener listener,
-                                                                             boolean isFullString) {
-        Packet request = getJ1939().createRequestPacket(pgn, J1939.GLOBAL_ADDR);
-        return getJ1939().requestGlobal(title, listener, isFullString, clazz, request);
+    protected <T extends GenericPacket> RequestResult<T> requestDMPackets(String dmName,
+                                                                          Class<T> clazz,
+                                                                          int address,
+                                                                          ResultsListener listener) {
+        if (address == J1939.GLOBAL_ADDR) {
+            String title = "Global " + dmName + " Request";
+            return getJ1939().requestGlobal(title, clazz, listener);
+        } else {
+            String title = "Destination Specific " + dmName + " Request to " + Lookup.getAddressName(address);
+            return getJ1939().requestDS(title, clazz, address, listener).requestResult();
+        }
     }
 
     /**
@@ -101,7 +74,7 @@ public abstract class FunctionalModule {
      * Sets the {@link J1939} that is used to communicate with the vehicle
      *
      * @param j1939
-     *            the {@link J1939} to set
+     *         the {@link J1939} to set
      */
     public void setJ1939(J1939 j1939) {
         this.j1939 = j1939;

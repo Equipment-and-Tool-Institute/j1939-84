@@ -66,7 +66,7 @@ public class Part01Step11Controller extends StepController {
         diagnosticReadinessModule.setJ1939(getJ1939());
         // 6.1.11.1.a. Global DM21 (send Request (PGN 59904) for PGN 49408
         List<DM21DiagnosticReadinessPacket> globalPackets = diagnosticReadinessModule
-                .requestDM21Packets(getListener(), true).getPackets();
+                .requestDM21(getListener()).getPackets();
 
         // 6.1.11.2.e. Fail if no OBD ECU provides a DM21 message.
         if (globalPackets.isEmpty()) {
@@ -102,7 +102,7 @@ public class Part01Step11Controller extends StepController {
 
         List<BusResult<DM21DiagnosticReadinessPacket>> dsResults = obdModuleAddresses
                 .stream()
-                .map(addr -> diagnosticReadinessModule.getDM21Packets(getListener(), true, addr))
+                .map(addr -> diagnosticReadinessModule.requestDM21(getListener(), addr))
                 .collect(Collectors.toList());
 
         // ignore missing responses and NACKs

@@ -7,7 +7,6 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -25,6 +24,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -121,7 +121,6 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
     @Test
     public void ignitionTypeNotSupported() {
-        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
         List<Integer> SPNs = new ArrayList<>();
         int[] SPN3 = { 3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057 };
         SPNs.add(SPN3[1]);
@@ -135,8 +134,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
-        globalDM20s.add(dm20);
-        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+        when(diagnosticReadinessModule.requestDM20(any())).thenReturn(new RequestResult<>(false, dm20));
 
         OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
         when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
@@ -151,7 +149,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+        verify(diagnosticReadinessModule).requestDM20(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -161,12 +159,10 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void minimumExpectedSPNsCompressionIgnition() {
 
-        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
         List<Integer> SPNs = List.of(3058, 3064, 5321, 3055);
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
-        globalDM20s.add(dm20);
-        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+        when(diagnosticReadinessModule.requestDM20(any())).thenReturn(new RequestResult<>(false, dm20));
 
         OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
         when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
@@ -181,7 +177,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+        verify(diagnosticReadinessModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
@@ -197,12 +193,10 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void minimumExpectedSPNsSparkIgnition() {
 
-        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
         List<Integer> SPNs = List.of(3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
-        globalDM20s.add(dm20);
-        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+        when(diagnosticReadinessModule.requestDM20(any())).thenReturn(new RequestResult<>(false, dm20));
 
         OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
         when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
@@ -217,7 +211,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+        verify(diagnosticReadinessModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
@@ -232,13 +226,11 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
     @Test
     public void obdModuleNull() {
-        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
         List<Integer> SPNs = List.of(5322, 5318, 3058, 3064, 5321, 3055, 4792);
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
-        globalDM20s.add(dm20);
-        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+        when(diagnosticReadinessModule.requestDM20(any())).thenReturn(new RequestResult<>(false, dm20));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.DSL);
@@ -249,7 +241,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+        verify(diagnosticReadinessModule).requestDM20(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -259,13 +251,11 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void testCompressionIgnition() {
 
-        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
         List<Integer> SPNs = List.of(5322, 5318, 3058, 3064, 5321, 3055, 4364);
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
-        globalDM20s.add(dm20);
-        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+        when(diagnosticReadinessModule.requestDM20(any())).thenReturn(new RequestResult<>(false, dm20));
 
         OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
         when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
@@ -279,7 +269,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+        verify(diagnosticReadinessModule).requestDM20(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -288,10 +278,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testEmptyPacketsCompressionIgnition() {
-
-        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-
-        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+        when(diagnosticReadinessModule.requestDM20(any())).thenReturn(new RequestResult<>(true));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.DSL);
@@ -301,7 +288,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+        verify(diagnosticReadinessModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
@@ -316,10 +303,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testEmptyPacketsSparkIgnition() {
-
-        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
-
-        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+        when(diagnosticReadinessModule.requestDM20(any())).thenReturn(RequestResult.empty());
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.BI_CNG);
@@ -329,7 +313,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+        verify(diagnosticReadinessModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
@@ -354,13 +338,10 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoSpnNPacketsMatch() {
-
-        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
         List<Integer> spns = List.of(5322, 5318, 3058, 3064, 5321, 3055);
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(spns);
 
-        globalDM20s.add(dm20);
-        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+        when(diagnosticReadinessModule.requestDM20(any())).thenReturn(new RequestResult<>(false, dm20));
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setFuelType(FuelType.BI_DSL);
@@ -370,7 +351,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+        verify(diagnosticReadinessModule).requestDM20(any());
 
         verify(mockListener).addOutcome(1,
                                         8,
@@ -386,13 +367,11 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
     @Test
     public void testSparkIgnition() {
 
-        List<DM20MonitorPerformanceRatioPacket> globalDM20s = new ArrayList<>();
         List<Integer> SPNs = List.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057);
 
         DM20MonitorPerformanceRatioPacket dm20 = createDM20(SPNs);
 
-        globalDM20s.add(dm20);
-        when(diagnosticReadinessModule.getDM20Packets(any(), eq(true))).thenReturn(globalDM20s);
+        when(diagnosticReadinessModule.requestDM20(any())).thenReturn(new RequestResult<>(false, dm20));
 
         OBDModuleInformation moduleInfo = mock(OBDModuleInformation.class);
         when(dataRepository.getObdModule(0)).thenReturn(moduleInfo);
@@ -406,7 +385,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).getDM20Packets(any(), eq(true));
+        verify(diagnosticReadinessModule).requestDM20(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());

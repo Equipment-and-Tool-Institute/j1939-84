@@ -80,10 +80,8 @@ public class BusService {
         listener.onResult("");
         Packet requestPacket = j1939.createRequestPacket(pgn, moduleAddress);
         return j1939.requestDS(message,
-                listener,
-                true,
-                pgn,
-                requestPacket)
+                               pgn, requestPacket, true, listener
+        )
                 .getPacket()
                 .stream()
                 .filter(p -> p.left.isPresent())

@@ -110,31 +110,31 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         List<Integer> obdAddressSet = List.of(0, 17, 21);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+        when(diagnosticReadinessModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false, List.of(), List.of()));
 
         DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
 
         DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
         when(packet3.getSourceAddress()).thenReturn(21);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(21)))
                 .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(0));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
+        verify(diagnosticReadinessModule).requestDM21(any());
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(0));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(17));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(21));
 
         verify(mockListener).addOutcome(1,
                                         11,
@@ -180,31 +180,31 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> globalPackets = new ArrayList<>();
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+        when(diagnosticReadinessModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false, globalPackets, List.of()));
 
         DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
 
         DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(21)))
                 .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(0));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
+        verify(diagnosticReadinessModule).requestDM21(any());
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(0));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(17));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(21));
 
         verify(mockListener).addOutcome(1,
                                         11,
@@ -223,41 +223,41 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> globalPackets = new ArrayList<>();
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+        when(diagnosticReadinessModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false, globalPackets, List.of()));
         // return the set of OBD module addresses when requested
         DM21DiagnosticReadinessPacket packet1 = create(9, 0, 0, 0, 0);
         globalPackets.add(packet1);
 
         DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(9)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(9)))
                 .thenReturn(new BusResult<>(false, packet2));
         when(packet2.getResponse()).thenReturn(Response.NACK);
         when(packet2.getSourceAddress()).thenReturn(9);
 
         DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(21)))
                 .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(0));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(9));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
+        verify(diagnosticReadinessModule).requestDM21(any());
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(0));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(9));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(17));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(21));
 
         verify(mockListener).addOutcome(1,
                                         11,
@@ -276,41 +276,41 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> globalPackets = new ArrayList<>();
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+        when(diagnosticReadinessModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false, globalPackets, List.of()));
         // return the set of OBD module addresses when requested
         DM21DiagnosticReadinessPacket packet1 = create(9, 0, 0, 0, 0);
         globalPackets.add(packet1);
 
         DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
         globalPackets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         globalPackets.add(packet5);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(9)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(9)))
                 .thenReturn(new BusResult<>(false, packet2));
         when(packet2.getResponse()).thenReturn(Response.NACK);
         when(packet2.getSourceAddress()).thenReturn(16);
 
         DM21DiagnosticReadinessPacket packet3 = create(21, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(21)))
                 .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(0));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(9));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
+        verify(diagnosticReadinessModule).requestDM21(any());
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(0));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(9));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(17));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(21));
 
         verify(mockListener).addOutcome(1,
                                         11,
@@ -334,34 +334,34 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
 
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+        when(diagnosticReadinessModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false, packets, List.of()));
         // return the set of OBD module addresses when requested
 
         DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
         when(packet3.getSourceAddress()).thenReturn(21);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(21)))
                 .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(0));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
+        verify(diagnosticReadinessModule).requestDM21(any());
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(0));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(17));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(21));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -374,25 +374,25 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdAddressSet);
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
 
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+        when(diagnosticReadinessModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false, packets, List.of()));
         // return the set of OBD module addresses when requested
 
         DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
 
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = create(17, 0, 15, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
         when(packet3.getSourceAddress()).thenReturn(21);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(21)))
                 .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
@@ -400,10 +400,10 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(0));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
-        verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(0));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(17));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(21));
+        verify(diagnosticReadinessModule).requestDM21(any());
 
         verify(mockListener).addOutcome(1,
                                         11,
@@ -427,23 +427,23 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(List.of(0, 17, 21));
 
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+        when(diagnosticReadinessModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false, packets, List.of()));
 
         DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = create(17, 10, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
         when(packet3.getSourceAddress()).thenReturn(21);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(21)))
                 .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
@@ -451,10 +451,10 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(0));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
+        verify(diagnosticReadinessModule).requestDM21(any());
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(0));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(17));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(21));
 
         verify(mockListener).addOutcome(1,
                                         11,
@@ -481,33 +481,33 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
 
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+        when(diagnosticReadinessModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false, packets, List.of()));
 
         DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 20);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
         when(packet3.getSourceAddress()).thenReturn(21);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(21)))
                 .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(0));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
+        verify(diagnosticReadinessModule).requestDM21(any());
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(0));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(17));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(21));
 
         verify(mockListener).addOutcome(1,
                                         11,
@@ -533,22 +533,22 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         List<DM21DiagnosticReadinessPacket> packets = new ArrayList<>();
 
-        when(diagnosticReadinessModule.requestDM21Packets(any(), eq(true)))
+        when(diagnosticReadinessModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false, packets, List.of()));
         // return the set of OBD module addresses when requested
 
         DM21DiagnosticReadinessPacket packet4 = create(0, 0, 0, 25, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(0)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet4));
         packets.add(packet4);
 
         DM21DiagnosticReadinessPacket packet5 = create(17, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(17)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(17)))
                 .thenReturn(new BusResult<>(false, packet5));
         packets.add(packet5);
 
         DM21DiagnosticReadinessPacket packet6 = create(21, 0, 0, 0, 0);
-        when(diagnosticReadinessModule.getDM21Packets(any(), eq(true), eq(21)))
+        when(diagnosticReadinessModule.requestDM21(any(), eq(21)))
                 .thenReturn(new BusResult<>(false, packet6));
         packets.add(packet6);
 
@@ -557,10 +557,10 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(0));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(17));
-        verify(diagnosticReadinessModule).getDM21Packets(any(), eq(true), eq(21));
-        verify(diagnosticReadinessModule).requestDM21Packets(any(), eq(true));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(0));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(17));
+        verify(diagnosticReadinessModule).requestDM21(any(), eq(21));
+        verify(diagnosticReadinessModule).requestDM21(any());
 
         verify(mockListener).addOutcome(1,
                                         11,

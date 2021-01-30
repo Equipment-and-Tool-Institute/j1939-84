@@ -5,16 +5,12 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 
-import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
@@ -29,6 +25,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
+import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -42,14 +39,6 @@ import org.etools.j1939_84.model.RequestResult;
  */
 public class DTCModule extends FunctionalModule {
 
-    /**
-     * The string written to the report indicating the DTCs were cleared
-     */
-    public static final String DTCS_CLEARED = "Diagnostic Trouble Codes were successfully cleared.";
-
-    /**
-     * Constructor
-     */
     public DTCModule() {
         super();
     }
@@ -64,35 +53,24 @@ public class DTCModule extends FunctionalModule {
                 .collect(Collectors.toMap(ParsedPacket::getSourceAddress, p -> p, (address, packet) -> address))
                 .values();
 
-        List<DM1ActiveDTCsPacket> packets = new ArrayList<>(allPackets);
-        packets.sort(Comparator.comparing(o -> o.getPacket().getTimestamp()));
+        List<DM1ActiveDTCsPacket> packets = allPackets.stream()
+                .sorted(Comparator.comparing(o -> o.getPacket().getTimestamp()))
+                .collect(Collectors.toList());
 
-        return new RequestResult<>(false, packets, Collections.emptyList());
+        return new RequestResult<>(false, packets, List.of());
     }
 
     public RequestResult<DM28PermanentEmissionDTCPacket> reportDM28(ResultsListener listener, int address) {
-        Packet request = getJ1939().createRequestPacket(DM28PermanentEmissionDTCPacket.PGN, address);
-
-        String title = address == GLOBAL_ADDR ? "Global DM28 Request"
-                : "Destination Specific DM28 Request to " + Lookup.getAddressName(address);
-
-        return getJ1939().requestResult(title, listener, true, DM28PermanentEmissionDTCPacket.class, request);
+        return requestDMPackets("DM28", DM28PermanentEmissionDTCPacket.class, address, listener);
     }
 
-    /**
-     * Send Global DM11 Request and generates a {@link String} that's suitable
-     * for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     */
     public List<AcknowledgmentPacket> requestDM11(ResultsListener listener) {
         listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
 
         List<AcknowledgmentPacket> responses = getJ1939().requestDm11(listener);
 
         if (!responses.isEmpty() && responses.stream().allMatch(t -> t.getResponse() == Response.ACK)) {
-            listener.onResult(DTCS_CLEARED);
+            listener.onResult("Diagnostic Trouble Codes were successfully cleared.");
         } else {
             listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
         }
@@ -100,375 +78,104 @@ public class DTCModule extends FunctionalModule {
         return responses;
     }
 
-    /**
-     * Requests DM12 from all vehicle modules and generates a {@link String}
-     * that's suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, boolean fullString) {
-        return getPacketsFromGlobal("Global DM12 Request",
-                DM12MILOnEmissionDTCPacket.PGN,
-                DM12MILOnEmissionDTCPacket.class,
-                listener,
-                fullString);
+    public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener) {
+        return requestDMPackets("DM12", DM12MILOnEmissionDTCPacket.class, GLOBAL_ADDR, listener);
     }
 
-    /**
-     * Requests DM12 from a specific vehicle modules address and generates a
-     * {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public BusResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, boolean fullString,
-            int moduleAddress) {
-        return getPacketDS("Destination Specific DM12 Request to " + Lookup.getAddressName(moduleAddress),
-                DM12MILOnEmissionDTCPacket.PGN,
-                DM12MILOnEmissionDTCPacket.class,
-                listener,
-                fullString,
-                moduleAddress);
+    public BusResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener, int address) {
+        return requestDMPackets("DM12", DM12MILOnEmissionDTCPacket.class, address, listener).busResult();
     }
 
-    /**
-     * Requests and return global DM2 from all vehicle modules and generates a
-     * {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString) {
-        return getPacketsFromGlobal("Global DM2 Request", DM2PreviouslyActiveDTC.PGN,
-                DM2PreviouslyActiveDTC.class,
-                listener,
-                fullString);
+    public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener) {
+        return requestDMPackets("DM2", DM2PreviouslyActiveDTC.class, GLOBAL_ADDR, listener);
     }
 
-    /**
-     * Requests and return destination specific DM2 from all vehicle modules and
-     * generates a {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public BusResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, boolean fullString,
-            int obdAddress) {
-        return getPacketDS("Destination Specific DM2 Request to " + Lookup.getAddressName(obdAddress),
-                DM2PreviouslyActiveDTC.PGN,
-                DM2PreviouslyActiveDTC.class,
-                listener,
-                fullString,
-                obdAddress);
+    public BusResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, int address) {
+        return requestDMPackets("DM2", DM2PreviouslyActiveDTC.class, address, listener).busResult();
     }
 
-    /**
-     * Requests global DM21 and generates a {@link String} that's suitable for
-     * inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
     public RequestResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener) {
-        return requestDM21(listener, GLOBAL_ADDR);
+        return requestDMPackets("DM21", DM21DiagnosticReadinessPacket.class, GLOBAL_ADDR, listener);
     }
 
-    /**
-     * Requests DM21 from the address specific vehicle module and generates a
-     * {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
     public RequestResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener, int address) {
-        Packet request = getJ1939().createRequestPacket(DM21DiagnosticReadinessPacket.PGN, address);
-        String title = address == GLOBAL_ADDR ? "Global DM21 Request"
-                : "Destination Specific DM21 Request to " + Lookup.getAddressName(address);
-
-        return getJ1939().requestResult(title, listener, true, DM21DiagnosticReadinessPacket.class, request);
+        return requestDMPackets("DM21", DM21DiagnosticReadinessPacket.class, address, listener);
     }
 
-    /**
-     * Global request for DM23 from all vehicle modules and generates a
-     * {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener,
-            boolean fullString) {
-        return getPacketsFromGlobal("Global DM23 Request",
-                DM23PreviouslyMILOnEmissionDTCPacket.PGN,
-                DM23PreviouslyMILOnEmissionDTCPacket.class,
-                listener,
-                fullString);
+    public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener) {
+        return requestDMPackets("DM23", DM23PreviouslyMILOnEmissionDTCPacket.class, GLOBAL_ADDR, listener);
     }
 
-    /**
-     * Destination specific request for DM23 from vehicle modules specified by
-     * address and generates a {@link String} that's suitable for inclusion in
-     * the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public BusResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener, boolean fullString,
-            int address) {
-        return getPacketDS("Destination Specific DM23 Request to " + Lookup.getAddressName(address),
-                DM23PreviouslyMILOnEmissionDTCPacket.PGN,
-                DM23PreviouslyMILOnEmissionDTCPacket.class,
-                listener,
-                fullString,
-                address);
+    public BusResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener, int address) {
+        return requestDMPackets("DM23", DM23PreviouslyMILOnEmissionDTCPacket.class, address, listener).busResult();
     }
 
-    /**
-     * Sends a request to the vehicle for {@link DM25ExpandedFreezeFrame}s
-     *
-     * @param listener
-     *         the {@link ResultsListener}
-     * @param moduleAddress
-     *         the address to send the request to
-     * @return {@link List} of {@link DM25ExpandedFreezeFrame}s
-     */
-    public BusResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener, int moduleAddress) {
-
-        Packet request = getJ1939().createRequestPacket(DM25ExpandedFreezeFrame.PGN, moduleAddress);
-        String message = "Destination Specific DM25 Request to " + Lookup.getAddressName(moduleAddress);
-
-        return getJ1939().requestDS(message, listener, true, DM25ExpandedFreezeFrame.class, request);
+    public BusResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener, int address) {
+        return requestDMPackets("DM25", DM25ExpandedFreezeFrame.class, address, listener).busResult();
     }
 
-    /**
-     * Requests global DM26 and generates a {@link String} that's suitable for
-     * inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
     public RequestResult<DM26TripDiagnosticReadinessPacket> requestDM26(ResultsListener listener) {
-        return requestDM26(listener, GLOBAL_ADDR);
+        return requestDMPackets("DM26", DM26TripDiagnosticReadinessPacket.class, GLOBAL_ADDR, listener);
     }
 
-    /**
-     * Requests destination specific DM26 and generates a {@link String} that's
-     * suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
     public RequestResult<DM26TripDiagnosticReadinessPacket> requestDM26(ResultsListener listener, int address) {
-        Packet request = getJ1939().createRequestPacket(DM26TripDiagnosticReadinessPacket.PGN, address);
-
-        String title = address == GLOBAL_ADDR ? "Global DM26 Request"
-                : "Destination Specific DM26 Request to " + Lookup.getAddressName(address);
-
-        return getJ1939().requestResult(title, listener, true, DM26TripDiagnosticReadinessPacket.class, request);
+        return requestDMPackets("DM26", DM26TripDiagnosticReadinessPacket.class, address, listener);
     }
 
-    /**
-     * Requests global DM27 and generates a {@link String} that's suitable for
-     * inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public RequestResult<DM27AllPendingDTCsPacket> requestDM27(ResultsListener listener, boolean fullString) {
-        String title = "Global DM27 Request";
-
-        return getPacketsFromGlobal(title, DM27AllPendingDTCsPacket.PGN, DM27AllPendingDTCsPacket.class,
-                listener, fullString);
+    public RequestResult<DM27AllPendingDTCsPacket> requestDM27(ResultsListener listener) {
+        return requestDMPackets("DM27", DM27AllPendingDTCsPacket.class, GLOBAL_ADDR, listener);
     }
 
-    /**
-     * Requests destination specific DM27 and generates a {@link String} that's
-     * suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public BusResult<DM27AllPendingDTCsPacket> requestDM27(ResultsListener listener, boolean fullString,
-            int address) {
-        return getPacketDS("Destination Specific DM27 Request to " + Lookup.getAddressName(address),
-                DM27AllPendingDTCsPacket.PGN,
-                DM27AllPendingDTCsPacket.class,
-                listener,
-                fullString,
-                address);
+    public BusResult<DM27AllPendingDTCsPacket> requestDM27(ResultsListener listener, int address) {
+        return requestDMPackets("DM27", DM27AllPendingDTCsPacket.class, address, listener).busResult();
     }
 
-    /**
-     * Requests global DM28 and generates a {@link String} that's suitable for
-     * inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener, boolean fullString) {
-        String title = "Global DM28 Request";
-
-        return getPacketsFromGlobal(title, DM28PermanentEmissionDTCPacket.PGN, DM28PermanentEmissionDTCPacket.class,
-                listener, fullString);
+    public RequestResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener) {
+        return requestDMPackets("DM28", DM28PermanentEmissionDTCPacket.class, GLOBAL_ADDR, listener);
     }
 
-    /**
-     * Requests destination specific DM28 and generates a {@link String} that's
-     * suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public BusResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener, boolean fullString,
-            int address) {
-        return getPacketDS("Destination Specific DM28 Request to " + Lookup.getAddressName(address),
-                DM28PermanentEmissionDTCPacket.PGN,
-                DM28PermanentEmissionDTCPacket.class,
-                listener,
-                fullString,
-                address);
+    public BusResult<DM28PermanentEmissionDTCPacket> requestDM28(ResultsListener listener, int address) {
+        return requestDMPackets("DM28", DM28PermanentEmissionDTCPacket.class, address, listener).busResult();
     }
 
-    /**
-     * Requests DM29 from vehicle modules with the address provided and
-     * generates a {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
     public RequestResult<DM29DtcCounts> requestDM29(ResultsListener listener) {
-
-        Packet request = getJ1939().createRequestPacket(DM29DtcCounts.PGN, GLOBAL_ADDR);
-
-        return getJ1939().requestResult("Global DM29 Request", listener, true, DM29DtcCounts.class, request);
+        return requestDMPackets("DM29", DM29DtcCounts.class, GLOBAL_ADDR, listener);
     }
 
-    /**
-     * Requests DM29 from vehicle modules with the address provided and
-     * generates a {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @param obdAddress
-     *         the address of the module from which the DM29 is to be
-     *         requested
-     * @return true if there were any DTCs returned
-     */
-    public BusResult<DM29DtcCounts> requestDM29(ResultsListener listener, int obdAddress) {
-        return getPacketDS("Destination Specific DM29 Request to " + Lookup.getAddressName(obdAddress),
-                DM29DtcCounts.PGN,
-                DM29DtcCounts.class,
-                listener,
-                true,
-                obdAddress);
+    public BusResult<DM29DtcCounts> requestDM29(ResultsListener listener, int address) {
+        return requestDMPackets("DM29", DM29DtcCounts.class, address, listener).busResult();
     }
 
-    /**
-     * Requests DM31 from all vehicle module and generates a {@link String}
-     * that's suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
     public RequestResult<DM31DtcToLampAssociation> requestDM31(ResultsListener listener) {
-        return requestDM31(listener, GLOBAL_ADDR);
+        return requestDMPackets("DM31", DM31DtcToLampAssociation.class, GLOBAL_ADDR, listener);
     }
 
-    /**
-     * Requests DM31 from the address specific vehicle module and generates a
-     * {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
     public RequestResult<DM31DtcToLampAssociation> requestDM31(ResultsListener listener, int address) {
-        Packet request = getJ1939().createRequestPacket(DM31DtcToLampAssociation.PGN, address);
-
-        String title = address == GLOBAL_ADDR ? "Global DM31 Request"
-                : "Destination Specific DM31 Request to " + Lookup.getAddressName(address);
-
-        return getJ1939().requestResult(title, listener, true, DM31DtcToLampAssociation.class, request);
+        return requestDMPackets("DM31", DM31DtcToLampAssociation.class, address, listener);
     }
 
-    /**
-     * Requests global DM33 and generates a {@link String} that's suitable for
-     * inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public RequestResult<DM33EmissionIncreasingAECDActiveTime> requestDM33(
-            ResultsListener listener) {
-        return requestDM33(listener, GLOBAL_ADDR);
+    public RequestResult<DM33EmissionIncreasingAECDActiveTime> requestDM33(ResultsListener listener) {
+        return requestDMPackets("DM33", DM33EmissionIncreasingAECDActiveTime.class, GLOBAL_ADDR, listener);
     }
 
-    /**
-     * Requests destination specific DM33 and generates a {@link String} that's
-     * suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public RequestResult<DM33EmissionIncreasingAECDActiveTime> requestDM33(
-            ResultsListener listener,
-            int address) {
-        Packet request = getJ1939()
-                .createRequestPacket(DM33EmissionIncreasingAECDActiveTime.PGN, address);
-
-        String title = address == GLOBAL_ADDR ? "Global DM33 Request"
-                : "Destination Specific DM33 Request to " + Lookup.getAddressName(address);
-
-        return getJ1939().requestResult(title,
-                                        listener, true,
-                                        DM33EmissionIncreasingAECDActiveTime.class,
-                                        request);
+    public RequestResult<DM33EmissionIncreasingAECDActiveTime> requestDM33(ResultsListener listener, int address) {
+        return requestDMPackets("DM33", DM33EmissionIncreasingAECDActiveTime.class, address, listener);
     }
 
-    /**
-     * Requests a global DM6 and generates a {@link String} that's suitable for
-     * inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
+    public RequestResult<DM34NTEStatus> requestDM34(ResultsListener listener) {
+        return requestDMPackets("DM34", DM34NTEStatus.class, GLOBAL_ADDR, listener);
+    }
+
+    public RequestResult<DM34NTEStatus> requestDM34(ResultsListener listener, int address) {
+        return requestDMPackets("DM34", DM34NTEStatus.class, address, listener);
+    }
+
     public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener) {
-        return requestDM6(listener, GLOBAL_ADDR);
+        return requestDMPackets("DM6", DM6PendingEmissionDTCPacket.class, GLOBAL_ADDR, listener);
     }
 
-    /**
-     * Requests a destination specific DM6 and generates a {@link String} that's
-     * suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     * @return true if there were any DTCs returned
-     */
-    public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener, Integer address) {
-        Packet request = getJ1939().createRequestPacket(DM6PendingEmissionDTCPacket.PGN, address);
-
-        String title = address == GLOBAL_ADDR ? "Global DM6 Request"
-                : "Destination Specific DM6 Request to " + Lookup.getAddressName(address);
-
-        return getJ1939().requestResult(title, listener, true, DM6PendingEmissionDTCPacket.class, request);
+    public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener, int address) {
+        return requestDMPackets("DM6", DM6PendingEmissionDTCPacket.class, address, listener);
     }
+
 }

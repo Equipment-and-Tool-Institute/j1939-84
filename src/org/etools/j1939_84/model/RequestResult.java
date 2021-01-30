@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019. Equipment & Tool Institute
  */
 package org.etools.j1939_84.model;
@@ -11,14 +11,13 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.etools.j1939_84.bus.Either;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class RequestResult<T extends ParsedPacket> {
 
@@ -37,18 +36,17 @@ public class RequestResult<T extends ParsedPacket> {
     private final boolean retryUsed;
 
     public RequestResult(boolean retryUsed,
-            List<Either<T, AcknowledgmentPacket>> packets) {
+                         List<Either<T, AcknowledgmentPacket>> packets) {
         this(retryUsed,
-                packets.stream().flatMap(e -> e.left.stream()).collect(Collectors.toList()),
-                packets.stream().flatMap(e -> e.right.stream()).collect(Collectors.toList()));
+             packets.stream().flatMap(e -> e.left.stream()).collect(Collectors.toList()),
+             packets.stream().flatMap(e -> e.right.stream()).collect(Collectors.toList()));
     }
 
     /**
      * @param retryUsed
-     *            boolean representation of retry used
+     *         boolean representation of retry used
      * @param packets
-     *            list of packets to be included in the requestResult
-     *
+     *         list of packets to be included in the requestResult
      */
     public RequestResult(boolean retryUsed, List<T> packets, List<AcknowledgmentPacket> acks) {
         this.retryUsed = retryUsed;
@@ -116,6 +114,16 @@ public class RequestResult<T extends ParsedPacket> {
         return retryUsed;
     }
 
+    public BusResult<T> busResult() {
+
+        List<Either<T, AcknowledgmentPacket>> either = getEither();
+        if (either.isEmpty()) {
+            return new BusResult<>(retryUsed);
+        } else {
+            return new BusResult<>(retryUsed, either.get(0));
+        }
+    }
+
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder("RequestResult");
@@ -124,25 +132,21 @@ public class RequestResult<T extends ParsedPacket> {
                 .append(isRetryUsed())
                 .append(NL)
                 .append("Response packets :");
-        this.getPackets().forEach(packet -> {
-            sb.append(NL)
-                    .append("Source address : ")
-                    .append(packet.getSourceAddress())
-                    .append(" returned ")
-                    .append(packet.toString());
-        });
+        this.getPackets().forEach(packet -> sb.append(NL)
+                .append("Source address : ")
+                .append(packet.getSourceAddress())
+                .append(" returned ")
+                .append(packet.toString()));
         if (this.getPackets().isEmpty()) {
             sb.append(NL).append("No packets returned");
         }
         sb.append(NL)
                 .append("Ack packets :");
-        this.getAcks().forEach(ack -> {
-            sb.append(NL)
-                    .append("Source address : ")
-                    .append(ack.getSourceAddress())
-                    .append(" returned ")
-                    .append(ack.toString());
-        });
+        this.getAcks().forEach(ack -> sb.append(NL)
+                .append("Source address : ")
+                .append(ack.getSourceAddress())
+                .append(" returned ")
+                .append(ack.toString()));
         if (this.getAcks().isEmpty()) {
             sb.append(NL).append("No acks returned");
         }

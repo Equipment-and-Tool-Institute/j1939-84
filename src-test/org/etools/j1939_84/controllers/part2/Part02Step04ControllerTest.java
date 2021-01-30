@@ -124,8 +124,8 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
 
-        when(readinessModule.requestDM20(any(), eq(true))).thenReturn(new RequestResult<>(false, packet));
-        when(readinessModule.requestDM20(any(), eq(true), eq(0x00)))
+        when(readinessModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packet));
+        when(readinessModule.requestDM20(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
@@ -137,8 +137,8 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(readinessModule).setJ1939(j1939);
-        verify(readinessModule).requestDM20(any(), eq(true));
-        verify(readinessModule).requestDM20(any(), eq(true), eq(0x00));
+        verify(readinessModule).requestDM20(any());
+        verify(readinessModule).requestDM20(any(), eq(0x00));
 
         String expected = "FAIL: 6.2.4.2.b - ECU Engine #1 (0) reported a denominator that does not match denominator recorded in part 1"
                 + NL;
@@ -170,10 +170,10 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet1 = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data1));
 
-        when(readinessModule.requestDM20(any(), eq(true))).thenReturn(new RequestResult<>(false, packet1));
+        when(readinessModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packet1));
 
         var packet2 = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, 0, 0, 0, 0, 0, 0, 0, 0, 0));
-        when(readinessModule.requestDM20(any(), eq(true), eq(0x00)))
+        when(readinessModule.requestDM20(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet2));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
@@ -184,8 +184,8 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(readinessModule).setJ1939(j1939);
-        verify(readinessModule).requestDM20(any(), eq(true));
-        verify(readinessModule).requestDM20(any(), eq(true), eq(0x00));
+        verify(readinessModule).requestDM20(any());
+        verify(readinessModule).requestDM20(any(), eq(0x00));
 
         String expected = "FAIL: 6.2.4.4.a - Difference compared to data received during global request from Engine #1 (0)" + NL;
         assertEquals(expected, listener.getResults());
@@ -216,8 +216,8 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
 
-        when(readinessModule.requestDM20(any(), eq(true))).thenReturn(new RequestResult<>(false, packet));
-        when(readinessModule.requestDM20(any(), eq(true), eq(0x00)))
+        when(readinessModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packet));
+        when(readinessModule.requestDM20(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
@@ -228,8 +228,8 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(readinessModule).setJ1939(j1939);
-        verify(readinessModule).requestDM20(any(), eq(true));
-        verify(readinessModule).requestDM20(any(), eq(true), eq(0x00));
+        verify(readinessModule).requestDM20(any());
+        verify(readinessModule).requestDM20(any(), eq(0x00));
 
         String expected = "FAIL: 6.2.4.2.a - ECU Engine #1 (0) reported ignition cycle is invalid.  Expected 2 but was 4"
                 + NL;
@@ -261,11 +261,11 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data1));
 
-        when(readinessModule.requestDM20(any(), eq(true))).thenReturn(new RequestResult<>(false, packet));
-        when(readinessModule.requestDM20(any(), eq(true), eq(0x00)))
+        when(readinessModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packet));
+        when(readinessModule.requestDM20(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
 
-        when(readinessModule.requestDM20(any(), eq(true), eq(0x17))).thenReturn(new BusResult<>(false));
+        when(readinessModule.requestDM20(any(), eq(0x17))).thenReturn(new BusResult<>(false));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
         obdInfo.setIgnitionCycleCounterValue(3);
@@ -278,9 +278,9 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(readinessModule).setJ1939(j1939);
-        verify(readinessModule).requestDM20(any(), eq(true));
-        verify(readinessModule).requestDM20(any(), eq(true), eq(0x00));
-        verify(readinessModule).requestDM20(any(), eq(true), eq(0x17));
+        verify(readinessModule).requestDM20(any());
+        verify(readinessModule).requestDM20(any(), eq(0x00));
+        verify(readinessModule).requestDM20(any(), eq(0x17));
 
         String expected = "FAIL: 6.2.4.4.b - OBD module Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query"
                 + NL;
@@ -313,8 +313,8 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         };
         var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
 
-        when(readinessModule.requestDM20(any(), eq(true))).thenReturn(new RequestResult<>(false, packet));
-        when(readinessModule.requestDM20(any(), eq(true), eq(0x00)))
+        when(readinessModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packet));
+        when(readinessModule.requestDM20(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
@@ -326,8 +326,8 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(readinessModule).setJ1939(j1939);
-        verify(readinessModule).requestDM20(any(), eq(true));
-        verify(readinessModule).requestDM20(any(), eq(true), eq(0x00));
+        verify(readinessModule).requestDM20(any());
+        verify(readinessModule).requestDM20(any(), eq(0x00));
 
         String expected = "FAIL: 6.2.4.2.a - ECU Engine #1 (0) reported different SPNs as supported for data than in part 1"
                 + NL;
@@ -403,7 +403,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
             };
             var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
             packetList.add(packet);
-            when(readinessModule.requestDM20(any(), eq(true), eq(0x00)))
+            when(readinessModule.requestDM20(any(), eq(0x00)))
                     .thenReturn(new BusResult<>(false, packet));
 
             OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
@@ -437,7 +437,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
             };
             var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x17, data));
             packetList.add(packet);
-            when(readinessModule.requestDM20(any(), eq(true), eq(0x17)))
+            when(readinessModule.requestDM20(any(), eq(0x17)))
                     .thenReturn(new BusResult<>(false, packet));
 
             OBDModuleInformation obdInfo = new OBDModuleInformation(0x17);
@@ -446,15 +446,15 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
             dataRepository.putObdModule(0x17, obdInfo);
         }
 
-        when(readinessModule.requestDM20(any(), eq(true))).thenReturn(new RequestResult<>(false,
-                packetList,
-                List.of()));
+        when(readinessModule.requestDM20(any())).thenReturn(new RequestResult<>(false,
+                                                                                packetList,
+                                                                                List.of()));
 
         runTest();
         verify(readinessModule).setJ1939(j1939);
-        verify(readinessModule).requestDM20(any(), eq(true));
-        verify(readinessModule).requestDM20(any(), eq(true), eq(0x00));
-        verify(readinessModule).requestDM20(any(), eq(true), eq(0x17));
+        verify(readinessModule).requestDM20(any());
+        verify(readinessModule).requestDM20(any(), eq(0x00));
+        verify(readinessModule).requestDM20(any(), eq(0x17));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -463,12 +463,12 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoPackets() {
-        when(readinessModule.requestDM20(any(), eq(true)))
+        when(readinessModule.requestDM20(any()))
                 .thenReturn(new RequestResult<>(false, List.of(), List.of()));
 
         runTest();
         verify(readinessModule).setJ1939(j1939);
-        verify(readinessModule).requestDM20(any(), eq(true));
+        verify(readinessModule).requestDM20(any());
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

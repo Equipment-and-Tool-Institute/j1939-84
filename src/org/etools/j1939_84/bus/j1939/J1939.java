@@ -100,11 +100,11 @@ public class J1939 {
      * by modules on the bus that support it
      *
      * @param pgn
-     *            the PGN of the packet that's being request
+     *         the PGN of the packet that's being request
      * @param addr
-     *            the address the request is being directed at
+     *         the address the request is being directed at
      * @param tool
-     *            the requestor's address
+     *         the requestor's address
      * @return a {@link Packet}
      */
     static public Packet createRequestPacket(int pgn, int addr, int tool) {
@@ -115,11 +115,12 @@ public class J1939 {
      * Helper method to find first results that are not busy NACKs with the side
      * effect of adding source address of busy NACKs to expectedAddresses.
      */
-    static private <T extends GenericPacket> Map<Integer, Either<T, AcknowledgmentPacket>> findTerminalResults(Collection<Integer> expectedAddressess,
-                                                                                                               List<Either<T, AcknowledgmentPacket>> results) {
+    static private <T extends GenericPacket> Map<Integer, Either<T, AcknowledgmentPacket>> findTerminalResults(
+            Collection<Integer> expectedAddressess,
+            List<Either<T, AcknowledgmentPacket>> results) {
         return results
                 .stream()
-                .filter(r -> (boolean) r.resolve(p -> true, p -> {
+                .filter(r -> r.resolve(p -> true, p -> {
                     if (p.getResponse() != Response.BUSY) {
                         return true;
                     }
@@ -140,10 +141,10 @@ public class J1939 {
      * can't be read.
      *
      * @param cls
-     *            the class of interest
+     *         the class of interest
      * @return PGN number based on ParsedPacket class
      */
-    static private <T extends ParsedPacket> int getPgn(Class<T> cls) {
+    static protected <T extends ParsedPacket> int getPgn(Class<T> cls) {
         try {
             return cls.getField("PGN").getInt(null);
         } catch (Exception e) {
@@ -165,14 +166,8 @@ public class J1939 {
         return response -> response.getSource() == addr;
     }
 
-    /**
-     * The bus used to communicate with the vehicle
-     */
     private final Bus bus;
 
-    /**
-     * For Mockito
-     */
     public J1939() {
         this(new EchoBus(0xA5));
     }
@@ -181,7 +176,7 @@ public class J1939 {
      * Constructor to be used with tests
      *
      * @param bus
-     *            the {@link Bus} used to communicate with the vehicle
+     *         the {@link Bus} used to communicate with the vehicle
      */
     public J1939(Bus bus) {
         this.bus = bus;
@@ -191,19 +186,19 @@ public class J1939 {
      * Filter to find acknowledgement/nack packets
      *
      * @param pgn
-     *            the pgn that's being requested
+     *         the pgn that's being requested
      * @return true if the message is an Acknowledgement/Nack for the given pgn
      */
     private Predicate<Packet> ackNackFilter(int pgn) {
         return response -> {
             return // ID is Acknowledgment
-            response.getPgn() == 0xE800
-                    // There are enough bytes
-                    && response.getLength() == 8
-            // Accepting 0xFF as "Address Acknowledged" is to handle Cummins
-                    && (response.get(4) == getBusAddress() || response.get(4) == 0xFF)
-            // The Acknowledged PGN matches
-                    && response.get24(5) == pgn;
+                    response.getPgn() == 0xE800
+                            // There are enough bytes
+                            && response.getLength() == 8
+                            // Accepting 0xFF as "Address Acknowledged" is to handle Cummins
+                            && (response.get(4) == getBusAddress() || response.get(4) == 0xFF)
+                            // The Acknowledged PGN matches
+                            && response.get24(5) == pgn;
         };
     }
 
@@ -212,9 +207,9 @@ public class J1939 {
      * by modules on the bus that support it
      *
      * @param pgn
-     *            the PGN of the packet that's being request
+     *         the PGN of the packet that's being request
      * @param addr
-     *            the address the request is being directed at
+     *         the address the request is being directed at
      * @return a {@link Packet}
      */
     public Packet createRequestPacket(int pgn, int addr) {
@@ -255,13 +250,13 @@ public class J1939 {
 
     private Predicate<Packet> globalFilter(int pgn) {
         return
-        // does the packet have the right ID
-        (pgnFilter(pgn).or(ackNackFilter(pgn)))
-                // is it addressed to us or all
-                .and((p -> p.getDestination() == bus.getAddress()
-                        || p.getDestination() == GLOBAL_ADDR
-                        // A TP message to global will have a destination of 0
-                        || (p.getDestination() == 0 && p.getLength() > 8)));
+                // does the packet have the right ID
+                (pgnFilter(pgn).or(ackNackFilter(pgn)))
+                        // is it addressed to us or all
+                        .and((p -> p.getDestination() == bus.getAddress()
+                                || p.getDestination() == GLOBAL_ADDR
+                                // A TP message to global will have a destination of 0
+                                || (p.getDestination() == 0 && p.getLength() > 8)));
     }
 
     private void log(String msg) {
@@ -273,7 +268,7 @@ public class J1939 {
      * {@link Packet}
      *
      * @param packet
-     *            the {@link Packet} to process
+     *         the {@link Packet} to process
      * @return a subclass of {@link ParsedPacket}
      */
     @SuppressWarnings("unchecked")
@@ -389,7 +384,7 @@ public class J1939 {
      *
      * @return {@link Stream} of {@link ParsedPacket} s
      * @throws BusException
-     *             if there is a problem reading the bus
+     *         if there is a problem reading the bus
      */
     public <T extends GenericPacket> Stream<Either<T, AcknowledgmentPacket>> read() throws BusException {
         return read(365, TimeUnit.DAYS).map(this::process);
@@ -400,16 +395,16 @@ public class J1939 {
      * the PGN in the given class
      *
      * @param <T>
-     *            the Type of Packet to expect back
+     *         the Type of Packet to expect back
      * @param T
-     *            the class of interest
+     *         the class of interest
      * @param addr
-     *            the source address the packet should come from. NOTE do not
-     *            use the Global Address (0xFF) here
+     *         the source address the packet should come from. NOTE do not
+     *         use the Global Address (0xFF) here
      * @param timeout
-     *            the maximum time to wait for a message
+     *         the maximum time to wait for a message
      * @param unit
-     *            the {@link TimeUnit} for the timeout
+     *         the {@link TimeUnit} for the timeout
      * @return the resulting packet
      */
     public <T extends GenericPacket> Optional<Either<T, AcknowledgmentPacket>> read(Class<T> T, int addr,
@@ -436,13 +431,13 @@ public class J1939 {
      * PGN in the given class
      *
      * @param <T>
-     *            the Type of Packet to expect back
+     *         the Type of Packet to expect back
      * @param T
-     *            the class of interest
+     *         the class of interest
      * @param timeout
-     *            the maximum time to wait for a message
+     *         the maximum time to wait for a message
      * @param unit
-     *            the {@link TimeUnit} for the timeout
+     *         the {@link TimeUnit} for the timeout
      * @return the resulting packets in a Stream
      */
     public <T extends GenericPacket> Stream<Either<T, AcknowledgmentPacket>> read(Class<T> T,
@@ -483,10 +478,10 @@ public class J1939 {
             BusResult<DM30ScaledTestResultsPacket> result;
             for (int i = 0; true; i++) {
                 Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = read(DEFAULT_TIMEOUT,
-                        DEFAULT_TIMEOUT_UNITS)
-                                .filter(dsFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(),
-                                        getBusAddress()))
-                                .map(this::process);
+                                                                                                DEFAULT_TIMEOUT_UNITS)
+                        .filter(dsFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(),
+                                         getBusAddress()))
+                        .map(this::process);
                 Packet sent = bus.send(request);
                 if (sent != null) {
                     listener.onResult(getDateTimeModule().format(sent.getTimestamp()) + " " + sent.toString());
@@ -496,18 +491,18 @@ public class J1939 {
                 Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> first = stream.findFirst();
                 result = new BusResult<>(i > 0, first);
                 result.getPacket().ifPresentOrElse(p -> {
-                    GenericPacket response = p.resolve();
-                    Packet packet = response.getPacket();
-                    listener.onResult(getDateTimeModule().format(packet.getTimestamp()) + " " + packet.toString());
-                    listener.onResult(response.toString());
-                },
-                        () -> listener.onResult(FunctionalModule.TIMEOUT_MESSAGE));
+                                                       GenericPacket response = p.resolve();
+                                                       Packet packet = response.getPacket();
+                                                       listener.onResult(getDateTimeModule().format(packet.getTimestamp()) + " " + packet.toString());
+                                                       listener.onResult(response.toString());
+                                                   },
+                                                   () -> listener.onResult(FunctionalModule.TIMEOUT_MESSAGE));
                 // if there is a valid response or a non-busy NACK, return it.
                 if (i == 2 || result.getPacket()
                         // valid packet
                         .map(e -> e.resolve(p -> true,
-                                // non-busy NACK
-                                p -> !p.getResponse().equals(Response.BUSY)))
+                                            // non-busy NACK
+                                            p -> !p.getResponse().equals(Response.BUSY)))
                         .orElse(false)) {
                     break;
                 }
@@ -531,23 +526,20 @@ public class J1939 {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * Request a packet from a specific address. As long as the module responds
-     * "busy", retry for up to 1.2s. Fail after 3 non-responses.
-     */
     public <T extends GenericPacket> BusResult<T> requestDS(String title,
-                                                            ResultsListener listener,
-                                                            boolean fullString,
-                                                            Class<T> packetClass,
-                                                            Packet request) {
-        return requestDS(title, listener, fullString, getPgn(packetClass), request);
+                                                            Class<T> clas,
+                                                            int address,
+                                                            ResultsListener listener) {
+        int pgn = getPgn(clas);
+        Packet requestPacket = createRequestPacket(pgn, address);
+        return requestDS(title, pgn, requestPacket, true, listener);
     }
 
     public <T extends GenericPacket> BusResult<T> requestDS(String title,
-                                                            ResultsListener listener,
-                                                            boolean fullString,
                                                             int pgn,
-                                                            Packet request) {
+                                                            Packet request,
+                                                            boolean fullString,
+                                                            ResultsListener listener) {
         if (title != null) {
             listener.onResult(getDateTimeModule().getTime() + " " + title);
         }
@@ -557,9 +549,9 @@ public class J1939 {
         boolean retry = false;
         for (int noResponse = 0; getDateTimeModule().getTimeAsLong() < end; noResponse++) {
             Optional<Either<T, AcknowledgmentPacket>> result = requestDSOnce(listener,
-                    fullString,
-                    pgn,
-                    request);
+                                                                             fullString,
+                                                                             pgn,
+                                                                             request);
             if (result.isPresent()) {
                 if (result.get().right.map(a -> a.getResponse() == Response.BUSY).orElse(false)) {
                     // busy. wait 200 ms and try again
@@ -601,13 +593,13 @@ public class J1939 {
             }
             Optional<Either<T, AcknowledgmentPacket>> result = stream.findFirst();
             result.ifPresentOrElse(p -> {
-                ParsedPacket pp = p.resolve();
-                listener.onResult(pp.getPacket().toTimeString());
-                if (fullString) {
-                    listener.onResult(pp.toString());
-                }
-            },
-                    () -> listener.onResult(FunctionalModule.TIMEOUT_MESSAGE));
+                                       ParsedPacket pp = p.resolve();
+                                       listener.onResult(pp.getPacket().toTimeString());
+                                       if (fullString) {
+                                           listener.onResult(pp.toString());
+                                       }
+                                   },
+                                   () -> listener.onResult(FunctionalModule.TIMEOUT_MESSAGE));
 
             return result;
         } catch (BusException e) {
@@ -616,19 +608,12 @@ public class J1939 {
         }
     }
 
-    /**
-     * See J1939-84 6.II. Essentially if there is busy NACK to a global request,
-     * than the request is repeated once. If there is still a busy response,
-     * then a DS request is made.
-     */
-    // FIXME this listener needs to be a different listener to interleave
-    // ParsedPacket results
     public <T extends GenericPacket> RequestResult<T> requestGlobal(String title,
-                                                                    ResultsListener listener,
-                                                                    boolean fullString,
                                                                     Class<T> clas,
-                                                                    Packet requestPacket) {
-        return requestGlobal(title, listener, fullString, getPgn(clas), requestPacket);
+                                                                    ResultsListener listener) {
+        int pgn = getPgn(clas);
+        Packet requestPacket = createRequestPacket(pgn, GLOBAL_ADDR);
+        return requestGlobal(title, listener, true, pgn, requestPacket);
     }
 
     public <T extends GenericPacket> RequestResult<T> requestGlobal(String title,
@@ -647,7 +632,10 @@ public class J1939 {
         // Record successful results and NACKs. Treat busy NACK same as no
         // response.
         Map<Integer, Either<T, AcknowledgmentPacket>> results = findTerminalResults(expectedAddressess,
-                requestGlobalOnce(pgn, requestPacket, listener, fullString));
+                                                                                    requestGlobalOnce(pgn,
+                                                                                                      requestPacket,
+                                                                                                      listener,
+                                                                                                      fullString));
 
         if (!results.keySet().containsAll(expectedAddressess)) {
             // then not all OBD modules were heard, so re-request from global
@@ -657,7 +645,7 @@ public class J1939 {
             // busy NACK same as no response.
             results.putAll(
                     findTerminalResults(expectedAddressess,
-                            requestGlobalOnce(pgn, requestPacket, listener, fullString)));
+                                        requestGlobalOnce(pgn, requestPacket, listener, fullString)));
         }
 
         if (!results.keySet().containsAll(expectedAddressess)) {
@@ -668,7 +656,7 @@ public class J1939 {
                     .forEach(sa -> {
                         Packet dsRequest = createRequestPacket(pgn, sa);
                         Optional<Either<T, AcknowledgmentPacket>> response = requestDSOnce(listener, fullString, pgn,
-                                dsRequest);
+                                                                                           dsRequest);
 
                         response.filter(r -> r.right.map(nack -> nack.getResponse() != Response.BUSY).orElse(true))
                                 .ifPresent(r -> results.put(sa, r));
@@ -685,7 +673,7 @@ public class J1939 {
                     });
         }
         return new RequestResult<>(retry,
-                results.keySet().stream().sorted().map(k -> results.get(k)).collect(Collectors.toList()));
+                                   results.keySet().stream().sorted().map(results::get).collect(Collectors.toList()));
 
     }
 
@@ -741,41 +729,4 @@ public class J1939 {
         return result;
     }
 
-    public <T extends GenericPacket> RequestResult<T> requestGlobalResult(String title,
-                                                                          ResultsListener listener,
-                                                                          boolean fullString,
-                                                                          Class<T> clas) {
-        return requestGlobalResult(title, listener, fullString, clas, getPgn(clas));
-    }
-
-    public <T extends GenericPacket> RequestResult<T> requestGlobalResult(String title,
-                                                                          ResultsListener listener,
-                                                                          boolean fullString,
-                                                                          Class<T> clas,
-                                                                          int pgn) {
-
-        return requestGlobal(title, listener, fullString, clas, createRequestPacket(pgn, GLOBAL_ADDR));
-    }
-
-    /**
-     * Should we encourage this or requestGlobal and requestDS??
-     *
-     * @param clazz
-     *            expected ParsedPacket response.
-     * @param request
-     *            The SAE request.
-     * @return Results including ACKs and retry flag.
-     */
-    @SuppressWarnings("unchecked")
-    public <T extends GenericPacket> RequestResult<T> requestResult(String title,
-                                                                    ResultsListener listener,
-                                                                    boolean fullString,
-                                                                    Class<T> clazz,
-                                                                    Packet request) {
-        return (request.getDestination() == GLOBAL_ADDR)
-                ? requestGlobal(title, listener, fullString, clazz, request)
-                : request.getPgn() == REQUEST_PGN
-                        ? requestDS(title, listener, fullString, clazz, request).requestResult()
-                        : (RequestResult<T>) requestDm7(title, listener, request).requestResult();
-    }
 }

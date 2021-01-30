@@ -8,7 +8,6 @@ import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -18,6 +17,7 @@ import static org.mockito.Mockito.when;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.List;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -110,8 +110,7 @@ public class Part01Step03ControllerTest {
                                  vehicleInformationModule,
                                  diagnosticReadinessModule,
                                  dataRepository,
-                                 mockListener,
-                                 reportFileModule);
+                                 mockListener);
     }
 
     @Test
@@ -126,34 +125,33 @@ public class Part01Step03ControllerTest {
             dependsOn = {
                     "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
     public void testBadECUValue() {
-
-        RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(true, new ArrayList<>(),
-                                                                                        new ArrayList<>());
-        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
-                .thenReturn(requestResult);
+        List<DM5DiagnosticReadinessPacket> packets = new ArrayList<>();
+        List<AcknowledgmentPacket> acks = new ArrayList<>();
+        RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(true, packets, acks);
+        when(diagnosticReadinessModule.requestDM5(any())).thenReturn(requestResult);
 
         DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
-        requestResult.getPackets().add(packet1);
+        packets.add(packet1);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         when(packet2.getResponse()).thenReturn(Response.ACK);
-        requestResult.getAcks().add(packet2);
+        acks.add(packet2);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
-        requestResult.getAcks().add(packet3);
+        acks.add(packet3);
 
         DM5DiagnosticReadinessPacket packet4 = mock(DM5DiagnosticReadinessPacket.class);
         when(packet4.isObd()).thenReturn(true);
         when(packet4.getSourceAddress()).thenReturn(0);
         when(packet4.getOBDCompliance()).thenReturn((byte) 4);
-        requestResult.getPackets().add(packet4);
+        packets.add(packet4);
 
         DM5DiagnosticReadinessPacket packet5 = mock(DM5DiagnosticReadinessPacket.class);
         when(packet5.isObd()).thenReturn(true);
         when(packet5.getSourceAddress()).thenReturn(17);
         when(packet5.getOBDCompliance()).thenReturn((byte) 5);
-        requestResult.getPackets().add(packet5);
+        packets.add(packet5);
 
         Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
 
@@ -182,27 +180,19 @@ public class Part01Step03ControllerTest {
         verify(engineSpeedModule).setJ1939(j1939);
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(dataRepository).getObdModules();
-        verify(diagnosticReadinessModule).requestDM5Packets(any(), eq(true));
-        verify(dataRepository).putObdModule(0, obdInfo1);
+        verify(diagnosticReadinessModule).requestDM5(any());
+        verify(dataRepository).putObdModule(obdInfo1);
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
         verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
         verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
 
-        verify(dataRepository).putObdModule(17, obdInfo2);
+        verify(dataRepository).putObdModule(obdInfo2);
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
 
         verify(mockListener).addOutcome(1,
                                         3,
                                         WARN,
                                         "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
-        verify(reportFileModule).addOutcome(1,
-                                            3,
-                                            WARN,
-                                            "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
-        verify(reportFileModule).onResult(
-                "WARN: 6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
-
-        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
 
         String expectedObd = "OBD Module Information: " + NL;
         expectedObd += "sourceAddress is : 0" + NL;
@@ -236,18 +226,19 @@ public class Part01Step03ControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.3.2.a"),
             description = "There needs to be at least one OBD Module.")
     public void testModulesEmpty() {
-        RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(true, new ArrayList<>(),
-                                                                                        new ArrayList<>());
+        var packets = new ArrayList<DM5DiagnosticReadinessPacket>();
+        List<AcknowledgmentPacket> acks = new ArrayList<>();
+        RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(true, packets, acks);
         DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
-        requestResult.getPackets().add(packet1);
+        packets.add(packet1);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         when(packet2.getResponse()).thenReturn(Response.DENIED);
-        requestResult.getAcks().add(packet2);
+        acks.add(packet2);
 
-        Collection<OBDModuleInformation> obdInfoList = new ArrayList<>();
+        Collection<OBDModuleInformation> obdInfoList = List.of();
         when(dataRepository.getObdModules()).thenReturn(obdInfoList);
-        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
+        when(diagnosticReadinessModule.requestDM5(any()))
                 .thenReturn(requestResult);
 
         instance.execute(listener, j1939, reportFileModule);
@@ -258,7 +249,7 @@ public class Part01Step03ControllerTest {
         verify(dataRepository).getObdModules();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5Packets(any(), eq(true));
+        verify(diagnosticReadinessModule).requestDM5(any());
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -280,19 +271,20 @@ public class Part01Step03ControllerTest {
             justification = "The method is called just to get some exception.")
     @TestDoc(value = @TestItem(verifies = "6.1.3.2.b"), description = "The request for DM5 was NACK'ed")
     public void testRun() {
-        RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(false, new ArrayList<>(),
-                                                                                        new ArrayList<>());
+        List<DM5DiagnosticReadinessPacket> packets = new ArrayList<>();
+        List<AcknowledgmentPacket> acks = new ArrayList<>();
+        RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(false, packets, acks);
         DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
         when(packet1.getOBDCompliance()).thenReturn((byte) 4);
-        requestResult.getPackets().add(packet1);
+        packets.add(packet1);
 
         AcknowledgmentPacket packet2 = mock(AcknowledgmentPacket.class);
         when(packet2.getResponse()).thenReturn(Response.ACK);
-        requestResult.getAcks().add(packet2);
+        acks.add(packet2);
 
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
         when(packet3.getResponse()).thenReturn(Response.NACK);
-        requestResult.getAcks().add(packet3);
+        acks.add(packet3);
 
         DM5DiagnosticReadinessPacket packet4 = mock(DM5DiagnosticReadinessPacket.class);
 
@@ -307,8 +299,8 @@ public class Part01Step03ControllerTest {
         when(packet4.isObd()).thenReturn(true);
         when(packet4.getSourceAddress()).thenReturn(0);
         when(packet4.getOBDCompliance()).thenReturn((byte) 4);
-        requestResult.getPackets().add(packet4);
-        when(diagnosticReadinessModule.requestDM5Packets(any(), eq(true)))
+        packets.add(packet4);
+        when(diagnosticReadinessModule.requestDM5(any()))
                 .thenReturn(requestResult);
 
         VehicleInformation vehicleInformation = new VehicleInformation();
@@ -327,10 +319,10 @@ public class Part01Step03ControllerTest {
 
         verify(dataRepository).getVehicleInformation();
         verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(0, obdInfo);
+        verify(dataRepository).putObdModule(obdInfo);
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5Packets(any(), eq(true));
+        verify(diagnosticReadinessModule).requestDM5(any());
 
         verify(engineSpeedModule).setJ1939(j1939);
 

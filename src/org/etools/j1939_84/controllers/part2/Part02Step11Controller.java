@@ -69,7 +69,7 @@ public class Part02Step11Controller extends StepController {
         dtcModule.setJ1939(getJ1939());
 
         // 6.2.11.1.a. Global DM27 (send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 3038, 1706)).
-        List<DM27AllPendingDTCsPacket> globalPackets = dtcModule.requestDM27(getListener(), true).getPackets();
+        List<DM27AllPendingDTCsPacket> globalPackets = dtcModule.requestDM27(getListener()).getPackets();
         Set<Integer> globalPacketAddresses = globalPackets.stream()
                 .map(ParsedPacket::getSourceAddress)
                 .collect(Collectors.toSet());
@@ -111,7 +111,7 @@ public class Part02Step11Controller extends StepController {
         // 6.2.11.3.a. DS DM27 to each OBD ECU that supported DM27.
         List<DM27AllPendingDTCsPacket> dsPackets = dataRepository.getObdModuleAddresses()
                 .stream()
-                .map(address -> dtcModule.requestDM27(getListener(), true, address))
+                .map(address -> dtcModule.requestDM27(getListener(), address))
                 .map(BusResult::requestResult)
                 .flatMap(r -> r.getPackets().stream())
                 .collect(Collectors.toList());

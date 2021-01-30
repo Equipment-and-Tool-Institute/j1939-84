@@ -72,7 +72,7 @@ public class Part01Step25Controller extends StepController {
             // Request DM20 from the module
             int moduleAddress = module.getSourceAddress();
             BusResult<DM20MonitorPerformanceRatioPacket> dm20BusResult =
-                    diagnosticReadinessModule.requestDM20(getListener(), true, moduleAddress);
+                    diagnosticReadinessModule.requestDM20(getListener(), moduleAddress);
 
             // 6.1.25.2.a. Fail if retry was required to obtain DM20 response.
             String moduleName = getAddressName(moduleAddress);

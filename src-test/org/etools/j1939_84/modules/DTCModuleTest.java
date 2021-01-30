@@ -461,7 +461,7 @@ public class DTCModuleTest {
         TestResultsListener listener = new TestResultsListener();
 
         BusResult<DM12MILOnEmissionDTCPacket> expectedResult = new BusResult<>(false, packet1);
-        assertEquals(expectedResult, instance.requestDM12(listener, true, 0x00));
+        assertEquals(expectedResult, instance.requestDM12(listener, 0x00));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
@@ -507,7 +507,7 @@ public class DTCModuleTest {
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM12MILOnEmissionDTCPacket> expectedResult = new BusResult<>(false, packet1);
 
-        assertEquals(expectedResult, instance.requestDM12(listener, true, 0x00));
+        assertEquals(expectedResult, instance.requestDM12(listener, 0x00));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
@@ -530,7 +530,7 @@ public class DTCModuleTest {
 
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM12MILOnEmissionDTCPacket> expectedResult = new BusResult<>(false, Optional.empty());
-        assertEquals(expectedResult, instance.requestDM12(listener, true, 0x17));
+        assertEquals(expectedResult, instance.requestDM12(listener, 0x17));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0x17);
@@ -565,7 +565,7 @@ public class DTCModuleTest {
         List<DM12MILOnEmissionDTCPacket> expectedPackets = List.of(packet1, packet2, packet3);
         RequestResult<DM12MILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false, expectedPackets,
                                                                                        List.of());
-        assertEquals(expectedResult, instance.requestDM12(listener, true));
+        assertEquals(expectedResult, instance.requestDM12(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
@@ -611,7 +611,7 @@ public class DTCModuleTest {
         RequestResult<DM12MILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
                                                                                        List.of(packet1), List.of());
 
-        assertEquals(expectedResult, instance.requestDM12(listener, true));
+        assertEquals(expectedResult, instance.requestDM12(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
@@ -630,7 +630,7 @@ public class DTCModuleTest {
         expected += "10:15:30.0000 18EAFFA5 [3] D4 FE 00 (TX)" + NL;
         expected += "Error: Timeout - No Response." + NL;
 
-        assertEquals(RequestResult.empty(false), instance.requestDM12(listener, true));
+        assertEquals(RequestResult.empty(false), instance.requestDM12(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
@@ -783,7 +783,7 @@ public class DTCModuleTest {
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new BusResult<>(false,
                                                                                          packet1);
-        assertEquals(expectedResult, instance.requestDM23(listener, true, 0x21));
+        assertEquals(expectedResult, instance.requestDM23(listener, 0x21));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0x21);
@@ -827,7 +827,7 @@ public class DTCModuleTest {
 
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new BusResult<>(false, packet1);
-        assertEquals(expectedResult, instance.requestDM23(listener, true, 0x00));
+        assertEquals(expectedResult, instance.requestDM23(listener, 0x00));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0x00);
@@ -849,7 +849,7 @@ public class DTCModuleTest {
 
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new BusResult<>(false, Optional.empty());
-        assertEquals(expectedResult, instance.requestDM23(listener, true, 0x17));
+        assertEquals(expectedResult, instance.requestDM23(listener, 0x17));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0x17);
@@ -888,7 +888,7 @@ public class DTCModuleTest {
                                                                                                          packet2,
                                                                                                          packet3),
                                                                                                  List.of());
-        assertEquals(expectedResult, instance.requestDM23(listener, true));
+        assertEquals(expectedResult, instance.requestDM23(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
@@ -931,7 +931,7 @@ public class DTCModuleTest {
         RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
                                                                                                  List.of(packet1),
                                                                                                  List.of());
-        assertEquals(expectedResult, instance.requestDM23(listener, true));
+        assertEquals(expectedResult, instance.requestDM23(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
@@ -953,7 +953,7 @@ public class DTCModuleTest {
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        assertEquals(RequestResult.empty(false), instance.requestDM23(listener, true));
+        assertEquals(RequestResult.empty(false), instance.requestDM23(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -1273,7 +1273,7 @@ public class DTCModuleTest {
         TestResultsListener listener = new TestResultsListener();
 
         BusResult<DM27AllPendingDTCsPacket> expectedResult = new BusResult<>(false, packet1);
-        assertEquals(expectedResult, instance.requestDM27(listener, true, 0x00));
+        assertEquals(expectedResult, instance.requestDM27(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -1320,7 +1320,7 @@ public class DTCModuleTest {
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM27AllPendingDTCsPacket> expectedResult = new BusResult<>(false, packet1);
 
-        assertEquals(expectedResult, instance.requestDM27(listener, true, 0x00));
+        assertEquals(expectedResult, instance.requestDM27(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -1345,7 +1345,7 @@ public class DTCModuleTest {
 
         TestResultsListener listener = new TestResultsListener();
         BusResult<DM27AllPendingDTCsPacket> expectedResult = new BusResult<>(false, Optional.empty());
-        assertEquals(expectedResult, instance.requestDM27(listener, true, 0x17));
+        assertEquals(expectedResult, instance.requestDM27(listener, 0x17));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -1387,7 +1387,7 @@ public class DTCModuleTest {
         };
         RequestResult<DM27AllPendingDTCsPacket> expectedResult = new RequestResult<>(false, expectedPackets,
                                                                                      List.of());
-        assertEquals(expectedResult, instance.requestDM27(listener, true));
+        assertEquals(expectedResult, instance.requestDM27(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
@@ -1433,7 +1433,7 @@ public class DTCModuleTest {
         RequestResult<DM27AllPendingDTCsPacket> expectedResult = new RequestResult<>(false,
                                                                                      List.of(packet1), List.of());
 
-        assertEquals(expectedResult, instance.requestDM27(listener, true));
+        assertEquals(expectedResult, instance.requestDM27(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
@@ -1455,7 +1455,7 @@ public class DTCModuleTest {
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        assertEquals(RequestResult.empty(false), instance.requestDM27(listener, true));
+        assertEquals(RequestResult.empty(false), instance.requestDM27(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
@@ -1525,7 +1525,7 @@ public class DTCModuleTest {
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false, List.of(packet1),
                                                                                            List.of());
-        assertEquals(expectedResult, instance.requestDM28(listener, true));
+        assertEquals(expectedResult, instance.requestDM28(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -1656,7 +1656,7 @@ public class DTCModuleTest {
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        assertTrue(instance.requestDM2(listener, true, 0x17).getPacket().isEmpty());
+        assertTrue(instance.requestDM2(listener, 0x17).getPacket().isEmpty());
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -1684,7 +1684,7 @@ public class DTCModuleTest {
         expected += "DTC 148531:21 - Unknown, Data Drifted Low - 102 times" + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        BusResult<DM2PreviouslyActiveDTC> busResult = instance.requestDM2(listener, true, 0x01);
+        BusResult<DM2PreviouslyActiveDTC> busResult = instance.requestDM2(listener, 0x01);
         assertTrue(busResult.getPacket().isPresent());
         assertTrue(busResult.getPacket().get().left.isPresent());
         assertEquals(packet1, busResult.getPacket().get().left.get());
@@ -1728,45 +1728,11 @@ public class DTCModuleTest {
 
         TestResultsListener listener = new TestResultsListener();
         List<DM2PreviouslyActiveDTC> expectedPackets = List.of(packet1, packet2, packet3);
-        assertEquals(expectedPackets, instance.requestDM2(listener, true).getPackets());
+        assertEquals(expectedPackets, instance.requestDM2(listener).getPackets());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM2GlobalPacketsFullStringFalse() throws BusException {
-        final int pgn = DM2PreviouslyActiveDTC.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, false, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-
-        DM2PreviouslyActiveDTC packet1 = new DM2PreviouslyActiveDTC(
-                Packet.create(pgn, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
-        DM2PreviouslyActiveDTC packet2 = new DM2PreviouslyActiveDTC(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
-        DM2PreviouslyActiveDTC packet3 = new DM2PreviouslyActiveDTC(
-                Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
-
-        String expected = "";
-        expected += "10:15:30.0000 Global DM2 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] CB FE 00" + NL;
-        expected += "10:15:30.0000 18FECB00 [8] 11 22 33 44 55 66 77 88" + NL;
-        expected += "10:15:30.0000 18FECB17 [8] 01 02 03 04 05 06 07 08" + NL;
-        expected += "10:15:30.0000 18FECB21 [8] 10 20 30 40 50 60 70 80" + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        List<DM2PreviouslyActiveDTC> expectedPackets = List.of(packet1, packet2, packet3);
-        assertEquals(expectedPackets, instance.requestDM2(listener, false).getPackets());
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
@@ -1812,7 +1778,7 @@ public class DTCModuleTest {
         RequestResult<DM2PreviouslyActiveDTC> expectedResult = new RequestResult<>(false,
                                                                                    List.of(packet1),
                                                                                    List.of());
-        assertEquals(expectedResult, instance.requestDM2(listener, true));
+        assertEquals(expectedResult, instance.requestDM2(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -1835,7 +1801,7 @@ public class DTCModuleTest {
         expected += "Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        assertEquals(new ArrayList<DM2PreviouslyActiveDTC>(), instance.requestDM2(listener, true).getPackets());
+        assertEquals(new ArrayList<DM2PreviouslyActiveDTC>(), instance.requestDM2(listener).getPackets());
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());

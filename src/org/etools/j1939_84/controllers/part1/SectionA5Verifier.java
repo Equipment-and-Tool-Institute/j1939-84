@@ -142,7 +142,7 @@ public class SectionA5Verifier {
 
     public boolean verifyDM12(ResultsListener listener) {
         // b. DM12 active shall report no DTCs and MIL off and not flashing
-        List<DM12MILOnEmissionDTCPacket> dm12Packets = dtcModule.requestDM12(listener, true)
+        List<DM12MILOnEmissionDTCPacket> dm12Packets = dtcModule.requestDM12(listener)
                 .getPackets()
                 .stream()
                 .filter(t -> (!t.getDtcs().isEmpty()) ||
@@ -171,7 +171,7 @@ public class SectionA5Verifier {
         // number of ignition cycles, general denominators, monitor specific
         // numerators, and monitor specific denominators.
         List<DM20MonitorPerformanceRatioPacket> dm20Packets = new ArrayList<>(diagnosticReadinessModule
-                .requestDM20(listener, true)
+                .requestDM20(listener)
                 .getPackets());
         if (!dm20Packets.equals(previousDM20Packets)) {
             StringBuilder failMessage = new StringBuilder(
@@ -236,7 +236,7 @@ public class SectionA5Verifier {
     public boolean verifyDM23(ResultsListener listener) {
         // c. DM23 previously active shall report no DTCs and MIL off and not
         // flashing
-        List<DM23PreviouslyMILOnEmissionDTCPacket> dm23Packets = dtcModule.requestDM23(listener, true).getPackets()
+        List<DM23PreviouslyMILOnEmissionDTCPacket> dm23Packets = dtcModule.requestDM23(listener).getPackets()
                 .stream()
                 .filter(t -> !t.getDtcs().isEmpty() ||
                         t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF)
@@ -329,7 +329,7 @@ public class SectionA5Verifier {
         // 8. Permanent DTCs
         // a. DM28 Permanent DTCs shall not be erased/still report any permanent
         // DTC that was present before code clear.
-        List<DM28PermanentEmissionDTCPacket> dm28Packets = dtcModule.requestDM28(listener, true).getPackets()
+        List<DM28PermanentEmissionDTCPacket> dm28Packets = dtcModule.requestDM28(listener).getPackets()
                 .stream()
                 .filter(t -> t.getDtcs().size() != 0)
                 .collect(Collectors.toList());
@@ -434,7 +434,7 @@ public class SectionA5Verifier {
     public boolean verifyDM5(ResultsListener listener) {
         // e. DM5 shall report zero for number of active and previously active DTCs
         boolean passTest = true;
-        List<DM5DiagnosticReadinessPacket> dm5Packets = diagnosticReadinessModule.requestDM5(listener, true)
+        List<DM5DiagnosticReadinessPacket> dm5Packets = diagnosticReadinessModule.requestDM5(listener)
                 .getPackets()
                 .stream()
                 .filter(Objects::nonNull)
@@ -516,8 +516,7 @@ public class SectionA5Verifier {
         obdModuleAddresses.forEach(address -> {
             for (SupportedSPN supportedSPN : dataRepository.getObdModule(address).getTestResultSpns()) {
                 dm30Packets.addAll(
-                        obdTestsModule.requestDM30Packets(listener, address, supportedSPN.getSpn())
-                                .getPackets()
+                        obdTestsModule.getDM30Packets(listener, address, supportedSPN)
                                 .stream()
                                 .filter(packet -> packet.getTestResults().size() != 0)
                                 .filter(p -> {

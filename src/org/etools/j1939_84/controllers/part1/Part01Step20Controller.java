@@ -70,7 +70,7 @@ public class Part01Step20Controller extends StepController {
         dtcModule.setJ1939(getJ1939());
 
         // 6.1.20.1.a. Global DM28 for PGN 64896
-        RequestResult<DM28PermanentEmissionDTCPacket> globalResponse = dtcModule.requestDM28(getListener(), true);
+        RequestResult<DM28PermanentEmissionDTCPacket> globalResponse = dtcModule.requestDM28(getListener());
 
         List<DM28PermanentEmissionDTCPacket> globalPackets = globalResponse.getPackets();
 
@@ -97,7 +97,7 @@ public class Part01Step20Controller extends StepController {
         // 6.1.20.3.a. DS DM28 to each OBD ECU.
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
         List<BusResult<DM28PermanentEmissionDTCPacket>> dsResults = obdModuleAddresses.stream()
-                .map(address -> dtcModule.requestDM28(getListener(), true, address))
+                .map(address -> dtcModule.requestDM28(getListener(), address))
                 .collect(Collectors.toList());
 
         // 6.1.20.4.a. Fail if any difference compared to data received during global request.

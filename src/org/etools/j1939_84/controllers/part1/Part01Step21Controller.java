@@ -72,7 +72,7 @@ public class Part01Step21Controller extends StepController {
         dtcModule.setJ1939(getJ1939());
 
         // 6.1.21.1.a. Global DM27 (send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 3038, 1706)).
-        List<DM27AllPendingDTCsPacket> globalPackets = dtcModule.requestDM27(getListener(), true).getPackets();
+        List<DM27AllPendingDTCsPacket> globalPackets = dtcModule.requestDM27(getListener()).getPackets();
 
         //Save the packet for later use
         globalPackets.stream()
@@ -102,7 +102,7 @@ public class Part01Step21Controller extends StepController {
 
         // 6.1.21.3.a. DS DM28 to each OBD ECU.
         List<BusResult<DM27AllPendingDTCsPacket>> dsResults = obdModuleAddresses.stream()
-                .map(address -> dtcModule.requestDM27(getListener(), true, address))
+                .map(address -> dtcModule.requestDM27(getListener(), address))
                 .collect(Collectors.toList());
 
         // 6.1.20.4.a. Fail if any difference compared to data received during global request.

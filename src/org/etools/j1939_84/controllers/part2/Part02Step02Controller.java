@@ -74,8 +74,8 @@ public class Part02Step02Controller extends StepController {
     protected void run() throws Throwable {
         diagnosticReadinessModule.setJ1939(getJ1939());
         // 6.2.2.1.a. Global DM5 (send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)).
-        RequestResult<DM5DiagnosticReadinessPacket> globalDM5Result = diagnosticReadinessModule.requestDM5(getListener(),
-                                                                                                           true);
+        RequestResult<DM5DiagnosticReadinessPacket> globalDM5Result = diagnosticReadinessModule.requestDM5(getListener()
+        );
         List<DM5DiagnosticReadinessPacket> globalDM5Packets = globalDM5Result.getPackets();
         List<DM5DiagnosticReadinessPacket> obdGlobalPackets = globalDM5Packets
                 .stream()
@@ -119,7 +119,7 @@ public class Part02Step02Controller extends StepController {
         dataRepository.getObdModuleAddresses()
                 .forEach(address -> {
                     BusResult<DM5DiagnosticReadinessPacket> busResult = diagnosticReadinessModule
-                            .requestDM5(getListener(), true, address);
+                            .requestDM5(getListener(), address);
                     busResult.getPacket()
                             .ifPresentOrElse(packet -> {
                                                  // No requirements around the destination specific acks

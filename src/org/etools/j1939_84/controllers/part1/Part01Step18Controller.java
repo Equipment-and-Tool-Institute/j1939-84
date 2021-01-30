@@ -69,7 +69,7 @@ public class Part01Step18Controller extends StepController {
         dtcModule.setJ1939(getJ1939());
 
         // 6.1.18.1.a. Global DM12 for PGN 65236
-        RequestResult<DM12MILOnEmissionDTCPacket> globalResponse = dtcModule.requestDM12(getListener(), true);
+        RequestResult<DM12MILOnEmissionDTCPacket> globalResponse = dtcModule.requestDM12(getListener());
 
         // 6.1.18.2.c. Fail if no OBD ECU provides DM12.
         List<DM12MILOnEmissionDTCPacket> globalPackets = globalResponse.getPackets();
@@ -97,7 +97,7 @@ public class Part01Step18Controller extends StepController {
 
         // 6.1.18.3.a. DS DM12 to all OBD ECUs.
         List<BusResult<DM12MILOnEmissionDTCPacket>> dsResults = obdModuleAddresses
-                .stream().map(address -> dtcModule.requestDM12(getListener(), true, address))
+                .stream().map(address -> dtcModule.requestDM12(getListener(), address))
                 .collect(Collectors.toList());
 
         // 6.1.18.4.a. Fail if any difference compared to data received during global request.

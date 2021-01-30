@@ -120,14 +120,14 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(dtcModule.requestDM27(any(), eq(true))).thenReturn(new RequestResult<>(false));
-        when(dtcModule.requestDM27(any(), eq(true), eq(0x01))).thenReturn(new BusResult<>(false));
+        when(dtcModule.requestDM27(any())).thenReturn(new RequestResult<>(false));
+        when(dtcModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false));
 
         runTest();
 
         verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM27(any(), eq(true));
-        verify(dtcModule).requestDM27(any(), eq(true), eq(0x01));
+        verify(dtcModule).requestDM27(any());
+        verify(dtcModule).requestDM27(any(), eq(0x01));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -142,10 +142,10 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
         obdModule1.setLastDM27(packet1);
         dataRepository.putObdModule(obdModule1);
-        when(dtcModule.requestDM27(any(), eq(true), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(dtcModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
 
         dataRepository.putObdModule(new OBDModuleInformation(2));
-        when(dtcModule.requestDM27(any(), eq(true), eq(0x02))).thenReturn(new BusResult<>(true));
+        when(dtcModule.requestDM27(any(), eq(0x02))).thenReturn(new BusResult<>(true));
 
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
                 Packet.create(PGN, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
@@ -155,17 +155,17 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
 
         DM27AllPendingDTCsPacket obdPacket3 = new DM27AllPendingDTCsPacket(
                 Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
-        when(dtcModule.requestDM27(any(), eq(true), eq(0x03))).thenReturn(new BusResult<>(false, obdPacket3));
+        when(dtcModule.requestDM27(any(), eq(0x03))).thenReturn(new BusResult<>(false, obdPacket3));
 
-        when(dtcModule.requestDM27(any(), eq(true))).thenReturn(new RequestResult<>(false, packet1, packet3));
+        when(dtcModule.requestDM27(any())).thenReturn(new RequestResult<>(false, packet1, packet3));
 
         runTest();
 
         verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM27(any(), eq(true));
-        verify(dtcModule).requestDM27(any(), eq(true), eq(0x01));
-        verify(dtcModule).requestDM27(any(), eq(true), eq(0x02));
-        verify(dtcModule).requestDM27(any(), eq(true), eq(0x03));
+        verify(dtcModule).requestDM27(any());
+        verify(dtcModule).requestDM27(any(), eq(0x01));
+        verify(dtcModule).requestDM27(any(), eq(0x02));
+        verify(dtcModule).requestDM27(any(), eq(0x03));
 
         String expectedResults = "";
         expectedResults += "FAIL: 6.2.11.2.b - Engine #2 (1) reported an all pending DTC" + NL;
@@ -196,15 +196,15 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
         obdModule1.setLastDM27(packet1);
         dataRepository.putObdModule(obdModule1);
-        when(dtcModule.requestDM27(any(), eq(true), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(dtcModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
 
-        when(dtcModule.requestDM27(any(), eq(true))).thenReturn(new RequestResult<>(false, packet1));
+        when(dtcModule.requestDM27(any())).thenReturn(new RequestResult<>(false, packet1));
 
         runTest();
 
         verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM27(any(), eq(true));
-        verify(dtcModule).requestDM27(any(), eq(true), eq(0x01));
+        verify(dtcModule).requestDM27(any());
+        verify(dtcModule).requestDM27(any(), eq(0x01));
 
         assertEquals("", listener.getResults());
     }

@@ -73,7 +73,7 @@ public class Part01Step16Controller extends StepController {
         dtcModule.setJ1939(getJ1939());
 
         // 6.1.16.1.a. Global DM2 (send Request (PGN 59904) for PGN 65227 (SPNs 1213-1215, 3038, 1706))
-        RequestResult<DM2PreviouslyActiveDTC> globalResults = dtcModule.requestDM2(getListener(), true);
+        RequestResult<DM2PreviouslyActiveDTC> globalResults = dtcModule.requestDM2(getListener());
 
         // Get DM2PreviouslyActiveDTC so we can get DTCs and report accordingly
         List<DM2PreviouslyActiveDTC> globalPackets = globalResults.getPackets();
@@ -110,7 +110,7 @@ public class Part01Step16Controller extends StepController {
         List<Integer> obdAddresses = dataRepository.getObdModuleAddresses();
         // 6.1.16.3.a DS DM2 to each OBD ECU
         List<BusResult<DM2PreviouslyActiveDTC>> dsResult = obdAddresses.stream()
-                .map(address -> dtcModule.requestDM2(getListener(), true, address))
+                .map(address -> dtcModule.requestDM2(getListener(), address))
                 .collect(Collectors.toList());
 
         // 6.1.16.4.a Fail if any responses differ from global responses

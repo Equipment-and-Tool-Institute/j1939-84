@@ -86,8 +86,7 @@ public class Part01Step08Controller extends StepController {
         diagnosticReadinessModule.setJ1939(getJ1939());
 
         // 6.1.8.1.a. Global DM20 (send Request (PGN 59904) for PGN 49664
-        List<DM20MonitorPerformanceRatioPacket> globalDM20s = diagnosticReadinessModule.getDM20Packets(getListener(),
-                                                                                                       true);
+        List<DM20MonitorPerformanceRatioPacket> globalDM20s = diagnosticReadinessModule.requestDM20(getListener()).getPackets();
 
         // 6.1.8.1 Actions:
         // 6.1.8.1.a.i. Create list of ECU address

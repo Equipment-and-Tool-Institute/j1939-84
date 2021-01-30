@@ -118,17 +118,17 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
         List<Integer> obdModuleAddresses = List.of(0x01);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
-        when(dtcModule.requestDM12(any(), eq(true)))
+        when(dtcModule.requestDM12(any()))
                 .thenReturn(new RequestResult<>(false, List.of(), List.of()));
-        when(dtcModule.requestDM12(any(), eq(true), eq(0x01)))
+        when(dtcModule.requestDM12(any(), eq(0x01)))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
         verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM12(any(), eq(true));
-        verify(dtcModule).requestDM12(any(), eq(true), eq(0x01));
+        verify(dtcModule).requestDM12(any());
+        verify(dtcModule).requestDM12(any(), eq(0x01));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.18.2.c - No OBD ECU provided DM12");
@@ -162,21 +162,21 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
         DM12MILOnEmissionDTCPacket obdPacket3 = new DM12MILOnEmissionDTCPacket(
                 Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
 
-        when(dtcModule.requestDM12(any(), eq(true)))
+        when(dtcModule.requestDM12(any()))
                 .thenReturn(new RequestResult<>(false, List.of(packet1, packet3), List.of()));
 
-        when(dtcModule.requestDM12(any(), eq(true), eq(0x01)))
+        when(dtcModule.requestDM12(any(), eq(0x01)))
                 .thenReturn(new BusResult<>(false, packet1));
-        when(dtcModule.requestDM12(any(), eq(true), eq(0x03)))
+        when(dtcModule.requestDM12(any(), eq(0x03)))
                 .thenReturn(new BusResult<>(false, obdPacket3));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
         verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM12(any(), eq(true));
-        verify(dtcModule).requestDM12(any(), eq(true), eq(0x01));
-        verify(dtcModule).requestDM12(any(), eq(true), eq(0x03));
+        verify(dtcModule).requestDM12(any());
+        verify(dtcModule).requestDM12(any(), eq(0x01));
+        verify(dtcModule).requestDM12(any(), eq(0x03));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                                   "6.1.18.2.a - An ECU reported active DTCs");
@@ -243,20 +243,20 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
         DM12MILOnEmissionDTCPacket packet3b = new DM12MILOnEmissionDTCPacket(
                 Packet.create(PGN, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
 
-        when(dtcModule.requestDM12(any(), eq(true)))
+        when(dtcModule.requestDM12(any()))
                 .thenReturn(new RequestResult<>(false, List.of(packet1, packet3), List.of(ackPacket)));
-        when(dtcModule.requestDM12(any(), eq(true), eq(0x01)))
+        when(dtcModule.requestDM12(any(), eq(0x01)))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(dtcModule.requestDM12(any(), eq(true), eq(0x03)))
+        when(dtcModule.requestDM12(any(), eq(0x03)))
                 .thenReturn(new BusResult<>(false, packet3b));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
         verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM12(any(), eq(true));
-        verify(dtcModule).requestDM12(any(), eq(true), eq(0x01));
-        verify(dtcModule).requestDM12(any(), eq(true), eq(0x03));
+        verify(dtcModule).requestDM12(any());
+        verify(dtcModule).requestDM12(any(), eq(0x01));
+        verify(dtcModule).requestDM12(any(), eq(0x03));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                                   "6.1.18.2.a - An ECU reported active DTCs");
@@ -288,17 +288,17 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
         List<Integer> obdModuleAddresses = List.of(0x01);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
-        when(dtcModule.requestDM12(any(), eq(true)))
+        when(dtcModule.requestDM12(any()))
                 .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
-        when(dtcModule.requestDM12(any(), eq(true), eq(0x01)))
+        when(dtcModule.requestDM12(any(), eq(0x01)))
                 .thenReturn(new BusResult<>(false, packet1));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
         verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM12(any(), eq(true));
-        verify(dtcModule).requestDM12(any(), eq(true), eq(0x01));
+        verify(dtcModule).requestDM12(any());
+        verify(dtcModule).requestDM12(any(), eq(0x01));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

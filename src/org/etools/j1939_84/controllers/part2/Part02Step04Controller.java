@@ -69,7 +69,7 @@ public class Part02Step04Controller extends StepController {
         readinessModule.setJ1939(getJ1939());
 
         // 6.2.4.1.a. Global DM20 (send Request (PGN 59904) for PGN 49664 (SPNs 3048-3049, 3066-3068)).
-        var globalResult = readinessModule.requestDM20(getListener(), true);
+        var globalResult = readinessModule.requestDM20(getListener());
         List<DM20MonitorPerformanceRatioPacket> globalPackets = globalResult.getPackets();
 
         globalPackets.forEach(packet -> {
@@ -128,7 +128,7 @@ public class Part02Step04Controller extends StepController {
         List<BusResult<DM20MonitorPerformanceRatioPacket>> dsResults = dataRepository.getObdModuleAddresses()
                 .stream()
                 .sorted()
-                .map(address -> readinessModule.requestDM20(getListener(), true, address))
+                .map(address -> readinessModule.requestDM20(getListener(), address))
                 .collect(Collectors.toList());
 
         // 6.2.4.4.a. Fail if any difference compared to data received during global request in 6.2.4.1.

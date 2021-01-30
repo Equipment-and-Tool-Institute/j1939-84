@@ -3,9 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -75,7 +72,7 @@ public class Part01Step19Controller extends StepController {
         dtcModule.setJ1939(getJ1939());
 
         // 6.1.19.1.a. Global DM23 (send Request (PGN 59904) for PGN 64949 (SPNs 1213-1215, 3038, 1706)).
-        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> globalResponse = dtcModule.requestDM23(getListener(), true);
+        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> globalResponse = dtcModule.requestDM23(getListener());
         // 6.1.19.1.c. Fail if no OBD ECU provides DM23.
         List<DM23PreviouslyMILOnEmissionDTCPacket> globalPackets = globalResponse.getPackets();
         if (globalPackets.isEmpty()) {
@@ -100,7 +97,7 @@ public class Part01Step19Controller extends StepController {
         // 6.1.19.3.a. DS DM23 to each OBD ECU.
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
         List<BusResult<DM23PreviouslyMILOnEmissionDTCPacket>> dsResults = obdModuleAddresses.stream()
-                .map(address -> dtcModule.requestDM23(getListener(), true, address))
+                .map(address -> dtcModule.requestDM23(getListener(), address))
                 .collect(Collectors.toList());
 
         // 6.1.19.4.a. Fail if any difference compared to data received during global request.

@@ -144,17 +144,17 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
                                                                                                 Collections.emptyList(),
                                                                                                 Collections.emptyList());
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalRequestResponse);
+        when(diagnosticReadinessModule.requestDM5(any())).thenReturn(globalRequestResponse);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
                                                                                 packet0);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x00))).thenReturn(busResult0x00);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x00))).thenReturn(busResult0x00);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false,
                                                                                 packet44);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x17))).thenReturn(busResult0x17);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x17))).thenReturn(busResult0x17);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false,
                                                                                 packet21);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x21))).thenReturn(busResult0x21);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
         when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
                 false);
@@ -166,10 +166,10 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x00));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x17));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x21));
+        verify(diagnosticReadinessModule).requestDM5(any());
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x00));
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x17));
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x21));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.2.2.1.a - Global DM5 request did not receive any response packets");
@@ -199,16 +199,16 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                                 List.of(packet0,
                                                                                                         packet21),
                                                                                                 List.of(packet44));
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalRequestResponse);
+        when(diagnosticReadinessModule.requestDM5(any())).thenReturn(globalRequestResponse);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false, packet0);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x00))).thenReturn(busResult0x00);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x00))).thenReturn(busResult0x00);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false, packet44);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x17))).thenReturn(busResult0x17);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x17))).thenReturn(busResult0x17);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false, packet21V2);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x21))).thenReturn(busResult0x21);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
         when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse)))
                 .thenReturn(false);
@@ -220,10 +220,10 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x00));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x17));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x21));
+        verify(diagnosticReadinessModule).requestDM5(any());
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x00));
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x17));
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x21));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -284,17 +284,17 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                                 Collections.emptyList(),
                                                                                                 Collections.singletonList(
                                                                                                         packet44));
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalRequestResponse);
+        when(diagnosticReadinessModule.requestDM5(any())).thenReturn(globalRequestResponse);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
                                                                                 packet0);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x00))).thenReturn(busResult0x00);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x00))).thenReturn(busResult0x00);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false,
                                                                                 packet44);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x17))).thenReturn(busResult0x17);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x17))).thenReturn(busResult0x17);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false,
                                                                                 packet21);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x21))).thenReturn(busResult0x21);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
         when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
                 false);
@@ -306,10 +306,10 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x00));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x17));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x21));
+        verify(diagnosticReadinessModule).requestDM5(any());
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x00));
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x17));
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x21));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.2.2.1.a - Global DM5 request did not receive any response packets");
@@ -337,17 +337,17 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                                                                                                         packet21),
                                                                                                 Collections.singletonList(
                                                                                                         packet44));
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalRequestResponse);
+        when(diagnosticReadinessModule.requestDM5(any())).thenReturn(globalRequestResponse);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
                                                                                 Optional.empty());
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x00))).thenReturn(busResult0x00);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x00))).thenReturn(busResult0x00);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false,
                                                                                 Optional.empty());
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x17))).thenReturn(busResult0x17);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x17))).thenReturn(busResult0x17);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false,
                                                                                 packet21);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x21))).thenReturn(busResult0x21);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
         when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
                 false);
@@ -359,10 +359,10 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x00));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x17));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x21));
+        verify(diagnosticReadinessModule).requestDM5(any());
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x00));
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x17));
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x21));
 
         verify(mockListener).addOutcome(
                 PART_NUMBER,
@@ -419,14 +419,14 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                 Packet.create(pgn, 0x21, 0x00, 0x00, 0x05, 0x00, 0x00, 0x00, 0x00, 0x00));
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(
                 false, List.of(packet0, packet17, packet23), Collections.emptyList());
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true))).thenReturn(globalRequestResponse);
+        when(diagnosticReadinessModule.requestDM5(any())).thenReturn(globalRequestResponse);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false, packet0);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x00))).thenReturn(busResult0x00);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x00))).thenReturn(busResult0x00);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false, packet17);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x17))).thenReturn(busResult0x17);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x17))).thenReturn(busResult0x17);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x23 = new BusResult<>(false, packet23);
-        when(diagnosticReadinessModule.requestDM5(any(), eq(true), eq(0x23))).thenReturn(busResult0x23);
+        when(diagnosticReadinessModule.requestDM5(any(), eq(0x23))).thenReturn(busResult0x23);
 
         when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
                 true);
@@ -438,10 +438,10 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getObdModuleAddresses();
 
         verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x00));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x17));
-        verify(diagnosticReadinessModule).requestDM5(any(), eq(true), eq(0x23));
+        verify(diagnosticReadinessModule).requestDM5(any());
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x00));
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x17));
+        verify(diagnosticReadinessModule).requestDM5(any(), eq(0x23));
 
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
