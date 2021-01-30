@@ -248,16 +248,8 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
-        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
+        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(List.of());
 
-        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
-        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
-        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
-        dm30Packets.add(dm30Packet);
-
-        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
-
-        when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
@@ -273,7 +265,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         verify(obdTestsModule).setJ1939(j1939);
 
-        verify(tableA7Validator).findDuplicates(scaledTestsResults);
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         // Verify the documentation was recorded correctly
