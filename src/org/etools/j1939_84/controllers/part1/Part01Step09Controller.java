@@ -3,23 +3,24 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import static org.etools.j1939_84.model.Outcome.WARN;
+import static org.etools.j1939_84.utils.StringUtils.containsNonPrintableAsciiCharacter;
+import static org.etools.j1939_84.utils.StringUtils.containsOnlyNumericAsciiCharacters;
+import static org.etools.j1939_84.utils.StringUtils.stripLeadingAndTrailingNulls;
 
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.ComponentIdentification;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-import org.etools.j1939_84.utils.StringUtils;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
@@ -35,11 +36,11 @@ public class Part01Step09Controller extends StepController {
 
     Part01Step09Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-                new EngineSpeedModule(),
-                new BannerModule(),
-                new VehicleInformationModule(),
-                dataRepository,
-                DateTimeModule.getInstance());
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             dataRepository,
+             DateTimeModule.getInstance());
     }
 
     protected Part01Step09Controller(Executor executor,
@@ -49,141 +50,153 @@ public class Part01Step09Controller extends StepController {
                                      DataRepository dataRepository,
                                      DateTimeModule dateTimeModule) {
         super(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dateTimeModule,
-                PART_NUMBER,
-                STEP_NUMBER,
-                TOTAL_STEPS);
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              dateTimeModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
 
-        // 6.1.9.1 ACTIONS:
-        // Send destination specific message and grab only the instance of ComponentIdentificationPacket
+        // 6.1.9.1.a Send destination specific message and grab only the instance of ComponentIdentificationPacket
         List<ComponentIdentificationPacket> dsPackets = dataRepository.getObdModules()
                 .stream()
-                // convert each address to it's component ID, ignoring the NACKs
-                .flatMap(module -> getVehicleInformationModule()
-                        .reportComponentIdentification(getListener(), module.getSourceAddress())
-                        .getPacket()
-                        .flatMap(e -> e.left).stream())
+                .map(OBDModuleInformation::getSourceAddress)
+                .map(address -> getVehicleInformationModule().reportComponentIdentification(getListener(), address))
+                .flatMap(r -> r.requestResult().getPackets().stream())
+                .peek(packet -> {
+                    //Update data in the dataRepository for use in Part 02 Step 7
+                    OBDModuleInformation module = dataRepository.getObdModule(packet.getSourceAddress());
+                    module.setComponentInformationIdentification(packet.getComponentIdentification());
+                    // Save the updated data back to the dataRepository for use later in testing
+                    dataRepository.putObdModule(module);
+                })
                 .collect(Collectors.toList());
         if (dsPackets.isEmpty()) {
-            addFailure("6.1.9.1.a - There are no positive responses (serial number SPN 588 not supported by any OBD ECU)");
+            addFailure("6.1.9.2.a - There are no positive responses");
         }
-        List<OBDModuleInformation> zeroFunctionObdBDModules= new ArrayList<>();
-        //Update data in the dataRepository for use in Part 02 Step 7
-        dsPackets.forEach(packet -> {
-            OBDModuleInformation module = dataRepository.getObdModule(packet.getSourceAddress());
-                module.setComponentInformationIdentification(new ComponentIdentification(packet));
-                // Filter the modules responded to be only ones with function = 0 (engine function)
-                if(module.getFunction() == 0){
-                    zeroFunctionObdBDModules.add(module);
-                }
-                // Save the updated data back to the dataRepository for use later in testing
-                dataRepository.putObdModule(module);
-        });
-        // Log missing engine response
-        if (zeroFunctionObdBDModules.size() != 1) {
-            int numberOfZeroFunctionObds = zeroFunctionObdBDModules.size();
-            getListener().onResult(WARN + ": " + numberOfZeroFunctionObds +
-                            " module(s) have claimed function 0 - only one module should");
-        }
-        int function0SourceAddress = zeroFunctionObdBDModules.isEmpty() ? -1
-                : zeroFunctionObdBDModules.get(0).getSourceAddress();
 
-        List<ComponentIdentificationPacket> zeroFunctionPackets = dsPackets.stream()
-                .filter(zeroPacket -> zeroPacket.getSourceAddress() == function0SourceAddress)
-                .collect(Collectors.toList());
+        int function0SourceAddress = dataRepository.getFunctionZeroAddress();
+        String function0Name = Lookup.getAddressName(function0SourceAddress);
+        getListener().onResult("Function 0 module is " + function0Name);
 
-        ComponentIdentificationPacket zeroFunctionPacket = null;
-        if (zeroFunctionObdBDModules.isEmpty() || zeroFunctionPackets.isEmpty()) {
-            addFailure("6.1.9.2.b - None of the positive responses were provided by the same SA as the SA that claims to be function 0 (engine)");
+        ComponentIdentificationPacket function0Packet = dsPackets.stream()
+                .filter(p -> p.getSourceAddress() == function0SourceAddress)
+                .findFirst()
+                .orElse(null);
+
+        if (function0Packet == null) {
+            addFailure("6.1.9.2.b - None of the positive responses were provided by " + function0Name);
         } else {
-            zeroFunctionPacket = zeroFunctionPackets.get(0);
+            String serialNumber = stripLeadingAndTrailingNulls(function0Packet.getSerialNumber());
+            int length = serialNumber.length();
+            if (length >= 6) {
+                String endingCharacters = serialNumber.substring((length - 6), length);
+                if (!containsOnlyNumericAsciiCharacters(endingCharacters)) {
+                    // 6.1.9.2.c. Fail if the serial number field (SPN 588) from any function 0
+                    // device does not end in 6 numeric characters (ASCII 0 through ASCII 9).
+                    addFailure("6.1.9.2.c - Serial number field (SPN 588) from " + function0Name + " does not end in 6 numeric characters");
+                }
+            }
+
+            // 6.1.9.3.a. Warn if the serial number field (SPN 588) from any function 0 device is less than 8 characters long.
+            if (length < 8) {
+                addWarning("6.1.9.3.a - Serial number field (SPN 588) from " + function0Name + " is less than 8 characters long");
+            }
         }
 
-        // 6.1.9.2 Fail Criteria:
-        // c. Fail if the serial number field (SPN 588) from any function 0
-        // device does not end in 6 numeric characters (ASCII 0 through ASCII 9).
-        String serialNumber = zeroFunctionPacket != null ? zeroFunctionPacket.getSerialNumber() : "";
+        // 6.1.9.2.d. Fail if the make (SPN 586) from any OBD ECU contains any unprintable ASCII characters.
+        dsPackets.stream()
+                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> containsNonPrintableAsciiCharacter(p.getMake()))
+                .map(ParsedPacket::getSourceAddress)
+                .map(Lookup::getAddressName)
+                .forEach(moduleName -> addFailure("6.1.9.2.d - The make (SPN 586) from " + moduleName + " contains any unprintable ASCII characters"));
 
-        if (serialNumber.length() >= 6 && !StringUtils.containsOnlyNumericAsciiCharacters(serialNumber.substring(
-                (zeroFunctionPacket.getSerialNumber().length() - 6),
-                zeroFunctionPacket.getSerialNumber().length()))) {
-            addFailure("6.1.9.2.c - Serial number field (SPN 588) from any function 0 device does not end in 6 numeric characters (ASCII 0 through ASCII 9)");
-        }
+        // 6.1.9.2.d. Fail if the model (SPN 587) from any OBD ECU contains any unprintable ASCII characters.
+        dsPackets.stream()
+                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> containsNonPrintableAsciiCharacter(p.getModel()))
+                .map(ParsedPacket::getSourceAddress)
+                .map(Lookup::getAddressName)
+                .forEach(moduleName -> addFailure("6.1.9.2.d - The model (SPN 587) from " + moduleName + " contains any unprintable ASCII characters"));
 
-        // d. Fail if the make (SPN 586), model (SPN 587), or serial number (SPN
-        // 588) from any OBD ECU contains any unprintable ASCII characters.
-        String make = zeroFunctionPacket != null ? zeroFunctionPacket.getMake() : "";
-        String model = zeroFunctionPacket != null ? zeroFunctionPacket.getModel() : "";
-        if (StringUtils.containsNonPrintableAsciiCharacter(serialNumber) ||
-                StringUtils.containsNonPrintableAsciiCharacter(make) ||
-                StringUtils.containsNonPrintableAsciiCharacter(model)) {
-            addFailure("6.1.9.2.d - The make (SPN 586), model (SPN 587), or serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters");
+        // 6.1.9.2.d. Fail if the serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters.
+        dsPackets.stream()
+                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> containsNonPrintableAsciiCharacter(p.getSerialNumber()))
+                .map(ParsedPacket::getSourceAddress)
+                .map(Lookup::getAddressName)
+                .forEach(moduleName -> addFailure("6.1.9.2.d - The serial number (SPN 588) from " + moduleName + " contains any unprintable ASCII characters"));
 
-        }
+        // 6.1.9.3.b. For OBD ECUs, Warn if the make field (SPN 586) is longer than 5 ASCII characters.
+        dsPackets.stream()
+                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> {
+                    String make = p.getMake();
+                    return make != null && make.length() > 5;
+                })
+                .map(ParsedPacket::getSourceAddress)
+                .map(Lookup::getAddressName)
+                .forEach(moduleName -> addWarning("6.1.9.3.b - The make field (SPN 586) from " + moduleName + " is longer than 5 ASCII characters"));
 
-        // 6.1.9.3 Warn Criteria for OBD ECUs:
-        // a. Warn if the serial number field (SPN 588) from any function 0
-        // device is less than 8 characters long.
-        if (serialNumber.length() < 8) {
-            addWarning("6.1.9.3.a - Serial number field (SPN 588) from any function 0 device is less than 8 characters long");
-        }
-        // b. Warn if the make field (SPN 586) is longer than 5 ASCII characters.
-        if (!make.isEmpty() && make.length() > 5) {
-            addWarning("6.1.9.3.b - Make field (SPN 586) is longer than 5 ASCII characters");
-        }
-        // c. Warn if the make field (SPN 586) is less than 2 ASCII characters.
-        if (make.length() == 1) {
-            addWarning("6.1.9.3.c - Make field (SPN 586) is less than 2 ASCII characters");
-        }
-        // d. Warn if the model field (SPN 587) is less than 1 character long.
-        if (model != null && model.length() < 1) {
-            addWarning("6.1.9.3.d - Model field (SPN 587) is less than 1 character long");
-        }
+        // 6.1.9.3.c. For OBD ECUs, Warn if the make field (SPN 586) is less than 2 ASCII characters.
+        dsPackets.stream()
+                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> {
+                    String make = p.getMake();
+                    return make == null || make.length() < 2;
+                })
+                .map(ParsedPacket::getSourceAddress)
+                .map(Lookup::getAddressName)
+                .forEach(moduleName -> addWarning("6.1.9.3.c - The make field (SPN 586) from " + moduleName + " is less than 2 ASCII characters"));
 
-        // 6.1.9.4 Actions2: [Note: No warning message shall be provided for
-        // responses from non-OBD devices for PGN 59904].
-        // a. Global Component ID request (PGN 59904) for PGN 65259 (SPNs 586, 587, and 588).
-        // b. Display each positive return in the log.
+        // 6.1.9.3.d. For OBD ECUs, Warn if the model field (SPN 587) is less than 1 character long.
+        dsPackets.stream()
+                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> {
+                    String model = p.getModel();
+                    return model == null || model.length() < 1;
+                })
+                .map(ParsedPacket::getSourceAddress)
+                .map(Lookup::getAddressName)
+                .forEach(moduleName -> addWarning("6.1.9.3.d - The model field (SPN 587) from " + moduleName + " is less than 1 ASCII characters"));
+
+        // 6.1.9.4.a. Global Component ID request (PGN 59904) for PGN 65259 (SPNs 586, 587, and 588).
+        // 6.1.9.4.b. Display each positive return in the log.
         List<ComponentIdentificationPacket> globalPackets = getVehicleInformationModule()
                 .reportComponentIdentification(getListener()).getPackets();
-        if (globalPackets.isEmpty()) {
-            addWarning("6.1.9.4.a & 6.1.9.4.b - Global Component ID request for PGN 65259 did not receive any packets");
-        }
 
         // 6.1.9.5 Fail Criteria2 for function 0:
-        List<ComponentIdentificationPacket> globalPacketsFunctionZero = new ArrayList<>();
-        zeroFunctionObdBDModules.forEach(moduleInfo -> globalPacketsFunctionZero.addAll(globalPackets.stream()
-                .filter(packet -> packet.getSourceAddress() == moduleInfo.getSourceAddress())
-                .collect(Collectors.toList())));
+        ComponentIdentificationPacket globalFunction0Packet = globalPackets.stream()
+                .filter(packet -> packet.getSourceAddress() == function0SourceAddress)
+                .findFirst()
+                .orElse(null);
 
-        if (globalPacketsFunctionZero.isEmpty()) {
-            // a. Fail if there is no positive response from function 0. (Global
-            // request not supported or timed out)
-            addFailure("6.1.9.5.a - There is no positive response from function 0");
-        }
-
-        if (!globalPacketsFunctionZero.contains(zeroFunctionPacket)) {
-            // b. Fail if the global response does not match the destination
-            // specific response from function 0.
-            addFailure("6.1.9.5.b - Global response does not match the destination specific response from function 0");
-        }
-
-        //6.1.9.6 Warn Criteria2 for OBD ECUs other than function 0:
-        // a. Warn if Component ID not supported for the global query in
-        //    6.1.9.4, when supported by destination specific query
-        dsPackets.stream().filter(packet -> !zeroFunctionObdBDModules.contains(packet.getSourceAddress()))
-                .forEach(singlePacket -> {
-            if (!globalPackets.contains(singlePacket)) {
-                addFailure("6.1.9.6.a - Component ID not supported for the global query, when supported by destination specific query");
+        if (globalFunction0Packet == null) {
+            // 6.1.9.5.a. Fail if there is no positive response from function 0.
+            addFailure("6.1.9.5.a - There is no positive response from " + function0Name);
+        } else {
+            // 6.1.9.5.b. Fail if the global response does not match the destination specific response from function 0.
+            if (!globalFunction0Packet.equals(function0Packet)) {
+                addFailure("6.1.9.5.b - Global response does not match the destination specific response from " + function0Name);
             }
-        });
+        }
+
+        //6.1.9.6.a. for OBD ECUs other than function 0, Warn if Component ID not supported for the
+        // global query in 6.1.9.4, when supported by destination specific query
+        dsPackets.stream()
+                .filter(packet -> packet.getSourceAddress() != function0SourceAddress)
+                .forEach(packet -> {
+                    if (!globalPackets.contains(packet)) {
+                        String moduleName = Lookup.getAddressName(packet.getSourceAddress());
+                        addFailure("6.1.9.6.a - " + moduleName + " did not supported the Component ID for the global query, but supported it in the destination specific query");
+                    }
+                });
     }
 }

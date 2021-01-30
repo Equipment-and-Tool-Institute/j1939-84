@@ -34,7 +34,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     @SuppressWarnings("unchecked")
     public static <T> T swingProxy(T o, Class<T> cls) {
         return (T) Proxy.newProxyInstance(cls.getClassLoader(),
-                new Class<?>[] { cls }, (proxy, method, args) -> {
+                                          new Class<?>[] { cls }, (proxy, method, args) -> {
                     if (SwingUtilities.isEventDispatchThread()) {
                         return method.invoke(o, args);
                     }
@@ -129,7 +129,6 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      */
     private final VinDecoder vinDecoder;
 
-
     /**
      * Constructor
      *
@@ -142,9 +141,9 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      *         the vehicle bus
      */
     public VehicleInformationPresenter(VehicleInformationContract.View view, VehicleInformationListener listener,
-            J1939 j1939) {
+                                       J1939 j1939) {
         this(view, listener, j1939, new VehicleInformationModule(),
-                new DiagnosticReadinessModule(), new VinDecoder());
+             new DiagnosticReadinessModule(), new VinDecoder());
     }
 
     /**
@@ -163,8 +162,8 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      *         the vehicle interface
      */
     public VehicleInformationPresenter(VehicleInformationContract.View view, VehicleInformationListener listener,
-            J1939 j1939, VehicleInformationModule vehicleInformationModule,
-            DiagnosticReadinessModule diagnosticReadinessModule, VinDecoder vinDecoder) {
+                                       J1939 j1939, VehicleInformationModule vehicleInformationModule,
+                                       DiagnosticReadinessModule diagnosticReadinessModule, VinDecoder vinDecoder) {
         this.view = swingProxy(view, VehicleInformationContract.View.class);
         this.listener = listener;
         this.vehicleInformationModule = vehicleInformationModule;
@@ -186,10 +185,18 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
             emissionUnitsFound = new ArrayList<>();
             obdModules.forEach(address -> emissionUnitsFound
                     .add(vehicleInformationModule.reportComponentIdentification(ResultsListener.NOOP, address)
-                            .getPacket()
-                            .map(e -> e.resolve(p -> p,
-                                    ack -> ComponentIdentificationPacket.error(address, "ERROR")))
-                            .orElse(ComponentIdentificationPacket.error(address, "MISSING"))));
+                                 .getPacket()
+                                 .map(e -> e.resolve(p -> p,
+                                                     ack -> ComponentIdentificationPacket.create(address,
+                                                                                                 "ERROR",
+                                                                                                 "ERROR",
+                                                                                                 "ERROR",
+                                                                                                 "ERROR")))
+                                 .orElse(ComponentIdentificationPacket.create(address,
+                                                                              "MISSING",
+                                                                              "MISSING",
+                                                                              "MISSING",
+                                                                              "MISSING"))));
             view.setEmissionUnits(emissionUnitsFound.size());
         } catch (Exception ignored) {
         }
