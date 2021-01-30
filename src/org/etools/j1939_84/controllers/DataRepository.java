@@ -55,6 +55,10 @@ public class DataRepository {
         return koeoEngineReferenceTorque;
     }
 
+    public int getFunctionZeroAddress() {
+        return obdModules.values().stream().filter(m -> m.getFunction() == 0).map(OBDModuleInformation::getSourceAddress).findFirst().orElse(-1);
+    }
+
     public OBDModuleInformation getObdModule(int sourceAddress) {
         OBDModuleInformation info = obdModules.get(sourceAddress);
         return info == null ? null : info.clone();

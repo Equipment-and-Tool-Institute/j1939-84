@@ -3,15 +3,15 @@
  */
 package org.etools.j1939_84.utils;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
+
 import java.util.regex.Pattern;
 
 /**
- *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
- *         The class to properly interact with a string and perform various
- *         operations on strings.
- *
+ * <p>
+ * The class to properly interact with a string and perform various
+ * operations on strings.
  */
 public class StringUtils {
 
@@ -31,7 +31,6 @@ public class StringUtils {
      */
     public static boolean containsOnlyBinaryValues(String string) {
         return BINARY_PATTERN.matcher(string).matches();
-
     }
 
     /*
@@ -39,7 +38,34 @@ public class StringUtils {
      */
     public static boolean containsOnlyNumericAsciiCharacters(String string) {
         return NON_NUMERIC_PATTERN.matcher(string).matches();
+    }
 
+    public static String stripLeadingAndTrailingNulls(String input) {
+        if (input == null) {
+            return "";
+        } else {
+            return stripLeadingNulls(stripTrailingNulls(input));
+        }
+    }
+
+    private static String stripLeadingNulls(String input) {
+        byte[] bytes = input.getBytes(UTF_8);
+        int index = 0;
+        boolean isNull = true;
+        while (isNull) {
+            isNull = bytes[index++] == 0x00;
+        }
+        return input.substring(--index);
+    }
+
+    private static String stripTrailingNulls(String input) {
+        byte[] bytes = input.getBytes(UTF_8);
+        int index = input.length();
+        boolean isNull = true;
+        while (isNull) {
+            isNull = bytes[--index] == 0x00;
+        }
+        return input.substring(0, ++index);
     }
 
 }

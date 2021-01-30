@@ -6,7 +6,6 @@ package org.etools.j1939_84.model;
 
 import java.util.Objects;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 
 public class ComponentIdentification {
 
@@ -51,9 +50,9 @@ public class ComponentIdentification {
         }
         ComponentIdentification that = (ComponentIdentification) obj;
         return Objects.equals(this.getMake(), that.getMake())
-                && Objects.equals(this.getModel(),that.getModel())
-                && Objects.equals(this.getSerialNumber(),that.getSerialNumber())
-                && Objects.equals(this.getUnitNumber(),that.getUnitNumber());
+                && Objects.equals(this.getModel(), that.getModel())
+                && Objects.equals(this.getSerialNumber(), that.getSerialNumber())
+                && Objects.equals(this.getUnitNumber(), that.getUnitNumber());
     }
 
     @Override public String toString() {
