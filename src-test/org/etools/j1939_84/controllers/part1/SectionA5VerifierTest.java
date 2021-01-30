@@ -1418,9 +1418,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM30ScaledTestResultsPacket dm30Packet0 = mock(DM30ScaledTestResultsPacket.class);
         DM30ScaledTestResultsPacket dm30Packet17 = mock(DM30ScaledTestResultsPacket.class);
         DM30ScaledTestResultsPacket dm30Packet21 = mock(DM30ScaledTestResultsPacket.class);
-        //
-        Integer spn = 157;
-        //
+
         ScaledTestResult scaledTestResult0 = mock(ScaledTestResult.class);
         when(scaledTestResult0.getTestMaximum()).thenReturn(0xFFFF);
         when(scaledTestResult0.getTestValue()).thenReturn(0xFFFF);
@@ -1500,9 +1498,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM30ScaledTestResultsPacket dm30Packet0 = mock(DM30ScaledTestResultsPacket.class);
         DM30ScaledTestResultsPacket dm30Packet17 = mock(DM30ScaledTestResultsPacket.class);
         DM30ScaledTestResultsPacket dm30Packet21 = mock(DM30ScaledTestResultsPacket.class);
-        //
-        Integer spn = 157;
-        //
+
         ScaledTestResult scaledTestResult0 = mock(ScaledTestResult.class);
         when(scaledTestResult0.getTestMaximum()).thenReturn(0x0000);
         when(scaledTestResult0.getTestValue()).thenReturn(0x88);
@@ -1818,8 +1814,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 add(dm33Packet21);
             }
         };
-
-        Integer spn = 157;
 
         ScaledTestResult scaledTestResult0 = mock(ScaledTestResult.class);
         when(scaledTestResult0.getTestMaximum()).thenReturn(0xFF02);
@@ -2211,8 +2205,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
             }
         };
 
-        Integer spn = 157;
-
         ScaledTestResult scaledTestResult0 = mock(ScaledTestResult.class);
         when(scaledTestResult0.getTestMaximum()).thenReturn(0x0036);
         when(scaledTestResult0.getTestValue()).thenReturn(0xFB02);
@@ -2570,8 +2562,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
             }
         };
 
-        Integer spn = 157;
-
         ScaledTestResult scaledTestResult0 = mock(ScaledTestResult.class);
         when(scaledTestResult0.getTestMaximum()).thenReturn(0xFFFF);
         when(scaledTestResult0.getTestValue()).thenReturn(0xFFFF);
@@ -2817,8 +2807,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 add(dm33Packet21);
             }
         };
-
-        Integer spn = 157;
 
         SupportedSPN supportedSPN0 = mock(SupportedSPN.class);
         SupportedSPN supportedSPN17 = mock(SupportedSPN.class);
