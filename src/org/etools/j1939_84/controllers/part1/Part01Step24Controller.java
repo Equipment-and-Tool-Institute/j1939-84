@@ -3,22 +3,25 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
+import org.etools.j1939_84.bus.j1939.Lookup;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.modules.*;
+import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  * <p>
- * The controller for 6.1.23 DM31: DTC to Lamp Association
+ * The controller for 6.1.24 DM25: Expanded freeze frame
  */
-
 public class Part01Step24Controller extends StepController {
 
     private static final int PART_NUMBER = 1;
@@ -36,7 +39,7 @@ public class Part01Step24Controller extends StepController {
              new VehicleInformationModule(),
              new DTCModule(),
              dataRepository,
-                DateTimeModule.getInstance());
+             DateTimeModule.getInstance());
     }
 
     Part01Step24Controller(Executor executor,
@@ -66,18 +69,18 @@ public class Part01Step24Controller extends StepController {
         // 6.1.24.1.a. DS DM25 (send Request (PGN 59904) for PGN 64951 (SPNs 3300,
         // 1214-1215)) to each OBD ECU that responded to DS DM24 with supported
         // freeze frame SPNs.
-
-        // First get the correct OBD Modules per requirements
-        List<Integer> obdModuleAddresses = dataRepository.getObdModules().stream()
+        //
+        // 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no
+        // freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]
+        dataRepository.getObdModules()
+                .stream()
                 .filter(module -> !module.getFreezeFrameSpns().isEmpty())
                 .map(OBDModuleInformation::getSourceAddress)
-                .collect(Collectors.toList());
-
-        // Get the responses from each of the modules required
-        List<DM25ExpandedFreezeFrame> dm25Packets = obdModuleAddresses.stream()
                 .flatMap(address -> dtcModule.requestDM25(getListener(), address).getPacket().stream())
                 .flatMap(e -> e.left.stream())
-                // filter invalid DM25 out
+                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .collect(Collectors.toList())
+                .stream()
                 .filter(packet -> {
                     byte[] bytes = packet.getPacket().getBytes();
                     return bytes[0] != 0x00
@@ -89,13 +92,8 @@ public class Part01Step24Controller extends StepController {
                             || bytes[6] != (byte) 0xFF
                             || bytes[7] != (byte) 0xFF;
                 })
-                .collect(Collectors.toList());
-
-        // 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no
-        // freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]
-        if (!dm25Packets.isEmpty()) {
-            // Verify the no data & DTC didn't cause freeze frame
-            addFailure("6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
-        }
+                .map(ParsedPacket::getSourceAddress)
+                .map(Lookup::getAddressName)
+                .forEach(moduleName -> addFailure("6.1.24.2.a - " + moduleName + " provided freeze frame data other than no freeze frame data stored"));
     }
 }
