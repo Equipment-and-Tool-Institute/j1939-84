@@ -31,18 +31,16 @@ public class DM33EmissionIncreasingAECDActiveTimeTest {
     @Test
     public void testGetEiAecdEngineHoursTimers() {
         assertEquals(4, instance.getEiAecdEngineHoursTimers().size());
-        byte[] timer0Data = { 0x01, 0x2B, 0x0B, 0x01, 0x00, 0x2B, (byte) 0xC4, 0x0B, 0x00 };
+        int[] timer0Data = { 0x01, 0x2B, 0x0B, 0x01, 0x00, 0x2B, 0xC4, 0x0B, 0x00 };
         EngineHoursTimer expectedEngineHoursTimer0 = new EngineHoursTimer(timer0Data);
         assertEquals(expectedEngineHoursTimer0, instance.getEiAecdEngineHoursTimers().get(0));
-        byte[] timer1Data = { 0x02, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF };
+        int[] timer1Data = { 0x02, 0xFE, 0xFE, 0xFE, 0xFE, 0xFF, 0xFF, 0xFF, 0xFF };
         EngineHoursTimer expectedEngineHoursTimer1 = new EngineHoursTimer(timer1Data);
         assertEquals(expectedEngineHoursTimer1, instance.getEiAecdEngineHoursTimers().get(1));
-        byte[] timer2Data = { 0x03, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE, 0x2C, 0x0B, 0x03, 0x00 };
+        int[] timer2Data = { 0x03, 0xFE, 0xFE, 0xFE, 0xFE, 0x2C, 0x0B, 0x03, 0x00 };
         EngineHoursTimer expectedEngineHoursTimer2 = new EngineHoursTimer(timer2Data);
         assertEquals(expectedEngineHoursTimer2, instance.getEiAecdEngineHoursTimers().get(2));
-        byte[] timer3Data = { 0x04, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFE, (byte) 0xFE, (byte) 0xFE,
-                (byte) 0xFE, (byte) 0xFF };
+        int[] timer3Data = { 0x04, 0xFF, 0xFF, 0xFF, 0xFE, 0xFE, 0xFE, 0xFE, 0xFF };
         EngineHoursTimer expectedEngineHoursTimer3 = new EngineHoursTimer(timer3Data);
         assertEquals(expectedEngineHoursTimer3, instance.getEiAecdEngineHoursTimers().get(3));
     }

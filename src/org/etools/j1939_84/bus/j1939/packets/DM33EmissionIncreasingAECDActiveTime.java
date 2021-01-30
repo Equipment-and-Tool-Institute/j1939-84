@@ -6,7 +6,6 @@ package org.etools.j1939_84.bus.j1939.packets;
 import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.utils.CollectionUtils;
@@ -23,7 +22,7 @@ public class DM33EmissionIncreasingAECDActiveTime extends GenericPacket {
     public static final int PGN = 41216; //0xA100
 
     public static DM33EmissionIncreasingAECDActiveTime create(int source, EngineHoursTimer... timers) {
-        byte[] data = new byte[0];
+        int[] data = new int[0];
         for (EngineHoursTimer timer : timers) {
             data = CollectionUtils.join(data, timer.getData());
         }
@@ -52,7 +51,7 @@ public class DM33EmissionIncreasingAECDActiveTime extends GenericPacket {
         eiAecdEngineHoursTimers = new ArrayList<>();
         final int length = getPacket().getLength();
         for (int i = 0; i + 8 < length; i = i + 9) {
-            byte[] copyOfRange = Arrays.copyOfRange(getPacket().getBytes(), i, i + 9);
+            int[] copyOfRange = getPacket().getData(i, i + 9);
             eiAecdEngineHoursTimers.add(new EngineHoursTimer(copyOfRange));
         }
     }
