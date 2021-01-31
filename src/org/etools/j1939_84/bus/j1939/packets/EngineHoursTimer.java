@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
-import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.toBytes;
+import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.toInts;
 import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.Objects;
@@ -17,26 +17,26 @@ public class EngineHoursTimer {
     public static final long NOT_AVAILABLE = Long.MAX_VALUE;
 
     public static EngineHoursTimer create(int timerNumber, long timer1, long timer2) {
-        byte[] data = new byte[1];
-        data[0] = (byte) (timerNumber & 0xFF);
-        data = join(data, toBytes(timer1));
-        data = join(data, toBytes(timer2));
+        int[] data = new int[1];
+        data[0] = timerNumber;
+        data = join(data, toInts(timer1));
+        data = join(data, toInts(timer2));
         return new EngineHoursTimer(data);
     }
 
     private final int eiAecdNumber;
     private final long eiAecdTimer1;
     private final long eiAecdTimer2;
-    private final byte[] data;
+    private final int[] data;
 
-    public EngineHoursTimer(byte[] bytes) {
+    public EngineHoursTimer(int[] bytes) {
         this.data = bytes;
         eiAecdNumber = bytes[0];
         eiAecdTimer1 = getScaledLongValue(bytes, 1);
         eiAecdTimer2 = getScaledLongValue(bytes, 5);
     }
 
-    public byte[] getData() {
+    public int[] getData() {
         return data;
     }
 
@@ -81,7 +81,7 @@ public class EngineHoursTimer {
                 + "; Timer 2 = " + timerToString(eiAecdTimer2);
     }
 
-    private static long get32(byte[] bytes, int i) {
+    private static long get32(int[] bytes, int i) {
         return ((long) (bytes[i + 3] & 0xFF) << 24) | ((bytes[i + 2] & 0xFF) << 16) | ((bytes[i + 1] & 0xFF) << 8)
                 | (bytes[i] & 0xFF);
     }
@@ -95,12 +95,12 @@ public class EngineHoursTimer {
      *         the index of the value
      * @return long
      */
-    private static long getScaledLongValue(byte[] bytes, int index) {
-        byte upperByte = bytes[index + 3];
+    private static long getScaledLongValue(int[] bytes, int index) {
+        int upperByte = bytes[index + 3];
         switch (upperByte) {
-        case (byte) 0xFF:
+        case 0xFF:
             return NOT_AVAILABLE;
-        case (byte) 0xFE:
+        case 0xFE:
             return ERROR;
         default:
             return get32(bytes, index) & 0xFFFFFFFFL;

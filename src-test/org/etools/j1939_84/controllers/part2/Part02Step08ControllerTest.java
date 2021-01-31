@@ -202,11 +202,11 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x03));
 
         String expectedResults = "";
+        expectedResults += "FAIL: 6.2.8.2.a - Difference from Engine #1 (0) regarding readiness status this cycle compared to responses in part 1 after DM11." + NL;
+        expectedResults += "FAIL: 6.2.8.2.b - Engine #2 (1) indicates number of warm-ups since code clear greater than zero" + NL;
         expectedResults += "FAIL: 6.2.8.2.a - Difference from Turbocharger (2) regarding readiness status this cycle compared to responses in part 1 after DM11." + NL;
         expectedResults += "FAIL: 6.2.8.2.b - Turbocharger (2) indicates number of warm-ups since code clear greater than zero" + NL;
-        expectedResults += "FAIL: 6.2.8.2.a - Difference from Engine #1 (0) regarding readiness status this cycle compared to responses in part 1 after DM11." + NL;
         expectedResults += "FAIL: 6.2.8.2.c - Transmission #1 (3) did not provide a NACK and did not provide a DM26 response" + NL;
-        expectedResults += "FAIL: 6.2.8.2.b - Engine #2 (1) indicates number of warm-ups since code clear greater than zero" + NL;
         expectedResults += "" + NL;
         expectedResults += "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;

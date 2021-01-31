@@ -41,6 +41,13 @@ public class ParsedPacket {
         return new int[] { (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF) };
     }
 
+    public static int[] toInts(long value) {
+        return new int[] { (int) (value & 0xFF),
+                (int) ((value >> 8) & 0xFF),
+                (int) ((value >> 16) & 0xFF),
+                (int) ((value >> 24) & 0xFF) };
+    }
+
     /**
      * Converts the given byte array into a {@link String}
      *

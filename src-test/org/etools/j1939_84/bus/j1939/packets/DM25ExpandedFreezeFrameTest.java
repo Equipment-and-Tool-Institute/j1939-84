@@ -21,20 +21,21 @@ public class DM25ExpandedFreezeFrameTest {
     @Test
     public void testActual() {
         Packet packet = Packet.create(DM25ExpandedFreezeFrame.PGN,
-                0,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0xFF,
-                0xFF,
-                0xFF);
+                                      0,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0xFF,
+                                      0xFF,
+                                      0xFF);
         DM25ExpandedFreezeFrame instance = new DM25ExpandedFreezeFrame(packet);
         List<FreezeFrame> freezeFrame = instance.getFreezeFrames();
         assertEquals(0, freezeFrame.size());
         String expected = "DM25 from Engine #1 (0): " + NL;
         expected += "Freeze Frames: [" + NL;
+        expected += "No Freeze Frames" + NL;
         expected += "]";
         assertEquals(expected, instance.toString());
     }
@@ -42,15 +43,15 @@ public class DM25ExpandedFreezeFrameTest {
     @Test
     public void testActualWithBadFmi() {
         Packet packet = Packet.create(DM25ExpandedFreezeFrame.PGN,
-                0,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0x00,
-                0xFF,
-                0xFE,
-                0xFF);
+                                      0,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0xFF,
+                                      0xFE,
+                                      0xFF);
         DM25ExpandedFreezeFrame instance = new DM25ExpandedFreezeFrame(packet);
         List<FreezeFrame> freezeFrames = instance.getFreezeFrames();
         assertEquals(1, freezeFrames.size());
@@ -71,15 +72,15 @@ public class DM25ExpandedFreezeFrameTest {
     @Test
     public void testActualWithBadSpn() {
         Packet packet = Packet.create(DM25ExpandedFreezeFrame.PGN,
-                0,
-                0x00,
-                0x01,
-                0x00,
-                0x00,
-                0x00,
-                0xFF,
-                0xFF,
-                0xFF);
+                                      0,
+                                      0x00,
+                                      0x01,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0xFF,
+                                      0xFF,
+                                      0xFF);
 
         DM25ExpandedFreezeFrame instance = new DM25ExpandedFreezeFrame(packet);
 
