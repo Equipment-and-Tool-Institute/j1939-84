@@ -16,36 +16,26 @@ import org.etools.j1939_84.model.RequestResult;
  */
 public abstract class FunctionalModule {
 
-    public static final String TIMEOUT_MESSAGE = "Error: Timeout - No Response.";
-
     private J1939 j1939;
 
-    /**
-     * Constructor
-     */
-    protected FunctionalModule() {
+    protected J1939 getJ1939() {
+        return j1939;
+    }
+
+    public void setJ1939(J1939 j1939) {
+        this.j1939 = j1939;
     }
 
     protected String getDate() {
         return getDateTimeModule().getDate();
     }
 
-    /**
-     * Returns the {@link DateTimeModule}
-     *
-     * @return {@link DateTimeModule}
-     */
-    protected DateTimeModule getDateTimeModule() {
-        return DateTimeModule.getInstance();
+    protected String getTime() {
+        return getDateTimeModule().getTime();
     }
 
-    /**
-     * Returns the {@link J1939} used to communicate with vehicle
-     *
-     * @return {@link J1939}
-     */
-    protected J1939 getJ1939() {
-        return j1939;
+    protected DateTimeModule getDateTimeModule() {
+        return DateTimeModule.getInstance();
     }
 
     protected <T extends GenericPacket> RequestResult<T> requestDMPackets(String dmName,
@@ -61,22 +51,4 @@ public abstract class FunctionalModule {
         }
     }
 
-    /**
-     * Returns the Time formatted for the reports
-     *
-     * @return {@link String}
-     */
-    protected String getTime() {
-        return getDateTimeModule().getTime();
-    }
-
-    /**
-     * Sets the {@link J1939} that is used to communicate with the vehicle
-     *
-     * @param j1939
-     *         the {@link J1939} to set
-     */
-    public void setJ1939(J1939 j1939) {
-        this.j1939 = j1939;
-    }
 }

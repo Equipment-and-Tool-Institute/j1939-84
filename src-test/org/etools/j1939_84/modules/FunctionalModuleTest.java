@@ -40,7 +40,7 @@ public class FunctionalModuleTest {
 
     @Test
     public void testGetTimeoutMessage() {
-        assertEquals("Error: Timeout - No Response.", FunctionalModule.TIMEOUT_MESSAGE);
+        assertEquals("Error: Timeout - No Response.", J1939.TIMEOUT_MESSAGE);
     }
 
 }

@@ -124,11 +124,12 @@ public class J1939Test {
             System.err.format("### pre %d%n", System.currentTimeMillis());
             BusResult<VehicleIdentificationPacket> response = j1939.requestDS("test",
                                                                               J1939.getPgn(VehicleIdentificationPacket.class),
-                                                                              J1939.createRequestPacket(
-                                                                                                                                                VehicleIdentificationPacket.PGN,
-                                                                                                                                                0,
-                                                                                                                                                0xF9),
-                                                                              true,
+                                                                              Packet.create(0xEA00 | 0,
+                                                                                            0xF9,
+                                                                                            true,
+                                                                                            VehicleIdentificationPacket.PGN,
+                                                                                            VehicleIdentificationPacket.PGN >> 8,
+                                                                                            VehicleIdentificationPacket.PGN >> 16),
                                                                               ResultsListener.NOOP
             );
             System.err.format("### post %d%n", System.currentTimeMillis());
@@ -563,11 +564,11 @@ public class J1939Test {
                 .thenReturn(Stream.empty()).thenReturn(Stream.empty());
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
         Stream<VehicleIdentificationPacket> response = instance.<VehicleIdentificationPacket>requestGlobal(null,
-                                                                                                           ResultsListener.NOOP,
-                                                                                                           false,
                                                                                                            J1939.getPgn(
                                                                                                                    VehicleIdentificationPacket.class),
-                                                                                                           request)
+                                                                                                           request,
+                                                                                                           ResultsListener.NOOP
+        )
                 .getEither()
                 .stream()
                 .flatMap(e -> e.left.stream());
@@ -589,11 +590,11 @@ public class J1939Test {
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
 
         Stream<VehicleIdentificationPacket> response = instance.<VehicleIdentificationPacket>requestGlobal(null,
-                                                                                                           ResultsListener.NOOP,
-                                                                                                           false,
                                                                                                            J1939.getPgn(
                                                                                                                    VehicleIdentificationPacket.class),
-                                                                                                           request)
+                                                                                                           request,
+                                                                                                           ResultsListener.NOOP
+        )
                 .getEither()
                 .stream()
                 .flatMap(e -> e.left.stream());
@@ -616,11 +617,11 @@ public class J1939Test {
         Packet requestPacket = instance.createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
 
         List<AcknowledgmentPacket> responses = instance.<DM11ClearActiveDTCsPacket>requestGlobal(null,
-                                                                                                 ResultsListener.NOOP,
-                                                                                                 false,
                                                                                                  J1939.getPgn(
                                                                                                          DM11ClearActiveDTCsPacket.class),
-                                                                                                 requestPacket)
+                                                                                                 requestPacket,
+                                                                                                 ResultsListener.NOOP
+        )
                 .getEither()
                 .stream()
                 .map(e -> (AcknowledgmentPacket) e.resolve())
@@ -650,11 +651,11 @@ public class J1939Test {
 
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
         Stream<VehicleIdentificationPacket> response = instance.<VehicleIdentificationPacket>requestGlobal(null,
-                                                                                                           ResultsListener.NOOP,
-                                                                                                           false,
                                                                                                            J1939.getPgn(
                                                                                                                    VehicleIdentificationPacket.class),
-                                                                                                           request)
+                                                                                                           request,
+                                                                                                           ResultsListener.NOOP
+        )
                 .getEither()
                 .stream()
                 .flatMap(e -> e.left.stream());

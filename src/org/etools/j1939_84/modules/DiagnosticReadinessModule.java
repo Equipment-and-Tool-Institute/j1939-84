@@ -88,10 +88,8 @@ public class DiagnosticReadinessModule extends FunctionalModule {
         Packet request = getJ1939().createRequestPacket(DM5DiagnosticReadinessPacket.PGN, GLOBAL_ADDR);
 
         List<Integer> addresses = getJ1939().requestGlobal("Global DM5 Request",
-                                                           listener,
-                                                           false,
-                                                           DM5DiagnosticReadinessPacket.PGN,
-                                                           request)
+                                                           DM5DiagnosticReadinessPacket.PGN, request, listener
+        )
                 .getPackets()
                 .stream()
                 .filter(p -> p instanceof DM5DiagnosticReadinessPacket)

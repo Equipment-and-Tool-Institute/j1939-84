@@ -46,7 +46,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-                    justification = "The values returned are properly ignored on verify statements.")
+        justification = "The values returned are properly ignored on verify statements.")
 @RunWith(MockitoJUnitRunner.class)
 public class DiagnosticReadinessModuleTest {
 
@@ -79,14 +79,14 @@ public class DiagnosticReadinessModuleTest {
         monitoredSystems.add(new MonitoredSystem("System123", getStatus(true, true), 2, AC_SYSTEM_REFRIGERANT, true));
         monitoredSystems.add(new MonitoredSystem("System123", getStatus(true, true), 3, AC_SYSTEM_REFRIGERANT, true));
         monitoredSystems.add(new MonitoredSystem("System456",
-                getStatus(true, true),
-                1,
-                BOOST_PRESSURE_CONTROL_SYS,
-                true));
+                                                 getStatus(true, true),
+                                                 1,
+                                                 BOOST_PRESSURE_CONTROL_SYS,
+                                                 true));
         monitoredSystems.add(new MonitoredSystem("System456",
-                getStatus(true, false), 2, BOOST_PRESSURE_CONTROL_SYS, true));
+                                                 getStatus(true, false), 2, BOOST_PRESSURE_CONTROL_SYS, true));
         monitoredSystems.add(new MonitoredSystem("System456",
-                getStatus(false, false), 3, BOOST_PRESSURE_CONTROL_SYS, true));
+                                                 getStatus(false, false), 3, BOOST_PRESSURE_CONTROL_SYS, true));
         monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 1, CATALYST, true));
         monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 2, CATALYST, true));
         monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 3, CATALYST, true));
@@ -137,7 +137,7 @@ public class DiagnosticReadinessModuleTest {
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
@@ -182,7 +182,7 @@ public class DiagnosticReadinessModuleTest {
         DM20MonitorPerformanceRatioPacket packet3 = new DM20MonitorPerformanceRatioPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM20 Request" + NL;
@@ -281,17 +281,22 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 19, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet11.getPacket(),
-                packet2.getPacket(), packet22.getPacket(),
-                packet3.getPacket())).when(j1939).read(anyLong(), any());
+                           packet2.getPacket(), packet22.getPacket(),
+                           packet3.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18FECE00 [8] 11 22 14 44 55 66 77 88" + NL;
+        expected += "DM5 from Engine #1 (0): OBD Compliance: HD OBD (20), Active Codes: 17, Previously Active Codes: 34" + NL;
         expected += "10:15:30.0000 18FECE00 [8] 11 22 14 44 55 66 77 88" + NL;
+        expected += "DM5 from Engine #1 (0): OBD Compliance: HD OBD (20), Active Codes: 17, Previously Active Codes: 34" + NL;
         expected += "10:15:30.0000 18FECE17 [8] 01 02 03 04 05 06 07 08" + NL;
+        expected += "DM5 from Instrument Cluster #1 (23): OBD Compliance: OBD and OBD II (3), Active Codes: 1, Previously Active Codes: 2" + NL;
         expected += "10:15:30.0000 18FECE17 [8] 01 02 03 04 05 06 07 08" + NL;
+        expected += "DM5 from Instrument Cluster #1 (23): OBD Compliance: OBD and OBD II (3), Active Codes: 1, Previously Active Codes: 2" + NL;
         expected += "10:15:30.0000 18FECE21 [8] 10 20 13 40 50 60 70 80" + NL;
+        expected += "DM5 from Body Controller (33): OBD Compliance: HD OBD P (19), Active Codes: 16, Previously Active Codes: 32" + NL;
         expected += "Engine #1 (0) reported as an HD-OBD Module." + NL;
         expected += "Body Controller (33) reported as an HD-OBD Module." + NL;
 
@@ -341,7 +346,7 @@ public class DiagnosticReadinessModuleTest {
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
@@ -389,7 +394,7 @@ public class DiagnosticReadinessModuleTest {
         DM21DiagnosticReadinessPacket packet3 = new DM21DiagnosticReadinessPacket(
                 Packet.create(pgn | BUS_ADDR, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM21 Request" + NL;
@@ -437,7 +442,7 @@ public class DiagnosticReadinessModuleTest {
         DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
                 Packet.create(pgn, 0x21, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                any());
+                                                                                                            any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM5 Request" + NL;

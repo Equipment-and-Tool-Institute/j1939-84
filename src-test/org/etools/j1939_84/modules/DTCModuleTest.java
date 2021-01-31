@@ -5,7 +5,6 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
-import static org.etools.j1939_84.bus.j1939.J1939.REQUEST_PGN;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -264,7 +263,7 @@ public class DTCModuleTest {
         final int pgn = DM11ClearActiveDTCsPacket.PGN;
         DataRepository.getInstance().putObdModule(new OBDModuleInformation(0));
 
-        Packet requestPacket = Packet.create(REQUEST_PGN | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
@@ -315,7 +314,7 @@ public class DTCModuleTest {
 
         DataRepository.getInstance().putObdModule(new OBDModuleInformation(0));
 
-        Packet requestPacket1 = Packet.create(REQUEST_PGN | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        Packet requestPacket1 = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket1).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
@@ -363,7 +362,7 @@ public class DTCModuleTest {
     public void testRequestDM11WithManyModules() throws BusException {
         final int pgn = DM11ClearActiveDTCsPacket.PGN;
 
-        Packet requestPacket = Packet.create(REQUEST_PGN | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
@@ -405,7 +404,7 @@ public class DTCModuleTest {
         DataRepository.getInstance().putObdModule(new OBDModuleInformation(0x17));
         DataRepository.getInstance().putObdModule(new OBDModuleInformation(0x21));
 
-        Packet requestPacket = Packet.create(REQUEST_PGN | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         AcknowledgmentPacket packet1 = new AcknowledgmentPacket(

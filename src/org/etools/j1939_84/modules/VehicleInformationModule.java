@@ -13,9 +13,7 @@ import java.util.Collection;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
-import java.util.Optional;
 import java.util.Set;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Either;
@@ -29,9 +27,6 @@ import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
-import org.etools.j1939_84.bus.j1939.packets.HighResVehicleDistancePacket;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.bus.j1939.packets.TotalVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
@@ -252,7 +247,7 @@ public class VehicleInformationModule extends FunctionalModule {
                                                                                   int address) {
         Packet request = getJ1939().createRequestPacket(ComponentIdentificationPacket.PGN, address);
         return getJ1939().requestDS("DS Component Identification Request to " + Lookup.getAddressName(address),
-                                    ComponentIdentificationPacket.PGN, request, true, listener
+                                    ComponentIdentificationPacket.PGN, request, listener
         );
     }
 
@@ -290,36 +285,6 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public void reportEngineHours(ResultsListener listener) {
         getJ1939().requestGlobal("Engine Hours Request", EngineHoursPacket.class, listener);
-    }
-
-    /**
-     * Waits for the maximum Total Vehicle Distance from the vehicle and
-     * generates a {@link String} that's suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     */
-    public void reportVehicleDistance(ResultsListener listener) {
-        listener.onResult(getTime() + " Vehicle Distance");
-        Optional<HighResVehicleDistancePacket> hiResPacket = getJ1939()
-                .read(HighResVehicleDistancePacket.class, 3, TimeUnit.SECONDS)
-                .flatMap(e -> e.left.stream())
-                .filter(p -> p.getTotalVehicleDistance() != ParsedPacket.NOT_AVAILABLE
-                        && p.getTotalVehicleDistance() != ParsedPacket.ERROR)
-                .max(Comparator.comparingDouble(HighResVehicleDistancePacket::getTotalVehicleDistance));
-
-        Optional<? extends ParsedPacket> packet;
-        if (hiResPacket.isPresent()) {
-            packet = hiResPacket;
-        } else {
-            packet = getJ1939().read(TotalVehicleDistancePacket.class, 300, TimeUnit.MILLISECONDS)
-                    .flatMap(e -> e.left.stream())
-                    .filter(p -> p.getTotalVehicleDistance() != ParsedPacket.NOT_AVAILABLE
-                            && p.getTotalVehicleDistance() != ParsedPacket.ERROR)
-                    .max(Comparator.comparingDouble(TotalVehicleDistancePacket::getTotalVehicleDistance));
-        }
-
-        listener.onResult(packet.map(ParsedPacket::toString).orElse(TIMEOUT_MESSAGE));
     }
 
     /**

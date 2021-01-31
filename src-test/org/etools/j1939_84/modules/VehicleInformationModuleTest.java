@@ -20,11 +20,9 @@ import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
-import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -33,8 +31,6 @@ import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
-import org.etools.j1939_84.bus.j1939.packets.HighResVehicleDistancePacket;
-import org.etools.j1939_84.bus.j1939.packets.TotalVehicleDistancePacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -252,8 +248,6 @@ public class VehicleInformationModuleTest {
 
     @Test
     public void testReportAddressClaim() {
-        final int pgn = AddressClaimPacket.PGN;
-
         AddressClaimPacket packet1 = new AddressClaimPacket(Packet.parse("18EEFF55 10 F7 45 01 00 45 00 01"));
         AddressClaimPacket packet2 = new AddressClaimPacket(Packet.parse("18EEFF3D 00 00 00 00 00 00 00 00"));
         AddressClaimPacket packet3 = new AddressClaimPacket(Packet.parse("18EEFF00 00 00 40 05 00 00 65 14"));
@@ -269,8 +263,6 @@ public class VehicleInformationModuleTest {
 
     @Test
     public void testReportAddressClaimNoFunction0() {
-        final int pgn = AddressClaimPacket.PGN;
-
         AddressClaimPacket packet1 = new AddressClaimPacket(Packet.parse("18EEFF55 10 F7 45 01 00 45 00 01"));
         doReturn(new RequestResult<>(false, packet1))
                 .when(j1939).requestGlobal("Global Request for Address Claim", AddressClaimPacket.class, listener);
@@ -282,8 +274,6 @@ public class VehicleInformationModuleTest {
 
     @Test
     public void testReportAddressClaimNoResponse() {
-        final int pgn = AddressClaimPacket.PGN;
-
         doReturn(RequestResult.empty(), RequestResult.empty(), RequestResult.empty())
                 .when(j1939).requestGlobal("Global Request for Address Claim", AddressClaimPacket.class, NOOP);
         instance.reportAddressClaim(NOOP);
@@ -374,8 +364,6 @@ public class VehicleInformationModuleTest {
 
     @Test
     public void testReportComponentIdentificationWithNoResponse() {
-        final int pgn = ComponentIdentificationPacket.PGN;
-
         doReturn(RequestResult.empty()).when(j1939)
                 .requestGlobal("Global Component Identification Request", ComponentIdentificationPacket.class, NOOP);
         instance.reportComponentIdentification(NOOP);
@@ -461,90 +449,12 @@ public class VehicleInformationModuleTest {
 
     @Test
     public void testReportEngineHoursWithNoResponse() {
-        final int pgn = EngineHoursPacket.PGN;
-
         doReturn(RequestResult.empty()).when(j1939)
                 .requestGlobal("Engine Hours Request", EngineHoursPacket.class, NOOP);
 
         instance.reportEngineHours(NOOP);
 
         verify(j1939).requestGlobal("Engine Hours Request", EngineHoursPacket.class, NOOP);
-    }
-
-    @Test
-    public void testReportVehicleDistanceWithHiRes() {
-        final int pgn = HighResVehicleDistancePacket.PGN;
-        HighResVehicleDistancePacket packet0 = new HighResVehicleDistancePacket(
-                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
-        HighResVehicleDistancePacket packet1 = new HighResVehicleDistancePacket(
-                Packet.create(pgn, 0x01, 1, 1, 1, 1, 1, 1, 1, 1));
-        HighResVehicleDistancePacket packet2 = new HighResVehicleDistancePacket(
-                Packet.create(pgn, 0x02, 2, 2, 2, 2, 2, 2, 2, 2));
-        HighResVehicleDistancePacket packetFF = new HighResVehicleDistancePacket(
-                Packet.create(pgn, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF));
-
-        doReturn(Stream.of(packet0, packet1, packet2, packetFF).map(p -> new Either<>(p, null))).when(j1939)
-                .read(HighResVehicleDistancePacket.class, 3, TimeUnit.SECONDS);
-
-        String expected = "";
-        expected += "10:15:30.0000 Vehicle Distance" + NL;
-        expected += "High Resolution Vehicle Distance from Turbocharger (2): " + NL;
-        expected += "  SPN   917, Total Vehicle Distance (High Resolution): 168430090.000000 m" + NL;
-        expected += "  SPN   918, Trip Distance (High Resolution): 168430090.000000 m" + NL;
-        expected += NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        instance.reportVehicleDistance(listener);
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).read(HighResVehicleDistancePacket.class, 3, TimeUnit.SECONDS);
-    }
-
-    @Test
-    public void testReportVehicleDistanceWithLoRes() {
-        doReturn(Stream.empty()).when(j1939).read(HighResVehicleDistancePacket.class, 3, TimeUnit.SECONDS);
-        final int pgn = TotalVehicleDistancePacket.PGN;
-        TotalVehicleDistancePacket packet0 = new TotalVehicleDistancePacket(
-                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
-        TotalVehicleDistancePacket packet1 = new TotalVehicleDistancePacket(
-                Packet.create(pgn, 0x01, 1, 1, 1, 1, 1, 1, 1, 1));
-        TotalVehicleDistancePacket packet2 = new TotalVehicleDistancePacket(
-                Packet.create(pgn, 0x02, 2, 2, 2, 2, 2, 2, 2, 2));
-        TotalVehicleDistancePacket packetFF = new TotalVehicleDistancePacket(
-                Packet.create(pgn, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF));
-
-        doReturn(Stream.of(packet2, packet1, packet0, packetFF).map(p -> new Either<>(p, null))).when(j1939)
-                .read(TotalVehicleDistancePacket.class, 300, TimeUnit.MILLISECONDS);
-        String expected = "";
-        expected += "10:15:30.0000 Vehicle Distance" + NL;
-        expected += "Total Vehicle Distance from Turbocharger (2): " + NL;
-        expected += "  SPN   244, Trip Distance: 4210752.250000 km" + NL;
-        expected += "  SPN   245, Total Vehicle Distance: 4210752.250000 km" + NL;
-        expected += NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        instance.reportVehicleDistance(listener);
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).read(HighResVehicleDistancePacket.class, 3, TimeUnit.SECONDS);
-        verify(j1939).read(TotalVehicleDistancePacket.class, 300, TimeUnit.MILLISECONDS);
-    }
-
-    @Test
-    public void testReportVehicleDistanceWithNoResponse() {
-        doReturn(Stream.empty()).when(j1939).read(HighResVehicleDistancePacket.class, 3, TimeUnit.SECONDS);
-        doReturn(Stream.empty()).when(j1939).read(TotalVehicleDistancePacket.class, 300, TimeUnit.MILLISECONDS);
-
-        String expected = "";
-        expected += "10:15:30.0000 Vehicle Distance" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        instance.reportVehicleDistance(listener);
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).read(HighResVehicleDistancePacket.class, 3, TimeUnit.SECONDS);
-        verify(j1939).read(TotalVehicleDistancePacket.class, 300, TimeUnit.MILLISECONDS);
     }
 
     @Test
