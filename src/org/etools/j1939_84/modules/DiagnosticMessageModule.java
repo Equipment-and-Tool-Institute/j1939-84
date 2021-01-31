@@ -49,12 +49,6 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 
-/**
- * The Diagnostic Trouble Code Module that is responsible for Requesting or
- * Clearing the DTCs from the vehicle
- *
- * @author Matt Gumbel (matt@soliddesign.net)
- */
 public class DiagnosticMessageModule extends FunctionalModule {
 
     public DiagnosticMessageModule() {

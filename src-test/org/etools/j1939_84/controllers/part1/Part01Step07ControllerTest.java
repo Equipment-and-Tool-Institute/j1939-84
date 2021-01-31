@@ -96,7 +96,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
     @Mock
     private ReportFileModule reportFileModule;
-    
+
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
