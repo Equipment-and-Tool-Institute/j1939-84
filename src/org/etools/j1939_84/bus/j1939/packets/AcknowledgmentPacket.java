@@ -42,7 +42,7 @@ public class AcknowledgmentPacket extends GenericPacket {
         }
     }
 
-    public static final int PGN = 59392;
+    public static final int PGN = 59392; //0xE800
 
     private Response response;
 
