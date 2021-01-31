@@ -210,8 +210,8 @@ public class DiagnosticMessageModule extends FunctionalModule {
     public List<DM30ScaledTestResultsPacket> getDM30Packets(ResultsListener listener, int address, SupportedSPN spn) {
         int spnId = spn.getSpn();
         Packet request = createDM7Packet(address, spnId);
-        BusResult<DM30ScaledTestResultsPacket> result = getJ1939().requestDm7("DM7 for DM30 from " + Lookup.getAddressName(
-                address) + " for SPN " + spnId, listener, request);
+        String title = "DM7 for DM30 from " + Lookup.getAddressName(address) + " for SPN "+ spnId;
+        BusResult<DM30ScaledTestResultsPacket> result = getJ1939().requestDm7(title, listener, request);
         listener.onResult("");
         return result.requestResult().getPackets();
     }
