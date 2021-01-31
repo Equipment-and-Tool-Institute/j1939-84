@@ -18,7 +18,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Either;
-import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -215,7 +214,8 @@ public class VehicleInformationModule extends FunctionalModule {
         return requestDMPackets("DM19", DM19CalibrationInformationPacket.class, GLOBAL_ADDR, listener).getPackets();
     }
 
-    public BusResult<DM19CalibrationInformationPacket> reportCalibrationInformation(ResultsListener listener, int address) {
+    public BusResult<DM19CalibrationInformationPacket> reportCalibrationInformation(ResultsListener listener,
+                                                                                    int address) {
         return requestDMPackets("DM19", DM19CalibrationInformationPacket.class, address, listener).busResult();
     }
 
@@ -230,9 +230,9 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public RequestResult<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener) {
         listener.onResult("");
-        return  getJ1939().requestGlobal("Global Component Identification Request",
-                                         ComponentIdentificationPacket.class,
-                                         listener);
+        return getJ1939().requestGlobal("Global Component Identification Request",
+                                        ComponentIdentificationPacket.class,
+                                        listener);
     }
 
     /**
@@ -248,10 +248,10 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public BusResult<ComponentIdentificationPacket> reportComponentIdentification(ResultsListener listener,
                                                                                   int address) {
-        Packet request = getJ1939().createRequestPacket(ComponentIdentificationPacket.PGN, address);
         return getJ1939().requestDS("DS Component Identification Request to " + Lookup.getAddressName(address),
-                                    ComponentIdentificationPacket.PGN, request, listener
-        );
+                                    ComponentIdentificationPacket.class,
+                                    address,
+                                    listener);
     }
 
     /**
@@ -292,7 +292,7 @@ public class VehicleInformationModule extends FunctionalModule {
      *         the {@link ResultsListener} that will be given the report
      */
     public RequestResult<EngineHoursPacket> requestEngineHours(ResultsListener listener) {
-        return  getJ1939().requestGlobal("Global Engine Hours Request", EngineHoursPacket.class, listener);
+        return getJ1939().requestGlobal("Global Engine Hours Request", EngineHoursPacket.class, listener);
     }
 
     /**

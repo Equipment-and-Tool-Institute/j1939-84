@@ -15,9 +15,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
-import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
@@ -41,7 +39,6 @@ import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
@@ -125,7 +122,7 @@ public class DiagnosticMessageModule extends FunctionalModule {
     public List<AcknowledgmentPacket> requestDM11(ResultsListener listener) {
         listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
 
-        List<AcknowledgmentPacket> responses = getJ1939().requestDm11(listener);
+        List<AcknowledgmentPacket> responses = getJ1939().requestDM11(listener);
 
         if (!responses.isEmpty() && responses.stream().allMatch(t -> t.getResponse() == Response.ACK)) {
             listener.onResult("Diagnostic Trouble Codes were successfully cleared.");
@@ -209,9 +206,7 @@ public class DiagnosticMessageModule extends FunctionalModule {
 
     public List<DM30ScaledTestResultsPacket> getDM30Packets(ResultsListener listener, int address, SupportedSPN spn) {
         int spnId = spn.getSpn();
-        Packet request = createDM7Packet(address, spnId);
-        String title = "DM7 for DM30 from " + Lookup.getAddressName(address) + " for SPN "+ spnId;
-        BusResult<DM30ScaledTestResultsPacket> result = getJ1939().requestDm7(title, listener, request);
+        BusResult<DM30ScaledTestResultsPacket> result = getJ1939().requestDM7(spnId, address, listener);
         listener.onResult("");
         return result.requestResult().getPackets();
     }
@@ -246,20 +241,6 @@ public class DiagnosticMessageModule extends FunctionalModule {
 
     public List<DM56EngineFamilyPacket> requestDM56(ResultsListener listener) {
         return requestDMPackets("DM56", DM56EngineFamilyPacket.class, GLOBAL_ADDR, listener).getPackets();
-    }
-
-    private Packet createDM7Packet(int destination, int spn) {
-        return Packet.create(DM7CommandTestsPacket.PGN | destination,
-                             getJ1939().getBusAddress(),
-                             true,
-                             247,
-                             spn & 0xFF,
-                             (spn >> 8) & 0xFF,
-                             (((spn >> 16) & 0xFF) << 5) | 31,
-                             0xFF,
-                             0xFF,
-                             0xFF,
-                             0xFF);
     }
 
 }

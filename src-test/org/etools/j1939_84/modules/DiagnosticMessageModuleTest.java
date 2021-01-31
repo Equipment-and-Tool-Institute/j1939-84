@@ -77,7 +77,6 @@ public class DiagnosticMessageModuleTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         instance = new DiagnosticMessageModule();
         instance.setJ1939(j1939);
-        doReturn(BUS_ADDR).when(j1939).getBusAddress();
     }
 
     @After

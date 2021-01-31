@@ -7,6 +7,7 @@ import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static java.util.logging.Level.SEVERE;
 import static java.util.logging.Level.WARNING;
 import static org.etools.j1939_84.J1939_84.getLogger;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.BUSY;
 
 import java.util.Collection;
 import java.util.Collections;
@@ -26,7 +27,6 @@ import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.Packet.PacketException;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
@@ -71,7 +71,7 @@ import org.etools.j1939_84.modules.DateTimeModule;
  */
 public class J1939 {
 
-    public static final String TIMEOUT_MESSAGE = "Error: Timeout - No Response.";
+    private static final String TIMEOUT_MESSAGE = "Error: Timeout - No Response.";
 
     /**
      * The default time to wait for a response (200 ms + 10%)
@@ -98,7 +98,7 @@ public class J1939 {
         return results
                 .stream()
                 .filter(r -> r.resolve(p -> true, p -> {
-                    if (p.getResponse() != Response.BUSY) {
+                    if (p.getResponse() != BUSY) {
                         return true;
                     }
                     expectedAddressess.add(p.getSourceAddress());
@@ -213,7 +213,7 @@ public class J1939 {
      *
      * @return the address of the tool
      */
-    public int getBusAddress() {
+    private int getBusAddress() {
         return bus.getAddress();
     }
 
@@ -344,7 +344,7 @@ public class J1939 {
             return new VehicleIdentificationPacket(packet);
 
         default:
-            return new GenericPacket(packet, J1939DaRepository.getInstance().findPgnDefinition(pgn));
+            return new GenericPacket(packet);
         }
     }
 
@@ -376,7 +376,8 @@ public class J1939 {
      *         the {@link TimeUnit} for the timeout
      * @return the resulting packet
      */
-    public <T extends GenericPacket> Optional<Either<T, AcknowledgmentPacket>> read(Class<T> T, int addr,
+    public <T extends GenericPacket> Optional<Either<T, AcknowledgmentPacket>> read(Class<T> T,
+                                                                                    int addr,
                                                                                     long timeout,
                                                                                     TimeUnit unit) {
         if (addr == GLOBAL_ADDR) {
@@ -390,7 +391,7 @@ public class J1939 {
                     .findFirst()
                     .map(this::process);
         } catch (BusException e) {
-            getLogger().log(SEVERE, "Error reading packets", e);
+            severe("Error reading packets", e);
         }
         return Optional.empty();
     }
@@ -421,7 +422,7 @@ public class J1939 {
 
             return stream.map(this::process);
         } catch (BusException e) {
-            getLogger().log(SEVERE, "Error reading packets", e);
+            severe("Error reading packets", e);
         }
         return Stream.empty();
     }
@@ -431,38 +432,46 @@ public class J1939 {
         return bus.read(timeout, unit);
     }
 
-    /**
-     * Request DM30 with DM7
-     */
-    public BusResult<DM30ScaledTestResultsPacket> requestDm7(String title,
-                                                             ResultsListener listener,
-                                                             Packet request) {
-        if (request.getDestination() == GLOBAL_ADDR) {
+    public BusResult<DM30ScaledTestResultsPacket> requestDM7(int spn, int address, ResultsListener listener) {
+
+        if (address == GLOBAL_ADDR) {
             throw new IllegalArgumentException("DM7 request to global.");
         }
-        if (title != null) {
-            listener.onResult(getDateTimeModule().getTime() + " " + title);
-        }
+
+        Packet request = Packet.create(DM7CommandTestsPacket.PGN | address,
+                                       getBusAddress(),
+                                       true,
+                                       247,
+                                       spn & 0xFF,
+                                       (spn >> 8) & 0xFF,
+                                       (((spn >> 16) & 0xFF) << 5) | 31,
+                                       0xFF,
+                                       0xFF,
+                                       0xFF,
+                                       0xFF);
+
+        String title = "Sending DM7 for DM30 to " + Lookup.getAddressName(address) + " for SPN " + spn;
+        listener.onResult(getDateTimeModule().getTime() + " " + title);
+
         try {
             BusResult<DM30ScaledTestResultsPacket> result;
             for (int i = 0; true; i++) {
                 Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = read(DEFAULT_TIMEOUT,
                                                                                                 MILLISECONDS)
-                        .filter(dsFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(),
-                                         getBusAddress()))
+                        .filter(dsFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(), getBusAddress()))
                         .map(this::process);
                 Packet sent = bus.send(request);
                 if (sent != null) {
-                    listener.onResult(getDateTimeModule().format(sent.getTimestamp()) + " " + sent.toString());
+                    listener.onResult(toString(sent));
                 } else {
-                    getLogger().log(WARNING, "Failed to send: " + request);
+                    warn("Failed to send: " + request);
                 }
                 Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> first = stream.findFirst();
                 result = new BusResult<>(i > 0, first);
                 result.getPacket().ifPresentOrElse(p -> {
                                                        GenericPacket response = p.resolve();
                                                        Packet packet = response.getPacket();
-                                                       listener.onResult(getDateTimeModule().format(packet.getTimestamp()) + " " + packet.toString());
+                                                       listener.onResult(toString(packet));
                                                        listener.onResult(response.toString());
                                                    },
                                                    () -> listener.onResult(TIMEOUT_MESSAGE));
@@ -471,26 +480,24 @@ public class J1939 {
                         // valid packet
                         .map(e -> e.resolve(p -> true,
                                             // non-busy NACK
-                                            p -> !p.getResponse().equals(Response.BUSY)))
+                                            p -> !p.getResponse().equals(BUSY)))
                         .orElse(false)) {
                     break;
                 }
             }
             return result;
         } catch (BusException e) {
-            getLogger().log(SEVERE, "Error requesting DS packet", e);
+            severe("Error requesting DS packet", e);
             return new BusResult<>(true);
         }
     }
 
-    public List<AcknowledgmentPacket> requestDm11(ResultsListener listener) {
+    public List<AcknowledgmentPacket> requestDM11(ResultsListener listener) {
         listener.onResult(getDateTimeModule().getTime() + " " + "Global DM11 Request");
-
-        Packet requestPacket = createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
-        final int pgn = getPgn(DM11ClearActiveDTCsPacket.class);
-        var responses = requestGlobalOnce(pgn, requestPacket, listener);
-
-        return responses.stream()
+        int pgn = DM11ClearActiveDTCsPacket.PGN;
+        Packet requestPacket = createRequestPacket(pgn, GLOBAL_ADDR);
+        return requestGlobalOnce(pgn, requestPacket, listener)
+                .stream()
                 .flatMap(e -> e.right.stream())
                 .collect(Collectors.toList());
     }
@@ -519,7 +526,7 @@ public class J1939 {
             Optional<Either<T, AcknowledgmentPacket>> result = requestDSOnce(pgn, request, listener
             );
             if (result.isPresent()) {
-                if (result.get().right.map(a -> a.getResponse() == Response.BUSY).orElse(false)) {
+                if (result.get().right.map(a -> a.getResponse() == BUSY).orElse(false)) {
                     // busy. wait 200 ms and try again
                     getDateTimeModule().pauseFor(200);
                     retry = true;
@@ -552,9 +559,9 @@ public class J1939 {
                     .map(this::process);
             Packet sent = bus.send(request);
             if (sent != null) {
-                listener.onResult(getDateTimeModule().format(sent.getTimestamp()) + " " + sent.toString());
+                listener.onResult(toString(sent));
             } else {
-                getLogger().log(WARNING, "Failed to send: " + request);
+                warn("Failed to send: " + request);
             }
             Optional<Either<T, AcknowledgmentPacket>> result = stream.findFirst();
             result.ifPresentOrElse(p -> {
@@ -566,7 +573,7 @@ public class J1939 {
 
             return result;
         } catch (BusException e) {
-            getLogger().log(SEVERE, "Error requesting DS packet", e);
+            severe("Error requesting DS packet", e);
             return Optional.empty();
         }
     }
@@ -598,13 +605,10 @@ public class J1939 {
                                                                                                       listener));
 
         if (!results.keySet().containsAll(expectedAddressess)) {
-            // then not all OBD modules were heard, so re-request from global
-            // and combine results
+            // then not all OBD modules were heard, so re-request from global and combine results
             retry = true;
-            // replace old results with new successful results and NACKs. Treat
-            // busy NACK same as no response.
-            results.putAll(findTerminalResults(expectedAddressess,
-                                               requestGlobalOnce(pgn, requestPacket, listener)));
+            // replace old results with new successful results and NACKs. Treat busy NACK same as no response.
+            results.putAll(findTerminalResults(expectedAddressess, requestGlobalOnce(pgn, requestPacket, listener)));
         }
 
         if (!results.keySet().containsAll(expectedAddressess)) {
@@ -616,17 +620,15 @@ public class J1939 {
                         Packet dsRequest = createRequestPacket(pgn, sa);
                         Optional<Either<T, AcknowledgmentPacket>> response = requestDSOnce(pgn, dsRequest, listener);
 
-                        response.filter(r -> r.right.map(nack -> nack.getResponse() != Response.BUSY).orElse(true))
+                        response.filter(r -> r.right.map(nack -> nack.getResponse() != BUSY).orElse(true))
                                 .ifPresent(r -> results.put(sa, r));
 
                         if (!results.keySet().containsAll(expectedAddressess)) {
                             // still busy, try one last time
-                            getLogger().log(WARNING,
-                                            "first DS request after global busy NACK: " + dsRequest + " -> " + response);
+                            warn("first DS request after global busy NACK: " + dsRequest + " -> " + response);
                             response = requestDSOnce(pgn, dsRequest, listener);
                             if (response.flatMap(e -> e.left).isEmpty()) {
-                                getLogger().log(WARNING,
-                                                "second DS request after global busy NACK: " + dsRequest + " -> " + response);
+                                warn("second DS request after global busy NACK: " + dsRequest + " -> " + response);
                             }
                             response.ifPresent(r -> results.put(sa, r));
                         }
@@ -641,9 +643,9 @@ public class J1939 {
      * Request from global only once.
      */
     @SuppressWarnings("unchecked")
-    public <T extends GenericPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
-                                                                                             Packet request,
-                                                                                             ResultsListener listener) {
+    private <T extends GenericPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
+                                                                                              Packet request,
+                                                                                              ResultsListener listener) {
         if (request.getDestination() != GLOBAL_ADDR) {
             throw new IllegalArgumentException("Request not to global.");
         }
@@ -655,7 +657,7 @@ public class J1939 {
             if (sent != null) {
                 listener.onResult(sent.toTimeString());
             } else {
-                getLogger().log(WARNING, "Failed to send: " + request);
+                warn("Failed to send: " + request);
             }
             result = stream
                     .filter(globalFilter(pgn))
@@ -680,10 +682,22 @@ public class J1939 {
                 listener.onResult(TIMEOUT_MESSAGE);
             }
         } catch (BusException e) {
-            getLogger().log(SEVERE, "Error requesting packet", e);
+            severe("Error requesting packet", e);
             result = Collections.emptyList();
         }
         return result;
+    }
+
+    private String toString(Packet packet) {
+        return getDateTimeModule().format(packet.getTimestamp()) + " " + packet.toString();
+    }
+
+    private static void warn(String message) {
+        getLogger().log(WARNING, message);
+    }
+
+    private static void severe(String message, Throwable t) {
+        getLogger().log(SEVERE, message, t);
     }
 
 }
