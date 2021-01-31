@@ -15,7 +15,6 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -31,7 +30,6 @@ public class Part02Step15Controller extends StepController {
     private static final int TOTAL_STEPS = 0;
 
     private final DataRepository dataRepository;
-    private final DTCModule dtcModule;
 
     Part02Step15Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -40,7 +38,7 @@ public class Part02Step15Controller extends StepController {
              new VehicleInformationModule(),
              dataRepository,
              DateTimeModule.getInstance(),
-             new DTCModule());
+             new DiagnosticMessageModule());
     }
 
     Part02Step15Controller(Executor executor,
@@ -49,25 +47,24 @@ public class Part02Step15Controller extends StepController {
                            VehicleInformationModule vehicleInformationModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule,
-                           DTCModule dtcModule) {
+                           DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              diagnosticMessageModule,
+              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
         this.dataRepository = dataRepository;
-        this.dtcModule = dtcModule;
     }
 
     @Override
     protected void run() throws Throwable {
-        dtcModule.setJ1939(getJ1939());
 
         // 6.2.15.1.a. Global DM33 (send Request (PGN 59904) for PGN 41216 (SPNs 4124-4126)).
-        var globalPackets = dtcModule.requestDM33(getListener()).getPackets();
+        var globalPackets = getDiagnosticMessageModule().requestDM33(getListener()).getPackets();
 
         // 6.2.15.1.b. Create list of reported EI-AECD timers by ECU.
         //The timers are stored on the global packets
@@ -97,7 +94,7 @@ public class Part02Step15Controller extends StepController {
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
         var dsResponses = obdModuleAddresses
                 .stream()
-                .map(address -> dtcModule.requestDM33(getListener(), address))
+                .map(address -> getDiagnosticMessageModule().requestDM33(getListener(), address))
                 .collect(Collectors.toList());
 
         // 6.2.15.5.a. Fail if any difference is detected when response data is compared to data received

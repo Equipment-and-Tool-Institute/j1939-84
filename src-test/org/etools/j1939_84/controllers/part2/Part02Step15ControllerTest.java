@@ -26,8 +26,8 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -50,7 +50,7 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DTCModule dtcModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -86,9 +86,9 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
                                               vehicleInformationModule,
                                               dataRepository,
                                               DateTimeModule.getInstance(),
-                                              dtcModule);
+                                              diagnosticMessageModule);
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule, diagnosticMessageModule);
     }
 
     @After
@@ -97,7 +97,7 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 dtcModule,
+                                 diagnosticMessageModule,
                                  mockListener);
     }
 
@@ -124,8 +124,8 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoResponsesSIEngine() {
 
-        when(dtcModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
-        when(dtcModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -135,9 +135,8 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM33(any(), eq(0x00));
-        verify(dtcModule).requestDM33(any());
+        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM33(any());
 
         String expected = "";
         expected += "FAIL: 6.2.15.2.a - No ECU responded to the global request" + NL;
@@ -157,8 +156,8 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoResponsesCIEngine() {
 
-        when(dtcModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
-        when(dtcModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -168,9 +167,9 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM33(any(), eq(0x00));
-        verify(dtcModule).requestDM33(any());
+        
+        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM33(any());
 
         String expected = "";
         expected += "FAIL: 6.2.15.5.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
@@ -189,8 +188,8 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoResponsesCIEngine2024() {
 
-        when(dtcModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
-        when(dtcModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2024);
@@ -200,9 +199,9 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM33(any(), eq(0x00));
-        verify(dtcModule).requestDM33(any());
+        
+        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM33(any());
 
         String expected = "";
         expected += "FAIL: 6.2.15.2.a - No ECU responded to the global request" + NL;
@@ -223,9 +222,9 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
     public void testFailNoGlobalResponse() {
         var packet = create(0, EngineHoursTimer.create(0, 0, 0));
 
-        when(dtcModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
 
-        when(dtcModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false, packet));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -235,9 +234,9 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM33(any(), eq(0x00));
-        verify(dtcModule).requestDM33(any());
+        
+        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM33(any());
 
         String expected = "";
         expected += "FAIL: 6.2.15.2.a - No ECU responded to the global request" + NL;
@@ -264,9 +263,9 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
     public void testWarnValueOfFB() {
         var packet = create(0, EngineHoursTimer.create(0xFB, 0, 0));
 
-        when(dtcModule.requestDM33(any())).thenReturn(new RequestResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false, packet));
 
-        when(dtcModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false, packet));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -276,9 +275,9 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM33(any(), eq(0x00));
-        verify(dtcModule).requestDM33(any());
+        
+        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM33(any());
 
         String expected = "";
         expected += "WARN: 6.2.15.3.a - Engine #1 (0) responded 0xFB for EI-AECD number" + NL;
@@ -298,9 +297,9 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
         var globalPacket = create(0, EngineHoursTimer.create(1, 4, 10));
         var dsPacket = create(0, EngineHoursTimer.create(1, 7, 13));
 
-        when(dtcModule.requestDM33(any())).thenReturn(new RequestResult<>(false, globalPacket));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false, globalPacket));
 
-        when(dtcModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -310,9 +309,9 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM33(any(), eq(0x00));
-        verify(dtcModule).requestDM33(any());
+        
+        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM33(any());
 
         String expected = "";
         expected += "FAIL: 6.2.15.5.a - Engine #1 (0) reported EiAECD Timer 1 from timer 1 with a difference of 3 which is greater than 2 minutes" + NL;
