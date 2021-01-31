@@ -47,6 +47,24 @@ public class DiagnosticTroubleCode {
         oc = (data[3] & 0x7F);
     }
 
+    public static DiagnosticTroubleCode create(int spn, int fmi, int cm, int oc) {
+
+        //spn bytes 1 - 3 use the spn
+        byte spnByte1 = (byte) (spn & 0xFF);
+        byte spnByte2 = (byte) ((spn >> 8) & 0xFF);
+
+        byte spnByte3 = (byte) 0xFF;
+        spnByte3 &= (byte) (((spn >> 16) & 0xE0) + 0x1F);
+
+        int[] bytes = new int[4];
+        bytes[0] = spnByte1; //spn bytes 1
+        bytes[1] = spnByte2; //spn bytes 2
+        bytes[2] = (byte) (spnByte3 & fmi); // spn bytes 3 && fmi
+        bytes[3] = (byte) (((cm | 0x80) << 7 ) | (oc & 0x7F)); // cm & oc
+
+        return new DiagnosticTroubleCode(bytes);
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -101,10 +119,10 @@ public class DiagnosticTroubleCode {
     @Override
     public int hashCode() {
         return Objects.hash(getSuspectParameterNumber(),
-                getOccurrenceCount(),
-                getFailureModeIndicator(),
-                getConversionMethod(),
-                getSuspectParameterNumber());
+                            getOccurrenceCount(),
+                            getFailureModeIndicator(),
+                            getConversionMethod(),
+                            getSuspectParameterNumber());
     }
 
     @Override
