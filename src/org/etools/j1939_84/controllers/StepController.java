@@ -25,6 +25,7 @@ import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -38,11 +39,17 @@ public abstract class StepController extends Controller {
                              EngineSpeedModule engineSpeedModule,
                              BannerModule bannerModule,
                              VehicleInformationModule vehicleInformationModule,
+                             DiagnosticMessageModule diagnosticMessageModule,
                              DateTimeModule dateTimeModule,
                              int partNumber,
                              int stepNumber,
                              int totalSteps) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              dateTimeModule,
+              diagnosticMessageModule);
         this.partNumber = partNumber;
         this.stepNumber = stepNumber;
         this.totalSteps = totalSteps;

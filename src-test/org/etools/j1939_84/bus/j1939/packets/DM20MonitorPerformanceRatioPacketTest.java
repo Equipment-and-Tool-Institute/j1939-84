@@ -1,5 +1,5 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
@@ -95,7 +95,7 @@ public class DM20MonitorPerformanceRatioPacketTest {
         expected += "Ignition Cycles                                                    12" + NL;
         expected += "OBD Monitoring Conditions Encountered                               1" + NL;
         expected += "SPN 5322 AFT NMHC Converting Catalyst System Monitor       0 /      1" + NL;
-        expected += "SPN 4792 AFT 1 Selective Catalytic Reduction System        3 /      4" + NL;
+        expected += "SPN 4792 AFT 1 SCR System                                  3 /      4" + NL;
         expected += "SPN 5308 AFT 1 NOx Adsorber Catalyst System Monitor        5 /      6" + NL;
         expected += "]";
         assertEquals(expected, instance.toString());

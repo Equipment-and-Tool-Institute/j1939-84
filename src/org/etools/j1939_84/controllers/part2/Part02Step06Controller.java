@@ -11,6 +11,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -25,6 +26,7 @@ public class Part02Step06Controller extends StepController {
     private static final int TOTAL_STEPS = 0;
 
     private final DataRepository dataRepository;
+    private final DiagnosticMessageModule diagnosticMessageModule;
 
     Part02Step06Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -32,7 +34,8 @@ public class Part02Step06Controller extends StepController {
              new BannerModule(),
              new VehicleInformationModule(),
              dataRepository,
-             DateTimeModule.getInstance());
+             DateTimeModule.getInstance(),
+             new DiagnosticMessageModule());
     }
 
     Part02Step06Controller(Executor executor,
@@ -40,25 +43,29 @@ public class Part02Step06Controller extends StepController {
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
                            DataRepository dataRepository,
-                           DateTimeModule dateTimeModule) {
+                           DateTimeModule dateTimeModule,
+                           DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
-              dateTimeModule,
+              new DiagnosticMessageModule(), dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
         this.dataRepository = dataRepository;
+        this.diagnosticMessageModule = diagnosticMessageModule;
     }
 
     @Override
     protected void run() throws Throwable {
+        diagnosticMessageModule.setJ1939(getJ1939());
+
         // 6.2.6.1.a. DS DM56 (send Request (PGN 59904) for PGN 64711 (SPNs 5844 and 5845)) to each OBD ECU.
         for (int address : dataRepository.getObdModuleAddresses()) {
             String moduleName = Lookup.getAddressName(address);
             getListener().onResult("");
-            List<DM56EngineFamilyPacket> packets = getVehicleInformationModule().requestDM56(getListener(), address);
+            List<DM56EngineFamilyPacket> packets = diagnosticMessageModule.requestDM56(getListener(), address);
 
             // 6.2.6.2.a. Fail if any difference is found when compared to data received during part 1
             var obdModuleInfo = dataRepository.getObdModule(address);

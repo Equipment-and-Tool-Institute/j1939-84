@@ -19,6 +19,7 @@ import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -31,17 +32,28 @@ public class Part01Step01Controller extends StepController {
 
     Part01Step01Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-                new EngineSpeedModule(),
-                new BannerModule(),
-                new VehicleInformationModule(),
-                dataRepository,
-                DateTimeModule.getInstance());
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             dataRepository,
+             DateTimeModule.getInstance());
     }
 
-    Part01Step01Controller(Executor executor, EngineSpeedModule engineSpeedModule, BannerModule bannerModule,
-                           VehicleInformationModule vehicleInformationModule, DataRepository dataRepository, DateTimeModule dateTimeModule) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule,dateTimeModule,
-                PART_NUMBER, STEP_NUMBER, TOTAL_STEPS);
+    Part01Step01Controller(Executor executor,
+                           EngineSpeedModule engineSpeedModule,
+                           BannerModule bannerModule,
+                           VehicleInformationModule vehicleInformationModule,
+                           DataRepository dataRepository,
+                           DateTimeModule dateTimeModule) {
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              new DiagnosticMessageModule(),
+              dateTimeModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }
 
@@ -94,13 +106,16 @@ public class Part01Step01Controller extends StepController {
                 + NL;
         QuestionListener questionListener = answerType -> {
             //end test if user hits cancel button
-            if(answerType == CANCEL){
-                getListener().addOutcome(getPartNumber(), getStepNumber(), INCOMPLETE, "Stopping test - user ended test");
-                try{
+            if (answerType == CANCEL) {
+                getListener().addOutcome(getPartNumber(),
+                                         getStepNumber(),
+                                         INCOMPLETE,
+                                         "Stopping test - user ended test");
+                try {
                     getListener().onResult("User cancelled the test at Part " + getPartNumber() + " Step " + getStepNumber());
                     setEnding(Ending.STOPPED);
                     incrementProgress("User cancelled testing");
-                }catch (InterruptedException ignored){
+                } catch (InterruptedException ignored) {
                 }
             }
         };

@@ -22,7 +22,7 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -48,7 +48,7 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DTCModule dtcModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -84,7 +84,7 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              dtcModule,
+                                              diagnosticMessageModule,
                                               dateTimeModule,
                                               dataRepository);
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
@@ -96,7 +96,7 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 dtcModule,
+                                 diagnosticMessageModule,
                                  mockListener,
                                  dataRepository);
     }
@@ -120,12 +120,12 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
         when(dataRepository.isObdModule(1)).thenReturn(true);
         when(dataRepository.isObdModule(2)).thenReturn(false);
 
-        when(dtcModule.requestDM11(any())).thenReturn(acknowledgmentPackets);
+        when(diagnosticMessageModule.requestDM11(any())).thenReturn(acknowledgmentPackets);
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM11(any());
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM11(any());
 
         verify(mockListener).addOutcome(1, 10, FAIL, "6.1.10.3.a - The request for DM11 was NACK'ed by Engine #2 (1)");
         verify(mockListener).addOutcome(1, 10, WARN, "6.1.10.3.a - The request for DM11 was ACK'ed by Engine #1 (0)");
@@ -173,12 +173,12 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
 
         when(dataRepository.isObdModule(0)).thenReturn(true);
 
-        when(dtcModule.requestDM11(any())).thenReturn(List.of(acknowledgmentPacket));
+        when(diagnosticMessageModule.requestDM11(any())).thenReturn(List.of(acknowledgmentPacket));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM11(any());
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM11(any());
         verify(dataRepository).isObdModule(0);
 
         String expectedMessages = "";

@@ -19,7 +19,7 @@ public class EchoTest {
     public void failVin() throws BusException {
         Bus bus = new EchoBus(0xF9);
         assertFalse(
-                new J1939(bus).requestGlobalResult(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class)
+                new J1939(bus).requestGlobal(null, VehicleIdentificationPacket.class, ResultsListener.NOOP)
                         .getEither().stream().findFirst().isPresent());
     }
 
@@ -33,7 +33,7 @@ public class EchoTest {
 
             assertEquals(VIN,
                     new J1939(bus)
-                            .requestGlobalResult(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class)
+                            .requestGlobal(null, VehicleIdentificationPacket.class, ResultsListener.NOOP)
                             .getEither().stream()
                             .flatMap(e -> e.left.stream())
                             .findFirst()

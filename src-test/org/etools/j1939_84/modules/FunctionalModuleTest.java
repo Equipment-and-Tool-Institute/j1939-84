@@ -38,9 +38,4 @@ public class FunctionalModuleTest {
         assertEquals("10:15:30.0000", instance.getTime());
     }
 
-    @Test
-    public void testGetTimeoutMessage() {
-        assertEquals("Error: Timeout - No Response.", FunctionalModule.TIMEOUT_MESSAGE);
-    }
-
 }

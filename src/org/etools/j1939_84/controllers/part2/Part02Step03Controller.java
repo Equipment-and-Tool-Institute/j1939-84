@@ -18,7 +18,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.OBDTestsModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
@@ -33,14 +33,14 @@ public class Part02Step03Controller extends StepController {
     private static final int TOTAL_STEPS = 0;
 
     private final DataRepository dataRepository;
-    private final OBDTestsModule obdTestsModule;
+    private final DiagnosticMessageModule diagnosticMessageModule;
 
     Part02Step03Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new OBDTestsModule(),
+             new DiagnosticMessageModule(),
              dataRepository,
              DateTimeModule.getInstance());
     }
@@ -49,30 +49,30 @@ public class Part02Step03Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           OBDTestsModule obdTestsModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
-              dateTimeModule,
+              new DiagnosticMessageModule(), dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.obdTestsModule = obdTestsModule;
+        this.diagnosticMessageModule = diagnosticMessageModule;
         this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
-        obdTestsModule.setJ1939(getJ1939());
+        diagnosticMessageModule.setJ1939(getJ1939());
 
         // 6.2.3.1.a. DS DM24 (send Request (PGN 59904) for PGN 64950 (SPNs 3297, 4100-4103)) to each OBD ECU.
         List<DM24SPNSupportPacket> packets = dataRepository.getObdModuleAddresses()
                 .stream()
                 .sorted()
-                .map(address -> obdTestsModule.requestDM24(getListener(), address))
+                .map(address -> diagnosticMessageModule.requestDM24(getListener(), address))
                 .map(BusResult::getPacket)
                 .filter(Optional::isPresent)
                 .map(Optional::get)

@@ -16,7 +16,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -24,6 +23,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -40,7 +40,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 @TestDoc(value = @TestItem(verifies = "Part 2 Step 6",
-                           description = "DM56: Model year and certification engine family"))
+        description = "DM56: Model year and certification engine family"))
 public class Part02Step06ControllerTest extends AbstractControllerTest {
 
     private static DM56EngineFamilyPacket createDM56(String modelYear, String familyName) {
@@ -73,6 +73,9 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
+    
+    @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Before
     public void setUp() throws Exception {
@@ -98,7 +101,8 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
                 bannerModule,
                 vehicleInformationModule,
                 dataRepository,
-                DateTimeModule.getInstance());
+                DateTimeModule.getInstance(),
+                diagnosticMessageModule);
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
     }
@@ -106,61 +110,64 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                mockListener);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 mockListener,
+                                 diagnosticMessageModule);
     }
 
     @Test
     @TestDoc(value = @TestItem(verifies = "6.2.6.2.a",
-                               description = "Engine Family is different from part 1"))
+            description = "Engine Family is different from part 1"))
     public void testCompareEngineFamily() {
 
         DM56EngineFamilyPacket packet0 = createDM56("Model Year", "Engine Family");
-        when(vehicleInformationModule.requestDM56(any(), eq(0))).thenReturn(List.of(packet0));
+        when(diagnosticMessageModule.requestDM56(any(), eq(0))).thenReturn(List.of(packet0));
 
         DM56EngineFamilyPacket packet1 = createDM56("Model Year Other", "Engine Family Different");
-        when(vehicleInformationModule.requestDM56(any(), eq(1))).thenReturn(List.of(packet1));
+        when(diagnosticMessageModule.requestDM56(any(), eq(1))).thenReturn(List.of(packet1));
 
         runTest();
 
-        verify(vehicleInformationModule).requestDM56(any(), eq(0));
-        verify(vehicleInformationModule).requestDM56(any(), eq(1));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM56(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM56(any(), eq(1));
 
         verify(mockListener).addOutcome(2,
-                6,
-                FAIL,
-                "6.2.6.2.a - Engine #2 (1) reported different Engine Family Name when compared to data received in part 1");
+                                        6,
+                                        FAIL,
+                                        "6.2.6.2.a - Engine #2 (1) reported different Engine Family Name when compared to data received in part 1");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(NL + NL +
-                "FAIL: 6.2.6.2.a - Engine #2 (1) reported different Engine Family Name when compared to data received in part 1"
-                + NL,
-                listener.getResults());
+                             "FAIL: 6.2.6.2.a - Engine #2 (1) reported different Engine Family Name when compared to data received in part 1"
+                             + NL,
+                     listener.getResults());
     }
 
     @Test
     @TestDoc(value = @TestItem(verifies = "6.2.6.2.a",
-                               description = "Model year is different from part 1"))
+            description = "Model year is different from part 1"))
     public void testCompareModelYear() {
 
         DM56EngineFamilyPacket packet0 = createDM56("Model Year Different", "Engine Family");
-        when(vehicleInformationModule.requestDM56(any(), eq(0))).thenReturn(List.of(packet0));
+        when(diagnosticMessageModule.requestDM56(any(), eq(0))).thenReturn(List.of(packet0));
 
         DM56EngineFamilyPacket packet1 = createDM56("Model Year Other", "Engine Family Other");
-        when(vehicleInformationModule.requestDM56(any(), eq(1))).thenReturn(List.of(packet1));
+        when(diagnosticMessageModule.requestDM56(any(), eq(1))).thenReturn(List.of(packet1));
 
         runTest();
 
-        verify(vehicleInformationModule).requestDM56(any(), eq(0));
-        verify(vehicleInformationModule).requestDM56(any(), eq(1));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM56(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM56(any(), eq(1));
 
         verify(mockListener).addOutcome(2,
-                6,
-                FAIL,
-                "6.2.6.2.a - Engine #1 (0) reported different Model Year when compared to data received in part 1");
+                                        6,
+                                        FAIL,
+                                        "6.2.6.2.a - Engine #1 (0) reported different Model Year when compared to data received in part 1");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -172,19 +179,20 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
 
     @Test
     @TestDoc(value = @TestItem(verifies = "6.2.6.2.a",
-                               description = "Model year and Engine Family are same as part 1"))
+            description = "Model year and Engine Family are same as part 1"))
     public void testNoFailures() {
 
         DM56EngineFamilyPacket packet0 = createDM56("Model Year", "Engine Family");
-        when(vehicleInformationModule.requestDM56(any(), eq(0))).thenReturn(List.of(packet0));
+        when(diagnosticMessageModule.requestDM56(any(), eq(0))).thenReturn(List.of(packet0));
 
         DM56EngineFamilyPacket packet1 = createDM56("Model Year Other", "Engine Family Other");
-        when(vehicleInformationModule.requestDM56(any(), eq(1))).thenReturn(List.of(packet1));
+        when(diagnosticMessageModule.requestDM56(any(), eq(1))).thenReturn(List.of(packet1));
 
         runTest();
 
-        verify(vehicleInformationModule).requestDM56(any(), eq(0));
-        verify(vehicleInformationModule).requestDM56(any(), eq(1));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM56(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM56(any(), eq(1));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -194,13 +202,14 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoPackets() {
 
-        when(vehicleInformationModule.requestDM56(any(), eq(0))).thenReturn(List.of());
-        when(vehicleInformationModule.requestDM56(any(), eq(1))).thenReturn(List.of());
+        when(diagnosticMessageModule.requestDM56(any(), eq(0))).thenReturn(List.of());
+        when(diagnosticMessageModule.requestDM56(any(), eq(1))).thenReturn(List.of());
 
         runTest();
 
-        verify(vehicleInformationModule).requestDM56(any(), eq(0));
-        verify(vehicleInformationModule).requestDM56(any(), eq(1));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM56(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM56(any(), eq(1));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());

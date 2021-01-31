@@ -32,9 +32,7 @@ import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.modules.DTCModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
-import org.etools.j1939_84.modules.OBDTestsModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 public class SectionA5Verifier {
@@ -43,32 +41,24 @@ public class SectionA5Verifier {
     }
 
     private final DataRepository dataRepository;
-    private final DiagnosticReadinessModule diagnosticReadinessModule;
-    private final DTCModule dtcModule;
-    private final OBDTestsModule obdTestsModule;
+    private final DiagnosticMessageModule diagnosticMessageModule;
 
     private final VehicleInformationModule vehicleInformationModule;
 
     public SectionA5Verifier(DataRepository dataRepository) {
-        this(dataRepository, new DiagnosticReadinessModule(), new DTCModule(), new OBDTestsModule(), new VehicleInformationModule());
+        this(dataRepository, new DiagnosticMessageModule(), new VehicleInformationModule());
     }
 
     protected SectionA5Verifier(DataRepository dataRepository,
-            DiagnosticReadinessModule diagnosticReadinessModule,
-            DTCModule dtcModule,
-            OBDTestsModule obdTestsModule,
-            VehicleInformationModule vehicleInformationModule) {
+                                DiagnosticMessageModule diagnosticMessageModule,
+                                VehicleInformationModule vehicleInformationModule) {
         this.dataRepository = dataRepository;
-        this.diagnosticReadinessModule = diagnosticReadinessModule;
-        this.dtcModule = dtcModule;
-        this.obdTestsModule = obdTestsModule;
+        this.diagnosticMessageModule = diagnosticMessageModule;
         this.vehicleInformationModule = vehicleInformationModule;
     }
 
     public void setJ1939(J1939 j1939) {
-        diagnosticReadinessModule.setJ1939(j1939);
-        dtcModule.setJ1939(j1939);
-        obdTestsModule.setJ1939(j1939);
+        diagnosticMessageModule.setJ1939(j1939);
         vehicleInformationModule.setJ1939(j1939);
     }
 
@@ -142,7 +132,7 @@ public class SectionA5Verifier {
 
     public boolean verifyDM12(ResultsListener listener) {
         // b. DM12 active shall report no DTCs and MIL off and not flashing
-        List<DM12MILOnEmissionDTCPacket> dm12Packets = dtcModule.requestDM12(listener, true)
+        List<DM12MILOnEmissionDTCPacket> dm12Packets = diagnosticMessageModule.requestDM12(listener)
                 .getPackets()
                 .stream()
                 .filter(t -> (!t.getDtcs().isEmpty()) ||
@@ -170,8 +160,8 @@ public class SectionA5Verifier {
         // the same as it was before code clear for all values including the
         // number of ignition cycles, general denominators, monitor specific
         // numerators, and monitor specific denominators.
-        List<DM20MonitorPerformanceRatioPacket> dm20Packets = new ArrayList<>(diagnosticReadinessModule
-                .requestDM20(listener, true)
+        List<DM20MonitorPerformanceRatioPacket> dm20Packets = new ArrayList<>(diagnosticMessageModule
+                .requestDM20(listener)
                 .getPackets());
         if (!dm20Packets.equals(previousDM20Packets)) {
             StringBuilder failMessage = new StringBuilder(
@@ -196,7 +186,7 @@ public class SectionA5Verifier {
         // on and minutes run with MIL on
         // 5.b. DM21 diagnostic readiness 2 shall report 0 for distance since
         // code clear and minutes run since code clear
-        List<DM21DiagnosticReadinessPacket> dm21Packets = dtcModule.requestDM21(listener).getPackets()
+        List<DM21DiagnosticReadinessPacket> dm21Packets = diagnosticMessageModule.requestDM21(listener).getPackets()
                 .stream()
                 .filter(packet -> packet.getKmWhileMILIsActivated() != 0 ||
                         packet.getMinutesWhileMILIsActivated() != 0 ||
@@ -236,7 +226,7 @@ public class SectionA5Verifier {
     public boolean verifyDM23(ResultsListener listener) {
         // c. DM23 previously active shall report no DTCs and MIL off and not
         // flashing
-        List<DM23PreviouslyMILOnEmissionDTCPacket> dm23Packets = dtcModule.requestDM23(listener, true).getPackets()
+        List<DM23PreviouslyMILOnEmissionDTCPacket> dm23Packets = diagnosticMessageModule.requestDM23(listener).getPackets()
                 .stream()
                 .filter(t -> !t.getDtcs().isEmpty() ||
                         t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF)
@@ -265,7 +255,7 @@ public class SectionA5Verifier {
         // are zero based**)
         List<DM25ExpandedFreezeFrame> dm25Packets = obdModuleAddresses.stream()
                 // convert address to DM25
-                .flatMap(address -> dtcModule.requestDM25(listener, address).getPacket().stream())
+                .flatMap(address -> diagnosticMessageModule.requestDM25(listener, address).getPacket().stream())
                 // ignore DM25 NACKs
                 .flatMap(e -> e.left.stream())
                 // filter invalid DM25 out
@@ -304,7 +294,7 @@ public class SectionA5Verifier {
         // 5. Activity since code clear
         // a. DM26 diagnostic readiness 3 shall report 0 for number of warm-ups
         // since code clear
-        List<DM26TripDiagnosticReadinessPacket> dm26Packets = dtcModule.requestDM26(listener).getPackets()
+        List<DM26TripDiagnosticReadinessPacket> dm26Packets = diagnosticMessageModule.requestDM26(listener).getPackets()
                 .stream()
                 .filter(Objects::nonNull)
                 .filter(packet -> packet.getWarmUpsSinceClear() != 0)
@@ -329,7 +319,7 @@ public class SectionA5Verifier {
         // 8. Permanent DTCs
         // a. DM28 Permanent DTCs shall not be erased/still report any permanent
         // DTC that was present before code clear.
-        List<DM28PermanentEmissionDTCPacket> dm28Packets = dtcModule.requestDM28(listener, true).getPackets()
+        List<DM28PermanentEmissionDTCPacket> dm28Packets = diagnosticMessageModule.requestDM28(listener).getPackets()
                 .stream()
                 .filter(t -> t.getDtcs().size() != 0)
                 .collect(Collectors.toList());
@@ -357,7 +347,7 @@ public class SectionA5Verifier {
     public boolean verifyDM29(ResultsListener listener) {
         // d. DM29 shall report zero for number of pending, active, and
         // previously active DTCs
-        List<DM29DtcCounts> dm29Packets = dtcModule.requestDM29(listener).getPackets().stream()
+        List<DM29DtcCounts> dm29Packets = diagnosticMessageModule.requestDM29(listener).getPackets().stream()
                 .filter(Objects::nonNull)
                 .filter(t -> t.getAllPendingDTCCount() != 0 ||
                         t.getEmissionRelatedMILOnDTCCount() != 0 ||
@@ -383,7 +373,7 @@ public class SectionA5Verifier {
         // 3. MIL information
         // a. DM31 lamp status shall report no DTCs causing MIL on (if
         // supported, see section 6 provisions before section 6.1).
-        List<DM31DtcToLampAssociation> dm31Packets = dtcModule.requestDM31(listener).getPackets().stream()
+        List<DM31DtcToLampAssociation> dm31Packets = diagnosticMessageModule.requestDM31(listener).getPackets().stream()
                 .filter(Objects::nonNull)
                 .filter(t -> !t.getDtcLampStatuses().isEmpty())
                 .collect(Collectors.toList());
@@ -409,7 +399,7 @@ public class SectionA5Verifier {
         // a. DM33 EI-AECD information shall not be reset/cleared for any
         // non-zero values present before code clear.
         List<DM33EmissionIncreasingAECDActiveTime> dm33Packets = new ArrayList<>();
-        obdModuleAddresses.forEach(address -> dm33Packets.addAll(new ArrayList<>(dtcModule.requestDM33(listener, address).getPackets())));
+        obdModuleAddresses.forEach(address -> dm33Packets.addAll(new ArrayList<>(diagnosticMessageModule.requestDM33(listener, address).getPackets())));
 
         previousDM33Packets.sort(Comparator.comparingInt(ParsedPacket::getSourceAddress));
         dm33Packets.sort(Comparator.comparingInt(ParsedPacket::getSourceAddress));
@@ -434,7 +424,7 @@ public class SectionA5Verifier {
     public boolean verifyDM5(ResultsListener listener) {
         // e. DM5 shall report zero for number of active and previously active DTCs
         boolean passTest = true;
-        List<DM5DiagnosticReadinessPacket> dm5Packets = diagnosticReadinessModule.requestDM5(listener, true)
+        List<DM5DiagnosticReadinessPacket> dm5Packets = diagnosticMessageModule.requestDM5(listener)
                 .getPackets()
                 .stream()
                 .filter(Objects::nonNull)
@@ -486,7 +476,7 @@ public class SectionA5Verifier {
     public boolean verifyDM6(ResultsListener listener) {
         // 1. Emission-related DTCs
         // a. DM6 pending shall report no DTCs and MIL off and not flashing
-        List<DM6PendingEmissionDTCPacket> dm6Packets = dtcModule.requestDM6(listener)
+        List<DM6PendingEmissionDTCPacket> dm6Packets = diagnosticMessageModule.requestDM6(listener)
                 .getPackets()
                 .stream()
                 .filter(t -> (!t.getDtcs().isEmpty()) ||
@@ -516,8 +506,7 @@ public class SectionA5Verifier {
         obdModuleAddresses.forEach(address -> {
             for (SupportedSPN supportedSPN : dataRepository.getObdModule(address).getTestResultSpns()) {
                 dm30Packets.addAll(
-                        obdTestsModule.requestDM30Packets(listener, address, supportedSPN.getSpn())
-                                .getPackets()
+                        diagnosticMessageModule.getDM30Packets(listener, address, supportedSPN)
                                 .stream()
                                 .filter(packet -> packet.getTestResults().size() != 0)
                                 .filter(p -> {

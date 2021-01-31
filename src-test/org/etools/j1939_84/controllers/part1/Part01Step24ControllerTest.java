@@ -25,7 +25,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -55,7 +55,7 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DTCModule dtcModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -89,7 +89,7 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              dtcModule,
+                                              diagnosticMessageModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -102,7 +102,7 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 dtcModule,
+                                 diagnosticMessageModule,
                                  mockListener);
     }
 
@@ -139,7 +139,7 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
         };
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN, 0x00, data));
 
-        when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
         obdInfo.setSupportedSpns(List.of(SupportedSPN.create(123, true, true, true, 1)));
@@ -147,8 +147,8 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM25(any(), eq(0x00));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM25(any(), eq(0x00));
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
@@ -168,13 +168,13 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
         obdInfo.setSupportedSpns(List.of(SupportedSPN.create(123, true, true, true, 1)));
         dataRepository.putObdModule(obdInfo);
 
-        when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(true));
+        when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(true));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).setJ1939(j1939);
 
-        verify(dtcModule).requestDM25(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM25(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -195,7 +195,7 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
                                                                                    0xFF,
                                                                                    0xFF));
 
-        when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
         obdInfo.setSupportedSpns(List.of(SupportedSPN.create(123, true, true, true, 1)));
@@ -203,8 +203,8 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM25(any(), eq(0x00));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM25(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

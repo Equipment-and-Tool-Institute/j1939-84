@@ -89,7 +89,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private OBDTestsModule obdTestsModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private ReportFileModule reportFileModule;
@@ -111,7 +111,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                obdTestsModule,
+                diagnosticMessageModule,
                 supportedSpnModule,
                 dataRepository,
                 DateTimeModule.getInstance());
@@ -125,7 +125,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                obdTestsModule,
+                                 diagnosticMessageModule,
                 dataRepository,
                 mockListener,
                 supportedSpnModule);
@@ -144,7 +144,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModules()).thenReturn(Collections.emptyList());
         when(dataRepository.getObdModule(0)).thenReturn(null);
 
-        when(obdTestsModule.requestDM24(any(), eq(0)))
+        when(diagnosticMessageModule.requestDM24(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet1));
 
         when(dataRepository.getObdModules()).thenReturn(obdInfoList);
@@ -155,8 +155,8 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(obdTestsModule).setJ1939(j1939);
-        verify(obdTestsModule).requestDM24(any(), eq(0));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
 
         verify(dataRepository).getObdModule(0);
         verify(dataRepository, atLeastOnce()).getObdModules();
@@ -218,9 +218,9 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
 
-        when(obdTestsModule.requestDM24(any(), eq(0)))
+        when(diagnosticMessageModule.requestDM24(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet1));
-        when(obdTestsModule.requestDM24(any(), eq(1)))
+        when(diagnosticMessageModule.requestDM24(any(), eq(1)))
                 .thenReturn(new BusResult<>(true, packet4));
 
         when(dataRepository.getObdModules()).thenReturn(obdInfoList);
@@ -231,9 +231,9 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(obdTestsModule).setJ1939(j1939);
-        verify(obdTestsModule).requestDM24(any(), eq(0));
-        verify(obdTestsModule).requestDM24(any(), eq(1));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM24(any(), eq(1));
 
         verify(dataRepository).getObdModule(0);
 
@@ -314,7 +314,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                               0x5C, 0x00, 0x1B, 0x01, 0x00, 0x02, 0x1B, 0x01, 0x01, 0x02, 0x1B, 0x01));
 
         BusResult<DM24SPNSupportPacket> result1 = new BusResult<>(false, packet1);
-        when(obdTestsModule.requestDM24(any(), eq(0))).thenReturn(result1);
+        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(result1);
 
         //@formatter:off
         DM24SPNSupportPacket packet4 = new DM24SPNSupportPacket(Packet.create(DM24SPNSupportPacket.PGN,
@@ -354,7 +354,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         //@formatter:on
 
         BusResult<DM24SPNSupportPacket> result4 = new BusResult<>(false, packet4);
-        when(obdTestsModule.requestDM24(any(), eq(1))).thenReturn(result4);
+        when(diagnosticMessageModule.requestDM24(any(), eq(1))).thenReturn(result4);
 
         VehicleInformation vehicleInfo = mock(VehicleInformation.class);
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInfo);
@@ -365,9 +365,9 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(obdTestsModule).setJ1939(j1939);
-        verify(obdTestsModule).requestDM24(any(), eq(0));
-        verify(obdTestsModule).requestDM24(any(), eq(1));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM24(any(), eq(1));
 
         verify(dataRepository).getObdModule(0);
         verify(dataRepository).getObdModule(1);

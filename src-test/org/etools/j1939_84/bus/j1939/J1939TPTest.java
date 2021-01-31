@@ -559,7 +559,12 @@ public class J1939TPTest {
             Stream<Packet> rxStream = bus.read(500, TimeUnit.MILLISECONDS);
             run(() -> {
                 Stream<Packet> stream = tp.read(100, TimeUnit.MILLISECONDS);
-                tp.send(J1939.createRequestPacket(0xEA00, 0xF9, tp.getAddress()));
+                tp.send(Packet.create(0xEA00 | 0xF9,
+                                      tp.getAddress(),
+                                      true,
+                                      0xEA00,
+                                      0xEA00 >> 8,
+                                      0xEA00 >> 16));
                 stream.findFirst()
                         .ifPresentOrElse(p -> result.complete(p),
                                 () -> result.completeExceptionally(success));
@@ -605,7 +610,12 @@ public class J1939TPTest {
             run(() -> {
                 long start = System.currentTimeMillis();
                 Stream<Packet> stream = tp.read(220, TimeUnit.MILLISECONDS);
-                tp.send(J1939.createRequestPacket(0xEA00, 0xF9, tp.getAddress()));
+                tp.send(Packet.create(0xEA00 | 0xF9,
+                                      tp.getAddress(),
+                                      true,
+                                      0xEA00,
+                                      0xEA00 >> 8,
+                                      0xEA00 >> 16));
                 stream.findFirst()
                         .ifPresentOrElse(p -> result.complete(p),
                                 () -> result.completeExceptionally(

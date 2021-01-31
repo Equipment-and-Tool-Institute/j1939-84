@@ -229,13 +229,9 @@ public class UserInterfacePresenterTest {
     public void testOnAdapterComboBoxItemSelectedWithFile() throws Exception {
         File file = File.createTempFile("test", ".j1939-84");
         instance.setReportFile(file);
-        when(rp1210Bus.getAddress()).thenReturn(0xF9);
 
         instance.onAdapterComboBoxItemSelected("Adapter1");
         executor.run();
-
-        J1939 actual = instance.getNewJ1939();
-        assertEquals(0xF9, actual.getBusAddress());
 
         InOrder inOrder = inOrder(view);
         inOrder.verify(view).setVin("");
@@ -258,7 +254,6 @@ public class UserInterfacePresenterTest {
 
         verify(rp1210).getAdapters();
         verify(rp1210).setAdapter(adapter1, 0xF9);
-        verify(rp1210Bus).getAddress();
     }
 
     @Test

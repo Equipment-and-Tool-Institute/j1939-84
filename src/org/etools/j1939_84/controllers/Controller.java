@@ -18,6 +18,7 @@ import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -118,9 +119,6 @@ public abstract class Controller {
         }
     }
 
-    /**
-     * The possible ending for an execution cycle
-     */
     protected enum Ending {
         ABORTED("Aborted"), COMPLETED("Completed"), FAILED("Failed"), STOPPED("Stopped");
 
@@ -136,101 +134,56 @@ public abstract class Controller {
         }
     }
 
-    /**
-     * The Endings that indicate the procedure should be halted
-     */
-    private static final List<Ending> INTERUPPTABLE_ENDINGS = Arrays
-            .asList(Ending.STOPPED, Ending.ABORTED, Ending.FAILED);
+    private static final List<Ending> INTERUPPTABLE_ENDINGS = List.of(Ending.STOPPED, Ending.ABORTED, Ending.FAILED);
 
-    /**
-     * The {@link BannerModule} used to generate the headers and footers
-     */
     private final BannerModule bannerModule;
 
-    /**
-     * The {@link CompositeResultsListener} use to combine listeners into one
-     */
     private CompositeResultsListener compositeListener;
 
-    /**
-     * The current step in the controller execution
-     */
     private static int currentStep;
 
-    /**
-     * How the execution ended
-     */
     private static Ending ending;
 
-    /**
-     * The {@link EngineSpeedModule} used to determine if the engine is
-     * communicating
-     */
     private final EngineSpeedModule engineSpeedModule;
 
-    /**
-     * The {@link Executor} used to run the task
-     */
     private final Executor executor;
 
-    /**
-     * The {@link J1939} use for vehicle communications
-     */
     private J1939 j1939;
 
-    /**
-     * The maximum number of steps in the controller execution
-     */
     private static int maxSteps;
 
     private final PartResultRepository partResultRepository;
 
-    /**
-     * The {@link VehicleInformationModule} used to read general information
-     * from the vehicle
-     */
     private final VehicleInformationModule vehicleInformationModule;
 
-    /**
-     * The {@link DateTimeModule} used to read general information
-     * from the vehicle
-     */
     private final DateTimeModule dateTimeModule;
 
-    /**
-     * Constructor
-     *
-     * @param executor
-     *         the {@link Executor} used to run the process.
-     * @param engineSpeedModule
-     *         the {@link EngineSpeedModule} that will determine if the
-     *         engine is communicating
-     * @param bannerModule
-     *         the {@link BannerModule} used to generate the headers and
-     *         footers for the report
-     * @param vehicleInformationModule
-     *         the {@link VehicleInformationModule} that will gather general
-     *         information from the vehicle for the report
-     * @param dateTimeModule
-     *         the {@link DateTimeModule} that will for time tracking
-     */
-    protected Controller(Executor executor, EngineSpeedModule engineSpeedModule,
-                         BannerModule bannerModule,
-                         VehicleInformationModule vehicleInformationModule,
-                         DateTimeModule dateTimeModule) {
-        this(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule, PartResultRepository.getInstance());
-    }
+    private final DiagnosticMessageModule diagnosticMessageModule;
 
-    protected Controller(Executor executor, EngineSpeedModule engineSpeedModule,
+    protected Controller(Executor executor,
+                         EngineSpeedModule engineSpeedModule,
                          BannerModule bannerModule,
                          VehicleInformationModule vehicleInformationModule,
                          DateTimeModule dateTimeModule,
+                         DiagnosticMessageModule diagnosticMessageModule) {
+        this(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule,
+             diagnosticMessageModule,
+             PartResultRepository.getInstance());
+    }
+
+    protected Controller(Executor executor,
+                         EngineSpeedModule engineSpeedModule,
+                         BannerModule bannerModule,
+                         VehicleInformationModule vehicleInformationModule,
+                         DateTimeModule dateTimeModule,
+                         DiagnosticMessageModule diagnosticMessageModule,
                          PartResultRepository partResultRepository) {
         this.executor = executor;
         this.engineSpeedModule = engineSpeedModule;
         this.bannerModule = bannerModule;
         this.vehicleInformationModule = vehicleInformationModule;
         this.dateTimeModule = dateTimeModule;
+        this.diagnosticMessageModule = diagnosticMessageModule;
         this.partResultRepository = partResultRepository;
     }
 
@@ -278,8 +231,8 @@ public abstract class Controller {
      * @throws InterruptedException
      *         if the ending has been set
      */
-    private void checkEnding() throws InterruptedException {
-        if (INTERUPPTABLE_ENDINGS.contains(getEnding())) {
+    private static void checkEnding() throws InterruptedException {
+        if (getEnding() != null && INTERUPPTABLE_ENDINGS.contains(getEnding())) {
             throw new InterruptedException(getEnding().toString());
         }
     }
@@ -358,7 +311,7 @@ public abstract class Controller {
     /**
      * @return the ending
      */
-    protected Ending getEnding() {
+    protected static Ending getEnding() {
         return ending;
     }
 
@@ -440,13 +393,12 @@ public abstract class Controller {
         return getDateTimeModule().getTime();
     }
 
-    /**
-     * Returns the {@link VehicleInformationModule}
-     *
-     * @return {@link VehicleInformationModule}
-     */
     protected VehicleInformationModule getVehicleInformationModule() {
         return vehicleInformationModule;
+    }
+
+    protected DiagnosticMessageModule getDiagnosticMessageModule() {
+        return diagnosticMessageModule;
     }
 
     /**
@@ -491,8 +443,8 @@ public abstract class Controller {
      * @throws InterruptedException
      *         if the ending was set to ABORTED or STOPPED
      */
-    protected void setEnding(Ending ending) throws InterruptedException {
-        this.ending = ending;
+    protected static void setEnding(Ending ending) throws InterruptedException {
+        Controller.ending = ending;
         checkEnding();
     }
 
@@ -506,6 +458,7 @@ public abstract class Controller {
         this.j1939 = j1939;
         getVehicleInformationModule().setJ1939(this.j1939);
         getEngineSpeedModule().setJ1939(this.j1939);
+        getDiagnosticMessageModule().setJ1939(this.j1939);
     }
 
     /**

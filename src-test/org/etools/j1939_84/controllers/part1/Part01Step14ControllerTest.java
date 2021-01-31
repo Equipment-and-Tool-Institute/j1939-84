@@ -25,7 +25,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -54,7 +54,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DTCModule dtcModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -90,7 +90,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                dtcModule,
+                diagnosticMessageModule,
                 dataRepository,
                 DateTimeModule.getInstance());
 
@@ -103,7 +103,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 dtcModule,
+                                 diagnosticMessageModule,
                                  mockListener);
     }
 
@@ -115,12 +115,12 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
     public void testEmptyPacketFailure() {
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
 
-        when(dtcModule.requestDM26(any())).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM26(any())).thenReturn(new RequestResult<>(false));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM26(any());
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM26(any());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.14.2.f - No OBD ECU provided DM26");
 
@@ -152,16 +152,16 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         obdModule3.setMonitoredSystems(obdPacket3.getMonitoredSystems());
         dataRepository.putObdModule(obdModule3);
 
-        when(dtcModule.requestDM26(any())).thenReturn(new RequestResult<>(false, packet1, packet3));
-        when(dtcModule.requestDM26(any(), eq(0x01))).thenReturn(new RequestResult<>(false, packet1));
-        when(dtcModule.requestDM26(any(), eq(0x03))).thenReturn(new RequestResult<>(false, obdPacket3));
+        when(diagnosticMessageModule.requestDM26(any())).thenReturn(new RequestResult<>(false, packet1, packet3));
+        when(diagnosticMessageModule.requestDM26(any(), eq(0x01))).thenReturn(new RequestResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM26(any(), eq(0x03))).thenReturn(new RequestResult<>(false, obdPacket3));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM26(any());
-        verify(dtcModule).requestDM26(any(), eq(0x01));
-        verify(dtcModule).requestDM26(any(), eq(0x03));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM26(any());
+        verify(diagnosticMessageModule).requestDM26(any(), eq(0x01));
+        verify(diagnosticMessageModule).requestDM26(any(), eq(0x03));
 
         verify(mockListener).addOutcome(
                 1,
@@ -359,14 +359,14 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         obdModule1.setMonitoredSystems(obdPacket1.getMonitoredSystems());
         dataRepository.putObdModule(obdModule1);
 
-        when(dtcModule.requestDM26(any())).thenReturn(new RequestResult<>(false, packet1, packet3));
-        when(dtcModule.requestDM26(any(), eq(0x01))).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM26(any())).thenReturn(new RequestResult<>(false, packet1, packet3));
+        when(diagnosticMessageModule.requestDM26(any(), eq(0x01))).thenReturn(new RequestResult<>(false));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM26(any());
-        verify(dtcModule).requestDM26(any(), eq(0x01));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM26(any());
+        verify(diagnosticMessageModule).requestDM26(any(), eq(0x01));
 
         verify(mockListener).addOutcome(
                 1,
@@ -530,14 +530,14 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         obdModule1.setMonitoredSystems(packet1.getMonitoredSystems());
         dataRepository.putObdModule(obdModule1);
 
-        when(dtcModule.requestDM26(any())).thenReturn(new RequestResult<>(false, packet1));
-        when(dtcModule.requestDM26(any(), eq(0x01))).thenReturn(new RequestResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM26(any())).thenReturn(new RequestResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM26(any(), eq(0x01))).thenReturn(new RequestResult<>(false, packet1));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM26(any());
-        verify(dtcModule).requestDM26(any(), eq(0x01));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM26(any());
+        verify(diagnosticMessageModule).requestDM26(any(), eq(0x01));
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
