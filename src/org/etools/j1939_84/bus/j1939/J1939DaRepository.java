@@ -327,6 +327,8 @@ public class J1939DaRepository {
         label = label.replaceAll("Aftertreatment", "AFT");
         label = label.replaceAll("Diesel Particulate Filter", "DPF");
         label = label.replaceAll("Diesel Exhaust Fluid", "DEF");
+        label = label.replaceAll("Selective Catalytic Reduction", "SCR");
+        label = label.replaceAll("Exhaust Gas Recirculation", "EGR");
         return label;
     }
 

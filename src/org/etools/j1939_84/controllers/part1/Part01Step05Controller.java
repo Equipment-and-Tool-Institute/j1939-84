@@ -3,11 +3,13 @@ package org.etools.j1939_84.controllers.part1;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
@@ -28,7 +30,7 @@ public class Part01Step05Controller extends StepController {
              new VehicleInformationModule(),
              new VinDecoder(),
              dataRepository,
-                DateTimeModule.getInstance());
+             DateTimeModule.getInstance());
     }
 
     Part01Step05Controller(Executor executor,
@@ -42,6 +44,7 @@ public class Part01Step05Controller extends StepController {
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              new DiagnosticMessageModule(),
               dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
@@ -86,7 +89,7 @@ public class Part01Step05Controller extends StepController {
             addWarning(1, 5, "6.1.5.3.a - Non-OBD ECU responded with VIN");
         }
 
-        long respondingSources = packets.stream().mapToInt(p -> p.getSourceAddress()).distinct().count();
+        long respondingSources = packets.stream().mapToInt(ParsedPacket::getSourceAddress).distinct().count();
         if (packets.size() > respondingSources) {
             addWarning(1, 5, "6.1.5.3.b - More than one VIN response from an ECU");
         }

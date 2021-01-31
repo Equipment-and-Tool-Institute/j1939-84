@@ -4,7 +4,7 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.modules.DiagnosticReadinessModule.getCompositeSystems;
+import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -20,7 +20,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -37,7 +37,6 @@ public class Part01Step13Controller extends StepController {
 
     private final DataRepository dataRepository;
 
-    private final DiagnosticReadinessModule diagnosticReadinessModule;
     private final SectionA6Validator sectionA6Validator;
 
     Part01Step13Controller(DataRepository dataRepository) {
@@ -45,7 +44,7 @@ public class Part01Step13Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DiagnosticReadinessModule(),
+             new DiagnosticMessageModule(),
              dataRepository,
              new SectionA6Validator(dataRepository),
              DateTimeModule.getInstance());
@@ -55,7 +54,7 @@ public class Part01Step13Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticReadinessModule diagnosticReadinessModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            DataRepository dataRepository,
                            SectionA6Validator sectionA6Validator,
                            DateTimeModule dateTimeModule) {
@@ -63,11 +62,11 @@ public class Part01Step13Controller extends StepController {
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              diagnosticMessageModule,
               dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dataRepository = dataRepository;
         this.sectionA6Validator = sectionA6Validator;
     }
@@ -75,10 +74,8 @@ public class Part01Step13Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        diagnosticReadinessModule.setJ1939(getJ1939());
-
         // 6.1.13.1.a. Global DM5 (send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)).
-        RequestResult<DM5DiagnosticReadinessPacket> response = diagnosticReadinessModule.requestDM5(getListener(), true);
+        RequestResult<DM5DiagnosticReadinessPacket> response = getDiagnosticMessageModule().requestDM5(getListener());
         List<DM5DiagnosticReadinessPacket> obdGlobalPackets = response.getPackets().stream()
                 .filter(DM5DiagnosticReadinessPacket::isObd)
                 .collect(Collectors.toList());
@@ -135,7 +132,7 @@ public class Part01Step13Controller extends StepController {
         // 6.1.13.3.a. DS DM5 to each OBD ECU.
         List<BusResult<DM5DiagnosticReadinessPacket>> destinationSpecificPackets = obdAddresses
                 .stream()
-                .map(address -> diagnosticReadinessModule.requestDM5(getListener(), true, address))
+                .map(address -> getDiagnosticMessageModule().requestDM5(getListener(), address))
                 .collect(Collectors.toList());
 
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.

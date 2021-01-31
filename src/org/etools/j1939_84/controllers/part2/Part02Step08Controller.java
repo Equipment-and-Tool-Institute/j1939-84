@@ -4,7 +4,7 @@
 package org.etools.j1939_84.controllers.part2;
 
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static org.etools.j1939_84.modules.DiagnosticReadinessModule.getCompositeSystems;
+import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
 
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
@@ -22,7 +22,7 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -38,14 +38,14 @@ public class Part02Step08Controller extends StepController {
 
     private final DataRepository dataRepository;
 
-    private final DTCModule dtcModule;
+    private final DiagnosticMessageModule diagnosticMessageModule;
 
     Part02Step08Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DTCModule(),
+             new DiagnosticMessageModule(),
              dataRepository,
              DateTimeModule.getInstance());
     }
@@ -54,25 +54,25 @@ public class Part02Step08Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DTCModule dtcModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
-              dateTimeModule,
+              new DiagnosticMessageModule(), dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dtcModule = dtcModule;
+        this.diagnosticMessageModule = diagnosticMessageModule;
         this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
 
-        dtcModule.setJ1939(getJ1939());
+        diagnosticMessageModule.setJ1939(getJ1939());
 
         // 6.2.8.1.a. DS DM26 (send Request (PGN 59904) for PGN 64952 (SPNs 3301-3305)) to each OBD ECU.
         List<DM26TripDiagnosticReadinessPacket> dsPackets = new ArrayList<>();
@@ -81,7 +81,7 @@ public class Part02Step08Controller extends StepController {
             int address = obdModuleInformation.getSourceAddress();
             String moduleName = Lookup.getAddressName(address);
 
-            RequestResult<DM26TripDiagnosticReadinessPacket> result = dtcModule.requestDM26(getListener(), address);
+            RequestResult<DM26TripDiagnosticReadinessPacket> result = diagnosticMessageModule.requestDM26(getListener(), address);
             var resultPackets = result.getPackets();
             if (resultPackets != null) {
                 dsPackets.addAll(resultPackets);
@@ -128,7 +128,7 @@ public class Part02Step08Controller extends StepController {
         reportDuplicateCompositeSystems(dsPackets, "6.2.8.3.a");
 
         // 6.2.8.4.a Global DM26.
-        var globalPackets = dtcModule.requestDM26(getListener()).getPackets();
+        var globalPackets = diagnosticMessageModule.requestDM26(getListener()).getPackets();
 
         // 6.2.8.4.b Record time since engine start (SPN 3301) from each ECU and timestamp of when message was received.
         // This is accomplished by keeping around the packets received.

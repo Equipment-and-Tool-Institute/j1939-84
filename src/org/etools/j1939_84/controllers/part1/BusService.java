@@ -79,11 +79,7 @@ public class BusService {
     public Stream<GenericPacket> dsRequest(int pgn, int moduleAddress, String message) {
         listener.onResult("");
         Packet requestPacket = j1939.createRequestPacket(pgn, moduleAddress);
-        return j1939.requestDS(message,
-                listener,
-                true,
-                pgn,
-                requestPacket)
+        return j1939.requestDS(message, pgn, requestPacket, listener)
                 .getPacket()
                 .stream()
                 .filter(p -> p.left.isPresent())
@@ -128,10 +124,8 @@ public class BusService {
         listener.onResult("");
         Packet requestPacket = j1939.createRequestPacket(pgn, J1939.GLOBAL_ADDR);
         RequestResult<GenericPacket> globalResult = j1939.requestGlobal(message,
-                listener,
-                true,
-                pgn,
-                requestPacket);
+                                                                        pgn, requestPacket, listener
+        );
         return globalResult
                 .getEither()
                 .stream()

@@ -170,15 +170,15 @@ public class DM24SPNSupportPacketTest {
         expected += "  SPN 1327 - Engine Cylinder 5 Misfire Rate" + NL;
         expected += "  SPN 1328 - Engine Cylinder 6 Misfire Rate" + NL;
         expected += "  SPN 2630 - Engine Charge Air Cooler 1 Outlet Temperature" + NL;
-        expected += "  SPN 2659 - Engine Exhaust Gas Recirculation 1 Mass Flow Rate" + NL;
+        expected += "  SPN 2659 - Engine EGR 1 Mass Flow Rate" + NL;
         expected += "  SPN 3216 - Engine Exhaust 1 NOx 1" + NL;
         expected += "  SPN 3471 - AFT 1 Fuel Pressure Control Actuator" + NL;
         expected += "  SPN 3556 - AFT 1 Hydrocarbon Doser 1" + NL;
         expected += "  SPN 4257 - Engine Fuel 1 Injector Group 3" + NL;
-        expected += "  SPN 4752 - Engine Exhaust Gas Recirculation 1 Cooler Efficiency" + NL;
+        expected += "  SPN 4752 - Engine EGR 1 Cooler Efficiency" + NL;
         expected += "]" + NL;
         expected += "(Supports Data Stream Results) [" + NL;
-        expected += "  SPN 27 - Engine Exhaust Gas Recirculation 1 Valve Position" + NL;
+        expected += "  SPN 27 - Engine EGR 1 Valve Position" + NL;
         expected += "  SPN 51 - Engine Throttle Valve 1 Position 1" + NL;
         expected += "  SPN 84 - Wheel-Based Vehicle Speed" + NL;
         expected += "  SPN 91 - Accelerator Pedal Position 1" + NL;
@@ -227,7 +227,7 @@ public class DM24SPNSupportPacketTest {
         expected += "  SPN 1418 - Engine Cylinder 6 Ignition Timing" + NL;
         expected += "  SPN 1761 - AFT 1 DEF Tank Volume" + NL;
         expected += "  SPN 2623 - Accelerator Pedal #1 Channel 2" + NL;
-        expected += "  SPN 2791 - Engine Exhaust Gas Recirculation 1 Valve 1 Control 1" + NL;
+        expected += "  SPN 2791 - Engine EGR 1 Valve 1 Control 1" + NL;
         expected += "  SPN 3069 - Distance Travelled While MIL is Activated" + NL;
         expected += "  SPN 3216 - Engine Exhaust 1 NOx 1" + NL;
         expected += "  SPN 3226 - AFT 1 Outlet NOx 1" + NL;
@@ -257,7 +257,7 @@ public class DM24SPNSupportPacketTest {
         expected += "  SPN 5837 - Fuel Type" + NL;
         expected += "]" + NL;
         expected += "(Supports Freeze Frame Results) [" + NL;
-        expected += "  SPN 27 - Engine Exhaust Gas Recirculation 1 Valve Position" + NL;
+        expected += "  SPN 27 - Engine EGR 1 Valve Position" + NL;
         expected += "  SPN 51 - Engine Throttle Valve 1 Position 1" + NL;
         expected += "  SPN 84 - Wheel-Based Vehicle Speed" + NL;
         expected += "  SPN 91 - Accelerator Pedal Position 1" + NL;
@@ -295,7 +295,7 @@ public class DM24SPNSupportPacketTest {
         expected += "  SPN 1417 - Engine Cylinder 5 Ignition Timing" + NL;
         expected += "  SPN 1418 - Engine Cylinder 6 Ignition Timing" + NL;
         expected += "  SPN 1761 - AFT 1 DEF Tank Volume" + NL;
-        expected += "  SPN 2791 - Engine Exhaust Gas Recirculation 1 Valve 1 Control 1" + NL;
+        expected += "  SPN 2791 - Engine EGR 1 Valve 1 Control 1" + NL;
         expected += "  SPN 3031 - AFT 1 DEF Tank Temperature 1" + NL;
         expected += "  SPN 3216 - Engine Exhaust 1 NOx 1" + NL;
         expected += "  SPN 3226 - AFT 1 Outlet NOx 1" + NL;

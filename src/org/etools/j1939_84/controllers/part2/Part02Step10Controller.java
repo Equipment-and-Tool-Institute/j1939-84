@@ -15,7 +15,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.OBDTestsModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /*
@@ -28,7 +28,7 @@ public class Part02Step10Controller extends StepController {
     private static final int TOTAL_STEPS = 0;
 
     private final DataRepository dataRepository;
-    private final OBDTestsModule obdTestsModule;
+    private final DiagnosticMessageModule diagnosticMessageModule;
 
     Part02Step10Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -36,7 +36,7 @@ public class Part02Step10Controller extends StepController {
              new BannerModule(),
              dataRepository,
              new VehicleInformationModule(),
-             new OBDTestsModule(),
+             new DiagnosticMessageModule(),
              DateTimeModule.getInstance());
     }
 
@@ -45,24 +45,24 @@ public class Part02Step10Controller extends StepController {
                            BannerModule bannerModule,
                            DataRepository dataRepository,
                            VehicleInformationModule vehicleInformationModule,
-                           OBDTestsModule obdTestsModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
-              dateTimeModule,
+              new DiagnosticMessageModule(), dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
         this.dataRepository = dataRepository;
-        this.obdTestsModule = obdTestsModule;
+        this.diagnosticMessageModule = diagnosticMessageModule;
     }
 
     @Override
     protected void run() throws Throwable {
 
-        obdTestsModule.setJ1939(getJ1939());
+        diagnosticMessageModule.setJ1939(getJ1939());
 
         for (OBDModuleInformation obdModule : dataRepository.getObdModules()) {
 
@@ -72,7 +72,7 @@ public class Part02Step10Controller extends StepController {
             //6.2.10.1.a. DS DM7 to each OBD ECU with TID 247+ for each DM24 SPN +FMI 31 provided by OBD ECU’s DM24 response.
             List<ScaledTestResult> newTestResults = obdModule.getTestResultSpns()
                     .stream()
-                    .flatMap(spn -> obdTestsModule.getDM30Packets(getListener(), sourceAddress, spn).stream())
+                    .flatMap(spn -> diagnosticMessageModule.getDM30Packets(getListener(), sourceAddress, spn).stream())
                     .flatMap(p -> p.getTestResults().stream())
                     .collect(Collectors.toList());
 

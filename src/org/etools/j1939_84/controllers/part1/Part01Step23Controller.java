@@ -11,7 +11,7 @@ import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -28,40 +28,36 @@ public class Part01Step23Controller extends StepController {
     private static final int STEP_NUMBER = 23;
     private static final int TOTAL_STEPS = 0;
 
-    private final DTCModule dtcModule;
-
     Part01Step23Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DTCModule(), DateTimeModule.getInstance());
+             new DiagnosticMessageModule(), DateTimeModule.getInstance());
     }
 
     Part01Step23Controller(Executor executor,
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DTCModule dtcModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              diagnosticMessageModule,
               dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dtcModule = dtcModule;
     }
 
     @Override
     protected void run() throws Throwable {
 
-        dtcModule.setJ1939(getJ1939());
-
         // 6.1.23.1.a. Global DM31 (send Request (PGN 59904) for PGN 41728 (SPNs 1214-1215, 4113, 4117)).
-        RequestResult<DM31DtcToLampAssociation> globalResponse = dtcModule.requestDM31(getListener());
+        RequestResult<DM31DtcToLampAssociation> globalResponse = getDiagnosticMessageModule().requestDM31(getListener());
 
         boolean isMILon = globalResponse.getPackets().stream()
                 .flatMap(p -> p.getDtcLampStatuses().stream())

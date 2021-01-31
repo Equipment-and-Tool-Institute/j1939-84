@@ -3,9 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
-
-import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -18,7 +15,7 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -37,14 +34,12 @@ public class Part01Step19Controller extends StepController {
 
     private final DataRepository dataRepository;
 
-    private final DTCModule dtcModule;
-
     Part01Step19Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DTCModule(),
+             new DiagnosticMessageModule(),
              dataRepository,
              DateTimeModule.getInstance());
     }
@@ -53,18 +48,18 @@ public class Part01Step19Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DTCModule dtcModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              diagnosticMessageModule,
               dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dtcModule = dtcModule;
         this.dataRepository = dataRepository;
     }
 
@@ -72,10 +67,8 @@ public class Part01Step19Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        dtcModule.setJ1939(getJ1939());
-
         // 6.1.19.1.a. Global DM23 (send Request (PGN 59904) for PGN 64949 (SPNs 1213-1215, 3038, 1706)).
-        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> globalResponse = dtcModule.requestDM23(getListener(), true);
+        RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> globalResponse = getDiagnosticMessageModule().requestDM23(getListener());
         // 6.1.19.1.c. Fail if no OBD ECU provides DM23.
         List<DM23PreviouslyMILOnEmissionDTCPacket> globalPackets = globalResponse.getPackets();
         if (globalPackets.isEmpty()) {
@@ -100,7 +93,7 @@ public class Part01Step19Controller extends StepController {
         // 6.1.19.3.a. DS DM23 to each OBD ECU.
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
         List<BusResult<DM23PreviouslyMILOnEmissionDTCPacket>> dsResults = obdModuleAddresses.stream()
-                .map(address -> dtcModule.requestDM23(getListener(), true, address))
+                .map(address -> getDiagnosticMessageModule().requestDM23(getListener(), address))
                 .collect(Collectors.toList());
 
         // 6.1.19.4.a. Fail if any difference compared to data received during global request.

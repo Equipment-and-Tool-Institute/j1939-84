@@ -14,6 +14,7 @@ import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -25,10 +26,10 @@ public class Part01Step02Controller extends StepController {
 
     Part01Step02Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
-                new EngineSpeedModule(),
-                new BannerModule(),
-                new VehicleInformationModule(),
-                DateTimeModule.getInstance());
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             DateTimeModule.getInstance());
     }
 
     Part01Step02Controller(Executor executor,
@@ -37,13 +38,14 @@ public class Part01Step02Controller extends StepController {
                            VehicleInformationModule vehicleInformationModule,
                            DateTimeModule dateTimeModule) {
         super(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dateTimeModule,
-                PART_NUMBER,
-                STEP_NUMBER,
-                TOTAL_STEPS);
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              new DiagnosticMessageModule(),
+              dateTimeModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
     }
 
     @Override
@@ -54,18 +56,24 @@ public class Part01Step02Controller extends StepController {
 
                 QuestionListener questionListener = answerType -> {
                     //end test if user hits cancel button
-                    if(answerType == CANCEL){
-                        getListener().addOutcome(getPartNumber(), getStepNumber(), INCOMPLETE, "Stopping test - user ended test");
-                        try{
+                    if (answerType == CANCEL) {
+                        getListener().addOutcome(getPartNumber(),
+                                                 getStepNumber(),
+                                                 INCOMPLETE,
+                                                 "Stopping test - user ended test");
+                        try {
                             getListener().onResult("User cancelled the test at Part " + getPartNumber() + " Step " + getStepNumber());
                             setEnding(Ending.STOPPED);
                             incrementProgress("User cancelled testing");
-                        }catch (InterruptedException ignored){
+                        } catch (InterruptedException ignored) {
 
                         }
                     }
                 };
-                getListener().onUrgentMessage("Please turn the Engine OFF with Key ON.", "Adjust Key Switch", WARNING, questionListener);
+                getListener().onUrgentMessage("Please turn the Engine OFF with Key ON.",
+                                              "Adjust Key Switch",
+                                              WARNING,
+                                              questionListener);
 
                 while (!getEngineSpeedModule().isEngineNotRunning() && getEnding() == null) {
                     updateProgress("Waiting for Key ON, Engine OFF...");

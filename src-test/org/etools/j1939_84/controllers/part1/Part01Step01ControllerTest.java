@@ -48,7 +48,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 @TestDoc(description = "Part 1 Step 1 KOEO Data Collection")
-public class Part01Part01Step01ControllerTest {
+public class Part01Step01ControllerTest {
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 1;
     @Mock

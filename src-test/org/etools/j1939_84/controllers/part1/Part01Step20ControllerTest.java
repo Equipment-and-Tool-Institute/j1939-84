@@ -28,7 +28,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -59,7 +59,7 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DTCModule dtcModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -93,7 +93,7 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              dtcModule,
+                                              diagnosticMessageModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -107,7 +107,7 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  dataRepository,
-                                 dtcModule,
+                                 diagnosticMessageModule,
                                  mockListener);
     }
 
@@ -121,17 +121,17 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
         List<Integer> obdModuleAddresses = Collections.singletonList(0x01);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
-        when(dtcModule.requestDM28(any(), eq(true)))
+        when(diagnosticMessageModule.requestDM28(any()))
                 .thenReturn(new RequestResult<>(false, Collections.emptyList(), Collections.emptyList()));
-        when(dtcModule.requestDM28(any(), eq(true), eq(0x01)))
+        when(diagnosticMessageModule.requestDM28(any(), eq(0x01)))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM28(any(), eq(true));
-        verify(dtcModule).requestDM28(any(), eq(true), eq(0x01));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM28(any());
+        verify(diagnosticMessageModule).requestDM28(any(), eq(0x01));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.20.2.c - No OBD ECU provided a DM28");
@@ -165,21 +165,21 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
         DM28PermanentEmissionDTCPacket obdPacket3 = new DM28PermanentEmissionDTCPacket(
                 Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
 
-        when(dtcModule.requestDM28(any(), eq(true)))
+        when(diagnosticMessageModule.requestDM28(any()))
                 .thenReturn(new RequestResult<>(false, Arrays.asList(packet1, packet3), Collections.emptyList()));
 
-        when(dtcModule.requestDM28(any(), eq(true), eq(0x01)))
+        when(diagnosticMessageModule.requestDM28(any(), eq(0x01)))
                 .thenReturn(new BusResult<>(false, packet1));
-        when(dtcModule.requestDM28(any(), eq(true), eq(0x03)))
+        when(diagnosticMessageModule.requestDM28(any(), eq(0x03)))
                 .thenReturn(new BusResult<>(false, obdPacket3));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM28(any(), eq(true));
-        verify(dtcModule).requestDM28(any(), eq(true), eq(0x01));
-        verify(dtcModule).requestDM28(any(), eq(true), eq(0x03));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM28(any());
+        verify(diagnosticMessageModule).requestDM28(any(), eq(0x01));
+        verify(diagnosticMessageModule).requestDM28(any(), eq(0x03));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                                   "6.1.20.2.a - An ECU reported permanent DTCs");
@@ -245,21 +245,21 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
         DM28PermanentEmissionDTCPacket packet3b = new DM28PermanentEmissionDTCPacket(
                 Packet.create(PGN, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
 
-        when(dtcModule.requestDM28(any(), eq(true)))
+        when(diagnosticMessageModule.requestDM28(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet3),
                                                 Collections.singletonList(ackPacket)));
-        when(dtcModule.requestDM28(any(), eq(true), eq(0x01)))
+        when(diagnosticMessageModule.requestDM28(any(), eq(0x01)))
                 .thenReturn(new BusResult<>(false, packet1));
-        when(dtcModule.requestDM28(any(), eq(true), eq(0x03)))
+        when(diagnosticMessageModule.requestDM28(any(), eq(0x03)))
                 .thenReturn(new BusResult<>(false, packet3b));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM28(any(), eq(true));
-        verify(dtcModule).requestDM28(any(), eq(true), eq(0x01));
-        verify(dtcModule).requestDM28(any(), eq(true), eq(0x03));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM28(any());
+        verify(diagnosticMessageModule).requestDM28(any(), eq(0x01));
+        verify(diagnosticMessageModule).requestDM28(any(), eq(0x03));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.20.2.a - An ECU reported permanent DTCs");
@@ -296,17 +296,17 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
         List<Integer> obdModuleAddresses = Collections.singletonList(0x01);
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
-        when(dtcModule.requestDM28(any(), eq(true)))
+        when(diagnosticMessageModule.requestDM28(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet1), Collections.emptyList()));
-        when(dtcModule.requestDM28(any(), eq(true), eq(0x01)))
+        when(diagnosticMessageModule.requestDM28(any(), eq(0x01)))
                 .thenReturn(new BusResult<>(false, packet1));
 
         runTest();
         verify(dataRepository).getObdModuleAddresses();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM28(any(), eq(true));
-        verify(dtcModule).requestDM28(any(), eq(true), eq(0x01));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM28(any());
+        verify(diagnosticMessageModule).requestDM28(any(), eq(0x01));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

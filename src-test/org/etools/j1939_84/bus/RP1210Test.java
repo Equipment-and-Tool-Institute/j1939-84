@@ -65,12 +65,12 @@ public class RP1210Test {
         {
             final Class<DM29DtcCounts> cls = DM29DtcCounts.class;
             new J1939(tpBus)
-                    .requestGlobalResult("Request " + cls, new TestResultsListener() {
+                    .requestGlobal("Request " + cls, cls, new TestResultsListener() {
                         @Override
                         public void onResult(String result) {
                             System.err.println("RST: " + result);
                         }
-                    }, false, cls)
+                    })
                     .getEither()
                     .stream()
                     .map(pa -> pa.resolve())

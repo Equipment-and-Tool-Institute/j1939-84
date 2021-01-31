@@ -283,7 +283,7 @@ public class AddressClaimPacket extends GenericPacket {
             names.add(new Name(0, 0, "Non-specific System", 144, "Throttle"));
             names.add(new Name(0, 0, "Non-specific System", 145, "Inertial Sensor"));
             names.add(new Name(0, 0, "Non-specific System", 146, "Fuel Actuator"));
-            names.add(new Name(0, 0, "Non-specific System", 147, "Engine Exhaust Gas Recirculation"));
+            names.add(new Name(0, 0, "Non-specific System", 147, "Engine EGR"));
             names.add(new Name(0, 0, "Non-specific System", 148, "Engine Exhaust Backpressure"));
             names.add(new Name(0, 0, "Non-specific System", 149, "On-board bin weighing scale"));
             names.add(new Name(0, 0, "Non-specific System", 150, "On-board bin weighing scale display"));
