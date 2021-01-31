@@ -17,6 +17,7 @@ import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -50,6 +51,7 @@ public class Part01Step27Controller extends StepController {
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              new DiagnosticMessageModule(),
               dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
@@ -105,7 +107,10 @@ public class Part01Step27Controller extends StepController {
             QuestionListener questionListener = answerType -> {
                 // end test if user doesn't want to continue
                 if (answerType == NO) {
-                    getListener().addOutcome(getPartNumber(), getStepNumber(), INCOMPLETE, "Stopping test - user ended test");
+                    getListener().addOutcome(getPartNumber(),
+                                             getStepNumber(),
+                                             INCOMPLETE,
+                                             "Stopping test - user ended test");
                     try {
                         getListener().onResult("User cancelled the test at Part " + getPartNumber() + " Step " + getStepNumber());
                         setEnding(Ending.STOPPED);

@@ -17,11 +17,12 @@ import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
+ * 6.1.8 DM20: Monitor Performance Ratio
  * @author Garrison Garland (garrison@soliddesign.net)
  */
 public class Part01Step08Controller extends StepController {
@@ -32,14 +33,12 @@ public class Part01Step08Controller extends StepController {
 
     private final DataRepository dataRepository;
 
-    private final DiagnosticReadinessModule diagnosticReadinessModule;
-
     Part01Step08Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DiagnosticReadinessModule(),
+             new DiagnosticMessageModule(),
              dataRepository,
              DateTimeModule.getInstance());
     }
@@ -48,18 +47,18 @@ public class Part01Step08Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticReadinessModule diagnosticReadinessModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              diagnosticMessageModule,
               dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.diagnosticReadinessModule = diagnosticReadinessModule;
         this.dataRepository = dataRepository;
     }
 
@@ -82,11 +81,9 @@ public class Part01Step08Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.1.8 DM20: Monitor Performance Ratio
-        diagnosticReadinessModule.setJ1939(getJ1939());
 
         // 6.1.8.1.a. Global DM20 (send Request (PGN 59904) for PGN 49664
-        List<DM20MonitorPerformanceRatioPacket> globalDM20s = diagnosticReadinessModule.requestDM20(getListener()).getPackets();
+        List<DM20MonitorPerformanceRatioPacket> globalDM20s = getDiagnosticMessageModule().requestDM20(getListener()).getPackets();
 
         // 6.1.8.1 Actions:
         // 6.1.8.1.a.i. Create list of ECU address
@@ -96,7 +93,7 @@ public class Part01Step08Controller extends StepController {
             OBDModuleInformation obdModule = dataRepository.getObdModule(sourceAddress);
             if (obdModule != null) {
                 obdModule.setPerformanceRatios(packet.getRatios());
-                dataRepository.putObdModule(sourceAddress, obdModule);
+                dataRepository.putObdModule(obdModule);
             }
         }
 

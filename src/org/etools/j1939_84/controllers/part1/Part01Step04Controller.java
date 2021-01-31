@@ -19,8 +19,8 @@ import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.OBDTestsModule;
 import org.etools.j1939_84.modules.SupportedSpnModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -36,7 +36,6 @@ public class Part01Step04Controller extends StepController {
     private static final int TOTAL_STEPS = 0;
 
     private final DataRepository dataRepository;
-    private final OBDTestsModule obdTestsModule;
     private final SupportedSpnModule supportedSpnModule;
 
     Part01Step04Controller(DataRepository dataRepository) {
@@ -44,7 +43,7 @@ public class Part01Step04Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new OBDTestsModule(),
+             new DiagnosticMessageModule(),
              new SupportedSpnModule(),
              dataRepository,
              DateTimeModule.getInstance());
@@ -54,7 +53,7 @@ public class Part01Step04Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           OBDTestsModule obdTestsModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            SupportedSpnModule supportedSpnModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
@@ -62,18 +61,17 @@ public class Part01Step04Controller extends StepController {
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              diagnosticMessageModule,
               dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.obdTestsModule = obdTestsModule;
         this.supportedSpnModule = supportedSpnModule;
         this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
-        obdTestsModule.setJ1939(getJ1939());
 
         List<DM24SPNSupportPacket> destinationSpecificPackets = new ArrayList<>();
 
@@ -90,7 +88,8 @@ public class Part01Step04Controller extends StepController {
                 .stream()
                 .mapToInt(OBDModuleInformation::getSourceAddress)
                 .forEach(sourceAddress -> {
-                    BusResult<DM24SPNSupportPacket> result = obdTestsModule.requestDM24(getListener(), sourceAddress);
+                    BusResult<DM24SPNSupportPacket> result = getDiagnosticMessageModule().requestDM24(getListener(),
+                                                                                                      sourceAddress);
                     result.getPacket().flatMap(packet -> packet.left).ifPresent(destinationSpecificPackets::add);
 
                     // 6.1.4.2.a. Fail if retry was required to obtain DM24 response.

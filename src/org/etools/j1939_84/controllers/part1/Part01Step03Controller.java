@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import static org.etools.j1939_84.modules.DiagnosticReadinessModule.getCompositeSystems;
+import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -20,7 +20,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -31,41 +31,39 @@ public class Part01Step03Controller extends StepController {
 
     private final DataRepository dataRepository;
 
-    private final DiagnosticReadinessModule diagnosticReadinessModule;
-
     Part01Step03Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-                new EngineSpeedModule(),
-                new BannerModule(),
-                new VehicleInformationModule(),
-                new DiagnosticReadinessModule(),
-                dataRepository,
-                DateTimeModule.getInstance());
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new DiagnosticMessageModule(),
+             dataRepository,
+             DateTimeModule.getInstance());
     }
 
     Part01Step03Controller(Executor executor,
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticReadinessModule diagnosticReadinessModule,
-                           DataRepository dataRepository, DateTimeModule dateTimeModule) {
+                           DiagnosticMessageModule diagnosticMessageModule,
+                           DataRepository dataRepository,
+                           DateTimeModule dateTimeModule) {
         super(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dateTimeModule,
-                PART_NUMBER,
-                STEP_NUMBER,
-                TOTAL_STEPS);
-        this.diagnosticReadinessModule = diagnosticReadinessModule;
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              diagnosticMessageModule,
+              dateTimeModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
-        diagnosticReadinessModule.setJ1939(getJ1939());
 
-        RequestResult<DM5DiagnosticReadinessPacket> response = diagnosticReadinessModule.requestDM5(getListener());
+        RequestResult<DM5DiagnosticReadinessPacket> response = getDiagnosticMessageModule().requestDM5(getListener());
         boolean nacked = response.getAcks().stream().anyMatch(packet -> packet.getResponse() == Response.NACK);
         if (nacked) {
             addFailure(1, 3, "6.1.3.2.b - The request for DM5 was NACK'ed");
@@ -112,8 +110,8 @@ public class Part01Step03Controller extends StepController {
         if (distinctCount > 1) {
             // All the values should be the same
             addWarning(1,
-                    3,
-                    "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
+                       3,
+                       "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
         }
     }
 

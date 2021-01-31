@@ -30,7 +30,7 @@ import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -69,7 +69,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private DiagnosticReadinessModule readinessModule;
+    private DiagnosticMessageModule readinessModule;
 
     @Mock
     private ReportFileModule reportFileModule;

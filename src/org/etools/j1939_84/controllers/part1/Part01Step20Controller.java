@@ -15,7 +15,7 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -33,14 +33,12 @@ public class Part01Step20Controller extends StepController {
 
     private final DataRepository dataRepository;
 
-    private final DTCModule dtcModule;
-
     Part01Step20Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
                 new EngineSpeedModule(),
                 new BannerModule(),
                 new VehicleInformationModule(),
-                new DTCModule(),
+                new DiagnosticMessageModule(),
                 dataRepository,
                 DateTimeModule.getInstance());
     }
@@ -49,28 +47,26 @@ public class Part01Step20Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DTCModule dtcModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dateTimeModule,
-                PART_NUMBER,
-                STEP_NUMBER,
-                TOTAL_STEPS);
-        this.dtcModule = dtcModule;
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              diagnosticMessageModule,
+              dateTimeModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
 
-        dtcModule.setJ1939(getJ1939());
-
         // 6.1.20.1.a. Global DM28 for PGN 64896
-        RequestResult<DM28PermanentEmissionDTCPacket> globalResponse = dtcModule.requestDM28(getListener());
+        RequestResult<DM28PermanentEmissionDTCPacket> globalResponse = getDiagnosticMessageModule().requestDM28(getListener());
 
         List<DM28PermanentEmissionDTCPacket> globalPackets = globalResponse.getPackets();
 
@@ -97,7 +93,7 @@ public class Part01Step20Controller extends StepController {
         // 6.1.20.3.a. DS DM28 to each OBD ECU.
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
         List<BusResult<DM28PermanentEmissionDTCPacket>> dsResults = obdModuleAddresses.stream()
-                .map(address -> dtcModule.requestDM28(getListener(), address))
+                .map(address -> getDiagnosticMessageModule().requestDM28(getListener(), address))
                 .collect(Collectors.toList());
 
         // 6.1.20.4.a. Fail if any difference compared to data received during global request.

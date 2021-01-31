@@ -5,29 +5,47 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Comparator;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
+import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
+import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
+import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
+import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
+import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 
@@ -37,10 +55,36 @@ import org.etools.j1939_84.model.RequestResult;
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
-public class DTCModule extends FunctionalModule {
+public class DiagnosticMessageModule extends FunctionalModule {
 
-    public DTCModule() {
+    public DiagnosticMessageModule() {
         super();
+    }
+
+
+    public static List<CompositeMonitoredSystem> getCompositeSystems(Collection<MonitoredSystem> monitoredSystems,
+                                                                     boolean isDM5) {
+        Map<CompositeSystem, CompositeMonitoredSystem> map = new HashMap<>();
+        for (MonitoredSystem system : monitoredSystems) {
+            CompositeSystem key = system.getId();
+            CompositeMonitoredSystem existingSystem = map.get(key);
+            if (existingSystem == null) {
+                map.put(key, new CompositeMonitoredSystem(system, isDM5));
+            } else {
+                existingSystem.addMonitoredSystems(system);
+            }
+        }
+        List<CompositeMonitoredSystem> systems = new ArrayList<>(map.values());
+        Collections.sort(systems);
+        return systems;
+    }
+
+    public static List<CompositeMonitoredSystem> getCompositeSystems(List<? extends DiagnosticReadinessPacket> packets,
+                                                                     boolean isDM5) {
+        Set<MonitoredSystem> systems = packets.stream()
+                .flatMap(p -> p.getMonitoredSystems().stream())
+                .collect(Collectors.toSet());
+        return getCompositeSystems(systems, isDM5);
     }
 
     public RequestResult<DM1ActiveDTCsPacket> readDM1(ResultsListener listener) {
@@ -60,8 +104,28 @@ public class DTCModule extends FunctionalModule {
         return new RequestResult<>(false, packets, List.of());
     }
 
-    public RequestResult<DM28PermanentEmissionDTCPacket> reportDM28(ResultsListener listener, int address) {
-        return requestDMPackets("DM28", DM28PermanentEmissionDTCPacket.class, address, listener);
+    public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener) {
+        return requestDMPackets("DM2", DM2PreviouslyActiveDTC.class, GLOBAL_ADDR, listener);
+    }
+
+    public BusResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, int address) {
+        return requestDMPackets("DM2", DM2PreviouslyActiveDTC.class, address, listener).busResult();
+    }
+
+    public RequestResult<DM5DiagnosticReadinessPacket> requestDM5(ResultsListener listener) {
+        return requestDMPackets("DM5", DM5DiagnosticReadinessPacket.class, GLOBAL_ADDR, listener);
+    }
+
+    public BusResult<DM5DiagnosticReadinessPacket> requestDM5(ResultsListener listener, int address) {
+        return requestDMPackets("DM5", DM5DiagnosticReadinessPacket.class, address, listener).busResult();
+    }
+
+    public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener) {
+        return requestDMPackets("DM6", DM6PendingEmissionDTCPacket.class, GLOBAL_ADDR, listener);
+    }
+
+    public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener, int address) {
+        return requestDMPackets("DM6", DM6PendingEmissionDTCPacket.class, address, listener);
     }
 
     public List<AcknowledgmentPacket> requestDM11(ResultsListener listener) {
@@ -86,12 +150,12 @@ public class DTCModule extends FunctionalModule {
         return requestDMPackets("DM12", DM12MILOnEmissionDTCPacket.class, address, listener).busResult();
     }
 
-    public RequestResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener) {
-        return requestDMPackets("DM2", DM2PreviouslyActiveDTC.class, GLOBAL_ADDR, listener);
+    public RequestResult<DM20MonitorPerformanceRatioPacket> requestDM20(ResultsListener listener) {
+        return requestDMPackets("DM20", DM20MonitorPerformanceRatioPacket.class, GLOBAL_ADDR, listener);
     }
 
-    public BusResult<DM2PreviouslyActiveDTC> requestDM2(ResultsListener listener, int address) {
-        return requestDMPackets("DM2", DM2PreviouslyActiveDTC.class, address, listener).busResult();
+    public BusResult<DM20MonitorPerformanceRatioPacket> requestDM20(ResultsListener listener, int address) {
+        return requestDMPackets("DM20", DM20MonitorPerformanceRatioPacket.class, address, listener).busResult();
     }
 
     public RequestResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener) {
@@ -110,6 +174,9 @@ public class DTCModule extends FunctionalModule {
         return requestDMPackets("DM23", DM23PreviouslyMILOnEmissionDTCPacket.class, address, listener).busResult();
     }
 
+    public BusResult<DM24SPNSupportPacket> requestDM24(ResultsListener listener, int obdModuleAddress) {
+        return requestDMPackets("DM24", DM24SPNSupportPacket.class, obdModuleAddress, listener).busResult();
+    }
     public BusResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener, int address) {
         return requestDMPackets("DM25", DM25ExpandedFreezeFrame.class, address, listener).busResult();
     }
@@ -146,6 +213,15 @@ public class DTCModule extends FunctionalModule {
         return requestDMPackets("DM29", DM29DtcCounts.class, address, listener).busResult();
     }
 
+    public List<DM30ScaledTestResultsPacket> getDM30Packets(ResultsListener listener, int address, SupportedSPN spn) {
+        int spnId = spn.getSpn();
+        Packet request = createDM7Packet(address, spnId);
+        BusResult<DM30ScaledTestResultsPacket> result = getJ1939().requestDm7("DM7 for DM30 from " + Lookup.getAddressName(
+                address) + " for SPN " + spnId, listener, request);
+        listener.onResult("");
+        return result.requestResult().getPackets();
+    }
+
     public RequestResult<DM31DtcToLampAssociation> requestDM31(ResultsListener listener) {
         return requestDMPackets("DM31", DM31DtcToLampAssociation.class, GLOBAL_ADDR, listener);
     }
@@ -170,12 +246,26 @@ public class DTCModule extends FunctionalModule {
         return requestDMPackets("DM34", DM34NTEStatus.class, address, listener);
     }
 
-    public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener) {
-        return requestDMPackets("DM6", DM6PendingEmissionDTCPacket.class, GLOBAL_ADDR, listener);
+    public List<DM56EngineFamilyPacket> requestDM56(ResultsListener listener, int address) {
+        return requestDMPackets("DM56", DM56EngineFamilyPacket.class, address, listener).getPackets();
     }
 
-    public RequestResult<DM6PendingEmissionDTCPacket> requestDM6(ResultsListener listener, int address) {
-        return requestDMPackets("DM6", DM6PendingEmissionDTCPacket.class, address, listener);
+    public List<DM56EngineFamilyPacket> requestDM56(ResultsListener listener) {
+        return requestDMPackets("DM56", DM56EngineFamilyPacket.class, GLOBAL_ADDR, listener).getPackets();
+    }
+
+    private Packet createDM7Packet(int destination, int spn) {
+        return Packet.create(DM7CommandTestsPacket.PGN | destination,
+                             getJ1939().getBusAddress(),
+                             true,
+                             247,
+                             spn & 0xFF,
+                             (spn >> 8) & 0xFF,
+                             (((spn >> 16) & 0xFF) << 5) | 31,
+                             0xFF,
+                             0xFF,
+                             0xFF,
+                             0xFF);
     }
 
 }

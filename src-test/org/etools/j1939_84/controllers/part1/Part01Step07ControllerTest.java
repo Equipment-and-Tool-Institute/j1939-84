@@ -9,7 +9,6 @@ import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -97,10 +96,9 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
     @Mock
     private ReportFileModule reportFileModule;
+    
     @Mock
     private VehicleInformationModule vehicleInformationModule;
-
-    private DateTimeModule dateTimeModule;
 
     @Before
     public void setUp() throws Exception {
@@ -114,7 +112,13 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              engineSpeedModule,
+              reportFileModule,
+              executor,
+              vehicleInformationModule);
     }
 
     @After
@@ -185,7 +189,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         verify(dataRepository, times(2)).getObdModule(0);
         verify(dataRepository).getVehicleInformation();
         verify(dataRepository).getObdModuleAddresses();
-        verify(dataRepository).putObdModule(0, moduleInfo);
+        verify(dataRepository).putObdModule(moduleInfo);
 
         verify(moduleInfo).setCalibrationInformation(dm19.getCalibrationInformation());
 
@@ -393,7 +397,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         verify(moduleInfo0D).setCalibrationInformation(dm190D.getCalibrationInformation());
         verify(moduleInfo0E).setCalibrationInformation(dm190E.getCalibrationInformation());
 
-        verify(dataRepository, times(9)).putObdModule(anyInt(), any());
+        verify(dataRepository, times(9)).putObdModule(any());
 
         verify(dataRepository, times(2)).getObdModule(0x0A);
         verify(dataRepository, times(2)).getObdModule(0x0B);

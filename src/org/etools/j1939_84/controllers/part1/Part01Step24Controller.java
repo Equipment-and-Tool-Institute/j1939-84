@@ -12,8 +12,8 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -30,14 +30,12 @@ public class Part01Step24Controller extends StepController {
 
     private final DataRepository dataRepository;
 
-    private final DTCModule dtcModule;
-
     Part01Step24Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DTCModule(),
+             new DiagnosticMessageModule(),
              dataRepository,
              DateTimeModule.getInstance());
     }
@@ -46,25 +44,23 @@ public class Part01Step24Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DTCModule dtcModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              diagnosticMessageModule,
               dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dtcModule = dtcModule;
         this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
-
-        dtcModule.setJ1939(getJ1939());
 
         // 6.1.24.1.a. DS DM25 (send Request (PGN 59904) for PGN 64951 (SPNs 3300,
         // 1214-1215)) to each OBD ECU that responded to DS DM24 with supported
@@ -76,7 +72,9 @@ public class Part01Step24Controller extends StepController {
                 .stream()
                 .filter(module -> !module.getFreezeFrameSpns().isEmpty())
                 .map(OBDModuleInformation::getSourceAddress)
-                .flatMap(address -> dtcModule.requestDM25(getListener(), address).getPacket().stream())
+                .flatMap(address -> getDiagnosticMessageModule().requestDM25(getListener(), address)
+                        .getPacket()
+                        .stream())
                 .flatMap(e -> e.left.stream())
                 .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
                 .collect(Collectors.toList())

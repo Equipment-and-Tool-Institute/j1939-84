@@ -9,9 +9,8 @@ import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.AC_SYSTEM_RE
 import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.BOOST_PRESSURE_CONTROL_SYS;
 import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.CATALYST;
 import static org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus.findStatus;
-import static org.etools.j1939_84.modules.DiagnosticReadinessModule.getCompositeSystems;
+import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
@@ -41,7 +40,7 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 /**
- * Unit tests for the {@link DiagnosticReadinessModule}
+ * Unit tests for the {@link DiagnosticMessageModule}
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
@@ -56,7 +55,7 @@ public class DiagnosticReadinessModuleTest {
         return findStatus(true, enabled, complete);
     }
 
-    private DiagnosticReadinessModule instance;
+    private DiagnosticMessageModule instance;
 
     @Spy
     private J1939 j1939;
@@ -67,7 +66,7 @@ public class DiagnosticReadinessModuleTest {
     public void setUp() throws Exception {
         listener = new TestResultsListener();
         DateTimeModule.setInstance(new TestDateTimeModule());
-        instance = new DiagnosticReadinessModule();
+        instance = new DiagnosticMessageModule();
         instance.setJ1939(j1939);
         DataRepository.clearInstance();
     }
@@ -260,54 +259,6 @@ public class DiagnosticReadinessModuleTest {
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, 0x21);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testGetOBDModules() throws BusException {
-        final int pgn = DM5DiagnosticReadinessPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-
-        DM5DiagnosticReadinessPacket packet1 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x00, 0x11, 0x22, 20, 0x44, 0x55, 0x66, 0x77, 0x88));
-        DM5DiagnosticReadinessPacket packet11 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x00, 0x11, 0x22, 20, 0x44, 0x55, 0x66, 0x77, 0x88));
-        DM5DiagnosticReadinessPacket packet2 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
-        DM5DiagnosticReadinessPacket packet22 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
-        DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
-                Packet.create(pgn, 0x21, 0x10, 0x20, 19, 0x40, 0x50, 0x60, 0x70, 0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet11.getPacket(),
-                           packet2.getPacket(), packet22.getPacket(),
-                           packet3.getPacket())).when(j1939).read(anyLong(), any());
-
-        String expected = "";
-        expected += "10:15:30.0000 Global DM5 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] CE FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FECE00 [8] 11 22 14 44 55 66 77 88" + NL;
-        expected += "DM5 from Engine #1 (0): OBD Compliance: HD OBD (20), Active Codes: 17, Previously Active Codes: 34" + NL;
-        expected += "10:15:30.0000 18FECE00 [8] 11 22 14 44 55 66 77 88" + NL;
-        expected += "DM5 from Engine #1 (0): OBD Compliance: HD OBD (20), Active Codes: 17, Previously Active Codes: 34" + NL;
-        expected += "10:15:30.0000 18FECE17 [8] 01 02 03 04 05 06 07 08" + NL;
-        expected += "DM5 from Instrument Cluster #1 (23): OBD Compliance: OBD and OBD II (3), Active Codes: 1, Previously Active Codes: 2" + NL;
-        expected += "10:15:30.0000 18FECE17 [8] 01 02 03 04 05 06 07 08" + NL;
-        expected += "DM5 from Instrument Cluster #1 (23): OBD Compliance: OBD and OBD II (3), Active Codes: 1, Previously Active Codes: 2" + NL;
-        expected += "10:15:30.0000 18FECE21 [8] 10 20 13 40 50 60 70 80" + NL;
-        expected += "DM5 from Body Controller (33): OBD Compliance: HD OBD P (19), Active Codes: 16, Previously Active Codes: 32" + NL;
-        expected += "Engine #1 (0) reported as an HD-OBD Module." + NL;
-        expected += "Body Controller (33) reported as an HD-OBD Module." + NL;
-
-        List<Integer> results = instance.getOBDModules(listener);
-        assertEquals(2, results.size());
-        assertTrue(results.contains(0x00));
-        assertTrue(results.contains(0x21));
-
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
     }
 

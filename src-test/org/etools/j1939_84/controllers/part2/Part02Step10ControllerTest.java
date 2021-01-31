@@ -28,7 +28,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.OBDTestsModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
@@ -71,7 +71,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
     private ResultsListener mockListener;
 
     @Mock
-    private OBDTestsModule obdTestsModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private ReportFileModule reportFileModule;
@@ -90,7 +90,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
                 bannerModule,
                 dataRepository,
                 vehicleInformationModule,
-                obdTestsModule,
+                                              diagnosticMessageModule,
                 DateTimeModule.getInstance());
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
@@ -119,12 +119,12 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule0);
 
-        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(spn1)))
+        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn1)))
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult1)));
 
         runTest();
 
-        verify(obdTestsModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(PART,
                 STEP,
@@ -153,13 +153,13 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule0);
 
-        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(spn1)))
+        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn1)))
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult1),
                         DM30ScaledTestResultsPacket.create(0, testResult2)));
 
         runTest();
 
-        verify(obdTestsModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(PART,
                 STEP,
@@ -207,14 +207,14 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule3 = new OBDModuleInformation(3);
         dataRepository.putObdModule(obdModule3);
 
-        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(spn1)))
+        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn1)))
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult1)));
-        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(spn2)))
+        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn2)))
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult2)));
 
         runTest();
 
-        verify(obdTestsModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).setJ1939(j1939);
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -226,7 +226,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(obdTestsModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).setJ1939(j1939);
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -248,14 +248,14 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule0);
 
-        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(spn1)))
+        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn1)))
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult1)));
-        when(obdTestsModule.getDM30Packets(any(), eq(0), eq(spn2)))
+        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn2)))
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult2)));
 
         runTest();
 
-        verify(obdTestsModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(PART,
                 STEP,

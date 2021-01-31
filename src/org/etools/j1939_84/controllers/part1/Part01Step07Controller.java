@@ -20,6 +20,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.StringUtils;
@@ -48,13 +49,14 @@ public class Part01Step07Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dateTimeModule,
-                PART_NUMBER,
-                STEP_NUMBER,
-                TOTAL_STEPS);
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              new DiagnosticMessageModule(),
+              dateTimeModule,
+              PART_NUMBER,
+              STEP_NUMBER,
+              TOTAL_STEPS);
         this.dataRepository = dataRepository;
     }
 
@@ -72,7 +74,7 @@ public class Part01Step07Controller extends StepController {
                 info = new OBDModuleInformation(sourceAddress);
             }
             info.setCalibrationInformation(packet.getCalibrationInformation());
-            dataRepository.putObdModule(sourceAddress, info);
+            dataRepository.putObdModule(info);
         }
 
         List<String> calIds = globalDM19s.stream()

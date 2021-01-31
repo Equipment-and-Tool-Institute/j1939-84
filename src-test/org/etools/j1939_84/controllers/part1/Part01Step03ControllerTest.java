@@ -32,7 +32,7 @@ import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -62,7 +62,7 @@ public class Part01Step03ControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticReadinessModule diagnosticReadinessModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -96,7 +96,7 @@ public class Part01Step03ControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                diagnosticReadinessModule,
+                diagnosticMessageModule,
                 dataRepository,
                 DateTimeModule.getInstance());
     }
@@ -108,7 +108,7 @@ public class Part01Step03ControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 diagnosticReadinessModule,
+                                 diagnosticMessageModule,
                                  dataRepository,
                                  mockListener);
     }
@@ -128,7 +128,7 @@ public class Part01Step03ControllerTest {
         List<DM5DiagnosticReadinessPacket> packets = new ArrayList<>();
         List<AcknowledgmentPacket> acks = new ArrayList<>();
         RequestResult<DM5DiagnosticReadinessPacket> requestResult = new RequestResult<>(true, packets, acks);
-        when(diagnosticReadinessModule.requestDM5(any())).thenReturn(requestResult);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(requestResult);
 
         DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
         packets.add(packet1);
@@ -176,11 +176,11 @@ public class Part01Step03ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(dataRepository, times(2)).getVehicleInformation();
-        verify(diagnosticReadinessModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(engineSpeedModule).setJ1939(j1939);
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(dataRepository).getObdModules();
-        verify(diagnosticReadinessModule).requestDM5(any());
+        verify(diagnosticMessageModule).requestDM5(any());
         verify(dataRepository).putObdModule(obdInfo1);
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
         verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
@@ -238,7 +238,7 @@ public class Part01Step03ControllerTest {
 
         Collection<OBDModuleInformation> obdInfoList = List.of();
         when(dataRepository.getObdModules()).thenReturn(obdInfoList);
-        when(diagnosticReadinessModule.requestDM5(any()))
+        when(diagnosticMessageModule.requestDM5(any()))
                 .thenReturn(requestResult);
 
         instance.execute(listener, j1939, reportFileModule);
@@ -248,8 +248,8 @@ public class Part01Step03ControllerTest {
 
         verify(dataRepository).getObdModules();
 
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5(any());
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM5(any());
 
         verify(engineSpeedModule).setJ1939(j1939);
 
@@ -300,7 +300,7 @@ public class Part01Step03ControllerTest {
         when(packet4.getSourceAddress()).thenReturn(0);
         when(packet4.getOBDCompliance()).thenReturn((byte) 4);
         packets.add(packet4);
-        when(diagnosticReadinessModule.requestDM5(any()))
+        when(diagnosticMessageModule.requestDM5(any()))
                 .thenReturn(requestResult);
 
         VehicleInformation vehicleInformation = new VehicleInformation();
@@ -321,8 +321,8 @@ public class Part01Step03ControllerTest {
         verify(dataRepository).getObdModules();
         verify(dataRepository).putObdModule(obdInfo);
 
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM5(any());
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM5(any());
 
         verify(engineSpeedModule).setJ1939(j1939);
 

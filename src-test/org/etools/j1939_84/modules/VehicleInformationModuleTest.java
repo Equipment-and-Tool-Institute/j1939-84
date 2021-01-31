@@ -4,8 +4,10 @@
 package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
@@ -30,7 +32,7 @@ import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
-import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -402,62 +404,6 @@ public class VehicleInformationModuleTest {
     }
 
     @Test
-    public void testReportEngineFamily() {
-        final int pgn = DM56EngineFamilyPacket.PGN;
-        final byte[] bytes = "2015MY-EUS HD ODB   *".getBytes(UTF8);
-
-        DM56EngineFamilyPacket packet1 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x00, bytes));
-        DM56EngineFamilyPacket packet2 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x17, bytes));
-        DM56EngineFamilyPacket packet3 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x21, bytes));
-        doReturn(new RequestResult<>(false, packet1, packet2, packet3))
-                .when(j1939).requestGlobal("Global DM56 Request", DM56EngineFamilyPacket.class, NOOP);
-
-        List<DM56EngineFamilyPacket> packets = instance.requestDM56(NOOP);
-        assertEquals(3, packets.size());
-        assertEquals(packet1, packets.get(0));
-        assertEquals(packet2, packets.get(1));
-        assertEquals(packet3, packets.get(2));
-
-        verify(j1939).requestGlobal("Global DM56 Request", DM56EngineFamilyPacket.class, NOOP);
-    }
-
-    @Test
-    public void testReportEngineFamilyWithNoResponses() {
-
-        doReturn(RequestResult.empty()).when(j1939).requestGlobal("Global DM56 Request", DM56EngineFamilyPacket.class,
-                                                                  NOOP);
-
-        List<DM56EngineFamilyPacket> packets = instance.requestDM56(NOOP);
-        assertEquals(0, packets.size());
-
-        verify(j1939).requestGlobal("Global DM56 Request", DM56EngineFamilyPacket.class, NOOP);
-    }
-
-    @Test
-    public void testReportEngineHours() {
-        final int pgn = EngineHoursPacket.PGN;
-
-        EngineHoursPacket packet1 = new EngineHoursPacket(Packet.create(pgn, 0x00, 1, 2, 3, 4, 5, 6, 7, 8));
-        EngineHoursPacket packet2 = new EngineHoursPacket(Packet.create(pgn, 0x01, 8, 7, 6, 5, 4, 3, 2, 1));
-        doReturn(new RequestResult<>(false, packet1, packet2)).when(j1939)
-                .requestGlobal("Engine Hours Request", EngineHoursPacket.class, NOOP);
-
-        instance.reportEngineHours(NOOP);
-
-        verify(j1939).requestGlobal("Engine Hours Request", EngineHoursPacket.class, NOOP);
-    }
-
-    @Test
-    public void testReportEngineHoursWithNoResponse() {
-        doReturn(RequestResult.empty()).when(j1939)
-                .requestGlobal("Engine Hours Request", EngineHoursPacket.class, NOOP);
-
-        instance.reportEngineHours(NOOP);
-
-        verify(j1939).requestGlobal("Engine Hours Request", EngineHoursPacket.class, NOOP);
-    }
-
-    @Test
     public void testReportVin() {
         final int pgn = VehicleIdentificationPacket.PGN;
         final byte[] vinBytes = "12345678901234567890*".getBytes(UTF8);
@@ -496,4 +442,31 @@ public class VehicleInformationModuleTest {
         verify(j1939).read(anyLong(), any());
     }
 
+    @Test
+    public void testGetOBDModules() throws BusException {
+        final int pgn = DM5DiagnosticReadinessPacket.PGN;
+
+        DM5DiagnosticReadinessPacket packet1 = new DM5DiagnosticReadinessPacket(
+                Packet.create(pgn, 0x00, 0x11, 0x22, 20, 0x44, 0x55, 0x66, 0x77, 0x88));
+        DM5DiagnosticReadinessPacket packet11 = new DM5DiagnosticReadinessPacket(
+                Packet.create(pgn, 0x00, 0x11, 0x22, 20, 0x44, 0x55, 0x66, 0x77, 0x88));
+        DM5DiagnosticReadinessPacket packet2 = new DM5DiagnosticReadinessPacket(
+                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+        DM5DiagnosticReadinessPacket packet22 = new DM5DiagnosticReadinessPacket(
+                Packet.create(pgn, 0x17, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+        DM5DiagnosticReadinessPacket packet3 = new DM5DiagnosticReadinessPacket(
+                Packet.create(pgn, 0x21, 0x10, 0x20, 19, 0x40, 0x50, 0x60, 0x70, 0x80));
+        doReturn(Stream.of(packet1.getPacket(), packet11.getPacket(),
+                           packet2.getPacket(), packet22.getPacket(),
+                           packet3.getPacket())).when(j1939).read(anyLong(), any());
+
+
+        List<Integer> results = instance.getOBDModules();
+        assertEquals(2, results.size());
+        assertTrue(results.contains(0x00));
+        assertTrue(results.contains(0x21));
+
+        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
+        verify(j1939).read(anyLong(), any());
+    }
 }

@@ -4,8 +4,6 @@
 
 package org.etools.j1939_84.controllers;
 
-import static org.etools.j1939_84.J1939_84.NL;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -14,6 +12,7 @@ import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -22,7 +21,8 @@ public abstract class PartController extends Controller {
     protected PartController(Executor executor, EngineSpeedModule engineSpeedModule,
                              BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
                              DateTimeModule dateTimeModule) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule,
+              new DiagnosticMessageModule());
     }
 
     @Override
@@ -72,13 +72,13 @@ public abstract class PartController extends Controller {
         List<StepController> stepControllers = new ArrayList<>();
         for (int i = 1; i <= steps; i++) {
             stepControllers.add(new StepController(Executors.newSingleThreadExecutor(),
-                    new EngineSpeedModule(),
-                    new BannerModule(),
-                    new VehicleInformationModule(),
-                    getDateTimeModule(),
-                    partNumber,
-                    i,
-                    1) {
+                                                   new EngineSpeedModule(),
+                                                   new BannerModule(),
+                                                   new VehicleInformationModule(),
+                                                   new DiagnosticMessageModule(), getDateTimeModule(),
+                                                   partNumber,
+                                                   i,
+                                                   1) {
                 @Override
                 protected void run() {
                     getListener().onResult("Do Testing;\nWait for Responses;\nWrite Messages, etc");

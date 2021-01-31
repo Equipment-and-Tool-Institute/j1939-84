@@ -27,7 +27,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -57,7 +57,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DTCModule dtcModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -92,7 +92,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                dtcModule,
+                diagnosticMessageModule,
                 dataRepository,
                 DateTimeModule.getInstance());
 
@@ -105,7 +105,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 dtcModule,
+                                 diagnosticMessageModule,
                                  mockListener);
     }
 
@@ -129,16 +129,16 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(dtcModule.requestDM27(any()))
+        when(diagnosticMessageModule.requestDM27(any()))
                 .thenReturn(new RequestResult<>(false, List.of(), List.of()));
-        when(dtcModule.requestDM27(any(), eq(0x01)))
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM27(any());
-        verify(dtcModule).requestDM27(any(), eq(0x01));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM27(any());
+        verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -163,20 +163,20 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         DM27AllPendingDTCsPacket obdPacket3 = new DM27AllPendingDTCsPacket(
                 Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
 
-        when(dtcModule.requestDM27(any()))
+        when(diagnosticMessageModule.requestDM27(any()))
                 .thenReturn(new RequestResult<>(false, List.of(packet1, packet3), List.of()));
 
-        when(dtcModule.requestDM27(any(), eq(0x01)))
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
                 .thenReturn(new BusResult<>(false, packet1));
-        when(dtcModule.requestDM27(any(), eq(0x03)))
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x03)))
                 .thenReturn(new BusResult<>(false, obdPacket3));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM27(any());
-        verify(dtcModule).requestDM27(any(), eq(0x01));
-        verify(dtcModule).requestDM27(any(), eq(0x03));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM27(any());
+        verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
+        verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
         verify(mockListener).addOutcome(
                 1,
@@ -234,18 +234,18 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
-        when(dtcModule.requestDM27(any())).thenReturn(new RequestResult<>(false,
-                                                                          List.of(),
-                                                                          List.of(ackPacket)));
-        when(dtcModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, ackPacket));
-        when(dtcModule.requestDM27(any(), eq(0x03))).thenReturn(new BusResult<>(false, packet3));
+        when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false,
+                                                                                        List.of(),
+                                                                                        List.of(ackPacket)));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, ackPacket));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x03))).thenReturn(new BusResult<>(false, packet3));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM27(any());
-        verify(dtcModule).requestDM27(any(), eq(0x01));
-        verify(dtcModule).requestDM27(any(), eq(0x03));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM27(any());
+        verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
+        verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -279,18 +279,18 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         DM27AllPendingDTCsPacket packet3b = new DM27AllPendingDTCsPacket(
                 Packet.create(PGN, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
 
-        when(dtcModule.requestDM27(any())).thenReturn(new RequestResult<>(false,
-                                                                          List.of(packet3),
-                                                                          List.of(ackPacket)));
-        when(dtcModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
-        when(dtcModule.requestDM27(any(), eq(0x03))).thenReturn(new BusResult<>(false, packet3b));
+        when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false,
+                                                                                        List.of(packet3),
+                                                                                        List.of(ackPacket)));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x03))).thenReturn(new BusResult<>(false, packet3b));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM27(any());
-        verify(dtcModule).requestDM27(any(), eq(0x01));
-        verify(dtcModule).requestDM27(any(), eq(0x03));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM27(any());
+        verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
+        verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
         verify(mockListener).addOutcome(
                 1,
@@ -349,17 +349,17 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
-        when(dtcModule.requestDM27(any()))
+        when(diagnosticMessageModule.requestDM27(any()))
                 .thenReturn(new RequestResult<>(false, List.of(packet1, packet3), List.of(ackPacket)));
-        when(dtcModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
-        when(dtcModule.requestDM27(any(), eq(0x03))).thenReturn(new BusResult<>(false, Optional.empty()));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x03))).thenReturn(new BusResult<>(false, Optional.empty()));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM27(any());
-        verify(dtcModule).requestDM27(any(), eq(0x01));
-        verify(dtcModule).requestDM27(any(), eq(0x03));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM27(any());
+        verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
+        verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
         verify(mockListener).addOutcome(
                 1,
@@ -405,16 +405,16 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(dtcModule.requestDM27(any()))
+        when(diagnosticMessageModule.requestDM27(any()))
                 .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
-        when(dtcModule.requestDM27(any(), eq(0x01)))
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
                 .thenReturn(new BusResult<>(false, packet1));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM27(any());
-        verify(dtcModule).requestDM27(any(), eq(0x01));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM27(any());
+        verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -431,16 +431,16 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(dtcModule.requestDM27(any()))
+        when(diagnosticMessageModule.requestDM27(any()))
                 .thenReturn(new RequestResult<>(false, Arrays.asList(packet1, packet2), List.of()));
-        when(dtcModule.requestDM27(any(), eq(0x01)))
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
                 .thenReturn(new BusResult<>(false, packet1));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM27(any());
-        verify(dtcModule).requestDM27(any(), eq(0x01));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM27(any());
+        verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

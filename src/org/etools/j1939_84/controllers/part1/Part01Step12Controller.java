@@ -21,8 +21,8 @@ import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.OBDTestsModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
@@ -49,7 +49,6 @@ public class Part01Step12Controller extends StepController {
     private static final int TOTAL_STEPS = 0;
 
     private final DataRepository dataRepository;
-    private final OBDTestsModule obdTestsModule;
     private final TableA7Validator tableA7Validator;
 
     Part01Step12Controller(DataRepository dataRepository) {
@@ -58,7 +57,7 @@ public class Part01Step12Controller extends StepController {
              new BannerModule(),
              dataRepository,
              new VehicleInformationModule(),
-             new OBDTestsModule(),
+             new DiagnosticMessageModule(),
              new TableA7Validator(),
              DateTimeModule.getInstance());
     }
@@ -68,26 +67,24 @@ public class Part01Step12Controller extends StepController {
                            BannerModule bannerModule,
                            DataRepository dataRepository,
                            VehicleInformationModule vehicleInformationModule,
-                           OBDTestsModule obdTestsModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            TableA7Validator tableA7Validator,
                            DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              diagnosticMessageModule,
               dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
         this.dataRepository = dataRepository;
-        this.obdTestsModule = obdTestsModule;
         this.tableA7Validator = tableA7Validator;
     }
 
     @Override
     protected void run() throws Throwable {
-        // 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
-        obdTestsModule.setJ1939(getJ1939());
 
         // 6.1.12.1.a Get all the obdModuleAddresses then send DM7 to each address we have and get supported spns
         List<ScaledTestResult> vehicleTestResults = new ArrayList<>();
@@ -99,7 +96,7 @@ public class Part01Step12Controller extends StepController {
             String moduleName = Lookup.getAddressName(sourceAddress);
 
             for (SupportedSPN spn : obdModule.getTestResultSpns()) {
-                var dm30Packets = obdTestsModule.getDM30Packets(getListener(), sourceAddress, spn);
+                var dm30Packets = getDiagnosticMessageModule().getDM30Packets(getListener(), sourceAddress, spn);
                 if (dm30Packets.isEmpty()) {
                     addFailure("6.1.12.1.a - No test result for Supported SPN " + spn.getSpn() + " from " + moduleName);
                 } else {

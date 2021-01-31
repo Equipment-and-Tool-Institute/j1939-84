@@ -30,7 +30,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -58,7 +58,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticReadinessModule diagnosticReadinessModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -96,7 +96,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                diagnosticReadinessModule,
+                diagnosticMessageModule,
                 dataRepository,
                 sectionA6Validator,
                 DateTimeModule.getInstance());
@@ -146,7 +146,7 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
 
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(
                 false, packet0, packet17, packet21);
-        when(diagnosticReadinessModule.requestDM5(any())).thenReturn(globalRequestResponse);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(globalRequestResponse);
 
         when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse)))
                 .thenReturn(true);
@@ -188,17 +188,17 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
         RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
                                                                                                 List.of(),
                                                                                                 List.of(packet44));
-        when(diagnosticReadinessModule.requestDM5(any())).thenReturn(globalRequestResponse);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(globalRequestResponse);
 
         BusResult<DM5DiagnosticReadinessPacket> busResult0x00 = new BusResult<>(false,
                                                                                 Optional.empty());
-        when(diagnosticReadinessModule.requestDM5(any(), eq(0x00))).thenReturn(busResult0x00);
+        when(diagnosticMessageModule.requestDM5(any(), eq(0x00))).thenReturn(busResult0x00);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x17 = new BusResult<>(false,
                                                                                 Optional.empty());
-        when(diagnosticReadinessModule.requestDM5(any(), eq(0x17))).thenReturn(busResult0x17);
+        when(diagnosticMessageModule.requestDM5(any(), eq(0x17))).thenReturn(busResult0x17);
         BusResult<DM5DiagnosticReadinessPacket> busResult0x21 = new BusResult<>(false,
                                                                                 Optional.empty());
-        when(diagnosticReadinessModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
+        when(diagnosticMessageModule.requestDM5(any(), eq(0x21))).thenReturn(busResult0x21);
 
         when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse))).thenReturn(
                 false);
@@ -255,15 +255,15 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                 Packet.create(ackPgn, 0x23, 0x10, 0x20, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
         RequestResult<DM5DiagnosticReadinessPacket> globalResponse = new RequestResult<>(
                 false, List.of(packet0, packet21), List.of(packet23));
-        when(diagnosticReadinessModule.requestDM5(any())).thenReturn(globalResponse);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(globalResponse);
 
-        when(diagnosticReadinessModule.requestDM5(any(), eq(0x00)))
+        when(diagnosticMessageModule.requestDM5(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(diagnosticReadinessModule.requestDM5(any(), eq(0x17)))
+        when(diagnosticMessageModule.requestDM5(any(), eq(0x17)))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(diagnosticReadinessModule.requestDM5(any(), eq(0x21)))
+        when(diagnosticMessageModule.requestDM5(any(), eq(0x21)))
                 .thenReturn(new BusResult<>(false, packet21V2));
-        when(diagnosticReadinessModule.requestDM5(any(), eq(0x23)))
+        when(diagnosticMessageModule.requestDM5(any(), eq(0x23)))
                 .thenReturn(new BusResult<>(false, packet23));
 
         when(sectionA6Validator.verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalResponse))).thenReturn(false);

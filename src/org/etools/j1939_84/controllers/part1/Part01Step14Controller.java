@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part1;
 
-import static org.etools.j1939_84.modules.DiagnosticReadinessModule.getCompositeSystems;
+import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -20,7 +20,7 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -39,14 +39,12 @@ public class Part01Step14Controller extends StepController {
 
     private final DataRepository dataRepository;
 
-    private final DTCModule dtcModule;
-
     Part01Step14Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DTCModule(),
+             new DiagnosticMessageModule(),
              dataRepository,
              DateTimeModule.getInstance());
     }
@@ -55,27 +53,26 @@ public class Part01Step14Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DTCModule dtcModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              diagnosticMessageModule,
               dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dtcModule = dtcModule;
         this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
-        dtcModule.setJ1939(getJ1939());
 
         // 6.1.14.1.a. Global DM26 (send Request (PGN 59904) for PGN 64952 (SPNs 3301-3305)).
-        RequestResult<DM26TripDiagnosticReadinessPacket> globalResponse = dtcModule.requestDM26(getListener());
+        RequestResult<DM26TripDiagnosticReadinessPacket> globalResponse = getDiagnosticMessageModule().requestDM26(getListener());
 
         if (!globalResponse.getPackets().isEmpty()) {
             List<DM26TripDiagnosticReadinessPacket> obdModulePackets = globalResponse.getPackets().stream()
@@ -159,7 +156,7 @@ public class Part01Step14Controller extends StepController {
             List<DM26TripDiagnosticReadinessPacket> destinationSpecificPackets = new ArrayList<>();
             List<AcknowledgmentPacket> dsAcks = new ArrayList<>();
             obdModuleAddresses.forEach(address -> {
-                RequestResult<DM26TripDiagnosticReadinessPacket> result = dtcModule.requestDM26(getListener(), address);
+                RequestResult<DM26TripDiagnosticReadinessPacket> result = getDiagnosticMessageModule().requestDM26(getListener(), address);
                 destinationSpecificPackets.addAll(result.getPackets());
                 dsAcks.addAll(result.getAcks());
             });

@@ -3,8 +3,10 @@
  */
 package org.etools.j1939_84.modules;
 
+import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
+import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
@@ -36,6 +38,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
+import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -49,21 +52,21 @@ import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
 /**
- * Unit tests for the {@link DTCModule} class
+ * Unit tests for the {@link DiagnosticMessageModule} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
         justification = "The values returned are properly ignored on verify statements.")
 @RunWith(MockitoJUnitRunner.class)
-public class DTCModuleTest {
+public class DiagnosticMessageModuleTest {
 
     /**
      * The Bus address of the tool for testing purposes
      */
     private static final int BUS_ADDR = 0xA5;
 
-    private DTCModule instance;
+    private DiagnosticMessageModule instance;
 
     @Spy
     private J1939 j1939;
@@ -72,7 +75,7 @@ public class DTCModuleTest {
     public void setUp() throws Exception {
         DataRepository.clearInstance();
         DateTimeModule.setInstance(new TestDateTimeModule());
-        instance = new DTCModule();
+        instance = new DiagnosticMessageModule();
         instance.setJ1939(j1939);
         doReturn(BUS_ADDR).when(j1939).getBusAddress();
     }
@@ -146,118 +149,7 @@ public class DTCModuleTest {
         verify(j1939).read(anyLong(), any());
     }
 
-    @Test
-    public void testReportDM28DestinationSpecific() throws BusException {
-        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0x21, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x21);
-
-        DM28PermanentEmissionDTCPacket packet1 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
-
-        String expected = "";
-        expected += "10:15:30.0000 Destination Specific DM28 Request to Body Controller (33)" + NL;
-        expected += "10:15:30.0000 18EA21A5 [3] 80 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FD8021 [8] 00 FF 00 00 00 00 00 00" + NL;
-        expected += "DM28 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false, packet1);
-        assertEquals(expectedResult, instance.reportDM28(listener, 0x21));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, 0x21);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testReportDM28DestinationSpecificWithDTCs() throws BusException {
-        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
-
-        DM28PermanentEmissionDTCPacket packet1 = new DM28PermanentEmissionDTCPacket(Packet.create(pgn,
-                                                                                                  0x00,
-                                                                                                  0x00,
-                                                                                                  0xFF,
-                                                                                                  0x61,
-                                                                                                  0x02,
-                                                                                                  0x13,
-                                                                                                  0x00,
-                                                                                                  0x21,
-                                                                                                  0x06,
-                                                                                                  0x1F,
-                                                                                                  0x00,
-                                                                                                  0xEE,
-                                                                                                  0x10,
-                                                                                                  0x04,
-                                                                                                  0x00));
-
-        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(
-                false, List.of(packet1), List.of());
-        assertEquals(expectedResult, instance.reportDM28(listener, 0x00));
-
-        String expected = "";
-        expected += "10:15:30.0000 Destination Specific DM28 Request to Engine #1 (0)" + NL;
-        expected += "10:15:30.0000 18EA00A5 [3] 80 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FD8000 [14] 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
-        expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
-                + NL;
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, 0x00);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testReportDM28Global() throws BusException {
-        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
-
-        DM28PermanentEmissionDTCPacket packet1 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
-        DM28PermanentEmissionDTCPacket packet2 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(pgn, 0x17, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
-        DM28PermanentEmissionDTCPacket packet3 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(
-                false, List.of(packet1, packet2, packet3), List.of());
-        assertEquals(expectedResult, instance.reportDM28(listener, GLOBAL_ADDR));
-
-        String expected = "";
-        expected += "10:15:30.0000 Global DM28 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] 80 FD 00 (TX)" + NL;
-        expected += "10:15:30.0000 18FD8000 [8] 00 FF 00 00 00 00 00 00" + NL;
-        expected += "DM28 from Engine #1 (0): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.0000 18FD8017 [8] 00 FF 00 00 00 00 00 00" + NL;
-        expected += "DM28 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "10:15:30.0000 18FD8021 [8] 00 FF 00 00 00 00 00 00" + NL;
-        expected += "DM28 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
+        @Test
     /* FIXME what is this supposed to be testing? It has one response. */
     public void testRequestDM11GlobalNoResponseWithManyModules() throws BusException {
         final int pgn = DM11ClearActiveDTCsPacket.PGN;
@@ -1462,30 +1354,6 @@ public class DTCModuleTest {
     }
 
     @Test
-    public void testRequestDM28DestinationSpecificWithNoResponses() throws BusException {
-        final int pgn = DM28PermanentEmissionDTCPacket.PGN;
-
-        Packet requestPacket = Packet.create(0xEA00 | 0x17, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x17);
-        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
-        String expected = "";
-        expected += "10:15:30.0000 Destination Specific DM28 Request to Instrument Cluster #1 (23)" + NL;
-        expected += "10:15:30.0000 18EA17A5 [3] 80 FD 00 (TX)" + NL;
-        expected += "Error: Timeout - No Response." + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false,
-                                                                                           List.of(), List.of());
-        assertEquals(expectedResult, instance.reportDM28(listener, 0x17));
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(j1939).createRequestPacket(pgn, 0x17);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
     public void testRequestDM28GlobalWithDTCs() throws BusException {
         final int pgn = DM28PermanentEmissionDTCPacket.PGN;
 
@@ -2294,4 +2162,37 @@ public class DTCModuleTest {
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
         verify(j1939).read(anyLong(), any());
     }
+
+    @Test
+    public void testReportEngineFamily() {
+        final int pgn = DM56EngineFamilyPacket.PGN;
+        final byte[] bytes = "2015MY-EUS HD ODB   *".getBytes(UTF_8);
+
+        DM56EngineFamilyPacket packet1 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x00, bytes));
+        DM56EngineFamilyPacket packet2 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x17, bytes));
+        DM56EngineFamilyPacket packet3 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x21, bytes));
+        doReturn(new RequestResult<>(false, packet1, packet2, packet3))
+                .when(j1939).requestGlobal("Global DM56 Request", DM56EngineFamilyPacket.class, NOOP);
+
+        List<DM56EngineFamilyPacket> packets = instance.requestDM56(NOOP);
+        assertEquals(3, packets.size());
+        assertEquals(packet1, packets.get(0));
+        assertEquals(packet2, packets.get(1));
+        assertEquals(packet3, packets.get(2));
+
+        verify(j1939).requestGlobal("Global DM56 Request", DM56EngineFamilyPacket.class, NOOP);
+    }
+
+    @Test
+    public void testReportEngineFamilyWithNoResponses() {
+
+        doReturn(RequestResult.empty()).when(j1939).requestGlobal("Global DM56 Request", DM56EngineFamilyPacket.class,
+                                                                  NOOP);
+
+        List<DM56EngineFamilyPacket> packets = instance.requestDM56(NOOP);
+        assertEquals(0, packets.size());
+
+        verify(j1939).requestGlobal("Global DM56 Request", DM56EngineFamilyPacket.class, NOOP);
+    }
+
 }

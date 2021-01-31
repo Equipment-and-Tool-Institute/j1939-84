@@ -14,6 +14,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -32,8 +33,8 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -62,7 +63,7 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticReadinessModule diagnosticReadinessModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -95,7 +96,7 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              diagnosticReadinessModule,
+                                              diagnosticMessageModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -109,7 +110,7 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  dataRepository,
-                                 diagnosticReadinessModule,
+                                 diagnosticMessageModule,
                                  mockListener);
     }
 
@@ -133,7 +134,7 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation obd = new OBDModuleInformation(0x00);
         obd.setPerformanceRatios(packet.getRatios());
-        when(diagnosticReadinessModule.requestDM20(any(), eq(0x00)))
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, Optional.empty()));
 
         when(dataRepository.getObdModules()).thenReturn(List.of(obd));
@@ -142,8 +143,8 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
 
         verify(dataRepository).getObdModules();
 
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM20(any(), eq(0x00));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
                                                        "Engine #1 (0) did not respond to the DS DM20 request");
@@ -238,11 +239,11 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                                                                                                         0x02,
                                                                                                         data2));
 
-        when(diagnosticReadinessModule.requestDM20(any(), eq(0x00)))
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
-        when(diagnosticReadinessModule.requestDM20(any(), eq(0x01)))
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x01)))
                 .thenReturn(new BusResult<>(false, packet1));
-        when(diagnosticReadinessModule.requestDM20(any(), eq(0x02)))
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x02)))
                 .thenReturn(new BusResult<>(false, packet2));
 
         OBDModuleInformation obd = new OBDModuleInformation(0x00);
@@ -256,14 +257,12 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(eq(0), any());
-        verify(dataRepository).putObdModule(eq(1), any());
-        verify(dataRepository).putObdModule(eq(2), any());
+        verify(dataRepository, times(3)).putObdModule(any());
 
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM20(any(), eq(0x00));
-        verify(diagnosticReadinessModule).requestDM20(any(), eq(0x01));
-        verify(diagnosticReadinessModule).requestDM20(any(), eq(0x02));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0x01));
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0x02));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -290,7 +289,7 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation obd = new OBDModuleInformation(0x00);
         obd.setPerformanceRatios(packet.getRatios());
-        when(diagnosticReadinessModule.requestDM20(any(), eq(0x00)))
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
 
         when(dataRepository.getObdModules()).thenReturn(List.of(obd));
@@ -298,10 +297,10 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM20(any(), eq(0x00));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -351,7 +350,7 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         // packet return via requestDM20
         OBDModuleInformation obd = new OBDModuleInformation(0x00);
         obd.setPerformanceRatios(packet1.getRatios());
-        when(diagnosticReadinessModule.requestDM20(any(), eq(0x00)))
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
 
         when(dataRepository.getObdModules()).thenReturn(List.of(obd));
@@ -362,10 +361,10 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM20(any(), eq(0x00));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
@@ -411,11 +410,11 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         AcknowledgmentPacket nackPacket = mock(AcknowledgmentPacket.class);
         when(nackPacket.getResponse()).thenReturn(NACK);
 
-        when(diagnosticReadinessModule.requestDM20(any(), eq(0x00)))
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
-        when(diagnosticReadinessModule.requestDM20(any(), eq(0x01)))
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x01)))
                 .thenReturn(new BusResult<>(false, ackPacket));
-        when(diagnosticReadinessModule.requestDM20(any(), eq(0x02)))
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x02)))
                 .thenReturn(new BusResult<>(false, nackPacket));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
@@ -429,12 +428,12 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM20(any(), eq(0x00));
-        verify(diagnosticReadinessModule).requestDM20(any(), eq(0x01));
-        verify(diagnosticReadinessModule).requestDM20(any(), eq(0x02));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0x01));
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0x02));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -473,7 +472,7 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                                                                                                        0x00,
                                                                                                        data));
 
-        when(diagnosticReadinessModule.requestDM20(any(), eq(0x00)))
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(true, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
@@ -483,10 +482,10 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM20(any(), eq(0x00));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -523,7 +522,7 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         DM20MonitorPerformanceRatioPacket packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN,
                                                                                                        0x00,
                                                                                                        data));
-        when(diagnosticReadinessModule.requestDM20(any(), eq(0x00)))
+        when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
@@ -533,10 +532,10 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(eq(0), any());
+        verify(dataRepository).putObdModule(any());
 
-        verify(diagnosticReadinessModule).setJ1939(j1939);
-        verify(diagnosticReadinessModule).requestDM20(any(), eq(0x00));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

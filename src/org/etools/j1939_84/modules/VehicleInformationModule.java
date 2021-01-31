@@ -5,6 +5,7 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
+import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -26,7 +27,9 @@ import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
@@ -79,7 +82,7 @@ public class VehicleInformationModule extends FunctionalModule {
                                                                                                                      .requestGlobal(
                                                                                                                              null,
                                                                                                                              DM19CalibrationInformationPacket.class,
-                                                                                                                             ResultsListener.NOOP
+                                                                                                                             NOOP
                                                                                                                      )
                                                                                                                      .getEither());
             calibrations = raw.stream()
@@ -121,7 +124,7 @@ public class VehicleInformationModule extends FunctionalModule {
     public String getEngineFamilyName() throws IOException {
         if (engineFamilyName == null) {
             Set<String> results = getJ1939()
-                    .requestGlobal(null, DM56EngineFamilyPacket.class, ResultsListener.NOOP)
+                    .requestGlobal(null, DM56EngineFamilyPacket.class, NOOP)
                     .getEither().stream()
                     .flatMap(e -> e.left.stream())
                     .map(DM56EngineFamilyPacket::getFamilyName)
@@ -148,7 +151,7 @@ public class VehicleInformationModule extends FunctionalModule {
     public int getEngineModelYear() throws IOException {
         if (engineModelYear == null) {
             Set<Integer> results = getJ1939()
-                    .requestGlobal(null, DM56EngineFamilyPacket.class, ResultsListener.NOOP)
+                    .requestGlobal(null, DM56EngineFamilyPacket.class, NOOP)
                     .getEither().stream()
                     .flatMap(e -> e.left.stream())
                     .map(DM56EngineFamilyPacket::getEngineModelYear)
@@ -174,7 +177,7 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public String getVin() throws IOException {
         if (vin == null) {
-            var all = getJ1939().requestGlobal(null, VehicleIdentificationPacket.class, ResultsListener.NOOP
+            var all = getJ1939().requestGlobal(null, VehicleIdentificationPacket.class, NOOP
             );
             Set<String> vins = all.getPackets().stream()
                     .map(VehicleIdentificationPacket::getVin)
@@ -268,25 +271,6 @@ public class VehicleInformationModule extends FunctionalModule {
         listener.onResult(result);
     }
 
-    public List<DM56EngineFamilyPacket> requestDM56(ResultsListener listener, int address) {
-        return requestDMPackets("DM56", DM56EngineFamilyPacket.class, address, listener).getPackets();
-    }
-
-    public List<DM56EngineFamilyPacket> requestDM56(ResultsListener listener) {
-        return requestDMPackets("DM56", DM56EngineFamilyPacket.class, GLOBAL_ADDR, listener).getPackets();
-    }
-
-    /**
-     * Requests the Engine Hours from the engine and generates a {@link String}
-     * that's suitable for inclusion in the report
-     *
-     * @param listener
-     *         the {@link ResultsListener} that will be given the report
-     */
-    public void reportEngineHours(ResultsListener listener) {
-        getJ1939().requestGlobal("Engine Hours Request", EngineHoursPacket.class, listener);
-    }
-
     /**
      * Requests the Vehicle Identification from all vehicle modules and
      * generates adds the information gathered to the report returning the
@@ -309,6 +293,22 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public RequestResult<EngineHoursPacket> requestEngineHours(ResultsListener listener) {
         return  getJ1939().requestGlobal("Global Engine Hours Request", EngineHoursPacket.class, listener);
+    }
+
+    /**
+     * Sends the DM5 to determine which modules support HD-OBD. It returns a
+     * {@link List} of source addresses of the modules that do support HD-OBD.
+     *
+     * @return List of source addresses
+     */
+    public List<Integer> getOBDModules() {
+        return requestDMPackets("DM5", DM5DiagnosticReadinessPacket.class, GLOBAL_ADDR, NOOP).getPackets()
+                .stream()
+                .filter(DM5DiagnosticReadinessPacket::isHdObd)
+                .map(ParsedPacket::getSourceAddress)
+                .sorted()
+                .distinct()
+                .collect(Collectors.toList());
     }
 
     /**

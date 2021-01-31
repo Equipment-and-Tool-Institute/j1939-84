@@ -24,7 +24,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -53,7 +53,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DTCModule dtcModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -88,7 +88,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                dtcModule,
+                diagnosticMessageModule,
                 dataRepository,
                 new TestDateTimeModule());
 
@@ -101,7 +101,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                dtcModule,
+                                 diagnosticMessageModule,
                 mockListener);
     }
 
@@ -114,12 +114,12 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(dtcModule.readDM1(any())).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(new RequestResult<>(false));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).readDM1(any());
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).readDM1(any());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.15.2 - No OBD ECU provided a DM1");
 
@@ -152,13 +152,13 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
-        when(dtcModule.readDM1(any()))
+        when(diagnosticMessageModule.readDM1(any()))
                 .thenReturn(new RequestResult<>(false, packet1, packet2, packet3, packet4, packet5));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).readDM1(any());
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).readDM1(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                 STEP_NUMBER,
@@ -316,12 +316,12 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(dtcModule.readDM1(any())).thenReturn(new RequestResult<>(false, packet1, packet2));
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(new RequestResult<>(false, packet1, packet2));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).readDM1(any());
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).readDM1(any());
 
         String expected = "" + NL;
         expected += "10:15:30.0000 18FECA01 [8] 00 FF 00 00 00 00 FF FF" + NL;
