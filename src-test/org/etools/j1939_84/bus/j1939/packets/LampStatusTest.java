@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import org.junit.Test;
@@ -18,16 +19,19 @@ public class LampStatusTest {
     @Test
     public void testAlternateOff() {
         assertEquals(LampStatus.ALTERNATE_OFF, LampStatus.getStatus(0, 0));
+        assertArrayEquals(new int[]{0,0}, LampStatus.getBytes(LampStatus.ALTERNATE_OFF));
     }
 
     @Test
     public void testFastFlash() {
         assertEquals(LampStatus.FAST_FLASH, LampStatus.getStatus(1, 1));
+        assertArrayEquals(new int[]{1,1}, LampStatus.getBytes(LampStatus.FAST_FLASH));
     }
 
     @Test
     public void testNotSupported() {
         assertEquals(LampStatus.NOT_SUPPORTED, LampStatus.getStatus(3, 3));
+        assertArrayEquals(new int[]{3,3}, LampStatus.getBytes(LampStatus.NOT_SUPPORTED));
     }
 
     @Test
@@ -40,6 +44,7 @@ public class LampStatusTest {
     @Test
     public void testOn() {
         assertEquals(LampStatus.ON, LampStatus.getStatus(1, 3));
+        assertArrayEquals(new int[]{1,3}, LampStatus.getBytes(LampStatus.ON));
     }
 
     @Test
@@ -58,6 +63,7 @@ public class LampStatusTest {
     @Test
     public void testSlowFlash() {
         assertEquals(LampStatus.SLOW_FLASH, LampStatus.getStatus(1, 0));
+        assertArrayEquals(new int[]{1,0}, LampStatus.getBytes(LampStatus.SLOW_FLASH));
     }
 
     @Test

@@ -33,7 +33,14 @@ public class DiagnosticTroubleCode {
      */
     private final int spn;
 
+    /**
+     * The raw message bytes
+     */
+    private final int[] bytes;
+
     public DiagnosticTroubleCode(int[] data) {
+
+        bytes = data;
 
         spn = SupportedSPN.parseSPN(data);
 
@@ -50,17 +57,17 @@ public class DiagnosticTroubleCode {
     public static DiagnosticTroubleCode create(int spn, int fmi, int cm, int oc) {
 
         //spn bytes 1 - 3 use the spn
-        byte spnByte1 = (byte) (spn & 0xFF);
-        byte spnByte2 = (byte) ((spn >> 8) & 0xFF);
+        int spnByte1 =  spn & 0xFF;
+        int spnByte2 = (spn >> 8) & 0xFF;
 
-        byte spnByte3 = (byte) 0xFF;
-        spnByte3 &= (byte) (((spn >> 16) & 0xE0) + 0x1F);
+        int spnByte3 = 0xFF;
+        spnByte3 &= (spn >> 16) << 5;
 
         int[] bytes = new int[4];
         bytes[0] = spnByte1; //spn bytes 1
         bytes[1] = spnByte2; //spn bytes 2
-        bytes[2] = (byte) (spnByte3 & fmi); // spn bytes 3 && fmi
-        bytes[3] = (byte) (((cm | 0x80) << 7 ) | (oc & 0x7F)); // cm & oc
+        bytes[2] = (spnByte3 | (fmi & 0x1F)); // spn bytes 3 && fmi
+        bytes[3] = ((cm << 7) | (oc & 0x7F)); // cm & oc
 
         return new DiagnosticTroubleCode(bytes);
     }
@@ -78,6 +85,15 @@ public class DiagnosticTroubleCode {
                 getOccurrenceCount() == that.getOccurrenceCount() &&
                 getFailureModeIndicator() == that.getFailureModeIndicator() &&
                 getConversionMethod() == that.getConversionMethod());
+    }
+
+    /**
+     * Returns the raw message that was used to create the object
+     *
+     * @return int[]
+     */
+    public int[] getBytes() {
+        return bytes;
     }
 
     /**
