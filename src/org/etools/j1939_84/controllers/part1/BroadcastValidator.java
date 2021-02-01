@@ -70,7 +70,7 @@ public class BroadcastValidator {
     public int getMaximumBroadcastPeriod() {
         return Math.max(dataRepository.getObdModules()
                 .stream()
-                .flatMap(m -> m.getDataStreamSpns().stream())
+                .flatMap(m -> m.getFilteredDataStreamSPNs().stream())
                 .map(SupportedSPN::getSpn)
                 .map(j1939DaRepository::getPgnForSpn)
                 .filter(Objects::nonNull)

@@ -329,12 +329,12 @@ public class BroadcastValidatorTest {
 
         OBDModuleInformation module1 = mock(OBDModuleInformation.class);
         List<SupportedSPN> supportedSPNs1 = supportedSPNs(111, 222);
-        when(module1.getDataStreamSpns()).thenReturn(supportedSPNs1);
+        when(module1.getFilteredDataStreamSPNs()).thenReturn(supportedSPNs1);
         modules.add(module1);
 
         OBDModuleInformation module2 = mock(OBDModuleInformation.class);
         List<SupportedSPN> supportedSPNs2 = supportedSPNs(333, 444);
-        when(module2.getDataStreamSpns()).thenReturn(supportedSPNs2);
+        when(module2.getFilteredDataStreamSPNs()).thenReturn(supportedSPNs2);
         modules.add(module2);
 
         when(j1939DaRepository.getPgnForSpn(111)).thenReturn(Set.of(11111));

@@ -247,7 +247,7 @@ public class Part01Step26Controller extends StepController {
         // Collect all the Data Stream Supported SPNs from all OBD Modules.
         List<Integer> supportedSPNs = dataRepository.getObdModules()
                 .stream()
-                .flatMap(m -> m.getDataStreamSpns().stream())
+                .flatMap(m -> m.getFilteredDataStreamSPNs().stream())
                 .map(SupportedSPN::getSpn)
                 .collect(Collectors.toList());
 
@@ -319,7 +319,7 @@ public class Part01Step26Controller extends StepController {
             int moduleAddress = obdModule.getSourceAddress();
 
             // Get the SPNs which are supported by the module
-            List<Integer> dataStreamSPNs = obdModule.getDataStreamSpns()
+            List<Integer> dataStreamSPNs = obdModule.getFilteredDataStreamSPNs()
                     .stream()
                     .map(SupportedSPN::getSpn)
                     .collect(Collectors.toList());
