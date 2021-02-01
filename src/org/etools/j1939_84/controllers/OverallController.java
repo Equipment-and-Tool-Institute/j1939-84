@@ -13,6 +13,7 @@ import org.etools.j1939_84.controllers.part1.Part01Controller;
 import org.etools.j1939_84.controllers.part2.Part02Controller;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -62,7 +63,8 @@ public class OverallController extends Controller {
             Part10Controller part10Controller,
             Part11Controller part11Controller,
             Part12Controller part12Controller) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
+        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule,
+              new DiagnosticMessageModule());
         controllers.add(part1Controller);
         controllers.add(part2Controller);
         controllers.add(part3Controller);

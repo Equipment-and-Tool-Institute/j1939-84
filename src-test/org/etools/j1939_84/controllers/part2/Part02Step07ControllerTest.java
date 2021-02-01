@@ -4,7 +4,7 @@
 package org.etools.j1939_84.controllers.part2;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket.createComponentIdPacket;
+import static org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket.create;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -87,7 +87,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         OBDModuleInformation module = new OBDModuleInformation(sourceAddress);
         module.setFunction(function);
 
-        ComponentIdentificationPacket componentIdentificationPacket = createComponentIdPacket(
+        ComponentIdentificationPacket componentIdentificationPacket = create(
                 sourceAddress, make, model, serialNumber, unitNumber);
         module.setComponentInformationIdentification(componentIdentificationPacket.getComponentIdentification());
         return module;
@@ -131,21 +131,21 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testDestinationSpecificPacketsEmpty() {
-        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
-                                                                           "BatMan",
-                                                                           "TheBatCave",
-                                                                           "ST109823456",
-                                                                           "Land");
-        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
-                                                                           "AquaMan",
-                                                                           "TheWater",
-                                                                           "ST109888765",
-                                                                           "Ocean");
-        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
-                                                                           "SuperMan",
-                                                                           "TheCrystalIcePalace",
-                                                                           "ST109823456",
-                                                                           "Air");
+        ComponentIdentificationPacket packet0x00 = create(0x00,
+                                                          "BatMan",
+                                                          "TheBatCave",
+                                                          "ST109823456",
+                                                          "Land");
+        ComponentIdentificationPacket packet0x01 = create(0x01,
+                                                          "AquaMan",
+                                                          "TheWater",
+                                                          "ST109888765",
+                                                          "Ocean");
+        ComponentIdentificationPacket packet0x02 = create(0x02,
+                                                          "SuperMan",
+                                                          "TheCrystalIcePalace",
+                                                          "ST109823456",
+                                                          "Air");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        0,
                                                                        "BatMan",
@@ -245,26 +245,26 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
     @Test
     public void testGlobalRequestDoesNotMatchDestinationSpecificRequest() {
 
-        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
-                                                                           "BatMan",
-                                                                           "TheBtCave",
-                                                                           "ST109823456",
-                                                                           "Land");
-        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
-                                                                           "AquaMan",
-                                                                           "TheWater",
-                                                                           "ST109888765",
-                                                                           "Ocean");
-        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
-                                                                           "SuperMan",
-                                                                           "TheCrystalIcePalace",
-                                                                           "ST10983456",
-                                                                           "Air");
-        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
-                                                                           "WonderWoman",
-                                                                           "TheLair",
-                                                                           "WW109877654",
-                                                                           "Lasso");
+        ComponentIdentificationPacket packet0x00 = create(0x00,
+                                                          "BatMan",
+                                                          "TheBtCave",
+                                                          "ST109823456",
+                                                          "Land");
+        ComponentIdentificationPacket packet0x01 = create(0x01,
+                                                          "AquaMan",
+                                                          "TheWater",
+                                                          "ST109888765",
+                                                          "Ocean");
+        ComponentIdentificationPacket packet0x02 = create(0x02,
+                                                          "SuperMan",
+                                                          "TheCrystalIcePalace",
+                                                          "ST10983456",
+                                                          "Air");
+        ComponentIdentificationPacket packet0x03 = create(0x03,
+                                                          "WonderWoman",
+                                                          "TheLair",
+                                                          "WW109877654",
+                                                          "Lasso");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        0,
                                                                        "BatMan",
@@ -357,26 +357,26 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPath() {
 
-        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
-                                                                           "BatMan",
-                                                                           "TheBatCave",
-                                                                           "ST109823456",
-                                                                           "Land");
-        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
-                                                                           "AquaMan",
-                                                                           "TheWater",
-                                                                           "ST109888765",
-                                                                           "Ocean");
-        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
-                                                                           "SuperMan",
-                                                                           "TheCrystalIcePalace",
-                                                                           "ST109823456",
-                                                                           "Air");
-        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
-                                                                           "WonderWoman",
-                                                                           "TheLair",
-                                                                           "WW109877654",
-                                                                           "Lasso");
+        ComponentIdentificationPacket packet0x00 = create(0x00,
+                                                          "BatMan",
+                                                          "TheBatCave",
+                                                          "ST109823456",
+                                                          "Land");
+        ComponentIdentificationPacket packet0x01 = create(0x01,
+                                                          "AquaMan",
+                                                          "TheWater",
+                                                          "ST109888765",
+                                                          "Ocean");
+        ComponentIdentificationPacket packet0x02 = create(0x02,
+                                                          "SuperMan",
+                                                          "TheCrystalIcePalace",
+                                                          "ST109823456",
+                                                          "Air");
+        ComponentIdentificationPacket packet0x03 = create(0x03,
+                                                          "WonderWoman",
+                                                          "TheLair",
+                                                          "WW109877654",
+                                                          "Lasso");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        0,
                                                                        "BatMan",
@@ -447,26 +447,26 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoFunctionZeroObds() {
 
-        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
-                                                                           "BatMan",
-                                                                           "TheBatCave",
-                                                                           "ST109823456",
-                                                                           "Land");
-        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
-                                                                           "AquaMan",
-                                                                           "TheWater",
-                                                                           "ST109888765",
-                                                                           "Ocean");
-        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
-                                                                           "SuperMan",
-                                                                           "TheCrystalIcePalace",
-                                                                           "ST109823456",
-                                                                           "Air");
-        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
-                                                                           "WonderWoman",
-                                                                           "TheLair",
-                                                                           "WW109877654",
-                                                                           "Lasso");
+        ComponentIdentificationPacket packet0x00 = create(0x00,
+                                                          "BatMan",
+                                                          "TheBatCave",
+                                                          "ST109823456",
+                                                          "Land");
+        ComponentIdentificationPacket packet0x01 = create(0x01,
+                                                          "AquaMan",
+                                                          "TheWater",
+                                                          "ST109888765",
+                                                          "Ocean");
+        ComponentIdentificationPacket packet0x02 = create(0x02,
+                                                          "SuperMan",
+                                                          "TheCrystalIcePalace",
+                                                          "ST109823456",
+                                                          "Air");
+        ComponentIdentificationPacket packet0x03 = create(0x03,
+                                                          "WonderWoman",
+                                                          "TheLair",
+                                                          "WW109877654",
+                                                          "Lasso");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        4,
                                                                        "BatMan",
@@ -539,31 +539,31 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testZeroFunctionPacketGlobalPacketDiffersFromGlobalResponse() {
-        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
-                                                                           "BatMan",
-                                                                           "TheBatCave",
-                                                                           "ST109823456",
-                                                                           "Land");
-        ComponentIdentificationPacket packet0x00ds = createComponentIdPacket(0x00,
-                                                                             "CatWoman",
-                                                                             "TheBatCave",
-                                                                             "CW019823456",
-                                                                             "Roofs");
-        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
-                                                                           "AquaMan",
-                                                                           "TheWater",
-                                                                           "ST109888765",
-                                                                           "Ocean");
-        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
-                                                                           "SuperMan",
-                                                                           "TheCrystalIcePalace",
-                                                                           "ST109823456",
-                                                                           "Air");
-        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
-                                                                           "WonderWoman",
-                                                                           "TheLair",
-                                                                           "WW109877654",
-                                                                           "Lasso");
+        ComponentIdentificationPacket packet0x00 = create(0x00,
+                                                          "BatMan",
+                                                          "TheBatCave",
+                                                          "ST109823456",
+                                                          "Land");
+        ComponentIdentificationPacket packet0x00ds = create(0x00,
+                                                            "CatWoman",
+                                                            "TheBatCave",
+                                                            "CW019823456",
+                                                            "Roofs");
+        ComponentIdentificationPacket packet0x01 = create(0x01,
+                                                          "AquaMan",
+                                                          "TheWater",
+                                                          "ST109888765",
+                                                          "Ocean");
+        ComponentIdentificationPacket packet0x02 = create(0x02,
+                                                          "SuperMan",
+                                                          "TheCrystalIcePalace",
+                                                          "ST109823456",
+                                                          "Air");
+        ComponentIdentificationPacket packet0x03 = create(0x03,
+                                                          "WonderWoman",
+                                                          "TheLair",
+                                                          "WW109877654",
+                                                          "Lasso");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        0,
                                                                        "BatMan",
@@ -645,26 +645,26 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testMoreThanOneModuleWithFunctionZeroFailure() {
-        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
-                                                                           "BatMan",
-                                                                           "TheBatCave",
-                                                                           "ST109823456",
-                                                                           "Land");
-        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
-                                                                           "AquaMan",
-                                                                           "TheWater",
-                                                                           "ST109888765",
-                                                                           "Ocean");
-        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
-                                                                           "SuperMan",
-                                                                           "TheCrystalIcePalace",
-                                                                           "ST109823456",
-                                                                           "Air");
-        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
-                                                                           "WonderWoman",
-                                                                           "TheLair",
-                                                                           "WW109877654",
-                                                                           "Lasso");
+        ComponentIdentificationPacket packet0x00 = create(0x00,
+                                                          "BatMan",
+                                                          "TheBatCave",
+                                                          "ST109823456",
+                                                          "Land");
+        ComponentIdentificationPacket packet0x01 = create(0x01,
+                                                          "AquaMan",
+                                                          "TheWater",
+                                                          "ST109888765",
+                                                          "Ocean");
+        ComponentIdentificationPacket packet0x02 = create(0x02,
+                                                          "SuperMan",
+                                                          "TheCrystalIcePalace",
+                                                          "ST109823456",
+                                                          "Air");
+        ComponentIdentificationPacket packet0x03 = create(0x03,
+                                                          "WonderWoman",
+                                                          "TheLair",
+                                                          "WW109877654",
+                                                          "Lasso");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        0,
                                                                        "BatMan",
@@ -740,26 +740,26 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testPacketsEmptyFailureGlobalRequest() {
-        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
-                                                                           "BatMan",
-                                                                           "TheBatCave",
-                                                                           "ST109823456",
-                                                                           "Land");
-        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
-                                                                           "AquaMan",
-                                                                           "TheWater",
-                                                                           "ST109888765",
-                                                                           "Ocean");
-        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
-                                                                           "SuperMan",
-                                                                           "TheCrystalIcePalace",
-                                                                           "ST109823456",
-                                                                           "Air");
-        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
-                                                                           "WonderWoman",
-                                                                           "TheLair",
-                                                                           "WW109877654",
-                                                                           "Lasso");
+        ComponentIdentificationPacket packet0x00 = create(0x00,
+                                                          "BatMan",
+                                                          "TheBatCave",
+                                                          "ST109823456",
+                                                          "Land");
+        ComponentIdentificationPacket packet0x01 = create(0x01,
+                                                          "AquaMan",
+                                                          "TheWater",
+                                                          "ST109888765",
+                                                          "Ocean");
+        ComponentIdentificationPacket packet0x02 = create(0x02,
+                                                          "SuperMan",
+                                                          "TheCrystalIcePalace",
+                                                          "ST109823456",
+                                                          "Air");
+        ComponentIdentificationPacket packet0x03 = create(0x03,
+                                                          "WonderWoman",
+                                                          "TheLair",
+                                                          "WW109877654",
+                                                          "Lasso");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        0,
                                                                        "BatMan",
@@ -846,21 +846,21 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
                                                                                  0xFE,
                                                                                  0x00));
 
-        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
-                                                                           "BatMan",
-                                                                           "TheBatCave",
-                                                                           "ST109823456",
-                                                                           "Land");
-        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
-                                                                           "AquaMan",
-                                                                           "TheWater",
-                                                                           "ST109888765",
-                                                                           "Ocean");
-        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
-                                                                           "SuperMan",
-                                                                           "TheCrystalIcePalace",
-                                                                           "ST109823456",
-                                                                           "Air");
+        ComponentIdentificationPacket packet0x00 = create(0x00,
+                                                          "BatMan",
+                                                          "TheBatCave",
+                                                          "ST109823456",
+                                                          "Land");
+        ComponentIdentificationPacket packet0x01 = create(0x01,
+                                                          "AquaMan",
+                                                          "TheWater",
+                                                          "ST109888765",
+                                                          "Ocean");
+        ComponentIdentificationPacket packet0x02 = create(0x02,
+                                                          "SuperMan",
+                                                          "TheCrystalIcePalace",
+                                                          "ST109823456",
+                                                          "Air");
         OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
                                                                        0,
                                                                        "BatMan",

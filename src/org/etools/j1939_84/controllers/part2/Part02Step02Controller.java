@@ -5,7 +5,7 @@ package org.etools.j1939_84.controllers.part2;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
-import static org.etools.j1939_84.modules.DiagnosticReadinessModule.getCompositeSystems;
+import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,7 +23,7 @@ import org.etools.j1939_84.controllers.part1.SectionA6Validator;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -32,7 +32,7 @@ public class Part02Step02Controller extends StepController {
     private static final int STEP_NUMBER = 2;
     private static final int TOTAL_STEPS = 0;
 
-    private final DiagnosticReadinessModule diagnosticReadinessModule;
+    private final DiagnosticMessageModule diagnosticMessageModule;
 
     private final SectionA6Validator sectionA6Validator;
 
@@ -43,7 +43,7 @@ public class Part02Step02Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DiagnosticReadinessModule(),
+             new DiagnosticMessageModule(),
              DateTimeModule.getInstance(),
              new SectionA6Validator(dataRepository),
              dataRepository);
@@ -53,7 +53,7 @@ public class Part02Step02Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticReadinessModule diagnosticReadinessModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            DateTimeModule dateTimeModule,
                            SectionA6Validator sectionA6Validator,
                            DataRepository dataRepository) {
@@ -61,21 +61,21 @@ public class Part02Step02Controller extends StepController {
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
-              dateTimeModule,
+              new DiagnosticMessageModule(), dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.diagnosticReadinessModule = diagnosticReadinessModule;
+        this.diagnosticMessageModule = diagnosticMessageModule;
         this.sectionA6Validator = sectionA6Validator;
         this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
-        diagnosticReadinessModule.setJ1939(getJ1939());
+        diagnosticMessageModule.setJ1939(getJ1939());
         // 6.2.2.1.a. Global DM5 (send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)).
-        RequestResult<DM5DiagnosticReadinessPacket> globalDM5Result = diagnosticReadinessModule.requestDM5(getListener(),
-                                                                                                           true);
+        RequestResult<DM5DiagnosticReadinessPacket> globalDM5Result = diagnosticMessageModule.requestDM5(getListener()
+        );
         List<DM5DiagnosticReadinessPacket> globalDM5Packets = globalDM5Result.getPackets();
         List<DM5DiagnosticReadinessPacket> obdGlobalPackets = globalDM5Packets
                 .stream()
@@ -118,8 +118,8 @@ public class Part02Step02Controller extends StepController {
         List<DM5DiagnosticReadinessPacket> destinationSpecificPackets = new ArrayList<>();
         dataRepository.getObdModuleAddresses()
                 .forEach(address -> {
-                    BusResult<DM5DiagnosticReadinessPacket> busResult = diagnosticReadinessModule
-                            .requestDM5(getListener(), true, address);
+                    BusResult<DM5DiagnosticReadinessPacket> busResult = diagnosticMessageModule
+                            .requestDM5(getListener(), address);
                     busResult.getPacket()
                             .ifPresentOrElse(packet -> {
                                                  // No requirements around the destination specific acks

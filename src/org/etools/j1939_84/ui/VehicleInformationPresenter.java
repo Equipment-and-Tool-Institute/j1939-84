@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.ui;
 
+import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
+
 import java.lang.reflect.Proxy;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -13,13 +15,11 @@ import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
-import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.model.VehicleInformationListener;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.VinDecoder;
 
@@ -34,7 +34,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     @SuppressWarnings("unchecked")
     public static <T> T swingProxy(T o, Class<T> cls) {
         return (T) Proxy.newProxyInstance(cls.getClassLoader(),
-                new Class<?>[] { cls }, (proxy, method, args) -> {
+                                          new Class<?>[] { cls }, (proxy, method, args) -> {
                     if (SwingUtilities.isEventDispatchThread()) {
                         return method.invoke(o, args);
                     }
@@ -63,10 +63,7 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * The value the user has entered for the certification intent
      */
     private String certificationIntent;
-    /**
-     * The module used to gather information about the module readiness
-     */
-    private final DiagnosticReadinessModule diagnosticReadinessModule;
+
     /**
      * The value the user has entered for the number of emissions units on the
      * vehicle
@@ -129,7 +126,6 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      */
     private final VinDecoder vinDecoder;
 
-
     /**
      * Constructor
      *
@@ -141,36 +137,24 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
      * @param j1939
      *         the vehicle bus
      */
-    public VehicleInformationPresenter(VehicleInformationContract.View view, VehicleInformationListener listener,
-            J1939 j1939) {
-        this(view, listener, j1939, new VehicleInformationModule(),
-                new DiagnosticReadinessModule(), new VinDecoder());
+    public VehicleInformationPresenter(VehicleInformationContract.View view,
+                                       VehicleInformationListener listener,
+                                       J1939 j1939) {
+        this(view, listener, j1939, new VehicleInformationModule(), new VinDecoder());
     }
 
     /**
      * Constructor exposed for testing
-     *
-     * @param view
-     *         the View to be controlled
-     * @param listener
-     *         the {@link VehicleInformationListener} that will be given the
-     *         {@link VehicleInformation}
-     * @param vehicleInformationModule
-     *         the {@link VehicleInformationModule}
-     * @param vinDecoder
-     *         the {@link VinDecoder}
-     * @param j1939
-     *         the vehicle interface
      */
-    public VehicleInformationPresenter(VehicleInformationContract.View view, VehicleInformationListener listener,
-            J1939 j1939, VehicleInformationModule vehicleInformationModule,
-            DiagnosticReadinessModule diagnosticReadinessModule, VinDecoder vinDecoder) {
+    public VehicleInformationPresenter(VehicleInformationContract.View view,
+                                       VehicleInformationListener listener,
+                                       J1939 j1939,
+                                       VehicleInformationModule vehicleInformationModule,
+                                       VinDecoder vinDecoder) {
         this.view = swingProxy(view, VehicleInformationContract.View.class);
         this.listener = listener;
         this.vehicleInformationModule = vehicleInformationModule;
         this.vehicleInformationModule.setJ1939(j1939);
-        this.diagnosticReadinessModule = diagnosticReadinessModule;
-        this.diagnosticReadinessModule.setJ1939(j1939);
         this.vinDecoder = vinDecoder;
     }
 
@@ -182,20 +166,28 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         numberOfTripsForFaultBImplant = 1;
         view.setNumberOfTripsForFaultBImplant(numberOfTripsForFaultBImplant);
         try {
-            List<Integer> obdModules = diagnosticReadinessModule.getOBDModules(ResultsListener.NOOP);
+            List<Integer> obdModules = vehicleInformationModule.getOBDModules();
             emissionUnitsFound = new ArrayList<>();
             obdModules.forEach(address -> emissionUnitsFound
-                    .add(vehicleInformationModule.reportComponentIdentification(ResultsListener.NOOP, address)
-                            .getPacket()
-                            .map(e -> e.resolve(p -> p,
-                                    ack -> ComponentIdentificationPacket.error(address, "ERROR")))
-                            .orElse(ComponentIdentificationPacket.error(address, "MISSING"))));
+                    .add(vehicleInformationModule.reportComponentIdentification(NOOP, address)
+                                 .getPacket()
+                                 .map(e -> e.resolve(p -> p,
+                                                     ack -> ComponentIdentificationPacket.create(address,
+                                                                                                 "ERROR",
+                                                                                                 "ERROR",
+                                                                                                 "ERROR",
+                                                                                                 "ERROR")))
+                                 .orElse(ComponentIdentificationPacket.create(address,
+                                                                              "MISSING",
+                                                                              "MISSING",
+                                                                              "MISSING",
+                                                                              "MISSING"))));
             view.setEmissionUnits(emissionUnitsFound.size());
         } catch (Exception ignored) {
         }
 
         try {
-            calIdsFound = vehicleInformationModule.reportCalibrationInformation(ResultsListener.NOOP);
+            calIdsFound = vehicleInformationModule.reportCalibrationInformation(NOOP);
             view.setCalIds((int) calIdsFound.stream().mapToLong(p -> p.getCalibrationInformation().size()).sum());
         } catch (Exception ignored) {
         }

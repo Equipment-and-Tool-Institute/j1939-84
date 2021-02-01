@@ -30,8 +30,22 @@ public class ParsedPacket {
         return new byte[] { (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF) };
     }
 
+    public static byte[] toBytes(long value) {
+        return new byte[] { (byte) (value & 0xFF),
+                (byte) ((value >> 8) & 0xFF),
+                (byte) ((value >> 16) & 0xFF),
+                (byte) ((value >> 24) & 0xFF) };
+    }
+
     public static int[] toInts(int value) {
         return new int[] { (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF) };
+    }
+
+    public static int[] toInts(long value) {
+        return new int[] { (int) (value & 0xFF),
+                (int) ((value >> 8) & 0xFF),
+                (int) ((value >> 16) & 0xFF),
+                (int) ((value >> 24) & 0xFF) };
     }
 
     /**

@@ -25,6 +25,7 @@ import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -38,11 +39,17 @@ public abstract class StepController extends Controller {
                              EngineSpeedModule engineSpeedModule,
                              BannerModule bannerModule,
                              VehicleInformationModule vehicleInformationModule,
+                             DiagnosticMessageModule diagnosticMessageModule,
                              DateTimeModule dateTimeModule,
                              int partNumber,
                              int stepNumber,
                              int totalSteps) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule);
+        super(executor,
+              engineSpeedModule,
+              bannerModule,
+              vehicleInformationModule,
+              dateTimeModule,
+              diagnosticMessageModule);
         this.partNumber = partNumber;
         this.stepNumber = stepNumber;
         this.totalSteps = totalSteps;
@@ -137,6 +144,20 @@ public abstract class StepController extends Controller {
                 .map(String::trim)
                 .map(m -> section + " - Required monitor " + m + " is supported by more than one OBD ECU")
                 .forEach(this::addWarning);
+    }
+
+    protected void pause(String message, long secondsToSleep) {
+        long stopTime = getDateTimeModule().getTimeAsLong() + (secondsToSleep * 1000L);
+        long secondsToGo;
+        while (true) {
+            secondsToGo = (stopTime - getDateTimeModule().getTimeAsLong()) / 1000;
+            if (secondsToGo > 0) {
+                getListener().onProgress(String.format(message, secondsToGo));
+                getDateTimeModule().pauseFor(1000);
+            } else {
+                break;
+            }
+        }
     }
 
     protected static <T extends GenericPacket> List<T> filterRequestResultPackets(List<RequestResult<T>> results) {

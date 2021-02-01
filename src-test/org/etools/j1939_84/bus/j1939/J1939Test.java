@@ -3,8 +3,10 @@
  */
 package org.etools.j1939_84.bus.j1939;
 
+import static java.util.concurrent.TimeUnit.MILLISECONDS;
 import static org.etools.j1939_84.bus.j1939.J1939.ENGINE_ADDR;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
+import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertNotNull;
@@ -21,14 +23,15 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.EchoBus;
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM7CommandTestsPacket;
@@ -36,7 +39,6 @@ import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
-import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.testdoc.TestDoc;
 import org.junit.Before;
@@ -52,9 +54,8 @@ import org.mockito.junit.MockitoJUnitRunner;
  * Unit test for the {@link J1939} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
-@SuppressWarnings("ConstantConditions") @RunWith(MockitoJUnitRunner.class)
+@RunWith(MockitoJUnitRunner.class)
 public class J1939Test {
 
     final private static class TestPacket extends GenericPacket {
@@ -71,7 +72,6 @@ public class J1939Test {
      * The address of the tool on the bus - for testing. This is NOT the right
      * service tool address to confirm it's not improperly hard-coded (because
      * it was)
-     *
      */
     private static final int BUS_ADDR = 0xA5;
 
@@ -84,7 +84,7 @@ public class J1939Test {
 
     private ArgumentCaptor<Packet> sendPacketCaptor;
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent") @Test
+    @Test
     public void aTestTP() throws Exception {
         final String VIN = "Some VINs are garbage, but this test doesn't care.";
         try (EchoBus echoBus = new EchoBus(0xF9)) {
@@ -97,34 +97,238 @@ public class J1939Test {
                 assertEquals(req.get(), Packet.parse("18EA00F9 EC FE 00 (TX)"));
                 try {
                     echoBus.send(Packet.parse("18ECFF00 20 32 00 08 FF EC FE 00"));
-                    Thread.sleep(100);
+                    int delay = 100;
+                    Thread.sleep(delay);
                     echoBus.send(Packet.parse("18EBFF00 01 53 6F 6D 65 20 56 49"));
-                    Thread.sleep(100);
+                    Thread.sleep(delay);
                     echoBus.send(Packet.parse("18EBFF00 02 4E 73 20 61 72 65 20"));
-                    Thread.sleep(100);
+                    Thread.sleep(delay);
                     echoBus.send(Packet.parse("18EBFF00 03 67 61 72 62 61 67 65"));
-                    Thread.sleep(100);
+                    Thread.sleep(delay);
                     echoBus.send(Packet.parse("18EBFF00 04 2C 20 62 75 74 20 74"));
-                    Thread.sleep(100);
+                    Thread.sleep(delay);
                     echoBus.send(Packet.parse("18EBFF00 05 68 69 73 20 74 65 73"));
-                    Thread.sleep(100);
+                    Thread.sleep(delay);
                     echoBus.send(Packet.parse("18EBFF00 06 74 20 64 6F 65 73 6E"));
-                    Thread.sleep(100);
+                    Thread.sleep(delay);
                     echoBus.send(Packet.parse("18EBFF00 07 27 74 20 63 61 72 65"));
-                    Thread.sleep(100);
+                    Thread.sleep(delay);
                     echoBus.send(Packet.parse("18EBFF00 08 2E FF FF FF FF FF FF"));
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
             }).start();
             System.err.format("### pre %d%n", System.currentTimeMillis());
-            BusResult<VehicleIdentificationPacket> response = j1939.requestDS("test", ResultsListener.NOOP, true,
-                    VehicleIdentificationPacket.class,
-                    J1939.createRequestPacket(VehicleIdentificationPacket.PGN, 0, 0xF9));
+            BusResult<VehicleIdentificationPacket> response = j1939.requestDS("test",
+                    J1939.getPgn(VehicleIdentificationPacket.class),
+                    Packet.create(0xEA00,
+                            0xF9,
+                            true,
+                            VehicleIdentificationPacket.PGN,
+                            VehicleIdentificationPacket.PGN >> 8,
+                            VehicleIdentificationPacket.PGN >> 16),
+                    NOOP);
             System.err.format("### post %d%n", System.currentTimeMillis());
             final String vin2 = response.getPacket().get().left.get().getVin();
             System.err.format("### vin %d%n", System.currentTimeMillis());
             assertEquals(VIN, vin2);
+        }
+    }
+
+    /*
+     * This tests real data that has previously failed. The individual BAM
+     * packets tae longer than 200 ms, so if we wait for one before trying to
+     * read the next, we will miss some. Each BAM message completes at a
+     * different time.
+     */
+    @Test
+    public void feebBamTest() throws Exception {
+        try (EchoBus echoBus = new EchoBus(0xF9)) {
+            J1939TP tpBus = new J1939TP(echoBus);
+
+            J1939 j1939 = new J1939(tpBus);
+            Stream<Packet> reqStream = echoBus.read(1, TimeUnit.HOURS);
+            Stream<Packet> stream = tpBus.read(1, TimeUnit.HOURS);
+            new Thread(() -> {
+                Optional<Packet> req = reqStream.findFirst();
+                assertEquals(req.get(), Packet.parse("18EAFFF9 EB FE 00 (TX)"));
+                try {
+                    sleep(0.0022);
+                    echoBus.send(Packet.parse("1CECFF0B [8] 20 1B 00 04 FF EB FE 00"));
+                    sleep(0.0006);
+                    echoBus.send(Packet.parse("1CECFF00 [8] 20 2C 00 07 FF EB FE 00"));
+                    sleep(0.0008);
+                    echoBus.send(Packet.parse("18ECFF2A [8] 20 17 00 04 FF EB FE 00"));
+                    sleep(0.0012);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0023);
+                    echoBus.send(Packet.parse("18FEBF0B [8] 00 00 7D 7D 7D 7D FF FF"));
+                    sleep(0.0034);
+                    echoBus.send(Packet.parse("1CECFF8C [8] 20 19 00 04 FF EB FE 00"));
+                    sleep(0.0044);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0012);
+                    echoBus.send(Packet.parse("18FEF803 [8] FF FF FF FF EC 20 FB DE"));
+                    sleep(0.0085);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0097);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0097);
+                    echoBus.send(Packet.parse("18FECA03 [8] 00 FF 00 00 00 00 FF FF"));
+                    sleep(0.0006);
+                    echoBus.send(Packet.parse("18FECA10 [8] 00 FF 00 00 00 00 FF FF"));
+                    sleep(0.0003);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0002);
+                    echoBus.send(Packet.parse("18ECFF03 [8] 20 11 00 03 FF EB FE 00"));
+                    sleep(0.009);
+                    echoBus.send(Packet.parse("1CEBFF00 [8] 01 43 4D 4D 4E 53 2A 36"));
+                    sleep(0.0006);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0074);
+                    echoBus.send(Packet.parse("1CEBFF0B [8] 01 42 4E 44 57 53 2A 45"));
+                    sleep(0.002);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0105);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0045);
+                    echoBus.send(Packet.parse("18EBFF2A [8] 01 42 4E 44 57 53 2A 46"));
+                    sleep(0.0057);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0089);
+                    echoBus.send(Packet.parse("18EBFF03 [8] 01 41 4C 4C 53 4E 2A 33"));
+                    sleep(0.0009);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0092);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0024);
+                    echoBus.send(Packet.parse("18FEBF0B [8] 00 00 7D 7D 7D 7D FF FF"));
+                    sleep(0.0023);
+                    echoBus.send(Packet.parse("1CEBFF00 [8] 02 4C 20 75 32 31 44 30"));
+                    sleep(0.006);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0015);
+                    echoBus.send(Packet.parse("1CEBFF8C [8] 01 45 41 54 4F 4E 2A 56"));
+                    sleep(0.006);
+                    echoBus.send(Packet.parse("1CEBFF0B [8] 02 43 38 30 45 53 50 20"));
+                    sleep(0.0028);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0095);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0094);
+                    echoBus.send(Packet.parse("18EBFF03 [8] 02 30 30 30 20 50 54 53"));
+                    sleep(0.0009);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0097);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0048);
+                    echoBus.send(Packet.parse("18EBFF2A [8] 02 4C 52 32 31 2A 31 37"));
+                    sleep(0.0049);
+                    echoBus.send(Packet.parse("1CEBFF00 [8] 03 38 39 30 30 30 30 30"));
+                    sleep(0.0002);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0104);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0075);
+                    echoBus.send(Packet.parse("1CEBFF0B [8] 03 2A 30 30 30 30 30 30"));
+                    sleep(0.0029);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0087);
+                    echoBus.send(Packet.parse("18EBFF03 [8] 03 2A 2A 2A FF FF FF FF"));
+                    sleep(0.0006);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0098);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0026);
+                    echoBus.send(Packet.parse("18FEBF0B [8] 00 00 7D 7D 7D 7D FF FF"));
+                    sleep(0.0077);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.004);
+                    echoBus.send(Packet.parse("1CEBFF00 [8] 04 30 30 2A 37 34 36 30"));
+                    sleep(0.0017);
+                    echoBus.send(Packet.parse("1CEBFF8C [8] 02 53 34 30 30 44 49 55"));
+                    sleep(0.0047);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0095);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0048);
+                    echoBus.send(Packet.parse("18EBFF2A [8] 03 32 32 30 32 33 31 34"));
+                    sleep(0.0028);
+                    echoBus.send(Packet.parse("1CEBFF0B [8] 04 30 30 30 30 2A 2A FF"));
+                    sleep(0.0026);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.001);
+                    echoBus.send(Packet.parse("18EAFFF9 [3] EB FE 00 (TX)"));
+                    sleep(0.0094);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0094);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0107);
+                    echoBus.send(Packet.parse("1CEBFF00 [8] 05 37 31 39 31 2A 2A 2A"));
+                    sleep(0.0003);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0095);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0087);
+                    echoBus.send(Packet.parse("18ECFF03 [8] 20 11 00 03 FF EB FE 00"));
+                    sleep(0.0012);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0095);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0023);
+                    echoBus.send(Packet.parse("18FEBF0B [8] 00 00 7D 7D 7D 7D FF FF"));
+                    sleep(0.0055);
+                    echoBus.send(Packet.parse("18FECA0B [8] C3 FF 00 00 00 00 FF FF"));
+                    sleep(0.0029);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0043);
+                    echoBus.send(Packet.parse("18EBFF2A [8] 04 2A 2A FF FF FF FF FF"));
+                    sleep(0.0028);
+                    echoBus.send(Packet.parse("1CECFF0B [8] 20 1B 00 04 FF EB FE 00"));
+                    sleep(0.0029);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0013);
+                    echoBus.send(Packet.parse("1CEBFF8C [8] 03 2A 31 33 35 34 39 35"));
+                    sleep(0.0014);
+                    echoBus.send(Packet.parse("1CEBFF00 [8] 06 2A 2A 2A 2A 2A 2A 2A"));
+                    sleep(0.0065);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0099);
+                    echoBus.send(Packet.parse("18EBFF03 [8] 01 41 4C 4C 53 4E 2A 33"));
+                    sleep(0.0009);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0094);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0096);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0107);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0073);
+                    echoBus.send(Packet.parse("1CECFF21 [8] 20 0E 00 02 FF CA FE 00"));
+                    sleep(0.0002);
+                    echoBus.send(Packet.parse("1CEBFF0B [8] 01 42 4E 44 57 53 2A 45"));
+                    sleep(0.0038);
+                    echoBus.send(Packet.parse("18FFEB0B [8] 0B 0B 00 00 14 40 40 00"));
+                    sleep(0.0014);
+                    echoBus.send(Packet.parse("1CEBFF00 [8] 07 2A 2A FF FF FF FF FF"));
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }).start();
+            long start = System.currentTimeMillis();
+            new Thread(() -> {
+                Packet p = stream.findFirst().get();
+                System.err.format("exists:  %d%n", System.currentTimeMillis() - start);
+                String timeString = p.toTimeString();
+                System.err.format("complete:  %d  %s%n", System.currentTimeMillis() - start, timeString);
+            }).start();
+            RequestResult<ComponentIdentificationPacket> response = j1939.requestGlobal("test",
+                    ComponentIdentificationPacket.class,
+                    NOOP);
+            List<Either<ComponentIdentificationPacket, AcknowledgmentPacket>> l;
+            l = response.getEither();
+            System.err.format("### post %d%n", System.currentTimeMillis() - start);
+            assertEquals(4, l.size());
         }
     }
 
@@ -134,6 +338,10 @@ public class J1939Test {
 
         sendPacketCaptor = ArgumentCaptor.forClass(Packet.class);
         instance = new J1939(bus);
+    }
+
+    private void sleep(double d) throws InterruptedException {
+        Thread.sleep((long) (d * 1000));
     }
 
     @Test()
@@ -155,8 +363,7 @@ public class J1939Test {
         }).start();
 
         long start = System.currentTimeMillis();
-        BusResult<DM30ScaledTestResultsPacket> requestDm7 = j1939
-                .requestDm7(null, ResultsListener.NOOP, j1939.createRequestPacket(DM24SPNSupportPacket.PGN, 0));
+        BusResult<DM30ScaledTestResultsPacket> requestDm7 = j1939.requestDM7(123, 0, NOOP);
         long duration = System.currentTimeMillis() - start;
         Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = requestDm7
                 .getPacket();
@@ -178,9 +385,7 @@ public class J1939Test {
         Bus bus = new EchoBus(0xF9);
         J1939 j1939 = new J1939(bus);
         long start = System.currentTimeMillis();
-        Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = j1939
-                .requestDm7(null, ResultsListener.NOOP, j1939.createRequestPacket(DM24SPNSupportPacket.PGN, 0))
-                .getPacket();
+        var result = j1939.requestDM7(123, 0, NOOP).getPacket();
         assertFalse(result.isPresent());
         assertEquals(220 * 3, System.currentTimeMillis() - start, 40);
     }
@@ -233,14 +438,10 @@ public class J1939Test {
      */
     @Test
     public void testRequestDM7Timesout() throws Exception {
-        when(bus.read(220, TimeUnit.MILLISECONDS)).thenReturn(Stream.of()).thenReturn(Stream.of())
+        when(bus.read(220, MILLISECONDS)).thenReturn(Stream.of()).thenReturn(Stream.of())
                 .thenReturn(Stream.of());
 
-        int spn = 1024;
-
-        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
-
-        Object packet = instance.requestDm7(null, ResultsListener.NOOP, requestPacket).getPacket().orElse(null);
+        Object packet = instance.requestDM7(1024, 0, NOOP).getPacket().orElse(null);
         assertNull(packet);
 
         verify(bus, times(3)).send(sendPacketCaptor.capture());
@@ -256,14 +457,10 @@ public class J1939Test {
     public void testRequestDM7WillTryThreeTimes() throws Exception {
         Packet packet1 = Packet.create(DM30ScaledTestResultsPacket.PGN
                 | BUS_ADDR, 0x00, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0x0A, 0x0B, 0x0C, 0x0D);
-        when(bus.read(220, TimeUnit.MILLISECONDS)).thenReturn(Stream.of()).thenReturn(Stream.of())
+        when(bus.read(230, MILLISECONDS)).thenReturn(Stream.of()).thenReturn(Stream.of())
                 .thenReturn(Stream.of(packet1));
 
-        int spn = 1024;
-
-        Packet requestPacket = Packet.create(DM7CommandTestsPacket.PGN, BUS_ADDR, 247, spn & 0xFF, (spn >> 8) & 0xFF, (spn >> 16) & 0xFF | 31, 0xFF, 0xFF, 0xFF, 0xFF);
-
-        Object packet = instance.requestDm7(null, ResultsListener.NOOP, requestPacket).getPacket().orElse(null);
+        Object packet = instance.requestDM7(1024, 0, NOOP).getPacket().orElse(null);
         assertNotNull(packet);
 
         verify(bus, times(3)).send(sendPacketCaptor.capture());
@@ -274,7 +471,7 @@ public class J1939Test {
 
     @Test
     public void testRequestMultipleByClassHandlesException() {
-        Stream<?> response = instance.requestGlobalResult(null, ResultsListener.NOOP, false, TestPacket.class)
+        Stream<?> response = instance.requestGlobal(null, TestPacket.class, NOOP)
                 .getEither()
                 .stream();
         assertEquals(0, response.count());
@@ -291,7 +488,7 @@ public class J1939Test {
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
 
         Stream<VehicleIdentificationPacket> response = instance
-                .requestGlobalResult(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class)
+                .requestGlobal(null, VehicleIdentificationPacket.class, NOOP)
                 .getEither().stream()
                 .flatMap(e -> e.left.stream());
         List<VehicleIdentificationPacket> packets = response.collect(Collectors.toList());
@@ -307,14 +504,14 @@ public class J1939Test {
     public void testRequestMultipleHandlesBusException() throws Exception {
         when(bus.read(ArgumentMatchers.anyLong(), ArgumentMatchers.any(TimeUnit.class)))
                 .thenThrow(new BusException("Testing"));
-        Packet request = instance.createRequestPacket(DM5DiagnosticReadinessPacket.PGN, 0x00);
-        Stream<DM5DiagnosticReadinessPacket> response = instance
-                .requestResult(null, ResultsListener.NOOP, false, DM5DiagnosticReadinessPacket.class,
-                        request)
+        Stream<DM5DiagnosticReadinessPacket> response = instance.requestGlobal(null,
+                DM5DiagnosticReadinessPacket.class,
+                NOOP)
                 .getEither().stream().flatMap(e -> e.left.stream());
         assertEquals(0, response.count());
     }
 
+    /** FIXME What is this? Looks like a DS test to 0, but sends to global. */
     @Test
     public void testRequestMultipleHandlesDSRequests() throws Exception {
         Packet packet = Packet.create(EngineHoursPacket.PGN, ENGINE_ADDR, 1, 2, 3, 4, 5, 6, 7, 8);
@@ -324,19 +521,18 @@ public class J1939Test {
                 .thenReturn(Stream.of(packet));
 
         Packet requestPacket = instance.createRequestPacket(EngineHoursPacket.PGN, ENGINE_ADDR);
-        RequestResult<EngineHoursPacket> packets = instance.requestResult(null, ResultsListener.NOOP, false,
-                EngineHoursPacket.class,
-                requestPacket);
-        assertEquals(1, packets.getPackets().size());
-        assertEquals(3365299.25, packets.getPackets().get(0).getEngineHours(), 0.0001);
+        BusResult<EngineHoursPacket> response = instance.requestDS(null,
+                EngineHoursPacket.class, ENGINE_ADDR,
+                NOOP);
+        assertEquals(3365299.25, response.getPacket().get().left.get().getEngineHours(), 0.0001);
 
         verify(bus).send(requestPacket);
     }
 
     @Test
     public void testRequestMultipleHandlesException() {
-        Stream<TestPacket> response = instance.requestResult(null, ResultsListener.NOOP, false, TestPacket.class,
-                Packet.create(0xEA00, 0, 0, 0, 0)).getEither().stream().flatMap(e -> e.left.stream());
+        Stream<TestPacket> response = instance.requestGlobal(null, TestPacket.class, NOOP)
+                .getEither().stream().flatMap(e -> e.left.stream());
         assertEquals(0, response.count());
     }
 
@@ -345,13 +541,16 @@ public class J1939Test {
         when(bus.read(ArgumentMatchers.anyLong(), ArgumentMatchers.any(TimeUnit.class))).thenReturn(Stream.empty())
                 .thenReturn(Stream.empty()).thenReturn(Stream.empty());
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
-        Stream<VehicleIdentificationPacket> response = instance
-                .requestGlobal(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class, request)
+        Stream<VehicleIdentificationPacket> response = instance.<VehicleIdentificationPacket>requestGlobal(null,
+                J1939.getPgn(
+                        VehicleIdentificationPacket.class),
+                request,
+                NOOP)
                 .getEither()
                 .stream()
                 .flatMap(e -> e.left.stream());
         assertEquals(0, response.count());
-        verify(bus, times(2)).send(request);
+        verify(bus).send(request);
     }
 
     @Test
@@ -367,8 +566,11 @@ public class J1939Test {
 
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
 
-        Stream<VehicleIdentificationPacket> response = instance
-                .requestGlobal(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class, request)
+        Stream<VehicleIdentificationPacket> response = instance.<VehicleIdentificationPacket>requestGlobal(null,
+                J1939.getPgn(
+                        VehicleIdentificationPacket.class),
+                request,
+                NOOP)
                 .getEither()
                 .stream()
                 .flatMap(e -> e.left.stream());
@@ -390,8 +592,11 @@ public class J1939Test {
 
         Packet requestPacket = instance.createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
 
-        List<AcknowledgmentPacket> responses = instance
-                .requestGlobal(null, ResultsListener.NOOP, false, DM11ClearActiveDTCsPacket.class, requestPacket)
+        List<AcknowledgmentPacket> responses = instance.<DM11ClearActiveDTCsPacket>requestGlobal(null,
+                J1939.getPgn(
+                        DM11ClearActiveDTCsPacket.class),
+                requestPacket,
+                NOOP)
                 .getEither()
                 .stream()
                 .map(e -> (AcknowledgmentPacket) e.resolve())
@@ -399,7 +604,8 @@ public class J1939Test {
         assertEquals(2, responses.size());
 
         assertEquals("NACK", responses.get(0).getResponse().toString());
-        assertEquals("ACK", responses.get(1).getResponse().toString());
+        // only the first is returned
+        // assertEquals("ACK", responses.get(1).getResponse().toString());
 
         verify(bus).send(sendPacketCaptor.capture());
         List<Packet> packets = sendPacketCaptor.getAllValues();
@@ -419,8 +625,11 @@ public class J1939Test {
                 .thenReturn(Stream.of(packet1, packet2, packet3));
 
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
-        Stream<VehicleIdentificationPacket> response = instance
-                .requestGlobal(null, ResultsListener.NOOP, false, VehicleIdentificationPacket.class, request)
+        Stream<VehicleIdentificationPacket> response = instance.<VehicleIdentificationPacket>requestGlobal(null,
+                J1939.getPgn(
+                        VehicleIdentificationPacket.class),
+                request,
+                NOOP)
                 .getEither()
                 .stream()
                 .flatMap(e -> e.left.stream());

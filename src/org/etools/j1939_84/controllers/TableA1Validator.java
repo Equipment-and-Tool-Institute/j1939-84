@@ -18,7 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.stream.Stream;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.Lookup;
@@ -430,10 +429,13 @@ public class TableA1Validator {
                 .map(dataRepository::getObdModule)
                 .forEach(moduleInfo -> {
                     Map<Integer, List<Integer>> pgnMap = getMessages(moduleInfo.getDataStreamSpns(), listener);
-                    Stream<Integer> pgns = pgnMap.keySet().stream().sorted();
-                    pgns.forEach(pgn -> {
+                    pgnMap.keySet().stream().sorted().forEach(pgn -> {
 
-                        String spns = pgnMap.get(pgn).stream().map(Object::toString).collect(Collectors.joining(", "));
+                        String spns = pgnMap.get(pgn)
+                                .stream()
+                                .sorted()
+                                .map(Object::toString)
+                                .collect(Collectors.joining(", "));
                         String msg = "PGN " + pgn + " from SA " + moduleInfo.getSourceAddress() + " with SPNs " + spns;
 
                         PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
@@ -456,6 +458,7 @@ public class TableA1Validator {
         Map<Integer, List<Integer>> pgnMap = new HashMap<>();
         supportedSPNs.stream()
                 .map(SupportedSPN::getSpn)
+                .sorted()
                 .distinct()
                 .forEach(spn -> {
                     Set<Integer> pgns = j1939DaRepository.getPgnForSpn(spn);

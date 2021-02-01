@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -12,20 +13,16 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
-import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -51,7 +48,7 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
     private BannerModule bannerModule;
 
     @Mock
-    private DTCModule dtcModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -87,7 +84,7 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              dtcModule,
+                                              diagnosticMessageModule,
                                               dateTimeModule,
                                               dataRepository);
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
@@ -96,12 +93,12 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dtcModule,
-                mockListener,
-                dataRepository);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 diagnosticMessageModule,
+                                 mockListener,
+                                 dataRepository);
     }
 
     @Test
@@ -116,34 +113,32 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
         AcknowledgmentPacket nackPacket = mock(AcknowledgmentPacket.class);
         when(nackPacket.getResponse()).thenReturn(Response.NACK);
         when(nackPacket.getSourceAddress()).thenReturn(1);
-        List<AcknowledgmentPacket> acknowledgmentPackets = new ArrayList<>() {
-            {
-                add(ackPacket);
-                add(nackPacket);
-                add(ackPacket2);
-            }
-        };
+
+        List<AcknowledgmentPacket> acknowledgmentPackets = List.of(ackPacket, nackPacket, ackPacket2);
+
         when(dataRepository.isObdModule(0)).thenReturn(true);
         when(dataRepository.isObdModule(1)).thenReturn(true);
         when(dataRepository.isObdModule(2)).thenReturn(false);
 
-        when(dtcModule.requestDM11(any()))
-                .thenReturn(new RequestResult<>(false, Collections.emptyList(),
-                        acknowledgmentPackets));
+        when(diagnosticMessageModule.requestDM11(any())).thenReturn(acknowledgmentPackets);
+
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM11(any());
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM11(any());
 
-        verify(mockListener).addOutcome(1, 10, WARN, "6.1.10.3.a - The request for DM11 was NACK'ed");
-        verify(mockListener).addOutcome(1, 10, WARN, "6.1.10.3.a - The request for DM11 was ACK'ed");
+        verify(mockListener).addOutcome(1, 10, FAIL, "6.1.10.3.a - The request for DM11 was NACK'ed by Engine #2 (1)");
+        verify(mockListener).addOutcome(1, 10, WARN, "6.1.10.3.a - The request for DM11 was ACK'ed by Engine #1 (0)");
 
         verify(dataRepository).isObdModule(0);
         verify(dataRepository).isObdModule(1);
         verify(dataRepository).isObdModule(2);
 
-        assertEquals("WARN: 6.1.10.3.a - The request for DM11 was NACK'ed" + NL + "WARN: 6.1.10.3.a - The request for DM11 was ACK'ed" + NL,
-                listener.getResults());
+        String expected = "";
+        expected += "FAIL: 6.1.10.3.a - The request for DM11 was NACK'ed by Engine #2 (1)" + NL;
+        expected += "WARN: 6.1.10.3.a - The request for DM11 was ACK'ed by Engine #1 (0)" + NL;
+        assertEquals(expected, listener.getResults());
+
         String expectedMessages = "";
         expectedMessages += "Waiting for 5 seconds" + NL;
         expectedMessages += "Waiting for 4 seconds" + NL;
@@ -178,16 +173,12 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
 
         when(dataRepository.isObdModule(0)).thenReturn(true);
 
-        DM11ClearActiveDTCsPacket dm11Packet = mock(DM11ClearActiveDTCsPacket.class);
-
-        when(dtcModule.requestDM11(any()))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(dm11Packet),
-                        Collections.singletonList(acknowledgmentPacket)));
+        when(diagnosticMessageModule.requestDM11(any())).thenReturn(List.of(acknowledgmentPacket));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM11(any());
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM11(any());
         verify(dataRepository).isObdModule(0);
 
         String expectedMessages = "";

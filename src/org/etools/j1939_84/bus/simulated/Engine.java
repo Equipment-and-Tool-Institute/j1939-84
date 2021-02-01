@@ -21,7 +21,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
-import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime;
+import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 
 /**
@@ -437,9 +437,9 @@ public class Engine implements AutoCloseable {
 
         // @formatter:off
         // DM33 response for DM33 Global Request for PGN 41216
-        sim.response(p -> isRequestFor(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, p),
+        sim.response(p -> isRequestFor(DM33EmissionIncreasingAECDActiveTime.PGN, p),
                      p -> Packet
-                             .create(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN | p.getSource(),
+                             .create(DM33EmissionIncreasingAECDActiveTime.PGN | p.getSource(),
                                      ADDR,
                                      0x01, //Number
                                      0x00, 0x00, 0x00, 0x00, //Timer1
@@ -477,9 +477,9 @@ public class Engine implements AutoCloseable {
         // @formatter:on
 
         // @formatter:off
-        sim.response(p -> isRequestFor(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN, p),
+        sim.response(p -> isRequestFor(DM33EmissionIncreasingAECDActiveTime.PGN, p),
                      p -> Packet
-                             .create(DM33EmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime.PGN | p.getSource(),
+                             .create(DM33EmissionIncreasingAECDActiveTime.PGN | p.getSource(),
                                      0x17,
                                      0x01,
                                      0x00, 0x00, 0x00, 0x00,

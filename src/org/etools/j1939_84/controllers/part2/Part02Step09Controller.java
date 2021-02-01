@@ -15,7 +15,7 @@ import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -30,7 +30,7 @@ public class Part02Step09Controller extends StepController {
     private static final int TOTAL_STEPS = 0;
 
     private final DataRepository dataRepository;
-    private final DTCModule dtcModule;
+    private final DiagnosticMessageModule diagnosticMessageModule;
 
     Part02Step09Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -39,7 +39,7 @@ public class Part02Step09Controller extends StepController {
              new VehicleInformationModule(),
              dataRepository,
              DateTimeModule.getInstance(),
-             new DTCModule());
+             new DiagnosticMessageModule());
     }
 
     Part02Step09Controller(Executor executor,
@@ -48,25 +48,25 @@ public class Part02Step09Controller extends StepController {
                            VehicleInformationModule vehicleInformationModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule,
-                           DTCModule dtcModule) {
+                           DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
-              dateTimeModule,
+              new DiagnosticMessageModule(), dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
         this.dataRepository = dataRepository;
-        this.dtcModule = dtcModule;
+        this.diagnosticMessageModule = diagnosticMessageModule;
     }
 
     @Override
     protected void run() throws Throwable {
-        dtcModule.setJ1939(getJ1939());
+        diagnosticMessageModule.setJ1939(getJ1939());
 
         // 6.2.9.1 a. Global DM21 (send Request (PGN 59904) for PGN 49408 (SPNs 3069, 3294-3296)).
-        var globalResponse = dtcModule.requestDM21(getListener());
+        var globalResponse = diagnosticMessageModule.requestDM21(getListener());
         var globalPackets = globalResponse.getPackets();
 
         // 6.2.9.2 a. Fail if any ECU reports > 0 distance SCC (SPN 3294).
@@ -127,7 +127,7 @@ public class Part02Step09Controller extends StepController {
         List<AcknowledgmentPacket> dsAcks = new ArrayList<>();
 
         obdModuleAddresses.forEach(address -> {
-            var result = dtcModule.requestDM21(getListener(), address);
+            var result = diagnosticMessageModule.requestDM21(getListener(), address);
             dsPackets.addAll(result.getPackets());
             dsAcks.addAll(result.getAcks());
         });

@@ -21,8 +21,8 @@ import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
-import org.etools.j1939_84.modules.OBDTestsModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
@@ -31,7 +31,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  * The controller for 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
  */
 public class Part01Step12Controller extends StepController {
-    //formatter:off
+    //@formatter:off
     private static final Set<Integer> VALID_SLOTS = new HashSet<>(Arrays.asList(5, 8, 9, 10, 12, 13, 14, 16, 17, 18, 19,
             22, 23, 27, 28, 29, 30, 32, 37, 39, 42, 43, 50, 51, 52, 55, 57, 64, 68, 69, 70, 71, 72, 76, 77, 78, 80, 82,
             85, 96, 98, 104, 106, 107, 112, 113, 114, 115, 125, 127, 130, 131, 132, 136, 138, 143, 144, 145, 146, 151,
@@ -42,14 +42,13 @@ public class Part01Step12Controller extends StepController {
             386, 387, 388, 389, 390, 393, 394, 396, 397, 398, 399, 400, 401, 403, 414, 415, 416, 429, 430, 431, 433,
             434, 436, 437, 438, 440, 441, 442, 443, 444, 445, 446, 450, 451, 452, 453, 456, 459, 460, 462, 463, 464,
             474, 475, 476, 479));
-    //formatter:on
+    //@formatter:on
 
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 12;
     private static final int TOTAL_STEPS = 0;
 
     private final DataRepository dataRepository;
-    private final OBDTestsModule obdTestsModule;
     private final TableA7Validator tableA7Validator;
 
     Part01Step12Controller(DataRepository dataRepository) {
@@ -58,7 +57,7 @@ public class Part01Step12Controller extends StepController {
              new BannerModule(),
              dataRepository,
              new VehicleInformationModule(),
-             new OBDTestsModule(),
+             new DiagnosticMessageModule(),
              new TableA7Validator(),
              DateTimeModule.getInstance());
     }
@@ -68,26 +67,24 @@ public class Part01Step12Controller extends StepController {
                            BannerModule bannerModule,
                            DataRepository dataRepository,
                            VehicleInformationModule vehicleInformationModule,
-                           OBDTestsModule obdTestsModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            TableA7Validator tableA7Validator,
                            DateTimeModule dateTimeModule) {
         super(executor,
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              diagnosticMessageModule,
               dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
         this.dataRepository = dataRepository;
-        this.obdTestsModule = obdTestsModule;
         this.tableA7Validator = tableA7Validator;
     }
 
     @Override
     protected void run() throws Throwable {
-        // 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
-        obdTestsModule.setJ1939(getJ1939());
 
         // 6.1.12.1.a Get all the obdModuleAddresses then send DM7 to each address we have and get supported spns
         List<ScaledTestResult> vehicleTestResults = new ArrayList<>();
@@ -99,19 +96,23 @@ public class Part01Step12Controller extends StepController {
             String moduleName = Lookup.getAddressName(sourceAddress);
 
             for (SupportedSPN spn : obdModule.getTestResultSpns()) {
-                List<ScaledTestResult> testResults =
-                        obdTestsModule.getDM30Packets(getListener(), sourceAddress, spn)
-                                .stream()
-                                .peek(p -> verifyDM30PacketSupported(p, spn))
-                                .flatMap(p -> p.getTestResults().stream())
-                                .collect(Collectors.toList());
+                var dm30Packets = getDiagnosticMessageModule().getDM30Packets(getListener(), sourceAddress, spn);
+                if (dm30Packets.isEmpty()) {
+                    addFailure("6.1.12.1.a - No test result for Supported SPN " + spn.getSpn() + " from " + moduleName);
+                } else {
+                    List<ScaledTestResult> testResults = dm30Packets
+                            .stream()
+                            .peek(p -> verifyDM30PacketSupported(p, spn))
+                            .flatMap(p -> p.getTestResults().stream())
+                            .collect(Collectors.toList());
 
-                // 6.1.12.1.d. Warn if any ECU reports more than one set of test results for the same SPN+FMI.
-                tableA7Validator.findDuplicates(testResults)
-                        .forEach(dup -> addWarning("6.1.12.1.d - " + moduleName + " returned duplicate test results for SPN " + dup
-                                .getSpn() + " FMI " + dup.getFmi()));
+                    // 6.1.12.1.d. Warn if any ECU reports more than one set of test results for the same SPN+FMI.
+                    tableA7Validator.findDuplicates(testResults)
+                            .forEach(dup -> addWarning("6.1.12.1.d - " + moduleName + " returned duplicate test results for SPN " + dup
+                                    .getSpn() + " FMI " + dup.getFmi()));
 
-                moduleTestResults.addAll(testResults);
+                    moduleTestResults.addAll(testResults);
+                }
             }
             obdModule.setScaledTestResults(moduleTestResults);
             dataRepository.putObdModule(obdModule);

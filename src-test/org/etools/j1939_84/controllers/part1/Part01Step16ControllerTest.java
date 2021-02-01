@@ -32,7 +32,7 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -59,7 +59,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DTCModule dtcModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -97,7 +97,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                dtcModule,
+                                              diagnosticMessageModule,
                 dataRepository,
                 DateTimeModule.getInstance());
 
@@ -112,7 +112,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
                 bannerModule,
                 vehicleInformationModule,
                 mockListener,
-                dtcModule);
+                                 diagnosticMessageModule);
     }
 
     @Test
@@ -127,16 +127,16 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(packet1.getSourceAddress()).thenReturn(0);
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
 
-        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, packet1));
-        when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(new RequestResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(new BusResult<>(false, packet1));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM2(any(), eq(true));
-        verify(dtcModule).requestDM2(any(), eq(true), eq(0));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM2(any());
+        verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         verify(mockListener).addOutcome(1,
                 16,
@@ -168,15 +168,15 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(packet1.getPacket()).thenReturn(packet);
         when(packet1.getSourceAddress()).thenReturn(0);
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.NOT_SUPPORTED);
-        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, packet1));
-        when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(new RequestResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(new BusResult<>(false, packet1));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM2(any(), eq(true));
-        verify(dtcModule).requestDM2(any(), eq(true), eq(0));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM2(any());
+        verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         verify(mockListener).addOutcome(1,
                 16,
@@ -196,14 +196,14 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(packet1.getSourceAddress()).thenReturn(0);
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
         AcknowledgmentPacket packet3 = mock(AcknowledgmentPacket.class);
-        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false,
-                List.of(packet1),
-                List.of(packet3)));
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(new RequestResult<>(false,
+                                                                                       List.of(packet1),
+                                                                                       List.of(packet3)));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM2(any(), eq(true));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM2(any());
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -222,16 +222,16 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(packet1.getSourceAddress()).thenReturn(0);
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.SLOW_FLASH);
 
-        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, packet1));
-        when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(new RequestResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(new BusResult<>(false, packet1));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM2(any(), eq(true));
-        verify(dtcModule).requestDM2(any(), eq(true), eq(0));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM2(any());
+        verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         verify(mockListener).addOutcome(1,
                 16,
@@ -256,13 +256,13 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         DM2PreviouslyActiveDTC packet1 = mock(DM2PreviouslyActiveDTC.class);
         when(packet1.getSourceAddress()).thenReturn(0);
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.ON);
-        when(dtcModule.requestDM2(any(), eq(true)))
+        when(diagnosticMessageModule.requestDM2(any()))
                 .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM2(any(), eq(true));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM2(any());
 
         verify(mockListener).addOutcome(1,
                 16,
@@ -283,20 +283,20 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         DM2PreviouslyActiveDTC packet1 = new DM2PreviouslyActiveDTC(
                 Packet.create(PGN, 0, new byte[] { 0x00, (byte) 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
 
-        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(requestResult(packet1));
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(requestResult(packet1));
 
         // Set up the destination specific packets we will be returning when
         // requested
         DM2PreviouslyActiveDTC packet2 = new DM2PreviouslyActiveDTC(
                 Packet.create(PGN, 0, new byte[] { 0x00, (byte) 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
 
-        when(dtcModule.requestDM2(any(), eq(true), eq(0)))
+        when(diagnosticMessageModule.requestDM2(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet2));
 
         // add ACK/NACK packets to the listing for complete reality testing
         DM2PreviouslyActiveDTC packet4 = new DM2PreviouslyActiveDTC(
                 Packet.create(PGN, 3, new byte[] { 0x00, (byte) 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
-        when(dtcModule.requestDM2(any(), eq(true), eq(3)))
+        when(diagnosticMessageModule.requestDM2(any(), eq(3)))
                 .thenReturn(new BusResult<>(false, packet4));
 
         // Return the modules address so that we can do the destination specific
@@ -306,10 +306,10 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM2(any(), eq(true));
-        verify(dtcModule).requestDM2(any(), eq(true), eq(0));
-        verify(dtcModule).requestDM2(any(), eq(true), eq(3));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM2(any());
+        verify(diagnosticMessageModule).requestDM2(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM2(any(), eq(3));
 
         verify(mockListener).addOutcome(1,
                 16,
@@ -339,7 +339,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(packet3.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
         when(packet3.getSourceAddress()).thenReturn(3);
         // global response
-        when(dtcModule.requestDM2(any(), eq(true))).thenReturn(new RequestResult<>(false, packet1, packet3));
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(new RequestResult<>(false, packet1, packet3));
 
         // Set up the destination specific packets we will be returning when
         // requested
@@ -349,12 +349,12 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(packet2Packet.getBytes()).thenReturn(new byte[] { 1 });
         when(packet2.getPacket()).thenReturn(packet2Packet);
 
-        when(dtcModule.requestDM2(any(), eq(true), eq(0)))
+        when(diagnosticMessageModule.requestDM2(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet2));
 
         // add ACK/NACK packets to the listing for complete reality testing
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
-        when(dtcModule.requestDM2(any(), eq(true), eq(3)))
+        when(diagnosticMessageModule.requestDM2(any(), eq(3)))
                 .thenReturn(new BusResult<>(false, packet4));
 
         // Return the modules address so that we can do the destination specific
@@ -364,10 +364,10 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM2(any(), eq(true));
-        verify(dtcModule).requestDM2(any(), eq(true), eq(0));
-        verify(dtcModule).requestDM2(any(), eq(true), eq(3));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM2(any());
+        verify(diagnosticMessageModule).requestDM2(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM2(any(), eq(3));
 
         verify(mockListener).addOutcome(1,
                 16,
@@ -385,21 +385,21 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
 
         DM2PreviouslyActiveDTC packet1 = new DM2PreviouslyActiveDTC(
                 Packet.create(PGN, 0, new byte[] { 0x00, (byte) 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
-        when(dtcModule.requestDM2(any(), eq(true)))
+        when(diagnosticMessageModule.requestDM2(any()))
                 .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
 
         // Set up the destination specific packets we will be returning when
         // requested
         DM2PreviouslyActiveDTC packet2 = new DM2PreviouslyActiveDTC(
                 Packet.create(PGN, 0, new byte[] { 0x00, (byte) 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
-        when(dtcModule.requestDM2(any(), eq(true), eq(0))).thenReturn(new BusResult<>(false, packet2));
+        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(new BusResult<>(false, packet2));
 
         // add ACK/NACK packets to the listing for complete reality testing
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
         when(packet4.getResponse()).thenReturn(Response.NACK);
         when(packet4.getSourceAddress()).thenReturn(3);
 
-        when(dtcModule.requestDM2(any(), eq(true), eq(3)))
+        when(diagnosticMessageModule.requestDM2(any(), eq(3)))
                 .thenReturn(new BusResult<>(false, packet4));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
@@ -407,10 +407,10 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM2(any(), eq(true));
-        verify(dtcModule).requestDM2(any(), eq(true), eq(0));
-        verify(dtcModule).requestDM2(any(), eq(true), eq(3));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM2(any());
+        verify(diagnosticMessageModule).requestDM2(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM2(any(), eq(3));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());

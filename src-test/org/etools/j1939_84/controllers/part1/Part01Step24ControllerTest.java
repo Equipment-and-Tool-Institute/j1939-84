@@ -9,12 +9,11 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
+import java.util.List;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
@@ -26,7 +25,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -53,11 +52,10 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
     @Mock
     private BannerModule bannerModule;
 
-    @Mock
     private DataRepository dataRepository;
 
     @Mock
-    private DTCModule dtcModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -83,6 +81,7 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
 
     @Before
     public void setUp() {
+        dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
@@ -90,7 +89,7 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              dtcModule,
+                                              diagnosticMessageModule,
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
@@ -103,15 +102,30 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 dataRepository,
-                                 dtcModule,
+                                 diagnosticMessageModule,
                                  mockListener);
     }
 
-    /**
-     * Test method for
-     * {@link Part01Step24Controller#run()}.
-     */
+    @Test
+    public void testGetDisplayName() {
+        assertEquals("Display Name", "Part " + PART_NUMBER + " Step " + STEP_NUMBER, instance.getDisplayName());
+    }
+
+    @Test
+    public void testGetPartNumber() {
+        assertEquals("Part Number", PART_NUMBER, instance.getPartNumber());
+    }
+
+    @Test
+    public void testGetStepNumber() {
+        assertEquals(STEP_NUMBER, instance.getStepNumber());
+    }
+
+    @Test
+    public void testGetTotalSteps() {
+        assertEquals("Total Steps", 0, instance.getTotalSteps());
+    }
+
     @Test
     public void testFail() {
 
@@ -123,497 +137,52 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
                 0x62, // Lamp Status/Support
                 0x1D, // Lamp Status/State
         };
-        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(
-                Packet.create(PGN, 0x00, data));
+        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN, 0x00, data));
 
-        when(dtcModule.requestDM25(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
-        OBDModuleInformation obdInfo = mock(OBDModuleInformation.class);
-        SupportedSPN supportedSpn = mock(SupportedSPN.class);
-        when(obdInfo.getFreezeFrameSpns()).thenReturn(Collections.singletonList(supportedSpn));
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));
+        OBDModuleInformation obdInfo = new OBDModuleInformation(0);
+        obdInfo.setSupportedSpns(List.of(SupportedSPN.create(123, true, true, true, 1)));
+        dataRepository.putObdModule(obdInfo);
 
         runTest();
 
-        verify(dataRepository).getObdModules();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM25(any(), eq(0x00));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM25(any(), eq(0x00));
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
                                                        STEP_NUMBER,
                                                        FAIL,
-                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
+                                                       "6.1.24.2.a - Engine #1 (0) provided freeze frame data other than no freeze frame data stored");
 
-        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
-                + NL;
+        String expectedResults = "FAIL: 6.1.24.2.a - Engine #1 (0) provided freeze frame data other than no freeze frame data stored" + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
 
-    /**
-     * Test method for
-     * {@link Part01Step24Controller#run()}.
-     */
     @Test
-    public void testFailByteEight() {
+    public void testNoResponses() {
 
-        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                                                                                   0,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0xFF,
-                                                                                   0xFF,
-                                                                                   0x00));
+        OBDModuleInformation obdInfo = new OBDModuleInformation(0);
+        obdInfo.setSupportedSpns(List.of(SupportedSPN.create(123, true, true, true, 1)));
+        dataRepository.putObdModule(obdInfo);
 
-        when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
-
-        OBDModuleInformation obdInfo = mock(OBDModuleInformation.class);
-        SupportedSPN supportedSpn = mock(SupportedSPN.class);
-        when(obdInfo.getFreezeFrameSpns()).thenReturn(Collections.singletonList(supportedSpn));
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));
+        when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(true));
 
         runTest();
 
-        verify(dataRepository).getObdModules();
-        verify(dtcModule).requestDM25(any(), eq(0x00));
+        verify(diagnosticMessageModule).setJ1939(j1939);
 
-        verify(dtcModule).setJ1939(j1939);
-
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
-                                                       STEP_NUMBER,
-                                                       FAIL,
-                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
-
-        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-    }
-
-    /**
-     * Test method for
-     * {@link Part01Step24Controller#run()}.
-     */
-    @Test
-    public void testFailByteFive() {
-
-        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                                                                                   0,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0xFF,
-                                                                                   0xFF));
-
-        when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
-
-        OBDModuleInformation obdInfo = mock(OBDModuleInformation.class);
-        SupportedSPN supportedSpn = mock(SupportedSPN.class);
-        when(obdInfo.getFreezeFrameSpns()).thenReturn(Collections.singletonList(supportedSpn));
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));
-
-        runTest();
-
-        verify(dataRepository).getObdModules();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM25(any(), eq(0x00));
-
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
-                                                       STEP_NUMBER,
-                                                       FAIL,
-                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
-
-        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-    }
-
-    /**
-     * Test method for
-     * {@link Part01Step24Controller#run()}.
-     */
-    @Test
-    public void testFailByteFour() {
-
-        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                                                                                   0,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x0E,
-                                                                                   0xFF,
-                                                                                   0xFF,
-                                                                                   0xFF));
-
-        when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
-
-        OBDModuleInformation obdInfo = mock(OBDModuleInformation.class);
-        SupportedSPN supportedSpn = mock(SupportedSPN.class);
-        when(obdInfo.getFreezeFrameSpns()).thenReturn(Collections.singletonList(supportedSpn));
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));
-
-        runTest();
-
-        verify(dataRepository).getObdModules();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM25(any(), eq(0x00));
-
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
-                                                       STEP_NUMBER,
-                                                       FAIL,
-                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
-
-        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-    }
-
-    /**
-     * Test method for
-     * {@link Part01Step24Controller#run()}.
-     */
-    @Test
-    public void testFailByteOne() {
-
-        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                                                                                   0,
-                                                                                   0x00,
-                                                                                   0x0B,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0xFF,
-                                                                                   0xFF,
-                                                                                   0xFF));
-
-        when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
-
-        OBDModuleInformation obdInfo = mock(OBDModuleInformation.class);
-        SupportedSPN supportedSpn = mock(SupportedSPN.class);
-        when(obdInfo.getFreezeFrameSpns()).thenReturn(Collections.singletonList(supportedSpn));
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));
-
-        runTest();
-
-        verify(dataRepository).getObdModules();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM25(any(), eq(0x00));
-
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
-                                                       STEP_NUMBER,
-                                                       FAIL,
-                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
-
-        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-    }
-
-    /**
-     * Test method for
-     * {@link Part01Step24Controller#run()}.
-     */
-    @Test
-    public void testFailByteSeven() {
-
-        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                                                                                   0,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0xFF,
-                                                                                   0xFF,
-                                                                                   0x00));
-
-        when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
-
-        OBDModuleInformation obdInfo = mock(OBDModuleInformation.class);
-        SupportedSPN supportedSpn = mock(SupportedSPN.class);
-        when(obdInfo.getFreezeFrameSpns()).thenReturn(Collections.singletonList(supportedSpn));
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));
-
-        runTest();
-
-        verify(dataRepository).getObdModules();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM25(any(), eq(0x00));
-
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
-                                                       STEP_NUMBER,
-                                                       FAIL,
-                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
-
-        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-    }
-
-    /**
-     * Test method for
-     * {@link Part01Step24Controller#run()}.
-     */
-    @Test
-    public void testFailByteSix() {
-
-        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                                                                                   0,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0xFF,
-                                                                                   0x00,
-                                                                                   0xFF));
-
-        when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
-
-        OBDModuleInformation obdInfo = mock(OBDModuleInformation.class);
-        SupportedSPN supportedSpn = mock(SupportedSPN.class);
-        when(obdInfo.getFreezeFrameSpns()).thenReturn(Collections.singletonList(supportedSpn));
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));
-
-        runTest();
-
-        verify(dataRepository).getObdModules();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM25(any(), eq(0x00));
-
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
-                                                       STEP_NUMBER,
-                                                       FAIL,
-                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
-
-        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-    }
-
-    /**
-     * Test method for
-     * {@link Part01Step24Controller#run()}.
-     */
-    @Test
-    public void testFailByteThree() {
-
-        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                                                                                   0,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x0D,
-                                                                                   0x00,
-                                                                                   0xFF,
-                                                                                   0xFF,
-                                                                                   0xFF));
-
-        when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
-
-        OBDModuleInformation obdInfo = mock(OBDModuleInformation.class);
-        SupportedSPN supportedSpn = mock(SupportedSPN.class);
-        when(obdInfo.getFreezeFrameSpns()).thenReturn(Collections.singletonList(supportedSpn));
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));
-
-        runTest();
-
-        verify(dataRepository).getObdModules();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM25(any(), eq(0x00));
-
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
-                                                       STEP_NUMBER,
-                                                       FAIL,
-                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
-
-        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-    }
-
-    /**
-     * Test method for
-     * {@link Part01Step24Controller#run()}.
-     */
-    @Test
-    public void testFailByteTwo() {
-
-        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                                                                                   0,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x0C,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0xFF,
-                                                                                   0xFF,
-                                                                                   0xFF));
-
-        when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
-
-        OBDModuleInformation obdInfo = mock(OBDModuleInformation.class);
-        SupportedSPN supportedSpn = mock(SupportedSPN.class);
-        when(obdInfo.getFreezeFrameSpns()).thenReturn(Collections.singletonList(supportedSpn));
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));
-
-        runTest();
-
-        verify(dataRepository).getObdModules();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM25(any(), eq(0x00));
-
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
-                                                       STEP_NUMBER,
-                                                       FAIL,
-                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
-
-        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-    }
-
-    /**
-     * Test method for
-     * {@link Part01Step24Controller#run()}.
-     */
-    @Test
-    public void testFailByteZero() {
-
-        DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
-                                                                                   0,
-                                                                                   0x0A,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0x00,
-                                                                                   0xFF,
-                                                                                   0xFF,
-                                                                                   0xFF));
-
-        when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
-
-        OBDModuleInformation obdInfo = mock(OBDModuleInformation.class);
-        SupportedSPN supportedSpn = mock(SupportedSPN.class);
-        when(obdInfo.getFreezeFrameSpns()).thenReturn(Collections.singletonList(supportedSpn));
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));
-
-        runTest();
-
-        verify(dataRepository).getObdModules();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM25(any(), eq(0x00));
-
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
-                                                       STEP_NUMBER,
-                                                       FAIL,
-                                                       "6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored");
-
-        String expectedResults = "FAIL: 6.1.24.2.a - An OBD ECU provided freeze frame data other than no freeze frame data stored"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-    }
-
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.StepController#getDisplayName()}.
-     */
-    @Test
-    public void testGetDisplayName() {
-        String name = "Part " + PART_NUMBER + " Step " + STEP_NUMBER;
-        assertEquals("Display Name", name, instance.getDisplayName());
-    }
-
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.StepController#getPartNumber()}.
-     */
-    @Test
-    public void testGetPartNumber() {
-        assertEquals("Part Number", PART_NUMBER, instance.getPartNumber());
-    }
-
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.StepController#getStepNumber()}.
-     */
-    @Test
-    public void testGetStepNumber() {
-        assertEquals(STEP_NUMBER, instance.getStepNumber());
-    }
-
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.StepController#getTotalSteps()}.
-     */
-    @Test
-    public void testGetTotalSteps() {
-        assertEquals("Total Steps", 0, instance.getTotalSteps());
-    }
-
-    /**
-     * Test method for
-     * {@link Part01Step24Controller#run()}.
-     */
-    @Test
-    public void testRun() {
-
-        OBDModuleInformation obdInfo = mock(OBDModuleInformation.class);
-        when(obdInfo.getFreezeFrameSpns()).thenReturn(Collections.emptyList());
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));
-
-        runTest();
-
-        verify(dataRepository).getObdModules();
-
-        verify(dtcModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM25(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
 
-    /**
-     * Test method for
-     * {@link Part01Step24Controller#run()}.
-     */
     @Test
-    public void testRunTwo() {
+    public void testNoErrors() {
 
         DM25ExpandedFreezeFrame packet = new DM25ExpandedFreezeFrame(Packet.create(PGN,
                                                                                    0,
@@ -626,19 +195,16 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
                                                                                    0xFF,
                                                                                    0xFF));
 
-        when(dtcModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
-        OBDModuleInformation obdInfo = mock(OBDModuleInformation.class);
-        SupportedSPN supportedSpn = mock(SupportedSPN.class);
-        when(obdInfo.getFreezeFrameSpns()).thenReturn(Collections.singletonList(supportedSpn));
-        when(dataRepository.getObdModules()).thenReturn(Collections.singletonList(obdInfo));
+        OBDModuleInformation obdInfo = new OBDModuleInformation(0);
+        obdInfo.setSupportedSpns(List.of(SupportedSPN.create(123, true, true, true, 1)));
+        dataRepository.putObdModule(obdInfo);
 
         runTest();
 
-        verify(dataRepository).getObdModules();
-
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM25(any(), eq(0x00));
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM25(any(), eq(0x00));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

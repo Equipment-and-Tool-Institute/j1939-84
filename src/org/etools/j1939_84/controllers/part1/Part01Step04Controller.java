@@ -10,16 +10,23 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.BusResult;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.modules.*;
+import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.SupportedSpnModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
- *
+ * <p>
  * The controller for DM24: SPN support
  */
 public class Part01Step04Controller extends StepController {
@@ -29,7 +36,6 @@ public class Part01Step04Controller extends StepController {
     private static final int TOTAL_STEPS = 0;
 
     private final DataRepository dataRepository;
-    private final OBDTestsModule obdTestsModule;
     private final SupportedSpnModule supportedSpnModule;
 
     Part01Step04Controller(DataRepository dataRepository) {
@@ -37,17 +43,17 @@ public class Part01Step04Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new OBDTestsModule(),
+             new DiagnosticMessageModule(),
              new SupportedSpnModule(),
              dataRepository,
-                DateTimeModule.getInstance());
+             DateTimeModule.getInstance());
     }
 
     Part01Step04Controller(Executor executor,
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           OBDTestsModule obdTestsModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            SupportedSpnModule supportedSpnModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
@@ -55,18 +61,17 @@ public class Part01Step04Controller extends StepController {
               engineSpeedModule,
               bannerModule,
               vehicleInformationModule,
+              diagnosticMessageModule,
               dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.obdTestsModule = obdTestsModule;
         this.supportedSpnModule = supportedSpnModule;
         this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
-        obdTestsModule.setJ1939(getJ1939());
 
         List<DM24SPNSupportPacket> destinationSpecificPackets = new ArrayList<>();
 
@@ -79,40 +84,30 @@ public class Part01Step04Controller extends StepController {
         // then retry DS DM24 request to the OBD ECU.
         //
         // [Do not attempt retry for NACKs that indicate not supported].
-        dataRepository.getObdModules().forEach(module -> {
-            BusResult<DM24SPNSupportPacket> result = obdTestsModule.requestDM24(getListener(),
-                                                                                module.getSourceAddress());
-            result.getPacket().flatMap(packet -> packet.left).ifPresent(destinationSpecificPackets::add);
-            // 6.1.4.2.a. Fail if retry was required to obtain DM24 response.
-            if (result.isRetryUsed()) {
-                addFailure("6.1.4.2.a - Retry was required to obtain DM24 response");
-            }
-        });
+        dataRepository.getObdModules()
+                .stream()
+                .mapToInt(OBDModuleInformation::getSourceAddress)
+                .forEach(sourceAddress -> {
+                    BusResult<DM24SPNSupportPacket> result = getDiagnosticMessageModule().requestDM24(getListener(),
+                                                                                                      sourceAddress);
+                    result.getPacket().flatMap(packet -> packet.left).ifPresent(destinationSpecificPackets::add);
+
+                    // 6.1.4.2.a. Fail if retry was required to obtain DM24 response.
+                    if (result.isRetryUsed()) {
+                        String moduleName = Lookup.getAddressName(sourceAddress);
+                        addFailure("6.1.4.2.a - Retry was required to obtain DM24 response from " + moduleName);
+                    }
+                });
+
         // 6.1.4.1.c Create vehicle list of supported SPNs for data stream
         destinationSpecificPackets.forEach(p -> {
             OBDModuleInformation info = dataRepository.getObdModule(p.getSourceAddress());
             if (info != null) {
-                // d. Create ECU specific list of supported SPNs for test results.
+                // 6.1.4.1.d. Create ECU specific list of supported SPNs for test results.
                 info.setSupportedSpns(p.getSupportedSpns());
-                dataRepository.putObdModule(p.getSourceAddress(), info);
+                dataRepository.putObdModule(info);
             }
         });
-
-        // 6.1.4.1.e. Create ECU specific list of supported freeze frame SPNs.
-        List<Integer> freezeFrameSpns = dataRepository.getObdModules().stream()
-                .map(OBDModuleInformation::getFreezeFrameSpns)
-                .flatMap(Collection::stream)
-                .map(SupportedSPN::getSpn)
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
-        boolean freezeFrameOk = supportedSpnModule.validateFreezeFrameSpns(getListener(),
-                                                                           freezeFrameSpns);
-        // c. Fail if one or more minimum expected SPNs for freeze frame not
-        // supported per section A.2, Criteria for Freeze Frame Evaluation, from the OBD ECU(s).
-        if (!freezeFrameOk) {
-            addFailure("6.1.4.2.c - One or more SPNs for freeze frame are not supported");
-        }
 
         // 6.1.4.1.d. Create ECU specific list of supported SPNs for test results.
         List<Integer> dataStreamSpns = dataRepository.getObdModules().stream()
@@ -123,14 +118,29 @@ public class Part01Step04Controller extends StepController {
                 .sorted()
                 .collect(Collectors.toList());
 
-        boolean dataStreamOk = supportedSpnModule
-                .validateDataStreamSpns(getListener(),
-                                        dataStreamSpns,
-                                        dataRepository.getVehicleInformation().getFuelType());
-        // 6.1.4.2.b. Fail if one or more minimum expected SPNs for data stream
-        // not supported per section A.1, Minimum Support Table, from the OBD ECU(s).
+        FuelType fuelType = dataRepository.getVehicleInformation().getFuelType();
+        boolean dataStreamOk = supportedSpnModule.validateDataStreamSpns(getListener(), dataStreamSpns, fuelType);
         if (!dataStreamOk) {
-            addFailure("6.1.4.2.b - One or more SPNs for data stream is not supported");
+            // 6.1.4.2.b. Fail if one or more minimum expected SPNs for data stream
+            // not supported per section A.1, Minimum Support Table, from the OBD ECU(s).
+            addFailure("6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         }
+
+        // 6.1.4.1.e. Create ECU specific list of supported freeze frame SPNs.
+        List<Integer> freezeFrameSpns = dataRepository.getObdModules().stream()
+                .map(OBDModuleInformation::getFreezeFrameSpns)
+                .flatMap(Collection::stream)
+                .map(SupportedSPN::getSpn)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+
+        boolean freezeFrameOk = supportedSpnModule.validateFreezeFrameSpns(getListener(), freezeFrameSpns);
+        if (!freezeFrameOk) {
+            // 6.1.4.2.c. Fail if one or more minimum expected SPNs for freeze frame not
+            // supported per section A.2, Criteria for Freeze Frame Evaluation, from the OBD ECU(s).
+            addFailure("6.1.4.2.c - One or more SPNs for freeze frame are not supported");
+        }
+
     }
 }

@@ -19,8 +19,26 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  * Permanent, MIL- On, PMIL-On)
  */
 public class DM29DtcCounts extends GenericPacket {
-    // Hex value of PGN = 009E00
-    public static final int PGN = 40448;
+    public static final int PGN = 40448; //9E00
+
+    public static DM29DtcCounts create(int source,
+                                       int pendingCount,
+                                       int allCount,
+                                       int milCount,
+                                       int previousCount,
+                                       int permanentCount) {
+        byte[] data = new byte[8];
+        data[0] = (byte) (pendingCount & 0xFF);
+        data[1] = (byte) (allCount & 0xFF);
+        data[2] = (byte) (milCount & 0xFF);
+        data[3] = (byte) (previousCount & 0xFF);
+        data[4] = (byte) (permanentCount & 0xFF);
+        data[5] = (byte) 0xFF;
+        data[6] = (byte) 0xFF;
+        data[7] = (byte) 0xFF;
+
+        return new DM29DtcCounts(Packet.create(PGN, source, data));
+    }
 
     private int allPendingDTCCount = -1;
     private int emissionRelatedMILOnDTCCount = -1;
@@ -72,8 +90,17 @@ public class DM29DtcCounts extends GenericPacket {
         return "DM29";
     }
 
-    public boolean isDM27Supported() {
-        return getPacket().get(1) != 0xFF;
+    public boolean hasNonZeroCounts(Boolean allPendingSupported) {
+        boolean result = false;
+        if (allPendingSupported != null) {
+            result = getAllPendingDTCCount() != (allPendingSupported ? 0 : (byte) 0xFF);
+        }
+
+        return result
+                || getEmissionRelatedPendingDTCCount() != 0
+                || getEmissionRelatedMILOnDTCCount() != 0
+                || getEmissionRelatedPreviouslyMILOnDTCCount() != 0
+                || getEmissionRelatedPermanentDTCCount() != 0;
     }
 
     private void parsePacket() {
@@ -108,11 +135,11 @@ public class DM29DtcCounts extends GenericPacket {
 
     @Override public int hashCode() {
         return Objects.hash(super.hashCode(),
-                getAllPendingDTCCount(),
-                getEmissionRelatedMILOnDTCCount(),
-                getEmissionRelatedPendingDTCCount(),
-                getEmissionRelatedPermanentDTCCount(),
-                getEmissionRelatedPreviouslyMILOnDTCCount());
+                            getAllPendingDTCCount(),
+                            getEmissionRelatedMILOnDTCCount(),
+                            getEmissionRelatedPendingDTCCount(),
+                            getEmissionRelatedPermanentDTCCount(),
+                            getEmissionRelatedPreviouslyMILOnDTCCount());
     }
 
     @Override
@@ -136,6 +163,5 @@ public class DM29DtcCounts extends GenericPacket {
         result += String.format("%1$-45s %2$20s", "Emission-Related Permanent DTC Count", count);
         return result;
     }
-
 
 }

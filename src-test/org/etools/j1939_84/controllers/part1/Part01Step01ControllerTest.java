@@ -6,8 +6,8 @@ package org.etools.j1939_84.controllers.part1;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
-import static org.mockito.ArgumentMatchers.any;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
@@ -15,10 +15,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -41,6 +41,8 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * The unit test for {@link Part01Step01Controller}
  *
@@ -48,7 +50,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  */
 @RunWith(MockitoJUnitRunner.class)
 @TestDoc(description = "Part 1 Step 1 KOEO Data Collection")
-public class Part01Part01Step01ControllerTest {
+public class Part01Step01ControllerTest {
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 1;
     @Mock
@@ -85,21 +87,21 @@ public class Part01Part01Step01ControllerTest {
         DateTimeModule.setInstance(null);
 
         instance = new Part01Step01Controller(executor,
-                                              engineSpeedModule,
-                                              bannerModule,
-                                              vehicleInformationModule,
-                                              dataRepository,
-                                              DateTimeModule.getInstance());
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                dataRepository,
+                DateTimeModule.getInstance());
     }
 
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
-                                 engineSpeedModule,
-                                 bannerModule,
-                                 vehicleInformationModule,
-                                 dataRepository,
-                                 mockListener);
+                engineSpeedModule,
+                bannerModule,
+                vehicleInformationModule,
+                dataRepository,
+                mockListener);
     }
 
     /**
@@ -142,30 +144,30 @@ public class Part01Part01Step01ControllerTest {
     @Test
     @TestDoc(value = {
             @TestItem(verifies = "6.1.1.1.a,b,c", dependsOn = "UserInterfacePresenterTest",
-                    description = "Verify that the UI presents the data."),
+                      description = "Verify that the UI presents the data."),
             @TestItem(verifies = "6.1.1.1.d", dependsOn = "EngineSpeedModuleTest"),
             @TestItem(verifies = "6.1.1.1", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
             @TestItem(verifies = "6.1.1.1.e.i",
-                    dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest.testGetVin",
-                            "VehicleInformationModuleTest.testGetVinNoResponse",
-                            "VehicleInformationModuleTest.testGetVinWithDifferentResponses",
-                            "VehicleInformationModuleTest.testReportVin",
-                            "VehicleInformationModuleTest.testReportVinWithNoResponses", "VinDecoderTest" }),
+                      dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest.testGetVin",
+                              "VehicleInformationModuleTest.testGetVinNoResponse",
+                              "VehicleInformationModuleTest.testGetVinWithDifferentResponses",
+                              "VehicleInformationModuleTest.testReportVin",
+                              "VehicleInformationModuleTest.testReportVinWithNoResponses", "VinDecoderTest" }),
             @TestItem(verifies = "6.1.1.1.e.ii",
-                    dependsOn = { "VinDecoderTest" }),
+                      dependsOn = { "VinDecoderTest" }),
             @TestItem(verifies = "6.1.1.1.e.iv",
-                    dependsOn = { "FuelTypeTest" }),
+                      dependsOn = { "FuelTypeTest" }),
             @TestItem(verifies = "6.1.1.1.e.v",
-                    dependsOn = { "VehicleInformationTest",
-                            "VehicleInformationModuleTest.testReportCalibrationInformation",
-                            "VehicleInformationModuleTest.testReportCalibrationInformationWithNoResponses",
-                            "VehicleInformationModuleTest.testRunHappyPath",
-                            "VehicleInformationModuleTest.testRunNoModulesRespond",
-                            "VehicleInformationModuleTest.testRunWithWarningsAndFailures" }),
+                      dependsOn = { "VehicleInformationTest",
+                              "VehicleInformationModuleTest.testReportCalibrationInformation",
+                              "VehicleInformationModuleTest.testReportCalibrationInformationWithNoResponses",
+                              "VehicleInformationModuleTest.testRunHappyPath",
+                              "VehicleInformationModuleTest.testRunNoModulesRespond",
+                              "VehicleInformationModuleTest.testRunWithWarningsAndFailures" }),
     },
-            description = "Verify vehicle data collection and that the correct instructions to the user are transmistted to the UI presenter.")
+             description = "Verify vehicle data collection and that the correct instructions to the user are transmistted to the UI presenter.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     public void testRun() {
 
         String expectedTitle = "Start Part 1";
@@ -181,10 +183,11 @@ public class Part01Part01Step01ControllerTest {
         runnableCaptor.getValue().run();
 
         String urgentMessages = "";
-        urgentMessages += "Ready to begin Part 1\n";
-        urgentMessages += "a. Confirm the vehicle is in a safe location and condition for the test.\n";
-        urgentMessages += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts).\n";
-        urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions.\n";
+        urgentMessages += "Ready to begin Part 1" + NL;
+        urgentMessages += "a. Confirm the vehicle is in a safe location and condition for the test." + NL;
+        urgentMessages += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts)." + NL;
+        urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions."
+                + NL;
 
         verify(dataRepository, atLeastOnce()).getVehicleInformation();
         verify(engineSpeedModule).setJ1939(j1939);
@@ -200,15 +203,15 @@ public class Part01Part01Step01ControllerTest {
         verify(dataRepository).setVehicleInformation(vehicleInfo);
 
         String expectedMessages = "";
-        expectedMessages += "Part 1, Step 1 a-c Displaying Warning Message\n";
-        expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off\n";
+        expectedMessages += "Part 1, Step 1 a-c Displaying Warning Message" + NL;
+        expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off" + NL;
         expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
 
-        String expectedResults = vehicleInfo + "\n";
+        String expectedResults = vehicleInfo + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -220,11 +223,11 @@ public class Part01Part01Step01ControllerTest {
             @TestItem(verifies = "6.1.1.1.a,b,c", dependsOn = "UserInterfacePresenterTest"),
             @TestItem(verifies = "6.1.1.1.d", dependsOn = "EngineSpeedModuleTest"),
             @TestItem(verifies = "6.1.1.1.e",
-                    dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
+                      dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
     },
-            description = "Verify vehicle data collection is empty when the engine is not running and no data is collected.")
+             description = "Verify vehicle data collection is empty when the engine is not running and no data is collected.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     public void testRunVehicleInfoNull() {
 
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
@@ -253,10 +256,11 @@ public class Part01Part01Step01ControllerTest {
         runnableCaptor.getValue().run();
 
         String urgentMessages = "";
-        urgentMessages += "Ready to begin Part 1\n";
-        urgentMessages += "a. Confirm the vehicle is in a safe location and condition for the test.\n";
-        urgentMessages += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts).\n";
-        urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions.\n";
+        urgentMessages += "Ready to begin Part 1" + NL;
+        urgentMessages += "a. Confirm the vehicle is in a safe location and condition for the test." + NL;
+        urgentMessages += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts)." + NL;
+        urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions."
+                + NL;
 
         verify(dataRepository, atLeastOnce()).getVehicleInformation();
         verify(engineSpeedModule).setJ1939(j1939);
@@ -283,10 +287,10 @@ public class Part01Part01Step01ControllerTest {
             @TestItem(verifies = "6.1.1.1.a,b,c", dependsOn = "UserInterfacePresenterTest"),
             @TestItem(verifies = "6.1.1.1.d", dependsOn = "EngineSpeedModuleTest"),
             @TestItem(verifies = "6.1.1.1.e",
-                    dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }) },
-            description = "After the key was detected off, notify user to 'Please turn the Engine OFF with Key ON.', then continue with data collection.")
+                      dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }) },
+             description = "After the key was detected off, notify user to 'Please turn the Engine OFF with Key ON.', then continue with data collection.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+                        justification = "The method is called just to get some exception.")
     public void testWaitForKey() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
 
@@ -313,16 +317,16 @@ public class Part01Part01Step01ControllerTest {
         String urgentMessages = "Ready to begin Part 1" + NL;
         urgentMessages += "a. Confirm the vehicle is in a safe location and condition for the test." + NL;
         urgentMessages += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts)." + NL;
-        urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions." + NL;
+        urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions."
+                + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 1"), eq(WARNING), any());
         verify(mockListener).onUrgentMessage("Please turn the Engine OFF with Key ON", "Adjust Key Switch", WARNING);
         verify(mockListener).addOutcome(1, 2, ABORT, "User cancelled operation");
 
-
         String expectedMessages = "";
-        expectedMessages += "Part 1, Step 1 a-c Displaying Warning Message\n";
-        expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off\n";
-        expectedMessages += "Waiting for Key ON, Engine OFF...\n";
+        expectedMessages += "Part 1, Step 1 a-c Displaying Warning Message" + NL;
+        expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off" + NL;
+        expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
         expectedMessages += "Waiting for Key ON, Engine OFF...";
         assertEquals(expectedMessages, listener.getMessages());
 

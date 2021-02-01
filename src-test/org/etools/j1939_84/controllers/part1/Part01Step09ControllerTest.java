@@ -4,7 +4,7 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket.createComponentIdPacket;
+import static org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket.create;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -14,9 +14,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -47,31 +45,31 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class Part01Step09ControllerTest extends AbstractControllerTest {
 
-    private static final String COLON_SPACE = ": ";
+    private static final String EXPECTED_WARN_MESSAGE_3_D = "6.1.9.3.d - The model field (SPN 587) from Engine #1 (0) is less than 1 ASCII characters";
 
-    private static final String EXPECTED_WARN_MESSAGE_3_D = "6.1.9.3.d - Model field (SPN 587) is less than 1 character long";
+    private static final String EXPECTED_FAIL_MESSAGE_2_A = "6.1.9.2.a - There are no positive responses";
 
-    private static final String EXPECTED_FAIL_MESSAGE_1_A = "6.1.9.1.a - There are no positive responses (serial number SPN 588 not supported by any OBD ECU)";
+    private static final String EXPECTED_FAIL_MESSAGE_2_B = "6.1.9.2.b - None of the positive responses were provided by Engine #1 (0)";
 
-    private static final String EXPECTED_FAIL_MESSAGE_2_B = "6.1.9.2.b - None of the positive responses were provided by the same SA as the SA that claims to be function 0 (engine)";
+    private static final String EXPECTED_FAIL_MESSAGE_2_C = "6.1.9.2.c - Serial number field (SPN 588) from Engine #1 (0) does not end in 6 numeric characters";
 
-    private static final String EXPECTED_FAIL_MESSAGE_2_C = "6.1.9.2.c - Serial number field (SPN 588) from any function 0 device does not end in 6 numeric characters (ASCII 0 through ASCII 9)";
+    private static final String EXPECTED_FAIL_MESSAGE_2_D_MAKE = "6.1.9.2.d - The make (SPN 586) from Engine #1 (0) contains any unprintable ASCII characters";
 
-    private static final String EXPECTED_FAIL_MESSAGE_2_D = "6.1.9.2.d - The make (SPN 586), model (SPN 587), or serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters";
+    private static final String EXPECTED_FAIL_MESSAGE_2_D_MODEL = "6.1.9.2.d - The model (SPN 587) from Engine #1 (0) contains any unprintable ASCII characters";
 
-    private static final String EXPECTED_FAIL_MESSAGE_5_A = "6.1.9.5.a - There is no positive response from function 0";
+    private static final String EXPECTED_FAIL_MESSAGE_2_D_SN = "6.1.9.2.d - The serial number (SPN 588) from Engine #1 (0) contains any unprintable ASCII characters";
 
-    private static final String EXPECTED_FAIL_MESSAGE_5_B = "6.1.9.5.b - Global response does not match the destination specific response from function 0";
+    private static final String EXPECTED_FAIL_MESSAGE_5_A = "6.1.9.5.a - There is no positive response from Engine #1 (0)";
 
-    private static final String EXPECTED_FAIL_MESSAGE_6_A = "6.1.9.6.a - Component ID not supported for the global query, when supported by destination specific query";
+    private static final String EXPECTED_FAIL_MESSAGE_5_B = "6.1.9.5.b - Global response does not match the destination specific response from Engine #1 (0)";
 
-    private static final String EXPECTED_WARN_MESSAGE_3_A = "6.1.9.3.a - Serial number field (SPN 588) from any function 0 device is less than 8 characters long";
+    private static final String EXPECTED_FAIL_MESSAGE_6_A = "6.1.9.6.a - Engine #2 (1) did not supported the Component ID for the global query, but supported it in the destination specific query";
 
-    private static final String EXPECTED_WARN_MESSAGE_3_B = "6.1.9.3.b - Make field (SPN 586) is longer than 5 ASCII characters";
+    private static final String EXPECTED_WARN_MESSAGE_3_A = "6.1.9.3.a - Serial number field (SPN 588) from Engine #1 (0) is less than 8 characters long";
 
-    private static final String EXPECTED_WARN_MESSAGE_3_C = "6.1.9.3.c - Make field (SPN 586) is less than 2 ASCII characters";
+    private static final String EXPECTED_WARN_MESSAGE_3_B = "6.1.9.3.b - The make field (SPN 586) from Engine #1 (0) is longer than 5 ASCII characters";
 
-    private static final String EXPECTED_WARN_MESSAGE_4_A_4_B = "6.1.9.4.a & 6.1.9.4.b - Global Component ID request for PGN 65259 did not receive any packets";
+    private static final String EXPECTED_WARN_MESSAGE_3_C = "6.1.9.3.c - The make field (SPN 586) from Engine #1 (0) is less than 2 ASCII characters";
 
     private static final int PART_NUMBER = 1;
 
@@ -80,7 +78,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     @Mock
     private BannerModule bannerModule;
 
-    @Mock
     private DataRepository dataRepository;
 
     @Mock
@@ -94,6 +91,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     @Mock
     private J1939 j1939;
 
+    @Mock
     private ReportFileModule reportFileModule;
 
     @Mock
@@ -104,32 +102,28 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    private OBDModuleInformation createOBDModuleInformation(Integer sourceAddress, Integer function, String make,
-                                                            String model, String serialNumber, String unitNumber) {
+    private static OBDModuleInformation createOBDModuleInformation(int sourceAddress,
+                                                                   int function,
+                                                                   String make,
+                                                                   String model,
+                                                                   String serialNumber,
+                                                                   String unitNumber) {
         OBDModuleInformation module = new OBDModuleInformation(sourceAddress);
         module.setFunction(function);
-        ComponentIdentificationPacket componentIdentificationPacket = createComponentIdPacket(sourceAddress,
-                                                                                              make,
-                                                                                              model,
-                                                                                              serialNumber,
-                                                                                              unitNumber);
+        ComponentIdentificationPacket componentIdentificationPacket = create(sourceAddress,
+                                                                             make,
+                                                                             model,
+                                                                             serialNumber,
+                                                                             unitNumber);
         module.setComponentInformationIdentification(componentIdentificationPacket.getComponentIdentification());
         return module;
     }
 
-    /*
-     * 6.1.9.1 ACTIONS:
-     *
-     * a. Destination Specific (DS) Component ID request (PGN 59904) for PGN
-     * 65259 (SPNs 586, 587, and 588) to each OBD ECU. b. Display each positive
-     * return in the log.
-     */
-
     @Before
     public void setUp() {
-
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
+        dataRepository = DataRepository.newInstance();
 
         instance = new Part01Step09Controller(
                 executor,
@@ -140,78 +134,20 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                 DateTimeModule.getInstance());
 
         setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
-
     }
 
     @After
     public void tearDown() {
-
         verifyNoMoreInteractions(executor,
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 dataRepository,
                                  mockListener);
     }
 
     @Test
-    public void testDestinationSpecificPacketsEmpty() {
-        ComponentIdentificationPacket packet = createComponentIdPacket(0x00,
-                                                                       "BatMan",
-                                                                       "TheBatCave",
-                                                                       "ST109823456",
-                                                                       "Land");
-
-        OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
-                                                                    0,
-                                                                    "BatMan",
-                                                                    "TheBatCave",
-                                                                    "ST109823456",
-                                                                    "Land");
-
-        when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
-
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet),
-                                                List.of()));
-
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
-
-        runTest();
-
-        verify(dataRepository).getObdModules();
-
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_1_A);
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_B);
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_D);
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
-
-        verify(vehicleInformationModule).reportComponentIdentification(any());
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x00));
-
-        // Verify the documentation was recorded correctly
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        String functionZeroWarning = "0 module(s) have claimed function 0 - only one module should";
-        String expectedResults = FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_1_A + NL
-                + WARN.toString() + COLON_SPACE + functionZeroWarning + NL +
-                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_B + NL +
-                WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A + NL +
-                WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_D + NL +
-                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A + NL +
-                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B + NL;
-        assertEquals(expectedResults, listener.getResults());
-
-    }
-
-    @Test
     public void testGetDisplayName() {
-        String name = "Part " + PART_NUMBER + " Step " + STEP_NUMBER;
-        assertEquals("Display Name", name, instance.getDisplayName());
+        assertEquals("Part " + PART_NUMBER + " Step " + STEP_NUMBER, instance.getDisplayName());
     }
 
     @Test
@@ -221,46 +157,126 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 0, instance.getTotalSteps());
+        assertEquals(0, instance.getTotalSteps());
+    }
+
+    @Test
+    public void testDestinationSpecificPacketsEmpty() {
+        ComponentIdentificationPacket packet = create(0x00,
+                                                      "BatMan",
+                                                      "TheBatCave",
+                                                      "ST109823456",
+                                                      "Land");
+
+        OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
+                                                                    0,
+                                                                    "BatMan",
+                                                                    "TheBatCave",
+                                                                    "ST109823456",
+                                                                    "Land");
+
+        dataRepository.putObdModule(obdModule);
+
+        when(vehicleInformationModule.reportComponentIdentification(any()))
+                .thenReturn(new RequestResult<>(false, packet));
+
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
+                .thenReturn(new BusResult<>(false));
+
+        runTest();
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_A);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_B);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
+
+        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x00));
+
+        // Verify the documentation was recorded correctly
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        String expectedResults = "FAIL: " + EXPECTED_FAIL_MESSAGE_2_A + NL +
+                "Function 0 module is Engine #1 (0)" + NL +
+                "FAIL: " + EXPECTED_FAIL_MESSAGE_2_B + NL +
+                "FAIL: " + EXPECTED_FAIL_MESSAGE_5_B + NL;
+        assertEquals(expectedResults, listener.getResults());
+    }
+
+    @Test
+    public void testDestinationSpecificSupportWithoutGlobalSupport() {
+        ComponentIdentificationPacket packet0 = create(0,
+                                                       "BatMa",
+                                                       "TheBatCave",
+                                                       "ST109823456",
+                                                       "Land");
+        var packet1 = create(1, "make", "model", "SN", "unit");
+
+        OBDModuleInformation obdModule0 = createOBDModuleInformation(0x00,
+                                                                     0,
+                                                                     "BatMan",
+                                                                     "TheBatCave",
+                                                                     "ST109823456",
+                                                                     "Land");
+
+        dataRepository.putObdModule(obdModule0);
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        when(vehicleInformationModule.reportComponentIdentification(any()))
+                .thenReturn(new RequestResult<>(false, packet0));
+
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
+                .thenReturn(new BusResult<>(false, packet0));
+        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x01)))
+                .thenReturn(new BusResult<>(false, packet1));
+        runTest();
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
+
+        verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x00));
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x01));
+
+        // Verify the documentation was recorded correctly
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        String expectedResults = "" +
+                "Function 0 module is Engine #1 (0)" + NL +
+                "FAIL: " + EXPECTED_FAIL_MESSAGE_6_A + NL;
+        assertEquals(expectedResults, listener.getResults());
     }
 
     @Test
     public void testGlobalRequestDoesNotMatchDestinationSpecificRequest() {
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                                                                       "Bat",
-                                                                       "TheBatCave",
-                                                                       "ST109823456",
-                                                                       "");
+        ComponentIdentificationPacket packet1 = create(0,
+                                                       "Bat",
+                                                       "TheBatCave",
+                                                       "ST109823456",
+                                                       "");
 
-        OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
-                                                                       0,
-                                                                       "BatMan",
-                                                                       "TheBatCave",
-                                                                       "ST109823456",
-                                                                       "Land");
+        ComponentIdentificationPacket packet2 = create(0, "", "", "", "");
 
-        when(dataRepository.getObdModule(eq(0x00))).thenReturn(obdMoule0x00);
-        when(dataRepository.getObdModules()).thenReturn(List.of(obdMoule0x00));
+        OBDModuleInformation obdModule0x00 = createOBDModuleInformation(0x00,
+                                                                        0,
+                                                                        "BatMan",
+                                                                        "TheBatCave",
+                                                                        "ST109823456",
+                                                                        "Land");
+
+        dataRepository.putObdModule(obdModule0x00);
 
         // Global request response
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, List.of(),
-                                                List.of()));
+                .thenReturn(new RequestResult<>(false, packet2));
 
         // Destination specific responses
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+                .thenReturn(new BusResult<>(false, packet1));
 
         runTest();
 
-        verify(dataRepository).getObdModule(eq(0x00));
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(obdMoule0x00);
-
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_4_A_4_B);
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any());
@@ -268,80 +284,44 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = WARN.toString().trim() + COLON_SPACE + EXPECTED_WARN_MESSAGE_4_A_4_B + NL +
-                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A + NL +
-                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B + NL +
-                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_6_A + NL;
+        String expectedResults = "" +
+                "Function 0 module is Engine #1 (0)" + NL +
+                "FAIL: " + EXPECTED_FAIL_MESSAGE_5_B + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
     @Test
     public void testHappyPath() {
-        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0,
-                                                                           "Bat",
-                                                                           "TheBatCave",
-                                                                           "ST109823456",
-                                                                           "");
-        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
-                                                                           "AquaMan",
-                                                                           "TheWater",
-                                                                           "ST109888765",
-                                                                           "Ocean");
-        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
-                                                                           "SuperMan",
-                                                                           "TheCrystalIcePalace",
-                                                                           "ST109823456",
-                                                                           "Air");
-        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
-                                                                           "WonderWoman",
-                                                                           "TheLair",
-                                                                           "WW109877654",
-                                                                           "Lasso");
+        ComponentIdentificationPacket packet0x00 = create(0,
+                                                          "Bat",
+                                                          "TheBatCave",
+                                                          "ST109823456",
+                                                          "");
+        ComponentIdentificationPacket packet0x01 = create(0x01,
+                                                          "AquaM",
+                                                          "TheWater",
+                                                          "ST109888765",
+                                                          "Ocean");
+        ComponentIdentificationPacket packet0x02 = create(0x02,
+                                                          "Super",
+                                                          "TheCrystalIcePalace",
+                                                          "ST109823456",
+                                                          "Air");
+        ComponentIdentificationPacket packet0x03 = create(0x03,
+                                                          "Wonde",
+                                                          "TheLair",
+                                                          "WW109877654",
+                                                          "Lasso");
 
-        OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
-                                                                       0,
-                                                                       "BatMan",
-                                                                       "TheBatCave",
-                                                                       "ST109823456",
-                                                                       "Land");
-
-        OBDModuleInformation obdModule0x01 = createOBDModuleInformation(0x01,
-                                                                        1,
-                                                                        "AquaMan",
-                                                                        "TheWater",
-                                                                        "ST109888765",
-                                                                        "Ocean");
-
-        OBDModuleInformation obdModule0x02 = createOBDModuleInformation(0x02,
-                                                                        2,
-                                                                        "SuperMan",
-                                                                        "TheCrystalIcePalace",
-                                                                        "ST109823456",
-                                                                        "Air");
-
-        OBDModuleInformation obdModule0x03 = createOBDModuleInformation(0x03,
-                                                                        3,
-                                                                        "WonderWoman",
-                                                                        "TheLair",
-                                                                        "WW109877654",
-                                                                        "Lasso");
-
-        List<OBDModuleInformation> obdModules = new ArrayList<>();
-        obdModules.add(obdMoule0x00);
-        obdModules.add(obdModule0x01);
-        obdModules.add(obdModule0x02);
-        obdModules.add(obdModule0x03);
-
-        when(dataRepository.getObdModules()).thenReturn(obdModules);
-        when(dataRepository.getObdModule(0x00)).thenReturn(obdMoule0x00);
-        when(dataRepository.getObdModule(0x01)).thenReturn(obdModule0x01);
-        when(dataRepository.getObdModule(0x02)).thenReturn(obdModule0x02);
-        when(dataRepository.getObdModule(0x03)).thenReturn(obdModule0x03);
+        OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
+        obdModule0.setFunction(0);
+        dataRepository.putObdModule(obdModule0);
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(2));
+        dataRepository.putObdModule(new OBDModuleInformation(3));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(packet0x00, packet0x01, packet0x02, packet0x03),
-                                                List.of()));
+                .thenReturn(new RequestResult<>(false, packet0x00, packet0x01, packet0x02, packet0x03));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet0x00));
@@ -353,16 +333,10 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                 .thenReturn(new BusResult<>(false, packet0x03));
 
         runTest();
-
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getObdModule(eq(0x00));
-        verify(dataRepository).getObdModule(eq(0x01));
-        verify(dataRepository).getObdModule(eq(0x02));
-        verify(dataRepository).getObdModule(eq(0x03));
-        verify(dataRepository).putObdModule(obdMoule0x00);
-        verify(dataRepository).putObdModule(obdModule0x01);
-        verify(dataRepository).putObdModule(obdModule0x02);
-        verify(dataRepository).putObdModule(obdModule0x03);
+assertEquals(packet0x00.getComponentIdentification(), dataRepository.getObdModule(0).getComponentIdentification());
+        assertEquals(packet0x01.getComponentIdentification(), dataRepository.getObdModule(1).getComponentIdentification());
+        assertEquals(packet0x02.getComponentIdentification(), dataRepository.getObdModule(2).getComponentIdentification());
+        assertEquals(packet0x03.getComponentIdentification(), dataRepository.getObdModule(3).getComponentIdentification());
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -373,27 +347,26 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
     public void testMakeContainsNonPrintableAsciiCharacterFailure() {
-        char unprintableAsciiLineFeed = 0xa;
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                                                                       "Bat" + unprintableAsciiLineFeed,
-                                                                       "TheBatCave",
-                                                                       "ST109823456",
-                                                                       "");
+        char unprintableAsciiLineFeed = 0x0A;
+        ComponentIdentificationPacket packet = create(0,
+                                                      "Bat" + unprintableAsciiLineFeed,
+                                                      "TheBatCave",
+                                                      "ST109823456",
+                                                      "");
 
-        OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
-                                                                       0,
-                                                                       "BatMan",
-                                                                       "TheBatCave",
-                                                                       "ST109823456",
-                                                                       "Land");
+        OBDModuleInformation obdModule0x00 = createOBDModuleInformation(0x00,
+                                                                        0,
+                                                                        "BatMan",
+                                                                        "TheBatCave",
+                                                                        "ST109823456",
+                                                                        "Land");
 
-        when(dataRepository.getObdModule(eq(0x00))).thenReturn(obdMoule0x00);
-        when(dataRepository.getObdModules()).thenReturn(List.of(obdMoule0x00));
+        dataRepository.putObdModule(obdModule0x00);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
                 .thenReturn(new RequestResult<>(false,
@@ -405,11 +378,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dataRepository).getObdModule(eq(0x00));
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(obdMoule0x00);
-
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_MAKE);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any());
@@ -417,17 +386,18 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D + NL, listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_2_D_MAKE + NL,
+                     listener.getResults());
     }
 
     @Test
     public void testMakeFieldMoreThanFiveCharacters() {
 
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                                                                       "BatMan",
-                                                                       "TheBatCave",
-                                                                       "ST109823456",
-                                                                       "");
+        ComponentIdentificationPacket packet = create(0,
+                                                      "BatMan",
+                                                      "TheBatCave",
+                                                      "ST109823456",
+                                                      "");
 
         OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
                                                                     0,
@@ -436,20 +406,15 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                                     "ST109823456",
                                                                     "Land");
 
-        when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
-        when(dataRepository.getObdModule(0x00)).thenReturn(obdModule);
+        dataRepository.putObdModule(obdModule);
+
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet),
-                                                List.of()));
+                .thenReturn(new RequestResult<>(false, packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
 
         runTest();
-
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getObdModule(eq(0x00));
-        verify(dataRepository).putObdModule(obdModule);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
 
@@ -459,17 +424,18 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_B + NL, listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_B + NL,
+                     listener.getResults());
 
     }
 
     @Test
     public void testMakeFiveCharactersWarning() {
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                                                                       "BatMan",
-                                                                       "TheBatCave",
-                                                                       "ST109823456",
-                                                                       "");
+        ComponentIdentificationPacket packet = create(0,
+                                                      "BatMan",
+                                                      "TheBatCave",
+                                                      "ST109823456",
+                                                      "");
 
         OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
                                                                     0,
@@ -478,21 +444,15 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                                     "ST109823456",
                                                                     "Land");
 
-        when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
-        when(dataRepository.getObdModule(0x00)).thenReturn(obdModule);
+        dataRepository.putObdModule(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet),
-                                                List.of()));
+                .thenReturn(new RequestResult<>(false, packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
 
         runTest();
-
-        verify(dataRepository).getObdModule(eq(0x00));
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(obdModule);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_B);
 
@@ -502,16 +462,17 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_B + NL, listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_B + NL,
+                     listener.getResults());
     }
 
     @Test
     public void testMakeLessTwoAsciiCharactersWarning() {
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                                                                       "B",
-                                                                       "TheBatCave",
-                                                                       "ST109823456",
-                                                                       "Land");
+        ComponentIdentificationPacket packet = create(0,
+                                                      "B",
+                                                      "TheBatCave",
+                                                      "ST109823456",
+                                                      "Land");
 
         OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
                                                                     0,
@@ -520,21 +481,15 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                                     "ST109823456",
                                                                     "Land");
 
-        when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
-        when(dataRepository.getObdModule(0x00)).thenReturn(obdModule);
+        dataRepository.putObdModule(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet),
-                                                List.of()));
+                .thenReturn(new RequestResult<>(false, packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
 
         runTest();
-
-        verify(dataRepository).getObdModule(eq(0x00));
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(obdModule);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_C);
 
@@ -545,7 +500,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
-        assertEquals(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_C + NL, listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_C + NL,
+                     listener.getResults());
 
     }
 
@@ -554,11 +510,11 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         //char unprintableAsciiNull = 0x0;
         char unprintableAsciiCarriageReturn = 0xD;//0xD;
         String model = unprintableAsciiCarriageReturn + "TheBatCave";
-        ComponentIdentificationPacket packet = createComponentIdPacket(0x00,
-                                                                       "Bat",
-                                                                       model,
-                                                                       "ST109823456",
-                                                                       "Land");
+        ComponentIdentificationPacket packet = create(0x00,
+                                                      "Bat",
+                                                      model,
+                                                      "ST109823456",
+                                                      "Land");
 
         OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
                                                                     0,
@@ -567,22 +523,16 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                                     "ST109823456",
                                                                     "Land");
 
-        when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
-        when(dataRepository.getObdModule(0x00)).thenReturn(obdModule);
+        dataRepository.putObdModule(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet),
-                                                List.of()));
+                .thenReturn(new RequestResult<>(false, packet));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
 
         runTest();
 
-        verify(dataRepository).getObdModule(eq(0x00));
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(obdModule);
-
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_MODEL);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any());
@@ -590,16 +540,17 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D + NL, listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_2_D_MODEL + NL,
+                     listener.getResults());
     }
 
     @Test
     public void testModelLessThanOneCharactersWarning() {
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                                                                       "Bat",
-                                                                       "",
-                                                                       "ST123456",
-                                                                       "");
+        ComponentIdentificationPacket packet = create(0,
+                                                      "Bat",
+                                                      "",
+                                                      "ST123456",
+                                                      "");
 
         OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
                                                                     0,
@@ -608,21 +559,15 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                                     "ST109823456",
                                                                     "Land");
 
-        when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
-        when(dataRepository.getObdModule(eq(0x00))).thenReturn(obdModule);
+        dataRepository.putObdModule(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet),
-                                                List.of()));
+                .thenReturn(new RequestResult<>(false, packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
 
         runTest();
-
-        verify(dataRepository).getObdModule(eq(0x00));
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(obdModule);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_D);
 
@@ -632,78 +577,18 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_D + NL, listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_D + NL,
+                     listener.getResults());
 
-    }
-
-    @Test
-    public void testMoreThanOneModuleWithFunctionZeroFailure() {
-        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0,
-                                                                           "Bat",
-                                                                           "TheBatCave",
-                                                                           "ST123456",
-                                                                           "");
-
-        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
-                                                                           "AquaMan",
-                                                                           "TheWater",
-                                                                           "ST109888765",
-                                                                           "Ocean");
-
-        OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
-                                                                       0,
-                                                                       "BatMan",
-                                                                       "TheBatCave",
-                                                                       "ST109823456",
-                                                                       "Land");
-
-        OBDModuleInformation obdModule0x01 = createOBDModuleInformation(0x01,
-                                                                        0,
-                                                                        "AquaMan",
-                                                                        "TheWater",
-                                                                        "ST109888765",
-                                                                        "Ocean");
-        when(dataRepository.getObdModules())
-                .thenReturn(List.of(obdMoule0x00, obdModule0x01));
-        when(dataRepository.getObdModule(eq(0x00))).thenReturn(obdMoule0x00);
-        when(dataRepository.getObdModule(eq(0x01))).thenReturn(obdModule0x01);
-
-        when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet0x00, packet0x01),
-                                                List.of()));
-
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet0x00));
-        when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, packet0x01));
-
-        runTest();
-
-        verify(dataRepository).getObdModule(eq(0x00));
-        verify(dataRepository).getObdModule(eq(0x01));
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(obdMoule0x00);
-        verify(dataRepository).putObdModule(obdModule0x01);
-
-        String expected2ModulesWarnMessage = "2 module(s) have claimed function 0 - only one module should";
-
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
-
-        // Verify the documentation was recorded correctly
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals(WARN.toString() + COLON_SPACE + expected2ModulesWarnMessage + NL, listener.getResults());
     }
 
     @Test
     public void testPacketsEmptyFailureGlobalRequest() {
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                                                                       "Bat",
-                                                                       "TheBatCave",
-                                                                       "ST109823456",
-                                                                       "");
+        ComponentIdentificationPacket packet = create(0,
+                                                      "Bat",
+                                                      "TheBatCave",
+                                                      "ST109823456",
+                                                      "");
 
         OBDModuleInformation obdModule = createOBDModuleInformation(0x00,
                                                                     0,
@@ -711,27 +596,17 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                                     "TheBatCave",
                                                                     "ST109823456",
                                                                     "Land");
-
-        when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
-        when(dataRepository.getObdModule(0x00)).thenReturn(obdModule);
+        dataRepository.putObdModule(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, List.of(),
-                                                List.of()));
+                .thenReturn(new RequestResult<>(false));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
 
         runTest();
 
-        verify(dataRepository).getObdModule(eq(0x00));
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(obdModule);
-
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_4_A_4_B);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_A);
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_5_B);
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any());
@@ -740,10 +615,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
-        String expectedResults = WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_4_A_4_B + NL +
-                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_A + NL +
-                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_5_B + NL +
-                FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_6_A + NL;
+        String expectedResults = "Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_5_A + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -751,29 +623,29 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     public void testSerialNumberContainsAsciiNonPrintableCharacterFailure() {
         char unprintableAsciiNull = 0x0;
         String serialNumber = "ST" + unprintableAsciiNull + "109823456";
-        ComponentIdentificationPacket packet0x00 = createComponentIdPacket(0x00,
-                                                                           "Bat",
-                                                                           "TheBatCave",
-                                                                           serialNumber,
-                                                                           "");
+        ComponentIdentificationPacket packet0x00 = create(0x00,
+                                                          "Bat",
+                                                          "TheBatCave",
+                                                          serialNumber,
+                                                          "");
 
-        ComponentIdentificationPacket packet0x01 = createComponentIdPacket(0x01,
-                                                                           "AquaMan",
-                                                                           "TheWater",
-                                                                           "ST109888765",
-                                                                           "Ocean");
+        ComponentIdentificationPacket packet0x01 = create(0x01,
+                                                          "AquaM",
+                                                          "TheWater",
+                                                          "ST109888765",
+                                                          "Ocean");
 
-        ComponentIdentificationPacket packet0x02 = createComponentIdPacket(0x02,
-                                                                           "SuperMan",
-                                                                           "TheCrystalIcePalace",
-                                                                           "ST109823456",
-                                                                           "Air");
+        ComponentIdentificationPacket packet0x02 = create(0x02,
+                                                          "Super",
+                                                          "TheCrystalIcePalace",
+                                                          "ST109823456",
+                                                          "Air");
 
-        ComponentIdentificationPacket packet0x03 = createComponentIdPacket(0x03,
-                                                                           "WonderWoman",
-                                                                           "TheLair",
-                                                                           "WW109877654",
-                                                                           "Lasso");
+        ComponentIdentificationPacket packet0x03 = create(0x03,
+                                                          "Wonde",
+                                                          "TheLair",
+                                                          "WW109877654",
+                                                          "Lasso");
 
         OBDModuleInformation obdModule0x00 = createOBDModuleInformation(0x00,
                                                                         0,
@@ -803,22 +675,13 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                                         "WW109877654",
                                                                         "Lasso");
 
-        List<OBDModuleInformation> obdModules = new ArrayList<>();
-        obdModules.add(obdModule0x00);
-        obdModules.add(obdModule0x01);
-        obdModules.add(obdModule0x02);
-        obdModules.add(obdModule0x03);
-
-        when(dataRepository.getObdModules()).thenReturn(obdModules);
-        when(dataRepository.getObdModule(eq(0x00))).thenReturn(obdModule0x00);
-        when(dataRepository.getObdModule(eq(0x01))).thenReturn(obdModule0x01);
-        when(dataRepository.getObdModule(eq(0x02))).thenReturn(obdModule0x02);
-        when(dataRepository.getObdModule(eq(0x03))).thenReturn(obdModule0x03);
+        dataRepository.putObdModule(obdModule0x00);
+        dataRepository.putObdModule(obdModule0x01);
+        dataRepository.putObdModule(obdModule0x02);
+        dataRepository.putObdModule(obdModule0x03);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(packet0x00, packet0x01, packet0x02, packet0x03),
-                                                List.of()));
+                .thenReturn(new RequestResult<>(false, packet0x00, packet0x01, packet0x02, packet0x03));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet0x00));
@@ -831,17 +694,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getObdModule(eq(0x00));
-        verify(dataRepository).getObdModule(eq(0x01));
-        verify(dataRepository).getObdModule(eq(0x02));
-        verify(dataRepository).getObdModule(eq(0x03));
-        verify(dataRepository).putObdModule(obdModule0x00);
-        verify(dataRepository).putObdModule(obdModule0x01);
-        verify(dataRepository).putObdModule(obdModule0x02);
-        verify(dataRepository).putObdModule(obdModule0x03);
-
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D);
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_D_SN);
 
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
@@ -852,39 +705,34 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_D + NL, listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_2_D_SN + NL,
+                     listener.getResults());
     }
 
     @Test
     public void testSerialNumberEightCharactersWarning() {
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                                                                       "Bat",
-                                                                       "TheBatCave",
-                                                                       "S123456",
-                                                                       "");
+        ComponentIdentificationPacket packet = create(0,
+                                                      "Bat",
+                                                      "TheBatCave",
+                                                      "S123456",
+                                                      "");
 
-        OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
-                                                                       0,
-                                                                       "BatMan",
-                                                                       "TheBatCave",
-                                                                       "ST109823456",
-                                                                       "Land");
+        OBDModuleInformation obdModule0x00 = createOBDModuleInformation(0x00,
+                                                                        0,
+                                                                        "BatMan",
+                                                                        "TheBatCave",
+                                                                        "ST109823456",
+                                                                        "Land");
 
-        when(dataRepository.getObdModules()).thenReturn(List.of(obdMoule0x00));
-        when(dataRepository.getObdModule(0x00)).thenReturn(obdMoule0x00);
+        dataRepository.putObdModule(obdModule0x00);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet),
-                                                List.of()));
+                .thenReturn(new RequestResult<>(false, packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
                 .thenReturn(new BusResult<>(false, packet));
 
         runTest();
-
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getObdModule(eq(0x00));
-        verify(dataRepository).putObdModule(eq(obdMoule0x00));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
 
@@ -895,40 +743,34 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
-        assertEquals(WARN.toString() + COLON_SPACE + EXPECTED_WARN_MESSAGE_3_A + NL, listener.getResults());
-
+        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_A + NL,
+                     listener.getResults());
     }
 
     @Test
     public void testSerialNumberEndsWithNonNumericCharacterInLastSixCharactersFailure() {
-        ComponentIdentificationPacket packet = createComponentIdPacket(0,
-                                                                       "Bat",
-                                                                       "TheBatCave",
-                                                                       "ST109823J456",
-                                                                       "Land");
+        ComponentIdentificationPacket packet = create(0,
+                                                      "Bat",
+                                                      "TheBatCave",
+                                                      "ST109823J456",
+                                                      "Land");
 
-        OBDModuleInformation obdMoule0x00 = createOBDModuleInformation(0x00,
-                                                                       0,
-                                                                       "Bat",
-                                                                       "TheBatCave",
-                                                                       "ST109823J456",
-                                                                       "Land");
+        OBDModuleInformation obdModule0x00 = createOBDModuleInformation(0x00,
+                                                                        0,
+                                                                        "Bat",
+                                                                        "TheBatCave",
+                                                                        "ST109823J456",
+                                                                        "Land");
 
-        when(dataRepository.getObdModule(eq(0x00))).thenReturn(obdMoule0x00);
-        when(dataRepository.getObdModules()).thenReturn(List.of(obdMoule0x00));
+        dataRepository.putObdModule(obdModule0x00);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet),
-                                                List.of()));
+                .thenReturn(new RequestResult<>(false, packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
                 .thenReturn(new BusResult<>(false, packet));
 
         runTest();
-
-        verify(dataRepository).getObdModule(eq(0x00));
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(obdMoule0x00);
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_2_C);
 
@@ -938,6 +780,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(FAIL.toString() + COLON_SPACE + EXPECTED_FAIL_MESSAGE_2_C + NL, listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_2_C + NL,
+                     listener.getResults());
     }
 }

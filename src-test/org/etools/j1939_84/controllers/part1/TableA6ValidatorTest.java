@@ -34,7 +34,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.HashSet;
 import java.util.Set;
-
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus;
@@ -43,8 +42,7 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.VehicleInformation;
-import org.etools.j1939_84.modules.DiagnosticReadinessModule;
-import org.etools.j1939_84.modules.OBDTestsModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.junit.After;
 import org.junit.Before;
@@ -69,7 +67,7 @@ public class TableA6ValidatorTest {
     private DataRepository dataRepository;
 
     @Mock
-    private DiagnosticReadinessModule diagnosticReadinessModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     private TableA6Validator instance;
 
@@ -77,9 +75,6 @@ public class TableA6ValidatorTest {
 
     @Mock
     private ResultsListener mockListener;
-
-    @Mock
-    private OBDTestsModule obdTestsModule;
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
@@ -94,9 +89,9 @@ public class TableA6ValidatorTest {
     public void tearDown() {
         verifyNoMoreInteractions(
                 dataRepository,
-                diagnosticReadinessModule,
+                diagnosticMessageModule,
                 mockListener,
-                obdTestsModule,
+                diagnosticMessageModule,
                 vehicleInformationModule);
     }
 

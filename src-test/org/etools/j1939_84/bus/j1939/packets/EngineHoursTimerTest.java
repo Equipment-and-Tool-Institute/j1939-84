@@ -16,7 +16,6 @@ import org.junit.Test;
  * Unit tests the {@link EngineHoursTimer} class
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
 public class EngineHoursTimerTest {
 
@@ -24,15 +23,13 @@ public class EngineHoursTimerTest {
 
     @Before
     public void setUp() {
-        byte[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF };
+        int[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF };
         instance = new EngineHoursTimer(data);
     }
 
     @Test
     public void testEngineHoursTimerError() {
-        byte[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, (byte) 0xFE, (byte) 0xFE,
-                (byte) 0xFE, (byte) 0xFE };
+        int[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, 0xFE, 0xFE, 0xFE, 0xFE };
         EngineHoursTimer errorInstance = new EngineHoursTimer(data);
         assertEquals(ERROR, errorInstance.getEiAecdTimer2());
         String expected = "EI-AECD Number = 1: Timer 1 = 0 minutes; Timer 2 = errored";
@@ -41,30 +38,29 @@ public class EngineHoursTimerTest {
 
     @Test
     public void testEngineHoursTimerNoError() {
-        byte[] data1 = { 0x38, 0x1A, 0x00, 0x00, 0x00, 0x0B, 0x00, 0x00, 0x00 };
-        EngineHoursTimer noErrorInstance = new EngineHoursTimer(data1);
+        EngineHoursTimer noErrorInstance = EngineHoursTimer.create(56, 1295788826, 12825099);
 
-        assertEquals(0x38, noErrorInstance.getEiAecdNumber());
-        assertEquals(0x1A, noErrorInstance.getEiAecdTimer1());
-        assertEquals(0x0B, noErrorInstance.getEiAecdTimer2());
+        assertEquals(56, noErrorInstance.getEiAecdNumber());
+        assertEquals(1295788826, noErrorInstance.getEiAecdTimer1());
+        assertEquals(12825099, noErrorInstance.getEiAecdTimer2());
 
-        String expected = "EI-AECD Number = 56: Timer 1 = 26 minutes; Timer 2 = 11 minutes";
+        String expected = "EI-AECD Number = 56: Timer 1 = 1295788826 minutes; Timer 2 = 12825099 minutes";
         assertEquals(expected, noErrorInstance.toString());
     }
 
-    @SuppressWarnings({ "SimplifiableAssertion", "EqualsWithItself" }) @Test
+    @SuppressWarnings({ "SimplifiableAssertion", "EqualsWithItself" })
+    @Test
     public void testEquals() {
-        byte[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF };
+        int[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF };
         EngineHoursTimer expected = new EngineHoursTimer(data);
         assertTrue(instance.equals(expected));
-        byte[] data1 = { 0x38, 0x1A, 0x00, 0x00, 0x00, 0x0B, 0x00, 0x00, 0x00 };
+        int[] data1 = { 0x38, 0x1A, 0x00, 0x00, 0x00, 0x0B, 0x00, 0x00, 0x00 };
         EngineHoursTimer expected1 = new EngineHoursTimer(data1);
         assertFalse(instance.equals(expected1));
-        byte[] data2 = { 0x01, 0x1A, 0x00, 0x00, 0x00, 0x0B, 0x00, 0x00, 0x00 };
+        int[] data2 = { 0x01, 0x1A, 0x00, 0x00, 0x00, 0x0B, 0x00, 0x00, 0x00 };
         EngineHoursTimer expected2 = new EngineHoursTimer(data2);
         assertFalse(instance.equals(expected2));
-        byte[] data3 = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x0B, 0x00, 0x00, 0x00 };
+        int[] data3 = { 0x01, 0x00, 0x00, 0x00, 0x00, 0x0B, 0x00, 0x00, 0x00 };
         EngineHoursTimer expected3 = new EngineHoursTimer(data3);
         assertFalse(instance.equals(expected3));
         assertFalse(instance.equals(new Object()));
@@ -89,8 +85,7 @@ public class EngineHoursTimerTest {
 
     @Test
     public void testHashCode() {
-        byte[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, (byte) 0xFF, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF };
+        int[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF };
         EngineHoursTimer expected = new EngineHoursTimer(data);
         assertEquals(expected.hashCode(), instance.hashCode());
     }
