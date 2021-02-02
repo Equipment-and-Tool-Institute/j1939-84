@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part2;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation.*;
 import static org.etools.j1939_84.bus.j1939.packets.DTCLampStatus.create;
 import static org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode.create;
@@ -28,6 +29,7 @@ import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
+import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
 import org.etools.j1939_84.bus.j1939.packets.DTCLampStatus;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
@@ -134,7 +136,6 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM31(any(), eq(0x00));
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
@@ -155,35 +156,20 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         dataRepository.putObdModule(obdModuleInformation);
 
-        int[] data = {
-                0x00, // SPN least significant bit
-                0x00, // SPN most significant bit
-                0x00, // Failure mode indicator
-                0x00, // SPN Conversion Occurrence Count
-                0xFF, // Lamp Status/Support
-                0xFF, // Lamp Status/State
-        };
-        AcknowledgmentPacket ackPacket0x00 = new AcknowledgmentPacket(
-                Packet.create(PGN, 0x00, data));
+        AcknowledgmentPacket ackPacket0x00 = AcknowledgmentPacket.create(0x0,
+                                                                         NACK,
+                                                                         0,
+                                                                         0xF9,
+                                                                         PGN);
 
         when(diagnosticMessageModule.requestDM31(any(), eq(0x00)))
                 .thenReturn(new RequestResult<>(false, List.of(), List.of(ackPacket0x00)));
 
         runTest();
 
-        DiagnosticTroubleCode dtc = create(609, 19, 1, 1);
-        DM31DtcToLampAssociation instance2 = DM31DtcToLampAssociation.create(0,
-                                                                             List.of(create(dtc, OFF, SLOW_FLASH, OTHER, OTHER)));
-        //assertTrue(instance.equals(instance2));
-
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM31(any(), eq(0x00));
 
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                                       "6.2.13.2.a - An ECU response does not report MIL off");
-
-        String expectedResults = "FAIL: 6.2.13.2.a - An ECU response does not report MIL off" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -225,7 +211,6 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM31(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM31(any(), eq(0x01));
         verify(diagnosticMessageModule).requestDM31(any(), eq(0x02));
