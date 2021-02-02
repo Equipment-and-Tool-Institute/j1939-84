@@ -4,10 +4,11 @@
 package org.etools.j1939_84.controllers;
 
 import java.util.List;
+import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -18,22 +19,36 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  */
 public class Part06Controller extends PartController {
 
-    public Part06Controller() {
-        super(Executors.newSingleThreadScheduledExecutor(),
-                new EngineSpeedModule(),
-                new BannerModule(),
-                new VehicleInformationModule(),
-                DateTimeModule.getInstance());
+    public Part06Controller(DataRepository dataRepository) {
+        this(Executors.newSingleThreadScheduledExecutor(),
+              new BannerModule(),
+              DateTimeModule.getInstance(),
+              dataRepository,
+              new EngineSpeedModule(),
+              new VehicleInformationModule(),
+              new DiagnosticMessageModule());
     }
 
-    @Override
-    public String getDisplayName() {
-        return "Part 6 Test";
-    }
-
-    @Override
-    protected PartResult getPartResult() {
-        return getPartResult(6);
+    /**
+     * Constructor exposed for testing
+     */
+    public Part06Controller(Executor executor,
+                            BannerModule bannerModule,
+                            DateTimeModule dateTimeModule,
+                            DataRepository dataRepository,
+                            EngineSpeedModule engineSpeedModule,
+                            VehicleInformationModule vehicleInformationModule,
+                            DiagnosticMessageModule diagnosticMessageModule,
+                            StepController... stepControllers) {
+        super(executor,
+              bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule,
+              6,
+              stepControllers);
     }
 
     @Override
