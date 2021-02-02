@@ -86,7 +86,8 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
                 diagnosticMessageModule,
                 DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor,
+              vehicleInformationModule, diagnosticMessageModule);
     }
 
     @After
@@ -126,9 +127,9 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM31(any());
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                                       "6.1.23.2.a - An ECU response does not report MIL off");
+                                                       "6.1.23.2.a - ECU Engine #1 (0) reported MIL light not off");
 
-        String expectedResults = "FAIL: 6.1.23.2.a - An ECU response does not report MIL off" + NL;
+        String expectedResults = "FAIL: 6.1.23.2.a - ECU Engine #1 (0) reported MIL light not off" + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
