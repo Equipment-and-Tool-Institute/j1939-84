@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.J1939_84.isTesting;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
@@ -65,7 +66,9 @@ public class Part01Step27Controller extends StepController {
         //  a. Testing may be stopped for vehicles with failed tests and for
         //  vehicles with the MIL on or a non-emissions related fault displayed
         //  in DM1. Vehicles with the MIL on will fail subsequent tests.
-        displayQuestionMessage();
+        if (!isTesting()) {
+            displayQuestionMessage();
+        }
 
         //  b. The transition from part 1 to part 2 shall be as provided below.
         //        i. The engine shall be started without turning the key off.
@@ -73,11 +76,15 @@ public class Part01Step27Controller extends StepController {
         //           mode used to provide power to the drive system without moving the vehicle, if not
         //           automatically provided during the initial key off to key on operation.
         incrementProgress("Part 1, Step 27 b.i - Ensuring Key On, Engine On");
-        ensureKeyOnEngineOn();
+        if (!isTesting()) {
+            ensureKeyOnEngineOn();
+        }
 
         //      iii. The engine shall be allowed to idle one minute
         incrementProgress("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
-        waitForOneMinute();
+        if (!isTesting()) {
+            waitForOneMinute();
+        }
     }
 
     private void waitForOneMinute() throws InterruptedException {

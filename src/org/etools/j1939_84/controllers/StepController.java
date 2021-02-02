@@ -36,6 +36,30 @@ public abstract class StepController extends Controller {
     private final int totalSteps;
 
     protected StepController(Executor executor,
+                             BannerModule bannerModule,
+                             DateTimeModule dateTimeModule,
+                             DataRepository dataRepository,
+                             EngineSpeedModule engineSpeedModule,
+                             VehicleInformationModule vehicleInformationModule,
+                             DiagnosticMessageModule diagnosticMessageModule,
+                             int partNumber,
+                             int stepNumber,
+                             int totalSteps) {
+        super(executor,
+              bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
+        this.partNumber = partNumber;
+        this.stepNumber = stepNumber;
+        this.totalSteps = totalSteps;
+    }
+
+    /** @deprecated Use the other constructor */
+    @Deprecated
+    protected StepController(Executor executor,
                              EngineSpeedModule engineSpeedModule,
                              BannerModule bannerModule,
                              VehicleInformationModule vehicleInformationModule,
@@ -44,15 +68,16 @@ public abstract class StepController extends Controller {
                              int partNumber,
                              int stepNumber,
                              int totalSteps) {
-        super(executor,
-              engineSpeedModule,
-              bannerModule,
-              vehicleInformationModule,
-              dateTimeModule,
-              diagnosticMessageModule);
-        this.partNumber = partNumber;
-        this.stepNumber = stepNumber;
-        this.totalSteps = totalSteps;
+        this(executor,
+             bannerModule,
+             dateTimeModule,
+             DataRepository.getInstance(),
+             engineSpeedModule,
+             vehicleInformationModule,
+             diagnosticMessageModule,
+             partNumber,
+             stepNumber,
+             totalSteps);
     }
 
     protected void addFailure(String message) {

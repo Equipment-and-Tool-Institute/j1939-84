@@ -13,42 +13,50 @@ import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+/**
+ * 6.2.18 Part 2 to Part 3 transition
+ */
 public class Part02Step18Controller extends StepController {
 
     private static final int PART_NUMBER = 2;
     private static final int STEP_NUMBER = 18;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
-    Part02Step18Controller(DataRepository dataRepository) {
+    Part02Step18Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
-             new EngineSpeedModule(),
              new BannerModule(),
+             DateTimeModule.getInstance(),
+             DataRepository.getInstance(),
+             new EngineSpeedModule(),
              new VehicleInformationModule(),
-             dataRepository,
-             DateTimeModule.getInstance());
+             new DiagnosticMessageModule());
     }
 
     Part02Step18Controller(Executor executor,
-                           EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
-                           VehicleInformationModule vehicleInformationModule,
+                           DateTimeModule dateTimeModule,
                            DataRepository dataRepository,
-                           DateTimeModule dateTimeModule) {
+                           EngineSpeedModule engineSpeedModule,
+                           VehicleInformationModule vehicleInformationModule,
+                           DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
-       getListener().onResult("There are " + dataRepository.getObdModuleAddresses() + " OBD Modules");
+        // 6.2.18.1.a. Turn Engine Off and keep the ignition key in the off position.
+        // 6.2.18.1.b. Implant Fault A according to engine manufacturer’s instruction. (See section 5 for additional discussion).
+        // 6.2.18.1.c. Turn ignition key to the ON position.
+        // 6.2.18.1.d. Observe MIL and Wait to Start Lamps in Instrument Cluster
+        // 6.2.18.1.e. Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished.
     }
 }

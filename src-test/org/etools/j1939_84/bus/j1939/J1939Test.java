@@ -438,9 +438,6 @@ public class J1939Test {
      */
     @Test
     public void testRequestDM7Timesout() throws Exception {
-        when(bus.read(220, MILLISECONDS)).thenReturn(Stream.of()).thenReturn(Stream.of())
-                .thenReturn(Stream.of());
-
         Object packet = instance.requestDM7(1024, 0, NOOP).getPacket().orElse(null);
         assertNull(packet);
 

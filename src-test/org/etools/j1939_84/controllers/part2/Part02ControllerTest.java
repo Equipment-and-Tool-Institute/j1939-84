@@ -17,11 +17,13 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.Lookup;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -121,16 +123,21 @@ public class Part02ControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
+
     @Before
     public void setUp() {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
         instance = new Part02Controller(executor,
-                                        engineSpeedModule,
                                         bannerModule,
-                                        vehicleInformationModule,
                                         DateTimeModule.getInstance(),
+                                        DataRepository.newInstance(),
+                                        engineSpeedModule,
+                                        vehicleInformationModule,
+                                        diagnosticMessageModule,
                                         step01Controller,
                                         step02Controller,
                                         step03Controller,

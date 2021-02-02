@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.utils;
@@ -52,20 +52,28 @@ public class StringUtils {
         byte[] bytes = input.getBytes(UTF_8);
         int index = 0;
         boolean isNull = true;
-        while (isNull) {
+        while (isNull && index < input.length()) {
             isNull = bytes[index++] == 0x00;
         }
-        return input.substring(--index);
+        if (index == input.length()) {
+            return input;
+        } else {
+            return input.substring(--index);
+        }
     }
 
     private static String stripTrailingNulls(String input) {
         byte[] bytes = input.getBytes(UTF_8);
         int index = input.length();
         boolean isNull = true;
-        while (isNull) {
+        while (isNull && index > 0) {
             isNull = bytes[--index] == 0x00;
         }
-        return input.substring(0, ++index);
+        if (index == 0) {
+            return "";
+        } else {
+            return input.substring(0, ++index);
+        }
     }
 
 }

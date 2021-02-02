@@ -13,42 +13,61 @@ import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
+/**
+ * 6.2.17 KOER Data stream verification
+ */
 public class Part02Step17Controller extends StepController {
 
     private static final int PART_NUMBER = 2;
     private static final int STEP_NUMBER = 17;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part02Step17Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-             new EngineSpeedModule(),
              new BannerModule(),
-             new VehicleInformationModule(),
+             DateTimeModule.getInstance(),
              dataRepository,
-             DateTimeModule.getInstance());
+             new EngineSpeedModule(),
+             new VehicleInformationModule(),
+             new DiagnosticMessageModule());
     }
 
     Part02Step17Controller(Executor executor,
-                           EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
-                           VehicleInformationModule vehicleInformationModule,
+                           DateTimeModule dateTimeModule,
                            DataRepository dataRepository,
-                           DateTimeModule dateTimeModule) {
+                           EngineSpeedModule engineSpeedModule,
+                           VehicleInformationModule vehicleInformationModule,
+                           DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
-       getListener().onResult("There are " + dataRepository.getObdModuleAddresses() + " OBD Modules");
+        // 6.2.17.1.a. Gather broadcast data for all SPNs that are supported for data stream in the OBD ECU responses.
+
+        // 6.2.17.2.a. Fail if no response/no valid data for any broadcast SPN indicated as supported in DM24.
+        // 6.2.17.2.b. Fail/warn if any broadcast data is not valid for KOER conditions as per Table A-1, Minimum Data Stream Support.
+        // 6.2.17.2.c. Fail/warn per Table A-1 if an expected SPN from the DM24 support list is provided by a non-OBD ECU.
+        // 6.2.17.2.d. Fail/warn per Table A-1, if two or more ECUs provide an SPN listed.
+
+        // 6.2.17.3.a. Identify SPNs provided in the data stream that are listed in Table A-1 but not supported by any OBD ECU in its DM24 response.
+        // 6.2.17.4.a. Fail/warn per Table A-1 column, “Action if SPN provided but not included in DM24”.
+
+        // 6.2.17.5.a. DS messages to ECU that indicated support in DM24 for upon request SPNs and SPNs not observed in step 1.
+        // 6.2.17.5.b. If no response/no valid data for any SPN requested in 6.2.16.3.a, send global message to request that SPN(s).
+
+        // 6.2.17.6.a. Fail if no response/no valid data for any upon request SPN indicated as supported in DM24, per Table A-1.
+        // 6.2.17.6.b. Fail/warn if any upon request data is not valid for KOER conditions as per section A.1.
+        // 6.2.17.6.c. Warn when global request was required for “broadcast” SPN
     }
 }

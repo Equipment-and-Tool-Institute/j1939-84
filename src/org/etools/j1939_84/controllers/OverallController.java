@@ -4,11 +4,11 @@
 package org.etools.j1939_84.controllers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-
 import org.etools.j1939_84.controllers.part1.Part01Controller;
 import org.etools.j1939_84.controllers.part2.Part02Controller;
 import org.etools.j1939_84.modules.BannerModule;
@@ -24,59 +24,52 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 public class OverallController extends Controller {
-    private Controller activeController;
+    private PartController activeController;
 
-    /**
-     * The other Controllers in the order they will be executed.
-     */
-
-    private final List<Controller> controllers = new ArrayList<>();
+    private final List<PartController> partControllers = new ArrayList<>();
 
     public OverallController() {
         this(DataRepository.getInstance());
     }
 
     private OverallController(DataRepository dataRepository) {
-        this(Executors.newSingleThreadScheduledExecutor(), dataRepository, new EngineSpeedModule(), new BannerModule(),
-                new VehicleInformationModule(), DateTimeModule.getInstance(),
-                new Part01Controller(dataRepository), new Part02Controller(dataRepository), new Part03Controller(),
-                new Part04Controller(),
-                new Part05Controller(), new Part06Controller(), new Part07Controller(), new Part08Controller(),
-                new Part09Controller(), new Part10Controller(), new Part11Controller(), new Part12Controller());
-
+        this(Executors.newSingleThreadScheduledExecutor(),
+             new BannerModule(),
+             DateTimeModule.getInstance(),
+             dataRepository,
+             new EngineSpeedModule(),
+             new VehicleInformationModule(),
+             new DiagnosticMessageModule(),
+             new Part01Controller(dataRepository),
+             new Part02Controller(dataRepository),
+             new Part03Controller(dataRepository),
+             new Part04Controller(dataRepository),
+             new Part05Controller(dataRepository),
+             new Part06Controller(dataRepository),
+             new Part07Controller(dataRepository),
+             new Part08Controller(dataRepository),
+             new Part09Controller(dataRepository),
+             new Part10Controller(dataRepository),
+             new Part11Controller(dataRepository),
+             new Part12Controller(dataRepository));
     }
 
-    private OverallController(Executor executor, DataRepository dataRepository,
-            EngineSpeedModule engineSpeedModule,
-            BannerModule bannerModule,
-            VehicleInformationModule vehicleInformationModule,
-            DateTimeModule dateTimeModule,
-            Part01Controller part1Controller,
-            Part02Controller part2Controller,
-            Part03Controller part3Controller,
-            Part04Controller part4Controller,
-            Part05Controller part5Controller,
-            Part06Controller part6Controller,
-            Part07Controller part7Controller,
-            Part08Controller part8Controller,
-            Part09Controller part9Controller,
-            Part10Controller part10Controller,
-            Part11Controller part11Controller,
-            Part12Controller part12Controller) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule,
-              new DiagnosticMessageModule());
-        controllers.add(part1Controller);
-        controllers.add(part2Controller);
-        controllers.add(part3Controller);
-        controllers.add(part4Controller);
-        controllers.add(part5Controller);
-        controllers.add(part6Controller);
-        controllers.add(part7Controller);
-        controllers.add(part8Controller);
-        controllers.add(part9Controller);
-        controllers.add(part10Controller);
-        controllers.add(part11Controller);
-        controllers.add(part12Controller);
+    private OverallController(Executor executor,
+                              BannerModule bannerModule,
+                              DateTimeModule dateTimeModule,
+                              DataRepository dataRepository,
+                              EngineSpeedModule engineSpeedModule,
+                              VehicleInformationModule vehicleInformationModule,
+                              DiagnosticMessageModule diagnosticMessageModule,
+                              PartController... partControllers) {
+        super(executor,
+              bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
+        this.partControllers.addAll(Arrays.asList(partControllers));
     }
 
     @Override
@@ -89,7 +82,7 @@ public class OverallController extends Controller {
         try {
             getBannerModule().reportHeader(getListener());
 
-            for (Controller controller : controllers) {
+            for (PartController controller : partControllers) {
                 activeController = controller;
                 activeController.run(getListener(), getJ1939());
                 activeController = null;

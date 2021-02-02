@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
@@ -55,6 +56,9 @@ public class OBDModuleInformation implements Cloneable {
     private DM26TripDiagnosticReadinessPacket lastDM26;
 
     private DM27AllPendingDTCsPacket lastDM27;
+
+    /** These SPNs represent SP which appear in multiple PGs. */
+    private final List<Integer> omittedSPNs = new ArrayList<>(List.of(588, 1213, 1220, 12675, 12730, 12783, 12797));
 
     public OBDModuleInformation(int sourceAddress) {
         this.sourceAddress = sourceAddress;
@@ -130,7 +134,26 @@ public class OBDModuleInformation implements Cloneable {
     }
 
     public List<SupportedSPN> getDataStreamSpns() {
-        return getSupportedSpns().stream().filter(SupportedSPN::supportsDataStream).collect(Collectors.toList());
+        return getSupportedSpns().stream()
+                .filter(SupportedSPN::supportsDataStream)
+                .collect(Collectors.toList());
+    }
+
+    /**
+     * Returns the List of SupportedSPNs filtering out 'dis-allowed' SPNs
+     */
+    public List<SupportedSPN> getFilteredDataStreamSPNs() {
+        return getDataStreamSpns().stream()
+                .filter(s -> !getOmittedDataStreamSPNs().contains(s.getSpn()))
+                .collect(Collectors.toList());
+    }
+
+    public List<Integer> getOmittedDataStreamSPNs() {
+        return omittedSPNs.stream().distinct().sorted().collect(Collectors.toList());
+    }
+
+    public void addOmittedDataStreamSPN(int spn) {
+        omittedSPNs.add(spn);
     }
 
     public List<SupportedSPN> getFreezeFrameSpns() {
@@ -164,11 +187,15 @@ public class OBDModuleInformation implements Cloneable {
     }
 
     public List<SupportedSPN> getSupportedSpns() {
-        return supportedSpns;
+        return supportedSpns.stream()
+                .sorted(Comparator.comparingInt(SupportedSPN::getSpn))
+                .collect(Collectors.toList());
     }
 
     public List<SupportedSPN> getTestResultSpns() {
-        return getSupportedSpns().stream().filter(SupportedSPN::supportsScaledTestResults).collect(Collectors.toList());
+        return getSupportedSpns().stream()
+                .filter(SupportedSPN::supportsScaledTestResults)
+                .collect(Collectors.toList());
     }
 
     @Override
@@ -283,7 +310,7 @@ public class OBDModuleInformation implements Cloneable {
     }
 
     private String formattedSupportedSpns() {
-        return getSupportedSpns().stream().map(SupportedSPN::toString).collect(Collectors.joining(","));
+        return getSupportedSpns().stream().map(SupportedSPN::toString).collect(Collectors.joining(", "));
     }
 
 }
