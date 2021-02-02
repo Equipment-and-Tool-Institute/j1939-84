@@ -12,8 +12,10 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
@@ -45,7 +47,9 @@ public class OBDModuleInformationTest {
             SupportedSPN supportedSpn = new SupportedSPN(data);
             supportedSpnsList.add(supportedSpn);
         }
-        return supportedSpnsList;
+        return supportedSpnsList.stream()
+                .sorted(Comparator.comparingInt(SupportedSPN::getSpn))
+                .collect(Collectors.toList());
     }
 
     private OBDModuleInformation instance;
@@ -68,10 +72,10 @@ public class OBDModuleInformationTest {
         instance.setCalibrationInformation(List.of(calInfo));
 
         MonitoredSystem monitoredSystem = new MonitoredSystem("test",
-                                                   NOT_SUPPORTED_COMPLETE,
-                                                   0,
-                                                   CompositeSystem.CATALYST,
-                                                   true);
+                                                              NOT_SUPPORTED_COMPLETE,
+                                                              0,
+                                                              CompositeSystem.CATALYST,
+                                                              true);
         instance.setMonitoredSystems(Set.of(monitoredSystem));
 
         PerformanceRatio performanceRatio = new PerformanceRatio(999, 0, 25, 50);
@@ -110,9 +114,9 @@ public class OBDModuleInformationTest {
     @Test
     public void testGetDataStreamSpns() {
         List<SupportedSPN> expectedSPNs = new ArrayList<>();
-        SupportedSPN supportedSpn = new SupportedSPN(new int[] { 0x01, 0x02, 0x1D, 8 });
-        SupportedSPN supportedSpn2 = new SupportedSPN(new int[] { 0x00, 0x00, 0x00, 0x00 });
-        expectedSPNs.add(supportedSpn);
+        SupportedSPN supportedSpn1 = new SupportedSPN(new int[] { 0x00, 0x00, 0x00, 0x00 });
+        SupportedSPN supportedSpn2 = new SupportedSPN(new int[] { 0x01, 0x02, 0x1D, 8 });
+        expectedSPNs.add(supportedSpn1);
         expectedSPNs.add(supportedSpn2);
         assertEquals("GetDataStreamSpn", expectedSPNs, instance.getDataStreamSpns());
     }
@@ -201,7 +205,7 @@ public class OBDModuleInformationTest {
         expectedObd += "Performance Ratios: [SPN  999 Trip Gear Down Distance: 0 / 25]" + NL;
         expectedObd += "Monitored Systems: [    test not supported,     complete]" + NL;
         expectedObd += "Supported SPNs: " + NL;
-        expectedObd += "SPN 513 - Actual Engine - Percent Torque,SPN 0 - Unknown,SPN 524030 - Manufacturer Assignable SPN";
+        expectedObd += "SPN 0 - Unknown, SPN 513 - Actual Engine - Percent Torque, SPN 524030 - Manufacturer Assignable SPN";
         assertEquals(expectedObd, instance.toString());
     }
 

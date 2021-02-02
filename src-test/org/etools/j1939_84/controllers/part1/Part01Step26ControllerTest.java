@@ -151,7 +151,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
         when(obdModule.getSourceAddress()).thenReturn(0);
         List<SupportedSPN> supportedSPNList = spns(111, 222, 333, 444, 555, 666, 777, 888, 999);
-        when(obdModule.getDataStreamSpns()).thenReturn(supportedSPNList);
+        when(obdModule.getFilteredDataStreamSPNs()).thenReturn(supportedSPNList);
 
         when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
 
@@ -311,7 +311,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModules()).thenReturn(List.of(obdModule));
         when(obdModule.getSourceAddress()).thenReturn(0);
         List<SupportedSPN> supportedSPNList = spns(111, 444);
-        when(obdModule.getDataStreamSpns()).thenReturn(supportedSPNList);
+        when(obdModule.getFilteredDataStreamSPNs()).thenReturn(supportedSPNList);
 
         when(broadcastValidator.getMaximumBroadcastPeriod()).thenReturn(3);
 

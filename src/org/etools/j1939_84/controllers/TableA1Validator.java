@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.PASS;
@@ -10,7 +11,6 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -199,11 +199,7 @@ public class TableA1Validator {
             return;
         }
 
-        Collection<Integer> moduleSPNs = dataRepository.getObdModule(moduleAddress)
-                .getDataStreamSpns()
-                .stream()
-                .map(SupportedSPN::getSpn)
-                .collect(Collectors.toSet());
+        Collection<Integer> moduleSPNs = getModuleSupportedSPNs(moduleAddress);
 
         packet.getSpns()
                 .stream()
@@ -247,7 +243,7 @@ public class TableA1Validator {
 
             Collection<Integer> spns = dataRepository.isObdModule(moduleAddress) ?
                     getModuleSupportedSPNs(moduleAddress) :
-                    getModuleSupportedSPNs();
+                    getAllSupportedSPNs();
             List<String> supportedSPNs = getSupportedSPNs(spns, packet);
             if (forceReporting || !supportedSPNs.isEmpty()) {
                 listener.onResult("PGN " + pgn + " with Supported SPNs " + String.join(", ", supportedSPNs));
@@ -301,25 +297,33 @@ public class TableA1Validator {
                 });
     }
 
-    private Collection<Integer> getModuleSupportedSPNs() {
-        return dataRepository.getObdModules()
-                .stream()
-                .flatMap(m -> m.getDataStreamSpns().stream())
-                .map(SupportedSPN::getSpn)
-                .collect(Collectors.toSet());
+    private Collection<Integer> getAllSupportedSPNs() {
+        return getModuleSupportedSPNs(null);
     }
 
-    private Set<Integer> getModuleSupportedSPNs(int moduleAddress) {
-        OBDModuleInformation obdModule = dataRepository.getObdModule(moduleAddress);
-        if (obdModule == null) {
-            return Collections.emptySet();
+    private List<Integer> getModuleSupportedSPNs(Integer moduleAddress) {
+        return getModules(moduleAddress)
+                .stream()
+                .flatMap(m -> m.getFilteredDataStreamSPNs().stream())
+                .map(SupportedSPN::getSpn)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
+    }
+
+    private Collection<OBDModuleInformation> getModules(Integer moduleAddress) {
+        Collection<OBDModuleInformation> modules;
+        if (moduleAddress == null) {
+            modules = dataRepository.getObdModules();
         } else {
-            return obdModule
-                    .getDataStreamSpns()
-                    .stream()
-                    .map(SupportedSPN::getSpn)
-                    .collect(Collectors.toSet());
+            OBDModuleInformation obdModule = dataRepository.getObdModule(moduleAddress);
+            if (obdModule == null) {
+                modules = List.of(); //Don't return Supported SPNs for non-OBD Modules
+            } else {
+                modules = List.of(obdModule);
+            }
         }
+        return modules;
     }
 
     /**
@@ -393,7 +397,7 @@ public class TableA1Validator {
             return;
         }
 
-        Collection<Integer> supportedSPNs = getModuleSupportedSPNs();
+        Collection<Integer> supportedSPNs = getAllSupportedSPNs();
         packet.getSpns().stream()
                 .filter(spn -> !spn.isNotAvailable())
                 .map(Spn::getId)
@@ -428,25 +432,24 @@ public class TableA1Validator {
                 .sorted()
                 .map(dataRepository::getObdModule)
                 .forEach(moduleInfo -> {
-                    Map<Integer, List<Integer>> pgnMap = getMessages(moduleInfo.getDataStreamSpns(), listener);
-                    pgnMap.keySet().stream().sorted().forEach(pgn -> {
+                    String moduleName = Lookup.getAddressName(moduleInfo.getSourceAddress());
 
+                    Map<Integer, List<Integer>> pgnMap = getMessages(moduleInfo.getSourceAddress(), listener);
+                    pgnMap.keySet().stream().sorted().forEach(pgn -> {
                         String spns = pgnMap.get(pgn)
                                 .stream()
                                 .sorted()
                                 .map(Object::toString)
                                 .collect(Collectors.joining(", "));
-                        String msg = "PGN " + pgn + " from SA " + moduleInfo.getSourceAddress() + " with SPNs " + spns;
+                        String msg = "PGN " + pgn + " from " + moduleName + " with SPNs " + spns;
 
                         PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
-                        if (pgnDefinition != null) {
-                            if (pgnDefinition.isOnRequest()) {
-                                msg = "  Req " + msg;
-                            } else {
-                                msg = "  BCT " + msg;
-                            }
-                        } else {
+                        if (pgnDefinition == null) {
                             msg = "  ??? " + msg;
+                        } else if (pgnDefinition.isOnRequest()) {
+                            msg = "  Req " + msg;
+                        } else {
+                            msg = "  BCT " + msg;
                         }
 
                         listener.onResult(msg);
@@ -454,9 +457,23 @@ public class TableA1Validator {
                 });
     }
 
-    private Map<Integer, List<Integer>> getMessages(List<SupportedSPN> supportedSPNs, ResultsListener listener) {
+    private Map<Integer, List<Integer>> getMessages(int moduleAddress, ResultsListener listener) {
         Map<Integer, List<Integer>> pgnMap = new HashMap<>();
-        supportedSPNs.stream()
+
+        String moduleName = Lookup.getAddressName(moduleAddress);
+
+        OBDModuleInformation moduleInformation = dataRepository.getObdModule(moduleAddress);
+        List<Integer> dataStreamSPNs = moduleInformation.getDataStreamSpns()
+                .stream()
+                .map(SupportedSPN::getSpn).collect(Collectors.toList());
+
+        moduleInformation.getOmittedDataStreamSPNs()
+                .stream()
+                .filter(dataStreamSPNs::contains)
+                .forEach(spn -> reportOmittedSPN(listener, moduleName, spn));
+
+        moduleInformation.getFilteredDataStreamSPNs()
+                .stream()
                 .map(SupportedSPN::getSpn)
                 .sorted()
                 .distinct()
@@ -464,12 +481,15 @@ public class TableA1Validator {
                     Set<Integer> pgns = j1939DaRepository.getPgnForSpn(spn);
                     if (pgns == null) {
                         listener.onResult("Unable to find PGN for SPN " + spn);
+                    } else if (pgns.size() > 1) {
+                        reportOmittedSPN(listener, moduleName, spn);
+                        moduleInformation.addOmittedDataStreamSPN(spn);
+                        dataRepository.putObdModule(moduleInformation);
                     } else {
-                        for (int pgn : pgns) {
-                            List<Integer> spns = pgnMap.getOrDefault(pgn, new ArrayList<>());
-                            spns.add(spn);
-                            pgnMap.put(pgn, spns);
-                        }
+                        int pgn = new ArrayList<>(pgns).get(0);
+                        List<Integer> spns = pgnMap.getOrDefault(pgn, new ArrayList<>());
+                        spns.add(spn);
+                        pgnMap.put(pgn, spns);
                     }
                 });
 
@@ -481,6 +501,10 @@ public class TableA1Validator {
         }
 
         return pgnMap;
+    }
+
+    private void reportOmittedSPN(ResultsListener listener, String moduleName, Integer spn) {
+        listener.onResult("  SPN " + spn + " is supported by " + moduleName + " but will be omitted"+NL);
     }
 
 }

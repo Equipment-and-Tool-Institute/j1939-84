@@ -236,7 +236,7 @@ public class TableA1ValidatorTest {
         supportedSpns.add(mockSupportedSpn(158));// PASS
         supportedSpns.add(mockSupportedSpn(96));// INFO
         supportedSpns.add(mockSupportedSpn(92));// Provided
-        when(obdModuleInformation.getDataStreamSpns()).thenReturn(supportedSpns);
+        when(obdModuleInformation.getFilteredDataStreamSPNs()).thenReturn(supportedSpns);
 
         dataRepository.putObdModule(obdModuleInformation);
 
