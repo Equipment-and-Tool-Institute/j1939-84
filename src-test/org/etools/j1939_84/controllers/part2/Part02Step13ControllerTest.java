@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -21,10 +22,11 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DTCModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -50,8 +52,10 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
     @Mock
     private BannerModule bannerModule;
 
+    private DataRepository dataRepository;
+
     @Mock
-    private DTCModule dtcModule;
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -79,17 +83,18 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
     public void setUp() {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
+        dataRepository = DataRepository.newInstance();
 
         instance = new Part02Step13Controller(
                 executor,
                 engineSpeedModule,
                 bannerModule,
                 vehicleInformationModule,
-                DataRepository.newInstance(),
+                dataRepository,
                 DateTimeModule.getInstance(),
-                dtcModule);
+                diagnosticMessageModule);
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule, diagnosticMessageModule);
     }
 
     @After
@@ -98,7 +103,7 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 dtcModule,
+                                 diagnosticMessageModule,
                                  mockListener);
     }
 
@@ -120,13 +125,13 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         DM31DtcToLampAssociation packet = new DM31DtcToLampAssociation(
                 Packet.create(PGN, 0x00, data));
 
-        when(dtcModule.requestDM31(any()))
+        when(diagnosticMessageModule.requestDM31(any()))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet), Collections.emptyList()));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM31(any());
+        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).requestDM31(any());
 
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                                        "6.2.13.2.a - An ECU response does not report MIL off");
@@ -180,6 +185,8 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testRun() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        dataRepository.putObdModule(obdModuleInformation);
 
         int[] data = {
                 0x61, // SPN least significant bit
@@ -192,13 +199,12 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         DM31DtcToLampAssociation packet = new DM31DtcToLampAssociation(
                 Packet.create(PGN, 0x00, data));
 
-        when(dtcModule.requestDM31(any()))
+        when(diagnosticMessageModule.requestDM31(any(), eq(0)))
                 .thenReturn(new RequestResult<>(false, Collections.singletonList(packet), Collections.emptyList()));
 
         runTest();
 
-        verify(dtcModule).setJ1939(j1939);
-        verify(dtcModule).requestDM31(any());
+        verify(diagnosticMessageModule).requestDM31(any(), eq(0));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
