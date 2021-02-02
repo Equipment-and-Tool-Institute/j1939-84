@@ -11,6 +11,7 @@ import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -148,10 +149,14 @@ public class Part01Step01Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         incrementProgress("Part 1, Step 1 a-c Displaying Warning Message");
-        displayWarningMessage();
+        if (!J1939_84.isTesting()) {
+            displayWarningMessage();
+        }
 
         incrementProgress("Part 1, Step 1 d Ensuring Key On, Engine Off");
-        ensureKeyOnEngineOff();
+        if (!J1939_84.isTesting()) {
+            ensureKeyOnEngineOff();
+        }
 
         incrementProgress("Part 1, Step 1 e Collecting Vehicle Information");
         collectVehicleInformation();

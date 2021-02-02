@@ -10,6 +10,7 @@ import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -51,7 +52,7 @@ public class Part01Step02Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         try {
-            if (!getEngineSpeedModule().isEngineNotRunning()) {
+            if (!getEngineSpeedModule().isEngineNotRunning() && !J1939_84.isTesting()) {
                 getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
 
                 QuestionListener questionListener = answerType -> {

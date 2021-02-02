@@ -3,18 +3,18 @@
  */
 package org.etools.j1939_84.controllers.part2;
 
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.Outcome.ABORT;
+
+import java.util.concurrent.Executor;
+import java.util.concurrent.Executors;
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
-
-import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
-
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.Outcome.ABORT;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
@@ -35,10 +35,10 @@ public class Part02Step01Controller extends StepController {
 
     Part02Step01Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
-                new EngineSpeedModule(),
-                new BannerModule(),
-                new VehicleInformationModule(),
-                DateTimeModule.getInstance());
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             DateTimeModule.getInstance());
     }
 
     Part02Step01Controller(Executor executor,
@@ -61,15 +61,11 @@ public class Part02Step01Controller extends StepController {
     protected void run() throws Throwable {
 
         try {
-            /*  6.2.1 Verify engine running
-             *  6.2.1.1 Actions:
-             *    a. Gather broadcast data for engine speed (e.g., SPN 190).
-             */
-            if (getEngineSpeedModule().isEngineNotRunning()) {
+            // 6.2.1.1.a. Gather broadcast data for engine speed (e.g., SPN 190).
+            if (getEngineSpeedModule().isEngineNotRunning() && !J1939_84.isTesting()) {
                 getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
-                /* 6.2.1.2 Warn criteria:
-                *    a. If engine speed is < 400 rpm, prompt/warn operator to confirm engine is running and then press enter.
-                */
+
+                // 6.2.1.2.a If engine speed is < 400 rpm, prompt/warn operator to confirm engine is running and then press enter.
                 getListener().onUrgentMessage("Please turn the Engine ON with Key ON.", "Adjust Key Switch", WARNING);
 
                 while (getEngineSpeedModule().isEngineNotRunning()) {
