@@ -70,27 +70,30 @@ public class Part02Step13Controller extends StepController {
         dataRepository.getObdModules().forEach(module -> {
             RequestResult<DM31DtcToLampAssociation> requestResult = getDiagnosticMessageModule()
                     .requestDM31(getListener(), module.getSourceAddress());
-            dsPackets.addAll(requestResult.getPackets());
-            ackPackets.addAll(requestResult.getAcks());
+            if(!requestResult.getPackets().isEmpty()){
+                dsPackets.addAll(requestResult.getPackets());
+            }
+            if(!requestResult.getAcks().isEmpty()){
+                ackPackets.addAll(requestResult.getAcks());
+            }
         });
 
         // 6.2.13.2 Fail criteria (if supported):
-        List<DM31DtcToLampAssociation> milOnPackets = dsPackets.stream()
-                .filter(packet -> packet.getDtcLampStatuses().stream()
-                        .map(DTCLampStatus::getMalfunctionIndicatorLampStatus)
-                        .anyMatch(lampStatus -> lampStatus != LampStatus.OFF
-                                && lampStatus != LampStatus.ALTERNATE_OFF))
-                .collect(Collectors.toList());
-        //  a. Fail if any ECU does not report MIL off. See section A.8 for allowed values.
-        if (!milOnPackets.isEmpty()) {
-            String obdModules =  "";
-            for (DM31DtcToLampAssociation packet : milOnPackets){
-                obdModules += Lookup.getAddressName(packet.getSourceAddress()) + NL;
-            }
-            addFailure("6.2.13.2.a - The following ECU(s) did not report MIL off" + obdModules);
-        }
+        dsPackets.stream()
+                .filter(packet -> isMilNotOffAndNotAltOff(packet))
+                .forEach( packet -> {
+            addFailure("6.2.13.2.a - ECU " + Lookup.getAddressName(packet.getSourceAddress())
+                               + " reported MIL light not off/alt-off");
+        });
         //  b. Fail if NACK not received from OBD ECUs that did not provide DM31.
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
         checkForNACKs(dsPackets, ackPackets, obdModuleAddresses, "6.2.13.2.b");
+    }
+
+    private boolean isMilNotOffAndNotAltOff(DM31DtcToLampAssociation packet) {
+        return packet.getDtcLampStatuses().stream()
+                .map(DTCLampStatus::getMalfunctionIndicatorLampStatus)
+                .anyMatch(lampStatus -> lampStatus != LampStatus.OFF
+                        && lampStatus != LampStatus.ALTERNATE_OFF);
     }
 }
