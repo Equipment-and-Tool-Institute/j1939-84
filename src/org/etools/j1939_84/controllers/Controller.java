@@ -160,24 +160,33 @@ public abstract class Controller {
 
     private final DiagnosticMessageModule diagnosticMessageModule;
 
+    private final DataRepository dataRepository;
+
     protected Controller(Executor executor,
-                         EngineSpeedModule engineSpeedModule,
                          BannerModule bannerModule,
-                         VehicleInformationModule vehicleInformationModule,
                          DateTimeModule dateTimeModule,
+                         DataRepository dataRepository,
+                         EngineSpeedModule engineSpeedModule,
+                         VehicleInformationModule vehicleInformationModule,
                          DiagnosticMessageModule diagnosticMessageModule) {
-        this(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule,
-             diagnosticMessageModule,
-             PartResultRepository.getInstance());
+        this(executor,
+             bannerModule,
+             dateTimeModule,
+             dataRepository,
+             PartResultRepository.getInstance(),
+             engineSpeedModule,
+             vehicleInformationModule,
+             diagnosticMessageModule);
     }
 
     protected Controller(Executor executor,
-                         EngineSpeedModule engineSpeedModule,
                          BannerModule bannerModule,
-                         VehicleInformationModule vehicleInformationModule,
                          DateTimeModule dateTimeModule,
-                         DiagnosticMessageModule diagnosticMessageModule,
-                         PartResultRepository partResultRepository) {
+                         DataRepository dataRepository,
+                         PartResultRepository partResultRepository,
+                         EngineSpeedModule engineSpeedModule,
+                         VehicleInformationModule vehicleInformationModule,
+                         DiagnosticMessageModule diagnosticMessageModule) {
         this.executor = executor;
         this.engineSpeedModule = engineSpeedModule;
         this.bannerModule = bannerModule;
@@ -185,6 +194,7 @@ public abstract class Controller {
         this.dateTimeModule = dateTimeModule;
         this.diagnosticMessageModule = diagnosticMessageModule;
         this.partResultRepository = partResultRepository;
+        this.dataRepository = dataRepository;
     }
 
     /**
@@ -266,18 +276,18 @@ public abstract class Controller {
         }
 
         switch (ending) {
-            case ABORTED:
-                getBannerModule().reportAborted(getListener());
-                break;
-            case COMPLETED:
-                getBannerModule().reportFooter(getListener());
-                break;
-            case STOPPED:
-                getBannerModule().reportStopped(getListener());
-                break;
-            case FAILED:
-                getBannerModule().reportFailed(getListener());
-                break;
+        case ABORTED:
+            getBannerModule().reportAborted(getListener());
+            break;
+        case COMPLETED:
+            getBannerModule().reportFooter(getListener());
+            break;
+        case STOPPED:
+            getBannerModule().reportStopped(getListener());
+            break;
+        case FAILED:
+            getBannerModule().reportFailed(getListener());
+            break;
         }
 
         addBlankLineToReport();
@@ -399,6 +409,10 @@ public abstract class Controller {
 
     protected DiagnosticMessageModule getDiagnosticMessageModule() {
         return diagnosticMessageModule;
+    }
+
+    protected DataRepository getDataRepository() {
+        return dataRepository;
     }
 
     /**

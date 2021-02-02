@@ -5,6 +5,7 @@
 package org.etools.j1939_84.controllers;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -18,11 +19,27 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 public abstract class PartController extends Controller {
 
-    protected PartController(Executor executor, EngineSpeedModule engineSpeedModule,
-                             BannerModule bannerModule, VehicleInformationModule vehicleInformationModule,
-                             DateTimeModule dateTimeModule) {
-        super(executor, engineSpeedModule, bannerModule, vehicleInformationModule, dateTimeModule,
-              new DiagnosticMessageModule());
+    private final List<StepController> stepControllers = new ArrayList<>();
+    private final int partNumber;
+
+    protected PartController(Executor executor,
+                             BannerModule bannerModule,
+                             DateTimeModule dateTimeModule,
+                             DataRepository dataRepository,
+                             EngineSpeedModule engineSpeedModule,
+                             VehicleInformationModule vehicleInformationModule,
+                             DiagnosticMessageModule diagnosticMessageModule,
+                             int partNumber,
+                             StepController... stepControllers) {
+        super(executor,
+              bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
+        this.partNumber = partNumber;
+        this.stepControllers.addAll(Arrays.asList(stepControllers));
     }
 
     @Override
@@ -60,9 +77,18 @@ public abstract class PartController extends Controller {
         getListener().endPart(partResult);
     }
 
-    protected abstract PartResult getPartResult();
+    @Override
+    public String getDisplayName() {
+        return "Part " + partNumber + " Test";
+    }
 
-    protected abstract List<StepController> getStepControllers();
+    protected PartResult getPartResult() {
+        return getPartResult(partNumber);
+    }
+
+    protected List<StepController> getStepControllers() {
+        return stepControllers;
+    }
 
     /**
      * TODO Remove this
@@ -72,10 +98,12 @@ public abstract class PartController extends Controller {
         List<StepController> stepControllers = new ArrayList<>();
         for (int i = 1; i <= steps; i++) {
             stepControllers.add(new StepController(Executors.newSingleThreadExecutor(),
-                                                   new EngineSpeedModule(),
-                                                   new BannerModule(),
-                                                   new VehicleInformationModule(),
-                                                   new DiagnosticMessageModule(), getDateTimeModule(),
+                                                   getBannerModule(),
+                                                   getDateTimeModule(),
+                                                   getDataRepository(),
+                                                   getEngineSpeedModule(),
+                                                   getVehicleInformationModule(),
+                                                   getDiagnosticMessageModule(),
                                                    partNumber,
                                                    i,
                                                    1) {

@@ -17,11 +17,13 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.Lookup;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -148,16 +150,22 @@ public class Part01ControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
+
+
     @Before
     public void setUp() {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
         instance = new Part01Controller(executor,
-                                        engineSpeedModule,
                                         bannerModule,
-                                        vehicleInformationModule,
                                         DateTimeModule.getInstance(),
+                                        DataRepository.newInstance(),
+                                        engineSpeedModule,
+                                        vehicleInformationModule,
+                                        diagnosticMessageModule,
                                         part01Step01Controller,
                                         part01Step02Controller,
                                         part01Step03Controller,
@@ -222,17 +230,12 @@ public class Part01ControllerTest {
                                  part01Step27Controller);
     }
 
-    /**
-     * Test method for {@link Part01Controller#getDisplayName()}.
-     */
+
     @Test
     public void testGetDisplayName() {
         assertEquals("Display Name", "Part 1 Test", instance.getDisplayName());
     }
 
-    /**
-     * Test method for {@link Part01Controller#Part01Controller()}.
-     */
     @Test
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
             justification = "The method is called just to get some exception.")
