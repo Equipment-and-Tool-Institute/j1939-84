@@ -23,7 +23,6 @@ import org.mockito.ArgumentCaptor;
  */
 public abstract class AbstractControllerTest {
 
-    protected static final String COLON_SPACE = ": ";
     private EngineSpeedModule engineSpeedModule;
     private Executor executor;
     private Controller instance;
@@ -64,15 +63,15 @@ public abstract class AbstractControllerTest {
                          ReportFileModule reportFileModule,
                          Executor executor,
                          VehicleInformationModule vehicleInformationModule) {
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule, null);
+        setup(instance, listener, j1939, executor, reportFileModule, engineSpeedModule, vehicleInformationModule, null);
     }
 
     protected void setup(Controller instance,
                          TestResultsListener listener,
                          J1939 j1939,
-                         EngineSpeedModule engineSpeedModule,
-                         ReportFileModule reportFileModule,
                          Executor executor,
+                         ReportFileModule reportFileModule,
+                         EngineSpeedModule engineSpeedModule,
                          VehicleInformationModule vehicleInformationModule,
                          DiagnosticMessageModule diagnosticMessageModule) {
         this.instance = instance;

@@ -46,7 +46,7 @@ public class Part02Controller extends PartController {
              new Part02Step14Controller(dataRepository),
              new Part02Step15Controller(dataRepository),
              new Part02Step16Controller(dataRepository),
-             new Part02Step17Controller(dataRepository),
+             new Part02Step17Controller(),
              new Part02Step18Controller());
     }
 

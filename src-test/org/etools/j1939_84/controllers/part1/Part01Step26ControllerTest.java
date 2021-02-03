@@ -31,6 +31,8 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
+import org.etools.j1939_84.controllers.BroadcastValidator;
+import org.etools.j1939_84.controllers.BusService;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TableA1Validator;
@@ -39,6 +41,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -94,22 +97,30 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
     @Mock
     private ReportFileModule reportFileModule;
 
+    @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
+
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
         instance = new Part01Step26Controller(executor,
-                                              engineSpeedModule,
                                               bannerModule,
+                                              DateTimeModule.getInstance(),
+                                              dataRepository,
+                                              engineSpeedModule,
                                               vehicleInformationModule,
+                                              diagnosticMessageModule,
                                               tableA1Validator,
                                               j1939DaRepository,
-                                              dataRepository,
                                               broadcastValidator,
-                                              busService,
-                                              DateTimeModule.getInstance());
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+                                              busService);
+        setup(instance, listener, j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule, diagnosticMessageModule);
     }
 
     @After
@@ -164,7 +175,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
 
         Map<Integer, Map<Integer, List<GenericPacket>>> packetMap = new HashMap<>();
         packetMap.put(11111, Map.of(0, List.of(packet1)));
-        packetMap.put(33333,Map.of(0, List.of(packet3)));
+        packetMap.put(33333, Map.of(0, List.of(packet3)));
         when(broadcastValidator.buildPGNPacketsMap(packets)).thenReturn(packetMap);
 
         when(busService.collectNonOnRequestPGNs(supportedSpns))
@@ -211,11 +222,11 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(dataRepository, atLeastOnce()).getObdModules();
         verify(j1939DaRepository, atLeastOnce()).findPgnDefinition(22222);
 
-//        verify(tableA1Validator).report(eq(supportedSpns),
-//                                                   any(ResultsListener.class),
-//                                                   eq(DSL),
-//                                                   eq(1),
-//                                                   eq(26));
+        //        verify(tableA1Validator).report(eq(supportedSpns),
+        //                                                   any(ResultsListener.class),
+        //                                                   eq(DSL),
+        //                                                   eq(1),
+        //                                                   eq(26));
         verify(broadcastValidator).getMaximumBroadcastPeriod();
         verify(busService).readBus(12);
         verify(broadcastValidator).buildPGNPacketsMap(packets);
@@ -240,7 +251,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(busService).dsRequest(eq(44444), eq(0), "");
         verify(busService).dsRequest(eq(55555), eq(0), "");
         verify(busService).dsRequest(eq(66666), eq(0), "");
-        verify(busService).globalRequest(eq(22222),"");
+        verify(busService).globalRequest(eq(22222), "");
         verify(busService).globalRequest(eq(55555), "");
         verify(busService).globalRequest(eq(66666), "");
         verify(busService).collectBroadcastPGNs(List.of(22222, 44444, 55555, 66666));
@@ -349,7 +360,7 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
         verify(busService).collectBroadcastPGNs(List.of(44444));
 
         verify(busService).getPGNsForDSRequest(List.of(), supportedSpns);
-        verify(busService).dsRequest(eq(44444), eq(0),"");
+        verify(busService).dsRequest(eq(44444), eq(0), "");
 
         verify(dataRepository).getObdModuleAddresses();
         verify(tableA1Validator).reportNonObdModuleProvidedSPNs(any(),
