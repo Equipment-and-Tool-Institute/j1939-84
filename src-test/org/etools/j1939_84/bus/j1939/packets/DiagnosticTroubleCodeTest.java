@@ -15,14 +15,12 @@ import org.junit.Test;
  * Unit tests the {@link DiagnosticTroubleCode} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class DiagnosticTroubleCodeTest {
 
     @Test
     public void test1() {
-        int[] data = new int[] { 0x61, 0x02, 0x13, 0x81 };
-        DiagnosticTroubleCode instance = new DiagnosticTroubleCode(data);
+        DiagnosticTroubleCode instance = DiagnosticTroubleCode.create(609,19,1,1);
         assertEquals(1, instance.getConversionMethod());
         assertEquals(19, instance.getFailureModeIndicator());
         assertEquals(609, instance.getSuspectParameterNumber());
@@ -31,8 +29,7 @@ public class DiagnosticTroubleCodeTest {
 
     @Test
     public void test2() {
-        int[] data = new int[] { 0x21, 0x06, 0x1F, 0x23 };
-        DiagnosticTroubleCode instance = new DiagnosticTroubleCode(data);
+        DiagnosticTroubleCode instance = DiagnosticTroubleCode.create(1569,31,0, 35);
         assertEquals(0, instance.getConversionMethod());
         assertEquals(31, instance.getFailureModeIndicator());
         assertEquals(1569, instance.getSuspectParameterNumber());
@@ -53,11 +50,11 @@ public class DiagnosticTroubleCodeTest {
     @Test
     public void testEquals() {
         int[] data = new int[] { 0x61, // conversion method
-                0x02, // suspect parameter number
-                0x13, // failure mode indicator
-                0x81 };// occurrence count
+                                 0x02, // suspect parameter number
+                                 0x13, // failure mode indicator
+                                 0x81 };// occurrence count
         DiagnosticTroubleCode instance = new DiagnosticTroubleCode(data);
-        DiagnosticTroubleCode instance2 = new DiagnosticTroubleCode(data);
+        DiagnosticTroubleCode instance2 = DiagnosticTroubleCode.create(609, 19, 1, 1);
         int[] data2 = new int[] { 0x13, 0x81, 0x61, 0x02 };
         DiagnosticTroubleCode instance3 = new DiagnosticTroubleCode(data2);
         DM31DtcToLampAssociation instance4 = new DM31DtcToLampAssociation(
@@ -96,7 +93,7 @@ public class DiagnosticTroubleCodeTest {
     }
 
     @Test
-    public void testGetOccurranceCount() {
+    public void testGetOccurrenceCount() {
         int[] data = new int[] { 0x00, 0x00, 0x00, 0x7F };
         DiagnosticTroubleCode instance = new DiagnosticTroubleCode(data);
         assertEquals(0, instance.getConversionMethod());
@@ -141,7 +138,7 @@ public class DiagnosticTroubleCodeTest {
         int[] data = new int[] { 0x21, 0x06, 0x1F, 0x23 };
         DiagnosticTroubleCode instance = new DiagnosticTroubleCode(data);
         assertEquals("DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 35 times",
-                instance.toString());
+                     instance.toString());
     }
 
     @Test
@@ -149,6 +146,6 @@ public class DiagnosticTroubleCodeTest {
         int[] data = new int[] { 0x00, 0x00, 0x00, 0x00 };
         DiagnosticTroubleCode instance = new DiagnosticTroubleCode(data);
         assertEquals("DTC 0:0 - Unknown, Data Valid But Above Normal Operational Range - Most Severe Level - 0 times",
-                instance.toString());
+                     instance.toString());
     }
 }

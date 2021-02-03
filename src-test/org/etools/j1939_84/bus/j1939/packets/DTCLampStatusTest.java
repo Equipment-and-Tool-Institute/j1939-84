@@ -4,6 +4,7 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.*;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -30,10 +31,10 @@ public class DTCLampStatusTest {
                 0xAA, // Lamp Status/Support
                 0x55 };// Lamp Status/State
         DTCLampStatus instance = new DTCLampStatus(data);
-        assertEquals(LampStatus.OTHER, instance.getAmberWarningLampStatus());
-        assertEquals(LampStatus.OTHER, instance.getMalfunctionIndicatorLampStatus());
-        assertEquals(LampStatus.OTHER, instance.getRedStopLampStatus());
-        assertEquals(LampStatus.OTHER, instance.getProtectLampStatus());
+        assertEquals(OTHER, instance.getAmberWarningLampStatus());
+        assertEquals(OTHER, instance.getMalfunctionIndicatorLampStatus());
+        assertEquals(OTHER, instance.getRedStopLampStatus());
+        assertEquals(OTHER, instance.getProtectLampStatus());
     }
 
     /**
@@ -49,13 +50,16 @@ public class DTCLampStatusTest {
                 0x02, // SPN most significant bit
                 0x13, // Failure mode indicator
                 0x81, // SPN Conversion Occurrence Count
-                0x62, // Lamp Status/Support
-                0x1D };// Lamp Status/State
+                0x73, // Lamp Status/Support
+                0x2E };// Lamp Status/State
         DTCLampStatus instance = new DTCLampStatus(data);
-        assertEquals(LampStatus.OFF, instance.getAmberWarningLampStatus());
-        assertEquals(LampStatus.SLOW_FLASH, instance.getMalfunctionIndicatorLampStatus());
-        assertEquals(LampStatus.OTHER, instance.getRedStopLampStatus());
-        assertEquals(LampStatus.OTHER, instance.getProtectLampStatus());
+        DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(609,19,1,1);
+        DTCLampStatus instance2 = DTCLampStatus.create(dtc, OFF, SLOW_FLASH, OTHER, OTHER);
+        assertTrue(instance.equals(instance2));
+        assertEquals(OFF, instance.getAmberWarningLampStatus());
+        assertEquals(SLOW_FLASH, instance.getMalfunctionIndicatorLampStatus());
+        assertEquals(OTHER, instance.getRedStopLampStatus());
+        assertEquals(OTHER, instance.getProtectLampStatus());
     }
 
     @Test
@@ -67,10 +71,13 @@ public class DTCLampStatusTest {
                 0x00, // Lamp Status/Support
                 0xFF };// Lamp Status/State
         DTCLampStatus instance = new DTCLampStatus(data);
-        assertEquals(LampStatus.OFF, instance.getAmberWarningLampStatus());
-        assertEquals(LampStatus.OFF, instance.getMalfunctionIndicatorLampStatus());
-        assertEquals(LampStatus.OFF, instance.getRedStopLampStatus());
-        assertEquals(LampStatus.OFF, instance.getProtectLampStatus());
+        DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(609,19,1,1);
+        DTCLampStatus instance2 = DTCLampStatus.create(dtc, OFF, OFF, OFF, OFF);
+        assertTrue(instance.equals(instance2));
+        assertEquals(OFF, instance.getAmberWarningLampStatus());
+        assertEquals(OFF, instance.getMalfunctionIndicatorLampStatus());
+        assertEquals(OFF, instance.getRedStopLampStatus());
+        assertEquals(OFF, instance.getProtectLampStatus());
     }
 
     @Test
@@ -82,13 +89,17 @@ public class DTCLampStatusTest {
                 0x55, // Lamp Status/Support
                 0x00 };// Lamp Status/State
         DTCLampStatus instance = new DTCLampStatus(data);
-        assertEquals(LampStatus.SLOW_FLASH, instance.getAmberWarningLampStatus());
-        assertEquals(LampStatus.SLOW_FLASH, instance.getMalfunctionIndicatorLampStatus());
-        assertEquals(LampStatus.SLOW_FLASH, instance.getRedStopLampStatus());
-        assertEquals(LampStatus.SLOW_FLASH, instance.getProtectLampStatus());
+        DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(4334, 4, 0, 0);
+        DTCLampStatus instance2 = DTCLampStatus.create(dtc, SLOW_FLASH, SLOW_FLASH, SLOW_FLASH, SLOW_FLASH);
+        assertTrue(instance.equals(instance2));
+        assertEquals(SLOW_FLASH, instance.getAmberWarningLampStatus());
+        assertEquals(SLOW_FLASH, instance.getMalfunctionIndicatorLampStatus());
+        assertEquals(SLOW_FLASH, instance.getRedStopLampStatus());
+        assertEquals(SLOW_FLASH, instance.getProtectLampStatus());
     }
 
-    @SuppressWarnings({ "EqualsBetweenInconvertibleTypes", "SimplifiableAssertion" }) @Test
+    @SuppressWarnings({ "EqualsBetweenInconvertibleTypes", "SimplifiableAssertion" })
+    @Test
     public void testEquals() {
 
         DTCLampStatus instance = new DTCLampStatus(new int[] {
@@ -98,13 +109,9 @@ public class DTCLampStatusTest {
                 0x81, // SPN Conversion Occurrence Count
                 0x00, // Lamp Status/Support
                 0xFF });// Lamp Status/State
-        DTCLampStatus instance2 = new DTCLampStatus(new int[] {
-                0x61, // SPN least significant bit
-                0x02, // SPN most significant bit
-                0x13, // Failure mode indicator
-                0x81, // SPN Conversion Occurrence Count
-                0x00, // Lamp Status/Support
-                0xFF });// Lamp Status/State
+        DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(609, 19, 1, 1);
+        DTCLampStatus instance2 = DTCLampStatus.create(dtc, OFF, OFF,
+                                                       OFF, OFF);
         DTCLampStatus instance3 = new DTCLampStatus(new int[] {
                 0x61, // SPN least significant bit
                 0x02, // SPN most significant bit

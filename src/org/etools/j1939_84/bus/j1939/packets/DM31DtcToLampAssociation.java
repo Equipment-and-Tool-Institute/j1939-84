@@ -4,10 +4,10 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.ArrayList;
 import java.util.List;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
@@ -16,8 +16,8 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  * (DM31)
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
- *         DTC to Lamp Association
+ * <p>
+ * DTC to Lamp Association
  */
 public class DM31DtcToLampAssociation extends GenericPacket {
     // Hex value of PGN = 00A300
@@ -26,6 +26,14 @@ public class DM31DtcToLampAssociation extends GenericPacket {
 
     public DM31DtcToLampAssociation(Packet packet) {
         super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+    }
+
+    public static DM31DtcToLampAssociation create(int sourceAddress, DTCLampStatus... lampStatuses) {
+        int[] data = new int[] {};
+        for (DTCLampStatus dtcLampStatus : lampStatuses) {
+            data = join(data, dtcLampStatus.getData());
+        }
+        return new DM31DtcToLampAssociation(Packet.create(PGN, sourceAddress, data));
     }
 
     /**

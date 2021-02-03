@@ -4,6 +4,7 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.Arrays;
 import java.util.Objects;
@@ -26,13 +27,35 @@ public class DTCLampStatus {
     /**
      * Constructor
      *
-     * @param int[]
+     * @param data
      *            the {@link Packet} to parse
      */
     public DTCLampStatus(int[] data) {
         this.data = Arrays.copyOf(data, data.length);
     }
 
+    public static DTCLampStatus create(DiagnosticTroubleCode dtc,
+                                       LampStatus amberWarnLamp,
+                                       LampStatus malLamp,
+                                       LampStatus protectLamp,
+                                       LampStatus redStopLamp){
+
+        int[] bytes = Arrays.copyOf(dtc.getData(), 6);
+
+        // | all the support bits (see notes on the class called)
+        bytes[4] = LampStatus.getBytes(malLamp)[0] << 6 |
+                LampStatus.getBytes(redStopLamp)[0] << 4 |
+                LampStatus.getBytes(amberWarnLamp)[0] << 2 |
+                LampStatus.getBytes(protectLamp)[0];
+
+        // | all the states bits (see notes on the class called)
+        bytes[5] = LampStatus.getBytes(malLamp)[1] << 6 |
+                LampStatus.getBytes(redStopLamp)[1] << 4 |
+                LampStatus.getBytes(amberWarnLamp)[1] << 2 |
+                LampStatus.getBytes(protectLamp)[1];
+
+        return new DTCLampStatus(bytes);
+    }
     @Override
     public boolean equals(Object obj) {
         if (this == obj) {
@@ -71,7 +94,7 @@ public class DTCLampStatus {
     /**
      * @return the data
      */
-    private int[] getData() {
+    public int[] getData() {
         return data;
     }
 

@@ -33,7 +33,14 @@ public class DiagnosticTroubleCode {
      */
     private final int spn;
 
+    /**
+     * The raw message bytes
+     */
+    private final int[] data;
+
     public DiagnosticTroubleCode(int[] data) {
+
+        this.data = data;
 
         spn = SupportedSPN.parseSPN(data);
 
@@ -45,6 +52,24 @@ public class DiagnosticTroubleCode {
 
         // Byte: 3 bits 7-1 Occurrence Count
         oc = (data[3] & 0x7F);
+    }
+
+    public static DiagnosticTroubleCode create(int spn, int fmi, int cm, int oc) {
+
+        //spn bytes 1 - 3 use the spn
+        int spnByte1 =  spn & 0xFF;
+        int spnByte2 = (spn >> 8) & 0xFF;
+
+        int spnByte3 = 0xFF;
+        spnByte3 &= (spn >> 16) << 5;
+
+        int[] bytes = new int[4];
+        bytes[0] = spnByte1; //spn bytes 1
+        bytes[1] = spnByte2; //spn bytes 2
+        bytes[2] = (spnByte3 | (fmi & 0x1F)); // spn bytes 3 && fmi
+        bytes[3] = ((cm << 7) | (oc & 0x7F)); // cm & oc
+
+        return new DiagnosticTroubleCode(bytes);
     }
 
     @Override
@@ -60,6 +85,15 @@ public class DiagnosticTroubleCode {
                 getOccurrenceCount() == that.getOccurrenceCount() &&
                 getFailureModeIndicator() == that.getFailureModeIndicator() &&
                 getConversionMethod() == that.getConversionMethod());
+    }
+
+    /**
+     * Returns the raw message that was used to create the object
+     *
+     * @return int[]
+     */
+    public int[] getData() {
+        return data;
     }
 
     /**
@@ -101,10 +135,10 @@ public class DiagnosticTroubleCode {
     @Override
     public int hashCode() {
         return Objects.hash(getSuspectParameterNumber(),
-                getOccurrenceCount(),
-                getFailureModeIndicator(),
-                getConversionMethod(),
-                getSuspectParameterNumber());
+                            getOccurrenceCount(),
+                            getFailureModeIndicator(),
+                            getConversionMethod(),
+                            getSuspectParameterNumber());
     }
 
     @Override

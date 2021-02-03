@@ -1,9 +1,12 @@
-/**
- * Copyright 2019 Equipment & Tool Institute
+/*
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OTHER;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.SLOW_FLASH;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
 
@@ -34,14 +37,20 @@ public class DM31DtcToLampAssociationTest {
                 0x02, // SPN most significant bit
                 0x13, // Failure mode indicator
                 0x81, // SPN Conversion Occurrence Count
-                0x62, // Lamp Status/Support
-                0x1D, // Lamp Status/State
+                0x73, // Lamp Status/Support
+                0x2E, // Lamp Status/State
         };
         Packet packet = Packet.create(DM31DtcToLampAssociation.PGN,
                 0,
                 data);
         DM31DtcToLampAssociation instance = new DM31DtcToLampAssociation(packet);
         assertEquals(1, instance.getDtcLampStatuses().size());
+        DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(609,19,1,1);
+        DTCLampStatus dtcLampStatus = DTCLampStatus.create(dtc, OFF, SLOW_FLASH, OTHER, OTHER);
+        DM31DtcToLampAssociation instance2 = DM31DtcToLampAssociation.create(0,
+                                                                             dtcLampStatus);
+        assertTrue(instance.equals(instance2));
+
         String expected = "DM31 from Engine #1 (0): " + NL;
         expected += "DTC Lamp Statuses: [" + NL;
         expected += "MIL: slow flash, RSL: other, AWL: off, PL: other" + NL;
@@ -74,22 +83,22 @@ public class DM31DtcToLampAssociationTest {
                 0x02, // SPN most significant bit
                 0x13, // Failure mode indicator
                 0x81, // SPN Conversion Occurrence Count
-                0x62, // Lamp Status/Support
-                0x1D, // Lamp Status/State
+                0x73, // Lamp Status/Support
+                0x2E, // Lamp Status/State
 
                 0x21, // SPN least significant bit
                 0x06, // SPN most significant bit
                 0x1F, // Failure mode indicator
                 0x23, // SPN Conversion Occurrence Count
-                0x22, // Lamp Status/Support
-                0xDD, // Lamp Status/State
+                0x33, // Lamp Status/Support
+                0xEE, // Lamp Status/State
 
                 0xEE, // SPN least significant bit
                 0x10, // SPN most significant bit
                 0x04, // Failure mode indicator
                 0x00, // SPN Conversion Occurrence Count
-                0xAA, // Lamp Status/Support
-                0x55);// Lamp Status/State
+                0xFF, // Lamp Status/Support
+                0xAA);// Lamp Status/State
 
         DM31DtcToLampAssociation instance = new DM31DtcToLampAssociation(packet);
         assertEquals("DM31", instance.getName());
@@ -138,6 +147,13 @@ public class DM31DtcToLampAssociationTest {
         assertEquals(LampStatus.OTHER, lampStatus2.getProtectLampStatus());
         assertEquals(LampStatus.OTHER, lampStatus2.getRedStopLampStatus());
         assertEquals(LampStatus.OTHER, lampStatus2.getAmberWarningLampStatus());
+
+        DM31DtcToLampAssociation instance2 = DM31DtcToLampAssociation.create(0,
+                                                                             DTCLampStatus.create(dtc0, OFF, SLOW_FLASH, OTHER, OTHER),
+                                                                             DTCLampStatus.create(dtc1, OFF, OFF, OTHER, OTHER),
+                                                                             DTCLampStatus.create(dtc2, OTHER, OTHER, OTHER, OTHER));
+        assertTrue(instance.equals(instance2));
+
     }
 
 }
