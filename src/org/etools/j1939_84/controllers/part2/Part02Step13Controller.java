@@ -83,7 +83,7 @@ public class Part02Step13Controller extends StepController {
                 .filter(packet -> isMilNotOffAndNotAltOff(packet))
                 .forEach( packet -> {
             addFailure("6.2.13.2.a - ECU " + Lookup.getAddressName(packet.getSourceAddress())
-                               + " reported MIL light not off/alt-off");
+                               + " reported MIL not off/alt-off");
         });
         //  b. Fail if NACK not received from OBD ECUs that did not provide DM31.
         List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();

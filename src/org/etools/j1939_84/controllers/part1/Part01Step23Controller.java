@@ -63,7 +63,7 @@ public class Part01Step23Controller extends StepController {
         globalResponse.getPackets().stream().filter(packet -> isMilNotOff(packet)).forEach(packet -> {
             // 6.1.23.2.a. Fail if any received ECU response does not report MIL off.
             addFailure("6.1.23.2.a - ECU " + Lookup.getAddressName(packet.getSourceAddress())
-                               + " reported MIL light not off");
+                               + " reported MIL not off");
         });
     }
     private boolean isMilNotOff(DM31DtcToLampAssociation packet) {

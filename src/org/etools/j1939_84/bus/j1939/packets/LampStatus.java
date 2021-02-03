@@ -73,33 +73,32 @@ public enum LampStatus {
         created.
      */
     public static int[] getBytes(LampStatus lampStatus) {
-        int[] bytes; // lampStatus bytes {On/Off, Flash/State}
-        //
+        int[] data;
         switch (lampStatus) {
         case ALTERNATE_OFF:
-            bytes = new int[] { 0, 0 };
+            data = new int[] { 0, 0 };
             break;
         case FAST_FLASH:
-            bytes = new int[] { 1, 1 };
+            data = new int[] { 1, 1 };
             break;
         case NOT_SUPPORTED:
-            bytes = CollectionUtils.join(new int[] { 3 }, new int[] { 3 });
+            data = new int[] { 3, 3 };
             break;
         case OFF:
-            bytes = CollectionUtils.join(new int[] { 0 }, new int[] { 3 });
+            data = new int[] { 0, 3 };
             break;
         case ON:
-            bytes = CollectionUtils.join(new int[] { 1 }, new int[] { 3 });
+            data = new int[] { 1, 3 };
             break;
         case OTHER:
         default:
-            bytes = CollectionUtils.join(new int[] { 3 }, new int[] { 2 });
+            data = new int[] { 3, 2 };
             break;
         case SLOW_FLASH:
-            bytes = CollectionUtils.join(new int[] { 1 }, new int[] { 0 });
+            data = new int[] { 1, 0 };
             break;
         }
-        return bytes;
+        return data;
     }
 
     private final String name;

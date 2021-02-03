@@ -28,7 +28,7 @@ public class DM31DtcToLampAssociation extends GenericPacket {
         super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
-    public static DM31DtcToLampAssociation create(int sourceAddress, List<DTCLampStatus> lampStatuses) {
+    public static DM31DtcToLampAssociation create(int sourceAddress, DTCLampStatus... lampStatuses) {
         int[] data = new int[] {};
         for (DTCLampStatus dtcLampStatus : lampStatuses) {
             data = join(data, dtcLampStatus.getData());

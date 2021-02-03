@@ -46,8 +46,9 @@ public class DM31DtcToLampAssociationTest {
         DM31DtcToLampAssociation instance = new DM31DtcToLampAssociation(packet);
         assertEquals(1, instance.getDtcLampStatuses().size());
         DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(609,19,1,1);
+        DTCLampStatus dtcLampStatus = DTCLampStatus.create(dtc, OFF, SLOW_FLASH, OTHER, OTHER);
         DM31DtcToLampAssociation instance2 = DM31DtcToLampAssociation.create(0,
-                                                                             List.of(DTCLampStatus.create(dtc, OFF, SLOW_FLASH, OTHER, OTHER)));
+                                                                             dtcLampStatus);
         assertTrue(instance.equals(instance2));
 
         String expected = "DM31 from Engine #1 (0): " + NL;
@@ -148,9 +149,9 @@ public class DM31DtcToLampAssociationTest {
         assertEquals(LampStatus.OTHER, lampStatus2.getAmberWarningLampStatus());
 
         DM31DtcToLampAssociation instance2 = DM31DtcToLampAssociation.create(0,
-                                                                             List.of(DTCLampStatus.create(dtc0, OFF, SLOW_FLASH, OTHER, OTHER),
-                                                                                     DTCLampStatus.create(dtc1, OFF, OFF, OTHER, OTHER),
-                                                                                     DTCLampStatus.create(dtc2, OTHER, OTHER, OTHER, OTHER)));
+                                                                             DTCLampStatus.create(dtc0, OFF, SLOW_FLASH, OTHER, OTHER),
+                                                                             DTCLampStatus.create(dtc1, OFF, OFF, OTHER, OTHER),
+                                                                             DTCLampStatus.create(dtc2, OTHER, OTHER, OTHER, OTHER));
         assertTrue(instance.equals(instance2));
 
     }

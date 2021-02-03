@@ -36,11 +36,11 @@ public class DiagnosticTroubleCode {
     /**
      * The raw message bytes
      */
-    private final int[] bytes;
+    private final int[] data;
 
     public DiagnosticTroubleCode(int[] data) {
 
-        bytes = data;
+        this.data = data;
 
         spn = SupportedSPN.parseSPN(data);
 
@@ -92,8 +92,8 @@ public class DiagnosticTroubleCode {
      *
      * @return int[]
      */
-    public int[] getBytes() {
-        return bytes;
+    public int[] getData() {
+        return data;
     }
 
     /**

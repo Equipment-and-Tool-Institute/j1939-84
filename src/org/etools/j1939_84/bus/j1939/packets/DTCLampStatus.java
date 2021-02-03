@@ -40,7 +40,7 @@ public class DTCLampStatus {
                                        LampStatus protectLamp,
                                        LampStatus redStopLamp){
 
-        int[] bytes = Arrays.copyOf(dtc.getBytes(), 6);
+        int[] bytes = Arrays.copyOf(dtc.getData(), 6);
 
         // | all the support bits (see notes on the class called)
         bytes[4] = LampStatus.getBytes(malLamp)[0] << 6 |
