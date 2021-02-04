@@ -6,7 +6,15 @@ in accordance with the diagnostic messages specified in SAE J1939-73, to fulfill
 requirements contained in various government regulations, including the HD OBD regulations by US EPA and
 California’s Air Resources Board (ARB).
 
-## Known Issues
+## Future Enhancements
+
+* Part 1 Step 3 Fails if _any_ module reports a different OBD Compliance Value
+    * Currently, the tool will report a failure if any module doesn't report the same OBD Compliance Value that other
+      modules report.  The intent is for all "OBD" modules to report the same OBD Compliance Values.  The documentation
+      needs updating to clarify this.
+    * https://github.com/battjt/j1939-84/issues/515
+    * https://github.com/battjt/j1939-84/issues/531
+    
 
 * Part 1 Step 26 Handling distributed providers
     * One module (such as the Engine), may claim support for a particular SP (such as Fuel Level), but then return 
@@ -20,11 +28,3 @@ California’s Air Resources Board (ARB).
       That is the tool won't request the PG to see the module does support an SP which is required to be supported according to Table A-1 
     * https://github.com/battjt/j1939-84/issues/525
     
-
-* Part 1 Step 3 Fails if _any_ module reports a different OBD Compliance Value
-    * Currently, the tool will report a failure if any module doesn't report the same OBD Compliance Value that other
-      modules report.  The intent is for all "OBD" modules to report the same OBD Compliance Values.  The documentation
-      needs updating to clarify this.
-    * https://github.com/battjt/j1939-84/issues/515
-
-
