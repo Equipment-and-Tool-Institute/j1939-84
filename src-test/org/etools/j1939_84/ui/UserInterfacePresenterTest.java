@@ -19,13 +19,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
-
 import javax.swing.JOptionPane;
-
 import org.etools.j1939_84.TestExecutor;
 import org.etools.j1939_84.bus.Adapter;
 import org.etools.j1939_84.bus.BusException;
@@ -47,13 +46,10 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
-
 /**
  * Unit testing the {@link UserInterfacePresenter}
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The values returned are properly ignored on verify statements.")
 @RunWith(MockitoJUnitRunner.class)
@@ -114,13 +110,13 @@ public class UserInterfacePresenterTest {
         when(rp1210.setAdapter(any(), eq(0xF9))).thenReturn(rp1210Bus);
 
         instance = new UserInterfacePresenter(view,
-                comparisonModule,
-                rp1210,
-                reportFileModule,
-                runtime,
-                executor,
-                helpView,
-                overallController);
+                                              comparisonModule,
+                                              rp1210,
+                                              reportFileModule,
+                                              runtime,
+                                              executor,
+                                              helpView,
+                                              overallController);
         ArgumentCaptor<Thread> captor = ArgumentCaptor.forClass(Thread.class);
         verify(runtime).addShutdownHook(captor.capture());
         shutdownHook = captor.getValue();
@@ -298,7 +294,10 @@ public class UserInterfacePresenterTest {
 
         assertNull(instance.getReportFile());
         verify(view).displayDialog("File cannot be used." + NL + "There was a failure" + NL
-                + "Please select a different file.", "File Error", JOptionPane.ERROR_MESSAGE, false);
+                                           + "Please select a different file.",
+                                   "File Error",
+                                   JOptionPane.ERROR_MESSAGE,
+                                   false);
 
         verify(comparisonModule).reset();
 
@@ -364,7 +363,10 @@ public class UserInterfacePresenterTest {
 
         assertNull(instance.getReportFile());
         verify(view).displayDialog("File cannot be used." + NL + "File cannot be created" + NL
-                + "Please select a different file.", "File Error", JOptionPane.ERROR_MESSAGE, false);
+                                           + "Please select a different file.",
+                                   "File Error",
+                                   JOptionPane.ERROR_MESSAGE,
+                                   false);
 
         verify(comparisonModule).reset();
 
@@ -623,6 +625,7 @@ public class UserInterfacePresenterTest {
         verify(view).setReadVehicleInfoButtonEnabled(false);
         verify(view).setSelectFileButtonEnabled(false);
         verify(view).setStopButtonEnabled(true);
+        verify(view).setAdapterComboBoxEnabled(false);
     }
 
     @Test
@@ -659,7 +662,7 @@ public class UserInterfacePresenterTest {
     @Test
     public void testShutdownHook() {
         assertEquals("Shutdown Hook Thread", shutdownHook.getName());
-        shutdownHook.run();
+        shutdownHook.start();
         verify(reportFileModule).onProgramExit();
     }
 
