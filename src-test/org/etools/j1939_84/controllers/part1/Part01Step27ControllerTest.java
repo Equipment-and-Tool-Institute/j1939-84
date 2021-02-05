@@ -21,6 +21,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartResultRepository;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -29,6 +30,7 @@ import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -54,6 +56,9 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
     @Mock
     private BannerModule bannerModule;
+
+    @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
@@ -88,9 +93,12 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
-                                              dateTimeModule);
+                                              diagnosticMessageModule,
+                                              dateTimeModule,
+                                              DataRepository.newInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance, listener, j1939, engineSpeedModule, reportFileModule,
+              executor, vehicleInformationModule, diagnosticMessageModule);
     }
 
     @After
@@ -136,7 +144,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
         questionCaptor.getValue().answered(NO);
 
-        String urgentMessages2 = "Please turn the Engine ON with Key ON";
+        String urgentMessages2 = "Please turn the Key ON with Engine ON";
         String expectedTitle2 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING));
 
@@ -149,7 +157,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Part 1, Step 27 b.iii - Allowing engine to idle one minute";
         int minuteCounter = 60;
-        for(int i = minuteCounter; i >= 0; i--){
+        for(int i = minuteCounter; i > 0; i--){
             expectedMessages += NL + "Allowing engine to idle for " + i + " seconds";
         }
         assertEquals(expectedMessages, listener.getMessages());
@@ -157,8 +165,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
 
-        String expectedResults = "Allowing engine to idle for 60 seconds" + NL;
-        expectedResults += "User cancelled the test at Part 1 Step 27" + NL;
+        String expectedResults = "User cancelled the test at Part 1 Step 27" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         assertEquals("", listener.getMilestones());
@@ -214,7 +221,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
                 questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages2 = "Please turn the Engine ON with Key ON";
+        String urgentMessages2 = "Please turn the Key ON with Engine ON";
         String expectedTitle2 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING));
 
@@ -224,14 +231,13 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Part 1, Step 27 b.iii - Allowing engine to idle one minute";
         int minuteCounter = 60;
-        for(int i = minuteCounter; i >= 0; i--){
+        for(int i = minuteCounter; i > 0; i--){
             expectedMessages += NL + "Allowing engine to idle for " + i + " seconds";
         }
         assertEquals(expectedMessages, listener.getMessages());
 
         assertEquals("", listener.getMilestones());
-        String expectedResults = "Allowing engine to idle for 60 seconds" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMilestones());
     }
 
@@ -241,10 +247,10 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
     public void testEngineThrowInterruptedException() {
         String expectedTitle = "Start Part 2";
         PartResultRepository partResultRepository = PartResultRepository.getInstance();
-        StepResult stepResult = new StepResult(1, 3, "Testing Result");
+        StepResult stepResult = new StepResult(PART_NUMBER, STEP_NUMBER, "Testing Result");
         stepResult.addResult(new ActionOutcome(FAIL, "6.1.2.1.b - Fail for testing"));
 
-        partResultRepository.setStepResult(1, stepResult);
+        partResultRepository.setStepResult(PART_NUMBER, stepResult);
 
         when(engineSpeedModule.isEngineRunning()).thenReturn(false, false, false, true);
 
@@ -262,8 +268,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
                 eq(expectedTitle),
                 eq(QUESTION),
                 any());
-        //questionCaptor.getValue().answered(NO);
-        String urgentMessages2 = "Please turn the Engine ON with Key ON";
+        String urgentMessages2 = "Please turn the Key ON with Engine ON";
         String expectedTitle2 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING));
 
@@ -273,16 +278,13 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Part 1, Step 27 b.iii - Allowing engine to idle one minute";
         int minuteCounter = 60;
-        for(int i = minuteCounter; i >= 0; i--){
+        for(int i = minuteCounter; i > 0; i--){
             expectedMessages += NL + "Allowing engine to idle for " + i + " seconds";
         }
         assertEquals(expectedMessages, listener.getMessages());
 
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "Allowing engine to idle for 60 seconds" + NL;
-        assertEquals(expectedResults, listener.getResults());
-
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMilestones());
     }
 

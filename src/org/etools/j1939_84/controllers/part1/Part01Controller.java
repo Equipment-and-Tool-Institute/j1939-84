@@ -30,7 +30,7 @@ public class Part01Controller extends PartController {
              new EngineSpeedModule(),
              new VehicleInformationModule(),
              new DiagnosticMessageModule(),
-             new Part01Step01Controller(dataRepository),
+             new Part01Step01Controller(),
              new Part01Step02Controller(),
              new Part01Step03Controller(dataRepository),
              new Part01Step04Controller(dataRepository),

@@ -4,6 +4,11 @@
 package org.etools.j1939_84.controllers;
 
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
+import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.Outcome.ABORT;
+import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
 import static org.etools.j1939_84.model.Outcome.INFO;
 
 import java.util.ArrayList;
@@ -22,6 +27,7 @@ import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
+import org.etools.j1939_84.controllers.ResultsListener.MessageType;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -78,6 +84,78 @@ public abstract class StepController extends Controller {
              partNumber,
              stepNumber,
              totalSteps);
+    }
+
+    /**
+     * Ensures the Key is on with the Engine Off and prompts the user to make
+     * the proper adjustments.
+     *
+     * @throws InterruptedException
+     *         if the user cancels the operation
+     */
+    protected void ensureKeyOnEngineOn() throws InterruptedException {
+        try {
+            if (!getEngineSpeedModule().isEngineRunning()) {
+                getListener().onUrgentMessage("Please turn the Key ON with Engine ON", "Adjust Key Switch", WARNING);
+                while (!getEngineSpeedModule().isEngineRunning()) {
+                    updateProgress("Waiting for Key ON, Engine ON...");
+                    getDateTimeModule().pauseFor(500);
+                }
+            }
+        } catch (InterruptedException e) {
+            getListener().addOutcome(getPartNumber(), getStepNumber(), ABORT, "User cancelled operation");
+            setEnding(Ending.STOPPED);
+            incrementProgress("User cancelled testing");
+            throw e;
+        }
+    }
+
+    /**
+     * Ensures the Key is on with the Engine Off and prompts the user to make
+     * the proper adjustments.
+     *
+     * @throws InterruptedException
+     *         if the user cancels the operation
+     */
+    protected void ensureKeyOnEngineOff() throws InterruptedException {
+        try {
+            if (!getEngineSpeedModule().isEngineNotRunning()) {
+                getListener().onUrgentMessage("Please turn the Key ON with Engine OFF", "Adjust Key Switch", WARNING);
+                while (!getEngineSpeedModule().isEngineNotRunning()) {
+                    updateProgress("Waiting for Key ON, Engine OFF...");
+                    getDateTimeModule().pauseFor(500);
+                }
+            }
+        } catch (InterruptedException e) {
+            getListener().addOutcome(1, 2, ABORT, "User cancelled operation");
+            setEnding(Ending.STOPPED);
+            incrementProgress("User Aborted");
+        }
+    }
+
+    /**
+     * Ensures the Key is off with the Engine Off and prompts the user to make
+     * the proper adjustments.
+     *
+     * @throws InterruptedException
+     *         if the user cancels the operation
+     */
+    protected void ensureKeyOffEngineOff() throws InterruptedException {
+        try {
+            if (getEngineSpeedModule().isEngineRunning()) {
+                getListener().onUrgentMessage("Please turn the Key OFF with Engine OFF", "Adjust Key Switch", WARNING);
+                while (getEngineSpeedModule().isEngineRunning()) {
+                    updateProgress("Waiting for Key OFF, Engine OFF...");
+                    getDateTimeModule().pauseFor(500);
+                }
+            }
+        } catch (InterruptedException e) {
+            getListener().addOutcome(getPartNumber(), getStepNumber(), ABORT, "User cancelled operation");
+            setEnding(Ending.STOPPED);
+            incrementProgress("User cancelled testing");
+            throw e;
+        }
+
     }
 
     protected void addFailure(String message) {
@@ -152,6 +230,27 @@ public abstract class StepController extends Controller {
                 .map(address -> section + " - OBD module " + Lookup.getAddressName(address) + " did not provide a response to Global query and did not provide a NACK for the DS query")
                 .forEach(this::addFailure);
     }
+    protected QuestionListener getQuestionListener() {
+        return answerType -> {
+            //end test if user hits cancel button
+            if (answerType == CANCEL || answerType == NO) {
+                getListener().addOutcome(getPartNumber(),
+                                         getStepNumber(),
+                                         INCOMPLETE,
+                                         "Stopping test - user ended test");
+                try {
+                    getListener().onResult("User cancelled the test at Part " + getPartNumber() + " Step " + getStepNumber());
+                    setEnding(Ending.STOPPED);
+                    incrementProgress("User cancelled testing");
+                } catch (InterruptedException ignored) {
+                }
+            }
+        };
+    }
+
+    protected void displayInstructionAndWait(String message, String boxTitle, MessageType messageType){
+        getListener().onUrgentMessage(message, boxTitle, messageType, getQuestionListener());
+    }
 
     protected void reportDuplicateCompositeSystems(List<? extends DiagnosticReadinessPacket> packets, String section) {
         List<CompositeSystem> compositeSystems = packets.stream()
@@ -177,7 +276,7 @@ public abstract class StepController extends Controller {
         while (true) {
             secondsToGo = (stopTime - getDateTimeModule().getTimeAsLong()) / 1000;
             if (secondsToGo > 0) {
-                getListener().onProgress(String.format(message, secondsToGo));
+                getListener().onProgress(message + secondsToGo + " seconds");
                 getDateTimeModule().pauseFor(1000);
             } else {
                 break;
