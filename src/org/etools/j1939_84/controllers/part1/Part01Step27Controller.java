@@ -5,16 +5,12 @@ package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.isTesting;
-import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.etools.j1939_84.controllers.DataRepository;
-import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -88,7 +84,7 @@ public class Part01Step27Controller extends StepController {
         //      iii. The engine shall be allowed to idle one minute
         incrementProgress("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
         if (!isTesting()) {
-            pause("Allowing engine to idle for ", 60);
+            pause("Allowing engine to idle for %1$d seconds", 60L);
         }
     }
 

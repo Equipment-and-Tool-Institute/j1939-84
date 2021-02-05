@@ -87,7 +87,7 @@ public class Part01Step10Controller extends StepController {
                 .forEach(moduleName -> addWarning("6.1.10.3.a - The request for DM11 was ACK'ed by " + moduleName));
 
         // 6.1.10.1.c. Allow 5 s to elapse before proceeding with test step 6.1.10.2.
-        pause("Waiting for ", 5L);
+        pause("Waiting for %1$d seconds", 5L);
 
     }
 

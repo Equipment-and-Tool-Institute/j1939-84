@@ -276,7 +276,7 @@ public abstract class StepController extends Controller {
         while (true) {
             secondsToGo = (stopTime - getDateTimeModule().getTimeAsLong()) / 1000;
             if (secondsToGo > 0) {
-                getListener().onProgress(message + secondsToGo + " seconds");
+                getListener().onProgress(String.format(message, secondsToGo));
                 getDateTimeModule().pauseFor(1000);
             } else {
                 break;
