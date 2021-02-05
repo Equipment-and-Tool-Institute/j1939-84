@@ -71,9 +71,9 @@ public class Part01Step27Controller extends StepController {
         //  a. Testing may be stopped for vehicles with failed tests and for
         //  vehicles with the MIL on or a non-emissions related fault displayed
         //  in DM1. Vehicles with the MIL on will fail subsequent tests.
-        //if (!isTesting()) {
+        if (!isTesting()) {
             displayQuestionMessage();
-        //}
+        }
 
         //  b. The transition from part 1 to part 2 shall be as provided below.
         //        i. The engine shall be started without turning the key off.
@@ -81,15 +81,15 @@ public class Part01Step27Controller extends StepController {
         //           mode used to provide power to the drive system without moving the vehicle, if not
         //           automatically provided during the initial key off to key on operation.
         incrementProgress("Part 1, Step 27 b.i - Ensuring Key On, Engine On");
-        //if (!isTesting()) {
+        if (!isTesting()) {
             ensureKeyOnEngineOn();
-        //}
+        }
 
         //      iii. The engine shall be allowed to idle one minute
         incrementProgress("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
-        //if (!isTesting()) {
+        if (!isTesting()) {
             pause("Allowing engine to idle for ", 60);
-        //}
+        }
     }
 
     /**
@@ -104,23 +104,6 @@ public class Part01Step27Controller extends StepController {
                 .stream()
                 .anyMatch(s -> s.getOutcome() == FAIL);
         if (hasFailure) {
-
-            // We have a failure, display the question
-//            QuestionListener questionListener = answerType -> {
-//                // end test if user doesn't want to continue
-//                if (answerType == NO) {
-//                    getListener().addOutcome(getPartNumber(),
-//                                             getStepNumber(),
-//                                             INCOMPLETE,
-//                                             "Stopping test - user ended test");
-//                    try {
-//                        getListener().onResult("User cancelled the test at Part " + getPartNumber() + " Step " + getStepNumber());
-//                        setEnding(Ending.STOPPED);
-//                        incrementProgress("User cancelled testing");
-//                    } catch (InterruptedException ignored) {
-//                    }
-//                }
-//            };
             //  a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on
             //  or a non-emissions related fault displayed in DM1. Vehicles with the MIL on will fail subsequent tests.
             String message = "Ready to transition from Part 1 to Part 2 of the test" + NL;

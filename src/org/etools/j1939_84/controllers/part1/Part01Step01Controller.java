@@ -8,6 +8,7 @@ import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNIN
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
@@ -106,14 +107,14 @@ public class Part01Step01Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         incrementProgress("Part 1, Step 1 a-c Displaying Warning Message");
-        //if (!J1939_84.isTesting()) {
+        if (!J1939_84.isTesting()) {
         displayWarningMessage();
-        //}
+        }
 
         incrementProgress("Part 1, Step 1 d Ensuring Key On, Engine Off");
-        //if (!J1939_84.isTesting()) {
+        if (!J1939_84.isTesting()) {
         ensureKeyOnEngineOff();
-        //}
+        }
 
         incrementProgress("Part 1, Step 1 e Collecting Vehicle Information");
         collectVehicleInformation();
