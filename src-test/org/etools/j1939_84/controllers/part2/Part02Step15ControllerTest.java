@@ -88,7 +88,14 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
                                               DateTimeModule.getInstance(),
                                               diagnosticMessageModule);
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule, diagnosticMessageModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After

@@ -96,9 +96,9 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         setup(instance,
               listener,
               j1939,
-              engineSpeedModule,
-              reportFileModule,
               executor,
+              reportFileModule,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule);
     }

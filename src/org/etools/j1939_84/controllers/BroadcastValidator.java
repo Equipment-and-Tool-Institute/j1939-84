@@ -1,8 +1,12 @@
 /*
- * Copyright (c) 2020. Equipment & Tool Institute
+ * Copyright (c) 2021. Equipment & Tool Institute
  */
 
-package org.etools.j1939_84.controllers.part1;
+package org.etools.j1939_84.controllers;
+
+import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
@@ -11,16 +15,17 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
+import org.etools.j1939_84.bus.j1939.packets.model.Spn;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
-import org.etools.j1939_84.controllers.DataRepository;
-import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.Outcome;
 
 public class BroadcastValidator {
@@ -34,11 +39,20 @@ public class BroadcastValidator {
         listener.onResult(outcome + ": 6." + partNumber + "." + stepNumber + " - " + message);
     }
 
+    private static void addFailure(ResultsListener listener,
+                                   int partNumber,
+                                   int stepNumber,
+                                   String section,
+                                   String message) {
+        listener.addOutcome(partNumber, stepNumber, FAIL, message);
+        listener.onResult(FAIL + ": " + section + " - " + message);
+    }
+
     private final DataRepository dataRepository;
 
     private final J1939DaRepository j1939DaRepository;
 
-    BroadcastValidator(DataRepository dataRepository, J1939DaRepository j1939DaRepository) {
+    public BroadcastValidator(DataRepository dataRepository, J1939DaRepository j1939DaRepository) {
         this.dataRepository = dataRepository;
         this.j1939DaRepository = j1939DaRepository;
     }
@@ -68,7 +82,7 @@ public class BroadcastValidator {
      * @return the maximum period in seconds
      */
     public int getMaximumBroadcastPeriod() {
-        return Math.max(dataRepository.getObdModules()
+        int maxFromData = dataRepository.getObdModules()
                 .stream()
                 .flatMap(m -> m.getFilteredDataStreamSPNs().stream())
                 .map(SupportedSPN::getSpn)
@@ -81,7 +95,8 @@ public class BroadcastValidator {
                 .filter(period -> period > 0)
                 .map(period -> period / 1000)
                 .max()
-                .orElse(5), 5);
+                .orElse(5);
+        return Math.max(maxFromData, 5);
     }
 
     /**
@@ -127,7 +142,7 @@ public class BroadcastValidator {
                 Map<Integer, List<GenericPacket>> pgnPackets = packetMap.get(pgn);
 
                 pgnPackets.keySet().stream().sorted().forEach(moduleAddress -> {
-                    String moduleName = Lookup.getAddressName(moduleAddress);
+                    String moduleName = getAddressName(moduleAddress);
                     List<GenericPacket> samplePackets = pgnPackets.get(moduleAddress);
 
                     if (samplePackets.size() < 3) {
@@ -137,7 +152,7 @@ public class BroadcastValidator {
                         addOutcome(listener,
                                    partNumber,
                                    stepNumber,
-                                   Outcome.INFO,
+                                   INFO,
                                    "Unable to determine period for PGN " + pgn + " from " + moduleName);
                     } else {
                         Packet packet0 = samplePackets.get(0).getPacket();
@@ -168,7 +183,7 @@ public class BroadcastValidator {
                             addOutcome(listener,
                                        partNumber,
                                        stepNumber,
-                                       Outcome.FAIL,
+                                       FAIL,
                                        "Broadcast period of PGN " + pgn + " (" + diff + " ms) by module " + moduleName
                                                + " is less than 90% specified broadcast period of " + broadcastPeriod + " ms.");
                         }
@@ -182,7 +197,7 @@ public class BroadcastValidator {
                             addOutcome(listener,
                                        partNumber,
                                        stepNumber,
-                                       Outcome.FAIL,
+                                       FAIL,
                                        "Broadcast period of PGN " + pgn + " (" + diff + " ms) by module " + moduleName
                                                + " is beyond 110% specified broadcast period of " + broadcastPeriod + " ms.");
                         }
@@ -191,6 +206,113 @@ public class BroadcastValidator {
             }
         });
 
+    }
+
+    /**
+     * Reports if the given PGN was not received or if any supported SPNs were
+     * received as Not Available
+     *
+     * @param supportedSPNs
+     *         the list Supported SPNs
+     * @param pgn
+     *         the PGN of interest
+     * @param packets
+     *         the packet that may contain the PGN
+     * @param moduleAddress
+     *         the module address of concern, can be null for Global messages
+     * @return true if the given PGN wasn't received or any supported SPN is Not
+     * Available
+     */
+    public List<String> collectAndReportNotAvailableSPNs(List<Integer> supportedSPNs,
+                                                         int pgn,
+                                                         List<GenericPacket> packets,
+                                                         Integer moduleAddress,
+                                                         ResultsListener listener,
+                                                         int partNumber,
+                                                         int stepNumber,
+                                                         String section) {
+        Set<Integer> spns;
+
+        if (packets.isEmpty()) {
+            String message;
+            if (moduleAddress != null) {
+                message = "No DS response for PGN " + pgn + " from " + getAddressName(moduleAddress);
+            } else {
+                message = "No Global response for PGN " + pgn;
+            }
+            addFailure(listener, partNumber, stepNumber, section, message);
+
+            spns = j1939DaRepository.findPgnDefinition(pgn)
+                    .getSpnDefinitions()
+                    .stream()
+                    .map(SpnDefinition::getSpnId)
+                    .filter(supportedSPNs::contains)
+                    .collect(Collectors.toSet());
+        } else {
+            spns = collectNotAvailableSPNs(supportedSPNs, packets.stream());
+        }
+
+        return spns.stream().sorted().map(Object::toString).collect(Collectors.toList());
+    }
+
+    /**
+     * Reports the PGNs there are supported by the module but not received and
+     * the SPNs that were received by broadcast as Not Available
+     *
+     * @param moduleSourceAddress
+     *         the module source address
+     * @param foundPackets
+     *         the Map of PGNs to the List of those packets sent by the
+     *         module
+     * @param supportedSPNs
+     *         the list of SPNs that are still of concern
+     * @return the List of SPNs which were not found
+     */
+    public List<Integer> collectAndReportNotAvailableSPNs(int moduleSourceAddress,
+                                                          List<GenericPacket> foundPackets,
+                                                          List<Integer> supportedSPNs,
+                                                          List<Integer> requiredPgns,
+                                                          ResultsListener listener,
+                                                          int partNumber,
+                                                          int stepNumber,
+                                                          String section) {
+
+        List<Integer> missingSpns = new ArrayList<>();
+
+        Set<Integer> foundPGNs = foundPackets.stream().map(p -> p.getPacket().getPgn()).collect(Collectors.toSet());
+        requiredPgns.removeAll(foundPGNs);
+        if (!requiredPgns.isEmpty()) {
+            // Expected PGNs were not received.
+            // Add those SPNs to the missingSpns List and create a list of them for the report
+            // a. Fail if not received for any broadcast SPN indicated as supported by the OBD ECU in DM24
+            // with the Source Address matching the received message) in DM24.
+            listener.onResult("");
+            requiredPgns.stream()
+                    .map(j1939DaRepository::findPgnDefinition)
+                    .flatMap(pgnDef -> pgnDef.getSpnDefinitions().stream())
+                    .map(SpnDefinition::getSpnId)
+                    .filter(supportedSPNs::contains)
+                    .distinct()
+                    .sorted()
+                    .peek(missingSpns::add)
+                    .map(spn ->  "SPN " + spn + " was not broadcast by " + getAddressName(moduleSourceAddress))
+                    .forEach(message -> addFailure(listener, partNumber, stepNumber, section, message));
+        }
+
+        // Find any Supported SPNs which has a value of Not Available
+        missingSpns.addAll(collectNotAvailableSPNs(supportedSPNs, foundPackets.stream()));
+
+        return missingSpns;
+    }
+
+    private static Set<Integer> collectNotAvailableSPNs(List<Integer> requiredSpns,
+                                                        Stream<GenericPacket> packetStream) {
+        return packetStream
+                .flatMap(p -> p.getSpns().stream())
+                .filter(Spn::isNotAvailable)
+                .map(Spn::getId)
+                .filter(requiredSpns::contains)
+                .collect(Collectors.toSet());
     }
 
 }

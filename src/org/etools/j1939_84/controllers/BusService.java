@@ -1,8 +1,8 @@
 /*
- * Copyright (c) 2020. Equipment & Tool Institute
+ * Copyright (c) 2021. Equipment & Tool Institute
  */
 
-package org.etools.j1939_84.controllers.part1;
+package org.etools.j1939_84.controllers;
 
 import java.util.Collection;
 import java.util.List;
@@ -14,9 +14,9 @@ import java.util.stream.Stream;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
-import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.DateTimeModule;
 
@@ -28,7 +28,7 @@ public class BusService {
     private final DateTimeModule dateTimeModule;
     private ResultsListener listener;
 
-    BusService(J1939DaRepository j1939DaRepository) {
+    public BusService(J1939DaRepository j1939DaRepository) {
         this.j1939DaRepository = j1939DaRepository;
         this.dateTimeModule = DateTimeModule.getInstance();
     }
@@ -76,7 +76,8 @@ public class BusService {
      *         the module address of interest
      * @return List of Packets received
      */
-    public Stream<GenericPacket> dsRequest(int pgn, int moduleAddress, String message) {
+    public Stream<GenericPacket> dsRequest(int pgn, int moduleAddress, String spns) {
+        String message = "DS Request for PGN " + pgn + " to " + Lookup.getAddressName(moduleAddress) + " for SPNs " + spns;
         listener.onResult("");
         Packet requestPacket = j1939.createRequestPacket(pgn, moduleAddress);
         return j1939.requestDS(message, pgn, requestPacket, listener)
