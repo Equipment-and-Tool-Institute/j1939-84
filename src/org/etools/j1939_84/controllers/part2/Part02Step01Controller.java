@@ -1,8 +1,9 @@
 /*
- * Copyright 2020 Equipment & Tool Institute
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part2;
 
+import static org.etools.j1939_84.J1939_84.*;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 
@@ -62,7 +63,7 @@ public class Part02Step01Controller extends StepController {
 
         try {
             // 6.2.1.1.a. Gather broadcast data for engine speed (e.g., SPN 190).
-            if (getEngineSpeedModule().isEngineNotRunning() && !J1939_84.isTesting()) {
+            if (getEngineSpeedModule().isEngineNotRunning() && !isTesting()) {
                 getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
 
                 // 6.2.1.2.a If engine speed is < 400 rpm, prompt/warn operator to confirm engine is running and then press enter.

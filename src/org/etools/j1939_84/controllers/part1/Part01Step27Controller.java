@@ -5,16 +5,12 @@ package org.etools.j1939_84.controllers.part1;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.isTesting;
-import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import org.etools.j1939_84.controllers.QuestionListener;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -40,20 +36,25 @@ public class Part01Step27Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             DateTimeModule.getInstance());
+             new DiagnosticMessageModule(),
+             DateTimeModule.getInstance(),
+             DataRepository.getInstance());
     }
 
     Part01Step27Controller(Executor executor,
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DateTimeModule dateTimeModule) {
+                           DiagnosticMessageModule diagnosticMessageModule,
+                           DateTimeModule dateTimeModule,
+                           DataRepository dataRepository) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
-              vehicleInformationModule,
-              new DiagnosticMessageModule(),
               dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -83,18 +84,7 @@ public class Part01Step27Controller extends StepController {
         //      iii. The engine shall be allowed to idle one minute
         incrementProgress("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
         if (!isTesting()) {
-            waitForOneMinute();
-        }
-    }
-
-    private void waitForOneMinute() throws InterruptedException {
-        long secondsToGo = 60;
-        getListener().onResult("Allowing engine to idle for " + secondsToGo + " seconds");
-        long stopTime = getDateTimeModule().getTimeAsLong() + secondsToGo * 1000L;
-        while (secondsToGo > 0) {
-            secondsToGo = (stopTime - getDateTimeModule().getTimeAsLong()) / 1000;
-            updateProgress("Allowing engine to idle for " + secondsToGo + " seconds");
-            getDateTimeModule().pauseFor(1000);
+            pause("Allowing engine to idle for %1$d seconds", 60L);
         }
     }
 
@@ -110,53 +100,13 @@ public class Part01Step27Controller extends StepController {
                 .stream()
                 .anyMatch(s -> s.getOutcome() == FAIL);
         if (hasFailure) {
-            // We have a failure, display the question
-            QuestionListener questionListener = answerType -> {
-                // end test if user doesn't want to continue
-                if (answerType == NO) {
-                    getListener().addOutcome(getPartNumber(),
-                                             getStepNumber(),
-                                             INCOMPLETE,
-                                             "Stopping test - user ended test");
-                    try {
-                        getListener().onResult("User cancelled the test at Part " + getPartNumber() + " Step " + getStepNumber());
-                        setEnding(Ending.STOPPED);
-                        incrementProgress("User cancelled testing");
-                    } catch (InterruptedException ignored) {
-                    }
-                }
-            };
             //  a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on
             //  or a non-emissions related fault displayed in DM1. Vehicles with the MIL on will fail subsequent tests.
             String message = "Ready to transition from Part 1 to Part 2 of the test" + NL;
             message += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1." + NL;
             message += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
             message += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?" + NL;
-            getListener().onUrgentMessage(message, "Start Part 2", QUESTION, questionListener);
-        }
-    }
-
-    /**
-     * Ensures the Key is on with the Engine Off and prompts the user to make
-     * the proper adjustments.
-     *
-     * @throws InterruptedException
-     *         if the user cancels the operation
-     */
-    private void ensureKeyOnEngineOn() throws InterruptedException {
-        try {
-            if (!getEngineSpeedModule().isEngineRunning()) {
-                getListener().onUrgentMessage("Please turn the Engine ON with Key ON", "Adjust Key Switch", WARNING);
-                while (!getEngineSpeedModule().isEngineRunning()) {
-                    updateProgress("Waiting for Key ON, Engine ON...");
-                    getDateTimeModule().pauseFor(500);
-                }
-            }
-        } catch (InterruptedException e) {
-            getListener().addOutcome(getPartNumber(), getStepNumber(), ABORT, "User cancelled operation");
-            setEnding(Ending.STOPPED);
-            incrementProgress("User cancelled testing");
-            throw e;
+            displayInstructionAndWait(message, "Start Part 2", QUESTION);
         }
     }
 }

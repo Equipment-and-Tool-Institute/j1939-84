@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Equipment & Tool Institute
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part2;
 
@@ -34,6 +34,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 /**
  * The unit test for {@link Part02Step01Controller}
+ * This step is similar to Part 01 Step 27 & Part 02 Step 18
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  */
