@@ -127,7 +127,7 @@ public abstract class StepController extends Controller {
                 }
             }
         } catch (InterruptedException e) {
-            getListener().addOutcome(1, 2, ABORT, "User cancelled operation");
+            getListener().addOutcome(getPartNumber(), getStepNumber(), ABORT, "User cancelled operation");
             setEnding(Ending.STOPPED);
             incrementProgress("User Aborted");
         }
@@ -142,9 +142,9 @@ public abstract class StepController extends Controller {
      */
     protected void ensureKeyOffEngineOff() throws InterruptedException {
         try {
-            if (getEngineSpeedModule().isEngineRunning()) {
+            if (getEngineSpeedModule().isEngineCommunicating()) {
                 getListener().onUrgentMessage("Please turn the Key OFF with Engine OFF", "Adjust Key Switch", WARNING);
-                while (getEngineSpeedModule().isEngineRunning()) {
+                while (getEngineSpeedModule().isEngineCommunicating()) {
                     updateProgress("Waiting for Key OFF, Engine OFF...");
                     getDateTimeModule().pauseFor(500);
                 }
