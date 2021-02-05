@@ -29,7 +29,22 @@ public class Part03Controller extends PartController {
              dataRepository,
              new EngineSpeedModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule());
+             new DiagnosticMessageModule(),
+             new Part03Step01Controller(),
+             new Part03Step02Controller(),
+             new Part03Step03Controller(),
+             new Part03Step04Controller(),
+             new Part03Step05Controller(),
+             new Part03Step06Controller(),
+             new Part03Step07Controller(),
+             new Part03Step08Controller(),
+             new Part03Step09Controller(),
+             new Part03Step10Controller(),
+             new Part03Step11Controller(),
+             new Part03Step12Controller(),
+             new Part03Step13Controller(),
+             new Part03Step14Controller()
+        );
     }
 
     /**
