@@ -104,6 +104,11 @@ public class J1939 {
         }
     }
 
+    /** Helper to detect if this response represents busy. */
+    static private <T extends GenericPacket> boolean isBusy(Either<T, AcknowledgmentPacket> e) {
+        return e.right.stream().anyMatch(p -> p.getResponse() == Response.BUSY);
+    }
+
     /**
      * filter by pgn
      */
@@ -122,11 +127,9 @@ public class J1939 {
         return response -> response.getSource() == addr;
     }
 
-    private static void warn(String message) {
-        getLogger().log(WARNING, message);
-    }
-
     private final Bus bus;
+
+    private int warnings;
 
     public J1939() {
         this(new EchoBus(0xA5));
@@ -208,6 +211,11 @@ public class J1939 {
         return DateTimeModule.getInstance();
     }
 
+    /** Count of warnings detected in J1939 and J1939TP. */
+    public int getWarnings() {
+        return warnings;
+    }
+
     private Predicate<Packet> globalFilter(int pgn) {
         return
         // does the packet have the right ID
@@ -219,8 +227,8 @@ public class J1939 {
                         || (p.getDestination() == 0 && p.getLength() > 8)));
     }
 
-    private <T extends GenericPacket> boolean isBusy(Either<T, AcknowledgmentPacket> e) {
-        return e.right.stream().anyMatch(p -> p.getResponse() == Response.BUSY);
+    public void incrementWarning() {
+        warnings++;
     }
 
     /**
@@ -418,11 +426,15 @@ public class J1939 {
         return Stream.empty();
     }
 
-    // exposed for mockito
+    /** Exposed only for mockito to override in testing */
     public Stream<Packet> read(long timeout, TimeUnit unit) throws BusException {
         return bus.read(timeout, unit);
     }
 
+    /**
+     * DM11 is special. There is not always a response and any response should
+     * be treated specially.
+     */
     public List<AcknowledgmentPacket> requestDM11(ResultsListener listener) {
         listener.onResult(getDateTimeModule().getTime() + " " + "Global DM11 Request");
         int pgn = DM11ClearActiveDTCsPacket.PGN;
@@ -433,6 +445,7 @@ public class J1939 {
                 .collect(Collectors.toList());
     }
 
+    /** Request test results with a DM7. */
     public BusResult<DM30ScaledTestResultsPacket> requestDM7(int spn, int address, ResultsListener listener) {
 
         if (address == GLOBAL_ADDR) {
@@ -464,7 +477,7 @@ public class J1939 {
                                 .map(this::process);
                 Packet sent = bus.send(request);
                 if (sent != null) {
-                    listener.onResult(toString(sent));
+                    listener.onResult(sent.toTimeString());
                 } else {
                     warn("Failed to send: " + request);
                 }
@@ -473,7 +486,7 @@ public class J1939 {
                 result.getPacket().ifPresentOrElse(p -> {
                     GenericPacket response = p.resolve();
                     Packet packet = response.getPacket();
-                    listener.onResult(toString(packet));
+                    listener.onResult(packet.toTimeString());
                     listener.onResult(response.toString());
                 },
                         () -> listener.onResult(TIMEOUT_MESSAGE));
@@ -550,7 +563,7 @@ public class J1939 {
                     .map(this::process);
             Packet sent = bus.send(request);
             if (sent != null) {
-                listener.onResult(toString(sent));
+                listener.onResult(sent.toTimeString());
             } else {
                 warn("Failed to send: " + request);
             }
@@ -682,8 +695,8 @@ public class J1939 {
         return result;
     }
 
-    private String toString(Packet packet) {
-        return getDateTimeModule().format(packet.getTimestamp()) + " " + packet.toString();
+    private void warn(String message) {
+        incrementWarning();
+        getLogger().log(WARNING, message);
     }
-
 }

@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -61,11 +62,11 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      * Constructor exposed for testing
      *
      * @param logger
-     *         The {@link Logger} to use for logging
+     *            The {@link Logger} to use for logging
      * @param summaryModule
-     *         The {@link SummaryModule}
+     *            The {@link SummaryModule}
      * @param bannerModule
-     *         The {@link BannerModule}
+     *            The {@link BannerModule}
      */
     public ReportFileModule(Logger logger, SummaryModule summaryModule,
             BannerModule bannerModule) {
@@ -165,7 +166,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
 
     @Override
     public void onUrgentMessage(String message, String title, MessageType type, QuestionListener listener) {
-        //Don't care
+        // Don't care
     }
 
     @Override
@@ -181,8 +182,8 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      * Reports the information about the report file
      *
      * @param listener
-     *         the {@link ResultsListener} that will be notified of the
-     *         results
+     *            the {@link ResultsListener} that will be notified of the
+     *            results
      */
     public void reportFileInformation(ResultsListener listener) {
         listener.onResult(getTime() + " File: " + reportFile.getAbsolutePath());
@@ -192,9 +193,9 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      * Sets the File that will be used to log results to
      *
      * @param reportFile
-     *         the File used for the report
+     *            the File used for the report
      * @throws IOException
-     *         if there is problem with the file
+     *             if there is problem with the file
      */
     public void setReportFile(File reportFile) throws IOException {
         if (writer != null) {
@@ -212,9 +213,9 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      * Writes a result to the report file
      *
      * @param result
-     *         the result to write
+     *            the result to write
      * @throws IOException
-     *         if there is a problem writing to the file
+     *             if there is a problem writing to the file
      */
     private void write(String result) throws IOException {
         writer.write(result + NL);
@@ -250,7 +251,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             tempFileWriter.write("Warnings:    " + summaryModule.getOutcomeCount(Outcome.WARN) + NL);
             tempFileWriter.write("Information: " + summaryModule.getOutcomeCount(Outcome.INFO) + NL);
             tempFileWriter.write("Incomplete:  " + summaryModule.getOutcomeCount(Outcome.INCOMPLETE) + NL);
-            tempFileWriter.write("Timing:      " + summaryModule.getOutcomeCount(Outcome.TIMING) + NL);
+            tempFileWriter.write("Timing:      " + getJ1939().getWarnings() + NL);
             tempFileWriter.write("Passes:      " + summaryModule.getOutcomeCount(Outcome.PASS) + NL);
             tempFileWriter.write(NL);
             tempFileWriter.write(vehicleInformation + NL);

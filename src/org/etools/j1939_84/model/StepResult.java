@@ -7,7 +7,6 @@ import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
 import static org.etools.j1939_84.model.Outcome.INFO;
-import static org.etools.j1939_84.model.Outcome.TIMING;
 import static org.etools.j1939_84.model.Outcome.WARN;
 
 import java.util.ArrayList;
@@ -45,7 +44,7 @@ public class StepResult implements IResult {
         }
 
         if (outcome == null) {
-            Outcome[] outcomes = { FAIL, WARN, INFO, TIMING, INCOMPLETE, ABORT };
+            Outcome[] outcomes = { FAIL, WARN, INFO, INCOMPLETE, ABORT };
             for (Outcome o : outcomes) {
                 if (hasOutcome(o)) {
                     outcome = o;

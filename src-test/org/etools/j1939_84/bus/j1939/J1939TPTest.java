@@ -238,7 +238,7 @@ public class J1939TPTest {
                  * packet, so set timing with first packet.
                  */
                 Stream<Packet> firstPacketStream = bus.read(500, TimeUnit.MILLISECONDS).limit(1);
-                run(() -> tp.sendBam(testPacket));
+                run(() -> tp.send(testPacket));
 
                 // just to terminate the stream
                 assertEquals(1, firstPacketStream.count());
@@ -560,11 +560,11 @@ public class J1939TPTest {
             run(() -> {
                 Stream<Packet> stream = tp.read(100, TimeUnit.MILLISECONDS);
                 tp.send(Packet.create(0xEA00 | 0xF9,
-                                      tp.getAddress(),
-                                      true,
-                                      0xEA00,
-                                      0xEA00 >> 8,
-                                      0xEA00 >> 16));
+                        tp.getAddress(),
+                        true,
+                        0xEA00,
+                        0xEA00 >> 8,
+                        0xEA00 >> 16));
                 stream.findFirst()
                         .ifPresentOrElse(p -> result.complete(p),
                                 () -> result.completeExceptionally(success));
@@ -611,11 +611,11 @@ public class J1939TPTest {
                 long start = System.currentTimeMillis();
                 Stream<Packet> stream = tp.read(220, TimeUnit.MILLISECONDS);
                 tp.send(Packet.create(0xEA00 | 0xF9,
-                                      tp.getAddress(),
-                                      true,
-                                      0xEA00,
-                                      0xEA00 >> 8,
-                                      0xEA00 >> 16));
+                        tp.getAddress(),
+                        true,
+                        0xEA00,
+                        0xEA00 >> 8,
+                        0xEA00 >> 16));
                 stream.findFirst()
                         .ifPresentOrElse(p -> result.complete(p),
                                 () -> result.completeExceptionally(

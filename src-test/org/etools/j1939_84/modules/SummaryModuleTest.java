@@ -18,7 +18,7 @@ public class SummaryModuleTest {
     private SummaryModule instance;
 
     @Before
-    public void setUp()  {
+    public void setUp() {
         PartResultRepository.setInstance(null);
         instance = new SummaryModule();
     }
@@ -33,7 +33,8 @@ public class SummaryModuleTest {
         instance.addOutcome(1, 1, Outcome.FAIL, "Part 1 Step 1 Fail");
         instance.addOutcome(1, 2, Outcome.INCOMPLETE, "Part 1 Step 2 Incomplete");
         instance.addOutcome(1, 3, Outcome.WARN, "Part 1 Step 1 Warning");
-        instance.addOutcome(1, 4, Outcome.TIMING, "Part 1 Step 1 Timing");
+        // TIMING removed
+        // instance.addOutcome(1, 4, Outcome.TIMING, "Part 1 Step 1 Timing");
         instance.addOutcome(1, 5, Outcome.PASS, "Part 1 Step 1 Pass");
         instance.addOutcome(1, 6, Outcome.INFO, "Part 1 Step 1 Info");
         instance.addOutcome(1, 7, Outcome.ABORT, "Part 1 Step 1 Fail");
@@ -45,7 +46,7 @@ public class SummaryModuleTest {
         expected += "Step 1.1. Test vehicle data collection.................................(FAIL)" + NL;
         expected += "Step 1.2. Verify engine operation................................(INCOMPLETE)" + NL;
         expected += "Step 1.3. DM5: Diagnostic readiness 1..................................(WARN)" + NL;
-        expected += "Step 1.4. DM24: SPN support..........................................(TIMING)" + NL;
+        expected += "Step 1.4. DM24: SPN support......................................(INCOMPLETE)" + NL;
         expected += "Step 1.5. PGN 65260 VIN verification...................................(PASS)" + NL;
         expected += "Step 1.6. DM56: Model year and certification engine family.............(INFO)" + NL;
         expected += "Step 1.7. DM19: Calibration information...............................(ABORT)" + NL;
