@@ -39,7 +39,7 @@ public class J1939_84 {
      * The name of the property that is set when the application is being used
      * in a testing mode
      */
-    public static final String ENV_PROPERTY_NAME = "ENV";
+    public static final String DEV_PROPERTY_NAME = "DEV";
 
     static {
         try {
@@ -76,12 +76,13 @@ public class J1939_84 {
     }
 
     /**
-     * Returns true if the application is under test
+     * Returns true if the application is running in dev
+     * environment
      *
      * @return true if it's being tested
      */
     public static final boolean isDevEnv() {
-        return Boolean.getBoolean(ENV_PROPERTY_NAME);
+        return Boolean.getBoolean(DEV_PROPERTY_NAME);
     }
 
     /**
@@ -93,7 +94,7 @@ public class J1939_84 {
     public static void main(String[] args) {
         getLogger().info("J1939_84 starting");
         setTesting(argAsBoolean(args, TESTING_PROPERTY_NAME));
-        setEnv(argAsBoolean(args, ENV_PROPERTY_NAME));
+        setEnv(argAsBoolean(args, DEV_PROPERTY_NAME));
 
         try {
             // Set System L&F
@@ -127,7 +128,7 @@ public class J1939_84 {
      *         - true to indicate the environment is under development
      */
     public static final void setEnv(boolean env) {
-        System.setProperty(ENV_PROPERTY_NAME, Boolean.toString(env));
+        System.setProperty(DEV_PROPERTY_NAME, Boolean.toString(env));
     }
 
     /**
