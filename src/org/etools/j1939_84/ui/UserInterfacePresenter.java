@@ -23,6 +23,7 @@ import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.RP1210;
 import org.etools.j1939_84.bus.RP1210Bus;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.J1939TP;
 import org.etools.j1939_84.controllers.OverallController;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -59,6 +60,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
     private final Executor executor;
 
     private final HelpView helpView;
+
+    private J1939 j1939;
 
     private final OverallController overallController;
 
@@ -191,7 +194,11 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
     @Override
     public J1939 getNewJ1939() {
-        return new J1939(bus);
+        j1939 = new J1939(bus);
+        if (bus instanceof J1939TP) {
+            ((J1939TP) bus).setJ1939(j1939);
+        }
+        return j1939;
     }
 
     /**
@@ -434,6 +441,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         getView().setReadVehicleInfoButtonEnabled(false);
         getView().setSelectFileButtonEnabled(false);
         getView().setAdapterComboBoxEnabled(false);
+        getReportFileModule().setJ1939(j1939);
         overallController.execute(getResultsListener(), getNewJ1939(), getReportFileModule());
     }
 

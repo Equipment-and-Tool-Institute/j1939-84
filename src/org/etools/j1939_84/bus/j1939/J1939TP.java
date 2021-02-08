@@ -12,6 +12,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import java.util.concurrent.ThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
+import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
 
@@ -22,12 +23,6 @@ import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.Packet.PacketException;
 
 public class J1939TP implements Bus {
-
-    static public class CanceledBusException extends BusException {
-        public CanceledBusException() {
-            super("Canceled.");
-        }
-    }
 
     static public class CtsBusException extends BusException {
         private static final long serialVersionUID = 425016130552597972L;
@@ -40,12 +35,6 @@ public class J1939TP implements Bus {
     static public class EomBusException extends BusException {
         public EomBusException() {
             super("EOM not received.");
-        }
-    }
-
-    static public class TpDtBusException extends BusException {
-        public TpDtBusException() {
-            super("DT not received.");
         }
     }
 
@@ -102,22 +91,33 @@ public class J1939TP implements Bus {
         }
     }
 
+    /** bus representing CAN bus */
     private final Bus bus;
 
-    // Support up to 255 concurrent TP sessions plus main kickoff thread, but we
-    // only expect there to normally be 5, so shut down idle threads after 5 ms.
+    /**
+     * Support up to 255 concurrent TP sessions plus main kickoff thread, but we
+     * only expect there to normally be 5, so shut down idle threads after 1 s.
+     */
     private final ExecutorService exec = new ThreadPoolExecutor(5 + 1,
             255 + 1,
-            5L,
-            TimeUnit.MILLISECONDS,
+            1L,
+            TimeUnit.SECONDS,
             new LinkedBlockingQueue<Runnable>());
 
+    /** Application side bus. */
     private final EchoBus inbound;
+    /** Optional j1939 used solely for counting warnings. */
+    private J1939 j1939;
+
     /**
      * map of active requests (pgn<<32)|addr -> callbacks that are called when
      * RTS is received.
      */
     private final Map<Long, Runnable> requestCBs = new WeakHashMap<>();
+
+    /**
+     * The inbound stream that RTS and BAM announcements will be detected on.
+     */
     private final Stream<Packet> stream;
 
     public J1939TP(Bus bus) throws BusException {
@@ -148,14 +148,17 @@ public class J1939TP implements Bus {
         return inbound.duplicate(stream, time, unit);
     }
 
-    public void error(String msg, Throwable e) {
-        // FIXME where do we want error messages to go?
+    /** Record an error, which is more than just a warning. */
+    private void error(String msg, Throwable e) {
         System.err.println(msg);
         e.printStackTrace();
     }
 
-    private void fine(String string) {
-        // System.err.println("LOG:" + string);
+    /** Used for debugging. */
+    private void fine(String str, Packet p) {
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine(str + ": " + p.toTimeString());
+        }
     }
 
     @Override
@@ -170,7 +173,6 @@ public class J1939TP implements Bus {
 
     @Override
     public Stream<Packet> read(long timeout, TimeUnit unit) throws BusException {
-        // FIXME this has to have a timeout to RTS
         return inbound.read(timeout, unit);
     }
 
@@ -193,20 +195,17 @@ public class J1939TP implements Bus {
                     return;
                 }
                 case CM_BAM: {
-                    // Duplicate the current stream. Opening a new stream starts
-                    // from "now" a may
-                    // miss packets already queued up in stream. This is not
-                    // needed for DA, because
-                    // DA has a CTS.
-                    // Timeout is reset inside receiveBam to account for time
-                    // spent
-                    // starting this thread.
+                    /*
+                     * Duplicate the current stream. Opening a new stream starts
+                     * from "now" and may miss packets already queued up in
+                     * stream. This is not needed for DA, because DA has a CTS.
+                     * Timeout is reset inside receiveBam to account for time
+                     * spent starting this thread.
+                     */
                     Stream<Packet> bamStream = bus.duplicate(stream, T2, TimeUnit.MILLISECONDS);
                     exec.execute(() -> {
                         try {
                             receiveBam(packet, bamStream);
-                        } catch (BusException e) {
-                            error("Failed to receive BAM TP.", e);
                         } finally {
                             bamStream.close();
                         }
@@ -226,8 +225,8 @@ public class J1939TP implements Bus {
         }
     }
 
-    private void receiveBam(Packet rts, Stream<Packet> stream) throws BusException {
-        fine("rx BAM: " + rts);
+    private void receiveBam(Packet rts, Stream<Packet> stream) {
+        fine("rx BAM", rts);
 
         int numberOfPackets = rts.get(3);
 
@@ -256,7 +255,7 @@ public class J1939TP implements Bus {
                             packet.fail();
                             return true;
                         }
-                        fine("rx DT: " + p);
+                        fine("rx DT", p);
                         received.set(p.get(0));
                         int offset = (p.get(0) - 1) * 7;
                         System.arraycopy(p.getBytes(), 1, data, offset, Math.min(offset + 7, data.length) - offset);
@@ -273,7 +272,7 @@ public class J1939TP implements Bus {
     }
 
     public void receiveDestinationSpecific(Packet rts) throws BusException {
-        fine("rx RTS: " + rts);
+        fine("rx RTS", rts);
         int numberOfPackets = rts.get(3);
         int maxResponsePackets = rts.get(4);
 
@@ -312,17 +311,15 @@ public class J1939TP implements Bus {
                 if (packetCount > maxResponsePackets) {
                     packetCount = maxResponsePackets;
                 }
-                // FIXME should we warn on priority issues? Check with -21 and
-                // with Eric
                 Stream<Packet> dataStream = bus.read(T2, TimeUnit.MILLISECONDS);
                 Stream<Packet> stream = dataStream
                         .filter(p -> p.getSource() == source)
                         .peek(p -> {
                             if (p.getId(0xFFFF) == (CM | rts.getId(0xFF))) {
                                 if (p.get(0) == CM_ConnAbort) {
-                                    warn(getAbortError(p.get(1)));
+                                    warn(getAbortError(p.get(1)), p);
                                 }
-                                warn("TP canceled: " + p); // FIXME
+                                warn("TP canceled", p);
                                 packet.fail();
                                 throw new PacketException("TP canceled");
                             }
@@ -348,12 +345,12 @@ public class J1939TP implements Bus {
                         rts.get(5),
                         rts.get(6),
                         rts.get(7));
-                fine("tx CTS: " + cts);
+                fine("tx CTS", cts);
 
                 bus.send(cts);
                 try {
                     stream.forEach(p -> {
-                        fine("rx DT: " + rts);
+                        fine("rx DT", rts);
                         received.set(p.get(0));
                         packet.setTimestamp(p.getTimestamp());
                         int offset = (p.get(0) - 1) * 7;
@@ -374,7 +371,7 @@ public class J1939TP implements Bus {
                     rts.get(5),
                     rts.get(6),
                     rts.get(7));
-            fine("tx EOM: " + eom);
+            fine("tx EOM", eom);
 
             bus.send(eom);
             if (pgn < 0xF000) {
@@ -400,7 +397,7 @@ public class J1939TP implements Bus {
         }
     }
 
-    Packet sendBam(Packet packet) throws BusException {
+    private Packet sendBam(Packet packet) throws BusException {
         int pgn = packet.getPgn();
         int packetsToSend = packet.getLength() / 7 + 1;
         int sourceAddress = getAddress();
@@ -414,7 +411,7 @@ public class J1939TP implements Bus {
                 0xFF & pgn,
                 0xFF & (pgn >> 8),
                 (0b111 & (pgn >> 16)));
-        fine("tx BAM: " + bam);
+        fine("tx BAM", bam);
 
         Packet response = bus.send(bam);
         // send data
@@ -433,13 +430,13 @@ public class J1939TP implements Bus {
             sleep(50);
             Packet dp = Packet.create(id, sourceAddress, buf);
 
-            fine("tx DT.DP: " + dp);
+            fine("tx DT.DP", dp);
             bus.send(dp);
         }
         return response;
     }
 
-    Packet sendDestinationSpecific(Packet packet) throws BusException {
+    private Packet sendDestinationSpecific(Packet packet) throws BusException {
         int pgn = packet.getPgn();
         int destinationAddress = packet.getDestination();
         Predicate<Packet> controlMessageFilter = p -> //
@@ -458,7 +455,7 @@ public class J1939TP implements Bus {
                 0xFF & pgn,
                 0xFF & (pgn >> 8),
                 0xFF & (pgn >> 16));
-        fine("tx RTS: " + rts);
+        fine("tx RTS", rts);
 
         Stream<Packet> ctsStream = bus.read(T3, TimeUnit.MILLISECONDS)
                 .filter(controlMessageFilter);
@@ -468,7 +465,7 @@ public class J1939TP implements Bus {
         Optional<Packet> ctsOptional = ctsStream.findFirst();
         while (ctsOptional.map(p -> p.get(0) == CM_CTS).orElse(false)) {
             Packet cts = ctsOptional.get();
-            fine("rx CTS: " + cts);
+            fine("rx CTS", cts);
 
             int packetsToSend = Math.min(cts.get(1), totalPacketsToSend);
             if (packetsToSend == 0) {
@@ -498,14 +495,14 @@ public class J1939TP implements Bus {
                     buf[0] = (byte) (i + 1);
                     Packet dp = Packet.create(DT | destinationAddress, getAddress(), buf);
 
-                    fine("tx DP: " + dp);
+                    fine("tx DP", dp);
                     response = bus.send(dp);
                 }
                 // wait for CTS or EOM
                 ctsOptional = bus.read(T3, TimeUnit.MILLISECONDS).filter(controlMessageFilter).findFirst();
             }
         }
-        ctsOptional.ifPresent(eom -> fine("rx EOM: " + eom));
+        ctsOptional.ifPresent(eom -> fine("rx EOM", eom));
 
         if (ctsOptional.map(p -> p.get(0) == CM_ConnAbort).orElse(false)) {
             // FAIL
@@ -519,10 +516,15 @@ public class J1939TP implements Bus {
         return response;
     }
 
+    /** Used to count warnings. */
+    public void setJ1939(J1939 j1939) {
+        this.j1939 = j1939;
+    }
+
     public void warn(String msg, Object... a) {
-        // FIXME where do we want warning messages to go?
-        String str = String.format(msg, a);
-        logger.warning(str);
-        System.err.println("WARN: " + str);
+        if (j1939 != null) {
+            j1939.incrementWarning();
+        }
+        logger.warning(String.format(msg, a));
     }
 }
