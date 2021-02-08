@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.bus.simulated;
 
+import static java.util.concurrent.TimeUnit.SECONDS;
+
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
@@ -118,7 +120,7 @@ public class Engine implements AutoCloseable {
 
     private boolean dtcsCleared = false;
 
-    private final boolean[] engineOn = { false };
+    private final Boolean[] engineOn = { false };
 
     private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
 
@@ -133,9 +135,25 @@ public class Engine implements AutoCloseable {
         sim.schedule(100,
                      100,
                      TimeUnit.MILLISECONDS,
-                     () -> Packet.create(61444,
-                                         ADDR,
-                                         combine(NA3, engineOn[0] ? ENGINE_SPEED : ENGINE_SPEED_ZERO, NA3)));
+                     () -> {
+                         Boolean on = engineOn[0];
+                         if (on == null) {
+                             return Packet.create(0,
+                                                  ADDR,
+                                                  (byte) 0xFF,
+                                                  (byte) 0xFF,
+                                                  (byte) 0xFF,
+                                                  (byte) 0xFF,
+                                                  (byte) 0xFF,
+                                                  (byte) 0xFF,
+                                                  (byte) 0xFF,
+                                                  (byte) 0xFF);
+                         } else {
+                             return Packet.create(61444,
+                                                  ADDR,
+                                                  combine(NA3, on ? ENGINE_SPEED : ENGINE_SPEED_ZERO, NA3));
+                         }
+                     });
         sim.schedule(100, 100, TimeUnit.MILLISECONDS, () -> Packet.create(65248, ADDR, combine(NA4, DISTANCE)));
 
         sim.schedule(50, 50, TimeUnit.MILLISECONDS, () -> Packet.create(0x0C,
@@ -146,7 +164,7 @@ public class Engine implements AutoCloseable {
                                                                         (byte) 0x00,
                                                                         (byte) 0x00,
                                                                         (byte) 0x00,
-                                                                        (byte) 0xFF,(byte) 0xFF,
+                                                                        (byte) 0xFF, (byte) 0xFF,
                                                                         (byte) 0xFF,
                                                                         (byte) 0xFF));
         sim.response(p -> isRequestFor(65259, p), () -> Packet.create(65259, ADDR, COMPONENT_ID));
@@ -156,7 +174,18 @@ public class Engine implements AutoCloseable {
         //  state of key on.
         sim.response(p -> isRequestFor(65278, ADDR, p), () -> {
             // Start a timer to turn the engine on
-            executor.schedule(() -> engineOn[0] = true, 30, TimeUnit.SECONDS);
+            executor.schedule(() -> {
+                Boolean on = engineOn[0];
+                if (on == null) {
+                    on = false;
+                } else if (!on) {
+                    on = true;
+                } else {
+                    on = null;
+                    executor.schedule(() -> engineOn[0] = true, 5, SECONDS);
+                }
+                return engineOn[0] = on;
+            }, 10, SECONDS);
             return Packet.create(65278, ADDR, new byte[8]);
         });
 
@@ -192,7 +221,7 @@ public class Engine implements AutoCloseable {
                                                 ENGINE_CAL_ID7)));
 
         // DM1
-        sim.schedule(1, 1, TimeUnit.SECONDS,
+        sim.schedule(1, 1, SECONDS,
                      () -> Packet.create(DM1ActiveDTCsPacket.PGN,
                                          ADDR,
                                          0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF));
@@ -526,6 +555,6 @@ public class Engine implements AutoCloseable {
             if (demCount < 0xFAFF) {
                 demCount++;
             }
-        }, 10, 10, TimeUnit.SECONDS);
+        }, 10, 10, SECONDS);
     }
 }
