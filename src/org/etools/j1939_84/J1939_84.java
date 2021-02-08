@@ -71,7 +71,7 @@ public class J1939_84 {
      *
      * @return true if it's being tested
      */
-    public static final boolean isTesting() {
+    public static boolean isTesting() {
         return Boolean.getBoolean(TESTING_PROPERTY_NAME);
     }
 
@@ -81,7 +81,7 @@ public class J1939_84 {
      *
      * @return true if it's being tested
      */
-    public static final boolean isDevEnv() {
+    public static boolean isDevEnv() {
         return Boolean.getBoolean(DEV_PROPERTY_NAME);
     }
 
@@ -94,7 +94,9 @@ public class J1939_84 {
     public static void main(String[] args) {
         getLogger().info("J1939_84 starting");
         setTesting(argAsBoolean(args, TESTING_PROPERTY_NAME));
-        setEnv(argAsBoolean(args, DEV_PROPERTY_NAME));
+        setDevEnv(argAsBoolean(args, DEV_PROPERTY_NAME));
+        getLogger().info("testing = " + isTesting());
+        getLogger().info("development = " + isDevEnv());
 
         try {
             // Set System L&F
@@ -122,13 +124,13 @@ public class J1939_84 {
     }
 
     /**
-     * Sets the System Property to indicate the system is under test
+     * Sets the System Property to indicate the system is under development
      *
-     * @param env
+     * @param isDevEnv
      *         - true to indicate the environment is under development
      */
-    private static final void setEnv(boolean env) {
-        System.setProperty(DEV_PROPERTY_NAME, Boolean.toString(env));
+    private static void setDevEnv(boolean isDevEnv) {
+        System.setProperty(DEV_PROPERTY_NAME, Boolean.toString(isDevEnv));
     }
 
     /**
@@ -137,7 +139,7 @@ public class J1939_84 {
      * @param testing
      *         - true to indicate the system is under test
      */
-    public static final void setTesting(boolean testing) {
+    public static void setTesting(boolean testing) {
         System.setProperty(TESTING_PROPERTY_NAME, Boolean.toString(testing));
     }
 }
