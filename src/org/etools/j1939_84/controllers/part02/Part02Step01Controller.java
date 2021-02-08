@@ -62,7 +62,7 @@ public class Part02Step01Controller extends StepController {
 
         try {
             // 6.2.1.1.a. Gather broadcast data for engine speed (e.g., SPN 190).
-            if (getEngineSpeedModule().isEngineNotRunning() && !isTesting()) {
+            if (getEngineSpeedModule().isEngineNotRunning() && !isDevEnv()) {
                 getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
 
                 // 6.2.1.2.a If engine speed is < 400 rpm, prompt/warn operator to confirm engine is running and then press enter.
