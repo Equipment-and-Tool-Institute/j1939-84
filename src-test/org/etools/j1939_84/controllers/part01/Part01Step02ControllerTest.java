@@ -6,10 +6,8 @@ package org.etools.j1939_84.controllers.part01;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -20,6 +18,7 @@ import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -115,7 +114,7 @@ public class Part01Step02ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
         verify(engineSpeedModule).isEngineNotRunning();
         verify(vehicleInformationModule).setJ1939(j1939);
 
@@ -125,7 +124,9 @@ public class Part01Step02ControllerTest {
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
 
-        String expectedResults = "Final Engine Speed = 0.0 RPMs" + NL;
+        String expectedResults = "";
+        expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
+        expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -149,15 +150,15 @@ public class Part01Step02ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule, times(2)).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
         verify(engineSpeedModule, atLeastOnce()).isEngineNotRunning();
         verify(vehicleInformationModule).setJ1939(j1939);
-        verify(mockListener).onUrgentMessage(eq("Please turn the Engine OFF with Key ON."),
+        verify(mockListener).onUrgentMessage(eq("Please turn the Key ON with Engine OFF"),
                                              eq("Adjust Key Switch"),
-                                             eq(WARNING),
-                                             any());
+                                             eq(WARNING));
 
         String expectedMessages = "Waiting for Key ON, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
         expectedMessages += "Waiting for Key ON, Engine OFF...";
         assertEquals(expectedMessages, listener.getMessages());
 
@@ -165,7 +166,8 @@ public class Part01Step02ControllerTest {
         assertEquals(expectedMilestones, listener.getMilestones());
 
         String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
+
+        verify(mockListener).addOutcome(1, 2, Outcome.ABORT, "User cancelled operation");
     }
 }

@@ -4,8 +4,6 @@
 package org.etools.j1939_84.controllers.part03;
 
 import static org.etools.j1939_84.J1939_84.isDevEnv;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.Outcome.ABORT;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -57,24 +55,12 @@ public class Part03Step01Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        try {
-            // 6.3.1.1.a Gather broadcast data for engine speed (e.g., SPN 190).
-            if (getEngineSpeedModule().isEngineNotRunning() && !isDevEnv()) {
-                getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
-
-                // 6.3.1.2.a Warn If engine speed is < 400 rpm, prompt/warn operator to confirm engine is running and then press enter
-                getListener().onUrgentMessage("Please turn the Engine ON with Key ON.", "Adjust Key Switch", WARNING);
-
-                while (getEngineSpeedModule().isEngineNotRunning()) {
-                    updateProgress("Waiting for Key ON, Engine ON...");
-                    getDateTimeModule().pauseFor(500);
-                }
-            }
-            getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
-        } catch (InterruptedException e) {
-            getListener().addOutcome(getPartNumber(), getStepNumber(), ABORT, "User cancelled operation");
-            throw e;
+        // 6.3.1.1.a Gather broadcast data for engine speed (e.g., SPN 190).
+        getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+        if (!isDevEnv()) {
+            ensureKeyOnEngineOn();
         }
+        getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
     }
 
 }

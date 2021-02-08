@@ -3,12 +3,11 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.*;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.Outcome.ABORT;
+import static org.etools.j1939_84.J1939_84.isDevEnv;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -31,7 +30,6 @@ public class Part02Step01Controller extends StepController {
     private static final int PART_NUMBER = 2;
     private static final int STEP_NUMBER = 1;
     private static final int TOTAL_STEPS = 0;
-    private final DateTimeModule dateTimeModule;
 
     Part02Step01Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -47,36 +45,25 @@ public class Part02Step01Controller extends StepController {
                            VehicleInformationModule vehicleInformationModule,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              DataRepository.getInstance(),
+              engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              new DiagnosticMessageModule(),
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dateTimeModule = dateTimeModule;
     }
 
     @Override
     protected void run() throws Throwable {
-
-        try {
-            // 6.2.1.1.a. Gather broadcast data for engine speed (e.g., SPN 190).
-            if (getEngineSpeedModule().isEngineNotRunning() && !isDevEnv()) {
-                getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
-
-                // 6.2.1.2.a If engine speed is < 400 rpm, prompt/warn operator to confirm engine is running and then press enter.
-                getListener().onUrgentMessage("Please turn the Engine ON with Key ON.", "Adjust Key Switch", WARNING);
-
-                while (getEngineSpeedModule().isEngineNotRunning()) {
-                    updateProgress("Waiting for Key ON, Engine ON...");
-                    dateTimeModule.pauseFor(500);
-                }
-            }
-            getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
-        } catch (InterruptedException e) {
-            getListener().addOutcome(getPartNumber(), getStepNumber(), ABORT, "User cancelled operation");
-            throw e;
+        // 6.2.1.1.a. Gather broadcast data for engine speed (e.g., SPN 190).
+        getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+        if (!isDevEnv()) {
+            ensureKeyOnEngineOn();
         }
+        getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
     }
+
 }
