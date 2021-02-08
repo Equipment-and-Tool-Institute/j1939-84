@@ -61,6 +61,8 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
     private final HelpView helpView;
 
+    private J1939 j1939;
+
     private final OverallController overallController;
 
     /**
@@ -192,7 +194,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
 
     @Override
     public J1939 getNewJ1939() {
-        J1939 j1939 = new J1939(bus);
+        j1939 = new J1939(bus);
         if (bus instanceof J1939TP) {
             ((J1939TP) bus).setJ1939(j1939);
         }
@@ -439,6 +441,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         getView().setReadVehicleInfoButtonEnabled(false);
         getView().setSelectFileButtonEnabled(false);
         getView().setAdapterComboBoxEnabled(false);
+        getReportFileModule().setJ1939(j1939);
         overallController.execute(getResultsListener(), getNewJ1939(), getReportFileModule());
     }
 
