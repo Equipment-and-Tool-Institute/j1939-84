@@ -37,7 +37,7 @@ public class J1939_84 {
 
     /**
      * The name of the property that is set when the application is being used
-     * in a testing mode
+     * in a development mode
      */
     public static final String DEV_PROPERTY_NAME = "DEV";
 
@@ -127,7 +127,7 @@ public class J1939_84 {
      * @param env
      *         - true to indicate the environment is under development
      */
-    public static final void setEnv(boolean env) {
+    private static final void setEnv(boolean env) {
         System.setProperty(DEV_PROPERTY_NAME, Boolean.toString(env));
     }
 
