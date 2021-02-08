@@ -4,20 +4,18 @@
 package org.etools.j1939_84;
 
 import java.awt.EventQueue;
+import java.util.Arrays;
 import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-
 import javax.swing.UIManager;
-
 import org.etools.j1939_84.ui.UserInterfaceView;
 
 /**
  * Main class for the J1939_84 Application
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class J1939_84 {
 
@@ -37,10 +35,16 @@ public class J1939_84 {
      */
     public static final String TESTING_PROPERTY_NAME = "TESTING";
 
+    /**
+     * The name of the property that is set when the application is being used
+     * in a development mode
+     */
+    public static final String DEV_PROPERTY_NAME = "DEV";
+
     static {
         try {
             System.setProperty("java.util.logging.SimpleFormatter.format",
-                    "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL %4$-6s %2$s %5$s%6$s%n");
+                               "%1$tY-%1$tm-%1$td %1$tH:%1$tM:%1$tS.%1$tL %4$-6s %2$s %5$s%6$s%n");
             logger.setUseParentHandlers(false);
 
             ConsoleHandler consoleHandler = new ConsoleHandler();
@@ -72,14 +76,25 @@ public class J1939_84 {
     }
 
     /**
+     * Returns true if the application is running in dev
+     * environment
+     *
+     * @return true if it's being tested
+     */
+    public static final boolean isDevEnv() {
+        return Boolean.getBoolean(DEV_PROPERTY_NAME);
+    }
+
+    /**
      * Launch the application.
      *
      * @param args
-     *            The arguments used to start the application
+     *         The arguments used to start the application
      */
     public static void main(String[] args) {
         getLogger().info("J1939_84 starting");
-        setTesting(true);
+        setTesting(argAsBoolean(args, TESTING_PROPERTY_NAME));
+        setEnv(argAsBoolean(args, DEV_PROPERTY_NAME));
 
         try {
             // Set System L&F
@@ -97,11 +112,30 @@ public class J1939_84 {
         });
     }
 
+    private static Boolean argAsBoolean(String[] args, String argName) {
+        return Arrays.stream(args)
+                .filter(arg -> arg.contains(argName))
+                .map(s -> s.substring(s.indexOf('=') + 1))
+                .map(Boolean::parseBoolean)
+                .findFirst()
+                .orElse(false);
+    }
+
+    /**
+     * Sets the System Property to indicate the system is under test
+     *
+     * @param env
+     *         - true to indicate the environment is under development
+     */
+    private static final void setEnv(boolean env) {
+        System.setProperty(DEV_PROPERTY_NAME, Boolean.toString(env));
+    }
+
     /**
      * Sets the System Property to indicate the system is under test
      *
      * @param testing
-     *            - true to indicate the system is under test
+     *         - true to indicate the system is under test
      */
     public static final void setTesting(boolean testing) {
         System.setProperty(TESTING_PROPERTY_NAME, Boolean.toString(testing));

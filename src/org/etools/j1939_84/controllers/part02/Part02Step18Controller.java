@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part02;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.J1939_84.isDevEnv;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 
 import java.util.concurrent.Executor;
@@ -61,17 +62,22 @@ public class Part02Step18Controller extends StepController {
     protected void run() throws Throwable {
         // 6.2.18.1.a. Turn Engine Off and keep the ignition key in the off position.
         incrementProgress("Part 2, Step 18 Turn Engine Off and keep the ignition key in the off position");
-        ensureKeyOffEngineOff();
-        
+        if(!isDevEnv()) {
+            ensureKeyOffEngineOff();
+        }
         // 6.2.18.1.b. Implant Fault A according to engine manufacturer’s instruction. (See section 5 for additional discussion).
         incrementProgress("Waiting for implant of Fault A according to the engine manufacturer's instruction");
-        waitForFault();
+        if(!isDevEnv()) {
+            waitForFault();
+        }
         
         // 6.2.18.1.c. Turn ignition key to the ON position.        
         // 6.2.18.1.d. Observe MIL and Wait to Start Lamps in Instrument Cluster
         // 6.2.18.1.e. Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished.
         incrementProgress("Part 2, Step 18 Turn ignition key to the ON position after MIL & WSL have cleared");
-        waitForEngineStart();
+        if(!isDevEnv()) {
+            waitForEngineStart();
+        }
     }
 
     private void waitForFault() {
