@@ -20,7 +20,7 @@ public interface VehicleInformationContract {
          * Called to initialize the presenter. This should be called when the
          * dialog is created/displayed
          */
-        void initialize();
+        void readVehicle();
 
         /**
          * Called when the Emissions Unit count changes

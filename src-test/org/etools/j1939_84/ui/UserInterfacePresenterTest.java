@@ -626,6 +626,7 @@ public class UserInterfacePresenterTest {
         verify(view).setSelectFileButtonEnabled(false);
         verify(view).setStopButtonEnabled(true);
         verify(view).setAdapterComboBoxEnabled(false);
+        verify(reportFileModule).setJ1939(any(J1939.class));
     }
 
     @Test
