@@ -171,28 +171,6 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         view.setNumberOfTripsForFaultBImplant(numberOfTripsForFaultBImplant);
 
         try {
-            List<Integer> obdModules = vehicleInformationModule.getOBDModules(NOOP);
-            view.setEmissionUnits(obdModules.size());
-
-            emissionUnitsFound = obdModules
-                    .stream().map(address -> vehicleInformationModule.reportComponentIdentification(NOOP, address)
-                            .getPacket()
-                            .map(e -> e.resolve(p -> p,
-                                                ack -> create(address, "ERROR", "ERROR", "ERROR", "ERROR")))
-                            .orElse(create(address, "MISSING", "MISSING", "MISSING", "MISSING")))
-                    .collect(Collectors.toList());
-        } catch (Exception e) {
-            getLogger().log(INFO, "Error reading getting OBD Modules", e);
-        }
-
-        try {
-            calIdsFound = vehicleInformationModule.reportCalibrationInformation(NOOP);
-            view.setCalIds((int) calIdsFound.stream().mapToLong(p -> p.getCalibrationInformation().size()).sum());
-        } catch (Exception e) {
-            getLogger().log(INFO, "Error reading calibration IDs", e);
-        }
-
-        try {
             vin = vehicleInformationModule.getVin();
             view.setVin(vin);
         } catch (Exception e) {
@@ -219,6 +197,29 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         } catch (Exception e) {
             getLogger().log(INFO, "Error reading engine family", e);
         }
+
+        try {
+            List<Integer> obdModules = vehicleInformationModule.getOBDModules(NOOP);
+            view.setEmissionUnits(obdModules.size());
+
+            emissionUnitsFound = obdModules
+                    .stream().map(address -> vehicleInformationModule.reportComponentIdentification(NOOP, address)
+                            .getPacket()
+                            .map(e -> e.resolve(p -> p,
+                                                ack -> create(address, "ERROR", "ERROR", "ERROR", "ERROR")))
+                            .orElse(create(address, "MISSING", "MISSING", "MISSING", "MISSING")))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            getLogger().log(INFO, "Error reading getting OBD Modules", e);
+        }
+
+        try {
+            calIdsFound = vehicleInformationModule.reportCalibrationInformation(NOOP);
+            view.setCalIds((int) calIdsFound.stream().mapToLong(p -> p.getCalibrationInformation().size()).sum());
+        } catch (Exception e) {
+            getLogger().log(INFO, "Error reading calibration IDs", e);
+        }
+
     }
 
     @Override
