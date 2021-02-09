@@ -112,9 +112,7 @@ public class Part01Step01Controller extends StepController {
         }
 
         incrementProgress("Part 1, Step 1 d Ensuring Key On, Engine Off");
-        if (!isDevEnv()) {
-            ensureKeyOnEngineOff();
-        }
+        ensureKeyOnEngineOff();
 
         incrementProgress("Part 1, Step 1 e Collecting Vehicle Information");
         collectVehicleInformation();

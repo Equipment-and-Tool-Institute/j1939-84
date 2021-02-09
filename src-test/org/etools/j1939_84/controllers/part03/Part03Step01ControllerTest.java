@@ -215,13 +215,16 @@ public class Part03Step01ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
-        expectedMessages += "Waiting for Key ON, Engine ON...";
+        expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
+        expectedMessages += "User cancelled testing";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
 
-        String expectedResults = "Initial Engine Speed = 300.0 RPMs" + NL;
+        String expectedResults = "";
+        expectedResults+="Initial Engine Speed = 300.0 RPMs" + NL;
+        expectedResults+="User cancelled the test at Part 3 Step 1"+NL;
         assertEquals(expectedResults, listener.getResults());
     }
 }

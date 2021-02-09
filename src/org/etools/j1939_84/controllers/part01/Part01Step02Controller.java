@@ -3,8 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.isDevEnv;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -48,10 +46,6 @@ public class Part01Step02Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
-        if (!isDevEnv()) {
-            ensureKeyOnEngineOff();
-        }
-        getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+        ensureKeyOnEngineOff();
     }
 }

@@ -3,8 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static org.etools.j1939_84.J1939_84.isDevEnv;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -56,11 +54,7 @@ public class Part03Step01Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.3.1.1.a Gather broadcast data for engine speed (e.g., SPN 190).
-        getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
-        if (!isDevEnv()) {
-            ensureKeyOnEngineOn();
-        }
-        getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+        ensureKeyOnEngineOn();
     }
 
 }

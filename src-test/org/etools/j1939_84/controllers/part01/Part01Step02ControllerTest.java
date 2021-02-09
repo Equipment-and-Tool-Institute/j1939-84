@@ -159,13 +159,16 @@ public class Part01Step02ControllerTest {
 
         String expectedMessages = "Waiting for Key ON, Engine OFF..." + NL;
         expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
-        expectedMessages += "Waiting for Key ON, Engine OFF...";
+        expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
+        expectedMessages += "User cancelled testing";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
 
-        String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
+        String expectedResults = "";
+        expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
+        expectedResults += "User cancelled the test at Part 1 Step 2" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(mockListener).addOutcome(1, 2, Outcome.ABORT, "User cancelled operation");
