@@ -48,7 +48,7 @@ public class VehicleInformationDialogTest {
     @Test
     public void testSetVisibleTrue() throws InterruptedException {
         instance.setVisible(true);
-        // initialize runs in a thread. Give ti time to start.
+        // initialize runs in a thread. Give it time to start.
         Thread.sleep(500);
         verify(presenter).readVehicle();
     }
