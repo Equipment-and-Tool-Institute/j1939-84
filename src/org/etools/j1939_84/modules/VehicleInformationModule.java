@@ -128,13 +128,13 @@ public class VehicleInformationModule extends FunctionalModule {
                     .flatMap(e -> e.left.stream())
                     .map(DM56EngineFamilyPacket::getFamilyName)
                     .collect(Collectors.toSet());
-            // FIXME what about NACKS?
             if (results.size() == 0) {
                 throw new IOException("Timeout Error Reading Engine Family");
             } else if (results.size() > 1) {
                 throw new IOException("Different Engine Families Received");
+            } else {
+                engineFamilyName = results.stream().findFirst().get();
             }
-            engineFamilyName = results.stream().findFirst().get();
         }
         return engineFamilyName;
     }
@@ -155,13 +155,13 @@ public class VehicleInformationModule extends FunctionalModule {
                     .flatMap(e -> e.left.stream())
                     .map(DM56EngineFamilyPacket::getEngineModelYear)
                     .collect(Collectors.toSet());
-            // FIXME what about NACKS
             if (results.size() == 0) {
                 throw new IOException("Timeout Error Reading Engine Model Year");
             } else if (results.size() > 1) {
                 throw new IOException("Different Engine Model Years Received");
+            } else {
+                engineModelYear = results.stream().findFirst().get();
             }
-            engineModelYear = results.stream().findFirst().get();
         }
         return engineModelYear;
     }
