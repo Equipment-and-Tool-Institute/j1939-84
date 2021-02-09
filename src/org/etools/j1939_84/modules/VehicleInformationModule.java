@@ -176,19 +176,17 @@ public class VehicleInformationModule extends FunctionalModule {
      */
     public String getVin() throws IOException {
         if (vin == null) {
-            var all = getJ1939().requestGlobal(null, VehicleIdentificationPacket.class, NOOP
-            );
-            Set<String> vins = all.getPackets().stream()
+            Set<String> vins = getJ1939().requestGlobal(null, VehicleIdentificationPacket.class, NOOP)
+                    .getPackets().stream()
                     .map(VehicleIdentificationPacket::getVin)
                     .collect(Collectors.toSet());
-            // FIXME what about NACKS
             if (vins.size() == 0) {
                 throw new IOException("Timeout Error Reading VIN");
-            }
-            if (vins.size() > 1) {
+            } else if (vins.size() > 1) {
                 throw new IOException("Different VINs Received");
+            } else {
+                vin = vins.stream().findFirst().get();
             }
-            vin = vins.stream().findFirst().get();
         }
         return vin;
     }
@@ -301,8 +299,8 @@ public class VehicleInformationModule extends FunctionalModule {
      *
      * @return List of source addresses
      */
-    public List<Integer> getOBDModules() {
-        return requestDMPackets("DM5", DM5DiagnosticReadinessPacket.class, GLOBAL_ADDR, NOOP).getPackets()
+    public List<Integer> getOBDModules(ResultsListener listener) {
+        return requestDMPackets("DM5", DM5DiagnosticReadinessPacket.class, GLOBAL_ADDR, listener).getPackets()
                 .stream()
                 .filter(DM5DiagnosticReadinessPacket::isHdObd)
                 .map(ParsedPacket::getSourceAddress)

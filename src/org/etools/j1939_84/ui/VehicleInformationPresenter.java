@@ -3,13 +3,16 @@
  */
 package org.etools.j1939_84.ui;
 
+import static java.util.logging.Level.INFO;
+import static org.etools.j1939_84.J1939_84.getLogger;
+import static org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket.create;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
 
 import java.lang.reflect.Proxy;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.CompletableFuture;
+import java.util.stream.Collectors;
 import javax.swing.SwingUtilities;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
@@ -159,43 +162,41 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     }
 
     @Override
-    public void initialize() {
+    public void readVehicle() {
         addressClaim = vehicleInformationModule.reportAddressClaim(listener.getResultsListener());
 
         view.setFuelType(FuelType.DSL); // Assuming this used mostly on Diesel engines
+
         numberOfTripsForFaultBImplant = 1;
         view.setNumberOfTripsForFaultBImplant(numberOfTripsForFaultBImplant);
+
         try {
-            List<Integer> obdModules = vehicleInformationModule.getOBDModules();
-            emissionUnitsFound = new ArrayList<>();
-            obdModules.forEach(address -> emissionUnitsFound
-                    .add(vehicleInformationModule.reportComponentIdentification(NOOP, address)
-                                 .getPacket()
-                                 .map(e -> e.resolve(p -> p,
-                                                     ack -> ComponentIdentificationPacket.create(address,
-                                                                                                 "ERROR",
-                                                                                                 "ERROR",
-                                                                                                 "ERROR",
-                                                                                                 "ERROR")))
-                                 .orElse(ComponentIdentificationPacket.create(address,
-                                                                              "MISSING",
-                                                                              "MISSING",
-                                                                              "MISSING",
-                                                                              "MISSING"))));
-            view.setEmissionUnits(emissionUnitsFound.size());
-        } catch (Exception ignored) {
+            List<Integer> obdModules = vehicleInformationModule.getOBDModules(NOOP);
+            view.setEmissionUnits(obdModules.size());
+
+            emissionUnitsFound = obdModules
+                    .stream().map(address -> vehicleInformationModule.reportComponentIdentification(NOOP, address)
+                            .getPacket()
+                            .map(e -> e.resolve(p -> p,
+                                                ack -> create(address, "ERROR", "ERROR", "ERROR", "ERROR")))
+                            .orElse(create(address, "MISSING", "MISSING", "MISSING", "MISSING")))
+                    .collect(Collectors.toList());
+        } catch (Exception e) {
+            getLogger().log(INFO, "Error reading getting OBD Modules", e);
         }
 
         try {
             calIdsFound = vehicleInformationModule.reportCalibrationInformation(NOOP);
             view.setCalIds((int) calIdsFound.stream().mapToLong(p -> p.getCalibrationInformation().size()).sum());
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            getLogger().log(INFO, "Error reading calibration IDs", e);
         }
 
         try {
             vin = vehicleInformationModule.getVin();
             view.setVin(vin);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            getLogger().log(INFO, "Error reading VIN", e);
         }
 
         int modelYear = vinDecoder.getModelYear(vin);
@@ -207,14 +208,16 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
         try {
             engineModelYear = vehicleInformationModule.getEngineModelYear();
             view.setEngineModelYear(engineModelYear);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
             view.setEngineModelYear(modelYear);
+            getLogger().log(INFO, "Error reading engine model year", e);
         }
 
         try {
             certificationIntent = vehicleInformationModule.getEngineFamilyName();
             view.setCertificationIntent(certificationIntent);
-        } catch (Exception ignored) {
+        } catch (Exception e) {
+            getLogger().log(INFO, "Error reading engine family", e);
         }
     }
 
@@ -306,9 +309,9 @@ public class VehicleInformationPresenter implements VehicleInformationContract.P
     }
 
     /**
-     * Validates the information in the form to determine if the user can
-     * proceed
+     * Validates the information in the form to determine if the user can proceed
      */
+    @SuppressWarnings("ConstantConditions")
     private void validate() {
         boolean vinValid = vinDecoder.isVinValid(vin);
         view.setVinValid(vinValid);

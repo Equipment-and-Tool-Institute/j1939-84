@@ -50,7 +50,7 @@ public class VehicleInformationDialogTest {
         instance.setVisible(true);
         // initialize runs in a thread. Give ti time to start.
         Thread.sleep(500);
-        verify(presenter).initialize();
+        verify(presenter).readVehicle();
     }
 
 }
