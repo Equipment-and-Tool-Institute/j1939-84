@@ -441,8 +441,10 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         getView().setReadVehicleInfoButtonEnabled(false);
         getView().setSelectFileButtonEnabled(false);
         getView().setAdapterComboBoxEnabled(false);
-        getReportFileModule().setJ1939(j1939);
-        overallController.execute(getResultsListener(), getNewJ1939(), getReportFileModule());
+
+        J1939 newJ1939 = getNewJ1939();
+        overallController.execute(getResultsListener(), newJ1939, getReportFileModule());
+        getReportFileModule().setJ1939(newJ1939);
     }
 
     /*

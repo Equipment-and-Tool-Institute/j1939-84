@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.ui;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
@@ -25,7 +26,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -79,10 +79,10 @@ public class VehicleInformationPresenterTest {
         when(vehicleInformationModule.reportAddressClaim(resultsListener)).thenReturn(RequestResult.empty());
         when(vehicleInformationModule.getEngineModelYear()).thenReturn(4);
         when(vehicleInformationModule.getEngineFamilyName()).thenReturn("family");
-        when(vehicleInformationModule.getOBDModules()).thenReturn(List.of());
+        when(vehicleInformationModule.getOBDModules(any())).thenReturn(List.of());
         when(listener.getResultsListener()).thenReturn(resultsListener);
 
-        instance.initialize();
+        instance.readVehicle();
 
         verify(listener).getResultsListener();
         verify(vehicleInformationModule).getVin();
@@ -96,11 +96,11 @@ public class VehicleInformationPresenterTest {
         verify(view).setCalIds(0);
         verify(vehicleInformationModule).getEngineModelYear();
         verify(view).setEngineModelYear(4);
-        verify(vehicleInformationModule).reportAddressClaim(ArgumentMatchers.any());
-        verify(vehicleInformationModule).reportCalibrationInformation(ArgumentMatchers.any());
+        verify(vehicleInformationModule).reportAddressClaim(any());
+        verify(vehicleInformationModule).reportCalibrationInformation(any());
         verify(vehicleInformationModule).getEngineFamilyName();
         verify(view).setCertificationIntent("family");
-        verify(vehicleInformationModule).getOBDModules();
+        verify(vehicleInformationModule).getOBDModules(any());
     }
 
     @Test
@@ -115,10 +115,10 @@ public class VehicleInformationPresenterTest {
         when(vehicleInformationModule.reportAddressClaim(resultsListener)).thenReturn(RequestResult.empty());
         when(vehicleInformationModule.getEngineModelYear()).thenThrow(new IOException());
         when(vehicleInformationModule.getEngineFamilyName()).thenThrow(new IOException());
-        when(vehicleInformationModule.getOBDModules()).thenReturn(List.of());
+        when(vehicleInformationModule.getOBDModules(any())).thenReturn(List.of());
         when(listener.getResultsListener()).thenReturn(resultsListener);
 
-        instance.initialize();
+        instance.readVehicle();
 
         verify(listener).getResultsListener();
         verify(vehicleInformationModule).getVin();
@@ -131,11 +131,11 @@ public class VehicleInformationPresenterTest {
         verify(dateTimeModule).getYear();
         verify(view).setVehicleModelYear(500);
         verify(view).setEngineModelYear(500);
-        verify(vehicleInformationModule).reportAddressClaim(ArgumentMatchers.any());
-        verify(vehicleInformationModule).reportCalibrationInformation(ArgumentMatchers.any());
+        verify(vehicleInformationModule).reportAddressClaim(any());
+        verify(vehicleInformationModule).reportCalibrationInformation(any());
         verify(vehicleInformationModule).getEngineModelYear();
         verify(vehicleInformationModule).getEngineFamilyName();
-        verify(vehicleInformationModule).getOBDModules();
+        verify(vehicleInformationModule).getOBDModules(any());
     }
 
     @Test

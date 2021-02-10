@@ -563,10 +563,10 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
     }
 
     @Override
-    public void setVisible(boolean b) {
-        super.setVisible(b);
-        if (b) {
-            new Thread(presenter::initialize).start();
+    public void setVisible(boolean isVisible) {
+        super.setVisible(isVisible);
+        if (isVisible) {
+            new Thread(presenter::readVehicle).start();
         } else {
             super.dispose();
             dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
