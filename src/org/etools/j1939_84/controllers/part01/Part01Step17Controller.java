@@ -7,15 +7,17 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -29,8 +31,6 @@ public class Part01Step17Controller extends StepController {
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 17;
     private static final int TOTAL_STEPS = 0;
-
-    private final DataRepository dataRepository;
 
     Part01Step17Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -50,46 +50,45 @@ public class Part01Step17Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
 
         // 6.1.17.1.a. Global DM6 (send Request (PGN 59904) for PGN 65227 (SPNs 1213-1215, 3038, 1706)).
-        RequestResult<DM6PendingEmissionDTCPacket> globalResponse = getDiagnosticMessageModule().requestDM6(getListener());
+        var globalPackets = getDiagnosticMessageModule().requestDM6(getListener()).getPackets();
 
-        List<DM6PendingEmissionDTCPacket> globalPackets = globalResponse.getPackets();
         // 6.1.17.2.c. Fail if no OBD ECU provides DM6.
         if (globalPackets.isEmpty()) {
             addFailure("6.1.17.2.c - No OBD ECU provided DM6");
         } else {
-            for (DM6PendingEmissionDTCPacket packet : globalPackets) {
-                // 6.1.17.2.a. Fail if any ECU reports pending DTCs
-                if (!packet.getDtcs().isEmpty()) {
-                    addFailure("6.1.17.2.a - An ECU reported pending DTCs");
-                    break;
-                }
-            }
-            for (DM6PendingEmissionDTCPacket packet : globalPackets) {
-                // 6.1.17.2.b. Fail if any ECU does not report MIL off.
-                if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF) {
-                    addFailure("6.1.17.2.b - An ECU did not report MIL off");
-                    break;
-                }
-            }
+            // 6.1.17.2.a. Fail if any ECU reports pending DTCs
+            globalPackets.stream()
+                    .filter(p -> !p.getDtcs().isEmpty())
+                    .map(ParsedPacket::getSourceAddress)
+                    .map(Lookup::getAddressName)
+                    .forEach(moduleName -> addFailure("6.1.17.2.a - " + moduleName + " reported pending DTCs"));
+
+            // 6.1.17.2.b. Fail if any ECU does not report MIL off.
+            globalPackets.stream()
+                    .filter(p -> p.getMalfunctionIndicatorLampStatus() != LampStatus.OFF)
+                    .map(ParsedPacket::getSourceAddress)
+                    .map(Lookup::getAddressName)
+                    .forEach(moduleName -> addFailure("6.1.17.2.b - " + moduleName + " did not report MIL off"));
         }
 
+        List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
+
         // 6.1.17.3.a. DS DM6 to each OBD ECU.
-        List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
         List<RequestResult<DM6PendingEmissionDTCPacket>> dsResults = obdModuleAddresses.stream()
                 .map(address -> getDiagnosticMessageModule().requestDM6(getListener(), address))
                 .collect(Collectors.toList());
