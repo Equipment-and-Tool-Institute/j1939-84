@@ -1,23 +1,30 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * The {@link DiagnosticTroubleCodePacket} for the All Pending Diagnostic
  * Trouble Codes (DM27)
  *
  * @author Marianne Schaefer (marianne.schaefer@gmail.com)
- *
  */
 public class DM27AllPendingDTCsPacket extends DiagnosticTroubleCodePacket {
-    public static final int PGN = 64898; // 0x00FD82
+    public static final int PGN = 64898; // 0xFD82
+
+    public static DM27AllPendingDTCsPacket create(int address,
+                                                  LampStatus mil,
+                                                  LampStatus stop,
+                                                  LampStatus amber,
+                                                  LampStatus protect,
+                                                  DiagnosticTroubleCode... dtcs) {
+        return new DM27AllPendingDTCsPacket(create(address, PGN, mil, stop, amber, protect, dtcs));
+    }
 
     public DM27AllPendingDTCsPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        super(packet);
     }
 
     @Override
