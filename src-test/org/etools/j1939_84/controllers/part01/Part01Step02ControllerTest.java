@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
@@ -18,7 +19,6 @@ import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -160,7 +160,7 @@ public class Part01Step02ControllerTest {
         String expectedMessages = "Waiting for Key ON, Engine OFF..." + NL;
         expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
         expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
-        expectedMessages += "User cancelled testing";
+        expectedMessages += "User cancelled testing at Part 1 Step 2";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedMilestones = "";
@@ -168,9 +168,9 @@ public class Part01Step02ControllerTest {
 
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "User cancelled the test at Part 1 Step 2" + NL;
+        expectedResults += "ABORT: User cancelled testing at Part 1 Step 2" + NL;
         assertEquals(expectedResults, listener.getResults());
 
-        verify(mockListener).addOutcome(1, 2, Outcome.ABORT, "User cancelled operation");
+        verify(mockListener).addOutcome(1, 2, ABORT, "User cancelled testing at Part 1 Step 2");
     }
 }

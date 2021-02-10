@@ -208,7 +208,7 @@ public class Part03Step01ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule).getEngineSpeed();
         verify(engineSpeedModule, atLeastOnce()).isEngineRunning();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled operation");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 3 Step 1");
         verify(mockListener).onUrgentMessage("Please turn the Key ON with Engine ON", "Adjust Key Switch", WARNING);
 
         verify(vehicleInformationModule).setJ1939(j1939);
@@ -216,7 +216,7 @@ public class Part03Step01ControllerTest extends AbstractControllerTest {
         String expectedMessages = "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
-        expectedMessages += "User cancelled testing";
+        expectedMessages += "User cancelled testing at Part 3 Step 1";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedMilestones = "";
@@ -224,7 +224,7 @@ public class Part03Step01ControllerTest extends AbstractControllerTest {
 
         String expectedResults = "";
         expectedResults+="Initial Engine Speed = 300.0 RPMs" + NL;
-        expectedResults+="User cancelled the test at Part 3 Step 1"+NL;
+        expectedResults+="ABORT: User cancelled testing at Part 3 Step 1"+NL;
         assertEquals(expectedResults, listener.getResults());
     }
 }

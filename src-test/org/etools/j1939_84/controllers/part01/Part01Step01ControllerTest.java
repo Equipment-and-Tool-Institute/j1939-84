@@ -340,13 +340,13 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
                 + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 1"), eq(WARNING), any());
         verify(mockListener).onUrgentMessage("Please turn the Key ON with Engine OFF", "Adjust Key Switch", WARNING);
-        verify(mockListener).addOutcome(1, 1, ABORT, "User cancelled operation");
+        verify(mockListener).addOutcome(1, 1, ABORT, "User cancelled testing at Part 1 Step 1");
 
         String expectedMessages = "Part 1, Step 1 a-c Displaying Warning Message" + NL;
         expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off" + NL;
         expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
         expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
-        expectedMessages += "User cancelled testing";
+        expectedMessages += "User cancelled testing at Part 1 Step 1";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedMilestones = "";
@@ -354,7 +354,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
 
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "User cancelled the test at Part 1 Step 1" + NL;
+        expectedResults += "ABORT: User cancelled testing at Part 1 Step 1" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 

@@ -165,12 +165,13 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
                                              eq(WARNING),
                                              questionCaptor.capture());
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled operation");
+        String outcomeMessage = "User cancelled testing at Part 2 Step 18";
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, outcomeMessage);
 
         String expectedMessages = "Part 2, Step 18 Turn Engine Off and keep the ignition key in the off position" + NL;
         expectedMessages += "Waiting for implant of Fault A according to the engine manufacturer's instruction" + NL;
-        expectedMessages += "Part 2, Step 18 Turn ignition key to the ON position after MIL & WSL have cleared" + NL;
-        expectedMessages += "User cancelled testing";
+        expectedMessages += "Part 2, Step 18 Turn ignition key to the ON position after MIL & WSL have cleared"+NL;
+        expectedMessages+="User cancelled testing at Part 2 Step 18";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedMilestones = "";
@@ -179,7 +180,7 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "User cancelled the test at Part 2 Step 18" + NL;
+        expectedResults += "ABORT: User cancelled testing at Part 2 Step 18" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         assertEquals("", listener.getMilestones());
@@ -250,12 +251,12 @@ verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
                                              eq(WARNING),
                                              any());
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled operation");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 2 Step 18");
 
         String expectedMessages = "Part 2, Step 18 Turn Engine Off and keep the ignition key in the off position" + NL;
         expectedMessages += "Waiting for implant of Fault A according to the engine manufacturer's instruction" + NL;
         expectedMessages += "Part 2, Step 18 Turn ignition key to the ON position after MIL & WSL have cleared" + NL;
-        expectedMessages += "User cancelled testing";
+        expectedMessages += "User cancelled testing at Part 2 Step 18";
         assertEquals(expectedMessages, listener.getMessages());
 
         assertEquals("", listener.getMilestones());
@@ -263,7 +264,7 @@ verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "User cancelled the test at Part 2 Step 18" + NL;
+        expectedResults += "ABORT: User cancelled testing at Part 2 Step 18" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         assertEquals("", listener.getMilestones());

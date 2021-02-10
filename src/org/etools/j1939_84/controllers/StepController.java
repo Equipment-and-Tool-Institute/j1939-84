@@ -170,6 +170,11 @@ public abstract class StepController extends Controller {
         getListener().onResult("INFO: " + message);
     }
 
+    protected void addAbort(String message) {
+        getListener().addOutcome(partNumber, stepNumber, ABORT, message);
+        getListener().onResult("ABORT: " + message);
+    }
+
     @Override
     public String getDisplayName() {
         return "Part " + getPartNumber() + " Step " + getStepNumber();
@@ -243,9 +248,9 @@ public abstract class StepController extends Controller {
     }
 
     private void abort() throws InterruptedException {
-        getListener().addOutcome(getPartNumber(), getStepNumber(), ABORT, "User cancelled operation");
-        getListener().onResult("User cancelled the test at Part " + getPartNumber() + " Step " + getStepNumber());
-        incrementProgress("User cancelled testing");
+        String message = "User cancelled testing at Part " + getPartNumber() + " Step " + getStepNumber();
+        addAbort(message);
+        getListener().onProgress(message);
         setEnding(STOPPED);
     }
 
