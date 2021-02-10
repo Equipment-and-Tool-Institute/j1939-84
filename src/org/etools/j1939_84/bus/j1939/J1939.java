@@ -74,15 +74,15 @@ public class J1939 {
 
     /**
      * The default time to wait for a response from a destination specific request (200 ms + 10% + fudge factor)
-     * These times come from J1939-21, 5.12.3 Device Response Time and Timeout Defaults
+     * This time come from J1939-21, 5.12.3 Device Response Time and Timeout Defaults
      */
-    private static final int DS_TIMEOUT = 230;
+    private static final int DS_TIMEOUT = 230; // milliseconds
 
     /**
-     * The default time to wait for a response from a global request (1.25 s)
-     * These times come from J1939-21, 5.12.3 Device Response Time and Timeout Defaults
+     * The default time to wait for a response from a global request
+     * This time come from Eric
      */
-    private static final int GLOBAL_TIMEOUT = 1250;
+    private static final int GLOBAL_TIMEOUT = 600; // milliseconds
 
     /**
      * The source address of the engine
