@@ -205,6 +205,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         //verify(dataRepository, atLeastOnce()).getVehicleInformation();
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule).isEngineNotRunning();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq(expectedTitle), eq(WARNING), any());
         verify(mockListener).onVehicleInformationReceived(vehicleInfo);
         verify(vehicleInformationModule).setJ1939(j1939);
@@ -224,7 +225,10 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
 
-        String expectedResults = vehicleInfo + NL;
+        String expectedResults = "";
+        expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
+        expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
+        expectedResults += vehicleInfo + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -274,6 +278,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule).isEngineNotRunning();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 1"), eq(WARNING), any());
         verify(vehicleInformationModule).setJ1939(j1939);
 
@@ -287,7 +292,10 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
 
-        String expectedResults = "User cancelled the test at Part 1 Step 1" + NL;
+        String expectedResults = "";
+        expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
+        expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
+        expectedResults += "User cancelled the test at Part 1 Step 1" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -322,6 +330,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).isEngineNotRunning();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
         verify(vehicleInformationModule).setJ1939(j1939);
 
         String urgentMessages = "Ready to begin Part 1" + NL;
@@ -336,13 +345,16 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         String expectedMessages = "Part 1, Step 1 a-c Displaying Warning Message" + NL;
         expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off" + NL;
         expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
-        expectedMessages += "Waiting for Key ON, Engine OFF...";
+        expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
+        expectedMessages += "User cancelled testing";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
 
         String expectedResults = "";
+        expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
+        expectedResults += "User cancelled the test at Part 1 Step 1" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 

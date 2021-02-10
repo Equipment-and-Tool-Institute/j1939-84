@@ -54,8 +54,7 @@ public class Part03Step01Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.3.1.1.a Gather broadcast data for engine speed (e.g., SPN 190).
-
-        // 6.3.1.2.a Warn If engine speed is < 400 rpm, prompt/warn operator to confirm engine is running and then press enter
+        ensureKeyOnEngineOn();
     }
 
 }

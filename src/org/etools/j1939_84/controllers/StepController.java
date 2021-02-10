@@ -3,12 +3,13 @@
  */
 package org.etools.j1939_84.controllers;
 
+import static org.etools.j1939_84.J1939_84.isDevEnv;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.controllers.Controller.Ending.STOPPED;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
-import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
 import static org.etools.j1939_84.model.Outcome.INFO;
 
 import java.util.ArrayList;
@@ -95,18 +96,17 @@ public abstract class StepController extends Controller {
      */
     protected void ensureKeyOnEngineOn() throws InterruptedException {
         try {
-            if (!getEngineSpeedModule().isEngineRunning()) {
+            getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+            if (!getEngineSpeedModule().isEngineRunning() && !isDevEnv()) {
                 getListener().onUrgentMessage("Please turn the Key ON with Engine ON", "Adjust Key Switch", WARNING);
                 while (!getEngineSpeedModule().isEngineRunning()) {
                     updateProgress("Waiting for Key ON, Engine ON...");
                     getDateTimeModule().pauseFor(500);
                 }
             }
+            getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
         } catch (InterruptedException e) {
-            getListener().addOutcome(getPartNumber(), getStepNumber(), ABORT, "User cancelled operation");
-            setEnding(Ending.STOPPED);
-            incrementProgress("User cancelled testing");
-            throw e;
+            abort();
         }
     }
 
@@ -119,17 +119,17 @@ public abstract class StepController extends Controller {
      */
     protected void ensureKeyOnEngineOff() throws InterruptedException {
         try {
-            if (!getEngineSpeedModule().isEngineNotRunning()) {
+            getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+            if (!getEngineSpeedModule().isEngineNotRunning() && !isDevEnv()) {
                 getListener().onUrgentMessage("Please turn the Key ON with Engine OFF", "Adjust Key Switch", WARNING);
                 while (!getEngineSpeedModule().isEngineNotRunning()) {
                     updateProgress("Waiting for Key ON, Engine OFF...");
                     getDateTimeModule().pauseFor(500);
                 }
             }
+            getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
         } catch (InterruptedException e) {
-            getListener().addOutcome(getPartNumber(), getStepNumber(), ABORT, "User cancelled operation");
-            setEnding(Ending.STOPPED);
-            incrementProgress("User Aborted");
+            abort();
         }
     }
 
@@ -142,18 +142,17 @@ public abstract class StepController extends Controller {
      */
     protected void ensureKeyOffEngineOff() throws InterruptedException {
         try {
-            if (getEngineSpeedModule().isEngineCommunicating()) {
+            getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+            if (getEngineSpeedModule().isEngineCommunicating() && !isDevEnv()) {
                 getListener().onUrgentMessage("Please turn the Key OFF with Engine OFF", "Adjust Key Switch", WARNING);
                 while (getEngineSpeedModule().isEngineCommunicating()) {
                     updateProgress("Waiting for Key OFF, Engine OFF...");
                     getDateTimeModule().pauseFor(500);
                 }
             }
+            getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
         } catch (InterruptedException e) {
-            getListener().addOutcome(getPartNumber(), getStepNumber(), ABORT, "User cancelled operation");
-            setEnding(Ending.STOPPED);
-            incrementProgress("User cancelled testing");
-            throw e;
+            abort();
         }
 
     }
@@ -230,25 +229,27 @@ public abstract class StepController extends Controller {
                 .map(address -> section + " - OBD module " + Lookup.getAddressName(address) + " did not provide a response to Global query and did not provide a NACK for the DS query")
                 .forEach(this::addFailure);
     }
+
     protected QuestionListener getQuestionListener() {
         return answerType -> {
             //end test if user hits cancel button
             if (answerType == CANCEL || answerType == NO) {
-                getListener().addOutcome(getPartNumber(),
-                                         getStepNumber(),
-                                         INCOMPLETE,
-                                         "Stopping test - user ended test");
                 try {
-                    getListener().onResult("User cancelled the test at Part " + getPartNumber() + " Step " + getStepNumber());
-                    setEnding(Ending.STOPPED);
-                    incrementProgress("User cancelled testing");
+                    abort();
                 } catch (InterruptedException ignored) {
                 }
             }
         };
     }
 
-    protected void displayInstructionAndWait(String message, String boxTitle, MessageType messageType){
+    private void abort() throws InterruptedException {
+        getListener().addOutcome(getPartNumber(), getStepNumber(), ABORT, "User cancelled operation");
+        getListener().onResult("User cancelled the test at Part " + getPartNumber() + " Step " + getStepNumber());
+        incrementProgress("User cancelled testing");
+        setEnding(STOPPED);
+    }
+
+    protected void displayInstructionAndWait(String message, String boxTitle, MessageType messageType) {
         getListener().onUrgentMessage(message, boxTitle, messageType, getQuestionListener());
     }
 

@@ -77,9 +77,7 @@ public class Part01Step27Controller extends StepController {
         //           mode used to provide power to the drive system without moving the vehicle, if not
         //           automatically provided during the initial key off to key on operation.
         incrementProgress("Part 1, Step 27 b.i - Ensuring Key On, Engine On");
-        if (!isDevEnv()) {
-            ensureKeyOnEngineOn();
-        }
+        ensureKeyOnEngineOn();
 
         //      iii. The engine shall be allowed to idle one minute
         incrementProgress("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
