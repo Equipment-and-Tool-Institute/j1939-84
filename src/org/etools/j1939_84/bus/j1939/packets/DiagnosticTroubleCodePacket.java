@@ -4,13 +4,13 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.Packet;
-import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 
 /**
  * Class that represents a packet that contains Diagnostic Trouble Codes
@@ -18,6 +18,29 @@ import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 public class DiagnosticTroubleCodePacket extends GenericPacket {
+
+    protected static Packet create(int address,
+                                   int pgn,
+                                   LampStatus mil,
+                                   LampStatus stop,
+                                   LampStatus amber,
+                                   LampStatus protect,
+                                   DiagnosticTroubleCode... dtcs) {
+
+        int[] milData = LampStatus.getBytes(mil);
+        int[] stopData = LampStatus.getBytes(stop);
+        int[] amberData = LampStatus.getBytes(amber);
+        int[] protectData = LampStatus.getBytes(protect);
+
+        int[] data = new int[2];
+        data[0] = milData[0] << 6 | stopData[0] << 4 | amberData[0] << 2 | protectData[0];
+        data[1] = milData[1] << 6 | stopData[1] << 4 | amberData[1] << 2 | protectData[1];
+        for (DiagnosticTroubleCode dtc : dtcs) {
+            data = join(data, dtc.getData());
+        }
+
+        return Packet.create(pgn, address, data);
+    }
 
     private LampStatus awlStatus;
     private List<DiagnosticTroubleCode> dtcs;
@@ -31,8 +54,8 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
      * @param packet
      *         the {@link Packet} to parse
      */
-    public DiagnosticTroubleCodePacket(Packet packet, PgnDefinition pgnDefinition) {
-        super(packet, pgnDefinition);
+    public DiagnosticTroubleCodePacket(Packet packet) {
+        super(packet);
     }
 
     /**
@@ -161,11 +184,11 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
 
     @Override public int hashCode() {
         return Objects.hash(super.hashCode(),
-                getAmberWarningLampStatus(),
-                getDtcs(),
-                getMalfunctionIndicatorLampStatus(),
-                getProtectLampStatus(),
-                getRedStopLampStatus());
+                            getAmberWarningLampStatus(),
+                            getDtcs(),
+                            getMalfunctionIndicatorLampStatus(),
+                            getProtectLampStatus(),
+                            getRedStopLampStatus());
     }
 
     @Override

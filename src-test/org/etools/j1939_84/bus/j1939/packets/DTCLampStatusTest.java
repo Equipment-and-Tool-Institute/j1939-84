@@ -125,7 +125,7 @@ public class DTCLampStatusTest {
                 0x13, // Failure mode indicator
                 0x81, // SPN Conversion Occurrence Count
                 0xAA, // Lamp Status/Support
-                0x55), null);
+                0x55));
         assertEquals(true, instance.equals(instance2));
         assertEquals(false, instance.equals(instance3));
         // FIXME what is this supposed to be doing?

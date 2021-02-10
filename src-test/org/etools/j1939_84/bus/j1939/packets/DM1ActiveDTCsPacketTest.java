@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -23,31 +23,22 @@ public class DM1ActiveDTCsPacketTest {
 
     private DM1ActiveDTCsPacket instance;
 
-    /**
-     * @throws java.lang.Exception
-     */
     @Before
-    public void setUp() throws Exception {
-        instance = new DM1ActiveDTCsPacket(Packet.create(65226, 0x00, 0x11, 0x0CD, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
-                0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+    public void setUp() {
+        DiagnosticTroubleCode dtc1 = DiagnosticTroubleCode.create(609, 19, 0, 0);
+        DiagnosticTroubleCode dtc2 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
+        DiagnosticTroubleCode dtc3 = DiagnosticTroubleCode.create(4334, 4, 0, 0);
+        instance = DM1ActiveDTCsPacket.create(0, OFF, SLOW_FLASH, OFF, FAST_FLASH, dtc1, dtc2, dtc3);
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket#DiagnosticTroubleCodePacket(org.etools.j1939_84.bus.Packet)}.
-     */
     @Test
     public void testDiagnosticTroubleCodePacket() {
         DM1ActiveDTCsPacket copy = new DM1ActiveDTCsPacket(
                 Packet.create(65226, 0x00, 0x11, 0xCD, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
-                        0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
         assertEquals(copy, instance);
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket#DM1ActiveDTCsPacket(org.etools.j1939_84.bus.Packet)}.
-     */
     @Test
     public void testDM1ActiveDTCsPacket() {
         assertEquals(0x00, instance.getSourceAddress());
