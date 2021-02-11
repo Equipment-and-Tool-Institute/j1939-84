@@ -3,15 +3,28 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.NOT_SUPPORTED;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,7 +132,108 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testRun() {
+    public void testNoFailures() {
+        var dm1_0 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF);
+        var dm1_21 = DM1ActiveDTCsPacket.create(0x21, OFF, OFF, OFF, OFF);
 
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(new RequestResult<>(false, dm1_0, dm1_21));
+
+        runTest();
+
+        verify(diagnosticMessageModule).readDM1(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testNoFailuresAlternateValues() {
+        var dm1_0 = DM1ActiveDTCsPacket.create(0, ALTERNATE_OFF, OFF, OFF, OFF);
+        var dm1_21 = DM1ActiveDTCsPacket.create(0x21, NOT_SUPPORTED, OFF, OFF, OFF);
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(new RequestResult<>(false, dm1_0, dm1_21));
+
+        runTest();
+
+        verify(diagnosticMessageModule).readDM1(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testNoMessages() {
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(new RequestResult<>(false));
+
+        runTest();
+
+        verify(diagnosticMessageModule).readDM1(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals("FAIL: 6.3.6.2.a - No OBD ECU supports DM1" + NL, listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.3.6.2.a - No OBD ECU supports DM1");
+    }
+
+    @Test
+    public void testFailureForNoOBDSupport() {
+        var dm1 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF);
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(new RequestResult<>(false, dm1));
+
+        runTest();
+
+        verify(diagnosticMessageModule).readDM1(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals("FAIL: 6.3.6.2.a - No OBD ECU supports DM1" + NL, listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.3.6.2.a - No OBD ECU supports DM1");
+    }
+
+    @Test
+    public void testFailures() {
+        var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm1_0 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc);
+        var dm1_21 = DM1ActiveDTCsPacket.create(0x21, ON, OFF, OFF, OFF);
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(new RequestResult<>(false, dm1_0, dm1_21));
+
+        runTest();
+
+        verify(diagnosticMessageModule).readDM1(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        String expectedResults = "";
+        expectedResults += "FAIL: 6.3.6.2.b - Engine #1 (0) reported an active DTC" + NL;
+        expectedResults += "FAIL: 6.3.6.2.c - Engine #1 (0) did not report MIL 'off'" + NL;
+        expectedResults += "FAIL: 6.3.6.2.d - Non-OBD module Body Controller (33) did not report MIL off or not supported" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.3.6.2.b - Engine #1 (0) reported an active DTC");
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.3.6.2.c - Engine #1 (0) did not report MIL 'off'");
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.3.6.2.d - Non-OBD module Body Controller (33) did not report MIL off or not supported");
     }
 }
