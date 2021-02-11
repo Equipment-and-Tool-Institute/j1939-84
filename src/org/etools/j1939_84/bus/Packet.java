@@ -7,10 +7,13 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -45,11 +48,11 @@ public class Packet {
      * Creates an instance of Packet
      *
      * @param id
-     *         the ID of the packet
+     *            the ID of the packet
      * @param source
-     *         the source address of the packet
+     *            the source address of the packet
      * @param bytes
-     *         the data bytes of the packet
+     *            the data bytes of the packet
      * @return Packet
      */
     public static Packet create(int id, int source, byte... bytes) {
@@ -60,11 +63,11 @@ public class Packet {
      * Creates an instance of Packet
      *
      * @param id
-     *         the ID of the packet
+     *            the ID of the packet
      * @param source
-     *         the source address of the packet
+     *            the source address of the packet
      * @param data
-     *         the data of the packet
+     *            the data of the packet
      * @return Packet
      */
     public static Packet create(int id, int source, int... data) {
@@ -75,15 +78,15 @@ public class Packet {
      * Creates an instance of Packet
      *
      * @param priority
-     *         the priority of the packet
+     *            the priority of the packet
      * @param id
-     *         the ID of the packet
+     *            the ID of the packet
      * @param source
-     *         the source address of the packet
+     *            the source address of the packet
      * @param transmitted
-     *         indicates the packet was sent by the application
+     *            indicates the packet was sent by the application
      * @param bytes
-     *         the data bytes of the packet
+     *            the data bytes of the packet
      * @return Packet
      */
     public static Packet create(int priority, int id, int source, boolean transmitted, byte... bytes) {
@@ -107,7 +110,7 @@ public class Packet {
      * Converts the value produced by Packet.toString() back into a Packet
      *
      * @param string
-     *         the {@link String} to parse
+     *            the {@link String} to parse
      * @return a Packet or null if the string could not be parsed
      */
     public static Packet parse(String string) {
@@ -144,9 +147,9 @@ public class Packet {
         String[] a = p.split("[,\\s]+");
         int id = Integer.parseInt(a[0], 16);
         return Packet.create(0xFFFFFF & (id >> 8),
-                             0xFF & id,
-                             Stream.of(Arrays.copyOfRange(a, 1, a.length, String[].class))
-                                     .mapToInt(s -> Integer.parseInt(s, 16)).toArray());
+                0xFF & id,
+                Stream.of(Arrays.copyOfRange(a, 1, a.length, String[].class))
+                        .mapToInt(s -> Integer.parseInt(s, 16)).toArray());
     }
 
     public static Packet parseVector(LocalDateTime start, String line) {
@@ -155,17 +158,19 @@ public class Packet {
             int id = Integer.parseInt(a[2].substring(0, a[2].length() - 1), 16);
 
             return new Packet(start.plusNanos((long) (Double.parseDouble(a[0]) * 1000000000)),
-                              6,
-                              0xFFFFFF & (id >> 8),
-                              0xFF & id,
-                              false,
-                              Stream.of(Arrays.copyOfRange(a, 6, 6 + Integer.parseInt(a[5]), String[].class))
-                                      .mapToInt(s -> Integer.parseInt(s, 16)).toArray());
+                    6,
+                    0xFFFFFF & (id >> 8),
+                    0xFF & id,
+                    false,
+                    Stream.of(Arrays.copyOfRange(a, 6, 6 + Integer.parseInt(a[5]), String[].class))
+                            .mapToInt(s -> Integer.parseInt(s, 16)).toArray());
         }
         return null;
     }
 
     private int[] data;
+
+    private List<Packet> fragments = Collections.emptyList();
 
     private final int id;
 
@@ -181,15 +186,15 @@ public class Packet {
      * Creates a Packet
      *
      * @param priority
-     *         the priority of the packet
+     *            the priority of the packet
      * @param id
-     *         the ID of the packet
+     *            the ID of the packet
      * @param source
-     *         the source address of the packet
+     *            the source address of the packet
      * @param transmitted
-     *         indicates the packet was sent by the application
+     *            indicates the packet was sent by the application
      * @param data
-     *         the data of the packet
+     *            the data of the packet
      */
     private Packet(LocalDateTime timestamp, int priority, int id, int source, boolean transmitted, int... data) {
         this.timestamp = timestamp;
@@ -228,7 +233,7 @@ public class Packet {
      * Returns one byte (8-bits) from the data at the given index
      *
      * @param i
-     *         the index
+     *            the index
      * @return int
      */
     public int get(int i) {
@@ -239,7 +244,7 @@ public class Packet {
      * Returns two bytes (16-bits) from the data at the given index and index+1
      *
      * @param i
-     *         the index
+     *            the index
      * @return int
      */
     public int get16(int i) {
@@ -251,7 +256,7 @@ public class Packet {
      * given index and index+1
      *
      * @param i
-     *         the index
+     *            the index
      * @return int
      */
     public int get16Big(int i) {
@@ -263,7 +268,7 @@ public class Packet {
      * and index+2
      *
      * @param i
-     *         the index
+     *            the index
      * @return int
      */
     public int get24(int i) {
@@ -275,7 +280,7 @@ public class Packet {
      * given index, index+1, and index+2
      *
      * @param i
-     *         the index
+     *            the index
      * @return int
      */
     public int get24Big(int i) {
@@ -287,12 +292,12 @@ public class Packet {
      * index+2, and index+3
      *
      * @param i
-     *         the index
+     *            the index
      * @return int
      */
     public long get32(int i) {
-        return ((long) (getData()[i + 3] & 0xFF) << 24) | ((getData()[i + 2] & 0xFF) << 16) | ((getData()[i + 1] & 0xFF) << 8)
-                | (getData()[i] & 0xFF);
+        return ((long) (getData()[i + 3] & 0xFF) << 24) | ((getData()[i + 2] & 0xFF) << 16)
+                | ((getData()[i + 1] & 0xFF) << 8) | (getData()[i] & 0xFF);
     }
 
     /**
@@ -300,11 +305,12 @@ public class Packet {
      * given index, index+1, index+2, and index+3
      *
      * @param i
-     *         the index
+     *            the index
      * @return int
      */
     public long get32Big(int i) {
-        return ((long) getData()[i] << 24) | ((long) getData()[i + 1] << 16) | ((long) getData()[i + 2] << 8) | getData()[i + 3];
+        return ((long) getData()[i] << 24) | ((long) getData()[i + 1] << 16) | ((long) getData()[i + 2] << 8)
+                | getData()[i + 3];
     }
 
     public long get64() {
@@ -342,9 +348,9 @@ public class Packet {
      * Returns the data from the beginIndex to the endIndex (inclusive).
      *
      * @param beginIndex
-     *         the first data value to return
+     *            the first data value to return
      * @param endIndex
-     *         the last data value to return
+     *            the last data value to return
      * @return int[]
      */
     public int[] getData(int beginIndex, int endIndex) {
@@ -360,11 +366,15 @@ public class Packet {
         return getId(0xFFFF) < 0xF000 ? getId(0xFF) : J1939.GLOBAL_ADDR;
     }
 
+    public List<Packet> getFragments() {
+        return fragments;
+    }
+
     /**
      * Returns the ID of the packet
      *
      * @param mask
-     *         Because the whole id rarely ever used, provide the mask.
+     *            Because the whole id rarely ever used, provide the mask.
      * @return int
      */
     public int getId(int mask) {
@@ -445,6 +455,10 @@ public class Packet {
         notifyAll();
     }
 
+    public void setFragments(List<Packet> fragments) {
+        this.fragments = fragments;
+    }
+
     public void setTimestamp(LocalDateTime timestamp2) {
         timestamp = timestamp2;
     }
@@ -452,13 +466,13 @@ public class Packet {
     @Override
     public String toString() {
         return String.format("%06X%02X [%s] %s",
-                             priority << 18 | id,
-                             source,
-                             getLength(),
-                             Arrays.stream(getData())
-                                     .mapToObj(x -> String.format("%02X", x))
-                                     .collect(Collectors.joining(" "))
-                                     + (transmitted ? TX : RX));
+                priority << 18 | id,
+                source,
+                getLength(),
+                Arrays.stream(getData())
+                        .mapToObj(x -> String.format("%02X", x))
+                        .collect(Collectors.joining(" "))
+                        + (transmitted ? TX : RX));
     }
 
     /**

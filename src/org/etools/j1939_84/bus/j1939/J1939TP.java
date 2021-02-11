@@ -1,5 +1,6 @@
 package org.etools.j1939_84.bus.j1939;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
@@ -150,8 +151,7 @@ public class J1939TP implements Bus {
 
     /** Record an error, which is more than just a warning. */
     private void error(String msg, Throwable e) {
-        System.err.println(msg);
-        e.printStackTrace();
+        logger.log(Level.SEVERE, msg, e);
     }
 
     /** Used for debugging. */
@@ -225,20 +225,23 @@ public class J1939TP implements Bus {
         }
     }
 
-    private void receiveBam(Packet rts, Stream<Packet> stream) {
-        fine("rx BAM", rts);
+    private void receiveBam(Packet bam, Stream<Packet> stream) {
+        fine("rx BAM", bam);
 
-        int numberOfPackets = rts.get(3);
+        int numberOfPackets = bam.get(3);
 
-        byte[] data = new byte[rts.get16(1)];
+        byte[] data = new byte[bam.get16(1)];
         BitSet received = new BitSet(numberOfPackets + 1);
-        int dataId = DT | rts.getDestination();
-        int controlId = CM | rts.getId(0xFF);
+        int dataId = DT | bam.getDestination();
+        int controlId = CM | bam.getId(0xFF);
 
-        int pgn = rts.get24(5);
-        int source = rts.getSource();
-        int packetId = pgn < 0xF000 ? pgn | rts.getDestination() : pgn;
+        int pgn = bam.get24(5);
+        int source = bam.getSource();
+        int packetId = pgn < 0xF000 ? pgn | bam.getDestination() : pgn;
         Packet packet = Packet.create(packetId, source, (int[]) null);
+        packet.setFragments(new ArrayList<>());
+        packet.getFragments().add(bam);
+        packet.setTimestamp(bam.getTimestamp());
         synchronized (packet) {
             inbound.send(packet);
 
@@ -251,11 +254,12 @@ public class J1939TP implements Bus {
                     .peek(p -> bus.resetTimeout(stream, T1, TimeUnit.MILLISECONDS))
                     .map(p -> {
                         if (p.getId(0xFFFF) == controlId) {
-                            warn("BAM canceled or aborted: " + rts + " -> " + p);
+                            warn("BAM canceled or aborted: " + bam + " -> " + p);
                             packet.fail();
                             return true;
                         }
                         fine("rx DT", p);
+                        packet.getFragments().add(p);
                         received.set(p.get(0));
                         int offset = (p.get(0) - 1) * 7;
                         System.arraycopy(p.getBytes(), 1, data, offset, Math.min(offset + 7, data.length) - offset);
