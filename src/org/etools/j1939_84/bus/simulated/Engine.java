@@ -4,6 +4,8 @@
 package org.etools.j1939_84.bus.simulated;
 
 import static java.util.concurrent.TimeUnit.SECONDS;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
 
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
@@ -24,6 +26,8 @@ import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
+import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 
 /**
@@ -226,7 +230,7 @@ public class Engine implements AutoCloseable {
                                          ADDR,
                                          0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF));
         // DM6
-        sim.response(p -> isRequestFor(65231, p), () -> Packet.create(65231, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
+        sim.response(p -> isRequestFor(65231, p), () -> DM6PendingEmissionDTCPacket.create(0, ON, OFF, ON, ON, DiagnosticTroubleCode.create(123,12,0,1)).getPacket());
         // DM12
         sim.response(p -> isRequestFor(DM12MILOnEmissionDTCPacket.PGN, p),
                      () -> Packet.create(DM12MILOnEmissionDTCPacket.PGN, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
