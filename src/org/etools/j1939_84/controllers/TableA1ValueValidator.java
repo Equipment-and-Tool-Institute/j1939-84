@@ -64,6 +64,7 @@ public class TableA1ValueValidator {
                 return value < 200 || value > 4000;
             }
         case 110:
+        case 175:
         case 1637:
         case 4076:
         case 4193:

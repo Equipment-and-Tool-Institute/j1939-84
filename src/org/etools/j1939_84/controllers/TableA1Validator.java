@@ -44,44 +44,43 @@ public class TableA1Validator {
     }
 
     private static List<Integer> getFailureSPNs(FuelType fuelType) {
-        List<Integer> allRequiredSpns = new ArrayList<>(
-                List.of(27, 84, 91, 92,
-                        102, 108,
-                        235, 247, 248,
+        List<Integer> allRequiredSPNs = new ArrayList<>(
+                List.of(92, 102,
                         512, 513, 514, 539, 540, 541, 542, 543, 544,
-                        1413,
-                        2791, 2978,
-                        3563,
-                        5837, 5829));
+                        2978, 3563));
 
         if (fuelType.isCompressionIgnition()) {
-            allRequiredSpns.addAll(List.of(3226, 3700, 5466, 6895, 7333));
+            allRequiredSPNs.addAll(List.of(3719, 5466));
         } else if (fuelType.isSparkIgnition()) {
-            allRequiredSpns.addAll(List.of(51,
-                                           3249, 3241, 3217, 3227, 3464,
+            allRequiredSPNs.addAll(List.of(51,
+                                           3217, 3227, 3241, 3245, 3249, 3464,
                                            4236, 4237, 4240));
         }
 
-        return allRequiredSpns;
+        return allRequiredSPNs;
     }
 
     private static List<Integer> getInfoSPNs() {
-        return new ArrayList<>(List.of(96, 110, 132, 157, 190, 5827, 5313));
+        return new ArrayList<>(List.of(38, 96, 175));
     }
 
     private static List<Integer> getWarningSPNs(FuelType fuelType) {
         List<Integer> allWarningSPNs = new ArrayList<>(List.of(
-                94, 106, 110, 157, 158, 168, 183, 190,
+                27, 84, 91, 94,
+                106, 108, 110, 132, 157, 158, 168, 183, 190,
+                235, 247, 248,
                 723,
-                1127, 1600, 1637,
+                1127, 1413, 1433, 1436, 1600, 1637,
+                2791,
                 4076, 4193, 4201, 4202,
-                5313, 5578
+                5829, 5837,
+                6393, 6895, 7333
         ));
 
         if (fuelType.isCompressionIgnition()) {
             allWarningSPNs.addAll(List.of(164,
-                                          3031, 3251, 3515, 3516, 3518, 3609, 3610,
-                                          5314, 5454, 5466, 5827,
+                                          3031, 3226, 3251, 3515, 3516, 3518, 3609, 3610, 3700,
+                                          5313, 5314, 5454, 5466, 5578, 5827,
                                           7346));
         }
         return allWarningSPNs;
