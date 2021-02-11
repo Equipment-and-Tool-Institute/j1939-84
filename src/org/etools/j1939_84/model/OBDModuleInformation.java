@@ -58,7 +58,7 @@ public class OBDModuleInformation implements Cloneable {
 
     private DM27AllPendingDTCsPacket lastDM27;
 
-    private List<DiagnosticTroubleCode> emissionDTCs;
+    private final List<DiagnosticTroubleCode> emissionDTCs = new ArrayList<>();
 
     /** These SPNs represent SP which appear in multiple PGs. */
     private final List<Integer> omittedSPNs = new ArrayList<>(List.of(588, 1213, 1220, 12675, 12730, 12783, 12797));
@@ -304,7 +304,8 @@ public class OBDModuleInformation implements Cloneable {
     }
 
     public void setEmissionDTCs(List<DiagnosticTroubleCode> emissionDTCs) {
-        this.emissionDTCs = emissionDTCs;
+        this.emissionDTCs.clear();
+        this.emissionDTCs.addAll(emissionDTCs);
     }
 
     @Override
