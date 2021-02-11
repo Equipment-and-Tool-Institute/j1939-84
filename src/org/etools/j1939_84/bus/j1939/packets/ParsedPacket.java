@@ -352,6 +352,10 @@ public class ParsedPacket {
         return getPacket().getSource();
     }
 
+    public String getModuleName() {
+        return Lookup.getAddressName(getSourceAddress());
+    }
+
     /**
      * Returns the prefix that's used in the toString methods
      *
