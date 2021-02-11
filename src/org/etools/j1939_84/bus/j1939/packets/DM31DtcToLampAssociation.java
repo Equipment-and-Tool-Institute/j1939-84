@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
@@ -67,10 +67,10 @@ public class DM31DtcToLampAssociation extends GenericPacket {
     @Override
     public String toString() {
         StringBuilder sb = new StringBuilder();
-        sb.append(getStringPrefix() + NL);
-        sb.append("DTC Lamp Statuses: [" + NL);
+        sb.append(getStringPrefix()).append(NL);
+        sb.append("DTC Lamp Statuses: [").append(NL);
         for (DTCLampStatus dtcLampStatus : getDtcLampStatuses()) {
-            sb.append(dtcLampStatus + NL);
+            sb.append(dtcLampStatus).append(NL);
         }
         sb.append("]");
 
