@@ -7,7 +7,6 @@ import org.etools.j1939_84.bus.Packet;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class AcknowledgmentPacket extends GenericPacket {
 
@@ -38,7 +37,11 @@ public class AcknowledgmentPacket extends GenericPacket {
         }
     }
 
-    public static AcknowledgmentPacket create(int sourceAddress, Response response, int groupFunction,int addressAcknowledged, long pgnRequested) {
+    public static AcknowledgmentPacket create(int sourceAddress,
+                                              Response response,
+                                              int groupFunction,
+                                              int addressAcknowledged,
+                                              long pgnRequested) {
         int[] data = new int[8];
         data[0] = response.value;
         data[1] = groupFunction;
@@ -78,7 +81,6 @@ public class AcknowledgmentPacket extends GenericPacket {
     public int getPgnRequested() {
         return getPacket().get24(5);
     }
-
 
     public Response getResponse() {
         if (response == null) {
