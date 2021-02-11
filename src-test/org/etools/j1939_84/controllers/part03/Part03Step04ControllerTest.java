@@ -542,4 +542,26 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
                                         WARN,
                                         "6.3.4.3.b - More than one ECU reported > 0 for all pending DTC count");
     }
+
+    @Test
+    public void testNoFailures() {
+        DM29DtcCounts dm29 = DM29DtcCounts.create(0, 1, 1, 0, 0, 0);
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29));
+
+        OBDModuleInformation moduleInfo0 = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        moduleInfo0.setLastDM27(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
+        moduleInfo0.setEmissionDTCs(List.of(dtc1));
+        dataRepository.putObdModule(moduleInfo0);
+
+        runTest();
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+
+        assertEquals("", listener.getResults());
+
+        verify(diagnosticMessageModule).requestDM29(any());
+
+    }
 }
