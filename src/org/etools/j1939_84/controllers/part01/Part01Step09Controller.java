@@ -5,7 +5,6 @@ package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.utils.StringUtils.containsNonPrintableAsciiCharacter;
 import static org.etools.j1939_84.utils.StringUtils.containsOnlyNumericAsciiCharacters;
-import static org.etools.j1939_84.utils.StringUtils.stripLeadingAndTrailingNulls;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -74,7 +73,7 @@ public class Part01Step09Controller extends StepController {
                 .peek(packet -> {
                     //Update data in the dataRepository for use in Part 02 Step 7
                     OBDModuleInformation module = dataRepository.getObdModule(packet.getSourceAddress());
-                    module.setComponentInformationIdentification(packet.getComponentIdentification());
+                    module.setComponentIdentification(packet.getComponentIdentification());
                     // Save the updated data back to the dataRepository for use later in testing
                     dataRepository.putObdModule(module);
                 })
@@ -95,7 +94,7 @@ public class Part01Step09Controller extends StepController {
         if (function0Packet == null) {
             addFailure("6.1.9.2.b - None of the positive responses were provided by " + function0Name);
         } else {
-            String serialNumber = stripLeadingAndTrailingNulls(function0Packet.getSerialNumber());
+            String serialNumber = function0Packet.getSerialNumber();
             int length = serialNumber.length();
             if (length >= 6) {
                 String endingCharacters = serialNumber.substring((length - 6), length);

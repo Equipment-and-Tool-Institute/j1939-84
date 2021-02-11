@@ -89,7 +89,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
 
         ComponentIdentificationPacket componentIdentificationPacket = create(
                 sourceAddress, make, model, serialNumber, unitNumber);
-        module.setComponentInformationIdentification(componentIdentificationPacket.getComponentIdentification());
+        module.setComponentIdentification(componentIdentificationPacket.getComponentIdentification());
         return module;
     }
     /*

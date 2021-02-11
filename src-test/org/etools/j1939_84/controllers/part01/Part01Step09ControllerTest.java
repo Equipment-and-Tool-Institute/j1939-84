@@ -115,7 +115,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                                                                              model,
                                                                              serialNumber,
                                                                              unitNumber);
-        module.setComponentInformationIdentification(componentIdentificationPacket.getComponentIdentification());
+        module.setComponentIdentification(componentIdentificationPacket.getComponentIdentification());
         return module;
     }
 

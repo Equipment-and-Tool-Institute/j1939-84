@@ -34,7 +34,7 @@ public class ComponentIdentificationPacketTest {
 
         assertEquals("INT  ", instance.getMake());
         assertEquals("7571031515", instance.getModel());
-        assertEquals("124KM2Y4411888\u0000\u0000\u0000", instance.getSerialNumber());
+        assertEquals("124KM2Y4411888", instance.getSerialNumber());
         assertEquals("0\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000\u0000", instance.getUnitNumber());
 
         String expected = "";
@@ -263,7 +263,7 @@ public class ComponentIdentificationPacketTest {
         ComponentIdentificationPacket instance = new ComponentIdentificationPacket(packet);
         assertEquals(MAKE + MODEL + SN + UN, instance.getMake());
         assertNull(instance.getModel());
-        assertNull(instance.getSerialNumber());
+        assertEquals("", instance.getSerialNumber());
         assertNull(instance.getUnitNumber());
         String expected = "";
         expected += "Component Identification from Engine #1 (0): {" + NL;
@@ -301,7 +301,7 @@ public class ComponentIdentificationPacketTest {
         ComponentIdentificationPacket instance = new ComponentIdentificationPacket(packet);
         assertEquals(MAKE, instance.getMake());
         assertEquals(MODEL + SN + UN, instance.getModel());
-        assertNull(instance.getSerialNumber());
+        assertEquals("", instance.getSerialNumber());
         assertNull(instance.getUnitNumber());
         String expected = "";
         expected += "Component Identification from Engine #1 (0): {" + NL;

@@ -5,6 +5,7 @@ package org.etools.j1939_84.bus.j1939.packets;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.utils.StringUtils.stripLeadingAndTrailingNulls;
 
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
@@ -76,7 +77,7 @@ public class ComponentIdentificationPacket extends GenericPacket {
     }
 
     public String getSerialNumber() {
-        return parts[2];
+        return stripLeadingAndTrailingNulls(parts[2]);
     }
 
     public String getUnitNumber() {
@@ -95,7 +96,7 @@ public class ComponentIdentificationPacket extends GenericPacket {
         String model = getModel();
         result += "  Model: " + (model == null ? "" : model.trim()) + NL;
         String serialNumber = getSerialNumber();
-        result += "  Serial: " + (serialNumber == null ? "" : serialNumber.trim()) + NL;
+        result += "  Serial: " + (serialNumber == null ? "catca" : serialNumber.trim()) + NL;
         String unitNumber = getUnitNumber();
         result += "  Unit: " + (unitNumber == null ? "" : unitNumber.trim()) + NL;
         result += "}" + NL;

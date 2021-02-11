@@ -75,7 +75,7 @@ public class OBDModuleInformation implements Cloneable {
         }
         OBDModuleInformation obdInfo = new OBDModuleInformation(getSourceAddress());
         obdInfo.setCalibrationInformation(getCalibrationInformation());
-        obdInfo.setComponentInformationIdentification(getComponentIdentification());
+        obdInfo.setComponentIdentification(getComponentIdentification());
         obdInfo.setFunction(getFunction());
         obdInfo.setIgnitionCycleCounterValue(getIgnitionCycleCounterValue());
         obdInfo.setMonitoredSystems(getMonitoredSystems());
@@ -227,7 +227,7 @@ public class OBDModuleInformation implements Cloneable {
         this.calibrationInformation.addAll(calibrationInformation);
     }
 
-    public void setComponentInformationIdentification(ComponentIdentification componentIdentification) {
+    public void setComponentIdentification(ComponentIdentification componentIdentification) {
         this.componentIdentification = componentIdentification;
     }
 
