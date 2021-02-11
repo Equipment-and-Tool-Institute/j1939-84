@@ -39,6 +39,7 @@ import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
 import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
+import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.testdoc.TestDoc;
 import org.junit.Before;
@@ -405,6 +406,87 @@ public class J1939Test {
             echoBus.send(packet);
             assertTrue("Failed on id " + id, stream.findFirst().isPresent());
         }
+    }
+
+    @Test
+    /** request the VIN with a long delay and verify the error. */
+    public void testBamTimeout() throws Exception {
+        EchoBus bus2 = new EchoBus(0);
+        Bus bus = new J1939TP(bus2, 0);
+
+        Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
+        new Thread(() -> {
+            try {
+                // wait for request
+                requestStream.findAny();
+                // wait to cause warning
+                Thread.sleep(650);
+                bus.send(Packet.create(VehicleIdentificationPacket.PGN, 0xFF, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+                        13, 14, 15, 16, 17));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<VehicleIdentificationPacket> response = new J1939(new J1939TP(bus2, 0xF9))
+                .requestGlobal("VIN", VehicleIdentificationPacket.class, listener);
+        assertEquals(0, response.getPackets().size());
+        /* verify there is an error */
+        assertTrue(listener.getResults()
+                .matches("(?s).*Error: Timeout - No Response\\..*"));
+    }
+
+    @Test
+    /** Request the VIN without a delay and verify no warning. */
+    public void testBamTimeoutNoWarn() throws Exception {
+        EchoBus bus2 = new EchoBus(0);
+        Bus bus = new J1939TP(bus2, 0);
+        Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
+        new Thread(() -> {
+            try {
+                // wait for request
+                requestStream.findAny();
+                // Thread.sleep(300); test the test
+                bus.send(Packet.create(VehicleIdentificationPacket.PGN, 0xFF, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+                        13, 14, 15, 16, 17));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<VehicleIdentificationPacket> response = new J1939(new J1939TP(bus2, 0xF9))
+                .requestGlobal("VIN", VehicleIdentificationPacket.class, listener);
+        assertEquals(1, response.getPackets().size());
+        /* verify there is not a warning. */
+        assertTrue(!listener.getResults().matches("(?s).*Warning: Late BAM response.*"));
+    }
+
+    @Test
+    /** Request the VIN with a delay and verify the warning. */
+    public void testBamTimeoutWarn() throws Exception {
+        EchoBus bus2 = new EchoBus(0);
+        Bus bus = new J1939TP(bus2, 0);
+
+        Stream<Packet> requestStream = bus.read(1, TimeUnit.HOURS);
+        new Thread(() -> {
+            try {
+                // wait for request
+                requestStream.findAny();
+                // wait to cause warning
+                Thread.sleep(300);
+                bus.send(Packet.create(VehicleIdentificationPacket.PGN, 0xFF, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
+                        13, 14, 15, 16, 17));
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+        TestResultsListener listener = new TestResultsListener();
+        RequestResult<VehicleIdentificationPacket> response = new J1939(new J1939TP(bus2, 0xF9))
+                .requestGlobal("VIN", VehicleIdentificationPacket.class, listener);
+        assertEquals(1, response.getPackets().size());
+        /* verify there is a warning */
+        assertTrue(listener.getResults()
+                .matches("(?s).*Warning: Late BAM response:  [\\d:\\.]+ 18ECFF00 \\[8\\] 20 11 00 03 FF EC FE 00.*"));
     }
 
     @Test

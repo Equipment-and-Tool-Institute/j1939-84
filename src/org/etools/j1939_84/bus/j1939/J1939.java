@@ -9,8 +9,12 @@ import static java.util.logging.Level.WARNING;
 import static org.etools.j1939_84.J1939_84.getLogger;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.BUSY;
 
+import java.time.LocalDateTime;
+import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -72,9 +76,11 @@ import org.etools.j1939_84.modules.DateTimeModule;
 public class J1939 {
 
     /**
-     * The default time to wait for a response (200 ms + 10%)
+     * The time to wait for a response from a destination specific request (200
+     * ms + 10% + fudge factor) This time come from J1939-21, 5.12.3 Device
+     * Response Time and Timeout Defaults
      */
-    private static final int DEFAULT_TIMEOUT = 230;
+    private static final int DS_TIMEOUT = 230; // milliseconds
 
     /**
      * The source address of the engine
@@ -85,6 +91,20 @@ public class J1939 {
      * The global source address for broadcast
      */
     public static final int GLOBAL_ADDR = 0xFF;
+
+    /**
+     * The time to wait for a response from a global request. This time come
+     * from Eric. It is based on 200 ms + a delay due to a scheduled DM1.
+     */
+    private static final long GLOBAL_TIMEOUT = 600; // milliseconds
+
+    /**
+     * The time to wait for a response from a global request without issuing a
+     * warning.
+     */
+    private static final long GLOBAL_WARN_TIMEOUT = 200;// milliseconds
+
+    private static final String LATE_BAM_RESPONSE = "Warning: Late BAM response: ";
 
     private static final String TIMEOUT_MESSAGE = "Error: Timeout - No Response.";
 
@@ -470,7 +490,7 @@ public class J1939 {
         try {
             BusResult<DM30ScaledTestResultsPacket> result;
             for (int i = 0; true; i++) {
-                Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = read(DEFAULT_TIMEOUT,
+                Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = read(DS_TIMEOUT,
                         MILLISECONDS)
                                 .filter(dsFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(),
                                         getBusAddress()))
@@ -489,7 +509,7 @@ public class J1939 {
                     listener.onResult(packet.toTimeString());
                     listener.onResult(response.toString());
                 },
-                        () -> listener.onResult(TIMEOUT_MESSAGE));
+                        () -> listener.onResult(getDateTimeModule().getTime() + " " + TIMEOUT_MESSAGE));
                 // if there is a valid response or a non-busy NACK, return it.
                 if (i == 2 || result.getPacket()
                         // valid packet
@@ -558,7 +578,7 @@ public class J1939 {
         }
 
         try {
-            Stream<Either<T, AcknowledgmentPacket>> stream = read(DEFAULT_TIMEOUT, MILLISECONDS)
+            Stream<Either<T, AcknowledgmentPacket>> stream = read(DS_TIMEOUT, MILLISECONDS)
                     .filter(dsFilter(pgn, request.getDestination(), getBusAddress()))
                     .map(this::process);
             Packet sent = bus.send(request);
@@ -573,7 +593,7 @@ public class J1939 {
                 listener.onResult(pp.getPacket().toTimeString());
                 listener.onResult(pp.toString());
             },
-                    () -> listener.onResult(TIMEOUT_MESSAGE));
+                    () -> listener.onResult(getDateTimeModule().getTime() + " " + TIMEOUT_MESSAGE));
 
             return result;
         } catch (BusException e) {
@@ -601,7 +621,7 @@ public class J1939 {
 
         Collection<Either<T, AcknowledgmentPacket>> results = requestGlobalOnce(pgn, requestPacket, listener);
 
-        if (results.stream().anyMatch(e -> isBusy(e))) {
+        if (results.stream().anyMatch(J1939::isBusy)) {
             retry = true;
 
             // use map to collate by address
@@ -623,11 +643,11 @@ public class J1939 {
                         Packet dsRequest = createRequestPacket(pgn, ((ParsedPacket) e.resolve()).getSourceAddress());
                         Optional<Either<T, AcknowledgmentPacket>> response = requestDSOnce(pgn, dsRequest, listener);
 
-                        if (response.map(re -> isBusy(re)).orElse(true)) {
+                        if (response.map(J1939::isBusy).orElse(true)) {
                             // still busy, try one last time
                             warn("first DS request after global busy NACK: " + dsRequest + " -> " + response);
                             response = requestDSOnce(pgn, dsRequest, listener);
-                            if (response.map(re -> isBusy(re)).orElse(true)) {
+                            if (response.map(J1939::isBusy).orElse(true)) {
                                 warn("second DS request after global busy NACK: " + dsRequest + " -> " + response);
                             }
                         }
@@ -640,8 +660,7 @@ public class J1939 {
 
         return new RequestResult<>(retry,
                 results.stream()
-                        .sorted((o1, o2) -> ((ParsedPacket) o1.resolve()).getSourceAddress()
-                                - ((ParsedPacket) o2.resolve()).getSourceAddress())
+                        .sorted(Comparator.comparingInt(o -> ((ParsedPacket) o.resolve()).getSourceAddress()))
                         .collect(Collectors.toList()));
 
     }
@@ -659,15 +678,29 @@ public class J1939 {
 
         List<Either<T, AcknowledgmentPacket>> result;
         try {
-            Stream<Packet> stream = read(DEFAULT_TIMEOUT, MILLISECONDS);
+            Stream<Packet> stream = read(GLOBAL_TIMEOUT, MILLISECONDS);
             Packet sent = bus.send(request);
+            final LocalDateTime lateTime;
             if (sent != null) {
                 listener.onResult(sent.toTimeString());
+                lateTime = sent.getTimestamp().plus(GLOBAL_WARN_TIMEOUT, ChronoUnit.MILLIS);
             } else {
                 warn("Failed to send: " + request);
+                lateTime = null;
             }
+            List<Packet> lateBam = new ArrayList<>();
             result = stream
                     .filter(globalFilter(pgn))
+                    .peek(p -> {
+                        /*
+                         * If the first fragment arrived after lateBam, then it
+                         * is late.
+                         */
+                        if (lateTime != null && p.getFragments().size() > 0
+                                && p.getFragments().get(0).getTimestamp().isAfter(lateTime)) {
+                            lateBam.add(p);
+                        }
+                    })
                     // Collect all of the packet, even though they are not
                     // complete. They were all announced in time.
                     .collect(Collectors.toList()).stream()
@@ -685,8 +718,11 @@ public class J1939 {
                     })
                     .filter(Objects::nonNull)
                     .collect(Collectors.toList());
+            /* Log late fragments as raw packets. */
+            lateBam.forEach(p -> listener.onResult(LATE_BAM_RESPONSE + " " + p.getFragments().get(0).toTimeString()));
+
             if (result.isEmpty()) {
-                listener.onResult(TIMEOUT_MESSAGE);
+                listener.onResult(getDateTimeModule().getTime() + " " + TIMEOUT_MESSAGE);
             }
         } catch (BusException e) {
             severe("Error requesting packet", e);
