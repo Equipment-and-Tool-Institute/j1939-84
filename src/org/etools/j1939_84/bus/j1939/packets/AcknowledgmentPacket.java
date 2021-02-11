@@ -37,6 +37,10 @@ public class AcknowledgmentPacket extends GenericPacket {
         }
     }
 
+    public static AcknowledgmentPacket create(int sourceAddress, Response response) {
+        return create(sourceAddress, response, 0, 0xF9, 0);
+    }
+
     public static AcknowledgmentPacket create(int sourceAddress,
                                               Response response,
                                               int groupFunction,
