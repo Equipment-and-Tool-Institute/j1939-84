@@ -3,15 +3,22 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,7 +126,85 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testRun() {
+    public void testNoPackets() {
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false));
 
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testNAisFiltered() {
+        var dm5 = DM5DiagnosticReadinessPacket.create(0, 0xFF, 0xFF, 0x23);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testFailureForActiveCount() {
+        var dm5 = DM5DiagnosticReadinessPacket.create(0, 1, 0xFF, 0x23);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+
+        assertEquals("FAIL: 6.3.8.2.a - OBD ECU Engine #1 (0) reported active DTC count not = 0" + NL,
+                     listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.3.8.2.a - OBD ECU Engine #1 (0) reported active DTC count not = 0");
+    }
+
+    @Test
+    public void testFailureForPreviouslyActiveCount() {
+        var dm5 = DM5DiagnosticReadinessPacket.create(0, 0, 1, 0x23);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+
+        assertEquals("FAIL: 6.3.8.2.a - OBD ECU Engine #1 (0) reported previously active DTC count not = 0" + NL,
+                     listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.3.8.2.a - OBD ECU Engine #1 (0) reported previously active DTC count not = 0");
+    }
+
+    @Test
+    public void testNoFailure() {
+        var dm5 = DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x23);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testOBDModulesAreFiltered() {
+        var dm5 = DM5DiagnosticReadinessPacket.create(0, 1, 1, 0);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(new RequestResult<>(false, dm5));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+
+        assertEquals("", listener.getResults());
     }
 }

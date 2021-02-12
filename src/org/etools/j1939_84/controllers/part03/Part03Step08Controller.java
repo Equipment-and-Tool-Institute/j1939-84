@@ -5,6 +5,9 @@ package org.etools.j1939_84.controllers.part03;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -53,8 +56,24 @@ public class Part03Step08Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        //6.3.8.1.a. Global DM5 (send Request (PGN 59904) for PGN 65230 (SPNs 1218-1219)).
-        //6.3.8.2.a Fail if any OBD ECU does not report 0/0 for the number of active and the number of previously active DTCs.
+        // 6.3.8.1.a. Global DM5 (send Request (PGN 59904) for PGN 65230 (SPNs 1218-1219)).
+        var packets = getDiagnosticMessageModule().requestDM5(getListener())
+                .getPackets()
+                .stream()
+                .filter(DM5DiagnosticReadinessPacket::isObd)
+                .collect(Collectors.toList());
+
+        // 6.3.8.2.a Fail if any OBD ECU does not report 0 for the number of active DTCs.
+        packets.stream()
+                .filter(p -> p.getActiveCodeCount() != 0 && p.getActiveCodeCount() != (byte) 0xFF)
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> addFailure("6.3.8.2.a - OBD ECU " + moduleName + " reported active DTC count not = 0"));
+
+        // 6.3.8.2.a Fail if any OBD ECU does not report 0 for the number of previously active DTCs.
+        packets.stream()
+                .filter(p -> p.getPreviouslyActiveCodeCount() != 0 && p.getPreviouslyActiveCodeCount() != (byte) 0xFF)
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> addFailure("6.3.8.2.a - OBD ECU " + moduleName + " reported previously active DTC count not = 0"));
     }
 
 }
