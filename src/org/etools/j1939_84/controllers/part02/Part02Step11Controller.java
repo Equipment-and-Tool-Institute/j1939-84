@@ -63,7 +63,6 @@ public class Part02Step11Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        getDiagnosticMessageModule().setJ1939(getJ1939());
 
         // 6.2.11.1.a. Global DM27 (send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 3038, 1706)).
         List<DM27AllPendingDTCsPacket> globalPackets = getDiagnosticMessageModule().requestDM27(getListener()).getPackets();

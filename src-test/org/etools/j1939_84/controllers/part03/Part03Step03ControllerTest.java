@@ -70,8 +70,6 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
     @Mock
     private J1939 j1939;
 
-    private TestResultsListener listener;
-
     @Mock
     private ResultsListener mockListener;
 
@@ -81,17 +79,15 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    private DataRepository dataRepository;
-
     private StepController instance;
 
     @Before
     public void setUp() throws Exception {
         DateTimeModule.setInstance(new TestDateTimeModule());
         DateTimeModule dateTimeModule = DateTimeModule.getInstance();
-        dataRepository = DataRepository.newInstance();
+        DataRepository dataRepository = DataRepository.newInstance();
 
-        listener = new TestResultsListener(mockListener);
+        TestResultsListener listener = new TestResultsListener(mockListener);
         instance = new Part03Step03Controller(executor,
                                               bannerModule,
                                               dateTimeModule,
