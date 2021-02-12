@@ -277,8 +277,12 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.1.13.2.b - OBD ECU Engine #1 (0) reported active/previously active fault DTCs count not = 0/0" + NL
-                                                + "  Reported active fault count = 3" + NL + "  Reported previously active fault count = 16");
+                                        "6.1.13.2.b - OBD ECU Engine #1 (0) reported active DTC count not = 0");
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.13.2.b - OBD ECU Engine #1 (0) reported previously active DTC count not = 0");
 
         verify(mockListener).addOutcome(
                 1,
@@ -376,9 +380,8 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                 "    Secondary air system       not supported,     complete" + NL;
 
         String expectedResults = expectedVehicleComposite + NL;
-        expectedResults += "FAIL: 6.1.13.2.b - OBD ECU Engine #1 (0) reported active/previously active fault DTCs count not = 0/0" + NL;
-        expectedResults += "  Reported active fault count = 3" + NL;
-        expectedResults += "  Reported previously active fault count = 16" + NL;
+        expectedResults += "FAIL: 6.1.13.2.b - OBD ECU Engine #1 (0) reported active DTC count not = 0" + NL;
+        expectedResults += "FAIL: 6.1.13.2.b - OBD ECU Engine #1 (0) reported previously active DTC count not = 0" + NL;
         expectedResults += "WARN: 6.1.13.2.d - Required monitor Boost pressure control sys is supported by more than one OBD ECU" + NL;
         expectedResults += "WARN: 6.1.13.2.d - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU" + NL;
         expectedResults += "WARN: 6.1.13.2.d - Required monitor EGR/VVT system is supported by more than one OBD ECU" + NL;

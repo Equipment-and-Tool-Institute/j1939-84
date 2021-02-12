@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
 import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
 
@@ -13,10 +12,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.part01.SectionA6Validator;
@@ -32,11 +31,7 @@ public class Part02Step02Controller extends StepController {
     private static final int STEP_NUMBER = 2;
     private static final int TOTAL_STEPS = 0;
 
-    private final DiagnosticMessageModule diagnosticMessageModule;
-
     private final SectionA6Validator sectionA6Validator;
-
-    private final DataRepository dataRepository;
 
     Part02Step02Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -58,24 +53,23 @@ public class Part02Step02Controller extends StepController {
                            SectionA6Validator sectionA6Validator,
                            DataRepository dataRepository) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.diagnosticMessageModule = diagnosticMessageModule;
         this.sectionA6Validator = sectionA6Validator;
-        this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
-        diagnosticMessageModule.setJ1939(getJ1939());
         // 6.2.2.1.a. Global DM5 (send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)).
-        RequestResult<DM5DiagnosticReadinessPacket> globalDM5Result = diagnosticMessageModule.requestDM5(getListener()
-        );
+        RequestResult<DM5DiagnosticReadinessPacket> globalDM5Result = getDiagnosticMessageModule().requestDM5(
+                getListener());
         List<DM5DiagnosticReadinessPacket> globalDM5Packets = globalDM5Result.getPackets();
         List<DM5DiagnosticReadinessPacket> obdGlobalPackets = globalDM5Packets
                 .stream()
@@ -97,28 +91,26 @@ public class Part02Step02Controller extends StepController {
         //6.2.2.2.a. Fail/warn per the section A.6 Criteria for Readiness 1 Evaluation.27
         sectionA6Validator.verify(getListener(), getPartNumber(), getStepNumber(), globalDM5Result);
 
-        //6.2.2.2.b. Fail if any OBD ECU reports active/previously active fault DTC count not = 0/0.
+        //6.2.2.2.b. Fail if any OBD ECU reports active DTC count not = 0.
         obdGlobalPackets.stream()
-                .filter(p -> p.getActiveCodeCount() != (byte) 0xFF)
-                .filter(p -> p.getPreviouslyActiveCodeCount() != (byte) 0xFF)
-                .forEach(packet -> {
-                    byte activeCount = packet.getActiveCodeCount();
-                    byte prevCount = packet.getPreviouslyActiveCodeCount();
-                    if (activeCount != 0 || prevCount != 0) {
-                        addFailure("6.2.2.2.b - OBD ECU " + Lookup.getAddressName(packet.getSourceAddress()) + " reported active/previously active fault DTCs count not = 0/0"
-                                           + NL + "  Reported active fault count = " + activeCount + NL
-                                           + "  Reported previously active fault count = " + prevCount);
-                    }
-                });
+                .filter(p -> p.getActiveCodeCount() != (byte) 0xFF && p.getActiveCodeCount() != 0)
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> addFailure("6.2.2.2.b - OBD ECU " + moduleName + " reported active DTC count not = 0"));
+
+        //6.2.2.2.b. Fail if any OBD ECU reports previously active fault DTC count not = 0.
+        obdGlobalPackets.stream()
+                .filter(p -> p.getPreviouslyActiveCodeCount() != (byte) 0xFF && p.getPreviouslyActiveCodeCount() != 0)
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> addFailure("6.2.2.2.b - OBD ECU " + moduleName + " reported previously active DTC count not = 0"));
 
         //6.2.2.2.c. Warn if any individual required monitor, except Continuous Component Monitoring (CCM) is supported by more than one OBD ECU.
         reportDuplicateCompositeSystems(globalDM5Packets, "6.2.2.2.c");
 
         //6.2.2.3.a. DS DM5 to each OBD ECU.
         List<DM5DiagnosticReadinessPacket> destinationSpecificPackets = new ArrayList<>();
-        dataRepository.getObdModuleAddresses()
+        getDataRepository().getObdModuleAddresses()
                 .forEach(address -> {
-                    BusResult<DM5DiagnosticReadinessPacket> busResult = diagnosticMessageModule
+                    BusResult<DM5DiagnosticReadinessPacket> busResult = getDiagnosticMessageModule()
                             .requestDM5(getListener(), address);
                     busResult.getPacket()
                             .ifPresentOrElse(packet -> {

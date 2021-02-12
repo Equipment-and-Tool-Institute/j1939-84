@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
 
 import java.util.List;
@@ -11,10 +10,10 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
@@ -34,8 +33,6 @@ public class Part01Step13Controller extends StepController {
     private static final int PART_NUMBER = 1;
     private static final int STEP_NUMBER = 13;
     private static final int TOTAL_STEPS = 0;
-
-    private final DataRepository dataRepository;
 
     private final SectionA6Validator sectionA6Validator;
 
@@ -59,15 +56,15 @@ public class Part01Step13Controller extends StepController {
                            SectionA6Validator sectionA6Validator,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
         this.sectionA6Validator = sectionA6Validator;
     }
 
@@ -96,22 +93,18 @@ public class Part01Step13Controller extends StepController {
         // 6.1.13.2.a. Fail/warn per section A.6, Criteria for Readiness 1 Evaluation
         sectionA6Validator.verify(getListener(), getPartNumber(), getStepNumber(), response);
 
-        // 6.1.13.2.b. Fail if any OBD ECU reports active/previously active fault DTCs count not = 0/0.
+        // 6.1.13.2.b. Fail if any OBD ECU reports active DTCs count not = 0.
+        obdGlobalPackets.stream()
+                .filter(p -> p.getActiveCodeCount() != (byte) 0xFF && p.getActiveCodeCount() != 0)
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> addFailure("6.1.13.2.b - OBD ECU " + moduleName + " reported active DTC count not = 0"));
+
+        // 6.1.13.2.b. Fail if any OBD ECU reports previously active DTCs count not = 0.
         obdGlobalPackets.stream()
                 .filter(p -> p.getActiveCodeCount() != (byte) 0xFF)
-                .filter(p -> p.getPreviouslyActiveCodeCount() != (byte) 0xFF)
-                .forEach(packet -> {
-                    byte acc = packet.getActiveCodeCount();
-                    byte pacc = packet.getPreviouslyActiveCodeCount();
-                    if (acc != 0 || pacc != 0) {
-                        String moduleName = Lookup.getAddressName(packet.getSourceAddress());
-                        String msg = "";
-                        msg += "6.1.13.2.b - OBD ECU " + moduleName + " reported active/previously active fault DTCs count not = 0/0" + NL;
-                        msg += "  Reported active fault count = " + acc + NL;
-                        msg += "  Reported previously active fault count = " + pacc;
-                        addFailure(msg);
-                    }
-                });
+                .filter(p -> p.getPreviouslyActiveCodeCount() != (byte) 0xFF && p.getPreviouslyActiveCodeCount() != 0)
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> addFailure("6.1.13.2.b - OBD ECU " + moduleName + " reported previously active DTC count not = 0"));
 
         // 6.1.13.2.c. Fail if no OBD ECU provides DM5 with readiness bits showing monitor support.
         List<DM5DiagnosticReadinessPacket> dm5PacketsShowingMonitorSupport = obdGlobalPackets.stream()
@@ -126,9 +119,9 @@ public class Part01Step13Controller extends StepController {
         // 6.1.13.2.d. Warn if any individual required monitor, except Continuous
         // Component Monitoring (CCM) is supported by more than one OBD ECU.
         // Get the list of duplicate composite systems
-        reportDuplicateCompositeSystems(obdGlobalPackets,"6.1.13.2.d");
+        reportDuplicateCompositeSystems(obdGlobalPackets, "6.1.13.2.d");
 
-        List<Integer> obdAddresses = dataRepository.getObdModuleAddresses();
+        List<Integer> obdAddresses = getDataRepository().getObdModuleAddresses();
         // 6.1.13.3.a. DS DM5 to each OBD ECU.
         List<BusResult<DM5DiagnosticReadinessPacket>> destinationSpecificPackets = obdAddresses
                 .stream()
@@ -141,6 +134,6 @@ public class Part01Step13Controller extends StepController {
 
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.
         List<AcknowledgmentPacket> dsAcks = filterAcks(destinationSpecificPackets);
-        checkForNACKs(obdGlobalPackets, dsAcks, dataRepository.getObdModuleAddresses(), "6.1.13.4.b.");
+        checkForNACKs(obdGlobalPackets, dsAcks, getDataRepository().getObdModuleAddresses(), "6.1.13.4.b.");
     }
 }

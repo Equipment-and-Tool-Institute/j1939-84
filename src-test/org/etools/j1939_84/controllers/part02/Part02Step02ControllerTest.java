@@ -228,9 +228,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.2.2.2.b - OBD ECU Engine #1 (0) reported active/previously active fault DTCs count not = 0/0" + NL +
-                                                "  Reported active fault count = 1" + NL +
-                                                "  Reported previously active fault count = 0");
+                                        "6.2.2.2.b - OBD ECU Engine #1 (0) reported active DTC count not = 0");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
@@ -262,9 +260,8 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                 "    NMHC converting catalyst       supported, not complete" + NL +
                 "    NOx catalyst/adsorber          supported, not complete" + NL +
                 "    Secondary air system       not supported,     complete" + NL +
-                NL + "FAIL: 6.2.2.2.b - OBD ECU Engine #1 (0) reported active/previously active fault DTCs count not = 0/0" + NL +
-                "  Reported active fault count = 1" + NL +
-                "  Reported previously active fault count = 0" + NL +
+                NL +
+                "FAIL: 6.2.2.2.b - OBD ECU Engine #1 (0) reported active DTC count not = 0" + NL +
                 "WARN: 6.2.2.2.c - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU" + NL +
                 "FAIL: 6.2.2.4.a - Difference compared to data received during global request" + NL;
 
