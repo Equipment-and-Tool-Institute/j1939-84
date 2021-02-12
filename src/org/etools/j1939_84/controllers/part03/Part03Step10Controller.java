@@ -67,7 +67,7 @@ public class Part03Step10Controller extends StepController {
         globalPackets.stream()
                 .filter(p -> !p.getDtcs().isEmpty())
                 .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.3.10.2.a - " + moduleName + " reported an active DTC"));
+                .forEach(moduleName -> addFailure("6.3.10.2.a - " + moduleName + " reported an previously active DTC"));
 
         // 6.3.10.2.b. Fail if any OBD ECU does not report MIL off.
         globalPackets.stream()

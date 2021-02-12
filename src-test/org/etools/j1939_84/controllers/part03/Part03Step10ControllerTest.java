@@ -188,11 +188,11 @@ public class Part03Step10ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM23(any());
         verify(diagnosticMessageModule).requestDM23(any(), eq(0));
 
-        assertEquals("FAIL: 6.3.10.2.a - Engine #1 (0) reported an active DTC" + NL, listener.getResults());
+        assertEquals("FAIL: 6.3.10.2.a - Engine #1 (0) reported an previously active DTC" + NL, listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.10.2.a - Engine #1 (0) reported an active DTC");
+                                        "6.3.10.2.a - Engine #1 (0) reported an previously active DTC");
     }
 
     @Test
