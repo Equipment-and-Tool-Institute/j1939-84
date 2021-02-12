@@ -86,7 +86,10 @@ public class Part01Step12Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        // 6.1.12.1.a Get all the obdModuleAddresses then send DM7 to each address we have and get supported spns
+        // 6.1.12.1.a. DS DM7 with TID 247 using FMI 31 for each SPNSP identified as providing test results in a
+        // DM24 response in step 6.1.4.1 to the SPNSP’s respective OBD ECU.
+        // Create list of ECU address+SPN+FMI supported test results.
+        // A.K.A Get all the obdModuleAddresses then send DM7 to each address we have and get supported SPNs
         List<ScaledTestResult> vehicleTestResults = new ArrayList<>();
 
         // Record it the DM30 for each module
