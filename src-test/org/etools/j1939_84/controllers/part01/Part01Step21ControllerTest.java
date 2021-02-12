@@ -1,5 +1,5 @@
 /*
- * Copyright 2020 Equipment & Tool Institute
+ * Copyright 2021 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part01;
 
@@ -179,32 +179,32 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
         verify(mockListener).addOutcome(
-                1,
-                21,
+                PART_NUMBER,
+                STEP_NUMBER,
                 FAIL,
                 "6.1.21.2.a - Engine #2 (1) reported an all pending DTC"
         );
         verify(mockListener).addOutcome(
-                1,
-                21,
+                PART_NUMBER,
+                PART_NUMBER,
                 FAIL,
                 "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC"
         );
         verify(mockListener).addOutcome(
-                1,
-                21,
+                PART_NUMBER,
+                STEP_NUMBER,
                 FAIL,
                 "6.1.21.2.b - Engine #2 (1) did not report MIL off"
         );
         verify(mockListener).addOutcome(
-                1,
-                21,
+                PART_NUMBER,
+                STEP_NUMBER,
                 FAIL,
                 "6.1.21.2.b - Transmission #1 (3) did not report MIL off"
         );
         verify(mockListener).addOutcome(
-                1,
-                21,
+                PART_NUMBER,
+                STEP_NUMBER,
                 FAIL,
                 "6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)"
         );
@@ -293,26 +293,26 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
         verify(mockListener).addOutcome(
-                1,
-                21,
+                PART_NUMBER,
+                STEP_NUMBER,
                 FAIL,
                 "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC"
         );
         verify(mockListener).addOutcome(
-                1,
-                21,
+                PART_NUMBER,
+                STEP_NUMBER,
                 FAIL,
                 "6.1.21.2.b - Transmission #1 (3) did not report MIL off"
         );
         verify(mockListener).addOutcome(
-                1,
-                21,
+                PART_NUMBER,
+                STEP_NUMBER,
                 FAIL,
                 "6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)"
         );
         verify(mockListener).addOutcome(
-                1,
-                21,
+                PART_NUMBER,
+                STEP_NUMBER,
                 FAIL,
                 "6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query"
         );
@@ -362,26 +362,26 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
         verify(mockListener).addOutcome(
-                1,
-                21,
+                PART_NUMBER,
+                STEP_NUMBER,
                 FAIL,
                 "6.1.21.2.a - Engine #2 (1) reported an all pending DTC"
         );
         verify(mockListener).addOutcome(
-                1,
-                21,
+                PART_NUMBER,
+                STEP_NUMBER,
                 FAIL,
                 "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC"
         );
         verify(mockListener).addOutcome(
-                1,
-                21,
+                PART_NUMBER,
+                STEP_NUMBER,
                 FAIL,
                 "6.1.21.2.b - Engine #2 (1) did not report MIL off"
         );
         verify(mockListener).addOutcome(
-                1,
-                21,
+                PART_NUMBER,
+                STEP_NUMBER,
                 FAIL,
                 "6.1.21.2.b - Transmission #1 (3) did not report MIL off"
         );
