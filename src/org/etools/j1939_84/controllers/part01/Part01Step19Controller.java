@@ -63,11 +63,11 @@ public class Part01Step19Controller extends StepController {
         // 6.1.19.1.a. Global DM23 for PGN 65236
         var globalPackets = getDiagnosticMessageModule().requestDM23(getListener()).getPackets();
 
-        // 6.1.19.2.a. Fail if any ECU reports active DTCs.
+        // 6.1.19.2.a. Fail if any ECU reports previously active DTCs.
         globalPackets.stream()
                 .filter(p -> !p.getDtcs().isEmpty())
                 .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.1.19.2.a - " + moduleName + " reported active DTCs"));
+                .forEach(moduleName -> addFailure("6.1.19.2.a - " + moduleName + " reported previously active DTCs"));
 
         // 6.1.19.2.b. Fail if any ECU does not report MIL off.
         globalPackets.stream()

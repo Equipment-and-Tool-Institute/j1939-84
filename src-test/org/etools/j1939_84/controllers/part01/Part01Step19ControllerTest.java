@@ -185,8 +185,8 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM23(any(), eq(0x03));
 
         String expectedResults = "";
-        expectedResults += "FAIL: 6.1.19.2.a - Engine #2 (1) reported active DTCs" + NL;
-        expectedResults += "FAIL: 6.1.19.2.a - Transmission #1 (3) reported active DTCs" + NL;
+        expectedResults += "FAIL: 6.1.19.2.a - Engine #2 (1) reported previously active DTCs" + NL;
+        expectedResults += "FAIL: 6.1.19.2.a - Transmission #1 (3) reported previously active DTCs" + NL;
         expectedResults += "FAIL: 6.1.19.2.b - Engine #2 (1) did not report MIL off" + NL;
         expectedResults += "FAIL: 6.1.19.2.b - Transmission #1 (3) did not report MIL off" + NL;
         expectedResults += "FAIL: 6.1.19.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
@@ -194,9 +194,9 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
         assertEquals(expectedResults, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.19.2.a - Engine #2 (1) reported active DTCs");
+                                        "6.1.19.2.a - Engine #2 (1) reported previously active DTCs");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.19.2.a - Transmission #1 (3) reported active DTCs");
+                                        "6.1.19.2.a - Transmission #1 (3) reported previously active DTCs");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.19.2.b - Engine #2 (1) did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
@@ -237,7 +237,7 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM23(any(), eq(0x01));
         verify(diagnosticMessageModule).requestDM23(any(), eq(0x03));
 
-        String expectedResults = "FAIL: 6.1.19.2.a - Transmission #1 (3) reported active DTCs" + NL;
+        String expectedResults = "FAIL: 6.1.19.2.a - Transmission #1 (3) reported previously active DTCs" + NL;
         expectedResults += "FAIL: 6.1.19.2.b - Transmission #1 (3) did not report MIL off" + NL;
         expectedResults += "FAIL: 6.1.19.4.a - Difference compared to data received during global request from Transmission #1 (3)"
                 + NL;
@@ -249,7 +249,7 @@ public class Part01Step19ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.19.2.a - Transmission #1 (3) reported active DTCs");
+                                        "6.1.19.2.a - Transmission #1 (3) reported previously active DTCs");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.19.2.b - Transmission #1 (3) did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER,
