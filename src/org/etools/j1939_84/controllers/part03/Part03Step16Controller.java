@@ -10,7 +10,6 @@ import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNIN
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.etools.j1939_84.controllers.DataRepository;
-import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;

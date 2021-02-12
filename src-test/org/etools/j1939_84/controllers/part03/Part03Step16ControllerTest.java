@@ -205,7 +205,8 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
 
         String urgentMessages2 = "Please wait for the manufacturer's recommended interval with the key in off position" + NL;
         urgentMessages2 += "Press OK to continue the testing" + NL;
-        verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle), eq(WARNING), any());
+        String expectedTitle2 = "Part 6.3.16.1.c";
+        verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING), any());
 
         String urgentMessages3 = "Turn ignition key to the ON position" + NL;
         urgentMessages3 += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;

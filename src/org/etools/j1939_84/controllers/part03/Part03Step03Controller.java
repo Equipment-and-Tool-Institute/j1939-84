@@ -4,21 +4,15 @@
 package org.etools.j1939_84.controllers.part03;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.Lookup.*;
 import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
 
-import java.util.ArrayList;
 import java.util.List;
-import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
@@ -30,7 +24,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * @author mmschaefer
+ * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  * 6.3.3 DM27: All pending DTCs
  */
 public class Part03Step03Controller extends StepController {
@@ -97,13 +91,13 @@ public class Part03Step03Controller extends StepController {
         checkForNACKs(globalPackets, dsAcks, obdModuleAddresses, "6.3.3.5.b");
     }
 
-    private void clearLastDm27(int obdAddress){
+    private void clearLastDm27(int obdAddress) {
         OBDModuleInformation obdModule = getDataRepository().getObdModule(obdAddress);
         obdModule.setLastDM27(null);
         getDataRepository().putObdModule(obdModule);
     }
 
-    private void updateObdLastDM27(DM27AllPendingDTCsPacket packet){
+    private void updateObdLastDM27(DM27AllPendingDTCsPacket packet) {
         OBDModuleInformation obdModule = getDataRepository().getObdModule(packet.getSourceAddress());
         obdModule.setLastDM27(packet);
         getDataRepository().putObdModule(obdModule);
@@ -117,26 +111,19 @@ public class Part03Step03Controller extends StepController {
         if (packetDtcs.size() != obdDtcs.size() || !packetDtcs.equals(obdDtcs)) {
             addFailure(
                     "6.3.3.2.a - OBD module " + getAddressName(obdModule.getSourceAddress()) +
-                    " saved dtcs are:" + NL +
-                            obdModule.getEmissionDTCs().stream()
-                                    .map(DiagnosticTroubleCode::toString)
-                                    .collect(Collectors.joining(NL)) +
-                            NL + "response packet dtcs are:" + NL +
-                            packetDtcs.stream()
-                                    .map(DiagnosticTroubleCode::toString)
-                                    .collect(Collectors.joining(NL)));
+                            " reported different DTC than observed in Step 6.3.2.1");
         }
     }
+
     private void checkForAdditionalDtc(DM27AllPendingDTCsPacket packet) {
         List<DiagnosticTroubleCode> packetDtcs = packet.getDtcs();
         OBDModuleInformation obdModule = getDataRepository().getObdModule(packet.getSourceAddress());
         List<DiagnosticTroubleCode> obdDtcs = obdModule.getEmissionDTCs();
         // 6.3.3.3.a. Warn if (if supported) any ECU additional DTCs are provided than the DTC observed in step 6.3.2.1 in a positive DM27 response.
-        if (packetDtcs.size() != obdDtcs.size()) {
+        if (packetDtcs.size() > obdDtcs.size()) {
             addWarning("6.3.3.3.a - OBD module " + getAddressName(packet.getSourceAddress()) +
                                "reported " + obdDtcs.size() + " DTCs in response to DM6 in 6.3.2.1 and " +
                                packetDtcs.size() + " DTCs when responding to DM27");
-
         }
     }
 }

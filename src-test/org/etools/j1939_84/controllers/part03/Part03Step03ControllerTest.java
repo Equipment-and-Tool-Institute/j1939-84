@@ -5,12 +5,14 @@ package org.etools.j1939_84.controllers.part03;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket.PGN;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.FAST_FLASH;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.SLOW_FLASH;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -18,16 +20,13 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.concurrent.Executor;
-import net.sf.saxon.functions.Exists;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
@@ -53,7 +52,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class Part03Step03ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 3;
     private static final int STEP_NUMBER = 3;
-    private static final int PGN = DM27AllPendingDTCsPacket.PGN;
 
     @Mock
     private BannerModule bannerModule;
@@ -81,13 +79,17 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
 
     private StepController instance;
 
+    private DataRepository dataRepository;
+
+    private TestResultsListener listener;
+
     @Before
     public void setUp() throws Exception {
         DateTimeModule.setInstance(new TestDateTimeModule());
         DateTimeModule dateTimeModule = DateTimeModule.getInstance();
-        DataRepository dataRepository = DataRepository.newInstance();
+        dataRepository = DataRepository.newInstance();
 
-        TestResultsListener listener = new TestResultsListener(mockListener);
+        listener = new TestResultsListener(mockListener);
         instance = new Part03Step03Controller(executor,
                                               bannerModule,
                                               dateTimeModule,
@@ -114,6 +116,7 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
+                                 diagnosticMessageModule,
                                  mockListener);
     }
 
@@ -142,26 +145,23 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(diagnosticMessageModule.requestDM27(any()))
-                .thenReturn(new RequestResult<>(false, List.of(), List.of()));
-        when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
+        when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM27(any());
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.3.3.5.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         String expectedResults = "FAIL: 6.3.3.5.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.3.3.5.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
     }
 
     @Test
@@ -175,9 +175,7 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
-        when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false,
-                                                                                        List.of(),
-                                                                                        List.of(ackPacket)));
+        when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false, ackPacket));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, ackPacket));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x03))).thenReturn(new BusResult<>(false, packet3));
 
@@ -188,6 +186,11 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
+        String expected = "";
+        expected += "FAIL: 6.3.3.5.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
+        expected += "FAIL: 6.3.3.5.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
+        assertEquals(expected, listener.getResults());
+
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -196,11 +199,6 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.3.3.5.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
-        String expected = "FAIL: 6.3.3.5.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        expected += "FAIL: 6.3.3.5.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -231,22 +229,20 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
         obdModule3.setLastDM27(packet3);
         dataRepository.putObdModule(obdModule3);
 
-        when(diagnosticMessageModule.requestDM27(any()))
-                .thenReturn(new RequestResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false, packet1));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x03))).thenReturn(new BusResult<>(false, ackPacket3));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM27(any());
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
         assertEquals(List.of(dtc1), dataRepository.getObdModule(0x01).getEmissionDTCs());
         assertEquals(packet1, dataRepository.getObdModule(0x01).getLastDM27());
-        assertEquals(List.of(dtc3),dataRepository.getObdModule(0x03).getEmissionDTCs());
-        assertEquals(null, dataRepository.getObdModule(0x03).getLastDM27());
+        assertEquals(List.of(dtc3), dataRepository.getObdModule(0x03).getEmissionDTCs());
+        assertNull(dataRepository.getObdModule(0x03).getLastDM27());
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -258,20 +254,18 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
 
         DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(1569, 31, 0, 35);
         DM27AllPendingDTCsPacket packet1 = DM27AllPendingDTCsPacket.create(0x01,
-                                                                           LampStatus.OFF,
-                                                                           LampStatus.OFF,
-                                                                           LampStatus.OFF,
-                                                                           LampStatus.OFF,
+                                                                           OFF,
+                                                                           OFF,
+                                                                           OFF,
+                                                                           OFF,
                                                                            dtc);
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
         obdModule1.setEmissionDTCs(List.of(dtc));
         dataRepository.putObdModule(obdModule1);
 
-        when(diagnosticMessageModule.requestDM27(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
-        when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
 
         runTest();
 
@@ -295,7 +289,8 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
                                                                            SLOW_FLASH,
                                                                            OFF,
                                                                            FAST_FLASH,
-                                                                           dtc1, dtc11);
+                                                                           dtc1,
+                                                                           dtc11);
         DiagnosticTroubleCode dtc2 = DiagnosticTroubleCode.create(609, 19, 1, 1);
         DiagnosticTroubleCode dtc22 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
         DM27AllPendingDTCsPacket packet2 = DM27AllPendingDTCsPacket.create(0x02,
@@ -312,49 +307,44 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
         obdModule2.setEmissionDTCs(List.of(dtc22));
         dataRepository.putObdModule(obdModule2);
 
-        when(diagnosticMessageModule.requestDM27(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1, packet2), List.of()));
-        when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
-        ;
-        when(diagnosticMessageModule.requestDM27(any(), eq(0x02)))
-                .thenReturn(new BusResult<>(false, packet2));
+        when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false, packet1, packet2));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM27(any(), eq(0x02))).thenReturn(new BusResult<>(false, packet2));
 
         runTest();
 
         verify(diagnosticMessageModule).requestDM27(any());
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
+        verify(diagnosticMessageModule).requestDM27(any(), eq(0x02));
 
-        String message1 = "6.3.3.2.a - OBD module Engine #2 (1) saved dtcs are:" + NL;
-        message1 += "DTC 257:1 - Cold Restart Of Specific Component, Data Valid But Below Normal Operational Range - Most Severe Level - 1 times" + NL;
-        message1 += "response packet dtcs are:" + NL;
-        message1 += "DTC 257:1 - Cold Restart Of Specific Component, Data Valid But Below Normal Operational Range - Most Severe Level - 1 times" + NL;
-        message1 += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times";
+        String message1 = "6.3.3.2.a - OBD module Engine #2 (1) reported different DTC than observed in Step 6.3.2.1";
+
+        String message2 = "6.3.3.3.a - OBD module Engine #2 (1)reported 1 DTCs in response to DM6 in 6.3.2.1 and 2 DTCs when responding to DM27";
+
+        String message3 = "6.3.3.2.a - OBD module Turbocharger (2) reported different DTC than observed in Step 6.3.2.1";
+
+        String expectedResults = "FAIL: " + message1 + NL;
+        expectedResults += "WARN: " + message2 + NL;
+        expectedResults += "FAIL: " + message3+ NL;
+        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
                                         message1);
-        String message2 = "6.3.3.3.a - OBD module Engine #2 (1)reported 1 DTCs in response to DM6 in 6.3.2.1 and 2 DTCs when responding to DM27";
+
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
                                         message2);
-        String message3 = "6.3.3.2.a - OBD module Turbocharger (2) saved dtcs are:" + NL;
-        message3 += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        message3 += "response packet dtcs are:" + NL;
-        message3 += "DTC 609:19 - Controller #2, Received Network Data In Error - 1 times";
+
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
                                         message3);
 
-        String expectedResults = "FAIL: " + message1 + NL;
-        expectedResults += "WARN: " + message2 + NL;
-        expectedResults += "FAIL: " + message3 + NL;
-        assertEquals(expectedResults, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
         //verify we did NOT update the obd's dtc values set in the data repo
         assertEquals(dataRepository.getObdModule(0x01).getEmissionDTCs(), List.of(dtc1));
         assertEquals(dataRepository.getObdModule(0x01).getLastDM27(), packet1);
