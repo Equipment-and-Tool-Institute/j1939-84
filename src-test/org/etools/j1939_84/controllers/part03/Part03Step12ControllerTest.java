@@ -3,15 +3,28 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,7 +132,85 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testRun() {
+    public void testNoFailures() {
+        var spn = SupportedSPN.create(123, false, false, false, 0);
 
+        OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
+        moduleInfo.setSupportedSpns(List.of(spn));
+        dataRepository.putObdModule(moduleInfo);
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        var dm24 = DM24SPNSupportPacket.create(0, spn);
+        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, dm24));
+
+        var nack = AcknowledgmentPacket.create(1, NACK);
+        when(diagnosticMessageModule.requestDM24(any(), eq(1))).thenReturn(new BusResult<>(false, nack));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM24(any(), eq(1));
+
+        assertEquals("", listener.getResults());
+
+    }
+
+    @Test
+    public void testFailureForDifferenceSpnContent() {
+        var spn1 = SupportedSPN.create(123, false, false, false, 0);
+        var spn2 = SupportedSPN.create(123, true, true, true, 1);
+
+        OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
+        moduleInfo.setSupportedSpns(List.of(spn1));
+        dataRepository.putObdModule(moduleInfo);
+
+        var dm24 = DM24SPNSupportPacket.create(0, spn2);
+        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, dm24));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
+
+        assertEquals("FAIL: 6.3.12.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4"+NL, listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.3.12.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4");
+    }
+
+    @Test
+    public void testFailureForDifferentSPNs() {
+        var spn1 = SupportedSPN.create(123, false, false, false, 0);
+        var spn2 = SupportedSPN.create(456, false, false, false, 0);
+
+        OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
+        moduleInfo.setSupportedSpns(List.of(spn1));
+        dataRepository.putObdModule(moduleInfo);
+
+        var dm24 = DM24SPNSupportPacket.create(0, spn2);
+        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false, dm24));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
+
+        assertEquals("FAIL: 6.3.12.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4"+NL, listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.3.12.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4");
+    }
+
+    @Test
+    public void testFailureForNoNACK() {
+        OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
+        dataRepository.putObdModule(moduleInfo);
+
+        when(diagnosticMessageModule.requestDM24(any(), eq(0))).thenReturn(new BusResult<>(false));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM24(any(), eq(0));
+
+        assertEquals("FAIL: 6.3.12.2.b - OBD module Engine #1 (0) did not provide a NACK for the DS query"+NL, listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.3.12.2.b - OBD module Engine #1 (0) did not provide a NACK for the DS query");
     }
 }
