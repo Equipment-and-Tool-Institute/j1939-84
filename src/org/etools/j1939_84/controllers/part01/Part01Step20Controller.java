@@ -3,20 +3,18 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
-import org.etools.j1939_84.bus.j1939.BusResult;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.LampStatus;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -66,42 +64,38 @@ public class Part01Step20Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.20.1.a. Global DM28 for PGN 64896
-        RequestResult<DM28PermanentEmissionDTCPacket> globalResponse = getDiagnosticMessageModule().requestDM28(getListener());
+        var globalPackets = getDiagnosticMessageModule().requestDM28(getListener()).getPackets();
 
-        List<DM28PermanentEmissionDTCPacket> globalPackets = globalResponse.getPackets();
+        // 6.1.20.2.a. Fail if any ECU reports permanent DTCs.
+        globalPackets.stream()
+                .filter(p -> !p.getDtcs().isEmpty())
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> addFailure("6.1.20.2.a - " + moduleName + " reported permanent DTCs"));
 
-        // 6.1.20.2.c. Fail if no OBD ECU provides DM28
-        if (globalPackets.isEmpty()) {
-            addFailure("6.1.20.2.c - No OBD ECU provided a DM28");
-        } else {
-            for (DM28PermanentEmissionDTCPacket packet : globalPackets) {
-                // 6.1.20.2.a. Fail if any ECU reports a permanent DTC
-                if (!packet.getDtcs().isEmpty()) {
-                    addFailure("6.1.20.2.a - An ECU reported permanent DTCs");
-                    break;
-                }
-            }
-            for (DM28PermanentEmissionDTCPacket packet : globalPackets) {
-                // 6.1.20.2.b. Fail if any ECU does not report MIL off
-                if (packet.getMalfunctionIndicatorLampStatus() != LampStatus.OFF) {
-                    addFailure("6.1.20.2.b - An ECU did not report MIL off");
-                    break;
-                }
-            }
+        // 6.1.20.2.b. Fail if any ECU does not report MIL off.
+        globalPackets.stream()
+                .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> addFailure("6.1.20.2.b - " + moduleName + " did not report MIL off"));
+
+        boolean obdModuleResponded = globalPackets.stream()
+                .anyMatch(p -> getDataRepository().isObdModule(p.getSourceAddress()));
+        if (!obdModuleResponded) {
+            // 6.1.20.2.c. Fail if no OBD ECU provides DM28.
+            addFailure("6.1.20.2.c - No OBD ECU provided DM28");
         }
 
-        // 6.1.20.3.a. DS DM28 to each OBD ECU.
-        List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
-        List<BusResult<DM28PermanentEmissionDTCPacket>> dsResults = obdModuleAddresses.stream()
-                .map(address -> getDiagnosticMessageModule().requestDM28(getListener(), address))
+        List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
+
+        // 6.1.20.3.a. DS DM28 to all OBD ECUs.
+        var dsResults = obdModuleAddresses
+                .stream().map(address -> getDiagnosticMessageModule().requestDM28(getListener(), address))
                 .collect(Collectors.toList());
 
         // 6.1.20.4.a. Fail if any difference compared to data received during global request.
-        List<DM28PermanentEmissionDTCPacket> dsPackets = filterPackets(dsResults);
-        compareRequestPackets(globalPackets, dsPackets, "6.1.20.4.a");
+        compareRequestPackets(globalPackets, filterPackets(dsResults), "6.1.20.4.a");
 
-        // 6.1.20.4.b Fail if NACK not received from OBD ECUs that did not respond to global query
-        List<AcknowledgmentPacket> dsAcks = filterAcks(dsResults);
-        checkForNACKs(globalPackets, dsAcks, obdModuleAddresses, "6.1.20.4.b");
+        // 6.1.20.4.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
+        checkForNACKs(globalPackets, filterAcks(dsResults), obdModuleAddresses, "6.1.20.4.b");
     }
 }
