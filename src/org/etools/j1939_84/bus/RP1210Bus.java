@@ -282,7 +282,7 @@ public class RP1210Bus implements Bus {
     @Override
     public Packet send(Packet tx) throws BusException {
         byte[] data = encode(tx);
-        try (Stream<Packet> stream = read(100, TimeUnit.MILLISECONDS)) {
+        try (Stream<Packet> stream = read(1000, TimeUnit.MILLISECONDS)) {
             // rp1210 libraries may not be thread safe
             short rtn = exec.submit(() -> rp1210Library.RP1210_SendMessage(clientId,
                     data,
