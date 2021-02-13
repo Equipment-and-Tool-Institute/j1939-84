@@ -2,6 +2,7 @@ package org.etools.j1939_84.bus.j1939;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.SequenceInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +56,8 @@ public class J1939DaRepository {
             // parse the selected columns from J1939DA. The source data is
             // unaltered, so some processing is required to convert byte.bit
             // specifications into ints.
-            final InputStream is = Resources.class.getResourceAsStream("j1939da-extract.csv");
+            final InputStream is = new SequenceInputStream(Resources.class.getResourceAsStream("j1939da-extract.csv"),
+                    Resources.class.getResourceAsStream("j1939da-addendum.csv"));
             final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
             try (CSVReader reader = new CSVReaderBuilder(isReader).withSkipLines(2).build()) {
                 // collect spns under the pgn
@@ -129,9 +131,7 @@ public class J1939DaRepository {
                                         a.isOnRequest(),
                                         a.isVariableBroadcast(),
                                         a.getBroadcastPeriod(),
-                                        Stream.concat(a.getSpnDefinitions().stream(), b
-                                                .getSpnDefinitions()
-                                                .stream())
+                                        Stream.concat(a.getSpnDefinitions().stream(), b.getSpnDefinitions().stream())
                                                 .sorted(Comparator
                                                         .comparing(s -> s.getStartByte() * 8 + s.getStartBit()))
                                                 .collect(Collectors.toList()))));
