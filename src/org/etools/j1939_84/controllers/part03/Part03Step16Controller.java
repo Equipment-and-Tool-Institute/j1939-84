@@ -63,7 +63,7 @@ public class Part03Step16Controller extends StepController {
 
         // 6.3.16.1.b. Confirm Fault A is still implanted according to the manufacturer’s instruction.
         incrementProgress("Please confirm Fault A is still implanted according to the manufacturer's instruction");
-        waitForFault("Part 6.3.16.1.b");
+        confirmFault();
 
         // 6.3.16.1.c. Wait manufacturer’s recommended interval with the key in the off position.
         incrementProgress("Waiting for manufacturer's recommended interval after the Fault A implant");
@@ -74,6 +74,15 @@ public class Part03Step16Controller extends StepController {
         // 6.3.16.1.f. Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished.
         // 6.3.16.1.g. Wait as indicated by the engine manufacturer’s recommendations for Fault A.
         waitForEngineStart();
+    }
+
+    private void confirmFault(){
+        String message = "Please confirm Fault A has been implanted" + NL;
+        message += "Press OK when ready to continue testing" + NL;
+        String boxTitle = "Part 6.3.16.1.b";
+        if(!isDevEnv()) {
+            displayInstructionAndWait(message, boxTitle, WARNING);
+        }
     }
 
     private void waitForManufacturerInterval() {

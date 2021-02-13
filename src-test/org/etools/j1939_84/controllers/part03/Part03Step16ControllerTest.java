@@ -140,7 +140,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
 
-        String urgentMessages = "Implant Fault A according to engine manufacturer’s instruction" + NL;
+        String urgentMessages = "Please confirm Fault A has been implanted" + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
         String expectedTitle = "Part 6.3.16.1.b";
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
@@ -172,7 +172,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, outcomeMessage);
 
         String expectedMessages = "Part 3, Step 16 Turn Engine Off and keep the ignition key in the off position" + NL;
-        expectedMessages += "Waiting for implant of Fault A according to the engine manufacturer's instruction" + NL;
+        expectedMessages += "Please confirm Fault A is still implanted according to the manufacturer's instruction" + NL;
         expectedMessages += "Waiting for manufacturer's recommended interval after the Fault A implant" + NL;
         expectedMessages += "User cancelled testing at Part 3 Step 16";
         assertEquals(expectedMessages, listener.getMessages());
@@ -200,7 +200,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
 
-        String urgentMessages = "Implant Fault A according to engine manufacturer’s instruction" + NL;
+        String urgentMessages = "Please confirm Fault A has been implanted" + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
         String expectedTitle = "Part 6.3.16.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
@@ -224,7 +224,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         verify(mockListener).onUrgentMessage(eq(urgentMessages3), eq(expectedTitle3), eq(WARNING), any());
 
         String expectedMessages = "Part 3, Step 16 Turn Engine Off and keep the ignition key in the off position" + NL;
-        expectedMessages += "Waiting for implant of Fault A according to the engine manufacturer's instruction" + NL;
+        expectedMessages += "Please confirm Fault A is still implanted according to the manufacturer's instruction" + NL;
         expectedMessages += "Waiting for manufacturer's recommended interval after the Fault A implant";
         assertEquals(expectedMessages, listener.getMessages());
 
@@ -247,7 +247,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
 
-        String urgentMessages = "Implant Fault A according to engine manufacturer’s instruction" + NL;
+        String urgentMessages = "Please confirm Fault A has been implanted" + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
         String expectedTitle = "Part 6.3.16.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
@@ -276,7 +276,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 3 Step 16");
 
         String expectedMessages = "Part 3, Step 16 Turn Engine Off and keep the ignition key in the off position" + NL;
-        expectedMessages += "Waiting for implant of Fault A according to the engine manufacturer's instruction" + NL;
+        expectedMessages += "Please confirm Fault A is still implanted according to the manufacturer's instruction" + NL;
         expectedMessages += "Waiting for manufacturer's recommended interval after the Fault A implant" + NL;
         expectedMessages += "User cancelled testing at Part 3 Step 16";
         assertEquals(expectedMessages, listener.getMessages());
