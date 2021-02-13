@@ -67,7 +67,7 @@ public class Part02Step18Controller extends StepController {
         // 6.2.18.1.b. Implant Fault A according to engine manufacturer’s instruction. (See section 5 for additional discussion).
         incrementProgress("Waiting for implant of Fault A according to the engine manufacturer's instruction");
         if (!isDevEnv()) {
-            waitForFault();
+            waitForFault("Part 6.2.18.1.b");
         }
 
         // 6.2.18.1.c. Turn ignition key to the ON position.        
@@ -77,13 +77,6 @@ public class Part02Step18Controller extends StepController {
         if (!isDevEnv()) {
             waitForEngineStart();
         }
-    }
-
-    private void waitForFault() {
-        String message = "Implant Fault A according to engine manufacturer’s instruction" + NL;
-        message += "Press OK when ready to continue testing" + NL;
-        String boxTitle = "Part 6.2.18";
-        displayInstructionAndWait(message, boxTitle, WARNING);
     }
 
     private void waitForEngineStart() {

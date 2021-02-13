@@ -31,9 +31,6 @@ public class Part02Step11Controller extends StepController {
     private static final int STEP_NUMBER = 11;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-    private final DiagnosticMessageModule diagnosticMessageModule;
-
     Part02Step11Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -52,30 +49,29 @@ public class Part02Step11Controller extends StepController {
                            DateTimeModule dateTimeModule,
                            DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
-        this.diagnosticMessageModule = diagnosticMessageModule;
     }
 
     @Override
     protected void run() throws Throwable {
 
-        diagnosticMessageModule.setJ1939(getJ1939());
 
         // 6.2.11.1.a. Global DM27 (send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 3038, 1706)).
-        List<DM27AllPendingDTCsPacket> globalPackets = diagnosticMessageModule.requestDM27(getListener()).getPackets();
+        List<DM27AllPendingDTCsPacket> globalPackets = getDiagnosticMessageModule().requestDM27(getListener()).getPackets();
         Set<Integer> globalPacketAddresses = globalPackets.stream()
                 .map(ParsedPacket::getSourceAddress)
                 .collect(Collectors.toSet());
 
         // 6.2.11.2.a. (if supported) Fail if any OBD ECU that supported DM27 in step 6.1.20 fails to respond.
-        dataRepository.getObdModules()
+        getDataRepository().getObdModules()
                 .stream()
                 .filter(m -> m.getLastDM27() != null)
                 .map(OBDModuleInformation::getSourceAddress)
@@ -84,18 +80,18 @@ public class Part02Step11Controller extends StepController {
                 .forEach(moduleName -> addFailure("6.2.11.2.a - " + moduleName + " supported DM27 in part 1 but failed to respond"));
 
         //Refresh the last DM27 as this required later in Part 2
-        dataRepository.getObdModules().forEach(obdModuleInformation -> {
+        getDataRepository().getObdModules().forEach(obdModuleInformation -> {
             var dm27 = globalPackets.stream()
                     .filter(p -> p.getSourceAddress() == obdModuleInformation.getSourceAddress())
                     .findFirst()
                     .orElse(null);
             obdModuleInformation.setLastDM27(dm27);
-            dataRepository.putObdModule(obdModuleInformation);
+            getDataRepository().putObdModule(obdModuleInformation);
         });
 
         // 6.2.11.2.b. (if supported) Fail if any OBD ECU reports an all pending DTC.
         globalPackets.stream()
-                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .filter(p -> !p.getDtcs().isEmpty())
                 .map(ParsedPacket::getSourceAddress)
                 .map(Lookup::getAddressName)
@@ -109,9 +105,9 @@ public class Part02Step11Controller extends StepController {
                 .forEach(moduleName -> addFailure("6.2.11.2.c - " + moduleName + " did not report MIL off"));
 
         // 6.2.11.3.a. DS DM27 to each OBD ECU that supported DM27.
-        List<DM27AllPendingDTCsPacket> dsPackets = dataRepository.getObdModuleAddresses()
+        List<DM27AllPendingDTCsPacket> dsPackets = getDataRepository().getObdModuleAddresses()
                 .stream()
-                .map(address -> diagnosticMessageModule.requestDM27(getListener(), address))
+                .map(address -> getDiagnosticMessageModule().requestDM27(getListener(), address))
                 .map(BusResult::requestResult)
                 .flatMap(r -> r.getPackets().stream())
                 .collect(Collectors.toList());

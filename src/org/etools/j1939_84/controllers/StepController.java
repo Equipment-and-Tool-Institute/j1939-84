@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.isDevEnv;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.controllers.Controller.Ending.STOPPED;
@@ -233,6 +234,11 @@ public abstract class StepController extends Controller {
                 .sorted()
                 .map(address -> section + " - OBD module " + Lookup.getAddressName(address) + " did not provide a response to Global query and did not provide a NACK for the DS query")
                 .forEach(this::addFailure);
+    }
+    protected void waitForFault(String boxTitle) {
+        String message = "Implant Fault A according to engine manufacturer’s instruction" + NL;
+        message += "Press OK when ready to continue testing" + NL;
+        displayInstructionAndWait(message, boxTitle, WARNING);
     }
 
     protected QuestionListener getQuestionListener() {
