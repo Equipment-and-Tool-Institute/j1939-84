@@ -7,8 +7,10 @@
 7,DM2: Previously active DTCs
 8,DM5: Diagnostic readiness 1
 9,DM12: Emissions related active DTCs
-10,DM28: permanent DTCs
-11,DM24: SPNs Supported
-12,DM20: Monitor performance ratio
-13,DM21: Diagnostic readiness 2
-14,Part 3 to Part 4 Transition - Complete Fault A First Trip
+10,DM23: Emission related previously active DTCs
+11,DM28: permanent DTCs
+12,DM24: SPNs Supported
+13,DM25: Expanded freeze frame
+14,DM20: Monitor performance ratio
+15,DM21: Diagnostic readiness 2
+16,Part 3 to Part 4 Transition - Complete Fault A First Trip
