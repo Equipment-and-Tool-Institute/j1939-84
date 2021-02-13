@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2019. Equipment & Tool Institute
  */
 package org.etools.j1939_84.utils;
@@ -8,6 +8,7 @@ import java.util.Map;
 
 /**
  * Utility Class used to validate and decode information from the VIN
+ * Here's the source: https://www.govinfo.gov/content/pkg/CFR-2011-title49-vol6/pdf/CFR-2011-title49-vol6-part565.pdf
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  *
@@ -99,7 +100,7 @@ public class VinDecoder {
      * @return true if the Model Year is usable
      */
     public boolean isModelYearValid(int modelYear) {
-        return MODEL_YEARS.values().contains(modelYear);
+        return MODEL_YEARS.containsValue(modelYear);
     }
 
     /**
