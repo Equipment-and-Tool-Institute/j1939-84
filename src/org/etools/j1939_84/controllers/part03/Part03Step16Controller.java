@@ -3,10 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.J1939_84.isDevEnv;
-import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -65,4 +61,5 @@ public class Part03Step16Controller extends StepController {
         // 6.3.16.1.f. Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished.
         // 6.3.16.1.g. Wait as indicated by the engine manufacturer’s recommendations for Fault A.
     }
+
 }
