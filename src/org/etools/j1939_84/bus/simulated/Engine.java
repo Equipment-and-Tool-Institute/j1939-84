@@ -10,9 +10,9 @@ import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
 import java.nio.ByteBuffer;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
-import java.util.concurrent.Executors;
-import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
+import java.util.logging.Level;
+import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
@@ -65,6 +65,7 @@ public class Engine implements AutoCloseable {
     private static final byte NA = (byte) 0xFF;
     private static final byte[] NA3 = new byte[] { NA, NA, NA };
     private static final byte[] NA4 = new byte[] { NA, NA, NA, NA };
+    private static final byte[] NA8 = new byte[] { NA, NA, NA, NA, NA, NA, NA, NA };
 
     /*
      * VIN can be any length up to 200 bytes, but should end with *
@@ -120,15 +121,10 @@ public class Engine implements AutoCloseable {
         return isRequestFor(pgn, ADDR, packet);
     }
 
-    private int demCount;
-
     private boolean dtcsCleared = false;
 
     private final Boolean[] engineOn = { false };
-
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-
-    private int numCount;
+    private final Boolean[] keyOn = { false };
 
     private final Sim sim;
 
@@ -140,58 +136,39 @@ public class Engine implements AutoCloseable {
                      100,
                      TimeUnit.MILLISECONDS,
                      () -> {
-                         Boolean on = engineOn[0];
-                         if (on == null) {
-                             return Packet.create(0,
-                                                  ADDR,
-                                                  (byte) 0xFF,
-                                                  (byte) 0xFF,
-                                                  (byte) 0xFF,
-                                                  (byte) 0xFF,
-                                                  (byte) 0xFF,
-                                                  (byte) 0xFF,
-                                                  (byte) 0xFF,
-                                                  (byte) 0xFF);
+                         if (!isKeyOn()) {
+                             return Packet.create(0x1FFFF, ADDR, NA8);
                          } else {
                              return Packet.create(61444,
                                                   ADDR,
-                                                  combine(NA3, on ? ENGINE_SPEED : ENGINE_SPEED_ZERO, NA3));
+                                                  combine(NA3, isEngineOn() ? ENGINE_SPEED : ENGINE_SPEED_ZERO, NA3));
                          }
                      });
+
         sim.schedule(100, 100, TimeUnit.MILLISECONDS, () -> Packet.create(65248, ADDR, combine(NA4, DISTANCE)));
 
-        sim.schedule(50, 50, TimeUnit.MILLISECONDS, () -> Packet.create(0x0C,
-                                                                        0xF00A,
-                                                                        0x00,
-                                                                        false,
-                                                                        (byte) 0x00,
-                                                                        (byte) 0x00,
-                                                                        (byte) 0x00,
-                                                                        (byte) 0x00,
-                                                                        (byte) 0xFF, (byte) 0xFF,
-                                                                        (byte) 0xFF,
-                                                                        (byte) 0xFF));
+        sim.schedule(50, 50, TimeUnit.MILLISECONDS,
+                     () -> Packet.create(0x0C, 0xF00A, ADDR, false, combine(as4Bytes(0), NA4)));
+
         sim.response(p -> isRequestFor(65259, p), () -> Packet.create(65259, ADDR, COMPONENT_ID));
 
-        // 65278, Auxiliary Water Pump Pressure, AWPP, 1 s, 1, 73, Auxiliary Pump Pressure,4 9
-        // When the DM24 is reported as supporting SPN 73, this will begin the count down to report the key
-        //  state of key on.
-        sim.response(p -> isRequestFor(65278, ADDR, p), () -> {
-            // Start a timer to turn the engine on
-            executor.schedule(() -> {
-                Boolean on = engineOn[0];
-                if (on == null) {
-                    on = false;
-                } else if (!on) {
-                    on = true;
-                } else {
-                    on = null;
-                    executor.schedule(() -> engineOn[0] = true, 5, SECONDS);
-                }
-                return engineOn[0] = on;
-            }, 10, SECONDS);
-            return Packet.create(65278, ADDR, new byte[8]);
+        sim.response(p -> isRequestFor(0x1FFFF, p), p -> {
+            setKeyState(0x1FFFF);
+            return Packet.create(0x1FFFF, ADDR, getKeyStateAsBytes());
         });
+
+        sim.response(p -> isRequestFor(0x1FFFE, p), () -> {
+            setKeyState(0x1FFFE);
+            return Packet.create(0x1FFFE, ADDR, getKeyStateAsBytes());
+        });
+
+        sim.response(p -> isRequestFor(0x1FFFC, p), () -> {
+            setKeyState(0x1FFFC);
+            return Packet.create(0x1FFFC, ADDR, getKeyStateAsBytes());
+        });
+
+        // 65278, Auxiliary Water Pump Pressure, AWPP, 1 s, 1, 73, Auxiliary Pump Pressure,4 9
+        sim.response(p -> isRequestFor(65278, ADDR, p), () -> Packet.create(65278, ADDR, NA8));
 
         sim.response(p -> isRequestFor(65253, p),
                      () -> {
@@ -199,6 +176,7 @@ public class Engine implements AutoCloseable {
                          // denominators for UI demo purposes startTimer();
                          return Packet.create(65253, ADDR, combine(ENGINE_HOURS, NA4));
                      });
+
         // Address Claim
         sim.response(p -> isRequestFor(0xEE00, p),
                      () -> Packet.create(0xEEFF, ADDR, 0x00, 0x00, 0x40, 0x05, 0x00, 0x00, 0x65, 0x14));
@@ -229,11 +207,20 @@ public class Engine implements AutoCloseable {
                      () -> Packet.create(DM1ActiveDTCsPacket.PGN,
                                          ADDR,
                                          0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF));
+
         // DM6
-        sim.response(p -> isRequestFor(65231, p), () -> DM6PendingEmissionDTCPacket.create(0, ON, OFF, ON, ON, DiagnosticTroubleCode.create(123,12,0,1)).getPacket());
+        sim.response(p -> isRequestFor(65231, p),
+                     () -> DM6PendingEmissionDTCPacket.create(0,
+                                                              ON,
+                                                              OFF,
+                                                              ON,
+                                                              ON,
+                                                              DiagnosticTroubleCode.create(123, 12, 0, 1)).getPacket());
+
         // DM12
         sim.response(p -> isRequestFor(DM12MILOnEmissionDTCPacket.PGN, p),
                      () -> Packet.create(DM12MILOnEmissionDTCPacket.PGN, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
+
         // DM23
         sim.response(p -> isRequestFor(64949, p), () -> Packet.create(64949, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
 
@@ -246,16 +233,19 @@ public class Engine implements AutoCloseable {
                      () -> Packet.create(DM27AllPendingDTCsPacket.PGN,
                                          0x17,
                                          0x43, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF));
+
         // DM28
         sim.response(p -> isRequestFor(DM28PermanentEmissionDTCPacket.PGN, p),
                      () -> Packet.create(DM28PermanentEmissionDTCPacket.PGN,
                                          ADDR,
                                          0x03, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF));
+
         // DM11
         sim.response(p -> isRequestFor(65235, p), p -> {
             dtcsCleared = true;
             return Packet.create(0xE8FF, ADDR, 0x00, 0xFF, 0xFF, 0xFF, p.getSource(), 0xD3, 0xFE, 0x00);
         });
+
         // DM5
         sim.response(p -> isRequestFor(65230, p),
                      () -> Packet.create(65230, ADDR, 0x00, 0x00, 0x14, 0x37, 0xE0, 0x1E, 0xE0, 0x1E));
@@ -285,73 +275,6 @@ public class Engine implements AutoCloseable {
         // DM26
         sim.response(p -> isRequestFor(0xFDB8, p),
                      () -> Packet.create(0xFDB8, ADDR, 0x00, 0x00, 0x00, 0x37, 0xC0, 0x1E, 0xC0, 0x1E));
-
-        // @formatter:off
-        // DM20
-        sim.response(p -> isRequestFor(DM20MonitorPerformanceRatioPacket.PGN, 0x01, p),
-                     p -> Packet.create(DM20MonitorPerformanceRatioPacket.PGN | p.getSource(),
-                                        ADDR,
-                                        0x0C, 0x00,// Ignition Cycles
-                                        demCount & 0xFF, (demCount >> 8) & 0xFF,
-                                        // OBD Counts
-                                        // Monitors 3 Bytes SPN, 2 bytes: Num, Dem
-                                        0xCA,
-                                        0x14,
-                                        0xF8,
-                                        0x00,
-                                        0x00,
-                                        demCount & 0xFF,
-                                        (demCount >> 8) & 0xFF,
-                                        0xB8,
-                                        0x12,
-                                        0xF8,
-                                        0x00,
-                                        0x00,
-                                        demCount & 0xFF,
-                                        (demCount >> 8) & 0xFF,
-                                        0xBC,
-                                        0x14,
-                                        0xF8,
-                                        0x01,
-                                        0x00,
-                                        demCount & 0xFF,
-                                        (demCount >> 8) & 0xFF,
-                                        0xF8,
-                                        0x0B,
-                                        0xF8,
-                                        numCount & 0xFF,
-                                        (numCount >> 8) & 0xFF,
-                                        demCount & 0xFF,
-                                        (demCount >> 8) & 0xFF,
-                                        0xC6,
-                                        0x14,
-                                        0xF8,
-                                        0x00,
-                                        0x00,
-                                        demCount & 0xFF,
-                                        (demCount >> 8) & 0xFF,
-                                        0xF2,
-                                        0x0B,
-                                        0xF8,
-                                        0x00,
-                                        0x00,
-                                        demCount & 0xFF,
-                                        (demCount >> 8) & 0xFF,
-                                        0xC9,
-                                        0x14,
-                                        0xF8,
-                                        0x00,
-                                        0x00,
-                                        demCount & 0xFF,
-                                        (demCount >> 8) & 0xFF,
-                                        0xEF,
-                                        0x0B,
-                                        0xF8,
-                                        numCount & 0xFF,
-                                        (numCount >> 8) & 0xFF,
-                                        demCount & 0xFF,
-                                        (demCount >> 8) & 0xFF));
-        // @formatter:on
 
         // @formatter:off
         // DM 20 from second module
@@ -506,7 +429,6 @@ public class Engine implements AutoCloseable {
                                      0x0D, 0x00, 0x00, 0x00, //Timer1
                                      0xFF, 0xFF, 0xFF, 0xFF //Timer2
                              ));
-
         // @formatter:on
 
         // @formatter:off
@@ -551,14 +473,32 @@ public class Engine implements AutoCloseable {
         sim.close();
     }
 
-    private void startTimer() {
-        executor.scheduleAtFixedRate(() -> {
-            if (numCount < 0xFAFF) {
-                numCount++;
-            }
-            if (demCount < 0xFAFF) {
-                demCount++;
-            }
-        }, 10, 10, SECONDS);
+    private void setKeyState(int pgn) {
+        if (pgn == 0x1FFFF) {
+            J1939_84.getLogger().log(Level.INFO, "to Key On, Engine Running");
+            engineOn[0] = true;
+            keyOn[0] = true;
+        } else if (pgn == 0x1FFFE) {
+            J1939_84.getLogger().log(Level.INFO, "to Key On, Engine Off");
+            engineOn[0] = false;
+            keyOn[0] = true;
+        } else if (pgn == 0x1FFFC) {
+            J1939_84.getLogger().log(Level.INFO, "to Key Off");
+            engineOn[0] = false;
+            keyOn[0] = false;
+        }
     }
+
+    private boolean isEngineOn() {
+        return engineOn[0];
+    }
+
+    private boolean isKeyOn() {
+        return keyOn[0];
+    }
+
+    private byte[] getKeyStateAsBytes() {
+        return combine(as4Bytes(isKeyOn() ? 1 : 0), as4Bytes(isEngineOn() ? 1 : 0));
+    }
+
 }
