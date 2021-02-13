@@ -363,7 +363,7 @@ public class Packet {
      * @return the destination specific address or GLOBAL_ADDR
      */
     public int getDestination() {
-        return getId(0xFFFF) < 0xF000 ? getId(0xFF) : J1939.GLOBAL_ADDR;
+        return getId(0x3FFFF) < 0xF000 ? getId(0xFF) : J1939.GLOBAL_ADDR;
     }
 
     public List<Packet> getFragments() {
@@ -391,8 +391,7 @@ public class Packet {
     }
 
     public int getPgn() {
-        // FIXME should this mask be 7FFFF?
-        int id = getId(0xFFFF);
+        int id = getId(0x3FFFF);
         if (id < 0xF000) {
             id &= 0xFF00;
         }
