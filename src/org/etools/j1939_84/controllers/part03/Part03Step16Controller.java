@@ -62,7 +62,7 @@ public class Part03Step16Controller extends StepController {
         ensureKeyOffEngineOff();
 
         // 6.3.16.1.b. Confirm Fault A is still implanted according to the manufacturer’s instruction.
-        incrementProgress("Waiting for implant of Fault A according to the engine manufacturer's instruction");
+        incrementProgress("Please confirm Fault A is still implanted according to the manufacturer's instruction");
         waitForFault("Part 6.3.16.1.b");
 
         // 6.3.16.1.c. Wait manufacturer’s recommended interval with the key in the off position.
@@ -77,20 +77,20 @@ public class Part03Step16Controller extends StepController {
     }
 
     private void waitForManufacturerInterval() {
-        String message = "Please wait for the manufacturer's recommended interval with the key in off position" + NL;
-        message += "Press OK to continue the testing" + NL;
         if (!isDevEnv()) {
+            String message = "Please wait for the manufacturer's recommended interval with the key in off position" + NL;
+            message += "Press OK to continue the testing" + NL;
             displayInstructionAndWait(message, "Part 6.3.16.1.c", WARNING);
         }
     }
 
     private void waitForEngineStart() {
-        String message = "Turn ignition key to the ON position" + NL;
-        message += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;
-        message += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
-        message += "Please wait as indicated by the engine manufacturer’s recommendations for Fault A" + NL;
-        message += "Press OK when ready to continue testing" + NL;
         if (!isDevEnv()) {
+            String message = "Turn ignition key to the ON position" + NL;
+            message += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;
+            message += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
+            message += "Please wait as indicated by the engine manufacturer’s recommendations for Fault A" + NL;
+            message += "Press OK when ready to continue testing" + NL;
             displayInstructionAndWait(message, "Part 6.3.16.1.d-g", WARNING);
         }
     }
