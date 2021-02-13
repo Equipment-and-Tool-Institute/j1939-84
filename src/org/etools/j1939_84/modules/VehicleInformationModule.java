@@ -309,6 +309,33 @@ public class VehicleInformationModule extends FunctionalModule {
                 .collect(Collectors.toList());
     }
 
+    public void requestKeyOnEngineOff(ResultsListener listener) {
+        requestKeyStateEngineState(true, false, listener);
+    }
+
+    public void requestKeyOnEngineOn(ResultsListener listener) {
+        requestKeyStateEngineState(true, true, listener);
+    }
+
+    public void requestKeyOffEngineOff(ResultsListener listener) {
+        requestKeyStateEngineState(false, false, listener);
+    }
+
+    private void requestKeyStateEngineState(boolean isKeyOn, boolean isEngineOn, ResultsListener listener) {
+        int pgn;
+        if (isKeyOn && isEngineOn) {
+            pgn = 0x1FFFF;
+        } else if (isKeyOn) {
+            pgn = 0x1FFFE;
+        } else {
+            pgn = 0x1FFFC;
+        }
+        getJ1939().requestGlobal("Requesting Key " + isKeyOn + " Engine " + isEngineOn + " - REPORT IF SEEN IN THE FIELD",
+                                 pgn,
+                                 getJ1939().createRequestPacket(pgn, GLOBAL_ADDR),
+                                 listener);
+    }
+
     /**
      * Clears the cached values that have been read from the vehicle
      */

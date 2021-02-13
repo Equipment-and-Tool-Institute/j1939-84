@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.isDevEnv;
+import static org.etools.j1939_84.J1939_84.isTesting;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.controllers.Controller.Ending.STOPPED;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
@@ -98,6 +99,9 @@ public abstract class StepController extends Controller {
     protected void ensureKeyOnEngineOn() throws InterruptedException {
         try {
             getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+            if (isTesting()) {
+                getVehicleInformationModule().requestKeyOnEngineOn(getListener());
+            }
             if (!getEngineSpeedModule().isEngineRunning() && !isDevEnv()) {
                 getListener().onUrgentMessage("Please turn the Key ON with Engine ON", "Adjust Key Switch", WARNING);
                 while (!getEngineSpeedModule().isEngineRunning()) {
@@ -121,6 +125,9 @@ public abstract class StepController extends Controller {
     protected void ensureKeyOnEngineOff() throws InterruptedException {
         try {
             getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+            if (isTesting()) {
+                getVehicleInformationModule().requestKeyOnEngineOff(getListener());
+            }
             if (!getEngineSpeedModule().isEngineNotRunning() && !isDevEnv()) {
                 getListener().onUrgentMessage("Please turn the Key ON with Engine OFF", "Adjust Key Switch", WARNING);
                 while (!getEngineSpeedModule().isEngineNotRunning()) {
@@ -144,6 +151,9 @@ public abstract class StepController extends Controller {
     protected void ensureKeyOffEngineOff() throws InterruptedException {
         try {
             getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+            if (isTesting()) {
+                getVehicleInformationModule().requestKeyOffEngineOff(getListener());
+            }
             if (getEngineSpeedModule().isEngineCommunicating() && !isDevEnv()) {
                 getListener().onUrgentMessage("Please turn the Key OFF with Engine OFF", "Adjust Key Switch", WARNING);
                 while (getEngineSpeedModule().isEngineCommunicating()) {
@@ -256,6 +266,7 @@ public abstract class StepController extends Controller {
                 .map(moduleName -> section + " - OBD module " + moduleName + " did not provide a NACK for the DS query")
                 .forEach(this::addFailure);
     }
+
     protected void waitForFault(String boxTitle) {
         String message = "Implant Fault A according to engine manufacturer’s instruction" + NL;
         message += "Press OK when ready to continue testing" + NL;
