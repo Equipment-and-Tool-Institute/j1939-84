@@ -147,10 +147,9 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
 
         String urgentMessages = "Implant Fault A according to engine manufacturer’s instruction" + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
-        String expectedTitle = "Part 6.2.18";
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
+                                             eq("Part 6.2.18.1.b"),
                                              eq(WARNING),
                                              questionCaptor.capture());
 
@@ -161,7 +160,7 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
         urgentMessages2 += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
         urgentMessages2 += "Press OK when ready to continue testing" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
-                                             eq(expectedTitle),
+                                             eq("Part 6.2.18"),
                                              eq(WARNING),
                                              questionCaptor.capture());
 
@@ -170,8 +169,8 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
 
         String expectedMessages = "Part 2, Step 18 Turn Engine Off and keep the ignition key in the off position" + NL;
         expectedMessages += "Waiting for implant of Fault A according to the engine manufacturer's instruction" + NL;
-        expectedMessages += "Part 2, Step 18 Turn ignition key to the ON position after MIL & WSL have cleared"+NL;
-        expectedMessages+="User cancelled testing at Part 2 Step 18";
+        expectedMessages += "Part 2, Step 18 Turn ignition key to the ON position after MIL & WSL have cleared" + NL;
+        expectedMessages += "User cancelled testing at Part 2 Step 18";
         assertEquals(expectedMessages, listener.getMessages());
 
         String expectedMilestones = "";
@@ -200,9 +199,8 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
 
         String urgentMessages = "Implant Fault A according to engine manufacturer’s instruction" + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
-        String expectedTitle = "Part 6.2.18";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
+                                             eq("Part 6.2.18.1.b"),
                                              eq(WARNING),
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
@@ -211,14 +209,12 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
         urgentMessages2 += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;
         urgentMessages2 += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
         urgentMessages2 += "Press OK when ready to continue testing" + NL;
-        verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle), eq(WARNING), any());
+        verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq("Part 6.2.18"), eq(WARNING), any());
 
-        assertEquals("", listener.getMilestones());
         String expected = "";
         expected += "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -231,13 +227,12 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
-verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
 
         String urgentMessages = "Implant Fault A according to engine manufacturer’s instruction" + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
-        String expectedTitle = "Part 6.2.18";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
-                                             eq(expectedTitle),
+                                             eq("Part 6.2.18.1.b"),
                                              eq(WARNING),
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(NO);
@@ -247,7 +242,7 @@ verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
         urgentMessages2 += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
         urgentMessages2 += "Press OK when ready to continue testing" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
-                                             eq(expectedTitle),
+                                             eq("Part 6.2.18"),
                                              eq(WARNING),
                                              any());
 

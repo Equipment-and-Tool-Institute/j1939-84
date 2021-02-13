@@ -27,8 +27,8 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -96,7 +96,14 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                 dataRepository,
                 DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -178,6 +185,14 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
+        String expectedResults = "";
+        expectedResults += "FAIL: 6.1.21.2.a - Engine #2 (1) reported an all pending DTC" + NL;
+        expectedResults += "FAIL: 6.1.21.2.a - Transmission #1 (3) reported an all pending DTC" + NL;
+        expectedResults += "FAIL: 6.1.21.2.b - Engine #2 (1) did not report MIL off" + NL;
+        expectedResults += "FAIL: 6.1.21.2.b - Transmission #1 (3) did not report MIL off" + NL;
+        expectedResults += "FAIL: 6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
         verify(mockListener).addOutcome(
                 PART_NUMBER,
                 STEP_NUMBER,
@@ -186,7 +201,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         );
         verify(mockListener).addOutcome(
                 PART_NUMBER,
-                PART_NUMBER,
+                STEP_NUMBER,
                 FAIL,
                 "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC"
         );
@@ -213,14 +228,6 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)");
 
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.1.21.2.a - Engine #2 (1) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.a - Transmission #1 (3) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Engine #2 (1) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Transmission #1 (3) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
-
-        assertEquals(expectedResults, listener.getResults());
     }
 
     @Test
