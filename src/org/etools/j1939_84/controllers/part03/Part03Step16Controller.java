@@ -65,5 +65,4 @@ public class Part03Step16Controller extends StepController {
         // 6.3.16.1.f. Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished.
         // 6.3.16.1.g. Wait as indicated by the engine manufacturer’s recommendations for Fault A.
     }
-
 }

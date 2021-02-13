@@ -132,6 +132,5 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testRun() {
-
     }
 }
