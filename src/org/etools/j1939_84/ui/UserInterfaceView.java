@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.ui;
@@ -18,7 +18,6 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
-
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -39,7 +38,6 @@ import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.DefaultCaret;
-
 import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Adapter;
@@ -177,7 +175,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
         if (modal) {
             try {
                 SwingUtilities.invokeAndWait(() -> {
-                    int result = JOptionPane.showOptionDialog(getFrame(), message, title, type, type, null, null, null);
+                    int result = JOptionPane.showOptionDialog(null, message, title, type, type, null, null, null);
                     if (questionListener != null) {
                         questionListener.answered(QuestionListener.AnswerType.getType(result));
                     }
@@ -345,7 +343,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             frame = new JFrame();
             frame.setTitle("J1939-84 Tool v" + getBuildNumber().getVersionNumber());
             int hundred = (int) (100 * Toolkit.getDefaultToolkit().getScreenResolution() / 72.0);
-            frame.setBounds(1 * hundred, 1 * hundred, 5 * hundred, 5 * hundred);
+            frame.setBounds(hundred, hundred, 5 * hundred, 5 * hundred);
             frame.setDefaultCloseOperation(WindowConstants.EXIT_ON_CLOSE);
             frame.setIconImages(Resources.getLogoImages());
         }
@@ -360,9 +358,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     JButton getHelpButton() {
         if (helpButton == null) {
             helpButton = new JButton("Help");
-            helpButton.addActionListener(e -> {
-                getController().onHelpButtonClicked();
-            });
+            helpButton.addActionListener(e -> getController().onHelpButtonClicked());
         }
         return helpButton;
     }
@@ -530,9 +526,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
         if (selectFileButton == null) {
             selectFileButton = new JButton(SELECT_FILE);
             selectFileButton.setToolTipText("Select or create the file for the report");
-            selectFileButton.addActionListener(event -> {
-                getController().onSelectFileButtonClicked();
-            });
+            selectFileButton.addActionListener(event -> getController().onSelectFileButtonClicked());
             selectFileButton.setEnabled(false);
         }
         return selectFileButton;
@@ -571,9 +565,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
         if (startButton == null) {
             startButton = new JButton("Start");
             startButton.setEnabled(false);
-            startButton.addActionListener(e -> {
-                controller.onStartButtonClicked();
-            });
+            startButton.addActionListener(e -> controller.onStartButtonClicked());
         }
         return startButton;
     }
@@ -587,9 +579,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
         if (abortButton == null) {
             abortButton = new JButton("Stop");
             abortButton.setEnabled(false);
-            abortButton.addActionListener(e -> {
-                getController().onStopButtonClicked();
-            });
+            abortButton.addActionListener(e -> getController().onStopButtonClicked());
         }
         return abortButton;
     }
