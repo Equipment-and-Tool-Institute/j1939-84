@@ -232,7 +232,28 @@ public abstract class StepController extends Controller {
         addresses.stream()
                 .distinct()
                 .sorted()
-                .map(address -> section + " - OBD module " + Lookup.getAddressName(address) + " did not provide a response to Global query and did not provide a NACK for the DS query")
+                .map(Lookup::getAddressName)
+                .map(moduleName -> section + " - OBD module " + moduleName + " did not provide a response to Global query and did not provide a NACK for the DS query")
+                .forEach(this::addFailure);
+    }
+
+    protected void checkForNACKsFromObdModules(List<? extends GenericPacket> packets,
+                                               List<? extends AcknowledgmentPacket> acks,
+                                               String section) {
+
+        List<Integer> missingAddresses = getDataRepository().getObdModuleAddresses();
+
+        packets.stream().map(ParsedPacket::getSourceAddress).forEach(missingAddresses::remove);
+        acks.stream()
+                .filter(a -> a.getResponse() == NACK)
+                .map(ParsedPacket::getSourceAddress)
+                .forEach(missingAddresses::remove);
+
+        missingAddresses.stream()
+                .distinct()
+                .sorted()
+                .map(Lookup::getAddressName)
+                .map(moduleName -> section + " - OBD module " + moduleName + " did not provide a NACK for the DS query")
                 .forEach(this::addFailure);
     }
     protected void waitForFault(String boxTitle) {
