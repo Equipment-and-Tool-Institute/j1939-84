@@ -84,7 +84,7 @@ public class Part02Step18Controller extends StepController {
         message += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;
         message += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
         message += "Press OK when ready to continue testing" + NL;
-        displayInstructionAndWait(message, "Part 6.2.18", WARNING);
+        displayInstructionAndWait(message, "Part 6.2.18.1.c-e", WARNING);
     }
 
 }

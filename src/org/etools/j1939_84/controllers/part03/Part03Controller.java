@@ -43,7 +43,9 @@ public class Part03Controller extends PartController {
              new Part03Step11Controller(),
              new Part03Step12Controller(),
              new Part03Step13Controller(),
-             new Part03Step14Controller()
+             new Part03Step14Controller(),
+             new Part03Step15Controller(),
+             new Part03Step16Controller()
         );
     }
 

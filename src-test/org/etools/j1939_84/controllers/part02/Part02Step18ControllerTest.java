@@ -160,7 +160,7 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
         urgentMessages2 += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
         urgentMessages2 += "Press OK when ready to continue testing" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
-                                             eq("Part 6.2.18"),
+                                             eq("Part 6.2.18.1.c-e"),
                                              eq(WARNING),
                                              questionCaptor.capture());
 
@@ -209,7 +209,7 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
         urgentMessages2 += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;
         urgentMessages2 += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
         urgentMessages2 += "Press OK when ready to continue testing" + NL;
-        verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq("Part 6.2.18"), eq(WARNING), any());
+        verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq("Part 6.2.18.1.c-e"), eq(WARNING), any());
 
         String expected = "";
         expected += "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -242,7 +242,7 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
         urgentMessages2 += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
         urgentMessages2 += "Press OK when ready to continue testing" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
-                                             eq("Part 6.2.18"),
+                                             eq("Part 6.2.18.1.c-e"),
                                              eq(WARNING),
                                              any());
 

@@ -270,7 +270,9 @@ public abstract class StepController extends Controller {
     protected void waitForFault(String boxTitle) {
         String message = "Implant Fault A according to engine manufacturer’s instruction" + NL;
         message += "Press OK when ready to continue testing" + NL;
-        displayInstructionAndWait(message, boxTitle, WARNING);
+        if(!isDevEnv()) {
+            displayInstructionAndWait(message, boxTitle, WARNING);
+        }
     }
 
     protected QuestionListener getQuestionListener() {
