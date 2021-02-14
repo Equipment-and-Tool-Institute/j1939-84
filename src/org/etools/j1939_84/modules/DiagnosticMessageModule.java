@@ -153,8 +153,8 @@ public class DiagnosticMessageModule extends FunctionalModule {
         return requestDMPackets("DM21", DM21DiagnosticReadinessPacket.class, GLOBAL_ADDR, listener);
     }
 
-    public RequestResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener, int address) {
-        return requestDMPackets("DM21", DM21DiagnosticReadinessPacket.class, address, listener);
+    public BusResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener, int address) {
+        return requestDMPackets("DM21", DM21DiagnosticReadinessPacket.class, address, listener).busResult();
     }
 
     public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener) {

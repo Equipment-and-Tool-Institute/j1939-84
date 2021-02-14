@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -104,7 +105,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
         var globalResults = new RequestResult<>(false, packet0);
 
         when(diagnosticMessageModule.requestDM21(any())).thenReturn(globalResults);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new RequestResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, packet1));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -123,7 +124,6 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
                 listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
     }
 
     @Test
@@ -135,7 +135,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
         var globalResults = new RequestResult<>(false, packet0, packet17);
 
         when(diagnosticMessageModule.requestDM21(any())).thenReturn(globalResults);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new RequestResult<>(false, packet0));
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -148,7 +148,6 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
     }
 
     @Test
@@ -159,8 +158,8 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
         var globalResults = new RequestResult<>(false, packet0);
 
         when(diagnosticMessageModule.requestDM21(any())).thenReturn(globalResults);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new RequestResult<>(false, packet0));
-        when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(new RequestResult<>(true));
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
+        when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(new BusResult<>(true));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -183,7 +182,6 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
                 listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
     }
 
     @Test
@@ -194,7 +192,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
         var globalResults = new RequestResult<>(false, packet0);
 
         when(diagnosticMessageModule.requestDM21(any())).thenReturn(globalResults);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new RequestResult<>(false, packet0));
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -214,7 +212,6 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
                 listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
     }
 
     @Test
@@ -225,7 +222,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
         var globalResults = new RequestResult<>(false, packet0);
 
         when(diagnosticMessageModule.requestDM21(any())).thenReturn(globalResults);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new RequestResult<>(false, packet0));
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -245,7 +242,6 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
                 listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
     }
 
     @Test
@@ -284,7 +280,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
         var globalResults = new RequestResult<>(false, packet0);
 
         when(diagnosticMessageModule.requestDM21(any())).thenReturn(globalResults);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new RequestResult<>(false, packet0));
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -304,7 +300,6 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
                 listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
     }
 
     @Test
@@ -315,7 +310,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
         var globalResults = new RequestResult<>(false, packet0);
 
         when(diagnosticMessageModule.requestDM21(any())).thenReturn(globalResults);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new RequestResult<>(false, packet0));
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -335,7 +330,5 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
                 listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
     }
-
 }

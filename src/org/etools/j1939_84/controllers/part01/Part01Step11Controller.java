@@ -101,7 +101,7 @@ public class Part01Step11Controller extends StepController {
 
         List<RequestResult<DM21DiagnosticReadinessPacket>> dsResults = obdModuleAddresses
                 .stream()
-                .map(addr -> getDiagnosticMessageModule().requestDM21(getListener(), addr))
+                .map(addr -> getDiagnosticMessageModule().requestDM21(getListener(), addr).requestResult())
                 .collect(Collectors.toList());
 
         // ignore missing responses and NACKs
