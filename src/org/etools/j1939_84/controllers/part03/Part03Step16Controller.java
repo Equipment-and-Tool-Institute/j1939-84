@@ -62,11 +62,11 @@ public class Part03Step16Controller extends StepController {
         ensureKeyOffEngineOff();
 
         // 6.3.16.1.b. Confirm Fault A is still implanted according to the manufacturer’s instruction.
-        incrementProgress("Please confirm Fault A is still implanted according to the manufacturer's instruction");
+        incrementProgress("Confirming Fault A is still implanted according to the manufacturer's instruction");
         confirmFault();
 
         // 6.3.16.1.c. Wait manufacturer’s recommended interval with the key in the off position.
-        incrementProgress("Waiting for manufacturer's recommended interval after the Fault A implant");
+        incrementProgress("Waiting for manufacturer's recommended interval with the key in off position");
         waitForManufacturerInterval();
 
         // 6.3.16.1.d. Turn ignition key to the ON position.
@@ -77,7 +77,7 @@ public class Part03Step16Controller extends StepController {
     }
 
     private void confirmFault(){
-        String message = "Please confirm Fault A has been implanted" + NL;
+        String message = "Please confirm Fault A is still implanted according to the manufacturer's instruction" + NL;
         message += "Press OK when ready to continue testing" + NL;
         String boxTitle = "Part 6.3.16.1.b";
         if(!isDevEnv()) {

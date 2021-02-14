@@ -383,7 +383,9 @@ public class J1939DaRepository {
         }
         Slot slot = slots.get(id);
         if (slot == null) {
-            getLogger().log(Level.INFO, "Unable to find SLOT " + id);
+            if (id != -1) {
+                getLogger().log(Level.INFO, "Unable to find SLOT " + id);
+            }
             return new Slot(id, "Unknown", "UNK", 1.0, 0.0, null, 0);
         }
         return slot;

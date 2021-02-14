@@ -40,6 +40,10 @@ public class Slot {
      * @return a String of the value with units of measure
      */
     public String asString(byte[] data) {
+        if (data.length == 0) {
+            return "";
+        }
+
         if (isAscii()) {
             String result = new String(data, StandardCharsets.UTF_8);
             if (type.contains("variable, ")) {
@@ -83,7 +87,7 @@ public class Slot {
      * @return the scaled value or null
      */
     public Double asValue(byte[] data) {
-        if (isAscii()) {
+        if (isAscii() || data.length == 0) {
             return null;
         }
 
@@ -161,7 +165,7 @@ public class Slot {
     }
 
     public boolean isError(byte[] data) {
-        if (length == 1 || isAscii()) {
+        if (length == 1 || isAscii() || data.length == 0) {
             return false;
         }
 
@@ -178,7 +182,7 @@ public class Slot {
     }
 
     public boolean isNotAvailable(byte[] data) {
-        if (length == 1 || isAscii()) {
+        if (length == 1 || isAscii() || data.length == 0) {
             return false;
         }
 
