@@ -512,7 +512,7 @@ public class DiagnosticMessageModuleTest {
         expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM21DiagnosticReadinessPacket> result = new RequestResult<>(false);
+        BusResult<DM21DiagnosticReadinessPacket> result = new BusResult<>(false);
 
         assertEquals(result, instance.requestDM21(listener, 0x00));
         assertEquals(expected, listener.getResults());
@@ -535,7 +535,7 @@ public class DiagnosticMessageModuleTest {
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM21DiagnosticReadinessPacket> result = new RequestResult<>(false, packet1);
+        BusResult<DM21DiagnosticReadinessPacket> result = new BusResult<>(false, packet1);
 
         String expected = "10:15:30.0000 Destination Specific DM21 Request to Engine #1 (0)" + NL;
         expected += "10:15:30.0000 18EA00A5 [3] 00 C1 00 (TX)" + NL;
