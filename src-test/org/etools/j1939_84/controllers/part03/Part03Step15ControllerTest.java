@@ -172,9 +172,9 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedResults = "FAIL: 6.3.15.2.a - OBD module Engine #1 (0) reported active time or distance > 0" + NL;
-        expectedResults += "FAIL: 6.3.15.2.a - OBD module Turbocharger (2) reported active time or distance > 0" + NL;
-        expectedResults += "FAIL: 6.3.15.2.a - OBD module Transmission #1 (3) reported active time or distance > 0" + NL;
+        String expectedResults = "FAIL: 6.3.15.2.a - OBD module Engine #1 (0) reported active distance > 0" + NL;
+        expectedResults += "FAIL: 6.3.15.2.a - OBD module Turbocharger (2) reported active time > 0" + NL;
+        expectedResults += "FAIL: 6.3.15.2.a - OBD module Transmission #1 (3) reported active time > 0" + NL;
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -187,15 +187,15 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.15.2.a - OBD module Engine #1 (0) reported active time or distance > 0");
+                                        "6.3.15.2.a - OBD module Engine #1 (0) reported active distance > 0");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.15.2.a - OBD module Turbocharger (2) reported active time or distance > 0");
+                                        "6.3.15.2.a - OBD module Turbocharger (2) reported active time > 0");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.15.2.a - OBD module Transmission #1 (3) reported active time or distance > 0");
+                                        "6.3.15.2.a - OBD module Transmission #1 (3) reported active time > 0");
     }
 
     @Test
@@ -213,8 +213,8 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedResults = "FAIL: 6.3.15.2.b - OBD module Engine #2 (1) did not respond to DS DM21 request" + NL;
-        expectedResults += "FAIL: 6.3.15.2.b - OBD module Turbocharger (2) did not respond to DS DM21 request" + NL;
+        String expectedResults = "FAIL: 6.3.15.2.b - NACK not recieved from  Engine #2 (1) and did not provide a response to DS DM21 query" + NL;
+        expectedResults += "FAIL: 6.3.15.2.b - NACK not recieved from  Turbocharger (2) and did not provide a response to DS DM21 query" + NL;
 
         assertEquals(expectedResults, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -227,10 +227,10 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.15.2.b - OBD module Engine #2 (1) did not respond to DS DM21 request");
+                                        "6.3.15.2.b - NACK not recieved from  Engine #2 (1) and did not provide a response to DS DM21 query");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.15.2.b - OBD module Turbocharger (2) did not respond to DS DM21 request");
+                                        "6.3.15.2.b - NACK not recieved from  Turbocharger (2) and did not provide a response to DS DM21 query");
     }
 }

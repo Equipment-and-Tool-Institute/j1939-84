@@ -69,19 +69,23 @@ public class Part03Step15Controller extends StepController {
                         .ifPresentOrElse(packet -> {
                             if (packet.left.isPresent()) {
                                 DM21DiagnosticReadinessPacket dm21 = packet.left.get();
-                                if (dm21.getKmWhileMILIsActivated() > 0 || dm21.getMinutesWhileMILIsActivated() > 0) {
-                                    // 6.3.15.2.a. Fail if any ECU reports distance (SPN 3069) or time (SPN 3295) with MIL on > 0.
-                                    addFailure("6.3.15.2.a - OBD module " + dm21.getModuleName() + " reported active time or distance > 0");
+                                // 6.3.15.2.a. Fail if any ECU reports distance (SPN 3069) or time (SPN 3295) with MIL on > 0.
+                                if (dm21.getKmWhileMILIsActivated() > 0 ) {
+                                    addFailure("6.3.15.2.a - OBD module " + dm21.getModuleName() + " reported active distance > 0");
+                                }
+                                if(dm21.getMinutesWhileMILIsActivated() > 0){
+                                    addFailure("6.3.15.2.a - OBD module " + dm21.getModuleName() + " reported active time > 0");
                                 }
                             } else if(packet.right.isPresent()){
+                                // if this isn't a NACK we have report the failure
                                 AcknowledgmentPacket ackPacket = packet.right.get();
                                 if(ackPacket.getResponse() != NACK){
-                                    addFailure("6.3.15.2.b - OBD module " + getAddressName(address) + " did not respond to DS DM21 request");
+                                    addFailure("6.3.15.2.b - NACK not recieved from  " + getAddressName(address) + " and did not provide a response to DS DM21 query");
                                 }
                             }
                         }, () -> {
                             // 6.3.15.2.b. Fail if NACK not received from OBD ECUs that did not provide DM21 response to DS query.
-                            addFailure("6.3.15.2.b - OBD module " + getAddressName(address) + " did not respond to DS DM21 request");
+                            addFailure("6.3.15.2.b - NACK not recieved from  " + getAddressName(address) + " and did not provide a response to DS DM21 query");
                         }));
     }
 
