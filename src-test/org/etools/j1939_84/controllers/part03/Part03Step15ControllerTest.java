@@ -3,27 +3,15 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
-import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
-import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -107,8 +95,7 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 mockListener,
-                                 diagnosticMessageModule);
+                                 mockListener);
     }
 
     @Test
@@ -133,104 +120,6 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testRun() {
-        OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        dataRepository.putObdModule(obdModule);
 
-        DM21DiagnosticReadinessPacket dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0);
-
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, dm21));
-
-        runTest();
-
-        assertEquals("", listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
-
-    }
-
-    @Test
-    public void testFailure() {
-        OBDModuleInformation obdModule = new OBDModuleInformation(0);
-        OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
-        OBDModuleInformation obdModule2 = new OBDModuleInformation(2);
-        OBDModuleInformation obdModule3 = new OBDModuleInformation(3);
-        dataRepository.putObdModule(obdModule);
-        dataRepository.putObdModule(obdModule1);
-        dataRepository.putObdModule(obdModule2);
-        dataRepository.putObdModule(obdModule3);
-
-        DM21DiagnosticReadinessPacket dm21 = DM21DiagnosticReadinessPacket.create(0, 1000, 0, 0, 0);
-        AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(1, NACK);
-        DM21DiagnosticReadinessPacket dm21_2 = DM21DiagnosticReadinessPacket.create(2, 0, 0, 90, 0);
-        DM21DiagnosticReadinessPacket dm21_3 = DM21DiagnosticReadinessPacket.create(3, 0, 0, 90, 0);
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, dm21));
-        when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(new BusResult<>(false, ackPacket));
-        when(diagnosticMessageModule.requestDM21(any(), eq(2))).thenReturn(new BusResult<>(false, dm21_2));
-        when(diagnosticMessageModule.requestDM21(any(), eq(3))).thenReturn(new BusResult<>(false, dm21_3));
-
-        runTest();
-
-        String expectedResults = "FAIL: 6.3.15.2.a - OBD module Engine #1 (0) reported active time or distance > 0" + NL;
-        expectedResults += "FAIL: 6.3.15.2.a - OBD module Turbocharger (2) reported active time or distance > 0" + NL;
-        expectedResults += "FAIL: 6.3.15.2.a - OBD module Transmission #1 (3) reported active time or distance > 0" + NL;
-        assertEquals(expectedResults, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(1));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(2));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(3));
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.3.15.2.a - OBD module Engine #1 (0) reported active time or distance > 0");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.3.15.2.a - OBD module Turbocharger (2) reported active time or distance > 0");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.3.15.2.a - OBD module Transmission #1 (3) reported active time or distance > 0");
-    }
-
-    @Test
-    public void testModuleNotRespond() {
-        dataRepository.putObdModule(new OBDModuleInformation(0));
-        dataRepository.putObdModule(new OBDModuleInformation(1));
-        dataRepository.putObdModule(new OBDModuleInformation(2));
-
-        DM21DiagnosticReadinessPacket dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0);
-
-        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(new BusResult<>(false, dm21));
-        when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(new BusResult<>(true));
-        var ack = AcknowledgmentPacket.create(2, ACK);
-        when(diagnosticMessageModule.requestDM21(any(), eq(2))).thenReturn(new BusResult<>(false, ack));
-
-        runTest();
-
-        String expectedResults = "FAIL: 6.3.15.2.b - OBD module Engine #2 (1) did not respond to DS DM21 request" + NL;
-        expectedResults += "FAIL: 6.3.15.2.b - OBD module Turbocharger (2) did not respond to DS DM21 request" + NL;
-
-        assertEquals(expectedResults, listener.getResults());
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-
-        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(1));
-        verify(diagnosticMessageModule).requestDM21(any(), eq(2));
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.3.15.2.b - OBD module Engine #2 (1) did not respond to DS DM21 request");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.3.15.2.b - OBD module Turbocharger (2) did not respond to DS DM21 request");
     }
 }
