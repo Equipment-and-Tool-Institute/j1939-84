@@ -1,0 +1,5 @@
+-3301,Time Since Engine Start,time,1,seconds,0,16
+-3302,Number of Warm-Ups Since Diagnostic Trouble Codes Cleared,count,1,,0,8
+-3303,Continuously Monitored Systems Enable/Completed Status,BIT,1,,0,8
+-3304,Non-Continuously Monitored Systems Enable Status,BIT,1,,0,16
+-3305,Non-Continuously Monitored Systems Complete Status,BIT,1,,0,16

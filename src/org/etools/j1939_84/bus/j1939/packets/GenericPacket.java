@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
@@ -19,12 +20,12 @@ import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 public class GenericPacket extends ParsedPacket {
 
     private static final PgnDefinition UNKNOWN_PGN = new PgnDefinition(-1,
-                                                                       "Unknown",
-                                                                       "UKN",
-                                                                       false,
-                                                                       false,
-                                                                       0,
-                                                                       Collections.emptyList());
+            "Unknown",
+            "UKN",
+            false,
+            false,
+            0,
+            Collections.emptyList());
     private final SpnDataParser parser;
     private final PgnDefinition pgnDefinition;
     private List<Spn> spns;
@@ -32,6 +33,7 @@ public class GenericPacket extends ParsedPacket {
     public GenericPacket(Packet packet) {
         this(packet, J1939DaRepository.getInstance().findPgnDefinition(packet.getPgn()));
     }
+
     public GenericPacket(Packet packet, PgnDefinition pgnDefinition) {
         this(packet, pgnDefinition, new SpnDataParser());
     }
@@ -67,6 +69,9 @@ public class GenericPacket extends ParsedPacket {
             byte[] bytes = getPacket().getBytes();
             for (SpnDefinition definition : spnDefinitions) {
                 Slot slot = Slot.findSlot(definition.getSlotNumber());
+                if (slot == null) {
+                    slot = Slot.findSlot(-definition.getSpnId());
+                }
                 if (slot != null) {
                     byte[] data = parser.parse(bytes, definition, slot.getLength());
                     spns.add(new Spn(definition.getSpnId(), definition.getLabel(), slot, data));

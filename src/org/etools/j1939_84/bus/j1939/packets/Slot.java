@@ -5,6 +5,7 @@ package org.etools.j1939_84.bus.j1939.packets;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.SequenceInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Locale;
@@ -92,7 +93,8 @@ public class Slot {
         Map<Integer, Slot> slots = new HashMap<>();
         String[] values;
 
-        final InputStream is = Resources.class.getResourceAsStream("j1939da-slots.csv");
+        final InputStream is = new SequenceInputStream(Resources.class.getResourceAsStream("j1939da-slots.csv"),
+                Resources.class.getResourceAsStream("j1939da-slots-addendum.csv"));
         final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
         try (CSVReader reader = new CSVReaderBuilder(isReader)
                 .withSkipLines(2)
