@@ -8,6 +8,7 @@ import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.Arrays;
 import org.etools.j1939_84.NumberFormatter;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
 /**
  * Represents a Scaled Test Result from a {@link DM30ScaledTestResultsPacket}
@@ -136,7 +137,7 @@ public class ScaledTestResult {
      */
     public Slot getSlot() {
         if (slot == null) {
-            slot = Slot.findSlot(slotNumber);
+            slot = J1939DaRepository.findSlot(slotNumber);
         }
         return slot;
     }

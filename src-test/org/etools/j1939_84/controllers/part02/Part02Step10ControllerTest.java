@@ -15,8 +15,8 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
@@ -27,8 +27,8 @@ import org.etools.j1939_84.controllers.part01.Part01Step12Controller;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
@@ -86,23 +86,30 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(null);
 
         instance = new Part02Step10Controller(executor,
-                engineSpeedModule,
-                bannerModule,
-                dataRepository,
-                vehicleInformationModule,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              dataRepository,
+                                              vehicleInformationModule,
                                               diagnosticMessageModule,
-                DateTimeModule.getInstance());
+                                              DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                mockListener);
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 mockListener);
     }
 
     @Test
@@ -124,12 +131,10 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-
         verify(mockListener).addOutcome(PART,
-                STEP,
-                FAIL,
-                "6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12");
+                                        STEP,
+                                        FAIL,
+                                        "6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -155,16 +160,14 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn1)))
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult1),
-                        DM30ScaledTestResultsPacket.create(0, testResult2)));
+                                    DM30ScaledTestResultsPacket.create(0, testResult2)));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-
         verify(mockListener).addOutcome(PART,
-                STEP,
-                FAIL,
-                "6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12");
+                                        STEP,
+                                        FAIL,
+                                        "6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -200,8 +203,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
         SupportedSPN spn2 = SupportedSPN.create(987, true, false, false, 1);
-        obdModule0.setSupportedSpns(List.of(spn1, spn2));
-
+        obdModule0.setDm24(DM24SPNSupportPacket.create(0, spn1, spn2));
         dataRepository.putObdModule(obdModule0);
 
         OBDModuleInformation obdModule3 = new OBDModuleInformation(3);
@@ -213,8 +215,6 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult2)));
 
         runTest();
-
-        verify(diagnosticMessageModule).setJ1939(j1939);
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -244,8 +244,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
         SupportedSPN spn2 = SupportedSPN.create(987, true, false, false, 1);
-        obdModule0.setSupportedSpns(List.of(spn1, spn2));
-
+        obdModule0.setDm24(DM24SPNSupportPacket.create(0, spn1, spn2));
         dataRepository.putObdModule(obdModule0);
 
         when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn1)))
@@ -255,17 +254,15 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-
         verify(mockListener).addOutcome(PART,
-                STEP,
-                WARN,
-                "6.2.10.3.a - All test results from Engine #1 (0) are still initialized");
+                                        STEP,
+                                        WARN,
+                                        "6.2.10.3.a - All test results from Engine #1 (0) are still initialized");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("WARN: 6.2.10.3.a - All test results from Engine #1 (0) are still initialized" + NL,
-                listener.getResults());
+                     listener.getResults());
     }
 
 }

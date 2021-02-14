@@ -14,6 +14,7 @@ import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
+import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
@@ -58,6 +59,8 @@ public class OBDModuleInformation implements Cloneable {
 
     private DM27AllPendingDTCsPacket lastDM27;
 
+    private DM24SPNSupportPacket dm24;
+
     private final List<DiagnosticTroubleCode> emissionDTCs = new ArrayList<>();
 
     /** These SPNs represent SP which appear in multiple PGs. */
@@ -88,6 +91,7 @@ public class OBDModuleInformation implements Cloneable {
         obdInfo.setLastDM26(getLastDM26());
         obdInfo.setLastDM27(getLastDM27());
         obdInfo.setEmissionDTCs(getEmissionDTCs());
+        obdInfo.setDm24(getDm24());
 
         return obdInfo;
     }
@@ -119,7 +123,8 @@ public class OBDModuleInformation implements Cloneable {
                 && Objects.equals(lastDM25, that.lastDM25)
                 && Objects.equals(lastDM26, that.lastDM26)
                 && Objects.equals(lastDM27, that.lastDM27)
-                && Objects.equals(emissionDTCs, that.emissionDTCs);
+                && Objects.equals(emissionDTCs, that.emissionDTCs)
+                && Objects.equals(dm24, that.dm24);
     }
 
     public int getIgnitionCycleCounterValue() {
@@ -192,7 +197,7 @@ public class OBDModuleInformation implements Cloneable {
     }
 
     public List<SupportedSPN> getSupportedSpns() {
-        return supportedSpns.stream()
+        return (dm24 == null ? supportedSpns : dm24.getSupportedSpns()).stream()
                 .sorted(Comparator.comparingInt(SupportedSPN::getSpn))
                 .collect(Collectors.toList());
     }
@@ -219,7 +224,8 @@ public class OBDModuleInformation implements Cloneable {
                             lastDM25,
                             lastDM26,
                             lastDM27,
-                            emissionDTCs);
+                            emissionDTCs,
+                            dm24);
     }
 
     public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {
@@ -306,6 +312,14 @@ public class OBDModuleInformation implements Cloneable {
     public void setEmissionDTCs(List<DiagnosticTroubleCode> emissionDTCs) {
         this.emissionDTCs.clear();
         this.emissionDTCs.addAll(emissionDTCs);
+    }
+
+    public DM24SPNSupportPacket getDm24() {
+        return dm24;
+    }
+
+    public void setDm24(DM24SPNSupportPacket dm24) {
+        this.dm24 = dm24;
     }
 
     @Override

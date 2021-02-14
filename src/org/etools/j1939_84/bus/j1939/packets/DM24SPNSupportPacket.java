@@ -34,6 +34,8 @@ public class DM24SPNSupportPacket extends GenericPacket {
 
     private List<SupportedSPN> spns;
 
+    private List<SupportedSPN> freezeFrameSPNs;
+
     public DM24SPNSupportPacket(Packet packet) {
         super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
@@ -67,6 +69,20 @@ public class DM24SPNSupportPacket extends GenericPacket {
             spns.sort(Comparator.comparingInt(SupportedSPN::getSpn));
         }
         return spns;
+    }
+
+    public List<SupportedSPN> getFreezeFrameSPNsInOrder() {
+        if (freezeFrameSPNs == null) {
+            freezeFrameSPNs = new ArrayList<>();
+            final int length = getPacket().getLength();
+            for (int i = 0; i + 3 < length; i = i + 4) {
+                final SupportedSPN parsedSpn = parseSpn(i);
+                if (parsedSpn.getSpn() != 0 && parsedSpn.supportsExpandedFreezeFrame()) {
+                    freezeFrameSPNs.add(parsedSpn);
+                }
+            }
+        }
+        return freezeFrameSPNs;
     }
 
     /**

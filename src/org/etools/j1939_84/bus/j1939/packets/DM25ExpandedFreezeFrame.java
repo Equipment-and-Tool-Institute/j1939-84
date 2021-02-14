@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.utils.CollectionUtils;
 
 /**
  * The {@link ParsedPacket} for Expanded Freeze Frame Codes (DM25)
@@ -17,6 +18,16 @@ import org.etools.j1939_84.bus.Packet;
  */
 public class DM25ExpandedFreezeFrame extends GenericPacket {
     public static final int PGN = 64951; //0xFDB7
+
+    public static DM25ExpandedFreezeFrame create(int sourceAddress, FreezeFrame... freezeFrames) {
+
+        int[] data = new int[0];
+        for (FreezeFrame freezeFrame : freezeFrames) {
+            data = CollectionUtils.join(data, freezeFrame.getData());
+        }
+
+        return new DM25ExpandedFreezeFrame(Packet.create(PGN, sourceAddress, data));
+    }
 
     private List<FreezeFrame> freezeFrames;
 
@@ -46,7 +57,7 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
         boolean done = false;
         while (!done) {
 
-            int[] bytes = getPacket().getData(index + 1, index + chunkLength);
+            int[] bytes = getPacket().getData(index + 1, index + chunkLength + 1);
             DiagnosticTroubleCode dtc = new DiagnosticTroubleCode(bytes);
             int[] data = Arrays.copyOfRange(bytes, 4, bytes.length);
             FreezeFrame freezeFrame = new FreezeFrame(dtc, data);

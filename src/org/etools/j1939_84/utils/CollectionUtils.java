@@ -75,4 +75,21 @@ public class CollectionUtils {
             return joinedArray;
         }
     }
+
+    public static int[] toIntArray(byte[] bytes) {
+        int[] array = new int[bytes.length];
+        for (int i = 0; i < array.length; i++) {
+            array[i] = bytes[i] & 0xFF;
+        }
+        return array;
+    }
+
+    public static byte[] toByteArray(int[] data) {
+        byte[] bytes = new byte[data.length];
+        for (int i = 0; i < data.length; i++) {
+            bytes[i] = (byte) (data[i] & 0xFF);
+        }
+        return bytes;
+    }
+
 }
