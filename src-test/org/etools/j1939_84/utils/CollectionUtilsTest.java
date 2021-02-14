@@ -4,6 +4,7 @@
 
 package org.etools.j1939_84.utils;
 
+import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
@@ -22,7 +23,7 @@ import org.junit.Test;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  */
 public class CollectionUtilsTest {
-@Test
+    @Test
     public void areTwoListsEqualSameType() {
         // verify null objects
         assertTrue(CollectionUtils.areTwoCollectionsEqual(null, null));
@@ -93,7 +94,7 @@ public class CollectionUtilsTest {
         //  Verify inequality of a Collection<> and null
         assertFalse(CollectionUtils.areTwoCollectionsEqual(collectionA, null));
 
-        int[] dataB = new int[]{
+        int[] dataB = new int[] {
                 0xF7, // Test Identifier
                 0x22, // SPN, (bits 8-1) 8 least significant bits of SPN
                 0x0D, // SPN, (bits 8-1) second byte of SPN (most significant at bit 8)
@@ -105,7 +106,7 @@ public class CollectionUtilsTest {
                 0x03, // Test Value
                 0xE8, // Test Limit Maximum
                 0x03, // Test Limit Maximum
-                0x20, // Test Limit Mimimum
+                0x20, // Test Limit Minimum
                 0x03  //Test Limit Minimum
         };
         DM30ScaledTestResultsPacket packetB = new DM30ScaledTestResultsPacket(Packet.create(DM30ScaledTestResultsPacket.PGN,
@@ -131,5 +132,35 @@ public class CollectionUtilsTest {
         List<DM20MonitorPerformanceRatioPacket> listE = new ArrayList<>();
         listE.add(packetA);
         assertTrue(CollectionUtils.areTwoCollectionsEqual(listD, listE));
+    }
+
+    @Test
+    public void testToIntArray() {
+
+        byte[] input = new byte[255];
+        int[] expected = new int[255];
+
+        for (int i = 0; i < 255; i++) {
+            input[i] = (byte) i;
+            expected[i] = i;
+        }
+
+        int[] actual = CollectionUtils.toIntArray(input);
+        assertArrayEquals(expected, actual);
+    }
+
+    @Test
+    public void testToByteArray() {
+
+        byte[] expected = new byte[255];
+        int[] input = new int[255];
+
+        for (int i = 0; i < 255; i++) {
+            input[i] = i;
+            expected[i] = (byte) i;
+        }
+
+        byte[] actual = CollectionUtils.toByteArray(input);
+        assertArrayEquals(expected, actual);
     }
 }

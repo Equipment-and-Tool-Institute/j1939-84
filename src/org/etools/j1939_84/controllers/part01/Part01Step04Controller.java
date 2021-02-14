@@ -35,7 +35,6 @@ public class Part01Step04Controller extends StepController {
     private static final int STEP_NUMBER = 4;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
     private final SupportedSpnModule supportedSpnModule;
 
     Part01Step04Controller(DataRepository dataRepository) {
@@ -58,16 +57,16 @@ public class Part01Step04Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
         this.supportedSpnModule = supportedSpnModule;
-        this.dataRepository = dataRepository;
     }
 
     @Override
@@ -84,7 +83,7 @@ public class Part01Step04Controller extends StepController {
         // then retry DS DM24 request to the OBD ECU.
         //
         // [Do not attempt retry for NACKs that indicate not supported].
-        dataRepository.getObdModules()
+        getDataRepository().getObdModules()
                 .stream()
                 .mapToInt(OBDModuleInformation::getSourceAddress)
                 .forEach(sourceAddress -> {
@@ -101,16 +100,16 @@ public class Part01Step04Controller extends StepController {
 
         // 6.1.4.1.c Create vehicle list of supported SPNs for data stream
         destinationSpecificPackets.forEach(p -> {
-            OBDModuleInformation info = dataRepository.getObdModule(p.getSourceAddress());
+            OBDModuleInformation info = getDataRepository().getObdModule(p.getSourceAddress());
             if (info != null) {
                 // 6.1.4.1.d. Create ECU specific list of supported SPNs for test results.
-                info.setSupportedSpns(p.getSupportedSpns());
-                dataRepository.putObdModule(info);
+                info.setDm24(p);
+                getDataRepository().putObdModule(info);
             }
         });
 
         // 6.1.4.1.d. Create ECU specific list of supported SPNs for test results.
-        List<Integer> dataStreamSpns = dataRepository.getObdModules().stream()
+        List<Integer> dataStreamSPNs = getDataRepository().getObdModules().stream()
                 .map(OBDModuleInformation::getDataStreamSpns)
                 .flatMap(Collection::stream)
                 .map(SupportedSPN::getSpn)
@@ -118,8 +117,8 @@ public class Part01Step04Controller extends StepController {
                 .sorted()
                 .collect(Collectors.toList());
 
-        FuelType fuelType = dataRepository.getVehicleInformation().getFuelType();
-        boolean dataStreamOk = supportedSpnModule.validateDataStreamSpns(getListener(), dataStreamSpns, fuelType);
+        FuelType fuelType = getDataRepository().getVehicleInformation().getFuelType();
+        boolean dataStreamOk = supportedSpnModule.validateDataStreamSpns(getListener(), dataStreamSPNs, fuelType);
         if (!dataStreamOk) {
             // 6.1.4.2.b. Fail if one or more minimum expected SPNs for data stream
             // not supported per section A.1, Minimum Support Table, from the OBD ECU(s).
@@ -127,7 +126,7 @@ public class Part01Step04Controller extends StepController {
         }
 
         // 6.1.4.1.e. Create ECU specific list of supported freeze frame SPNs.
-        List<Integer> freezeFrameSpns = dataRepository.getObdModules().stream()
+        List<Integer> freezeFrameSPNs = getDataRepository().getObdModules().stream()
                 .map(OBDModuleInformation::getFreezeFrameSpns)
                 .flatMap(Collection::stream)
                 .map(SupportedSPN::getSpn)
@@ -135,7 +134,7 @@ public class Part01Step04Controller extends StepController {
                 .sorted()
                 .collect(Collectors.toList());
 
-        boolean freezeFrameOk = supportedSpnModule.validateFreezeFrameSpns(getListener(), freezeFrameSpns);
+        boolean freezeFrameOk = supportedSpnModule.validateFreezeFrameSpns(getListener(), freezeFrameSPNs);
         if (!freezeFrameOk) {
             // 6.1.4.2.c. Fail if one or more minimum expected SPNs for freeze frame not
             // supported per section A.2, Criteria for Freeze Frame Evaluation, from the OBD ECU(s).

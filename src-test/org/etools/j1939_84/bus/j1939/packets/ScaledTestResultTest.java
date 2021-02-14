@@ -8,7 +8,6 @@ import static org.etools.j1939_84.bus.j1939.packets.ScaledTestResult.TestResult.
 import static org.etools.j1939_84.bus.j1939.packets.ScaledTestResult.TestResult.NOT_COMPLETE;
 import static org.etools.j1939_84.bus.j1939.packets.ScaledTestResult.TestResult.PASSED;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertNull;
 
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult.TestResult;
 import org.junit.Test;
@@ -217,7 +216,6 @@ public class ScaledTestResultTest {
         ScaledTestResult instance = new ScaledTestResult(data);
         assertEquals(3556, instance.getSpn());
         assertEquals(18, instance.getFmi());
-        assertNull(instance.getSlot());
         assertEquals(247, instance.getTestIdentifier());
         assertEquals(64255, instance.getTestValue());
         assertEquals(64255, instance.getTestMaximum());

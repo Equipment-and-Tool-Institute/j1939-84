@@ -13,7 +13,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -136,7 +135,7 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
         var spn = SupportedSPN.create(123, false, false, false, 0);
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
-        moduleInfo.setSupportedSpns(List.of(spn));
+        moduleInfo.setDm24(DM24SPNSupportPacket.create(0, spn));
         dataRepository.putObdModule(moduleInfo);
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -162,7 +161,7 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
         var spn2 = SupportedSPN.create(123, true, true, true, 1);
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
-        moduleInfo.setSupportedSpns(List.of(spn1));
+        moduleInfo.setDm24(DM24SPNSupportPacket.create(0, spn1));
         dataRepository.putObdModule(moduleInfo);
 
         var dm24 = DM24SPNSupportPacket.create(0, spn2);
@@ -183,7 +182,7 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
         var spn2 = SupportedSPN.create(456, false, false, false, 0);
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
-        moduleInfo.setSupportedSpns(List.of(spn1));
+        moduleInfo.setDm24(DM24SPNSupportPacket.create(0, spn1));
         dataRepository.putObdModule(moduleInfo);
 
         var dm24 = DM24SPNSupportPacket.create(0, spn2);

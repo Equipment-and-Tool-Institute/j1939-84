@@ -22,9 +22,9 @@ import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
-import org.etools.j1939_84.bus.j1939.packets.Slot;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -34,8 +34,8 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
@@ -112,7 +112,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                               tableA7Validator,
                                               DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance, listener, j1939, executor, reportFileModule, engineSpeedModule, vehicleInformationModule, diagnosticMessageModule);
     }
 
     @After
@@ -151,7 +151,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         scaledTestsResults.add(scaledTestResult2);
         when(scaledTestResult2.getSpn()).thenReturn(159);
         int slotNumber2 = 8;
-        when(scaledTestResult2.getSlot()).thenReturn(Slot.findSlot(slotNumber2));
+        when(scaledTestResult2.getSlot()).thenReturn(J1939DaRepository.findSlot(slotNumber2));
 
         List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
         DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
@@ -205,7 +205,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         scaledTestsResults.add(scaledTestResult2);
         when(scaledTestResult2.getSpn()).thenReturn(159);
         int slotNumber2 = 8;
-        when(scaledTestResult2.getSlot()).thenReturn(Slot.findSlot(slotNumber2));
+        when(scaledTestResult2.getSlot()).thenReturn(J1939DaRepository.findSlot(slotNumber2));
 
         List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
         DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
@@ -309,7 +309,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
         scaledTestsResults.add(scaledTestResult);
         when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
+        when(scaledTestResult.getSlot()).thenReturn(J1939DaRepository.findSlot(242));
         when(scaledTestResult.getTestMaximum()).thenReturn(0x0000);
         when(scaledTestResult.getTestMinimum()).thenReturn(0x0000);
         when(scaledTestResult.getTestValue()).thenReturn(0x0000);
@@ -356,7 +356,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         scaledTestsResults.add(scaledTestResult);
         when(scaledTestResult.getTestMaximum()).thenReturn(0x88);
         when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
+        when(scaledTestResult.getSlot()).thenReturn(J1939DaRepository.findSlot(242));
 
         List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
         DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
@@ -414,7 +414,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         when(scaledTestResult.getTestValue()).thenReturn(0xFB00);
         when(scaledTestResult.getTestMinimum()).thenReturn(0x88);
         when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
+        when(scaledTestResult.getSlot()).thenReturn(J1939DaRepository.findSlot(242));
 
         List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
         DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
@@ -469,7 +469,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         scaledTestsResults.add(scaledTestResult);
         when(scaledTestResult.getTestValue()).thenReturn(0x25);
         when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
+        when(scaledTestResult.getSlot()).thenReturn(J1939DaRepository.findSlot(242));
 
         List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
         DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
@@ -533,7 +533,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         scaledTestsResults.add(scaledTestResult);
 
         int slotNumber = 1;
-        when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(slotNumber));
+        when(scaledTestResult.getSlot()).thenReturn(J1939DaRepository.findSlot(slotNumber));
 
         List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
         DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
@@ -610,7 +610,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
         scaledTestsResults.add(scaledTestResult);
         when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
+        when(scaledTestResult.getSlot()).thenReturn(J1939DaRepository.findSlot(242));
 
         List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
         DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
@@ -661,14 +661,14 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         when(scaledTestResult.getTestMinimum()).thenReturn(0xFB00);
         when(scaledTestResult.getSpn()).thenReturn(157);
         when(scaledTestResult.getFmi()).thenReturn(18);
-        when(scaledTestResult.getSlot()).thenReturn(Slot.findSlot(242));
+        when(scaledTestResult.getSlot()).thenReturn(J1939DaRepository.findSlot(242));
         ScaledTestResult scaledTestResult2 = mock(ScaledTestResult.class);
         scaledTestsResults.add(scaledTestResult2);
         when(scaledTestResult2.getTestValue()).thenReturn(0xFB00);
         when(scaledTestResult2.getTestMinimum()).thenReturn(0xFFFF);
         when(scaledTestResult2.getTestMaximum()).thenReturn(0xFF00);
         when(scaledTestResult2.getSpn()).thenReturn(157);
-        when(scaledTestResult2.getSlot()).thenReturn(Slot.findSlot(242));
+        when(scaledTestResult2.getSlot()).thenReturn(J1939DaRepository.findSlot(242));
 
         List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
         DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
@@ -739,7 +739,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         scaledTestsResults.add(scaledTestResult2);
         when(scaledTestResult2.getSpn()).thenReturn(159);
         int slotNumber2 = 8;
-        when(scaledTestResult2.getSlot()).thenReturn(Slot.findSlot(slotNumber2));
+        when(scaledTestResult2.getSlot()).thenReturn(J1939DaRepository.findSlot(slotNumber2));
 
         List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
         DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);

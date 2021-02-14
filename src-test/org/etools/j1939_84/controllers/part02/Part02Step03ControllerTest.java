@@ -16,7 +16,6 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
@@ -28,8 +27,8 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
@@ -54,15 +53,6 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 2;
 
     private static final int STEP_NUMBER = 3;
-
-    private static int[] convertToIntArray(byte[] input) {
-        int[] intArray = new int[input.length];
-        for (int i = 0; i < input.length; i++) {
-            // Range 0 to 255, not -128 to 127
-            intArray[i] = Byte.toUnsignedInt(input[i]);
-        }
-        return intArray;
-    }
 
     @Mock
     private BannerModule bannerModule;
@@ -110,17 +100,24 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
                 dataRepository,
                 DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
                                  diagnosticMessageModule,
-                mockListener);
+                                 mockListener);
     }
 
     @Test
@@ -187,13 +184,13 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
         assertEquals(expected, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.2.3.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.2.3.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4");
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.2.3.2.a - Message data received from Engine #2 (1) differs from that provided in part 6.1.4");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.2.3.2.a - Message data received from Engine #2 (1) differs from that provided in part 6.1.4");
     }
 
     @Test
@@ -218,7 +215,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
 
     @Test
     @TestDoc(value = @TestItem(verifies = "6.2.3.2.b"),
-             description = "Verify that step completes without errors when none of the fail criteria are met.")
+            description = "Verify that step completes without errors when none of the fail criteria are met.")
     public void testNoFailures() {
 
         {
