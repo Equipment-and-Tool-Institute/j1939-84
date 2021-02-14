@@ -132,7 +132,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         obdInfo.setIgnitionCycleCounterValue(1);
         var ratio = new PerformanceRatio(0x1111, 0xAAAA, 0xCCCC, 0x00);
         obdInfo.setPerformanceRatios(List.of(ratio));
-        dataRepository.putObdModule(0, obdInfo);
+        dataRepository.putObdModule(obdInfo);
 
         runTest();
 
@@ -179,7 +179,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
         obdInfo.setIgnitionCycleCounterValue(3);
         obdInfo.setPerformanceRatios(packet1.getRatios());
-        dataRepository.putObdModule(0, obdInfo);
+        dataRepository.putObdModule(obdInfo);
 
         runTest();
 
@@ -223,7 +223,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
         obdInfo.setIgnitionCycleCounterValue(1);
         obdInfo.setPerformanceRatios(packet.getRatios());
-        dataRepository.putObdModule(0, obdInfo);
+        dataRepository.putObdModule(obdInfo);
 
         runTest();
 
@@ -270,10 +270,10 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
         obdInfo.setIgnitionCycleCounterValue(3);
         obdInfo.setPerformanceRatios(packet.getRatios());
-        dataRepository.putObdModule(0, obdInfo);
+        dataRepository.putObdModule(obdInfo);
 
         OBDModuleInformation obdInfo2 = new OBDModuleInformation(0x17);
-        dataRepository.putObdModule(0x17, obdInfo2);
+        dataRepository.putObdModule(obdInfo2);
 
         runTest();
 
