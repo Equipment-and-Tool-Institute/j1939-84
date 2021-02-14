@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collector;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
@@ -128,8 +129,8 @@ public class Part02Step09Controller extends StepController {
 
         obdModuleAddresses.forEach(address -> {
             var result = diagnosticMessageModule.requestDM21(getListener(), address);
-            dsPackets.addAll(result.getPackets());
-            dsAcks.addAll(result.getAcks());
+            dsPackets.addAll(result.requestResult().getPackets());
+            dsAcks.addAll(result.requestResult().getAcks());
         });
 
         // 6.2.9.4.a. Fail if any difference compared to data received from global request.
