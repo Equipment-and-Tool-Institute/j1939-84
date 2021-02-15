@@ -2,6 +2,7 @@ package org.etools.j1939_84.bus.j1939;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.SequenceInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -55,7 +56,8 @@ public class J1939DaRepository {
             // parse the selected columns from J1939DA. The source data is
             // unaltered, so some processing is required to convert byte.bit
             // specifications into ints.
-            final InputStream is = Resources.class.getResourceAsStream("j1939da-extract.csv");
+            final InputStream is = new SequenceInputStream(Resources.class.getResourceAsStream("j1939da-extract.csv"),
+                    Resources.class.getResourceAsStream("j1939da-addendum.csv"));
             final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
             try (CSVReader reader = new CSVReaderBuilder(isReader).withSkipLines(2).build()) {
                 // collect spns under the pgn
@@ -92,9 +94,10 @@ public class J1939DaRepository {
                                 String spnIdStr = line[5];
                                 if (!spnIdStr.isBlank()) {
                                     String label = shortenLabel(line[6]);
-                                    spnDef = new SpnDefinition(Integer.parseInt(spnIdStr), label, startByte,
+                                    int spnId = Integer.parseInt(spnIdStr);
+                                    spnDef = new SpnDefinition(spnId, label, startByte,
                                             startBit,
-                                            line[7].isBlank() ? -1 : Integer.parseInt(line[7]));
+                                            line[7].isBlank() ? -spnId : Integer.parseInt(line[7]));
                                 }
                                 String pgnIdStr = line[0];
                                 PgnDefinition pgnDef = null;
@@ -158,11 +161,22 @@ public class J1939DaRepository {
         List<PgnDefinition> pgns = new ArrayList<>(pgnLut.values());
         pgns.sort(Comparator.comparing(PgnDefinition::getId));
         for (PgnDefinition d : pgns) {
-            System.err.format("PGN: %6d: %6d %s%n", d.getId(), d.getBroadcastPeriod(), d.getLabel());
-            for (SpnDefinition s : d.getSpnDefinitions()) {
-                Slot slot = Slot.findSlot(s.getSlotNumber());
-                System.err.format("  SPN: %6d: %3d.%-3d %3d %6d %s%n", s.getSpnId(), s.getStartByte(), s.getStartBit(),
-                        slot != null ? slot.getLength() : -1, s.getSlotNumber(), s.getLabel());
+            if (d.getAcronym().startsWith("DM") && !J1939.isManual(d.getId())) {
+                System.err.format("PGN: %6d (%04X): %6d %s%n", d.getId(), d.getId(), d.getBroadcastPeriod(),
+                        d.getAcronym());
+                for (SpnDefinition s : d.getSpnDefinitions()) {
+                    int slotNumber = s.getSlotNumber();
+                    Slot slot = Slot.findSlot(slotNumber);
+                    if (slot == null) {
+                        slot = Slot.findSlot(-s.getSpnId());
+                    }
+                    if (slot == null) {
+                        System.err.format("  SPN: %6d (%04X): %3d.%-3d %3d %6d %s%n", s.getSpnId(), s.getSpnId(),
+                                s.getStartByte(),
+                                s.getStartBit(),
+                                slot != null ? slot.getLength() : -1, s.getSlotNumber(), s.getLabel());
+                    }
+                }
             }
         }
     }

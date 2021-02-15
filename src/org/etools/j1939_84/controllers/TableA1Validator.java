@@ -247,7 +247,7 @@ public class TableA1Validator {
             if (forceReporting || !supportedSPNs.isEmpty()) {
                 listener.onResult("PGN " + pgn + " with Supported SPNs " + String.join(", ", supportedSPNs));
                 Packet packetPacket = packet.getPacket();
-                listener.onResult(dateTimeModule.format(packetPacket.getTimestamp()) + " " + packetPacket.toString());
+                listener.onResult(packetPacket.toTimeString());
                 listener.onResult("Found: " + packet.toString());
                 listener.onResult("");
             }

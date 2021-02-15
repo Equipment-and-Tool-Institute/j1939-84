@@ -129,6 +129,12 @@ public class J1939 {
         return e.right.stream().anyMatch(p -> p.getResponse() == Response.BUSY);
     }
 
+    /** Used for development to detect DMs that are manually parsed. */
+    static public boolean isManual(int pgn) {
+        ParsedPacket processRaw = new J1939().processRaw(pgn, Packet.create(pgn, 0x0, new byte[8]));
+        return processRaw.getClass() != GenericPacket.class;
+    }
+
     /**
      * filter by pgn
      */

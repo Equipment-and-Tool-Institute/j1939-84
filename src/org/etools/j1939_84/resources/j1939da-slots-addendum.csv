@@ -1,5 +1,70 @@
+; DM26
 -3301,Time Since Engine Start,time,1,seconds,0,16
 -3302,Number of Warm-Ups Since Diagnostic Trouble Codes Cleared,count,1,,0,8
 -3303,Continuously Monitored Systems Enable/Completed Status,BIT,1,,0,8
 -3304,Non-Continuously Monitored Systems Enable Status,BIT,1,,0,16
 -3305,Non-Continuously Monitored Systems Complete Status,BIT,1,,0,16
+
+; all fault DMs similar to DM2
+-987,Protect Lamp,,1,,0,2
+-624,Amber Warning Lamp,,1,,0,2
+-623,Red Stop Lamp,,1,,0,2
+-1213,Malfunction Indicator Lamp,,1,,0,2
+-3041,Flash Protect Lamp,,1,,0,2
+-3040,Flash Amber Warning Lamp (AWL),,1,,0,2
+-3039,Flash Red Stop Lamp (RSL),,1,,0,2
+-3038,Flash Malfunction Indicator Lamp,,1,,0,2
+-1214,Suspect Parameter Number,,1,,0,21
+-1215,Failure Mode Identifier,,1,,0,3
+-1216,Occurrence Count,,1,,0,7
+-1706,SPN Conversion Method,,1,,0,1
+
+; DM29
+-4104,Emission-Related Pending DTC Count,,1,,0,8
+-4105,All Pending DTC Count,,1,,0,8
+-4106,Emission-Related MIL-On DTC Count,,1,,0,8
+-4107,Emission-Related Previously MIL-On Diagnostic Trouble Codes Count,,1,,0,8
+-4108,Emission-Related Permanent DTC Count,,1,,0,8
+
+; DM34
+-4129,NOx NTE Control Area Status,,1,BIT,0,2
+-4128,Manufacturer-specific NOx NTE Carve-out Area Status,,1,BIT,0,2
+-4127,NOx NTE Deficiency Area Status,,1,BIT,0,2
+-4132,PM NTE Control Area Status,,1,BIT,0,2
+-4131,Manufacturer-specific PM NTE Carve-out Area Status,,1,BIT,0,2
+-4130,PM NTE Deficiency Area Status,,1,BIT,0,2
+
+; DM33
+-4124,EI-AECD Number,,1,,0,,0,8
+-4125,EI-AECD Engine Hours Timer 1,,1,,0,32
+-4126,EI-AECD Engine Hours Timer 2,,1,,0,32
+
+; DM32
+-1214,Suspect Parameter Number,SPN,1,,0,19
+-1215,Failure Mode Identifier,,1,,0,5
+-4121,DTCx Total Active Time,,0.2,hr,0,16
+-4122,DTCx Total Previously Active Time,,0.2,hr,0,16
+-4123,DTCx Time Until Derate,,0.25,hr,0,8
+
+; DM31
+-4113,DTCx Malfunction Indicator Lamp Support & Status,,1,,0,2
+-4114,DTCx Red Stop Lamp Support & Status,,1,,0,2
+-4115,DTCx Amber Warning Lamp Support & Status,,1,,0,2
+-4116,DTCx Protect Lamp Support & Status,,1,,0,2
+-4117,DTCx Flash Malfunction Indicator Lamp Support & Status,,1,,0,2
+-4118,DTCx Flash Red Stop Lamp Support & Status,,1,,0,2
+-4119,DTCx Flash Amber Warning Lamp Support & Status,,1,,0,2
+-4120,DTCx Flash Protect Lamp Support & Status,,1,,0,2
+
+; DM22
+-3034,Individual DTC Clear/Reset Control Byte,,1,,0,8
+-3035,Control Byte Specific Indicator for Individual DTC Clear,,1,,0,8
+-3036,Suspect Parameter Number,SPN,1,,0,19
+-3037,Failure Mode Identifier,,1,,0,5
+
+; DM18
+-1596,Security Entity Length,,1,,0,12
+-1479,Security Entity Type,,1,BIT,0,4
+-1597,Data Security Parameter,,1,,0,8
+
+

@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.SequenceInputStream;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Locale;
 import java.util.Map;
@@ -64,7 +65,6 @@ public class Slot {
     private static Map<Integer, Slot> getSlots() {
         if (slots == null) {
             slots = loadSlots();
-
         }
         return slots;
     }
@@ -100,15 +100,22 @@ public class Slot {
                 .withSkipLines(2)
                 .build()) {
             while ((values = reader.readNext()) != null) {
-                final int id = Integer.parseInt(values[0]);
-                final String name = values[1];
-                final String type = values[2];
-                final Double scaling = doubleValue(values[3]);
-                final String unit = values[4];
-                final Double offset = doubleValue(values[5]);
-                final int length = intValue(values[6]);
-                Slot slot = new Slot(id, name, type, scaling, offset, unit, length);
-                slots.put(id, slot);
+                try {
+                    if (values.length == 0 || values[0].startsWith(";") || values[0].isEmpty()) {
+                        continue;
+                    }
+                    final int id = Integer.parseInt(values[0]);
+                    final String name = values[1];
+                    final String type = values[2];
+                    final Double scaling = doubleValue(values[3]);
+                    final String unit = values[4];
+                    final Double offset = doubleValue(values[5]);
+                    final int length = intValue(values[6]);
+                    Slot slot = new Slot(id, name, type, scaling, offset, unit, length);
+                    slots.put(id, slot);
+                } catch (Exception e) {
+                    J1939_84.getLogger().log(Level.SEVERE, "Error loading line from slots:" + Arrays.asList(values), e);
+                }
             }
         } catch (Exception e) {
             J1939_84.getLogger().log(Level.SEVERE, "Error loading map from slots", e);
@@ -355,5 +362,4 @@ public class Slot {
         }
         return flipBytes(data, byteLength) & mask();
     }
-
 }
