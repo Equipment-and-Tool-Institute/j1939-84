@@ -192,6 +192,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
 
         DataRepository.getInstance().setVehicleInformation(vehicleInfo);
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         runTest();
 
@@ -205,7 +206,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         //verify(dataRepository, atLeastOnce()).getVehicleInformation();
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule).isEngineNotRunning();
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq(expectedTitle), eq(WARNING), any());
         verify(mockListener).onVehicleInformationReceived(vehicleInfo);
         verify(vehicleInformationModule).setJ1939(j1939);
@@ -246,11 +247,8 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
             justification = "The method is called just to get some exception.")
     public void testRunVehicleInfoNull() {
-        VehicleInformation vehicleInfo = null;
-        DataRepository.getInstance().setVehicleInformation(vehicleInfo);
-
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
-
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
         ArgumentCaptor<VehicleInformationListener> vehicleInfoCaptor = ArgumentCaptor
                 .forClass(VehicleInformationListener.class);
 
@@ -278,7 +276,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule).isEngineNotRunning();
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 1"), eq(WARNING), any());
         verify(vehicleInformationModule).setJ1939(j1939);
 
@@ -310,6 +308,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
             justification = "The method is called just to get some exception.")
     public void testWaitForKey() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         new Timer().schedule(new TimerTask() {
             @Override
@@ -330,7 +329,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).isEngineNotRunning();
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(vehicleInformationModule).setJ1939(j1939);
 
         String urgentMessages = "Ready to begin Part 1" + NL;
@@ -354,7 +353,6 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
 
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "ABORT: User cancelled testing at Part 1 Step 1" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 

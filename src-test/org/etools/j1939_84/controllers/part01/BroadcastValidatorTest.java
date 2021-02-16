@@ -250,32 +250,30 @@ public class BroadcastValidatorTest {
         verify(mockListener).addOutcome(1,
                 26,
                 INFO,
-                "Unable to determine period for PGN 11111 from Engine #1 (0)");
+                "6.1.26 - Unable to determine period for PGN 11111 from Engine #1 (0)");
 
         verify(mockListener).addOutcome(1,
                 26,
                 INFO,
-                "Unable to determine period for PGN 22222 from Engine #1 (0)");
+                "6.1.26 - Unable to determine period for PGN 22222 from Engine #1 (0)");
 
         verify(mockListener).addOutcome(1,
                 26,
                 FAIL,
-                "Broadcast period of PGN 55555 (1000 ms) by module Engine #1 (0) is less than 90% specified broadcast period of 5000 ms.");
+                "6.1.26 - Broadcast period of PGN 55555 (1000 ms) by module Engine #1 (0) is less than 90% specified broadcast period of 5000 ms.");
 
         verify(mockListener).addOutcome(1,
                 26,
                 FAIL,
-                "Broadcast period of PGN 66666 (2500 ms) by module Engine #1 (0) is beyond 110% specified broadcast period of 2000 ms.");
+                "6.1.26 - Broadcast period of PGN 66666 (2500 ms) by module Engine #1 (0) is beyond 110% specified broadcast period of 2000 ms.");
 
         String expected = "" + NL;
         expected += "PGN 11111 from Engine #1 (0)" + NL;
         expected += "07:30:00.0000 - 11111" + NL;
-        expected += "INFO: 6.1.26 - Unable to determine period for PGN 11111 from Engine #1 (0)" + NL;
         expected += NL;
         expected += "PGN 22222 from Engine #1 (0)" + NL;
         expected += "07:30:00.1000 - 22222" + NL;
         expected += "07:30:00.2000 - 22222" + NL;
-        expected += "INFO: 6.1.26 - Unable to determine period for PGN 22222 from Engine #1 (0)" + NL;
         expected += NL;
         expected += "PGN 33333 from Engine #1 (0)" + NL;
         expected += "07:30:01.0000 - 33333" + NL;
@@ -291,15 +289,11 @@ public class BroadcastValidatorTest {
         expected += "07:30:01.0000 - 55555" + NL;
         expected += "07:30:02.0000 - 55555" + NL;
         expected += "07:30:03.0000 - 55555" + NL;
-        expected += "FAIL: 6.1.26 - Broadcast period of PGN 55555 (1000 ms) by module Engine #1 (0) is less than 90% specified broadcast period of 5000 ms."
-                + NL;
         expected += NL;
         expected += "PGN 66666 from Engine #1 (0)" + NL;
         expected += "07:30:02.0000 - 66666" + NL;
         expected += "07:30:04.5000 - 66666" + NL;
         expected += "07:30:07.0000 - 66666" + NL;
-        expected += "FAIL: 6.1.26 - Broadcast period of PGN 66666 (2500 ms) by module Engine #1 (0) is beyond 110% specified broadcast period of 2000 ms."
-                + NL;
 
         assertEquals(expected, listener.getResults());
 

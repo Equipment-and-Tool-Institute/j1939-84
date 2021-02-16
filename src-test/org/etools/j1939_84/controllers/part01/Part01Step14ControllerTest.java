@@ -124,8 +124,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.14.2.f - No OBD ECU provided DM26");
 
-        String expectedResults = "FAIL: 6.1.14.2.f - No OBD ECU provided DM26" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -291,25 +290,6 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    NOx catalyst/adsorber          enabled, not complete" + NL;
         expectedResults += "    Secondary air system           enabled, not complete" + NL;
         expectedResults +=  NL;
-        expectedResults += "FAIL: 6.1.14.2.b - Transmission #1 (3) response for a monitor Cold start aid system in DM5 is reported as not supported and is reported as enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.c - Transmission #1 (3) response indicates support for monitor Comprehensive component in DM5 but is reported as not enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.b - Transmission #1 (3) response for a monitor EGR/VVT system in DM5 is reported as not supported and is reported as enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.b - Transmission #1 (3) response for a monitor Exhaust Gas Sensor in DM5 is reported as not supported and is reported as enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.b - Transmission #1 (3) response for a monitor Heated catalyst in DM5 is reported as not supported and is reported as enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.b - Transmission #1 (3) response for a monitor NMHC converting catalyst in DM5 is reported as not supported and is reported as enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.b - Transmission #1 (3) response for a monitor NOx catalyst/adsorber in DM5 is reported as not supported and is reported as enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.b - Transmission #1 (3) response for a monitor Secondary air system in DM5 is reported as not supported and is reported as enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.d - Engine #2 (1) response indicates number of warm-ups since code clear is not zero" + NL;
-        expectedResults += "FAIL: 6.1.14.2.d - Transmission #1 (3) response indicates number of warm-ups since code clear is not zero" + NL;
-        expectedResults += "FAIL: 6.1.14.2.e - Engine #2 (1) response indicates time since engine start is not zero" + NL;
-        expectedResults += "WARN: 6.1.14.3.a - Required monitor A/C system refrigerant is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.1.14.3.a - Required monitor Boost pressure control sys is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.1.14.3.a - Required monitor Catalyst is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.1.14.3.a - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.1.14.3.a - Required monitor Evaporative system is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.1.14.3.a - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU" + NL;
-        expectedResults += "FAIL: 6.1.14.5.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
-
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -495,24 +475,6 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    NOx catalyst/adsorber      not enabled, not complete" + NL;
         expectedResults += "    Secondary air system       not enabled,     complete" + NL;
         expectedResults +=  NL;
-        expectedResults += "FAIL: 6.1.14.2.a - Engine #2 (1) response for a monitor Cold start aid system in DM5 is reported as supported and is reported as not enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.b - Engine #2 (1) response for a monitor Comprehensive component in DM5 is reported as not supported and is reported as enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.a - Engine #2 (1) response for a monitor EGR/VVT system in DM5 is reported as supported and is reported as not enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.a - Engine #2 (1) response for a monitor Exhaust Gas Sensor in DM5 is reported as supported and is reported as not enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.a - Engine #2 (1) response for a monitor Heated catalyst in DM5 is reported as supported and is reported as not enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.a - Engine #2 (1) response for a monitor NMHC converting catalyst in DM5 is reported as supported and is reported as not enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.a - Engine #2 (1) response for a monitor NOx catalyst/adsorber in DM5 is reported as supported and is reported as not enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.a - Engine #2 (1) response for a monitor Secondary air system in DM5 is reported as supported and is reported as not enabled by DM26 response" + NL;
-        expectedResults += "FAIL: 6.1.14.2.d - Engine #2 (1) response indicates number of warm-ups since code clear is not zero" + NL;
-        expectedResults += "FAIL: 6.1.14.2.d - Transmission #1 (3) response indicates number of warm-ups since code clear is not zero" + NL;
-        expectedResults += "FAIL: 6.1.14.2.e - Engine #2 (1) response indicates time since engine start is not zero" + NL;
-        expectedResults += "FAIL: 6.1.14.2.e - Transmission #1 (3) response indicates time since engine start is not zero" + NL;
-        expectedResults += "WARN: 6.1.14.3.a - Required monitor A/C system refrigerant is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.1.14.3.a - Required monitor Boost pressure control sys is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.1.14.3.a - Required monitor Catalyst is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.1.14.3.a - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.1.14.3.a - Required monitor Evaporative system is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.1.14.3.a - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 

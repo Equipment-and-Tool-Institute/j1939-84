@@ -13,8 +13,8 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -69,7 +69,7 @@ public class Part01Step11Controller extends StepController {
 
         // 6.1.11.2.e. Fail if no OBD ECU provides a DM21 message.
         if (globalPackets.isEmpty()) {
-            addFailure(1, 11, "6.1.11.1.e - No OBD ECU provided a DM21 message");
+            addFailure("6.1.11.1.e - No OBD ECU provided a DM21 message");
         } else {
             // 6.1.11.2.a. Fail if any ECU reports distance with MIL on (SPN 3069) is not zero.
             globalPackets.stream()

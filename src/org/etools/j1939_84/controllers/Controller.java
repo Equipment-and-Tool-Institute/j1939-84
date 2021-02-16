@@ -205,36 +205,6 @@ public abstract class Controller {
     }
 
     /**
-     * Adds a failure to the report
-     *
-     * @param partNumber
-     *         the part number to add to the report
-     * @param stepNumber
-     *         the step number where the warning originated
-     * @param message
-     *         the warning to add to the report
-     */
-    protected void addFailure(int partNumber, int stepNumber, String message) {
-        getListener().addOutcome(partNumber, stepNumber, Outcome.FAIL, message);
-        getListener().onResult("FAIL: " + message);
-    }
-
-    /**
-     * Adds a warning to the report
-     *
-     * @param partNumber
-     *         the part number to add to the report
-     * @param stepNumber
-     *         the step number where the warning originated
-     * @param message
-     *         the warning to add to the report
-     */
-    protected void addWarning(int partNumber, int stepNumber, String message) {
-        getListener().addOutcome(partNumber, stepNumber, Outcome.WARN, message);
-        getListener().onResult("WARN: " + message);
-    }
-
-    /**
      * Checks the Ending value and will throw an {@link InterruptedException} if
      * the value has been set to Stopped or Aborted
      *

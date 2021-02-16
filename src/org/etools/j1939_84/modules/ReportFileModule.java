@@ -19,10 +19,10 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
-
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.StepResult;
@@ -79,6 +79,7 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     @Override
     public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
         summaryModule.addOutcome(partNumber, stepNumber, outcome, message);
+        onResult(new ActionOutcome(outcome, message).toString());
     }
 
     @Override

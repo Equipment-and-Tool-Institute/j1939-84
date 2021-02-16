@@ -1,11 +1,10 @@
-/**
+/*
  * Copyright (c) 2019. Equipment & Tool Institute
  */
 package org.etools.j1939_84.model;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class ActionOutcome {
 
@@ -17,17 +16,16 @@ public class ActionOutcome {
         this.message = message;
     }
 
-    /**
-     * @return the message
-     */
     public String getMessage() {
         return message;
     }
 
-    /**
-     * @return the outcome
-     */
     public Outcome getOutcome() {
         return outcome;
+    }
+
+    @Override
+    public String toString() {
+        return outcome + ": " + message;
     }
 }

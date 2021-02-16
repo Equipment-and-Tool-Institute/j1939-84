@@ -83,7 +83,6 @@ public class TableA2ValueValidator {
 
     private void addWarning(ResultsListener listener, String section, String message) {
         listener.addOutcome(partNumber, stepNumber, WARN, section + " - " + message);
-        listener.onResult("WARN: " + message);
     }
 
 }

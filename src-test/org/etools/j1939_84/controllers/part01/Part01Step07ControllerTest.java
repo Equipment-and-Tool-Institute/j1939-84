@@ -4,7 +4,6 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -33,6 +32,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -100,6 +100,9 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
+
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
@@ -115,10 +118,11 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         setup(instance,
               listener,
               j1939,
-              engineSpeedModule,
-              reportFileModule,
               executor,
-              vehicleInformationModule);
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -127,6 +131,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
+                                 diagnosticMessageModule,
                                  dataRepository,
                                  mockListener);
     }
@@ -221,9 +226,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.1.7.2.a Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -361,35 +364,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "WARN: 6.1.7.3.a Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units"
-                + NL +
-                "WARN: 6.1.7.3.b More than one CAL ID and CVN pair is provided in a single DM19 message" + NL +
-                "FAIL: 6.1.7.2.b.i <> 1 CVN for every CAL ID" + NL +
-                "WARN: 6.1.7.3.c.i Warn if any non-OBD ECU provides CAL ID" + NL +
-                "WARN: 6.1.7.3.c.ii <> 1 CVN for every CAL ID" + NL +
-                "FAIL: 6.1.7.2.b.i <> 1 CVN for every CAL ID" + NL +
-                "WARN: 6.1.7.3.c.i Warn if any non-OBD ECU provides CAL ID" + NL +
-                "WARN: 6.1.7.3.c.ii <> 1 CVN for every CAL ID" + NL +
-                "FAIL: 6.1.7.2.b.ii CAL ID not formatted correctly (contains non-printable ASCII)" + NL +
-                "FAIL: 6.1.7.2.b.ii CAL ID not formatted correctly (padded incorrectly)" + NL +
-                "WARN: 6.1.7.3.c.i Warn if any non-OBD ECU provides CAL ID" + NL +
-                "WARN: 6.1.7.3.c.iii Warn if CAL ID not formatted correctly (contains non-printable ASCII)"
-                + NL +
-                "WARN: 6.1.7.3.c.iii CAL ID not formatted correctly (padded incorrectly)" + NL +
-                "FAIL: 6.1.7.2.b.ii CAL ID not formatted correctly (contains non-printable ASCII)" + NL +
-                "FAIL: 6.1.7.2.b.iii Received CAL ID is all 0xFF" + NL +
-                "FAIL: 6.1.7.2.b.iii Received CVN is all 0x00" + NL +
-                "WARN: 6.1.7.3.c.i Warn if any non-OBD ECU provides CAL ID" + NL +
-                "WARN: 6.1.7.3.c.iii Warn if CAL ID not formatted correctly (contains non-printable ASCII)"
-                + NL +
-                "WARN: 6.1.7.3.c.iv Received CAL ID is all 0xFF" + NL +
-                "FAIL: 6.1.7.3.c.iv Received CVN is all 0x00" + NL +
-                "FAIL: 6.1.7.5.b NACK (PGN 59392) with mode/control byte = 3 (busy) received" + NL +
-                "FAIL: 6.1.7.5.a Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference [CAL ID of  and CVN of 1234]"
-                + NL +
-                "FAIL: 6.1.7.5.a Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference [CAL ID of CALID and CVN of ]"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(moduleInfo0A).setCalibrationInformation(dm190A.getCalibrationInformation());
         verify(moduleInfo0B).setCalibrationInformation(dm190B.getCalibrationInformation());

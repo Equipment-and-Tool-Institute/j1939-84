@@ -77,7 +77,6 @@ public class SummaryModule {
                 .count();
     }
 
-
     private String println(IResult iResult) {
         String name = iResult.toString();
 

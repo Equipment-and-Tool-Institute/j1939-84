@@ -107,6 +107,7 @@ public class Part01Step02ControllerTest {
             dependsOn = { "EngineSpeedModuleTest" }))
     public void testRun() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -114,7 +115,7 @@ public class Part01Step02ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule).isEngineNotRunning();
         verify(vehicleInformationModule).setJ1939(j1939);
 
@@ -136,6 +137,7 @@ public class Part01Step02ControllerTest {
             dependsOn = { "EngineSpeedModuleTest" }))
     public void testWaitForKeyOn() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         new Timer().schedule(new TimerTask() {
             @Override
@@ -150,7 +152,7 @@ public class Part01Step02ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).isEngineNotRunning();
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(mockListener).onUrgentMessage(eq("Please turn the Key ON with Engine OFF"),
@@ -168,7 +170,6 @@ public class Part01Step02ControllerTest {
 
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "ABORT: User cancelled testing at Part 1 Step 2" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(mockListener).addOutcome(1, 2, ABORT, "User cancelled testing at Part 1 Step 2");

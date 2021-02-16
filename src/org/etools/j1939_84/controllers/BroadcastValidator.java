@@ -35,8 +35,8 @@ public class BroadcastValidator {
                                    int stepNumber,
                                    Outcome outcome,
                                    String message) {
-        listener.addOutcome(partNumber, stepNumber, outcome, message);
-        listener.onResult(outcome + ": 6." + partNumber + "." + stepNumber + " - " + message);
+        String msg = "6." + partNumber + "." + stepNumber + " - " + message;
+        listener.addOutcome(partNumber, stepNumber, outcome, msg);
     }
 
     private static void addFailure(ResultsListener listener,
@@ -44,8 +44,7 @@ public class BroadcastValidator {
                                    int stepNumber,
                                    String section,
                                    String message) {
-        listener.addOutcome(partNumber, stepNumber, FAIL, message);
-        listener.onResult(FAIL + ": " + section + " - " + message);
+        listener.addOutcome(partNumber, stepNumber, FAIL, section + " - " + message);
     }
 
     private final DataRepository dataRepository;

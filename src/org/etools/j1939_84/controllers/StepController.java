@@ -12,7 +12,9 @@ import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
+import static org.etools.j1939_84.model.Outcome.WARN;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -98,7 +100,7 @@ public abstract class StepController extends Controller {
      */
     protected void ensureKeyOnEngineOn() throws InterruptedException {
         try {
-            getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+            reportInitialEngineSpeed();
             if (isTesting()) {
                 getVehicleInformationModule().requestKeyOnEngineOn(getListener());
             }
@@ -109,7 +111,7 @@ public abstract class StepController extends Controller {
                     getDateTimeModule().pauseFor(500);
                 }
             }
-            getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+            reportFinalEngineSpeed();
         } catch (InterruptedException e) {
             abort();
         }
@@ -124,7 +126,7 @@ public abstract class StepController extends Controller {
      */
     protected void ensureKeyOnEngineOff() throws InterruptedException {
         try {
-            getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+            reportInitialEngineSpeed();
             if (isTesting()) {
                 getVehicleInformationModule().requestKeyOnEngineOff(getListener());
             }
@@ -135,7 +137,7 @@ public abstract class StepController extends Controller {
                     getDateTimeModule().pauseFor(500);
                 }
             }
-            getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+            reportFinalEngineSpeed();
         } catch (InterruptedException e) {
             abort();
         }
@@ -150,7 +152,7 @@ public abstract class StepController extends Controller {
      */
     protected void ensureKeyOffEngineOff() throws InterruptedException {
         try {
-            getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+            reportInitialEngineSpeed();
             if (isTesting()) {
                 getVehicleInformationModule().requestKeyOffEngineOff(getListener());
             }
@@ -161,29 +163,34 @@ public abstract class StepController extends Controller {
                     getDateTimeModule().pauseFor(500);
                 }
             }
-            getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeed() + " RPMs");
+            reportFinalEngineSpeed();
         } catch (InterruptedException e) {
             abort();
         }
+    }
 
+    private void reportFinalEngineSpeed() {
+        getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeedAsString());
+    }
+
+    private void reportInitialEngineSpeed() {
+        getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeedAsString());
     }
 
     protected void addFailure(String message) {
-        addFailure(getPartNumber(), getStepNumber(), message);
+        getListener().addOutcome(getPartNumber(), getStepNumber(), FAIL, message);
     }
 
     protected void addWarning(String message) {
-        addWarning(getPartNumber(), getStepNumber(), message);
+        getListener().addOutcome(getPartNumber(), getStepNumber(), WARN, message);
     }
 
     protected void addInfo(String message) {
-        getListener().addOutcome(partNumber, stepNumber, INFO, message);
-        getListener().onResult("INFO: " + message);
+        getListener().addOutcome(getPartNumber(), getStepNumber(), INFO, message);
     }
 
     protected void addAbort(String message) {
-        getListener().addOutcome(partNumber, stepNumber, ABORT, message);
-        getListener().onResult("ABORT: " + message);
+        getListener().addOutcome(getPartNumber(), getStepNumber(), ABORT, message);
     }
 
     @Override

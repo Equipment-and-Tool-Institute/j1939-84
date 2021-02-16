@@ -103,7 +103,6 @@ public class Part01Step03ControllerTest {
 
     @After
     public void tearDown() throws Exception {
-
         verifyNoMoreInteractions(executor,
                                  engineSpeedModule,
                                  bannerModule,
@@ -183,8 +182,6 @@ public class Part01Step03ControllerTest {
         verify(diagnosticMessageModule).requestDM5(any());
         verify(dataRepository).putObdModule(obdInfo1);
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-        verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
 
         verify(dataRepository).putObdModule(obdInfo2);
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
@@ -256,14 +253,8 @@ public class Part01Step03ControllerTest {
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.a - There needs to be at least one OBD Module");
 
         verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.a - There needs to be at least one OBD Module");
-        verify(reportFileModule).onResult("FAIL: 6.1.3.2.a - There needs to be at least one OBD Module");
-        verify(reportFileModule).addOutcome(1,
-                                            3,
-                                            FAIL,
-                                            "6.1.3.2.a - There needs to be at least one OBD Module");
 
         verify(vehicleInformationModule).setJ1939(j1939);
-
     }
 
     @Test
@@ -327,9 +318,6 @@ public class Part01Step03ControllerTest {
         verify(engineSpeedModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-
-        verify(reportFileModule).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-        verify(reportFileModule).onResult("FAIL: 6.1.3.2.b - The request for DM5 was NACK'ed");
 
         verify(vehicleInformationModule).setJ1939(j1939);
     }

@@ -1,10 +1,9 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.modules;
 
 import java.util.concurrent.TimeUnit;
-
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
 
@@ -13,7 +12,6 @@ import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
  * and/or running
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class EngineSpeedModule extends FunctionalModule {
 
@@ -34,7 +32,7 @@ public class EngineSpeedModule extends FunctionalModule {
      * the engine is communicating
      *
      * @return true if the engine is communicating; false if the engine is not
-     *         communicating
+     * communicating
      */
     public boolean isEngineCommunicating() {
         return getEngineSpeedPacket() != null;
@@ -50,6 +48,7 @@ public class EngineSpeedModule extends FunctionalModule {
         EngineSpeedPacket packet = getEngineSpeedPacket();
         return !(packet == null || packet.isError() || packet.isNotAvailable() || packet.getEngineSpeed() > 300);
     }
+
     /**
      * Returns true if the Engine is communicating with an Engine Speed greater
      * than 300 RPM.
@@ -66,8 +65,13 @@ public class EngineSpeedModule extends FunctionalModule {
      *
      * @return double representing the engine speed in RPMs
      */
-    public double getEngineSpeed() {
+    public Double getEngineSpeed() {
         EngineSpeedPacket packet = getEngineSpeedPacket();
-        return packet == null ? -1.0 : packet.getEngineSpeed();
+        return packet == null ? null : packet.getEngineSpeed();
+    }
+
+    public String getEngineSpeedAsString() {
+        Double engineSpeed = getEngineSpeed();
+        return (engineSpeed == null ? "----" : engineSpeed) + " RPMs";
     }
 }

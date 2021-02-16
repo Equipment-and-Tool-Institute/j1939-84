@@ -165,10 +165,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule).setJ1939(j1939);
 
 
-        String expected ="";
-        expected +="FAIL: 6.1.4.2.b - N.2 One or more SPNs for data stream is not supported"+NL;
-        expected +="FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported"+NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener)
                 .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
@@ -243,11 +240,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
 
-        String expected ="";
-        expected +="FAIL: 6.1.4.2.a - Retry was required to obtain DM24 response from Engine #2 (1)"+NL;
-        expected +="FAIL: 6.1.4.2.b - N.2 One or more SPNs for data stream is not supported"+NL;
-        expected +="FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported"+NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                 STEP_NUMBER,
