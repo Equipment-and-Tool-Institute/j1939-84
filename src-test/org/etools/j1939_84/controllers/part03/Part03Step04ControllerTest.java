@@ -108,7 +108,8 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 mockListener);
+                                 mockListener,
+                                 diagnosticMessageModule);
     }
 
     @Test

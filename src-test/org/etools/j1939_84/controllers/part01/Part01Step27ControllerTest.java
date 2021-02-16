@@ -115,7 +115,8 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 mockListener);
+                                 mockListener,
+                                 diagnosticMessageModule);
     }
 
     @Test

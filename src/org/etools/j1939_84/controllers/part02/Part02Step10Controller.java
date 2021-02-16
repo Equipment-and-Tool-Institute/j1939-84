@@ -27,9 +27,6 @@ public class Part02Step10Controller extends StepController {
     private static final int STEP_NUMBER = 10;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-    private final DiagnosticMessageModule diagnosticMessageModule;
-
     Part02Step10Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -48,23 +45,23 @@ public class Part02Step10Controller extends StepController {
                            DiagnosticMessageModule diagnosticMessageModule,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
-        this.diagnosticMessageModule = diagnosticMessageModule;
     }
 
     @Override
     protected void run() throws Throwable {
 
-        diagnosticMessageModule.setJ1939(getJ1939());
+        //getDiagnosticMessageModule().setJ1939(getJ1939());
 
-        for (OBDModuleInformation obdModule : dataRepository.getObdModules()) {
+        for (OBDModuleInformation obdModule : getDataRepository().getObdModules()) {
 
             int sourceAddress = obdModule.getSourceAddress();
             String moduleName = Lookup.getAddressName(sourceAddress);
@@ -72,7 +69,7 @@ public class Part02Step10Controller extends StepController {
             //6.2.10.1.a. DS DM7 to each OBD ECU with TID 247+ for each DM24 SPN +FMI 31 provided by OBD ECU’s DM24 response.
             List<ScaledTestResult> newTestResults = obdModule.getTestResultSpns()
                     .stream()
-                    .flatMap(spn -> diagnosticMessageModule.getDM30Packets(getListener(), sourceAddress, spn).stream())
+                    .flatMap(spn -> getDiagnosticMessageModule().getDM30Packets(getListener(), sourceAddress, spn).stream())
                     .flatMap(p -> p.getTestResults().stream())
                     .collect(Collectors.toList());
 

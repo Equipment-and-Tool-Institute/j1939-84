@@ -17,6 +17,7 @@ import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.RequestResult;
@@ -84,7 +85,8 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
                 bannerModule,
                 vehicleInformationModule,
                 diagnosticMessageModule,
-                DateTimeModule.getInstance());
+                DateTimeModule.getInstance(),
+                DataRepository.newInstance());
 
         setup(instance,
               listener,

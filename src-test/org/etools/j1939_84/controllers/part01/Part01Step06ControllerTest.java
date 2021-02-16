@@ -22,8 +22,8 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -116,7 +116,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         dataRepository.setVehicleInformation(vehicleInformation);
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        dataRepository.putObdModule( obdModuleInformation);
+        dataRepository.putObdModule(obdModuleInformation);
 
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
@@ -130,7 +130,14 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
                 DateTimeModule.getInstance(),
                 diagnosticMessageModule);
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
 
     }
 

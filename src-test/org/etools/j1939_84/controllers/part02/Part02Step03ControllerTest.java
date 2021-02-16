@@ -117,14 +117,13 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  diagnosticMessageModule,
-                                 mockListener);
+                                 mockListener,
+                                 diagnosticMessageModule);
     }
 
     @Test
     public void testEmptyObdModules() {
-
         runTest();
-
         verify(diagnosticMessageModule).setJ1939(j1939);
     }
 
@@ -150,7 +149,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
             OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
             obdInfo0.setObdCompliance((byte) 4);
             obdInfo0.setSupportedSpns(List.of(spn1, spn2, mock(SupportedSPN.class)));
-            dataRepository.putObdModule(0, obdInfo0);
+            dataRepository.putObdModule(obdInfo0);
         }
 
         {
@@ -167,7 +166,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
             OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
             obdInfo1.setObdCompliance((byte) 4);
             obdInfo1.setSupportedSpns(List.of(spn1));
-            dataRepository.putObdModule(1, obdInfo1);
+            dataRepository.putObdModule( obdInfo1);
         }
 
         runTest();
@@ -232,7 +231,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
             OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
             obdInfo0.setObdCompliance((byte) 4);
             obdInfo0.setSupportedSpns(List.of(spn1, spn2));
-            dataRepository.putObdModule(0, obdInfo0);
+            dataRepository.putObdModule( obdInfo0);
         }
 
         {
@@ -249,7 +248,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
             OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
             obdInfo1.setObdCompliance((byte) 4);
             obdInfo1.setSupportedSpns(List.of(spn1, spn2));
-            dataRepository.putObdModule(1, obdInfo1);
+            dataRepository.putObdModule(obdInfo1);
         }
 
         runTest();

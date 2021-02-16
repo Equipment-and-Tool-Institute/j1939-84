@@ -28,8 +28,6 @@ public class Part01Step24Controller extends StepController {
     private static final int STEP_NUMBER = 24;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part01Step24Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -48,15 +46,15 @@ public class Part01Step24Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
@@ -68,7 +66,7 @@ public class Part01Step24Controller extends StepController {
         //
         // 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no
         // freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]
-        dataRepository.getObdModules()
+        getDataRepository().getObdModules()
                 .stream()
                 .filter(module -> !module.getFreezeFrameSpns().isEmpty())
                 .map(OBDModuleInformation::getSourceAddress)
@@ -76,7 +74,7 @@ public class Part01Step24Controller extends StepController {
                         .getPacket()
                         .stream())
                 .flatMap(e -> e.left.stream())
-                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .collect(Collectors.toList())
                 .stream()
                 .filter(packet -> {

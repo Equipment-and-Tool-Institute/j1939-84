@@ -29,10 +29,7 @@ public class Part02Step12Controller extends StepController {
     private static final int STEP_NUMBER = 12;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-    private final DiagnosticMessageModule diagnosticMessageModule;
-
-    Part02Step12Controller(DataRepository dataRepository) {
+     Part02Step12Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
              new BannerModule(),
@@ -50,23 +47,21 @@ public class Part02Step12Controller extends StepController {
                            DateTimeModule dateTimeModule,
                            DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
-        this.diagnosticMessageModule = diagnosticMessageModule;
     }
 
     @Override
     protected void run() throws Throwable {
-        diagnosticMessageModule.setJ1939(getJ1939());
-
         // 6.2.12.1.a. Global DM29 (send Request (PGN 59904) for PGN 40448 (SPNs 4104-4108)).
-        List<DM29DtcCounts> globalPackets = diagnosticMessageModule.requestDM29(getListener()).getPackets();
+        List<DM29DtcCounts> globalPackets = getDiagnosticMessageModule().requestDM29(getListener()).getPackets();
 
         // 6.2.12.2.a. For OBD ECUs that did support DM27 in step 6.2.10, fail if any ECU does not report
         // pending/all pending/MIL on/previously MIL on/permanent = 0/0/0/0/0.
@@ -91,7 +86,7 @@ public class Part02Step12Controller extends StepController {
         globalPackets.stream()
                 .filter(p -> p.hasNonZeroCounts(null))
                 .map(ParsedPacket::getSourceAddress)
-                .filter(address -> !dataRepository.isObdModule(address))
+                .filter(address -> !getDataRepository().isObdModule(address))
                 .map(Lookup::getAddressName)
                 .forEach(moduleName -> addFailure("6.2.12.2.c - A non-OBD ECU " + moduleName + " reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"));
 
@@ -99,18 +94,18 @@ public class Part02Step12Controller extends StepController {
         boolean noObdResponses = globalPackets
                 .stream()
                 .map(ParsedPacket::getSourceAddress)
-                .filter(dataRepository::isObdModule)
+                .filter(getDataRepository()::isObdModule)
                 .findAny()
                 .isEmpty();
         if (noObdResponses) {
             addFailure("6.2.12.2.d - No OBD ECU provided DM29");
         }
 
-        List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
+        List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
 
         // 6.2.12.3.a. DS DM29 to each OBD ECU.
         List<BusResult<DM29DtcCounts>> dsResults = obdModuleAddresses.stream()
-                .map(address -> diagnosticMessageModule.requestDM29(getListener(), address))
+                .map(address -> getDiagnosticMessageModule().requestDM29(getListener(), address))
                 .collect(Collectors.toList());
 
         // 6.2.12.4.a. Fail if any difference compared to data received during global request.
@@ -121,7 +116,7 @@ public class Part02Step12Controller extends StepController {
     }
 
     private boolean supportsDM27(int address) {
-        return dataRepository.getObdModules()
+        return getDataRepository().getObdModules()
                 .stream()
                 .filter(m -> m.getLastDM27() != null)
                 .map(OBDModuleInformation::getSourceAddress)

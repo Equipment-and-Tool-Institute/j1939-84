@@ -9,6 +9,7 @@ import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DTCLampStatus;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
@@ -34,7 +35,9 @@ public class Part01Step23Controller extends StepController {
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
-             new DiagnosticMessageModule(), DateTimeModule.getInstance());
+             new DiagnosticMessageModule(),
+             DateTimeModule.getInstance(),
+             DataRepository.getInstance());
     }
 
     Part01Step23Controller(Executor executor,
@@ -42,13 +45,15 @@ public class Part01Step23Controller extends StepController {
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
                            DiagnosticMessageModule diagnosticMessageModule,
-                           DateTimeModule dateTimeModule) {
+                           DateTimeModule dateTimeModule,
+                           DataRepository dataRepository) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);

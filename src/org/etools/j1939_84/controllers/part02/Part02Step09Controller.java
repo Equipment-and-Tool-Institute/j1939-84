@@ -30,9 +30,6 @@ public class Part02Step09Controller extends StepController {
     private static final int STEP_NUMBER = 9;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-    private final DiagnosticMessageModule diagnosticMessageModule;
-
     Part02Step09Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -51,23 +48,21 @@ public class Part02Step09Controller extends StepController {
                            DateTimeModule dateTimeModule,
                            DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
-        this.diagnosticMessageModule = diagnosticMessageModule;
     }
 
     @Override
     protected void run() throws Throwable {
-        diagnosticMessageModule.setJ1939(getJ1939());
-
         // 6.2.9.1 a. Global DM21 (send Request (PGN 59904) for PGN 49408 (SPNs 3069, 3294-3296)).
-        var globalResponse = diagnosticMessageModule.requestDM21(getListener());
+        var globalResponse = getDiagnosticMessageModule().requestDM21(getListener());
         var globalPackets = globalResponse.getPackets();
 
         // 6.2.9.2 a. Fail if any ECU reports > 0 distance SCC (SPN 3294).
@@ -113,7 +108,7 @@ public class Part02Step09Controller extends StepController {
 
         // 6.2.9.2 e. Warn if no OBD ECU reports time (SPN 3296) for DM21.
         boolean timeNotSupported = globalPackets.stream()
-                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .map(DM21DiagnosticReadinessPacket::getMinutesSinceDTCsCleared)
                 .allMatch(ParsedPacket::isNotAvailable);
 
@@ -122,13 +117,13 @@ public class Part02Step09Controller extends StepController {
         }
 
         // 6.1.14.4.a. DS DM26 to each OBD ECU.
-        List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
+        List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
 
         List<DM21DiagnosticReadinessPacket> dsPackets = new ArrayList<>();
         List<AcknowledgmentPacket> dsAcks = new ArrayList<>();
 
         obdModuleAddresses.forEach(address -> {
-            var result = diagnosticMessageModule.requestDM21(getListener(), address);
+            var result = getDiagnosticMessageModule().requestDM21(getListener(), address);
             dsPackets.addAll(result.requestResult().getPackets());
             dsAcks.addAll(result.requestResult().getAcks());
         });

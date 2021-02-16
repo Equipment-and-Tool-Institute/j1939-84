@@ -22,8 +22,8 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
@@ -87,7 +87,14 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
                                               diagnosticMessageModule,
                                               dateTimeModule,
                                               dataRepository);
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After

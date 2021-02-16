@@ -100,7 +100,14 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                 DateTimeModule.getInstance(),
                 sectionA6Validator,
                 dataRepository);
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After

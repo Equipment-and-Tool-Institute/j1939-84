@@ -37,8 +37,6 @@ public class Part01Step14Controller extends StepController {
     private static final int STEP_NUMBER = 14;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part01Step14Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -57,15 +55,15 @@ public class Part01Step14Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
@@ -76,12 +74,12 @@ public class Part01Step14Controller extends StepController {
 
         if (!globalResponse.getPackets().isEmpty()) {
             List<DM26TripDiagnosticReadinessPacket> obdModulePackets = globalResponse.getPackets().stream()
-                    .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                    .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                     .peek(p -> {
                         // 6.1.14.1.a.i. Create list by ECU address of all data and current status for use later in the test.
-                        OBDModuleInformation moduleInformation = dataRepository.getObdModule(p.getSourceAddress());
+                        OBDModuleInformation moduleInformation = getDataRepository().getObdModule(p.getSourceAddress());
                         moduleInformation.setLastDM26(p);
-                        dataRepository.putObdModule(moduleInformation);
+                        getDataRepository().putObdModule(moduleInformation);
                     })
                     .collect(Collectors.toList());
 
@@ -152,7 +150,7 @@ public class Part01Step14Controller extends StepController {
             reportDuplicateCompositeSystems(globalResponse.getPackets(), "6.1.14.3.a");
 
             // 6.1.14.4.a. DS DM26 to each OBD ECU.
-            List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
+            List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
             List<DM26TripDiagnosticReadinessPacket> destinationSpecificPackets = new ArrayList<>();
             List<AcknowledgmentPacket> dsAcks = new ArrayList<>();
             obdModuleAddresses.forEach(address -> {
@@ -174,7 +172,7 @@ public class Part01Step14Controller extends StepController {
     }
 
     private MonitoredSystem getDM5System(CompositeSystem systemId, int address) {
-        return dataRepository.getObdModule(address)
+        return getDataRepository().getObdModule(address)
                 .getMonitoredSystems()
                 .stream()
                 .filter(s -> s.getId() == systemId)

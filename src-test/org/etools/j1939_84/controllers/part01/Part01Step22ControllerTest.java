@@ -24,8 +24,8 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -92,7 +92,14 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
                 dataRepository,
                 DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -210,18 +217,30 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
         expected += "FAIL: 6.1.22.4.b - OBD module Transmission #2 (4) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
         assertEquals(expected, listener.getResults());
 
-        verify(mockListener).addOutcome(PART, STEP, FAIL,
-                "6.1.22.2.a - Turbocharger (2) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
-        verify(mockListener).addOutcome(PART, STEP, FAIL,
-                "6.1.22.2.b - Transmission #1 (3) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
-        verify(mockListener).addOutcome(PART, STEP, FAIL,
-                "6.1.22.2.b - Shift Console - Secondary (6) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
-        verify(mockListener).addOutcome(PART, STEP, FAIL,
-                "6.1.22.2.c - A non-OBD ECU Shift Console - Secondary (6) reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0");
-        verify(mockListener).addOutcome(PART, STEP, FAIL,
-                "6.1.22.4.a - Difference compared to data received during global request from Power TakeOff - (Main or Rear) (7)");
-        verify(mockListener).addOutcome(PART, STEP, FAIL,
-                "6.1.22.4.b - OBD module Transmission #2 (4) did not provide a response to Global query and did not provide a NACK for the DS query");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.2.a - Turbocharger (2) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.2.b - Transmission #1 (3) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.2.b - Shift Console - Secondary (6) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.2.c - A non-OBD ECU Shift Console - Secondary (6) reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.4.a - Difference compared to data received during global request from Power TakeOff - (Main or Rear) (7)");
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
+                                        "6.1.22.4.b - OBD module Transmission #2 (4) did not provide a response to Global query and did not provide a NACK for the DS query");
     }
 
     @Test
@@ -238,7 +257,9 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM29(any(), eq(0x01));
 
         verify(mockListener).addOutcome(PART, STEP, FAIL, "6.1.22.2.d - No OBD ECU provided DM29");
-        verify(mockListener).addOutcome(PART, STEP, FAIL,
+        verify(mockListener).addOutcome(PART,
+                                        STEP,
+                                        FAIL,
                                         "6.1.22.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         String expectedResults = "";

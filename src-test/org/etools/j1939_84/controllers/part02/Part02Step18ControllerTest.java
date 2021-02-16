@@ -110,7 +110,8 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 mockListener);
+                                 mockListener,
+                                 diagnosticMessageModule);
     }
 
     @Test

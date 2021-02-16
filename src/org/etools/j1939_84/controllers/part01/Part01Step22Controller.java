@@ -31,8 +31,6 @@ public class Part01Step22Controller extends StepController {
     private static final int STEP_NUMBER = 22;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part01Step22Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -51,15 +49,15 @@ public class Part01Step22Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
@@ -90,7 +88,7 @@ public class Part01Step22Controller extends StepController {
         globalPackets.stream()
                 .filter(p -> p.hasNonZeroCounts(null))
                 .map(ParsedPacket::getSourceAddress)
-                .filter(address -> !dataRepository.isObdModule(address))
+                .filter(address -> !getDataRepository().isObdModule(address))
                 .map(Lookup::getAddressName)
                 .forEach(moduleName -> addFailure("6.1.22.2.c - A non-OBD ECU " + moduleName + " reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"));
 
@@ -98,14 +96,14 @@ public class Part01Step22Controller extends StepController {
         boolean noObdResponses = globalPackets
                 .stream()
                 .map(ParsedPacket::getSourceAddress)
-                .filter(dataRepository::isObdModule)
+                .filter(getDataRepository()::isObdModule)
                 .findAny()
                 .isEmpty();
         if (noObdResponses) {
             addFailure("6.1.22.2.d - No OBD ECU provided DM29");
         }
 
-        List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
+        List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
 
         // 6.1.22.3.a. DS DM29 to each OBD ECU.
         List<BusResult<DM29DtcCounts>> dsResults = obdModuleAddresses.stream()
@@ -120,7 +118,7 @@ public class Part01Step22Controller extends StepController {
     }
 
     private boolean supportsDM27(int address) {
-        return dataRepository.getObdModules()
+        return getDataRepository().getObdModules()
                 .stream()
                 .filter(m -> m.getLastDM27() != null)
                 .map(OBDModuleInformation::getSourceAddress)

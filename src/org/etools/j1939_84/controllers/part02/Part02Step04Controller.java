@@ -32,9 +32,6 @@ public class Part02Step04Controller extends StepController {
     private static final int STEP_NUMBER = 4;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-    private final DiagnosticMessageModule readinessModule;
-
     Part02Step04Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -49,34 +46,32 @@ public class Part02Step04Controller extends StepController {
                            EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DiagnosticMessageModule readinessModule,
+                           DiagnosticMessageModule diagnosticMessageModule,
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.readinessModule = readinessModule;
-        this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
-        readinessModule.setJ1939(getJ1939());
-
         // 6.2.4.1.a. Global DM20 (send Request (PGN 59904) for PGN 49664 (SPNs 3048-3049, 3066-3068)).
-        var globalResult = readinessModule.requestDM20(getListener());
+        var globalResult = getDiagnosticMessageModule().requestDM20(getListener());
         List<DM20MonitorPerformanceRatioPacket> globalPackets = globalResult.getPackets();
 
         globalPackets.forEach(packet -> {
             int moduleAddress = packet.getSourceAddress();
             String moduleName = Lookup.getAddressName(moduleAddress);
 
-            OBDModuleInformation obdModuleInformation = dataRepository.getObdModule(moduleAddress);
+            OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(moduleAddress);
             if (obdModuleInformation != null) {
 
                 // 6.2.4.2.a. Fail if any ECU reports different SPNs as supported for data than in part 1.
@@ -125,10 +120,10 @@ public class Part02Step04Controller extends StepController {
         });
 
         // 6.2.4.3.a. DS DM20 to ECUs that responded to global DM20 in part 1.
-        List<BusResult<DM20MonitorPerformanceRatioPacket>> dsResults = dataRepository.getObdModuleAddresses()
+        List<BusResult<DM20MonitorPerformanceRatioPacket>> dsResults = getDataRepository().getObdModuleAddresses()
                 .stream()
                 .sorted()
-                .map(address -> readinessModule.requestDM20(getListener(), address))
+                .map(address -> getDiagnosticMessageModule().requestDM20(getListener(), address))
                 .collect(Collectors.toList());
 
         // 6.2.4.4.a. Fail if any difference compared to data received during global request in 6.2.4.1.
@@ -137,7 +132,7 @@ public class Part02Step04Controller extends StepController {
         // 6.2.4.4.b. Fail if NACK not received from OBD ECUs that did not respond to global query
         checkForNACKs(globalPackets,
                       filterAcks(dsResults),
-                      dataRepository.getObdModuleAddresses(),
+                      getDataRepository().getObdModuleAddresses(),
                       "6.2.4.4.b");
 
     }

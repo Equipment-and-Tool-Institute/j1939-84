@@ -25,9 +25,6 @@ public class Part02Step06Controller extends StepController {
     private static final int STEP_NUMBER = 6;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-    private final DiagnosticMessageModule diagnosticMessageModule;
-
     Part02Step06Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -46,29 +43,28 @@ public class Part02Step06Controller extends StepController {
                            DateTimeModule dateTimeModule,
                            DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
-        this.diagnosticMessageModule = diagnosticMessageModule;
     }
 
     @Override
     protected void run() throws Throwable {
-        diagnosticMessageModule.setJ1939(getJ1939());
 
         // 6.2.6.1.a. DS DM56 (send Request (PGN 59904) for PGN 64711 (SPNs 5844 and 5845)) to each OBD ECU.
-        for (int address : dataRepository.getObdModuleAddresses()) {
+        for (int address : getDataRepository().getObdModuleAddresses()) {
             String moduleName = Lookup.getAddressName(address);
             getListener().onResult("");
-            List<DM56EngineFamilyPacket> packets = diagnosticMessageModule.requestDM56(getListener(), address);
+            List<DM56EngineFamilyPacket> packets = getDiagnosticMessageModule().requestDM56(getListener(), address);
 
             // 6.2.6.2.a. Fail if any difference is found when compared to data received during part 1
-            var obdModuleInfo = dataRepository.getObdModule(address);
+            var obdModuleInfo = getDataRepository().getObdModule(address);
             for (DM56EngineFamilyPacket packet : packets) {
                 if (obdModuleInfo == null || !packet.getModelYearField().equals(obdModuleInfo.getModelYear())) {
                     addFailure("6.2.6.2.a - " + moduleName + " reported different Model Year when compared to data received in part 1");

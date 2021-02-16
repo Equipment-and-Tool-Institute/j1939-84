@@ -35,7 +35,13 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
-import org.etools.j1939_84.modules.*;
+import org.etools.j1939_84.modules.BannerModule;
+import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
+import org.etools.j1939_84.modules.EngineSpeedModule;
+import org.etools.j1939_84.modules.ReportFileModule;
+import org.etools.j1939_84.modules.SupportedSpnModule;
+import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
@@ -101,6 +107,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
     private VehicleInformationModule vehicleInformationModule;
 
     private TestResultsListener listener;
+
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
@@ -116,19 +123,26 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                 dataRepository,
                 DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
     public void tearDown() throws Exception {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
                                  diagnosticMessageModule,
-                dataRepository,
-                mockListener,
-                supportedSpnModule);
+                                 dataRepository,
+                                 mockListener,
+                                 supportedSpnModule);
     }
 
     // Test handling of no response from the modules
@@ -164,25 +178,24 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
 
-
-        String expected ="";
-        expected +="FAIL: 6.1.4.2.b - N.2 One or more SPNs for data stream is not supported"+NL;
-        expected +="FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported"+NL;
+        String expected = "";
+        expected += "FAIL: 6.1.4.2.b - N.2 One or more SPNs for data stream is not supported" + NL;
+        expected += "FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported" + NL;
         assertEquals(expected, listener.getResults());
 
         verify(mockListener)
                 .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                        "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
+                            "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         verify(mockListener)
                 .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                        "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
+                            "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
 
         verify(reportFileModule)
                 .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                        "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
+                            "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         verify(reportFileModule)
                 .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                        "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
+                            "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
 
         verify(supportedSpnModule).validateDataStreamSpns(any(), any(), any());
         verify(supportedSpnModule).validateFreezeFrameSpns(any(), any());
@@ -243,24 +256,24 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
 
-        String expected ="";
-        expected +="FAIL: 6.1.4.2.a - Retry was required to obtain DM24 response from Engine #2 (1)"+NL;
-        expected +="FAIL: 6.1.4.2.b - N.2 One or more SPNs for data stream is not supported"+NL;
-        expected +="FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported"+NL;
+        String expected = "";
+        expected += "FAIL: 6.1.4.2.a - Retry was required to obtain DM24 response from Engine #2 (1)" + NL;
+        expected += "FAIL: 6.1.4.2.b - N.2 One or more SPNs for data stream is not supported" + NL;
+        expected += "FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported" + NL;
         assertEquals(expected, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.4.2.a - Retry was required to obtain DM24 response from Engine #2 (1)");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.4.2.a - Retry was required to obtain DM24 response from Engine #2 (1)");
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.4.2.b - N.2 One or more SPNs for data stream is not supported");
         verify(mockListener).addOutcome(PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.4.2.c - One or more SPNs for freeze frame are not supported");
 
         verify(supportedSpnModule).validateDataStreamSpns(any(), any(), any());
         verify(supportedSpnModule).validateFreezeFrameSpns(any(), any());
@@ -391,10 +404,66 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         Collections.sort(expectedDataStreamsPacket4);
         verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(BI_GAS));
 
-        List<Integer> expectedFreezeFrames = Arrays.asList(512, 513, 132, 1413, 1414, 1415, 3464, 1416,
-                4360, 1417, 1418, 4363, 3216, 1173, 3480, 3609, 3226, 3482, 539, 3483, 27, 540, 541, 542, 158, 543, 544,
-                3490, 164, 5541, 1189, 3242, 172, 173, 3246, 175, 51, 3251, 183, 1209, 1081, 190, 5314, 5323, 5837, 976,
-                84, 3031, 5466, 91, 92, 94, 1761, 3301, 102, 2791, 105, 3563, 108, 110);
+        List<Integer> expectedFreezeFrames = Arrays.asList(512,
+                                                           513,
+                                                           132,
+                                                           1413,
+                                                           1414,
+                                                           1415,
+                                                           3464,
+                                                           1416,
+                                                           4360,
+                                                           1417,
+                                                           1418,
+                                                           4363,
+                                                           3216,
+                                                           1173,
+                                                           3480,
+                                                           3609,
+                                                           3226,
+                                                           3482,
+                                                           539,
+                                                           3483,
+                                                           27,
+                                                           540,
+                                                           541,
+                                                           542,
+                                                           158,
+                                                           543,
+                                                           544,
+                                                           3490,
+                                                           164,
+                                                           5541,
+                                                           1189,
+                                                           3242,
+                                                           172,
+                                                           173,
+                                                           3246,
+                                                           175,
+                                                           51,
+                                                           3251,
+                                                           183,
+                                                           1209,
+                                                           1081,
+                                                           190,
+                                                           5314,
+                                                           5323,
+                                                           5837,
+                                                           976,
+                                                           84,
+                                                           3031,
+                                                           5466,
+                                                           91,
+                                                           92,
+                                                           94,
+                                                           1761,
+                                                           3301,
+                                                           102,
+                                                           2791,
+                                                           105,
+                                                           3563,
+                                                           108,
+                                                           110);
         Collections.sort(expectedFreezeFrames);
         verify(supportedSpnModule).validateFreezeFrameSpns(any(), eq(expectedFreezeFrames));
 
