@@ -752,7 +752,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
 
-        verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).reportComponentIdentification(any());
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x00));
 

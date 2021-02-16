@@ -200,7 +200,6 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         verify(moduleInfo).setCalibrationInformation(dm19.getCalibrationInformation());
 
-        verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).reportCalibrationInformation(any());
         verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0));
 
