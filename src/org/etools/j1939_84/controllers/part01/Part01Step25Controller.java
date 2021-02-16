@@ -34,8 +34,6 @@ public class Part01Step25Controller extends StepController {
     private static final int STEP_NUMBER = 25;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part01Step25Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -54,21 +52,21 @@ public class Part01Step25Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
         // 6.1.25.1.a. DS DM20 (send Request (PGN 59904) for PGN 49664 to each OBD ECU.
-        dataRepository.getObdModules().forEach(module -> {
+        getDataRepository().getObdModules().forEach(module -> {
             // Request DM20 from the module
             int moduleAddress = module.getSourceAddress();
             var dm20BusResult = getDiagnosticMessageModule().requestDM20(getListener(), moduleAddress);
@@ -91,7 +89,7 @@ public class Part01Step25Controller extends StepController {
 
                     //6.1.25.1.a.i. Store ignition cycle counter value (SPN 3048) for later use.
                     module.setIgnitionCycleCounterValue(dm20.getIgnitionCycles());
-                    dataRepository.putObdModule(module);
+                    getDataRepository().putObdModule(module);
 
                     // 6.1.25.2.b. Fail if any difference compared to data received during global request earlier
                     if (!CollectionUtils.areTwoCollectionsEqual(module.getPerformanceRatios(), dm20.getRatios())) {

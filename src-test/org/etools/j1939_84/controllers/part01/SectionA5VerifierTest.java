@@ -46,8 +46,8 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 import org.etools.j1939_84.utils.AbstractControllerTest;
@@ -98,8 +98,8 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DateTimeModule.setInstance(null);
         verifyNoMoreInteractions(dataRepository,
                                  diagnosticMessageModule,
-                mockListener,
-                vehicleInformationModule);
+                                 mockListener,
+                                 vehicleInformationModule);
     }
 
     /**
@@ -125,7 +125,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM12(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm12Packet),
-                        List.of()));
+                                                List.of()));
 
         instance.setJ1939(j1939);
 
@@ -151,7 +151,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM12(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm12Packet),
-                        List.of()));
+                                                List.of()));
 
         instance.setJ1939(j1939);
 
@@ -186,7 +186,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM12(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm12Packet),
-                        List.of()));
+                                                List.of()));
 
         instance.setJ1939(j1939);
 
@@ -220,12 +220,12 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM20MonitorPerformanceRatioPacket dm20Packet = mock(DM20MonitorPerformanceRatioPacket.class);
         when(diagnosticMessageModule.requestDM20(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm20Packet),
-                        List.of()));
+                                                List.of()));
 
         instance.setJ1939(j1939);
 
         assertTrue(instance.verifyDM20(List.of(dm20Packet),
-                listener));
+                                       listener));
 
         assertEquals("PASS: Section A.5 Step 7.a DM20 Verification", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -251,12 +251,12 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm20Packet.toString()).thenReturn("dm20Packet.toString()");
         when(diagnosticMessageModule.requestDM20(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm20Packet),
-                        List.of()));
+                                                List.of()));
 
         instance.setJ1939(j1939);
 
         assertFalse(instance.verifyDM20(List.of(),
-                listener));
+                                        listener));
 
         String expectedMessages = "Section A.5 verification failed during DM20 check done at table step 7.a" + NL
                 + "Previous Monitor Performance Ratio (DM20):" + NL +
@@ -707,7 +707,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         instance.setJ1939(j1939);
 
         assertTrue(instance.verifyDM28(List.of(dm28Packet),
-                listener));
+                                       listener));
 
         assertEquals("PASS: Section A.5 Step 8.a DM28 Verification", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -730,17 +730,35 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     @Test
     public void testVerifyDM28Fail() {
         DM28PermanentEmissionDTCPacket dm28Packet = new DM28PermanentEmissionDTCPacket(Packet
-                .create(DM28PermanentEmissionDTCPacket.PGN, 0x00, 0x42, 0xFD, 0x9D, 0x00, 0x07, 0x01, 0xFF, 0xFF));
+                                                                                               .create(DM28PermanentEmissionDTCPacket.PGN,
+                                                                                                       0x00,
+                                                                                                       0x42,
+                                                                                                       0xFD,
+                                                                                                       0x9D,
+                                                                                                       0x00,
+                                                                                                       0x07,
+                                                                                                       0x01,
+                                                                                                       0xFF,
+                                                                                                       0xFF));
 
         DM28PermanentEmissionDTCPacket previousDM28Packet = new DM28PermanentEmissionDTCPacket(Packet
-                .create(DM28PermanentEmissionDTCPacket.PGN, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                                                       .create(DM28PermanentEmissionDTCPacket.PGN,
+                                                                                                               0x00,
+                                                                                                               0x00,
+                                                                                                               0x00,
+                                                                                                               0x00,
+                                                                                                               0x00,
+                                                                                                               0x00,
+                                                                                                               0x00,
+                                                                                                               0x00,
+                                                                                                               0x00));
 
         when(diagnosticMessageModule.requestDM28(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm28Packet), List.of()));
         instance.setJ1939(j1939);
 
         assertFalse(instance.verifyDM28(List.of(previousDM28Packet),
-                listener));
+                                        listener));
 
         String expectedMessages = "Section A.5 verification failed during DM28 check done at table step 8.a" + NL
                 + "Pre DTC all clear code sent retrieved the DM28 packet :" + NL +
@@ -1109,7 +1127,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         expectedMessages += "Post DTC all clear code sent retrieved the DM33 packet :" + NL;
         expectedMessages += "   DM33 Emission Increasing AECD Active Time from Engine #1 (0): {" + NL;
         expectedMessages += "EI-AECD Number = 1: Timer 1 = 0 minutes; Timer 2 = n/a" + NL;
-        expectedMessages +="}"+NL+NL;
+        expectedMessages += "}" + NL + NL;
         expectedMessages += "   dm33Packet17.toString()" + NL;
         expectedMessages += "   dm33Packet21.toString()";
         assertEquals(expectedMessages, listener.getMessages());
@@ -1179,7 +1197,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         expectedMessages += "Post DTC all clear code sent retrieved the DM33 packet :" + NL;
         expectedMessages += "   DM33 Emission Increasing AECD Active Time from Engine #1 (0): {" + NL;
         expectedMessages += "EI-AECD Number = 1: Timer 1 = 0 minutes; Timer 2 = n/a" + NL;
-        expectedMessages += "}"+NL+NL;
+        expectedMessages += "}" + NL + NL;
         expectedMessages += "   dm33Packet17.toString()";
         assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -1208,7 +1226,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM5DiagnosticReadinessPacket dm5Packet = mock(DM5DiagnosticReadinessPacket.class);
         when(diagnosticMessageModule.requestDM5(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm5Packet),
-                        List.of()));
+                                                List.of()));
 
         instance.setJ1939(j1939);
 
@@ -1249,7 +1267,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm5Packet.getContinuouslyMonitoredSystems()).thenReturn(List.of(dm5MonitoredSystem));
         when(diagnosticMessageModule.requestDM5(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm5Packet),
-                        List.of()));
+                                                List.of()));
 
         instance.setJ1939(j1939);
 
@@ -1291,7 +1309,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm5Packet.getContinuouslyMonitoredSystems()).thenReturn(List.of(dm5MonitoredSystem));
         when(diagnosticMessageModule.requestDM5(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm5Packet),
-                        List.of()));
+                                                List.of()));
 
         instance.setJ1939(j1939);
 
@@ -1327,7 +1345,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM6(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm6Packet),
-                        List.of()));
+                                                List.of()));
         instance.setJ1939(j1939);
 
         assertTrue(instance.verifyDM6(listener));
@@ -1359,7 +1377,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM6(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm6Packet),
-                        List.of()));
+                                                List.of()));
         instance.setJ1939(j1939);
 
         assertFalse(instance.verifyDM6(listener));
@@ -1551,7 +1569,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.requestEngineHours(any()))
                 .thenReturn(new RequestResult<>(false, List.of(engineHoursPacket),
-                        List.of()));
+                                                List.of()));
 
         instance.setJ1939(j1939);
 
@@ -1585,7 +1603,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.requestEngineHours(any()))
                 .thenReturn(new RequestResult<>(false, Arrays.asList(engineHoursPacket, engineHoursPacket1),
-                        List.of()));
+                                                List.of()));
 
         instance.setJ1939(j1939);
 
@@ -1632,7 +1650,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.requestEngineHours(any()))
                 .thenReturn(new RequestResult<>(false, Arrays.asList(engineHoursPacket, engineHoursPacket1),
-                        List.of()));
+                                                List.of()));
 
         instance.setJ1939(j1939);
 
@@ -1829,23 +1847,23 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM20(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(dm20Packet),
-                        List.of()));
+                                                List.of(dm20Packet),
+                                                List.of()));
 
         when(diagnosticMessageModule.requestDM6(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(dm6Packet),
-                        List.of()));
+                                                List.of(dm6Packet),
+                                                List.of()));
         when(diagnosticMessageModule.requestDM12(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(dm12Packet),
-                        List.of()));
+                                                List.of(dm12Packet),
+                                                List.of()));
         when(diagnosticMessageModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(dm21Packet), List.of()));
+                                                List.of(dm21Packet), List.of()));
         when(diagnosticMessageModule.requestDM23(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(dm23Packet), List.of()));
+                                                List.of(dm23Packet), List.of()));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00)))
                 .thenReturn(
                         new BusResult<>(false, dm25Packet0));
@@ -1857,10 +1875,10 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                         new BusResult<>(false, dm25Packet21));
         when(diagnosticMessageModule.requestDM26(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(dm26Packet), List.of()));
+                                                List.of(dm26Packet), List.of()));
         when(diagnosticMessageModule.requestDM28(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(dm28Packet), List.of()));
+                                                List.of(dm28Packet), List.of()));
         when(diagnosticMessageModule.requestDM29(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm29Packet), List.of()));
         when(diagnosticMessageModule.requestDM31(any()))
@@ -1881,16 +1899,16 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.requestEngineHours(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(engineHoursPacket),
-                        List.of()));
+                                                List.of(engineHoursPacket),
+                                                List.of()));
 
         instance.setJ1939(j1939);
 
         assertFalse(instance.verify(List.of(),
-                List.of(),
-                dm33Packets,
-                List.of(),
-                listener));
+                                    List.of(),
+                                    dm33Packets,
+                                    List.of(),
+                                    listener));
 
         String expectedMessages = "Section A.5 verification failed at DM6 check done at table step 1.a" + NL +
                 "Modules with source address 0, reported 1 DTCs." +
@@ -2216,26 +2234,26 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM5(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(dm5Packet),
-                        List.of()));
+                                                List.of(dm5Packet),
+                                                List.of()));
         when(diagnosticMessageModule.requestDM20(any()))
                 .thenReturn(new RequestResult<>(false, List.of(),
-                        List.of()));
+                                                List.of()));
 
         when(diagnosticMessageModule.requestDM6(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(dm6Packet),
-                        List.of()));
+                                                List.of(dm6Packet),
+                                                List.of()));
         when(diagnosticMessageModule.requestDM12(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(dm12Packet),
-                        List.of()));
+                                                List.of(dm12Packet),
+                                                List.of()));
         when(diagnosticMessageModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(dm21Packet), List.of()));
+                                                List.of(dm21Packet), List.of()));
         when(diagnosticMessageModule.requestDM23(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm23Packet),
-                        List.of()));
+                                                List.of()));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00)))
                 .thenReturn(
                         new BusResult<>(false, dm25Packet0));
@@ -2247,25 +2265,25 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                         new BusResult<>(false, dm25Packet21));
         when(diagnosticMessageModule.requestDM26(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(dm26Packet), List.of()));
+                                                List.of(dm26Packet), List.of()));
         when(diagnosticMessageModule.requestDM28(any()))
                 .thenReturn(new RequestResult<>(false, List.of(),
-                        List.of()));
+                                                List.of()));
         when(diagnosticMessageModule.requestDM29(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(dm29Packet), List.of()));
+                                                List.of(dm29Packet), List.of()));
         when(diagnosticMessageModule.requestDM31(any()))
                 .thenReturn(new RequestResult<>(false,
-                        List.of(dm31Packet), List.of()));
+                                                List.of(dm31Packet), List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x00))).thenReturn(
                 new RequestResult<>(false, List.of(dm33Packet0),
-                        List.of()));
+                                    List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x17))).thenReturn(
                 new RequestResult<>(false, List.of(dm33Packet17),
-                        List.of()));
+                                    List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x21))).thenReturn(
                 new RequestResult<>(false, List.of(dm33Packet21),
-                        List.of()));
+                                    List.of()));
 
         when(diagnosticMessageModule.getDM30Packets(any(), eq(0x00), eq(supportedSPN0)))
                 .thenReturn(List.of(dm30Packet0));
@@ -2276,15 +2294,15 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.requestEngineHours(any()))
                 .thenReturn(new RequestResult<>(false, List.of(),
-                        List.of()));
+                                                List.of()));
 
         instance.setJ1939(j1939);
 
         assertFalse(instance.verify(List.of(dm28Packet),
-                List.of(dm20Packet),
-                dm33Packets,
-                List.of(engineHoursPacket),
-                listener));
+                                    List.of(dm20Packet),
+                                    dm33Packets,
+                                    List.of(engineHoursPacket),
+                                    listener));
 
         String expectedMessages = "Section A.5 verification failed at DM6 check done at table step 1.a" + NL +
                 "Modules with source address 0, reported 0 DTCs." +
@@ -2573,17 +2591,17 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM5(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm5Packet),
-                        List.of()));
+                                                List.of()));
         when(diagnosticMessageModule.requestDM20(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm20Packet),
-                        List.of()));
+                                                List.of()));
 
         when(diagnosticMessageModule.requestDM6(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm6Packet),
-                        List.of()));
+                                                List.of()));
         when(diagnosticMessageModule.requestDM12(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm12Packet),
-                        List.of()));
+                                                List.of()));
         when(diagnosticMessageModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm21Packet), List.of()));
         when(diagnosticMessageModule.requestDM23(any()))
@@ -2626,10 +2644,10 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         instance.setJ1939(j1939);
 
         assertTrue(instance.verify(List.of(dm28Packet),
-                List.of(dm20Packet),
-                dm33Packets,
-                List.of(engineHoursPacket),
-                listener));
+                                   List.of(dm20Packet),
+                                   dm33Packets,
+                                   List.of(engineHoursPacket),
+                                   listener));
 
         String expectedMessages = "PASS: Section A.5 Step 1.a DM6 Verfication" +
                 NL +
@@ -2804,17 +2822,17 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM5(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm5Packet),
-                        List.of()));
+                                                List.of()));
         when(diagnosticMessageModule.requestDM20(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm20Packet),
-                        List.of()));
+                                                List.of()));
 
         when(diagnosticMessageModule.requestDM6(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm6Packet),
-                        List.of()));
+                                                List.of()));
         when(diagnosticMessageModule.requestDM12(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm12Packet),
-                        List.of()));
+                                                List.of()));
         when(diagnosticMessageModule.requestDM21(any()))
                 .thenReturn(new RequestResult<>(false, List.of(dm21Packet), List.of()));
         when(diagnosticMessageModule.requestDM23(any()))
@@ -2853,15 +2871,15 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         when(vehicleInformationModule.requestEngineHours(any()))
                 .thenReturn(new RequestResult<>(false, List.of(engineHoursPacket),
-                        List.of()));
+                                                List.of()));
 
         instance.setJ1939(j1939);
 
         assertTrue(instance.verify(List.of(dm28Packet),
-                List.of(dm20Packet),
-                dm33Packets,
-                List.of(engineHoursPacket),
-                listener));
+                                   List.of(dm20Packet),
+                                   dm33Packets,
+                                   List.of(engineHoursPacket),
+                                   listener));
 
         String expectedMessages = "PASS: Section A.5 Step 1.a DM6 Verfication" +
                 NL +

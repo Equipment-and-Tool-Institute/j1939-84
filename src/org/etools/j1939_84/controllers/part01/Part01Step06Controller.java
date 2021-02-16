@@ -21,8 +21,6 @@ public class Part01Step06Controller extends StepController {
     private static final int STEP_NUMBER = 6;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part01Step06Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -41,15 +39,15 @@ public class Part01Step06Controller extends StepController {
                            DateTimeModule dateTimeModule,
                            DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
@@ -64,15 +62,15 @@ public class Part01Step06Controller extends StepController {
 
         for (DM56EngineFamilyPacket packet : packets) {
             int sourceAddress = packet.getSourceAddress();
-            var obdModuleInfo = dataRepository.getObdModule(sourceAddress);
+            var obdModuleInfo = getDataRepository().getObdModule(sourceAddress);
             if (obdModuleInfo != null) {
                 obdModuleInfo.setModelYear(packet.getModelYearField());
                 obdModuleInfo.setEngineFamilyName(packet.getFamilyName());
-                dataRepository.putObdModule(obdModuleInfo);
+                getDataRepository().putObdModule(obdModuleInfo);
             }
         }
 
-        int engineModelYear = dataRepository.getVehicleInformation().getEngineModelYear();
+        int engineModelYear = getDataRepository().getVehicleInformation().getEngineModelYear();
         for (DM56EngineFamilyPacket packet : packets) {
             if (packet.getEngineModelYear() != engineModelYear) {
                 addFailure("6.1.6.2.a - Engine model year does not match user input");

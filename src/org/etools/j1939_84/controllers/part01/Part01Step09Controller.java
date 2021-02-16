@@ -32,15 +32,14 @@ public class Part01Step09Controller extends StepController {
     private static final int STEP_NUMBER = 9;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part01Step09Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
              new BannerModule(),
              new VehicleInformationModule(),
              dataRepository,
-             DateTimeModule.getInstance());
+             DateTimeModule.getInstance(),
+             new DiagnosticMessageModule());
     }
 
     protected Part01Step09Controller(Executor executor,
@@ -48,41 +47,42 @@ public class Part01Step09Controller extends StepController {
                                      BannerModule bannerModule,
                                      VehicleInformationModule vehicleInformationModule,
                                      DataRepository dataRepository,
-                                     DateTimeModule dateTimeModule) {
+                                     DateTimeModule dateTimeModule,
+                                     DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
-              vehicleInformationModule,
-              new DiagnosticMessageModule(),
               dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
 
         // 6.1.9.1.a Send destination specific message and grab only the instance of ComponentIdentificationPacket
-        List<ComponentIdentificationPacket> dsPackets = dataRepository.getObdModules()
+        List<ComponentIdentificationPacket> dsPackets = getDataRepository().getObdModules()
                 .stream()
                 .map(OBDModuleInformation::getSourceAddress)
                 .map(address -> getVehicleInformationModule().reportComponentIdentification(getListener(), address))
                 .flatMap(r -> r.requestResult().getPackets().stream())
                 .peek(packet -> {
                     //Update data in the dataRepository for use in Part 02 Step 7
-                    OBDModuleInformation module = dataRepository.getObdModule(packet.getSourceAddress());
+                    OBDModuleInformation module = getDataRepository().getObdModule(packet.getSourceAddress());
                     module.setComponentIdentification(packet.getComponentIdentification());
                     // Save the updated data back to the dataRepository for use later in testing
-                    dataRepository.putObdModule(module);
+                    getDataRepository().putObdModule(module);
                 })
                 .collect(Collectors.toList());
         if (dsPackets.isEmpty()) {
             addFailure("6.1.9.2.a - There are no positive responses");
         }
 
-        int function0SourceAddress = dataRepository.getFunctionZeroAddress();
+        int function0SourceAddress = getDataRepository().getFunctionZeroAddress();
         String function0Name = Lookup.getAddressName(function0SourceAddress);
         getListener().onResult("Function 0 module is " + function0Name);
 
@@ -113,7 +113,7 @@ public class Part01Step09Controller extends StepController {
 
         // 6.1.9.2.d. Fail if the make (SPN 586) from any OBD ECU contains any unprintable ASCII characters.
         dsPackets.stream()
-                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .filter(p -> containsNonPrintableAsciiCharacter(p.getMake()))
                 .map(ParsedPacket::getSourceAddress)
                 .map(Lookup::getAddressName)
@@ -121,7 +121,7 @@ public class Part01Step09Controller extends StepController {
 
         // 6.1.9.2.d. Fail if the model (SPN 587) from any OBD ECU contains any unprintable ASCII characters.
         dsPackets.stream()
-                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .filter(p -> containsNonPrintableAsciiCharacter(p.getModel()))
                 .map(ParsedPacket::getSourceAddress)
                 .map(Lookup::getAddressName)
@@ -129,7 +129,7 @@ public class Part01Step09Controller extends StepController {
 
         // 6.1.9.2.d. Fail if the serial number (SPN 588) from any OBD ECU contains any unprintable ASCII characters.
         dsPackets.stream()
-                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .filter(p -> containsNonPrintableAsciiCharacter(p.getSerialNumber()))
                 .map(ParsedPacket::getSourceAddress)
                 .map(Lookup::getAddressName)
@@ -137,7 +137,7 @@ public class Part01Step09Controller extends StepController {
 
         // 6.1.9.3.b. For OBD ECUs, Warn if the make field (SPN 586) is longer than 5 ASCII characters.
         dsPackets.stream()
-                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .filter(p -> {
                     String make = p.getMake();
                     return make != null && make.length() > 5;
@@ -148,7 +148,7 @@ public class Part01Step09Controller extends StepController {
 
         // 6.1.9.3.c. For OBD ECUs, Warn if the make field (SPN 586) is less than 2 ASCII characters.
         dsPackets.stream()
-                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .filter(p -> {
                     String make = p.getMake();
                     return make == null || make.length() < 2;
@@ -159,7 +159,7 @@ public class Part01Step09Controller extends StepController {
 
         // 6.1.9.3.d. For OBD ECUs, Warn if the model field (SPN 587) is less than 1 character long.
         dsPackets.stream()
-                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .filter(p -> {
                     String model = p.getModel();
                     return model == null || model.length() < 1;

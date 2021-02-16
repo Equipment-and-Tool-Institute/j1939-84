@@ -36,10 +36,6 @@ public class Part02Step08Controller extends StepController {
     private static final int STEP_NUMBER = 8;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
-    private final DiagnosticMessageModule diagnosticMessageModule;
-
     Part02Step08Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -58,30 +54,28 @@ public class Part02Step08Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.diagnosticMessageModule = diagnosticMessageModule;
-        this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
 
-        diagnosticMessageModule.setJ1939(getJ1939());
-
         // 6.2.8.1.a. DS DM26 (send Request (PGN 59904) for PGN 64952 (SPNs 3301-3305)) to each OBD ECU.
         List<DM26TripDiagnosticReadinessPacket> dsPackets = new ArrayList<>();
 
-        dataRepository.getObdModules().forEach(obdModuleInformation -> {
+        getDataRepository().getObdModules().forEach(obdModuleInformation -> {
             int address = obdModuleInformation.getSourceAddress();
             String moduleName = Lookup.getAddressName(address);
 
-            RequestResult<DM26TripDiagnosticReadinessPacket> result = diagnosticMessageModule.requestDM26(getListener(), address);
+            RequestResult<DM26TripDiagnosticReadinessPacket> result = getDiagnosticMessageModule().requestDM26(getListener(), address);
             var resultPackets = result.getPackets();
             if (resultPackets != null) {
                 dsPackets.addAll(resultPackets);
@@ -128,7 +122,7 @@ public class Part02Step08Controller extends StepController {
         reportDuplicateCompositeSystems(dsPackets, "6.2.8.3.a");
 
         // 6.2.8.4.a Global DM26.
-        var globalPackets = diagnosticMessageModule.requestDM26(getListener()).getPackets();
+        var globalPackets = getDiagnosticMessageModule().requestDM26(getListener()).getPackets();
 
         // 6.2.8.4.b Record time since engine start (SPN 3301) from each ECU and timestamp of when message was received.
         // This is accomplished by keeping around the packets received.
@@ -136,7 +130,7 @@ public class Part02Step08Controller extends StepController {
         // 6.2.8.5.a Fail if any difference compared to data received from DS request when taking into account
         // additional time elapsed by differences in timestamps of responses received from DS requests
         // and global request [by ECU]. i.e., T2 – T1 <= SPN 3301 response data value <= T2 – T1 + 1 s.
-        for (int address : dataRepository.getObdModuleAddresses()) {
+        for (int address : getDataRepository().getObdModuleAddresses()) {
             String moduleName = Lookup.getAddressName(address);
 
             var globalOptional = globalPackets.stream().filter(p -> p.getSourceAddress() == address).findFirst();

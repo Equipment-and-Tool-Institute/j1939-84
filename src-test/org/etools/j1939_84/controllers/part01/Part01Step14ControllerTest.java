@@ -25,8 +25,8 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -94,7 +94,14 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
                 dataRepository,
                 DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -290,7 +297,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    NMHC converting catalyst       enabled, not complete" + NL;
         expectedResults += "    NOx catalyst/adsorber          enabled, not complete" + NL;
         expectedResults += "    Secondary air system           enabled, not complete" + NL;
-        expectedResults +=  NL;
+        expectedResults += NL;
         expectedResults += "FAIL: 6.1.14.2.b - Transmission #1 (3) response for a monitor Cold start aid system in DM5 is reported as not supported and is reported as enabled by DM26 response" + NL;
         expectedResults += "FAIL: 6.1.14.2.c - Transmission #1 (3) response indicates support for monitor Comprehensive component in DM5 but is reported as not enabled by DM26 response" + NL;
         expectedResults += "FAIL: 6.1.14.2.b - Transmission #1 (3) response for a monitor EGR/VVT system in DM5 is reported as not supported and is reported as enabled by DM26 response" + NL;
@@ -494,7 +501,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    NMHC converting catalyst   not enabled,     complete" + NL;
         expectedResults += "    NOx catalyst/adsorber      not enabled, not complete" + NL;
         expectedResults += "    Secondary air system       not enabled,     complete" + NL;
-        expectedResults +=  NL;
+        expectedResults += NL;
         expectedResults += "FAIL: 6.1.14.2.a - Engine #2 (1) response for a monitor Cold start aid system in DM5 is reported as supported and is reported as not enabled by DM26 response" + NL;
         expectedResults += "FAIL: 6.1.14.2.b - Engine #2 (1) response for a monitor Comprehensive component in DM5 is reported as not supported and is reported as enabled by DM26 response" + NL;
         expectedResults += "FAIL: 6.1.14.2.a - Engine #2 (1) response for a monitor EGR/VVT system in DM5 is reported as supported and is reported as not enabled by DM26 response" + NL;
@@ -556,7 +563,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    NMHC converting catalyst   not enabled,     complete" + NL;
         expectedResults += "    NOx catalyst/adsorber      not enabled, not complete" + NL;
         expectedResults += "    Secondary air system       not enabled,     complete" + NL;
-        expectedResults +=  NL;
+        expectedResults += NL;
         assertEquals(expectedResults, listener.getResults());
     }
 }

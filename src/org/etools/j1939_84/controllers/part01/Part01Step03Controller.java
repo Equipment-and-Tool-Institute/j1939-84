@@ -29,8 +29,6 @@ public class Part01Step03Controller extends StepController {
     private static final int STEP_NUMBER = 3;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part01Step03Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -49,15 +47,15 @@ public class Part01Step03Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
@@ -84,7 +82,7 @@ public class Part01Step03Controller extends StepController {
                     OBDModuleInformation info = new OBDModuleInformation(p.getSourceAddress());
                     info.setObdCompliance(p.getOBDCompliance());
                     info.setMonitoredSystems(p.getMonitoredSystems());
-                    int function = dataRepository.getVehicleInformation()
+                    int function = getDataRepository().getVehicleInformation()
                             .getAddressClaim()
                             .getPackets()
                             .stream()
@@ -93,10 +91,10 @@ public class Part01Step03Controller extends StepController {
                             .findFirst()
                             .orElse(-1);
                     info.setFunction(function);
-                    dataRepository.putObdModule(info);
+                    getDataRepository().putObdModule(info);
                 });
 
-        if (dataRepository.getObdModules().size() < 1) {
+        if (getDataRepository().getObdModules().size() < 1) {
             addFailure(1, 3, "6.1.3.2.a - There needs to be at least one OBD Module");
         }
 

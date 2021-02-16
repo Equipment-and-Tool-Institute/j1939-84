@@ -33,8 +33,6 @@ public class Part01Step16Controller extends StepController {
     private static final int STEP_NUMBER = 16;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part01Step16Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -53,16 +51,15 @@ public class Part01Step16Controller extends StepController {
                                      DataRepository dataRepository,
                                      DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-
-        this.dataRepository = dataRepository;
     }
 
     @Override
@@ -76,7 +73,7 @@ public class Part01Step16Controller extends StepController {
 
         // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC.
         globalPackets.stream()
-                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .filter(p -> !p.getDtcs().isEmpty())
                 .forEach(p -> {
                     String moduleName = Lookup.getAddressName(p.getSourceAddress());
@@ -85,7 +82,7 @@ public class Part01Step16Controller extends StepController {
 
         // 6.1.16.2.b Fail if any OBD ECU does not report MIL (Malfunction Indicator Lamp) off
         globalPackets.stream()
-                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
                 .forEach(p -> {
                     String moduleName = Lookup.getAddressName(p.getSourceAddress());
@@ -94,7 +91,7 @@ public class Part01Step16Controller extends StepController {
 
         // 6.1.16.2.c Fail if any non-OBD ECU does not report MIL off or not supported - LampStatus of OTHER
         globalPackets.stream()
-                .filter(p -> !dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
                 .filter(p -> {
                     LampStatus milStatus = p.getMalfunctionIndicatorLampStatus();
                     return milStatus != OFF && milStatus != NOT_SUPPORTED;
@@ -103,7 +100,7 @@ public class Part01Step16Controller extends StepController {
             addFailure("6.1.16.2.c - Non-OBD ECU " + moduleName + " did not report MIL off or not supported");
         });
 
-        List<Integer> obdAddresses = dataRepository.getObdModuleAddresses();
+        List<Integer> obdAddresses = getDataRepository().getObdModuleAddresses();
         // 6.1.16.3.a DS DM2 to each OBD ECU
         List<BusResult<DM2PreviouslyActiveDTC>> dsResult = obdAddresses.stream()
                 .map(address -> getDiagnosticMessageModule().requestDM2(getListener(), address))

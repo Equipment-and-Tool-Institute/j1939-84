@@ -36,8 +36,6 @@ public class Part02Step16Controller extends StepController {
     private static final int STEP_NUMBER = 16;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part02Step16Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -56,20 +54,20 @@ public class Part02Step16Controller extends StepController {
                            DateTimeModule dateTimeModule,
                            DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
-        FuelType fuelType = dataRepository.getVehicleInformation().getFuelType();
+        FuelType fuelType = getDataRepository().getVehicleInformation().getFuelType();
 
         // 6.2.16.1.a. Global DM34 (send Request (PGN 59904) for PGN 40960 (SPNs 4127-4132)).
         var globalPackets = getDiagnosticMessageModule().requestDM34(getListener()).getPackets();
@@ -156,7 +154,7 @@ public class Part02Step16Controller extends StepController {
 
         var obdAddresses = globalPackets.stream()
                 .map(ParsedPacket::getSourceAddress)
-                .filter(dataRepository::isObdModule)
+                .filter(getDataRepository()::isObdModule)
                 .distinct()
                 .sorted()
                 .collect(Collectors.toList());

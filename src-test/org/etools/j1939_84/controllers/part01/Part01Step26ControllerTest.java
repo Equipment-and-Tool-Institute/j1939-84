@@ -116,11 +116,14 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
                                               j1939DaRepository,
                                               broadcastValidator,
                                               busService);
-        setup(instance, listener, j1939,
+        setup(instance,
+              listener,
+              j1939,
               executor,
               reportFileModule,
               engineSpeedModule,
-              vehicleInformationModule, diagnosticMessageModule);
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After

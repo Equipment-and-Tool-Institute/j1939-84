@@ -31,8 +31,6 @@ public class Part01Step08Controller extends StepController {
     private static final int STEP_NUMBER = 8;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part01Step08Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -51,15 +49,15 @@ public class Part01Step08Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     /**
@@ -90,10 +88,10 @@ public class Part01Step08Controller extends StepController {
         for (DM20MonitorPerformanceRatioPacket packet : globalDM20s) {
             int sourceAddress = packet.getSourceAddress();
             // Save performance ratio on the obdModule for each ECU
-            OBDModuleInformation obdModule = dataRepository.getObdModule(sourceAddress);
+            OBDModuleInformation obdModule = getDataRepository().getObdModule(sourceAddress);
             if (obdModule != null) {
                 obdModule.setPerformanceRatios(packet.getRatios());
-                dataRepository.putObdModule(obdModule);
+                getDataRepository().putObdModule(obdModule);
             }
         }
 
@@ -111,7 +109,7 @@ public class Part01Step08Controller extends StepController {
      * "Criteria for Monitor Performance Ratio Evaluation" section A.4 of J1939_84
      */
     private void verifyMinimumExpectedSpnSupported(Set<Integer> dm20Spns) {
-        FuelType fuelType = dataRepository.getVehicleInformation().getFuelType();
+        FuelType fuelType = getDataRepository().getVehicleInformation().getFuelType();
         boolean failure = false;
 
         String msg = "6.1.8.2.a - minimum expected SPNs are not supported.";

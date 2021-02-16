@@ -32,9 +32,6 @@ public class Part02Step03Controller extends StepController {
     private static final int STEP_NUMBER = 3;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-    private final DiagnosticMessageModule diagnosticMessageModule;
-
     Part02Step03Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -53,26 +50,24 @@ public class Part02Step03Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.diagnosticMessageModule = diagnosticMessageModule;
-        this.dataRepository = dataRepository;
     }
 
     @Override
     protected void run() throws Throwable {
-        diagnosticMessageModule.setJ1939(getJ1939());
-
         // 6.2.3.1.a. DS DM24 (send Request (PGN 59904) for PGN 64950 (SPNs 3297, 4100-4103)) to each OBD ECU.
-        List<DM24SPNSupportPacket> packets = dataRepository.getObdModuleAddresses()
+        List<DM24SPNSupportPacket> packets = getDataRepository().getObdModuleAddresses()
                 .stream()
                 .sorted()
-                .map(address -> diagnosticMessageModule.requestDM24(getListener(), address))
+                .map(address -> getDiagnosticMessageModule().requestDM24(getListener(), address))
                 .map(BusResult::getPacket)
                 .filter(Optional::isPresent)
                 .map(Optional::get)
@@ -84,7 +79,7 @@ public class Part02Step03Controller extends StepController {
         // 6.2.3.2.a. Fail if the message data received differs from that provided in part 6.1.4
         packets.forEach(packet -> {
             int sourceAddress = packet.getSourceAddress();
-            OBDModuleInformation info = dataRepository.getObdModule(sourceAddress);
+            OBDModuleInformation info = getDataRepository().getObdModule(sourceAddress);
             if (info != null) {
                 List<SupportedSPN> part1SPNs = info.getSupportedSpns();
                 List<SupportedSPN> part2SPNs = packet.getSupportedSpns();

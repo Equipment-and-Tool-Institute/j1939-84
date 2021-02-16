@@ -33,6 +33,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -79,6 +80,9 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
+
+    @Mock
     private EngineSpeedModule engineSpeedModule;
 
     @Mock
@@ -110,15 +114,17 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                               bannerModule,
                                               vehicleInformationModule,
                                               dataRepository,
-                                              DateTimeModule.getInstance());
+                                              DateTimeModule.getInstance(),
+                                              diagnosticMessageModule);
 
         setup(instance,
               listener,
               j1939,
-              engineSpeedModule,
-              reportFileModule,
               executor,
-              vehicleInformationModule);
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -128,7 +134,8 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  dataRepository,
-                                 mockListener);
+                                 mockListener,
+                                 diagnosticMessageModule);
     }
 
     @Test
@@ -193,6 +200,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         verify(moduleInfo).setCalibrationInformation(dm19.getCalibrationInformation());
 
+        verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).reportCalibrationInformation(any());
         verify(vehicleInformationModule).reportCalibrationInformation(any(), eq(0));
 

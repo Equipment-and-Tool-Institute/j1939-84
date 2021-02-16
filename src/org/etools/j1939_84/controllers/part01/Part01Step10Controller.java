@@ -30,8 +30,6 @@ public class Part01Step10Controller extends StepController {
     private static final int STEP_NUMBER = 10;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part01Step10Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -50,16 +48,15 @@ public class Part01Step10Controller extends StepController {
                                      DateTimeModule dateTimeModule,
                                      DataRepository dataRepository) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
-              TOTAL_STEPS
-        );
-        this.dataRepository = dataRepository;
+              TOTAL_STEPS);
     }
 
     @Override
@@ -69,7 +66,7 @@ public class Part01Step10Controller extends StepController {
         // 6.1.10.1.b. Record all ACK/NACK/BUSY/Access Denied responses (for PGN 65235) in the log.
         List<AcknowledgmentPacket> globalDM11Packets = getDiagnosticMessageModule().requestDM11(getListener())
                 .stream()
-                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .collect(Collectors.toList());
 
         // 6.1.10.2.a. Fail if NACK received from any HD OBD ECU

@@ -55,17 +55,6 @@ public abstract class AbstractControllerTest {
         }
     }
 
-    @Deprecated
-    protected void setup(Controller instance,
-                         TestResultsListener listener,
-                         J1939 j1939,
-                         EngineSpeedModule engineSpeedModule,
-                         ReportFileModule reportFileModule,
-                         Executor executor,
-                         VehicleInformationModule vehicleInformationModule) {
-        setup(instance, listener, j1939, executor, reportFileModule, engineSpeedModule, vehicleInformationModule, null);
-    }
-
     protected void setup(Controller instance,
                          TestResultsListener listener,
                          J1939 j1939,
