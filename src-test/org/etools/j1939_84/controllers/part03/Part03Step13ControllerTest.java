@@ -263,7 +263,6 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         verify(validator).reportWarnings(any(), any(), eq("6.3.13.2.e"));
 
         String expected = "";
-        expected += "FAIL: 6.3.13.2.a - Retry was required to obtain DM25 response from Engine #1 (0)" + NL;
         expected += "6.3.13.1.c - Received from Engine #1 (0): " + NL;
         expected += "Freeze Frame: {" + NL;
         expected += "DTC 102:4 - Engine Intake Manifold #1 Pressure, Voltage Below Normal, Or Shorted To Low Source - 1 times" + NL;
@@ -305,7 +304,6 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         expected += "SPN    91, Accelerator Pedal Position 1: 10.000000 %" + NL;
         expected += "}" + NL;
         expected += NL;
-        expected += "FAIL: 6.3.13.2.d - Freeze frame data from Engine #1 (0) does not include the same SPN+FMI as DM6 Pending DTC earlier in this part." + NL;
         assertEquals(expected, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -349,7 +347,6 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         expected += "SPN    91, Accelerator Pedal Position 1: 100.000000 %" + NL;
         expected += "}" + NL;
         expected += "" + NL;
-        expected += "WARN: 6.3.13.2.e - More than 1 freeze frame data set is included in the response from Engine #1 (0)" + NL;
         assertEquals(expected, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -384,7 +381,6 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         expected += "SPN Data: 19" + NL;
         expected += "}" + NL;
         expected += NL;
-        expected += "FAIL: 6.3.13.2.c - Received data (1) does not match expected number of bytes (2) based on DM24 supported SPN list for Engine #1 (0)" + NL;
         assertEquals(expected, listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -406,11 +402,7 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule, times(2)).requestDM25(any(), eq(0));
 
-        String expected = "";
-        expected += "FAIL: 6.3.13.2.a - Retry was required to obtain DM25 response from Engine #1 (0)" + NL;
-        expected += "FAIL: 6.3.13.2.b - No ECU has freeze frame data to report" + NL;
-        expected += "FAIL: 6.3.13.2.g - OBD module Engine #1 (0) did not provide a NACK for the DS query" + NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

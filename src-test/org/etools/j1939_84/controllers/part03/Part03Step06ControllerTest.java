@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.NOT_SUPPORTED;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
@@ -178,7 +177,7 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.3.6.2.a - No OBD ECU supports DM1" + NL, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.3.6.2.a - No OBD ECU supports DM1");
     }
@@ -195,7 +194,7 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.3.6.2.a - No OBD ECU supports DM1" + NL, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.3.6.2.a - No OBD ECU supports DM1");
     }
@@ -216,11 +215,7 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.3.6.2.b - Engine #1 (0) reported an active DTC" + NL;
-        expectedResults += "FAIL: 6.3.6.2.c - Engine #1 (0) did not report MIL 'off'" + NL;
-        expectedResults += "FAIL: 6.3.6.2.d - Non-OBD module Body Controller (33) did not report MIL off or not supported" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

@@ -149,7 +149,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
-        expectedResults += "FAIL: 6.3.2.2.a - No OBD ECU supports DM6" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(diagnosticMessageModule).requestDM6(any());
@@ -191,7 +190,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
         for (int i = 1; i <= 300; i++) {
             expectedResults.append(NL).append("Attempt ").append(i).append(NL);
         }
-        expectedResults.append("ABORT: User cancelled testing at Part 3 Step 2").append(NL);
         assertEquals(expectedResults.toString(), listener.getResults());
 
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
@@ -221,7 +219,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
-        expectedResults += "WARN: 6.3.2.3.a - Engine #1 (0) reported > 1 pending DTC" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(diagnosticMessageModule).requestDM6(any());
@@ -254,7 +251,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
-        expectedResults += "WARN: 6.3.2.3.b - More than one ECU reported a pending DTC" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(diagnosticMessageModule).requestDM6(any());
@@ -285,7 +281,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
-        expectedResults += "FAIL: 6.3.2.5.b - Engine #1 (0) did not report MIL 'off'" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(diagnosticMessageModule).requestDM6(any());
@@ -317,7 +312,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
-        expectedResults += "FAIL: 6.3.2.5.a - Difference compared to data received during global request from Engine #1 (0)" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(diagnosticMessageModule).requestDM6(any());
@@ -350,7 +344,6 @@ public class Part03Step02ControllerTest extends AbstractControllerTest {
 
         String expectedResults = "" + NL;
         expectedResults += "Attempt 1" + NL;
-        expectedResults += "FAIL: 6.3.2.5.c - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         verify(diagnosticMessageModule).requestDM6(any());

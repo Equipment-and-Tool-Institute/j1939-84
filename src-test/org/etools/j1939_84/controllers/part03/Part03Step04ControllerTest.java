@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
@@ -140,10 +139,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.3.4.2.b - No ECU reported > 0 emission-related pending count" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
 
@@ -169,10 +165,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.3.4.2.a - Engine #1 (0) reported > 0 for MIL on count" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
 
@@ -198,10 +191,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.3.4.2.a - Engine #1 (0) reported > 0 for previous MIL on count" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
 
@@ -227,10 +217,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.3.4.2.a - Engine #1 (0) reported > 0 for permanent DTC count" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
 
@@ -254,10 +241,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.3.4.2.b - No ECU reported > 0 emission-related pending count" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
 
@@ -284,10 +268,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.3.4.2.c - Engine #1 (0) reported a different number of emission-related pending DTCs than what it reported in the previous DM6" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
 
@@ -312,10 +293,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.3.4.2.c - Engine #1 (0) reported a different number of emission-related pending DTCs than what it reported in the previous DM6" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
 
@@ -341,10 +319,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.3.4.2.d - Engine #1 (0) reported a lower number of all pending DTCs than the number of emission-related pending DTCs" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
 
@@ -371,10 +346,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.3.4.2.e - Engine #1 (0) reported a lower number of all pending DTCs than what it reported in DM27 earlier" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
 
@@ -398,10 +370,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.3.4.2.f - Engine #1 (0) does not support DM27 and did not report all pending DTCs = 0xFF" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
 
@@ -420,16 +389,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.3.4.2.a - Engine #1 (0) reported > 0 for MIL on count" + NL;
-        expectedResults += "FAIL: 6.3.4.2.a - Engine #1 (0) reported > 0 for previous MIL on count" + NL;
-        expectedResults += "FAIL: 6.3.4.2.a - Engine #1 (0) reported > 0 for permanent DTC count" + NL;
-        expectedResults += "FAIL: 6.3.4.2.g - Non-OBD ECU Engine #1 (0) reported > 0 for pending DTC count" + NL;
-        expectedResults += "FAIL: 6.3.4.2.g - Non-OBD ECU Engine #1 (0) reported > 0 for MIL-on count" + NL;
-        expectedResults += "FAIL: 6.3.4.2.g - Non-OBD ECU Engine #1 (0) reported > 0 for previous MIL-on count" + NL;
-        expectedResults += "FAIL: 6.3.4.2.g - Non-OBD ECU Engine #1 (0) reported > 0 for permanent DTC count" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
 
@@ -486,11 +446,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "";
-        expectedResults += "WARN: 6.3.4.3.a - Engine #1 (0) reported > 1 for pending DTC count" + NL;
-        expectedResults += "WARN: 6.3.4.3.a - Engine #1 (0) reported > 1 for all pending DTC count" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
 
@@ -526,11 +482,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "";
-        expectedResults += "WARN: 6.3.4.3.b - More than one ECU reported > 0 for pending DTC count" + NL;
-        expectedResults += "WARN: 6.3.4.3.b - More than one ECU reported > 0 for all pending DTC count" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(diagnosticMessageModule).requestDM29(any());
 
