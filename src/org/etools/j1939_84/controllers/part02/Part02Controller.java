@@ -5,7 +5,6 @@ package org.etools.j1939_84.controllers.part02;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
@@ -16,9 +15,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * The {@link Controller} for the Part 2 Tests
- *
- * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
+ * 6.2 Key On Engine Running Data Collection
  */
 public class Part02Controller extends PartController {
 

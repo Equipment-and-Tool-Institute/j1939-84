@@ -3,10 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part10;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
@@ -17,20 +15,23 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * The {@link Controller} for the Part 1 Tests
- *
- * @author Matt Gumbel (matt@soliddesign.net)
+ * 6.10 Part 10 Prime Diagnostic Executive for General Denominator Demonstration
  */
 public class Part10Controller extends PartController {
 
     public Part10Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-              new BannerModule(),
-              DateTimeModule.getInstance(),
-              dataRepository,
-              new EngineSpeedModule(),
-              new VehicleInformationModule(),
-              new DiagnosticMessageModule());
+             new BannerModule(),
+             DateTimeModule.getInstance(),
+             dataRepository,
+             new EngineSpeedModule(),
+             new VehicleInformationModule(),
+             new DiagnosticMessageModule(),
+             new Part10Step01Controller(),
+             new Part10Step02Controller(),
+             new Part10Step03Controller(),
+             new Part10Step04Controller(),
+             new Part10Step05Controller());
     }
 
     /**
@@ -51,12 +52,8 @@ public class Part10Controller extends PartController {
               engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              11,
+              10,
               stepControllers);
     }
 
-    @Override
-    protected List<StepController> getStepControllers() {
-        return getStepControllers(10, 5);
-    }
 }
