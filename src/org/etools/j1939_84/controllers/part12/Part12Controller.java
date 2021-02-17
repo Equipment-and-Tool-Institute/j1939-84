@@ -3,10 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part12;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
@@ -17,20 +15,28 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * The {@link Controller} for the Part 12 Tests
- *
- * @author Matt Gumbel (matt@soliddesign.net)
+ * 6.12 Part 12 Verify Deletion of Fault B from DM28
  */
 public class Part12Controller extends PartController {
 
     public Part12Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-              new BannerModule(),
-              DateTimeModule.getInstance(),
-              dataRepository,
-              new EngineSpeedModule(),
-              new VehicleInformationModule(),
-              new DiagnosticMessageModule());
+             new BannerModule(),
+             DateTimeModule.getInstance(),
+             dataRepository,
+             new EngineSpeedModule(),
+             new VehicleInformationModule(),
+             new DiagnosticMessageModule(),
+             new Part12Step01Controller(),
+             new Part12Step02Controller(),
+             new Part12Step03Controller(),
+             new Part12Step04Controller(),
+             new Part12Step05Controller(),
+             new Part12Step06Controller(),
+             new Part12Step07Controller(),
+             new Part12Step08Controller(),
+             new Part12Step09Controller(),
+             new Part12Step10Controller());
     }
 
     /**
@@ -54,10 +60,4 @@ public class Part12Controller extends PartController {
               12,
               stepControllers);
     }
-
-    @Override
-    protected List<StepController> getStepControllers() {
-        return getStepControllers(12, 10);
-    }
-
 }

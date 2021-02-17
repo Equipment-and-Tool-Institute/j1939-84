@@ -8,7 +8,6 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
-import java.util.concurrent.Executors;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
@@ -87,32 +86,6 @@ public abstract class PartController extends Controller {
     }
 
     protected List<StepController> getStepControllers() {
-        return stepControllers;
-    }
-
-    /**
-     * TODO Remove this
-     * This is a temporary method until the project is finished
-     */
-    protected List<StepController> getStepControllers(int partNumber, int steps) {
-        List<StepController> stepControllers = new ArrayList<>();
-        for (int i = 1; i <= steps; i++) {
-            stepControllers.add(new StepController(Executors.newSingleThreadExecutor(),
-                                                   getBannerModule(),
-                                                   getDateTimeModule(),
-                                                   getDataRepository(),
-                                                   getEngineSpeedModule(),
-                                                   getVehicleInformationModule(),
-                                                   getDiagnosticMessageModule(),
-                                                   partNumber,
-                                                   i,
-                                                   1) {
-                @Override
-                protected void run() {
-                    getListener().onResult("Do Testing;\nWait for Responses;\nWrite Messages, etc");
-                }
-            });
-        }
         return stepControllers;
     }
 

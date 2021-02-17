@@ -5,7 +5,6 @@ package org.etools.j1939_84.controllers.part01;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartController;
 import org.etools.j1939_84.controllers.StepController;
@@ -16,9 +15,7 @@ import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
- * The {@link Controller} for the Part 1 Tests
- *
- * @author Matt Gumbel (matt@soliddesign.net)
+ * 6.1 KOEO Data Collection
  */
 public class Part01Controller extends PartController {
 
