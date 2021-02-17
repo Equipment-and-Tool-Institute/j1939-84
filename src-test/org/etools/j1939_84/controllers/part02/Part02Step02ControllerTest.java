@@ -100,7 +100,14 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                 DateTimeModule.getInstance(),
                 sectionA6Validator,
                 dataRepository);
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -178,16 +185,14 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "FAIL: 6.2.2.1.a - Global DM5 request did not receive any response packets" + NL;
-        assertEquals(expectedResults, listener.getResults());
+assertEquals("", listener.getResults());
     }
 
     @Test
     public void testPacketFailure() {
         DM5DiagnosticReadinessPacket packet0 = new DM5DiagnosticReadinessPacket(
                 Packet.create(PGN, 0x00, 0x01, 0x00, 0x14, 0x37, 0xE0, 0x1E, 0xE0, 0x1E));
-        System.out.println(packet0.getActiveCodeCount());
+
         final int ackPgn = DM5DiagnosticReadinessPacket.PGN;
         AcknowledgmentPacket packet44 = new AcknowledgmentPacket(
                 Packet.create(ackPgn, 0x44, 0x01, 0x02, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
@@ -259,11 +264,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                 "    Misfire                        supported, not complete" + NL +
                 "    NMHC converting catalyst       supported, not complete" + NL +
                 "    NOx catalyst/adsorber          supported, not complete" + NL +
-                "    Secondary air system       not supported,     complete" + NL +
-                NL +
-                "FAIL: 6.2.2.2.b - OBD ECU Engine #1 (0) reported active DTC count not = 0" + NL +
-                "WARN: 6.2.2.2.c - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU" + NL +
-                "FAIL: 6.2.2.4.a - Difference compared to data received during global request" + NL;
+                "    Secondary air system       not supported,     complete" + NL;
 
         assertEquals(expectedResults, listener.getResults());
     }
@@ -315,9 +316,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "FAIL: 6.2.2.1.a - Global DM5 request did not receive any response packets" + NL;
-        assertEquals(expectedResults, listener.getResults());
+    assertEquals("", listener.getResults());
     }
 
     @Test
@@ -397,10 +396,7 @@ public class Part02Step02ControllerTest extends AbstractControllerTest {
                 "    Misfire                        supported, not complete" + NL +
                 "    NMHC converting catalyst       supported, not complete" + NL +
                 "    NOx catalyst/adsorber          supported, not complete" + NL +
-                "    Secondary air system       not supported,     complete" + NL +
-                NL + "WARN: 6.2.2.2.c - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU" + NL +
-                "WARN: 6.2.2.3.a - OBD module Engine #1 (0) did not return a response to a destination specific DM5 request" + NL +
-                "WARN: 6.2.2.3.a - OBD module Instrument Cluster #1 (23) did not return a response to a destination specific DM5 request" + NL;
+                "    Secondary air system       not supported,     complete" + NL + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 

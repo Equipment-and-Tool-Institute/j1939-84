@@ -37,7 +37,7 @@ public class OBDModuleInformation implements Cloneable {
 
     private int ignitionCycleCounterValue;
 
-    private final Set<MonitoredSystem> monitoredSystems = new HashSet<>();
+    private final List<MonitoredSystem> monitoredSystems = new ArrayList<>();
 
     private byte obdCompliance;
 
@@ -176,7 +176,7 @@ public class OBDModuleInformation implements Cloneable {
         return function;
     }
 
-    public Set<MonitoredSystem> getMonitoredSystems() {
+    public List<MonitoredSystem> getMonitoredSystems() {
         return monitoredSystems;
     }
 
@@ -241,7 +241,7 @@ public class OBDModuleInformation implements Cloneable {
         this.function = function;
     }
 
-    public void setMonitoredSystems(Set<MonitoredSystem> monitoredSystems) {
+    public void setMonitoredSystems(List<MonitoredSystem> monitoredSystems) {
         this.monitoredSystems.clear();
         this.monitoredSystems.addAll(monitoredSystems);
     }

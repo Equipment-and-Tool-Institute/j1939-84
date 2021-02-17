@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -104,7 +105,14 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, executor, reportFileModule, engineSpeedModule, vehicleInformationModule, diagnosticMessageModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
 
     }
 
@@ -185,7 +193,9 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
+        assertEquals(
+                "",
+                listener.getResults());
     }
 
     @Test
@@ -294,7 +304,9 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
+        assertEquals(
+                "",
+                listener.getResults());
     }
 
     @Test
@@ -318,7 +330,9 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
+        assertEquals(
+                "",
+                listener.getResults());
     }
 
     @Test
@@ -355,7 +369,9 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
+        assertEquals(
+                "",
+                listener.getResults());
     }
 
     @Test

@@ -123,7 +123,8 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
                                  vehicleInformationModule,
                                  diagnosticMessageModule,
                                  mockListener,
-                                 validator);
+                                 validator,
+                                 diagnosticMessageModule);
     }
 
     @Test

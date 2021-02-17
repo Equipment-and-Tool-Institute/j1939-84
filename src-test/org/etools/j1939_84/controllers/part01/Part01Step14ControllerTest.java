@@ -25,8 +25,8 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -94,7 +94,14 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
                 dataRepository,
                 DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -289,7 +296,8 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    NMHC converting catalyst       enabled, not complete" + NL;
         expectedResults += "    NOx catalyst/adsorber          enabled, not complete" + NL;
         expectedResults += "    Secondary air system           enabled, not complete" + NL;
-        expectedResults +=  NL;
+        expectedResults += NL;
+
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -474,7 +482,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    NMHC converting catalyst   not enabled,     complete" + NL;
         expectedResults += "    NOx catalyst/adsorber      not enabled, not complete" + NL;
         expectedResults += "    Secondary air system       not enabled,     complete" + NL;
-        expectedResults +=  NL;
+        expectedResults += NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
@@ -518,7 +526,7 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         expectedResults += "    NMHC converting catalyst   not enabled,     complete" + NL;
         expectedResults += "    NOx catalyst/adsorber      not enabled, not complete" + NL;
         expectedResults += "    Secondary air system       not enabled,     complete" + NL;
-        expectedResults +=  NL;
+        expectedResults += NL;
         assertEquals(expectedResults, listener.getResults());
     }
 }

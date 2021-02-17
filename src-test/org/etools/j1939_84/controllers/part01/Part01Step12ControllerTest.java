@@ -111,7 +111,14 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                               tableA7Validator,
                                               DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, executor, reportFileModule, engineSpeedModule, vehicleInformationModule, diagnosticMessageModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -122,7 +129,8 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                  vehicleInformationModule,
                                  dataRepository,
                                  mockListener,
-                                 tableA7Validator);
+                                 tableA7Validator,
+                                 diagnosticMessageModule);
     }
 
     @Test
@@ -168,7 +176,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
         verify(dataRepository).putObdModule(any());
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
@@ -222,7 +230,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
         verify(dataRepository).putObdModule(any());
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
@@ -262,7 +270,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.12.1.a - No test result for Supported SPN 0 from Engine #1 (0)");
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
 
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
@@ -323,7 +331,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
         verify(dataRepository).putObdModule(any());
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
 
         verify(tableA7Validator).findDuplicates(scaledTestsResults);
 
@@ -376,7 +384,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
 
         verify(tableA7Validator).findDuplicates(scaledTestsResults);
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -430,7 +438,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
 
         verify(tableA7Validator).findDuplicates(scaledTestsResults);
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -485,6 +493,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
         verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0), eq(supportedSPN));
 
         verify(tableA7Validator).findDuplicates(scaledTestsResults);
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -543,7 +552,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.12.1.c - #1 SLOT identifier for SPN 157 from Engine #1 (0) is invalid");
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
 
         verify(tableA7Validator).findDuplicates(scaledTestsResults);
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -617,7 +626,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
         verify(dataRepository).putObdModule(any());
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
 
         verify(tableA7Validator).findDuplicates(scaledTestsResults);
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -688,7 +697,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         WARN,
                                         "6.1.12.1.d - Engine #1 (0) returned duplicate test results for SPN 157 FMI 18");
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
 
         verify(tableA7Validator).findDuplicates(scaledTestsResults);
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -742,7 +751,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         verify(dataRepository).getVehicleInformation();
         verify(dataRepository).putObdModule(any());
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());

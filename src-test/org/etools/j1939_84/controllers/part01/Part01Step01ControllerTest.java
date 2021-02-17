@@ -89,6 +89,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
+
         instance = new Part01Step01Controller(executor,
                                               engineSpeedModule,
                                               bannerModule,
@@ -277,23 +278,21 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule).isEngineNotRunning();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
+
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 1"), eq(WARNING), any());
+        verify(mockListener).onVehicleInformationReceived(null);
         verify(vehicleInformationModule).setJ1939(j1939);
 
         String expectedMessages = "Part 1, Step 1 a-c Displaying Warning Message" + NL;
         expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off" + NL;
-        expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information" + NL;
         expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information";
-        String messages = listener.getMessages();
-        assertEquals(expectedMessages, messages);
+        assertEquals(expectedMessages, listener.getMessages());
 
-        String expectedMilestones = "";
-        assertEquals(expectedMilestones, listener.getMilestones());
+        assertEquals("", listener.getMilestones());
 
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "User cancelled the test at Part 1 Step 1" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 

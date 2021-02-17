@@ -84,15 +84,15 @@ public class SectionA6ValidatorTest {
         List<DM5DiagnosticReadinessPacket> dm5Packets = new ArrayList<>() {
             {
                 add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x00, 0x11, 0x22,
-                        0x14, 0x88, 0x00, 0x00, 0x00, 0x00)));
+                                                                   0x14, 0x88, 0x00, 0x00, 0x00, 0x00)));
                 add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x17, 0x01, 0x14,
-                        0x22, 0x00, 0x00, 0x00, 0x00, 0x00)));
+                                                                   0x22, 0x00, 0x00, 0x00, 0x00, 0x00)));
                 add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x21, 0x10, 0x23,
-                        0x13, 0x00, 0x00, 0x00, 0x00, 0x00)));
+                                                                   0x13, 0x00, 0x00, 0x00, 0x00, 0x00)));
             }
         };
         RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false,
-                dm5Packets, Collections.emptyList());
+                                                                                   dm5Packets, Collections.emptyList());
 
         when(tableA6Validator.verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER))).thenReturn(true);
 
@@ -110,8 +110,8 @@ public class SectionA6ValidatorTest {
 
         verify(tableA6Validator, times(3)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
-        String expectedMessages = FAIL.toString() + ": " + expectedMessage1dPacket0;
-        assertEquals(expectedMessages, listener.getMessages());
+
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
@@ -129,7 +129,8 @@ public class SectionA6ValidatorTest {
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
 
         RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false,
-                Collections.emptyList(), Collections.emptyList());
+                                                                                   Collections.emptyList(),
+                                                                                   Collections.emptyList());
 
         assertFalse(instance.verify(listener, PART_NUMBER, STEP_NUMBER, response));
 
@@ -146,8 +147,7 @@ public class SectionA6ValidatorTest {
                 .append("   ECU with source address :  33 did not return a response");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, expectedMessage1a.toString());
 
-        String expectedMessage = FAIL.toString() + ": " + expectedMessage1a;
-        assertEquals(expectedMessage, listener.getMessages());
+       assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
@@ -157,18 +157,18 @@ public class SectionA6ValidatorTest {
         List<DM5DiagnosticReadinessPacket> dm5Packets = new ArrayList<>() {
             {
                 add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x00, 0x11, 0x22,
-                        0x22, 0xEE, 0x00, 0x00, 0x00, 0x00)));
+                                                                   0x22, 0xEE, 0x00, 0x00, 0x00, 0x00)));
                 add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x17, 0x01, 0x14,
-                        0x14, 0xEE, 0x00, 0x00, 0x00, 0x00)));
+                                                                   0x14, 0xEE, 0x00, 0x00, 0x00, 0x00)));
                 add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x21, 0x10, 0x23,
-                        0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)));
+                                                                   0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)));
                 add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x22, 0x10, 0x23,
-                        0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)));
+                                                                   0x23, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF)));
             }
         };
 
         RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false,
-                dm5Packets, Collections.emptyList());
+                                                                                   dm5Packets, Collections.emptyList());
         ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
             {
                 add(0x00);
@@ -199,13 +199,7 @@ public class SectionA6ValidatorTest {
 
         verify(tableA6Validator, times(4)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
-        String expectedMessage = "" +
-                FAIL.toString() + ": " + expectedMessage1d + NL +
-                FAIL.toString() + ": " + expectedMessage1d + NL +
-                FAIL.toString() + ": " + expectedMessage1d + NL +
-                FAIL.toString() + ": " + expectedMessage1d + NL +
-                WARN.toString() + ": " + expectedMessage2d;
-        assertEquals(expectedMessage, listener.getMessages());
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
@@ -225,14 +219,16 @@ public class SectionA6ValidatorTest {
         List<DM5DiagnosticReadinessPacket> dm5Packets = new ArrayList<>() {
             {
                 add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x00, 0x11, 0x22,
-                        0x22, 0x00, 0x00, 0x00, 0x00, 0x00)));
+                                                                   0x22, 0x00, 0x00, 0x00, 0x00, 0x00)));
                 add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x17, 0x01, 0x14,
-                        0x14, 0x77, 0xFF, 0xE0, 0xFF, 0xE0)));
+                                                                   0x14, 0x77, 0xFF, 0xE0, 0xFF, 0xE0)));
                 add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x21, 0x10, 0x23,
-                        0x23, 0x00, 0x00, 0x00, 0x00, 0x00)));
+                                                                   0x23, 0x00, 0x00, 0x00, 0x00, 0x00)));
             }
         };
-        RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false, dm5Packets, Collections.emptyList());
+        RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false,
+                                                                                   dm5Packets,
+                                                                                   Collections.emptyList());
 
         when(tableA6Validator.verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER))).thenReturn(true);
 
@@ -253,16 +249,16 @@ public class SectionA6ValidatorTest {
         List<DM5DiagnosticReadinessPacket> dm5Packets = new ArrayList<>() {
             {
                 add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x00, 0x11, 0x22,
-                        0x13, 0x44, 0x55, 0x66, 0x77, 0x88)));
+                                                                   0x13, 0x44, 0x55, 0x66, 0x77, 0x88)));
                 add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x17, 0x01, 0x02,
-                        0x14, 0x04, 0x05, 0x06, 0x07, 0x08)));
+                                                                   0x14, 0x04, 0x05, 0x06, 0x07, 0x08)));
                 add(new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, 0x21, 0x10, 0x20,
-                        0x00, 0x40, 0x50, 0x60, 0x70, 0x80)));
+                                                                   0x00, 0x40, 0x50, 0x60, 0x70, 0x80)));
             }
         };
 
         RequestResult<DM5DiagnosticReadinessPacket> response = new RequestResult<>(false,
-                dm5Packets, Collections.emptyList());
+                                                                                   dm5Packets, Collections.emptyList());
         ArrayList<Integer> obdModuleAddresses = new ArrayList<>() {
             {
                 add(0x00);
@@ -282,7 +278,7 @@ public class SectionA6ValidatorTest {
                 .append(NL);
         expectedMessage1a.append("   ECU with source address :  33 did not return a response");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                expectedMessage1a.toString());
+                                        expectedMessage1a.toString());
 
         StringBuilder expectedMessage1b = new StringBuilder(
                 SECTION_A6_VALIDATOR + NL);
@@ -296,7 +292,7 @@ public class SectionA6ValidatorTest {
                 .append(NL)
                 .append(" SAE J1939-73 paragraph 5.7.5");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                expectedMessage1b.toString());
+                                        expectedMessage1b.toString());
 
         StringBuilder expectedMessage1c = new StringBuilder(
                 SECTION_A6_VALIDATOR + NL);
@@ -312,13 +308,13 @@ public class SectionA6ValidatorTest {
                 .append(NL)
                 .append("1223");
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                expectedMessage1c.toString());
+                                                  expectedMessage1c.toString());
 
         String expectedMessage2c = SECTION_A6_VALIDATOR + NL +
                 " Step 2.c - Composite vehicle readiness does not meet any of the criteria in Table A-6";
         verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER,
-                FAIL,
-                expectedMessage2c);
+                                                  FAIL,
+                                                  expectedMessage2c);
 
         StringBuilder expectedMessage2d = new StringBuilder(SECTION_A6_VALIDATOR + NL);
         expectedMessage2d.append(" Step 2.d An individual required monitor is supported by more than one OBD ECU");
@@ -336,18 +332,11 @@ public class SectionA6ValidatorTest {
                 .append(" Step 3.b [byte 8] failed all binary zeros or all binary ones check")
                 .append(NL);
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
-                expectedMessage3b.toString());
+                                        expectedMessage3b.toString());
 
         verify(tableA6Validator, times(2)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
-        String expectedMessage =
-                FAIL.toString() + ": " + expectedMessage1a + NL +
-                        FAIL.toString() + ": " + expectedMessage1c + NL +
-                        FAIL.toString() + ": " + expectedMessage1b + NL +
-                        FAIL.toString() + ": " + expectedMessage1c + NL +
-                        WARN.toString() + ": " + expectedMessage2d + NL +
-                        WARN.toString() + ": " + expectedMessage3b;
-        assertEquals(expectedMessage, listener.getMessages());
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }

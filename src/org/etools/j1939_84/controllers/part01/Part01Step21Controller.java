@@ -33,8 +33,6 @@ public class Part01Step21Controller extends StepController {
     private static final int STEP_NUMBER = 21;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part01Step21Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -53,15 +51,15 @@ public class Part01Step21Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
@@ -73,16 +71,16 @@ public class Part01Step21Controller extends StepController {
 
         //Save the packet for later use
         globalPackets.stream()
-                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .forEach(p -> {
-                    var obdModule = dataRepository.getObdModule(p.getSourceAddress());
+                    var obdModule = getDataRepository().getObdModule(p.getSourceAddress());
                     obdModule.setLastDM27(p);
-                    dataRepository.putObdModule(obdModule);
+                    getDataRepository().putObdModule(obdModule);
                 });
 
         // 6.1.21.2.a. Fail if any OBD ECU reports an all pending DTC.
         globalPackets.stream()
-                .filter(p -> dataRepository.isObdModule(p.getSourceAddress()))
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .filter(p -> !p.getDtcs().isEmpty())
                 .map(ParsedPacket::getSourceAddress)
                 .map(Lookup::getAddressName)
@@ -95,7 +93,7 @@ public class Part01Step21Controller extends StepController {
                 .map(Lookup::getAddressName)
                 .forEach(moduleName -> addFailure("6.1.21.2.b - " + moduleName + " did not report MIL off"));
 
-        List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
+        List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
 
         // 6.1.21.3.a. DS DM28 to each OBD ECU.
         List<BusResult<DM27AllPendingDTCsPacket>> dsResults = obdModuleAddresses.stream()

@@ -27,8 +27,6 @@ public class Part02Step13Controller extends StepController {
     private static final int STEP_NUMBER = 13;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part02Step13Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -47,14 +45,15 @@ public class Part02Step13Controller extends StepController {
                            DateTimeModule dateTimeModule,
                            DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
-              diagnosticMessageModule, dateTimeModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
@@ -64,7 +63,7 @@ public class Part02Step13Controller extends StepController {
         //  a. DS DM31 (send Request (PGN 59904) for PGN 41728 (SPNs 1214-1215, 4113, 4117)) to each OBD ECU.
         List<DM31DtcToLampAssociation> dsPackets = new ArrayList<>();
         List<AcknowledgmentPacket> ackPackets = new ArrayList<>();
-        dataRepository.getObdModules().forEach(module -> {
+        getDataRepository().getObdModules().forEach(module -> {
             RequestResult<DM31DtcToLampAssociation> requestResult = getDiagnosticMessageModule()
                     .requestDM31(getListener(), module.getSourceAddress());
             if(!requestResult.getPackets().isEmpty()){
@@ -83,7 +82,7 @@ public class Part02Step13Controller extends StepController {
                                + " reported MIL not off/alt-off");
         });
         //  b. Fail if NACK not received from OBD ECUs that did not provide DM31.
-        List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
+        List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
         checkForNACKs(dsPackets, ackPackets, obdModuleAddresses, "6.2.13.2.b");
     }
 

@@ -109,7 +109,8 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 mockListener);
+                                 mockListener,
+                                 diagnosticMessageModule);
     }
 
     @Test
@@ -131,6 +132,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         runTest();
 
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(spn1));
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
@@ -163,6 +165,8 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
                                     DM30ScaledTestResultsPacket.create(0, testResult2)));
 
         runTest();
+
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(spn1));
 
         verify(mockListener).addOutcome(PART,
                                         STEP,
@@ -215,6 +219,8 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult2)));
 
         runTest();
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(spn1));
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(spn2));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -253,6 +259,9 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult2)));
 
         runTest();
+
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(spn1));
+        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(spn2));
 
         verify(mockListener).addOutcome(PART,
                                         STEP,

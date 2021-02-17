@@ -152,8 +152,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
 
-        String expectedResults = "FAIL: 6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -185,13 +184,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.1.21.2.a - Engine #2 (1) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.a - Transmission #1 (3) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Engine #2 (1) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Transmission #1 (3) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(
                 PART_NUMBER,
@@ -262,10 +255,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.1.21.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
-        String expected = "";
-        expected += "FAIL: 6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        expected += "FAIL: 6.1.21.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -332,12 +322,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
 
-        String expectedResults = "FAIL: 6.1.21.2.a - Transmission #1 (3) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Transmission #1 (3) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
-        expectedResults += "FAIL: 6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -393,13 +378,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                 "6.1.21.2.b - Transmission #1 (3) did not report MIL off"
         );
 
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.1.21.2.a - Engine #2 (1) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.a - Transmission #1 (3) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Engine #2 (1) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.21.2.b - Transmission #1 (3) did not report MIL off" + NL;
-
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -454,8 +433,7 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.21.2.a - Engine #2 (1) reported an all pending DTC");
 
-        String expectedResults = "FAIL: 6.1.21.2.a - Engine #2 (1) reported an all pending DTC" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }

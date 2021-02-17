@@ -36,7 +36,8 @@ public class Part01Step07Controller extends StepController {
              new BannerModule(),
              new VehicleInformationModule(),
              dataRepository,
-             DateTimeModule.getInstance());
+             DateTimeModule.getInstance(),
+             new DiagnosticMessageModule());
     }
 
     Part01Step07Controller(Executor executor,
@@ -44,14 +45,16 @@ public class Part01Step07Controller extends StepController {
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
                            DataRepository dataRepository,
-                           DateTimeModule dateTimeModule) {
+                           DateTimeModule dateTimeModule,
+                           DiagnosticMessageModule diagnosticMessageModule) {
+
         super(executor,
               bannerModule,
               dateTimeModule,
               dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(),
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);

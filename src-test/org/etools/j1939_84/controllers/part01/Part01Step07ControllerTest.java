@@ -79,6 +79,9 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
+
+    @Mock
     private EngineSpeedModule engineSpeedModule;
 
     @Mock
@@ -100,9 +103,6 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
-
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
@@ -113,7 +113,8 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                               bannerModule,
                                               vehicleInformationModule,
                                               dataRepository,
-                                              DateTimeModule.getInstance());
+                                              DateTimeModule.getInstance(),
+                                              diagnosticMessageModule);
 
         setup(instance,
               listener,
@@ -133,7 +134,8 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                  vehicleInformationModule,
                                  diagnosticMessageModule,
                                  dataRepository,
-                                 mockListener);
+                                 mockListener,
+                                 diagnosticMessageModule);
     }
 
     @Test

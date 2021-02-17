@@ -48,7 +48,6 @@ public class Part01Step12Controller extends StepController {
     private static final int STEP_NUMBER = 12;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
     private final TableA7Validator tableA7Validator;
 
     Part01Step12Controller(DataRepository dataRepository) {
@@ -71,15 +70,15 @@ public class Part01Step12Controller extends StepController {
                            TableA7Validator tableA7Validator,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
         this.tableA7Validator = tableA7Validator;
     }
 
@@ -93,7 +92,7 @@ public class Part01Step12Controller extends StepController {
         List<ScaledTestResult> vehicleTestResults = new ArrayList<>();
 
         // Record it the DM30 for each module
-        for (OBDModuleInformation obdModule : dataRepository.getObdModules()) {
+        for (OBDModuleInformation obdModule : getDataRepository().getObdModules()) {
             List<ScaledTestResult> moduleTestResults = new ArrayList<>();
             int sourceAddress = obdModule.getSourceAddress();
             String moduleName = Lookup.getAddressName(sourceAddress);
@@ -118,13 +117,13 @@ public class Part01Step12Controller extends StepController {
                 }
             }
             obdModule.setScaledTestResults(moduleTestResults);
-            dataRepository.putObdModule(obdModule);
+            getDataRepository().putObdModule(obdModule);
             vehicleTestResults.addAll(moduleTestResults);
         }
 
         // Create list of ECU address+SPN+FMI supported test results.
         // 6.1.12.2.a. Fail/warn per section A.7 Criteria for Test Results Evaluation.
-        FuelType fuelType = dataRepository.getVehicleInformation().getFuelType();
+        FuelType fuelType = getDataRepository().getVehicleInformation().getFuelType();
 
         if (fuelType.isCompressionIgnition()) {
             tableA7Validator.validateForCompressionIgnition(vehicleTestResults, getListener());

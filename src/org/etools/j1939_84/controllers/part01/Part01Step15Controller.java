@@ -34,8 +34,6 @@ public class Part01Step15Controller extends StepController {
     private static final int STEP_NUMBER = 15;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part01Step15Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -54,15 +52,15 @@ public class Part01Step15Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
@@ -76,7 +74,7 @@ public class Part01Step15Controller extends StepController {
 
         for (DM1ActiveDTCsPacket dm1 : packets) {
             int sourceAddress = dm1.getSourceAddress();
-            boolean isObdModule = dataRepository.isObdModule(sourceAddress);
+            boolean isObdModule = getDataRepository().isObdModule(sourceAddress);
             String moduleName = Lookup.getAddressName(sourceAddress);
             foundObdPacket |= isObdModule;
 

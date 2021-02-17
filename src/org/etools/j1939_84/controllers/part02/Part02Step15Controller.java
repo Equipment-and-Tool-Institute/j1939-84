@@ -29,8 +29,6 @@ public class Part02Step15Controller extends StepController {
     private static final int STEP_NUMBER = 15;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part02Step15Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
              new EngineSpeedModule(),
@@ -49,15 +47,15 @@ public class Part02Step15Controller extends StepController {
                            DateTimeModule dateTimeModule,
                            DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
@@ -71,7 +69,7 @@ public class Part02Step15Controller extends StepController {
 
         // 6.2.15.2.a. Fail if no ECU responds. [Engines using SI technology need not respond until the 2024 engine model year].
         if (globalPackets.isEmpty()) {
-            VehicleInformation vehicleInformation = dataRepository.getVehicleInformation();
+            VehicleInformation vehicleInformation = getDataRepository().getVehicleInformation();
             FuelType fuelType = vehicleInformation.getFuelType();
             int engineModelYear = vehicleInformation.getEngineModelYear();
             if ((fuelType.isSparkIgnition() && engineModelYear >= 2024) || fuelType.isCompressionIgnition()) {
@@ -91,7 +89,7 @@ public class Part02Step15Controller extends StepController {
         }
 
         // 6.2.15.4.a. DS DM33 to each OBD ECU.
-        List<Integer> obdModuleAddresses = dataRepository.getObdModuleAddresses();
+        List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
         var dsResponses = obdModuleAddresses
                 .stream()
                 .map(address -> getDiagnosticMessageModule().requestDM33(getListener(), address))

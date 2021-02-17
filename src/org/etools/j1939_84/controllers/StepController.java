@@ -68,29 +68,6 @@ public abstract class StepController extends Controller {
         this.totalSteps = totalSteps;
     }
 
-    /** @deprecated Use the other constructor */
-    @Deprecated
-    protected StepController(Executor executor,
-                             EngineSpeedModule engineSpeedModule,
-                             BannerModule bannerModule,
-                             VehicleInformationModule vehicleInformationModule,
-                             DiagnosticMessageModule diagnosticMessageModule,
-                             DateTimeModule dateTimeModule,
-                             int partNumber,
-                             int stepNumber,
-                             int totalSteps) {
-        this(executor,
-             bannerModule,
-             dateTimeModule,
-             DataRepository.getInstance(),
-             engineSpeedModule,
-             vehicleInformationModule,
-             diagnosticMessageModule,
-             partNumber,
-             stepNumber,
-             totalSteps);
-    }
-
     /**
      * Ensures the Key is on with the Engine Off and prompts the user to make
      * the proper adjustments.

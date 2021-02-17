@@ -102,7 +102,14 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                 DateTimeModule.getInstance());
 
         ReportFileModule reportFileModule = mock(ReportFileModule.class);
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
 
     }
 
@@ -115,7 +122,8 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
                                  vehicleInformationModule,
                                  dataRepository,
                                  mockListener,
-                                 sectionA6Validator);
+                                 sectionA6Validator,
+                                 diagnosticMessageModule);
     }
 
     @Test
@@ -156,6 +164,8 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
+
+        verify(diagnosticMessageModule).requestDM5(any());
 
         verify(sectionA6Validator).verify(any(), eq(PART_NUMBER), eq(STEP_NUMBER), eq(globalRequestResponse));
 
@@ -208,6 +218,11 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+        verify(diagnosticMessageModule).requestDM5(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM5(any(), eq(0x17));
+        verify(diagnosticMessageModule).requestDM5(any(), eq(0x21));
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                         "6.1.13.1.a - Global DM5 request did not receive any response packets");
@@ -267,6 +282,12 @@ public class Part01Step13ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(dataRepository, atLeastOnce()).getObdModuleAddresses();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+        verify(diagnosticMessageModule).requestDM5(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM5(any(), eq(0x17));
+        verify(diagnosticMessageModule).requestDM5(any(), eq(0x21));
+        verify(diagnosticMessageModule).requestDM5(any(), eq(0x23));
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

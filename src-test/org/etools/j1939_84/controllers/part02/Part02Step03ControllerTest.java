@@ -117,14 +117,13 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
                                  bannerModule,
                                  vehicleInformationModule,
                                  diagnosticMessageModule,
-                                 mockListener);
+                                 mockListener,
+                                 diagnosticMessageModule);
     }
 
     @Test
     public void testEmptyObdModules() {
-
         runTest();
-
         verify(diagnosticMessageModule).setJ1939(j1939);
     }
 
@@ -150,7 +149,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
             OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
             obdInfo0.setObdCompliance((byte) 4);
             obdInfo0.setSupportedSpns(List.of(spn1, spn2, mock(SupportedSPN.class)));
-            dataRepository.putObdModule(0, obdInfo0);
+            dataRepository.putObdModule(obdInfo0);
         }
 
         {
@@ -167,7 +166,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
             OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
             obdInfo1.setObdCompliance((byte) 4);
             obdInfo1.setSupportedSpns(List.of(spn1));
-            dataRepository.putObdModule(1, obdInfo1);
+            dataRepository.putObdModule( obdInfo1);
         }
 
         runTest();
@@ -176,12 +175,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM24(any(), eq(0));
         verify(diagnosticMessageModule).requestDM24(any(), eq(1));
 
-        String expected = "";
-        expected += "FAIL: 6.2.3.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4"
-                + NL;
-        expected += "FAIL: 6.2.3.2.a - Message data received from Engine #2 (1) differs from that provided in part 6.1.4"
-                + NL;
-        assertEquals(expected, listener.getResults());
+       assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -232,7 +226,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
             OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
             obdInfo0.setObdCompliance((byte) 4);
             obdInfo0.setSupportedSpns(List.of(spn1, spn2));
-            dataRepository.putObdModule(0, obdInfo0);
+            dataRepository.putObdModule( obdInfo0);
         }
 
         {
@@ -249,7 +243,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
             OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
             obdInfo1.setObdCompliance((byte) 4);
             obdInfo1.setSupportedSpns(List.of(spn1, spn2));
-            dataRepository.putObdModule(1, obdInfo1);
+            dataRepository.putObdModule(obdInfo1);
         }
 
         runTest();

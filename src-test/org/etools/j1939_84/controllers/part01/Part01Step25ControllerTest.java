@@ -33,8 +33,8 @@ import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -100,7 +100,14 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -149,8 +156,7 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
                                                        "Engine #1 (0) did not respond to the DS DM20 request");
 
-        String expectedResults = "WARN: Engine #1 (0) did not respond to the DS DM20 request" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -373,11 +379,7 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                                                                + NL
                                                                + "Engine #1 (0) had a difference between stored performance ratios and DS requested DM20 response ratios");
 
-        String expectedResults = "FAIL: 6.1.25.2.b - Difference compared to data received during global request earlier"
-                + NL
-                + "Engine #1 (0) had a difference between stored performance ratios and DS requested DM20 response ratios"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -440,9 +442,7 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.25.2.c - NACK not received from OBD ECUs that did not respond to global query");
 
-        String expectedResult = "FAIL: 6.1.25.2.c - NACK not received from OBD ECUs that did not respond to global query"
-                + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -493,9 +493,7 @@ public class Part01Step25ControllerTest extends AbstractControllerTest {
                                         "6.1.25.2.a - Retry was required to obtain DM20 response:"
                                                 + NL + "Engine #1 (0) required a retry when DS requesting DM20");
 
-        String expectedResult = "FAIL: 6.1.25.2.a - Retry was required to obtain DM20 response:" + NL
-                + "Engine #1 (0) required a retry when DS requesting DM20" + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }

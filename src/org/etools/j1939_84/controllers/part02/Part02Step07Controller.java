@@ -30,7 +30,6 @@ public class Part02Step07Controller extends StepController {
     private static final int STEP_NUMBER = 7;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
 
     Part02Step07Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
@@ -38,7 +37,8 @@ public class Part02Step07Controller extends StepController {
              new BannerModule(),
              new VehicleInformationModule(),
              dataRepository,
-             DateTimeModule.getInstance());
+             DateTimeModule.getInstance(),
+        new DiagnosticMessageModule());
     }
 
     Part02Step07Controller(Executor executor,
@@ -46,16 +46,18 @@ public class Part02Step07Controller extends StepController {
                            BannerModule bannerModule,
                            VehicleInformationModule vehicleInformationModule,
                            DataRepository dataRepository,
-                           DateTimeModule dateTimeModule) {
+                           DateTimeModule dateTimeModule,
+                           DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(), dateTimeModule,
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override
@@ -70,7 +72,7 @@ public class Part02Step07Controller extends StepController {
 
         final ComponentIdentificationPacket[] dsFunctionZeroPacket = { null };
         //6.2.7 Component ID: Make, Model, Serial Number Support
-        dataRepository.getObdModules().stream()
+        getDataRepository().getObdModules().stream()
                 //get modules that responded in Part01 from dataRepo
                 .filter(obdModuleInformation -> obdModuleInformation.getComponentIdentification() != null)
                 .forEach(module -> {

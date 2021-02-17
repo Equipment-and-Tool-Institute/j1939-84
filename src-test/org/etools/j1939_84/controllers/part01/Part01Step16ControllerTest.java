@@ -16,7 +16,6 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
-
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
@@ -32,8 +31,8 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -94,24 +93,31 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(null);
 
         instance = new Part01Step16Controller(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
                                               diagnosticMessageModule,
-                dataRepository,
-                DateTimeModule.getInstance());
+                                              dataRepository,
+                                              DateTimeModule.getInstance());
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
 
     }
 
     @After
     public void tearDown() {
         verifyNoMoreInteractions(executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                mockListener,
+                                 engineSpeedModule,
+                                 bannerModule,
+                                 vehicleInformationModule,
+                                 mockListener,
                                  diagnosticMessageModule);
     }
 
@@ -139,14 +145,13 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         verify(mockListener).addOutcome(1,
-                16,
-                FAIL,
-                "6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC");
+                                        16,
+                                        FAIL,
+                                        "6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC" + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -179,13 +184,13 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         verify(mockListener).addOutcome(1,
-                16,
-                FAIL,
-                "6.1.16.2.b - OBD ECU Engine #1 (0) did not report MIL off");
+                                        16,
+                                        FAIL,
+                                        "6.1.16.2.b - OBD ECU Engine #1 (0) did not report MIL off");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.16.2.b - OBD ECU Engine #1 (0) did not report MIL off" + NL, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -234,20 +239,17 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(0));
 
         verify(mockListener).addOutcome(1,
-                16,
-                FAIL,
-                "6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC");
+                                        16,
+                                        FAIL,
+                                        "6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC");
         verify(mockListener).addOutcome(1,
-                16,
-                FAIL,
-                "6.1.16.2.b - OBD ECU Engine #1 (0) did not report MIL off");
+                                        16,
+                                        FAIL,
+                                        "6.1.16.2.b - OBD ECU Engine #1 (0) did not report MIL off");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expected = "";
-        expected += "FAIL: 6.1.16.2.a - OBD ECU Engine #1 (0) reported a previously active DTC" + NL;
-        expected += "FAIL: 6.1.16.2.b - OBD ECU Engine #1 (0) did not report MIL off" + NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -265,14 +267,14 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any());
 
         verify(mockListener).addOutcome(1,
-                16,
-                FAIL,
-                "6.1.16.2.c - Non-OBD ECU Engine #1 (0) did not report MIL off or not supported");
+                                        16,
+                                        FAIL,
+                                        "6.1.16.2.c - Non-OBD ECU Engine #1 (0) did not report MIL off or not supported");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         String expected = "";
-        expected += "FAIL: 6.1.16.2.c - Non-OBD ECU Engine #1 (0) did not report MIL off or not supported" + NL;
+       // expected += "FAIL: 6.1.16.2.c - Non-OBD ECU Engine #1 (0) did not report MIL off or not supported" + NL;
         assertEquals(expected, listener.getResults());
     }
 
@@ -312,16 +314,13 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(3));
 
         verify(mockListener).addOutcome(1,
-                16,
-                FAIL,
-                "6.1.16.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        16,
+                                        FAIL,
+                                        "6.1.16.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                "FAIL: 6.1.16.4.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query"
-                        + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -370,14 +369,13 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM2(any(), eq(3));
 
         verify(mockListener).addOutcome(1,
-                16,
-                FAIL,
-                "6.1.16.4.a - Difference compared to data received during global request from Engine #1 (0)");
+                                        16,
+                                        FAIL,
+                                        "6.1.16.4.a - Difference compared to data received during global request from Engine #1 (0)");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.16.4.a - Difference compared to data received during global request from Engine #1 (0)" + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test

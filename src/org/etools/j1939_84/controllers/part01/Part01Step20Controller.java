@@ -29,8 +29,6 @@ public class Part01Step20Controller extends StepController {
     private static final int STEP_NUMBER = 20;
     private static final int TOTAL_STEPS = 0;
 
-    private final DataRepository dataRepository;
-
     Part01Step20Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
                 new EngineSpeedModule(),
@@ -49,15 +47,15 @@ public class Part01Step20Controller extends StepController {
                            DataRepository dataRepository,
                            DateTimeModule dateTimeModule) {
         super(executor,
-              engineSpeedModule,
               bannerModule,
+              dateTimeModule,
+              dataRepository,
+              engineSpeedModule,
               vehicleInformationModule,
               diagnosticMessageModule,
-              dateTimeModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
-        this.dataRepository = dataRepository;
     }
 
     @Override

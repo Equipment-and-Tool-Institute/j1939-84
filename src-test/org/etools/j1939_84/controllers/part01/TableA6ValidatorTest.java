@@ -28,11 +28,14 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
@@ -97,12 +100,11 @@ public class TableA6ValidatorTest {
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part01.TableA6Validator#verify(org.etools.j1939_84.controllers.ResultsListener, org.etools.j1939_84.bus.Packet)}.
      */
     @Test
     public void testVerifyCompression() {
 
-        Set<MonitoredSystem> systems = new HashSet<>();
+        List<MonitoredSystem> systems = new ArrayList<>();
 
         MonitoredSystemStatus status1 = MonitoredSystemStatus.findStatus(true, false, false);
         MonitoredSystem system1 = new MonitoredSystem(AC_SYSTEM_REFRIGERANT.getName(), status1, 0,
@@ -189,78 +191,19 @@ public class TableA6ValidatorTest {
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
         when(dataRepository.isAfterCodeClear()).thenReturn(false);
 
-        assertTrue(instance.verify(listener, packet1, 1, 2));
-        StringBuilder expectedMessages = new StringBuilder(
-                "PASS: TableA6 A/C system refrigerant verification");
-        expectedMessages.append(NL)
-                .append("PASS: TableA6 Boost pressure control sys verification")
-                .append(NL)
-                .append("PASS: TableA6 Catalyst verification")
-                .append(NL)
-                .append("PASS: TableA6 Cold start aid system verification")
-                .append(NL)
-                .append("PASS: TableA6 Comprehensive component verification")
-                .append(NL)
-                .append("PASS: TableA6 Diesel Particulate Filter verification")
-                .append(NL)
-                .append("PASS: TableA6 EGR/VVT system verification")
-                .append(NL)
-                .append("PASS: TableA6 Evaporative system verification")
-                .append(NL)
-                .append("PASS: TableA6 Exhaust Gas Sensor verification")
-                .append(NL)
-                .append("PASS: TableA6 Exhaust Gas Sensor heater verification")
-                .append(NL)
-                .append("PASS: TableA6 Fuel System verification")
-                .append(NL)
-                .append("PASS: TableA6 Heated catalyst verification")
-                .append(NL)
-                .append("PASS: TableA6 Misfire verification")
-                .append(NL)
-                .append("PASS: TableA6 NMHC converting catalyst verification")
-                .append(NL)
-                .append("PASS: TableA6 NOx catalyst/adsorber verification")
-                .append(NL)
-                .append("PASS: TableA6 Secondary air system verification");
+        assertTrue(instance.verify(listener, packet1, PART_NUMBER, STEP_NUMBER));
 
-        assertEquals(expectedMessages.toString(), listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
-
-        verify(dataRepository, atLeast(1)).getVehicleInformation();
-        verify(dataRepository, atLeast(1)).isAfterCodeClear();
-
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "TableA6 A/C system refrigerant verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "TableA6 Boost pressure control sys verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "TableA6 Catalyst verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "TableA6 Cold start aid system verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "TableA6 Comprehensive component verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "TableA6 Diesel Particulate Filter verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "TableA6 EGR/VVT system verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "TableA6 Evaporative system verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "TableA6 Exhaust Gas Sensor verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "TableA6 Exhaust Gas Sensor heater verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "TableA6 Fuel System verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "TableA6 Heated catalyst verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "TableA6 Misfire verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS,
-                "TableA6 NMHC converting catalyst verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "TableA6 NOx catalyst/adsorber verification");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, PASS, "TableA6 Secondary air system verification");
-
+        verify(dataRepository, times(12)).getVehicleInformation();
+        verify(dataRepository, times(9)).isAfterCodeClear();
     }
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part01.TableA6Validator#verify(org.etools.j1939_84.controllers.ResultsListener, org.etools.j1939_84.bus.Packet)}.
      */
     @Test
     public void testVerifyDiesel() {
 
-        Set<MonitoredSystem> systems = new HashSet<>();
+        List<MonitoredSystem> systems = new ArrayList<>();
 
         MonitoredSystemStatus status1 = MonitoredSystemStatus.findStatus(true, false, false);
         MonitoredSystem system1 = new MonitoredSystem(AC_SYSTEM_REFRIGERANT.getName(), status1, 0,
@@ -348,72 +291,23 @@ public class TableA6ValidatorTest {
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
         when(dataRepository.isAfterCodeClear()).thenReturn(false);
 
-        assertTrue(instance.verify(listener, packet1, 1, 2));
-        StringBuilder expectedMessages = new StringBuilder(
-                "PASS: TableA6 A/C system refrigerant verification");
-        expectedMessages.append(NL)
-                .append("PASS: TableA6 Boost pressure control sys verification")
-                .append(NL)
-                .append("PASS: TableA6 Catalyst verification")
-                .append(NL)
-                .append("PASS: TableA6 Cold start aid system verification")
-                .append(NL)
-                .append("PASS: TableA6 Comprehensive component verification")
-                .append(NL)
-                .append("PASS: TableA6 Diesel Particulate Filter verification")
-                .append(NL)
-                .append("PASS: TableA6 EGR/VVT system verification")
-                .append(NL)
-                .append("PASS: TableA6 Evaporative system verification")
-                .append(NL)
-                .append("PASS: TableA6 Exhaust Gas Sensor verification")
-                .append(NL)
-                .append("WARN: TableA6 Exhaust Gas Sensor heater is not enabled, not complete")
-                .append(NL)
-                .append("PASS: TableA6 Exhaust Gas Sensor heater verification")
-                .append(NL)
-                .append("PASS: TableA6 Fuel System verification")
-                .append(NL)
-                .append("PASS: TableA6 Heated catalyst verification")
-                .append(NL)
-                .append("PASS: TableA6 Misfire verification")
-                .append(NL)
-                .append("PASS: TableA6 NMHC converting catalyst verification")
-                .append(NL)
-                .append("PASS: TableA6 NOx catalyst/adsorber verification")
-                .append(NL)
-                .append("PASS: TableA6 Secondary air system verification");
+        assertTrue(instance.verify(listener, packet1, PART_NUMBER, STEP_NUMBER));
 
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(dataRepository, atLeast(1)).getVehicleInformation();
         verify(dataRepository, atLeast(1)).isAfterCodeClear();
 
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 A/C system refrigerant verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Boost pressure control sys verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Catalyst verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Cold start aid system verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Comprehensive component verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Diesel Particulate Filter verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 EGR/VVT system verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Evaporative system verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Exhaust Gas Sensor verification");
-        verify(mockListener).addOutcome(1, 2, WARN, "TableA6 Exhaust Gas Sensor heater is not enabled, not complete");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Exhaust Gas Sensor heater verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Fuel System verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Heated catalyst verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Misfire verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 NMHC converting catalyst verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 NOx catalyst/adsorber verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Secondary air system verification");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, "TableA6 Exhaust Gas Sensor heater is not enabled, not complete");
+
     }
 
     @Test
     public void testVerifyDieselFail() {
 
-        Set<MonitoredSystem> systems = new HashSet<>();
+        List<MonitoredSystem> systems = new ArrayList<>();
 
         MonitoredSystemStatus status1 = MonitoredSystemStatus.findStatus(true, true, false);
         MonitoredSystem system1 = new MonitoredSystem(AC_SYSTEM_REFRIGERANT.getName(), status1, 0,
@@ -457,7 +351,11 @@ public class TableA6ValidatorTest {
         MonitoredSystem system11 = new MonitoredSystem(FUEL_SYSTEM.getName(), status11, 0x00, FUEL_SYSTEM, true);
 
         MonitoredSystemStatus status12 = MonitoredSystemStatus.findStatus(false, true, false);
-        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST.getName(), status12, 0x00, HEATED_CATALYST, true);
+        MonitoredSystem system12 = new MonitoredSystem(HEATED_CATALYST.getName(),
+                                                       status12,
+                                                       0x00,
+                                                       HEATED_CATALYST,
+                                                       true);
 
         MonitoredSystemStatus status13 = MonitoredSystemStatus.findStatus(false, true, false);
         MonitoredSystem system13 = new MonitoredSystem(MISFIRE.getName(), status13, 0x00, MISFIRE, true);
@@ -494,78 +392,19 @@ public class TableA6ValidatorTest {
         DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
         when(packet1.getMonitoredSystems()).thenReturn(systems);
 
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(FuelType.DSL);
+        assertFalse(instance.verify(listener, packet1, PART_NUMBER, STEP_NUMBER));
 
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.isAfterCodeClear()).thenReturn(true);
-
-        assertFalse(instance.verify(listener, packet1, 1, 2));
-        StringBuilder expectedMessages = new StringBuilder(
-                "FAIL: TableA6 A/C system refrigerant verification");
-        expectedMessages.append(NL)
-                .append("FAIL: TableA6 Boost pressure control sys verification")
-                .append(NL)
-                .append("FAIL: TableA6 Catalyst verification")
-                .append(NL)
-                .append("FAIL: TableA6 Cold start aid system verification")
-                .append(NL)
-                .append("FAIL: TableA6 Comprehensive component verification")
-                .append(NL)
-                .append("FAIL: TableA6 Diesel Particulate Filter verification")
-                .append(NL)
-                .append("FAIL: TableA6 EGR/VVT system verification")
-                .append(NL)
-                .append("FAIL: TableA6 Evaporative system verification")
-                .append(NL)
-                .append("FAIL: TableA6 Exhaust Gas Sensor verification")
-                .append(NL)
-                .append("FAIL: TableA6 Exhaust Gas Sensor heater verification")
-                .append(NL)
-                .append("FAIL: TableA6 Fuel System verification")
-                .append(NL)
-                .append("FAIL: TableA6 Heated catalyst verification")
-                .append(NL)
-                .append("WARN: TableA6 Misfire is     enabled, not complete")
-                .append(NL)
-                .append("FAIL: TableA6 Misfire verification")
-                .append(NL)
-                .append("FAIL: TableA6 NMHC converting catalyst verification")
-                .append(NL)
-                .append("FAIL: TableA6 NOx catalyst/adsorber verification")
-                .append(NL)
-                .append("FAIL: TableA6 Secondary air system verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
-        verify(dataRepository, atLeast(1)).getVehicleInformation();
-        verify(dataRepository, atLeast(1)).isAfterCodeClear();
-
-        verify(mockListener).addOutcome(1, 2, WARN, "TableA6 Misfire is     enabled, not complete");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 A/C system refrigerant verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Boost pressure control sys verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Catalyst verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Cold start aid system verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Comprehensive component verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Diesel Particulate Filter verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 EGR/VVT system verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Evaporative system verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Exhaust Gas Sensor verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Exhaust Gas Sensor heater verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Fuel System verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Heated catalyst verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Misfire verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 NMHC converting catalyst verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 NOx catalyst/adsorber verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Secondary air system verification");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "TableA6 A/C system refrigerant verification");
     }
 
     @Test
     public void testVerifyElectricFail() {
 
-        Set<MonitoredSystem> systems = new HashSet<>();
+        List<MonitoredSystem> systems = new ArrayList<>();
 
         MonitoredSystemStatus status1 = MonitoredSystemStatus.findStatus(true, true, false);
         MonitoredSystem system1 = new MonitoredSystem(AC_SYSTEM_REFRIGERANT.getName(), status1, 0,
@@ -646,98 +485,22 @@ public class TableA6ValidatorTest {
         DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
         when(packet1.getMonitoredSystems()).thenReturn(systems);
 
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(FuelType.BATT_ELEC);
+        assertFalse(instance.verify(listener, packet1, PART_NUMBER, STEP_NUMBER));
 
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.isAfterCodeClear()).thenReturn(true);
-
-        assertFalse(instance.verify(listener, packet1, 1, 2));
-        StringBuilder expectedMessages = new StringBuilder(
-                "FAIL: TableA6 A/C system refrigerant verification");
-        expectedMessages.append(NL)
-                .append("WARN: TableA6 Boost pressure control sys verification")
-                .append(NL)
-                .append("This test is only valid for compression or spark ignition")
-                .append(NL)
-                .append("WARN: TableA6 Catalyst verification")
-                .append(NL)
-                .append("This test is only valid for compression or spark ignition")
-                .append(NL)
-                .append("FAIL: TableA6 Cold start aid system verification")
-                .append(NL)
-                .append("FAIL: TableA6 Comprehensive component verification")
-                .append(NL)
-                .append("WARN: TableA6 Diesel Particulate Filter verification")
-                .append(NL)
-                .append("This test is only valid for compression or spark ignition")
-                .append(NL)
-                .append("FAIL: TableA6 EGR/VVT system verification")
-                .append(NL)
-                .append("WARN: TableA6 Evaporative system verification")
-                .append(NL)
-                .append("This test is only valid for compression or spark ignition")
-                .append(NL)
-                .append("FAIL: TableA6 Exhaust Gas Sensor verification")
-                .append(NL)
-                .append("FAIL: TableA6 Exhaust Gas Sensor heater verification")
-                .append(NL)
-                .append("FAIL: TableA6 Fuel System verification")
-                .append(NL)
-                .append("WARN: TableA6 Heated catalyst verification")
-                .append(NL)
-                .append("This test is only valid for compression or spark ignition")
-                .append(NL)
-                .append("FAIL: TableA6 Misfire verification")
-                .append(NL)
-                .append("WARN: TableA6 NMHC converting catalyst verification")
-                .append(NL)
-                .append("This test is only valid for compression or spark ignition")
-                .append(NL)
-                .append("FAIL: TableA6 NOx catalyst/adsorber verification")
-                .append(NL)
-                .append("FAIL: TableA6 Secondary air system verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
-        verify(dataRepository, atLeast(1)).getVehicleInformation();
-        verify(dataRepository, atLeast(1)).isAfterCodeClear();
-
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 A/C system refrigerant verification");
-        verify(mockListener).addOutcome(1, 2, WARN, "TableA6 Boost pressure control sys verification" + NL
-                + "This test is only valid for compression or spark ignition");
-        verify(mockListener).addOutcome(1, 2, WARN,
-                "TableA6 Catalyst verification" + NL + "This test is only valid for compression or spark ignition");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Cold start aid system verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Comprehensive component verification");
-        verify(mockListener).addOutcome(1, 2, WARN, "TableA6 Diesel Particulate Filter verification" + NL
-                + "This test is only valid for compression or spark ignition");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 EGR/VVT system verification");
-        verify(mockListener).addOutcome(1, 2, WARN, "TableA6 Evaporative system verification" + NL
-                + "This test is only valid for compression or spark ignition");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Exhaust Gas Sensor verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Exhaust Gas Sensor heater verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Fuel System verification");
-        verify(mockListener).addOutcome(1, 2, WARN, "TableA6 Heated catalyst verification" + NL
-                + "This test is only valid for compression or spark ignition");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Misfire verification");
-        verify(mockListener).addOutcome(1, 2, WARN, "TableA6 NMHC converting catalyst verification" + NL
-                + "This test is only valid for compression or spark ignition");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 NOx catalyst/adsorber verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Secondary air system verification");
-
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "TableA6 A/C system refrigerant verification");
     }
 
     /**
      * Test method for
-     * {@link org.etools.j1939_84.controllers.part01.TableA6Validator#verify(org.etools.j1939_84.controllers.ResultsListener, org.etools.j1939_84.bus.Packet)}.
      */
     @Test
     public void testVerifySpark() {
 
-        Set<MonitoredSystem> systems = new HashSet<>();
+        List<MonitoredSystem> systems = new ArrayList<>();
 
         MonitoredSystemStatus status1 = MonitoredSystemStatus.findStatus(true, false, false);
         MonitoredSystem system1 = new MonitoredSystem(AC_SYSTEM_REFRIGERANT.getName(), status1, 0,
@@ -824,74 +587,21 @@ public class TableA6ValidatorTest {
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
         when(dataRepository.isAfterCodeClear()).thenReturn(true);
 
-        assertTrue(instance.verify(listener, packet1, 1, 2));
-        StringBuilder expectedMessages = new StringBuilder(
-                "PASS: TableA6 A/C system refrigerant verification");
-        expectedMessages.append(NL)
-                .append("PASS: TableA6 Boost pressure control sys verification")
-                .append(NL)
-                .append("PASS: TableA6 Catalyst verification")
-                .append(NL)
-                .append("PASS: TableA6 Cold start aid system verification")
-                .append(NL)
-                .append("PASS: TableA6 Comprehensive component verification")
-                .append(NL)
-                .append("PASS: TableA6 Diesel Particulate Filter verification")
-                .append(NL)
-                .append("PASS: TableA6 EGR/VVT system verification")
-                .append(NL)
-                .append("PASS: TableA6 Evaporative system verification")
-                .append(NL)
-                .append("PASS: TableA6 Exhaust Gas Sensor verification")
-                .append(NL)
-                .append("PASS: TableA6 Exhaust Gas Sensor heater verification")
-                .append(NL)
-                .append("PASS: TableA6 Fuel System verification")
-                .append(NL)
-                .append("PASS: TableA6 Heated catalyst verification")
-                .append(NL)
-                .append("PASS: TableA6 Misfire verification")
-                .append(NL)
-                .append("PASS: TableA6 NMHC converting catalyst verification")
-                .append(NL)
-                .append("PASS: TableA6 NOx catalyst/adsorber verification")
-                .append(NL)
-                .append("PASS: TableA6 Secondary air system verification");
+        assertTrue(instance.verify(listener, packet1, PART_NUMBER, STEP_NUMBER));
 
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
         verify(dataRepository, atLeast(1)).getVehicleInformation();
         verify(dataRepository, atLeast(1)).isAfterCodeClear();
 
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 A/C system refrigerant verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Boost pressure control sys verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Catalyst verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Cold start aid system verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Comprehensive component verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Diesel Particulate Filter verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 EGR/VVT system verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Evaporative system verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Exhaust Gas Sensor verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Exhaust Gas Sensor heater verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Fuel System verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Heated catalyst verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Misfire verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 NMHC converting catalyst verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 NOx catalyst/adsorber verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Secondary air system verification");
-
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part01.TableA6Validator#verify(org.etools.j1939_84.controllers.ResultsListener, org.etools.j1939_84.bus.Packet)}.
-     */
     @Test
     public void testVerifySparkFail() {
 
-        Set<MonitoredSystem> systems = new HashSet<>();
+        List<MonitoredSystem> systems = new ArrayList<>();
 
         MonitoredSystemStatus status1 = MonitoredSystemStatus.findStatus(true, true, false);
         MonitoredSystem system1 = new MonitoredSystem(AC_SYSTEM_REFRIGERANT.getName(), status1, 0,
@@ -972,76 +682,13 @@ public class TableA6ValidatorTest {
         DM5DiagnosticReadinessPacket packet1 = mock(DM5DiagnosticReadinessPacket.class);
         when(packet1.getMonitoredSystems()).thenReturn(systems);
 
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(FuelType.GAS);
+        assertFalse(instance.verify(listener, packet1, PART_NUMBER, STEP_NUMBER));
 
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
-        when(dataRepository.isAfterCodeClear()).thenReturn(false);
-
-        assertFalse(instance.verify(listener, packet1, 1, 2));
-        StringBuilder expectedMessages = new StringBuilder(
-                "FAIL: TableA6 A/C system refrigerant verification");
-        expectedMessages.append(NL)
-                .append("FAIL: TableA6 Boost pressure control sys verification")
-                .append(NL)
-                .append("FAIL: TableA6 Catalyst verification")
-                .append(NL)
-                .append("WARN: TableA6 Cold start aid system is not enabled,     complete")
-                .append(NL)
-                .append("FAIL: TableA6 Cold start aid system verification")
-                .append(NL)
-                .append("FAIL: TableA6 Comprehensive component verification")
-                .append(NL)
-                .append("FAIL: TableA6 Diesel Particulate Filter verification")
-                .append(NL)
-                .append("WARN: TableA6 EGR/VVT system is not supported,     complete")
-                .append(NL)
-                .append("FAIL: TableA6 EGR/VVT system verification")
-                .append(NL)
-                .append("FAIL: TableA6 Evaporative system verification")
-                .append(NL)
-                .append("FAIL: TableA6 Exhaust Gas Sensor verification")
-                .append(NL)
-                .append("PASS: TableA6 Exhaust Gas Sensor heater verification")
-                .append(NL)
-                .append("PASS: TableA6 Fuel System verification")
-                .append(NL)
-                .append("PASS: TableA6 Heated catalyst verification")
-                .append(NL)
-                .append("PASS: TableA6 Misfire verification")
-                .append(NL)
-                .append("FAIL: TableA6 NMHC converting catalyst verification")
-                .append(NL)
-                .append("FAIL: TableA6 NOx catalyst/adsorber verification")
-                .append(NL)
-                .append("PASS: TableA6 Secondary air system verification");
-
-        assertEquals(expectedMessages.toString(), listener.getMessages());
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
-        verify(dataRepository, atLeast(1)).getVehicleInformation();
-        verify(dataRepository, atLeast(1)).isAfterCodeClear();
-
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 A/C system refrigerant verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Boost pressure control sys verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Catalyst verification");
-        verify(mockListener).addOutcome(1, 2, WARN, "TableA6 Cold start aid system is not enabled,     complete");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Cold start aid system verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Comprehensive component verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Diesel Particulate Filter verification");
-        verify(mockListener).addOutcome(1, 2, WARN, "TableA6 EGR/VVT system is not supported,     complete");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 EGR/VVT system verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Evaporative system verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 Exhaust Gas Sensor verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Exhaust Gas Sensor heater verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Fuel System verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Heated catalyst verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Misfire verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 NMHC converting catalyst verification");
-        verify(mockListener).addOutcome(1, 2, FAIL, "TableA6 NOx catalyst/adsorber verification");
-        verify(mockListener).addOutcome(1, 2, PASS, "TableA6 Secondary air system verification");
-
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "TableA6 A/C system refrigerant verification");
     }
 
 }

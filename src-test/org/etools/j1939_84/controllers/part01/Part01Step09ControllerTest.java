@@ -26,6 +26,7 @@ import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -81,6 +82,9 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
+
+    @Mock
     private EngineSpeedModule engineSpeedModule;
 
     @Mock
@@ -131,9 +135,17 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
                 bannerModule,
                 vehicleInformationModule,
                 dataRepository,
-                DateTimeModule.getInstance());
+                DateTimeModule.getInstance(),
+                diagnosticMessageModule);
 
-        setup(instance, listener, j1939, engineSpeedModule, reportFileModule, executor, vehicleInformationModule);
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
@@ -330,11 +342,11 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         assertEquals(packet0x03.getComponentIdentification(),
                      dataRepository.getObdModule(3).getComponentIdentification());
 
+        verify(vehicleInformationModule).reportComponentIdentification(any());
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(1));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(2));
         verify(vehicleInformationModule).reportComponentIdentification(any(), eq(3));
-        verify(vehicleInformationModule).reportComponentIdentification(any());
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
@@ -715,8 +727,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, EXPECTED_WARN_MESSAGE_3_A);
 
-        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x00));
         verify(vehicleInformationModule).reportComponentIdentification(any());
+        verify(vehicleInformationModule).reportComponentIdentification(any(), eq(0x00));
 
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
