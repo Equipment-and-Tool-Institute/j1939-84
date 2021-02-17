@@ -135,11 +135,12 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
     public void testUserAbortForFail() {
 
         when(engineSpeedModule.isEngineCommunicating()).thenReturn(false, false, false, false);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         runTest();
 
         verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         String urgentMessages = "Please confirm Fault A is still implanted according to the manufacturer's instruction" + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
@@ -168,7 +169,6 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         String expectedTitle3 = "Part 6.3.16.1.d-g";
         verify(mockListener).onUrgentMessage(eq(urgentMessages3), eq(expectedTitle3), eq(WARNING), any());
 
-
         String outcomeMessage = "User cancelled testing at Part 3 Step 16";
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, outcomeMessage);
 
@@ -184,7 +184,6 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "ABORT: User cancelled testing at Part 3 Step 16" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         assertEquals("", listener.getMilestones());
@@ -194,12 +193,13 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
     public void testRun() throws InterruptedException {
 
         when(engineSpeedModule.isEngineCommunicating()).thenReturn(false);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         runTest();
 
         verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         String urgentMessages = "Please confirm Fault A is still implanted according to the manufacturer's instruction" + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
@@ -213,7 +213,10 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         String urgentMessages2 = "Please wait for the manufacturer's recommended interval with the key in off position" + NL;
         urgentMessages2 += "Press OK to continue the testing" + NL;
         String expectedTitle2 = "Part 6.3.16.1.c";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING), questionCaptor.capture());
+        verify(mockListener).onUrgentMessage(eq(urgentMessages2),
+                                             eq(expectedTitle2),
+                                             eq(WARNING),
+                                             questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
         String urgentMessages3 = "Turn ignition key to the ON position" + NL;
@@ -230,7 +233,7 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         assertEquals(expectedMessages, listener.getMessages());
 
         assertEquals("", listener.getMilestones());
-        String expected =  "Initial Engine Speed = 0.0 RPMs" + NL;
+        String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMilestones());
@@ -240,13 +243,14 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
     public void testEngineThrowInterruptedException() {
 
         when(engineSpeedModule.isEngineCommunicating()).thenReturn(false, false, false, false);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         runTest();
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         String urgentMessages = "Please confirm Fault A is still implanted according to the manufacturer's instruction" + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
@@ -287,7 +291,6 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "ABORT: User cancelled testing at Part 3 Step 16" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         assertEquals("", listener.getMilestones());

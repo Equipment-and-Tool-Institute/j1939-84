@@ -4,7 +4,6 @@
 
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime.create;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
@@ -145,11 +144,7 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
-        String expected = "";
-        expected += "FAIL: 6.2.15.2.a - No ECU responded to the global request" + NL;
-        expected += "FAIL: 6.2.15.5.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
@@ -178,10 +173,7 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
-        String expected = "";
-        expected += "FAIL: 6.2.15.5.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
@@ -210,11 +202,7 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
-        String expected = "";
-        expected += "FAIL: 6.2.15.2.a - No ECU responded to the global request" + NL;
-        expected += "FAIL: 6.2.15.5.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
@@ -245,12 +233,7 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
-        String expected = "";
-        expected += "FAIL: 6.2.15.2.a - No ECU responded to the global request" + NL;
-        expected += "FAIL: 6.2.15.5.a - Engine #1 (0) did not return timer 0 in both responses" + NL;
-        expected += "FAIL: 6.2.15.5.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
@@ -286,10 +269,7 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
-        String expected = "";
-        expected += "WARN: 6.2.15.3.a - Engine #1 (0) responded 0xFB for EI-AECD number" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
@@ -320,11 +300,7 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
-        String expected = "";
-        expected += "FAIL: 6.2.15.5.a - Engine #1 (0) reported EiAECD Timer 1 from timer 1 with a difference of 3 which is greater than 2 minutes" + NL;
-        expected += "FAIL: 6.2.15.5.a - Engine #1 (0) reported EiAECD Timer 2 from timer 1 with a difference of 3 which is greater than 2 minutes" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 

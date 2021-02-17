@@ -139,12 +139,12 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
     public void testUserAbortForFail() {
 
         when(engineSpeedModule.isEngineCommunicating()).thenReturn(false, false, false, false);
-
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
         runTest();
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         String urgentMessages = "Implant Fault A according to engine manufacturer’s instruction" + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
@@ -180,7 +180,6 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "ABORT: User cancelled testing at Part 2 Step 18" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         assertEquals("", listener.getMilestones());
@@ -190,13 +189,13 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
     public void testRun() throws InterruptedException {
 
         when(engineSpeedModule.isEngineCommunicating()).thenReturn(false);
-
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         runTest();
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         String urgentMessages = "Implant Fault A according to engine manufacturer’s instruction" + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
@@ -222,13 +221,14 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
     public void testEngineThrowInterruptedException() {
 
         when(engineSpeedModule.isEngineCommunicating()).thenReturn(false, false, false, false);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         runTest();
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         String urgentMessages = "Implant Fault A according to engine manufacturer’s instruction" + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
@@ -260,7 +260,6 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "ABORT: User cancelled testing at Part 2 Step 18" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         assertEquals("", listener.getMilestones());

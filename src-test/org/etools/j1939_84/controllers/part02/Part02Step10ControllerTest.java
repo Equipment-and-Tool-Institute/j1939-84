@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -140,10 +139,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                "FAIL: 6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12"
-                        + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -175,10 +171,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                "FAIL: 6.2.10.2.a - Engine #1 (0) provided different test result labels from the test results received in part 1 test 12"
-                        + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -270,8 +263,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("WARN: 6.2.10.3.a - All test results from Engine #1 (0) are still initialized" + NL,
-                     listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
 }

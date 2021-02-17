@@ -89,13 +89,12 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
-
         instance = new Part01Step01Controller(executor,
                                               engineSpeedModule,
                                               bannerModule,
                                               vehicleInformationModule,
                                               diagnosticMessageModule,
-                                              DataRepository.getInstance(),
+                                              DataRepository.newInstance(),
                                               DateTimeModule.getInstance());
 
         setup(instance,
@@ -204,7 +203,6 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
                 + NL;
 
-        //verify(dataRepository, atLeastOnce()).getVehicleInformation();
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule).isEngineNotRunning();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
@@ -216,7 +214,6 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
                 .forClass(VehicleInformationListener.class);
         verify(mockListener).onVehicleInformationNeeded(vehicleInfoCaptor.capture());
         vehicleInfoCaptor.getValue().onResult(vehicleInfo);
-        //verify(dataRepository).setVehicleInformation(vehicleInfo);
 
         String expectedMessages = "";
         expectedMessages += "Part 1, Step 1 a-c Displaying Warning Message" + NL;
@@ -280,11 +277,11 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 1"), eq(WARNING), any());
-        verify(mockListener).onVehicleInformationReceived(null);
         verify(vehicleInformationModule).setJ1939(j1939);
 
         String expectedMessages = "Part 1, Step 1 a-c Displaying Warning Message" + NL;
         expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off" + NL;
+        expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information" + NL;
         expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information";
         assertEquals(expectedMessages, listener.getMessages());
 
@@ -293,6 +290,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
+        expectedResults += "User cancelled testing at Part 1 Step 1" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 

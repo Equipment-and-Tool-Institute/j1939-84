@@ -1,15 +1,19 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.modules;
 
-import static org.junit.Assert.*;
-import static org.mockito.Mockito.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertTrue;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 import static org.mockito.internal.verification.VerificationModeFactory.times;
 
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
-
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -17,7 +21,6 @@ import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
 import org.etools.testdoc.TestDoc;
 import org.etools.testdoc.TestItem;
 import org.junit.After;
-import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -113,7 +116,7 @@ public class EngineSpeedModuleTest {
         assertFalse(instance.isEngineCommunicating());
         assertFalse(instance.isEngineNotRunning());
         assertFalse(instance.isEngineRunning());
-        assertEquals(0, instance.getEngineSpeed(), 1);
+        assertNull(instance.getEngineSpeed());
     }
 
     /**

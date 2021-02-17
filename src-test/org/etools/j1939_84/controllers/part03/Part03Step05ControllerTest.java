@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
@@ -231,8 +230,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.3.5.2.b - Engine #1 (0) did not provide a DM31 and did not NACK the request" + NL,
-                     listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -256,8 +254,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.3.5.2.a - Engine #1 (0) did not report MIL 'off' in all returned DTCs" + NL,
-                     listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
