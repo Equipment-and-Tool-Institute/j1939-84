@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -158,8 +157,7 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).requestDM5(any());
 
-        assertEquals("FAIL: 6.3.8.2.a - OBD ECU Engine #1 (0) reported active DTC count not = 0" + NL,
-                     listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -176,8 +174,7 @@ public class Part03Step08ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).requestDM5(any());
 
-        assertEquals("FAIL: 6.3.8.2.a - OBD ECU Engine #1 (0) reported previously active DTC count not = 0" + NL,
-                     listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

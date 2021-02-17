@@ -110,8 +110,8 @@ public class SectionA6ValidatorTest {
 
         verify(tableA6Validator, times(3)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
-        String expectedMessages = FAIL.toString() + ": " + expectedMessage1dPacket0;
-        assertEquals(expectedMessages, listener.getMessages());
+
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
@@ -147,8 +147,7 @@ public class SectionA6ValidatorTest {
                 .append("   ECU with source address :  33 did not return a response");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, expectedMessage1a.toString());
 
-        String expectedMessage = FAIL.toString() + ": " + expectedMessage1a;
-        assertEquals(expectedMessage, listener.getMessages());
+       assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
@@ -200,13 +199,7 @@ public class SectionA6ValidatorTest {
 
         verify(tableA6Validator, times(4)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
-        String expectedMessage = "" +
-                FAIL.toString() + ": " + expectedMessage1d + NL +
-                FAIL.toString() + ": " + expectedMessage1d + NL +
-                FAIL.toString() + ": " + expectedMessage1d + NL +
-                FAIL.toString() + ": " + expectedMessage1d + NL +
-                WARN.toString() + ": " + expectedMessage2d;
-        assertEquals(expectedMessage, listener.getMessages());
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
@@ -343,14 +336,7 @@ public class SectionA6ValidatorTest {
 
         verify(tableA6Validator, times(2)).verify(any(), any(), eq(PART_NUMBER), eq(STEP_NUMBER));
 
-        String expectedMessage =
-                FAIL.toString() + ": " + expectedMessage1a + NL +
-                        FAIL.toString() + ": " + expectedMessage1c + NL +
-                        FAIL.toString() + ": " + expectedMessage1b + NL +
-                        FAIL.toString() + ": " + expectedMessage1c + NL +
-                        WARN.toString() + ": " + expectedMessage2d + NL +
-                        WARN.toString() + ": " + expectedMessage3b;
-        assertEquals(expectedMessage, listener.getMessages());
+        assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }

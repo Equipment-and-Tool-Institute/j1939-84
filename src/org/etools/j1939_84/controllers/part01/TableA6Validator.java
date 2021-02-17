@@ -1,38 +1,29 @@
-/**
+/*
  * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
-import static org.etools.j1939_84.model.Outcome.PASS;
 import static org.etools.j1939_84.model.Outcome.WARN;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
-
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.controllers.Validator;
 import org.etools.j1939_84.model.FuelType;
-import org.etools.j1939_84.model.Outcome;
 
 /**
  * The validator for Table A.6.1 Composite vehicle readiness - Diesel Engines &
  * Table A.6.2 Composite vehicle readiness - Spark Ignition Engines
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- *
  */
-public class TableA6Validator extends Validator {
-
-    private static final String TABLE_NAME = "TableA6";
+public class TableA6Validator {
 
     private static Collection<MonitoredSystemStatus> findStatus(boolean isSupported, boolean isComplete) {
         List<MonitoredSystemStatus> statuses = new ArrayList<>();
@@ -41,20 +32,19 @@ public class TableA6Validator extends Validator {
         return statuses;
     }
 
-    private static boolean recordProgress(MonitoredSystem system, ResultsListener listener,
-            List<MonitoredSystemStatus> acceptableStatuses, int partNumber, int stepNumber) {
+    private boolean recordProgress(MonitoredSystem system,
+                                   ResultsListener listener,
+                                   List<MonitoredSystemStatus> acceptableStatuses,
+                                   int partNumber,
+                                   int stepNumber) {
         boolean passed = true;
         String name = system.getName().trim();
         if (acceptableStatuses.isEmpty()) {
-            addOutcome(partNumber, stepNumber, WARN,
-                    TABLE_NAME + " " + name + " verification" + NL
-                            + "This test is only valid for compression or spark ignition",
-                    listener);
+            listener.addOutcome(partNumber, stepNumber, WARN, "TableA6 " + name + " verification" + NL
+                                   + "This test is only valid for compression or spark ignition");
 
-        } else if (acceptableStatuses.contains(system.getStatus())) {
-            addOutcome(partNumber, stepNumber, PASS, TABLE_NAME + " " + name + " verification", listener);
-        } else {
-            addOutcome(partNumber, stepNumber, FAIL, TABLE_NAME + " " + name + " verification", listener);
+        } else if (!acceptableStatuses.contains(system.getStatus())) {
+            listener.addOutcome(partNumber, stepNumber, FAIL, "TableA6 "+ name + " verification");
             passed = false;
         }
         return passed;
@@ -66,14 +56,14 @@ public class TableA6Validator extends Validator {
         this.dataRepository = dataRepository;
     }
 
-    /**
-     * @param system
-     * @param listener
-     */
-    private void addOutcome(MonitoredSystem system, ResultsListener listener, Outcome outcome, int partNumber,
-            int stepNumber) {
-        addOutcome(partNumber, stepNumber, outcome,
-                TABLE_NAME + " " + system.getName().trim() + " is " + system.getStatus().toString(), listener);
+    private void addWarning(MonitoredSystem system,
+                            ResultsListener listener,
+                            int partNumber,
+                            int stepNumber) {
+        listener.addOutcome(partNumber,
+                            stepNumber,
+                            WARN,
+                            "TableA6 "+ system.getName().trim() + " is " + system.getStatus().toString());
     }
 
     private FuelType getFuelType() {
@@ -88,21 +78,20 @@ public class TableA6Validator extends Validator {
         return dataRepository.isAfterCodeClear();
     }
 
-    private boolean validateAcSystemRefrigerant(MonitoredSystem system, ResultsListener listener, int partNumber,
-            int stepNumber) {
+    private boolean validateAcSystemRefrigerant(MonitoredSystem system,
+                                                ResultsListener listener,
+                                                int partNumber,
+                                                int stepNumber) {
 
-        // Only state allowed for either compression or spark is
-        // not-enabled/not-complete
-        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>() {
-            {
-                addAll(findStatus(false, false));
-            }
-        };
+        // Only state allowed for either compression or spark is not-enabled/not-complete
+        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>(findStatus(false, false));
         return recordProgress(system, listener, acceptableStatuses, partNumber, stepNumber);
     }
 
-    private boolean validateBoostPressureControlSystem(MonitoredSystem system, ResultsListener listener, int partNumber,
-            int stepNumber) {
+    private boolean validateBoostPressureControlSystem(MonitoredSystem system,
+                                                       ResultsListener listener,
+                                                       int partNumber,
+                                                       int stepNumber) {
 
         FuelType fuelType = getFuelType();
         List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>();
@@ -146,38 +135,36 @@ public class TableA6Validator extends Validator {
         return recordProgress(system, listener, acceptableStatuses, partNumber, stepNumber);
     }
 
-    private boolean validateColdStartAidSystem(MonitoredSystem system, ResultsListener listener, int partNumber,
-            int stepNumber) {
+    private boolean validateColdStartAidSystem(MonitoredSystem system,
+                                               ResultsListener listener,
+                                               int partNumber,
+                                               int stepNumber) {
 
         FuelType fuelType = getFuelType();
-        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>() {
-            {
-                addAll(findStatus(true, true));
-                addAll(findStatus(false, false));
-            }
-        };
+        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>();
+        acceptableStatuses.addAll(findStatus(true, true));
+        acceptableStatuses.addAll(findStatus(false, false));
+
         // Warning is required if spark ignition and the system isn't enabled
         if (fuelType.isSparkIgnition() && !system.getStatus().isEnabled()) {
-            addOutcome(system, listener, WARN, partNumber, stepNumber);
+            addWarning(system, listener, partNumber, stepNumber);
         }
         return recordProgress(system, listener, acceptableStatuses, partNumber, stepNumber);
     }
 
-    private boolean validateComprehensiveComponent(MonitoredSystem system, ResultsListener listener, int partNumber,
-            int stepNumber) {
-
-        // Comprehesive Component must be supported and complete for
-        // compression and spark ignition
-        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>() {
-            {
-                addAll(findStatus(true, true));
-            }
-        };
+    private boolean validateComprehensiveComponent(MonitoredSystem system,
+                                                   ResultsListener listener,
+                                                   int partNumber,
+                                                   int stepNumber) {
+        // Comprehensive Component must be supported and complete for compression and spark ignition
+        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>(findStatus(true, true));
         return recordProgress(system, listener, acceptableStatuses, partNumber, stepNumber);
     }
 
-    private boolean validateDieselParticulateFilter(MonitoredSystem system, ResultsListener listener, int partNumber,
-            int stepNumber) {
+    private boolean validateDieselParticulateFilter(MonitoredSystem system,
+                                                    ResultsListener listener,
+                                                    int partNumber,
+                                                    int stepNumber) {
         FuelType fuelType = getFuelType();
         List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>();
 
@@ -199,15 +186,14 @@ public class TableA6Validator extends Validator {
         return recordProgress(system, listener, acceptableStatuses, partNumber, stepNumber);
     }
 
-    private boolean validateEgrVvtSystem(MonitoredSystem system, ResultsListener listener, int partNumber,
-            int stepNumber) {
+    private boolean validateEgrVvtSystem(MonitoredSystem system,
+                                         ResultsListener listener,
+                                         int partNumber,
+                                         int stepNumber) {
 
         FuelType fuelType = getFuelType();
-        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>() {
-            {
-                addAll(findStatus(true, true));
-            }
-        };
+        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>(findStatus(true, true));
+
         if (!isAfterCodeClear()) {
             // If a code clear hasn't happened the additional
             // state of enable but not complete is allowed
@@ -218,14 +204,16 @@ public class TableA6Validator extends Validator {
             // Warning is required if spark ignition and the system isn't
             // enabled
             if (!system.getStatus().isEnabled()) {
-                addOutcome(system, listener, WARN, partNumber, stepNumber);
+                addWarning(system, listener, partNumber, stepNumber);
             }
         }
         return recordProgress(system, listener, acceptableStatuses, partNumber, stepNumber);
     }
 
-    private boolean validateEvaporativeSystem(MonitoredSystem system, ResultsListener listener, int partNumber,
-            int stepNumber) {
+    private boolean validateEvaporativeSystem(MonitoredSystem system,
+                                              ResultsListener listener,
+                                              int partNumber,
+                                              int stepNumber) {
         FuelType fuelType = getFuelType();
         List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>();
 
@@ -239,16 +227,14 @@ public class TableA6Validator extends Validator {
         return recordProgress(system, listener, acceptableStatuses, partNumber, stepNumber);
     }
 
-    private boolean validateExhaustGasSensor(MonitoredSystem system, ResultsListener listener, int partNumber,
-            int stepNumber) {
+    private boolean validateExhaustGasSensor(MonitoredSystem system,
+                                             ResultsListener listener,
+                                             int partNumber,
+                                             int stepNumber) {
 
-        // Sensor should be enabled and complete for both compression
-        // and spark ignition
-        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>() {
-            {
-                addAll(findStatus(true, true));
-            }
-        };
+        // Sensor should be enabled and complete for both compression and spark ignition
+        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>(findStatus(true, true));
+
         if (!isAfterCodeClear()) {
             // If a code clear hasn't happened the additional
             // state of enable but not complete is allowed
@@ -258,16 +244,16 @@ public class TableA6Validator extends Validator {
         return recordProgress(system, listener, acceptableStatuses, partNumber, stepNumber);
     }
 
-    private boolean validateExhaustGasSensorHeater(MonitoredSystem system, ResultsListener listener, int partNumber,
-            int stepNumber) {
+    private boolean validateExhaustGasSensorHeater(MonitoredSystem system,
+                                                   ResultsListener listener,
+                                                   int partNumber,
+                                                   int stepNumber) {
 
         FuelType fuelType = getFuelType();
-        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>() {
-            {
-                addAll(findStatus(true, true));
-                addAll(findStatus(false, false));
-            }
-        };
+        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>();
+        acceptableStatuses.addAll(findStatus(true, true));
+        acceptableStatuses.addAll(findStatus(false, false));
+
         if (!isAfterCodeClear()) {
             // If a code clear hasn't happened the additional
             // state of enable but not complete is allowed
@@ -278,20 +264,19 @@ public class TableA6Validator extends Validator {
         // Warning is required if the engine model year is 2013
         // and the system is not-enabled for compression ignition only
         if (fuelType.isCompressionIgnition() && !system.getStatus().isEnabled() && getModelYear() == 2013) {
-            addOutcome(system, listener, WARN, partNumber, stepNumber);
+            addWarning(system, listener, partNumber, stepNumber);
         }
         return recordProgress(system, listener, acceptableStatuses, partNumber, stepNumber);
     }
 
-    private boolean validateFuelSystem(MonitoredSystem system, ResultsListener listener, int partNumber,
-            int stepNumber) {
+    private boolean validateFuelSystem(MonitoredSystem system,
+                                       ResultsListener listener,
+                                       int partNumber,
+                                       int stepNumber) {
 
         // Compression and spark ignition shall have the system enabled
-        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>() {
-            {
-                addAll(findStatus(true, true));
-            }
-        };
+        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>(findStatus(true, true));
+
         // If a code clear hasn't happened the additional
         // state of enable but not complete is allowed
         // for both compression and spark ignition
@@ -301,8 +286,10 @@ public class TableA6Validator extends Validator {
         return recordProgress(system, listener, acceptableStatuses, partNumber, stepNumber);
     }
 
-    private boolean validateHeatedCatalyst(MonitoredSystem system, ResultsListener listener, int partNumber,
-            int stepNumber) {
+    private boolean validateHeatedCatalyst(MonitoredSystem system,
+                                           ResultsListener listener,
+                                           int partNumber,
+                                           int stepNumber) {
 
         FuelType fuelType = getFuelType();
         List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>();
@@ -325,12 +312,10 @@ public class TableA6Validator extends Validator {
         FuelType fuelType = getFuelType();
         // Compression and spark ignition allows for enabled/complete OR
         // not-enabled/not-complete
-        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>() {
-            {
-                addAll(findStatus(true, true));
-                addAll(findStatus(false, false));
-            }
-        };
+        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>();
+        acceptableStatuses.addAll(findStatus(true, true));
+        acceptableStatuses.addAll(findStatus(false, false));
+
         if (!isAfterCodeClear() || fuelType.isSparkIgnition()) {
             // If a code clear hasn't happened for compression ignition add
             // additional state OR this is spark ignition which has only the
@@ -343,13 +328,15 @@ public class TableA6Validator extends Validator {
         if (fuelType.isCompressionIgnition()
                 && !system.getStatus().isComplete()
                 && isAfterCodeClear()) {
-            addOutcome(system, listener, WARN, partNumber, stepNumber);
+            addWarning(system, listener, partNumber, stepNumber);
         }
         return recordProgress(system, listener, acceptableStatuses, partNumber, stepNumber);
     }
 
-    private boolean validateNmhcConvertingCatalyst(MonitoredSystem system, ResultsListener listener, int partNumber,
-            int stepNumber) {
+    private boolean validateNmhcConvertingCatalyst(MonitoredSystem system,
+                                                   ResultsListener listener,
+                                                   int partNumber,
+                                                   int stepNumber) {
 
         FuelType fuelType = getFuelType();
         List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>();
@@ -369,8 +356,10 @@ public class TableA6Validator extends Validator {
         return recordProgress(system, listener, acceptableStatuses, partNumber, stepNumber);
     }
 
-    private boolean validateNoxCatalystAbsorber(MonitoredSystem system, ResultsListener listener, int partNumber,
-            int stepNumber) {
+    private boolean validateNoxCatalystAbsorber(MonitoredSystem system,
+                                                ResultsListener listener,
+                                                int partNumber,
+                                                int stepNumber) {
 
         FuelType fuelType = getFuelType();
         List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>();
@@ -390,16 +379,14 @@ public class TableA6Validator extends Validator {
         return recordProgress(system, listener, acceptableStatuses, partNumber, stepNumber);
     }
 
-    private boolean validateSecondaryAirSystem(MonitoredSystem system, ResultsListener listener, int partNumber,
-            int stepNumber) {
+    private boolean validateSecondaryAirSystem(MonitoredSystem system,
+                                               ResultsListener listener,
+                                               int partNumber,
+                                               int stepNumber) {
 
-        // Compression and spark ignition both allow for
-        // not-enabled/not-complete
-        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>() {
-            {
-                addAll(findStatus(false, false));
-            }
-        };
+        // Compression and spark ignition both allow for not-enabled/not-complete
+        List<MonitoredSystemStatus> acceptableStatuses = new ArrayList<>(findStatus(false, false));
+
         if (getFuelType().isSparkIgnition()) {
             // Spark ignition also allows for enabled/complete
             acceptableStatuses.addAll(findStatus(true, true));
@@ -454,19 +441,8 @@ public class TableA6Validator extends Validator {
     }
 
     public boolean verify(ResultsListener listener, DiagnosticReadinessPacket packet, int partNumber, int stepNumber) {
-
-        boolean[] passed = { true };
-
-        List<MonitoredSystem> systems = packet.getMonitoredSystems().stream().collect(Collectors.toList());
-
-        Collections.sort(systems);
-        systems.forEach(system -> {
-            if (!validateSystem(system, listener, partNumber, stepNumber)) {
-                passed[0] = false;
-            }
-        });
-
-        return passed[0];
+        return packet.getMonitoredSystems().stream()
+                .allMatch(system -> validateSystem(system, listener, partNumber, stepNumber));
     }
 
 }

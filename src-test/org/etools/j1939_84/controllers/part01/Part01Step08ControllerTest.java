@@ -194,7 +194,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 5318, 5322 None of these SPNs are supported: 4364, 4792, 5308" + NL,
+                "",
                 listener.getResults());
     }
 
@@ -228,8 +228,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("FAIL: 6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 3054" + NL,
-                     listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -306,7 +305,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 3055, 3058, 3064, 5318, 5321, 5322 None of these SPNs are supported: 4364, 4792, 5308" + NL,
+                "",
                 listener.getResults());
     }
 
@@ -332,7 +331,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.8.2.a - minimum expected SPNs are not supported. Not Supported SPNs: 3050, 3051, 3053, 3054, 3055, 3056, 3057, 3058, 3306" + NL,
+                "",
                 listener.getResults());
     }
 
@@ -371,7 +370,7 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "FAIL: 6.1.8.2.a - minimum expected SPNs are not supported. None of these SPNs are supported: 4364, 4792, 5308" + NL,
+                "",
                 listener.getResults());
     }
 

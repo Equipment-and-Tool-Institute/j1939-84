@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket.PGN;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.FAST_FLASH;
@@ -153,8 +152,7 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any());
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
 
-        String expectedResults = "FAIL: 6.3.3.5.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
@@ -186,10 +184,7 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
-        String expected = "";
-        expected += "FAIL: 6.3.3.5.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        expected += "FAIL: 6.3.3.5.b - OBD module Transmission #1 (3) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -317,33 +312,24 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x02));
 
-        String message1 = "6.3.3.2.a - OBD module Engine #2 (1) reported different DTC than observed in Step 6.3.2.1";
-
-        String message2 = "6.3.3.3.a - OBD module Engine #2 (1)reported 1 DTCs in response to DM6 in 6.3.2.1 and 2 DTCs when responding to DM27";
-
-        String message3 = "6.3.3.2.a - OBD module Turbocharger (2) reported different DTC than observed in Step 6.3.2.1";
-
-        String expectedResults = "FAIL: " + message1 + NL;
-        expectedResults += "WARN: " + message2 + NL;
-        expectedResults += "FAIL: " + message3+ NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        message1);
+                                        "6.3.3.2.a - OBD module Engine #2 (1) reported different DTC than observed in Step 6.3.2.1");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         WARN,
-                                        message2);
+                                        "6.3.3.3.a - OBD module Engine #2 (1)reported 1 DTCs in response to DM6 in 6.3.2.1 and 2 DTCs when responding to DM27");
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        message3);
+                                        "6.3.3.2.a - OBD module Turbocharger (2) reported different DTC than observed in Step 6.3.2.1");
 
         //verify we did NOT update the obd's dtc values set in the data repo
         assertEquals(dataRepository.getObdModule(0x01).getEmissionDTCs(), List.of(dtc1));

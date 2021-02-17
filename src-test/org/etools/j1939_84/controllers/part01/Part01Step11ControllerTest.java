@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket.create;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
@@ -157,10 +156,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                         "6.1.11.4.f - OBD module Cruise Control (17) did not provide a response to Global query and did not provide a NACK for the DS query");
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.e - No OBD ECU provided a DM21 message" + NL
-                + "FAIL: 6.1.11.4.f - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query" + NL
-                + "FAIL: 6.1.11.4.f - OBD module Cruise Control (17) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     /**
@@ -220,8 +216,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.4.f - OBD module Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -273,8 +268,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.4.f - OBD module Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -326,9 +320,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.4.f - OBD module Suspension - Drive Axle #1 (21) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expectedResult, listener.getResults());
-
+        assertEquals("", listener.getResults());
     }
 
     /**
@@ -423,10 +415,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.a - Cruise Control (17) reported distance with MIL on (SPN 3069) is not zero"
-                + NL
-                + "FAIL: 6.1.11.4.a - Cruise Control (17) reported distance with MIL on (SPN 3069) is not zero" + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -474,9 +463,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.b - Cruise Control (17) reported distance SCC (SPN 3294) is not zero" + NL
-                + "FAIL: 6.1.11.4.b - Cruise Control (17) reported distance SCC (SPN 3294) is not zero" + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -527,10 +514,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.d - Cruise Control (17) reported time SCC (SPN 3296) > 1 minute"
-                + NL
-                + "FAIL: 6.1.11.4.d - Cruise Control (17) reported time SCC (SPN 3296) > 1 minute" + NL;
-        assertEquals(expectedResult, listener.getResults());
+        assertEquals("", listener.getResults());
 
     }
 
@@ -580,12 +564,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResult = "FAIL: 6.1.11.1.c - Engine #1 (0) reported time with MIL on (SPN 3295) is not zero"
-                + NL
-                + "FAIL: 6.1.11.4.c - Engine #1 (0) reported time with MIL on (SPN 3295) is not zero"
-                + NL;
-        assertEquals(expectedResult, listener.getResults());
-
+        assertEquals("", listener.getResults());
     }
 
 }

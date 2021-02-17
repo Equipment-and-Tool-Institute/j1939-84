@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.model.Outcome.FAIL;
@@ -172,10 +171,7 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedResults = "FAIL: 6.3.15.2.a - OBD module Engine #1 (0) reported active distance > 0" + NL;
-        expectedResults += "FAIL: 6.3.15.2.a - OBD module Turbocharger (2) reported active time > 0" + NL;
-        expectedResults += "FAIL: 6.3.15.2.a - OBD module Transmission #1 (3) reported active time > 0" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
@@ -213,10 +209,7 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedResults = "FAIL: 6.3.15.2.b - NACK not recieved from  Engine #2 (1) and did not provide a response to DS DM21 query" + NL;
-        expectedResults += "FAIL: 6.3.15.2.b - NACK not recieved from  Turbocharger (2) and did not provide a response to DS DM21 query" + NL;
-
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 

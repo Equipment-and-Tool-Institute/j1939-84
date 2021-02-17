@@ -76,7 +76,7 @@ public class OBDModuleInformationTest {
                                                               0,
                                                               CompositeSystem.CATALYST,
                                                               true);
-        instance.setMonitoredSystems(Set.of(monitoredSystem));
+        instance.setMonitoredSystems(List.of(monitoredSystem));
 
         PerformanceRatio performanceRatio = new PerformanceRatio(999, 0, 25, 50);
         instance.setPerformanceRatios(List.of(performanceRatio));
@@ -94,7 +94,7 @@ public class OBDModuleInformationTest {
             instance2.setFunction(29);
 
             instance2.setCalibrationInformation(List.of(calInfo));
-            instance2.setMonitoredSystems(Set.of(monitoredSystem));
+            instance2.setMonitoredSystems(List.of(monitoredSystem));
             instance2.setPerformanceRatios(List.of(performanceRatio));
             instance2.setScaledTestResults(List.of(scaledTestResult));
         }

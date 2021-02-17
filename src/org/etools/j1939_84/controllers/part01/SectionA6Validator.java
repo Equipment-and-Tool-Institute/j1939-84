@@ -17,7 +17,6 @@ import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
-import org.etools.j1939_84.controllers.Validator;
 import org.etools.j1939_84.model.RequestResult;
 
 /**
@@ -26,7 +25,7 @@ import org.etools.j1939_84.model.RequestResult;
  * The validation class for Section A.6 Criteria for Readiness 1
  * Evaluation
  */
-public class SectionA6Validator extends Validator {
+public class SectionA6Validator {
 
     private final DataRepository dataRepository;
 
@@ -74,7 +73,7 @@ public class SectionA6Validator extends Validator {
                     .append(address)
                     .append(" did not return a response"));
 
-            addOutcome(partNumber, stepNumber, FAIL, message1a.toString(), listener);
+            listener.addOutcome(partNumber, stepNumber, FAIL, message1a.toString());
             passed[0] = false;
         }
 
@@ -84,7 +83,7 @@ public class SectionA6Validator extends Validator {
             // 1221, byte 4, bit 3 = 1 and bit 7 = 0), except when all the
             // bits in SPNs 1221, 1222, and 1223 are sent as 0 as defined in
             // SAE J1939-73 paragraph 5.7.5.
-            Set<MonitoredSystem> monitoredSystems = packet.getMonitoredSystems();
+            List<MonitoredSystem> monitoredSystems = packet.getMonitoredSystems();
             boolean isComplete = monitoredSystems.stream()
                     .filter(monitoredSys -> monitoredSys.getId() == CompositeSystem.COMPREHENSIVE_COMPONENT)
                     .anyMatch(system -> !system.getStatus().isEnabled() || !system.getStatus().isComplete());
@@ -104,7 +103,7 @@ public class SectionA6Validator extends Validator {
                         " bits in SPNs 1221, 1222, and 1223 are sent as 0 as defined in" +
                         NL +
                         " SAE J1939-73 paragraph 5.7.5";
-                addOutcome(partNumber, stepNumber, FAIL, message, listener);
+                listener.addOutcome(partNumber, stepNumber, FAIL, message);
                 passed[0] = false;
             }
 
@@ -127,7 +126,7 @@ public class SectionA6Validator extends Validator {
                         "also report 0 in the corresponding status bit in SPN 1221 and" +
                         NL +
                         "1223";
-                addOutcome(partNumber, stepNumber, FAIL, message, listener);
+                listener.addOutcome(partNumber, stepNumber, FAIL, message);
                 passed[0] = false;
             }
 
@@ -140,7 +139,7 @@ public class SectionA6Validator extends Validator {
                         "(SPN 1221 byte 4 bits 4 and 8, SPN 1222 byte 6 bits 6-8, and" +
                         NL +
                         "SPN 1223 byte 8 bits 6-8)";
-                addOutcome(partNumber, stepNumber, FAIL, message, listener);
+                listener.addOutcome(partNumber, stepNumber, FAIL, message);
                 passed[0] = false;
             }
 
@@ -152,8 +151,7 @@ public class SectionA6Validator extends Validator {
             // c. Fail if composite vehicle readiness does not meet any of the
             // criteria in Table A-6.
             if (!tableA6Validator.verify(listener, packet, partNumber, stepNumber)) {
-                String failureMessage = SECTION_NAME + NL;
-                failureMessage += " Step 2.c - Composite vehicle readiness does not meet any of the criteria in Table A-6";
+                String failureMessage = SECTION_NAME + NL + " Step 2.c - Composite vehicle readiness does not meet any of the criteria in Table A-6";
                 listener.addOutcome(partNumber, stepNumber, FAIL, failureMessage);
                 passed[0] = false;
             }
@@ -174,9 +172,8 @@ public class SectionA6Validator extends Validator {
 
         if (supportedSystems.size() != systemsSet.size()) {
             // Since the sizes aren't the same, the list contains a duplicate
-            String warnMessage = SECTION_NAME + NL
-                    + " Step 2.d An individual required monitor is supported by more than one OBD ECU";
-            addOutcome(partNumber, stepNumber, WARN, warnMessage, listener);
+            String warnMessage = SECTION_NAME + NL + " Step 2.d An individual required monitor is supported by more than one OBD ECU";
+            listener.addOutcome(partNumber, stepNumber, WARN, warnMessage);
         }
 
         // 3. All responses received from non-OBD ECU shall be evaluated
@@ -221,7 +218,7 @@ public class SectionA6Validator extends Validator {
                     warn = true;
                 }
                 if (warn) {
-                    addOutcome(partNumber, stepNumber, WARN, byteCheckMessage.toString(), listener);
+                    listener.addOutcome(partNumber, stepNumber, WARN, byteCheckMessage.toString());
                 }
             });
         }

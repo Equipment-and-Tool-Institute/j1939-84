@@ -17,7 +17,6 @@ import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -85,25 +84,19 @@ public class Part01Step07Controller extends StepController {
                 .collect(Collectors.toList());
         int expectedCalIdCount = getDataRepository().getVehicleInformation().getCalIds();
         if (calIds.size() < expectedCalIdCount) {
-            addFailure(PART_NUMBER,
-                       STEP_NUMBER,
-                       "6.1.7.2.a Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units");
+            addFailure("6.1.7.2.a Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units");
         } else if (calIds.size() > expectedCalIdCount) {
-            addWarning(PART_NUMBER,
-                       STEP_NUMBER,
-                       "6.1.7.3.a Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units");
+            addWarning("6.1.7.3.a Total number of reported CAL IDs is > user entered value for number of emission or diagnostic critical control units");
         }
 
         for (DM19CalibrationInformationPacket packet : globalDM19s) {
             boolean isObdModule = getDataRepository().getObdModule(packet.getSourceAddress()) != null;
             List<CalibrationInformation> calInfoList = packet.getCalibrationInformation();
             if (calInfoList.size() > 1) {
-                addWarning(PART_NUMBER,
-                           STEP_NUMBER,
-                           "6.1.7.3.b More than one CAL ID and CVN pair is provided in a single DM19 message");
+                addWarning("6.1.7.3.b More than one CAL ID and CVN pair is provided in a single DM19 message");
             }
             if (!isObdModule && calInfoList.size() > 0) {
-                addWarning(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.i Warn if any non-OBD ECU provides CAL ID");
+                addWarning("6.1.7.3.c.i Warn if any non-OBD ECU provides CAL ID");
             }
 
             for (CalibrationInformation calInfo : calInfoList) {
@@ -111,18 +104,16 @@ public class Part01Step07Controller extends StepController {
                 String cvn = calInfo.getCalibrationVerificationNumber();
                 if (calId.isEmpty() || cvn.isEmpty()) {
                     if (isObdModule) {
-                        addFailure(PART_NUMBER, STEP_NUMBER, "6.1.7.2.b.i <> 1 CVN for every CAL ID");
+                        addFailure("6.1.7.2.b.i <> 1 CVN for every CAL ID");
                     } else {
-                        addWarning(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.ii <> 1 CVN for every CAL ID");
+                        addWarning("6.1.7.3.c.ii <> 1 CVN for every CAL ID");
                     }
                 }
                 if (StringUtils.containsNonPrintableAsciiCharacter(calId)) {
                     if (isObdModule) {
-                        addFailure(PART_NUMBER, STEP_NUMBER,
-                                   "6.1.7.2.b.ii CAL ID not formatted correctly (contains non-printable ASCII)");
+                        addFailure("6.1.7.2.b.ii CAL ID not formatted correctly (contains non-printable ASCII)");
                     } else {
-                        addWarning(PART_NUMBER, STEP_NUMBER,
-                                   "6.1.7.3.c.iii Warn if CAL ID not formatted correctly (contains non-printable ASCII)");
+                        addWarning("6.1.7.3.c.iii Warn if CAL ID not formatted correctly (contains non-printable ASCII)");
                     }
                 }
 
@@ -133,11 +124,9 @@ public class Part01Step07Controller extends StepController {
                         paddingStarted = true;
                     } else if (paddingStarted) {
                         if (isObdModule) {
-                            addFailure(PART_NUMBER, STEP_NUMBER,
-                                       "6.1.7.2.b.ii CAL ID not formatted correctly (padded incorrectly)");
+                            addFailure("6.1.7.2.b.ii CAL ID not formatted correctly (padded incorrectly)");
                         } else {
-                            addWarning(PART_NUMBER, STEP_NUMBER,
-                                       "6.1.7.3.c.iii CAL ID not formatted correctly (padded incorrectly)");
+                            addWarning("6.1.7.3.c.iii CAL ID not formatted correctly (padded incorrectly)");
                         }
                         break;
                     }
@@ -152,9 +141,9 @@ public class Part01Step07Controller extends StepController {
                 }
                 if (allFF) {
                     if (isObdModule) {
-                        addFailure(PART_NUMBER, STEP_NUMBER, "6.1.7.2.b.iii Received CAL ID is all 0xFF");
+                        addFailure("6.1.7.2.b.iii Received CAL ID is all 0xFF");
                     } else {
-                        addWarning(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.iv Received CAL ID is all 0xFF");
+                        addWarning("6.1.7.3.c.iv Received CAL ID is all 0xFF");
                     }
                 }
                 byte[] rawCvn = calInfo.getRawCvn();
@@ -167,9 +156,9 @@ public class Part01Step07Controller extends StepController {
                 }
                 if (allZeros) {
                     if (isObdModule) {
-                        addFailure(PART_NUMBER, STEP_NUMBER, "6.1.7.2.b.iii Received CVN is all 0x00");
+                        addFailure("6.1.7.2.b.iii Received CVN is all 0x00");
                     } else {
-                        addFailure(PART_NUMBER, STEP_NUMBER, "6.1.7.3.c.iv Received CVN is all 0x00");
+                        addFailure("6.1.7.3.c.iv Received CVN is all 0x00");
                     }
                 }
             }
@@ -189,13 +178,11 @@ public class Part01Step07Controller extends StepController {
                     .filter(info -> Objects.equals(dm19.getCalibrationInformation(), info.getCalibrationInformation()))
                     // report everything that failed to respond or doesn't match
                     .ifPresentOrElse(x -> {
-                    }, () -> addFailure(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        "6.1.7.5.a Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference "
-                                                + dm19.getCalibrationInformation()));
+                    }, () -> addFailure(
+                            "6.1.7.5.a Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference "
+                                    + dm19.getCalibrationInformation()));
             if (result.isRetryUsed()) {
-                addFailure(PART_NUMBER, STEP_NUMBER,
-                           "6.1.7.5.b NACK (PGN 59392) with mode/control byte = 3 (busy) received");
+                addFailure("6.1.7.5.b NACK (PGN 59392) with mode/control byte = 3 (busy) received");
             }
         });
 
@@ -213,10 +200,7 @@ public class Part01Step07Controller extends StepController {
             results.getPacket()
                     .flatMap(e -> e.left)
                     // if there is a DM19, then there was not a NACK
-                    .ifPresent(dm19 -> getListener().addOutcome(1,
-                                                                7,
-                                                                Outcome.FAIL,
-                                                                "6.1.7.5.c NACK not received from OBD ECU that did not respond to global query"));
+                    .ifPresent(dm19 -> addFailure("6.1.7.5.c NACK not received from OBD ECU that did not respond to global query"));
         }
     }
 }

@@ -130,7 +130,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.15.2 - No OBD ECU provided a DM1");
 
         String expectedResults = "FAIL: 6.1.15.2 - No OBD ECU provided a DM1" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     /**
@@ -228,13 +228,6 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
         expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
-        expected += "FAIL: 6.1.15.2.a - OBD Module Engine #2 (1) reported an active DTC" + NL;
-        expected += "FAIL: 6.1.15.2.b - OBD Module Engine #2 (1) did not report MIL off per Section A.8 allowed values"
-                + NL;
-        expected += "WARN: 6.1.15.3.a - OBD Module Engine #2 (1) reported the non-preferred MIL off format per Section A.8"
-                + NL;
-        expected += "FAIL: 6.1.15.2.d - OBD Module Engine #2 (1) reported SPN conversion method (SPN 1706) equal to binary 1"
-                + NL;
         expected += "" + NL;
         expected += "10:15:30.0000 18FECA17 [14] 00 00 61 02 13 80 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM1 from Instrument Cluster #1 (23): MIL: alternate off, RSL: alternate off, AWL: alternate off, PL: alternate off"
@@ -243,21 +236,12 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
         expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
                 + NL;
-        expected += "FAIL: 6.1.15.2.c - Non-OBD Module Instrument Cluster #1 (23) did not report MIL off or not supported"
-                + NL;
-        expected += "WARN: 6.1.15.3.b - Non-OBD Module Instrument Cluster #1 (23) reported SPN conversion method (SPN 1706) equal to 1"
-                + NL;
         expected += "" + NL;
         expected += "10:15:30.0000 18FECA03 [14] AA 55 61 02 13 80 21 06 1F 00 EE 10 04 00" + NL;
         expected += "DM1 from Transmission #1 (3): MIL: other, RSL: other, AWL: other, PL: other" + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
         expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
-                + NL;
-        expected += "FAIL: 6.1.15.2.a - OBD Module Transmission #1 (3) reported an active DTC" + NL;
-        expected += "FAIL: 6.1.15.2.b - OBD Module Transmission #1 (3) did not report MIL off per Section A.8 allowed values"
-                + NL;
-        expected += "FAIL: 6.1.15.2.d - OBD Module Transmission #1 (3) reported SPN conversion method (SPN 1706) equal to binary 1"
                 + NL;
         expected += "" + NL;
         expected += "10:15:30.0000 18FECA00 [14] 40 00 61 02 13 80 21 06 1F 00 EE 10 04 00" + NL;
@@ -266,9 +250,6 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
         expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
-                + NL;
-        expected += "FAIL: 6.1.15.2.c - Non-OBD Module Engine #1 (0) did not report MIL off or not supported" + NL;
-        expected += "WARN: 6.1.15.3.b - Non-OBD Module Engine #1 (0) reported SPN conversion method (SPN 1706) equal to 1"
                 + NL;
         expected += "" + NL;
         expected += "10:15:30.0000 18FECA00 [14] C0 C0 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;

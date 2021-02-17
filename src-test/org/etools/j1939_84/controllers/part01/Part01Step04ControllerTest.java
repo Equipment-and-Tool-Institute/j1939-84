@@ -181,7 +181,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         String expected = "";
         expected += "FAIL: 6.1.4.2.b - N.2 One or more SPNs for data stream is not supported" + NL;
         expected += "FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported" + NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener)
                 .addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
@@ -260,7 +260,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         expected += "FAIL: 6.1.4.2.a - Retry was required to obtain DM24 response from Engine #2 (1)" + NL;
         expected += "FAIL: 6.1.4.2.b - N.2 One or more SPNs for data stream is not supported" + NL;
         expected += "FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported" + NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -404,66 +404,10 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         Collections.sort(expectedDataStreamsPacket4);
         verify(supportedSpnModule).validateDataStreamSpns(any(), eq(expectedDataStreamsPacket4), eq(BI_GAS));
 
-        List<Integer> expectedFreezeFrames = Arrays.asList(512,
-                                                           513,
-                                                           132,
-                                                           1413,
-                                                           1414,
-                                                           1415,
-                                                           3464,
-                                                           1416,
-                                                           4360,
-                                                           1417,
-                                                           1418,
-                                                           4363,
-                                                           3216,
-                                                           1173,
-                                                           3480,
-                                                           3609,
-                                                           3226,
-                                                           3482,
-                                                           539,
-                                                           3483,
-                                                           27,
-                                                           540,
-                                                           541,
-                                                           542,
-                                                           158,
-                                                           543,
-                                                           544,
-                                                           3490,
-                                                           164,
-                                                           5541,
-                                                           1189,
-                                                           3242,
-                                                           172,
-                                                           173,
-                                                           3246,
-                                                           175,
-                                                           51,
-                                                           3251,
-                                                           183,
-                                                           1209,
-                                                           1081,
-                                                           190,
-                                                           5314,
-                                                           5323,
-                                                           5837,
-                                                           976,
-                                                           84,
-                                                           3031,
-                                                           5466,
-                                                           91,
-                                                           92,
-                                                           94,
-                                                           1761,
-                                                           3301,
-                                                           102,
-                                                           2791,
-                                                           105,
-                                                           3563,
-                                                           108,
-                                                           110);
+        List<Integer> expectedFreezeFrames = Arrays.asList(512, 513, 132, 1413, 1414, 1415, 3464, 1416,
+                4360, 1417, 1418, 4363, 3216, 1173, 3480, 3609, 3226, 3482, 539, 3483, 27, 540, 541, 542, 158, 543, 544,
+                3490, 164, 5541, 1189, 3242, 172, 173, 3246, 175, 51, 3251, 183, 1209, 1081, 190, 5314, 5323, 5837, 976,
+                84, 3031, 5466, 91, 92, 94, 1761, 3301, 102, 2791, 105, 3563, 108, 110);
         Collections.sort(expectedFreezeFrames);
         verify(supportedSpnModule).validateFreezeFrameSpns(any(), eq(expectedFreezeFrames));
 

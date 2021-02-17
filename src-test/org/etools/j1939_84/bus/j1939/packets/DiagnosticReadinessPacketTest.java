@@ -107,7 +107,7 @@ public abstract class DiagnosticReadinessPacketTest {
 
         List<MonitoredSystem> nonContSystems = instance.getNonContinuouslyMonitoredSystems();
         List<MonitoredSystem> contSystems = instance.getContinuouslyMonitoredSystems();
-        Set<MonitoredSystem> allSystems = instance.getMonitoredSystems();
+        List<MonitoredSystem> allSystems = instance.getMonitoredSystems();
         assertTrue(allSystems.containsAll(nonContSystems));
         assertTrue(allSystems.containsAll(contSystems));
         assertEquals(nonContSystems.size() + contSystems.size(), allSystems.size());

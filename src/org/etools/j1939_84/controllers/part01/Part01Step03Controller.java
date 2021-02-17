@@ -64,7 +64,7 @@ public class Part01Step03Controller extends StepController {
         RequestResult<DM5DiagnosticReadinessPacket> response = getDiagnosticMessageModule().requestDM5(getListener());
         boolean nacked = response.getAcks().stream().anyMatch(packet -> packet.getResponse() == Response.NACK);
         if (nacked) {
-            addFailure(1, 3, "6.1.3.2.b - The request for DM5 was NACK'ed");
+            addFailure("6.1.3.2.b - The request for DM5 was NACK'ed");
         }
 
         List<DM5DiagnosticReadinessPacket> parsedPackets = response.getPackets();
@@ -95,7 +95,7 @@ public class Part01Step03Controller extends StepController {
                 });
 
         if (getDataRepository().getObdModules().size() < 1) {
-            addFailure(1, 3, "6.1.3.2.a - There needs to be at least one OBD Module");
+            addFailure("6.1.3.2.a - There needs to be at least one OBD Module");
         }
 
         long distinctCount = response.getPackets()
@@ -107,9 +107,7 @@ public class Part01Step03Controller extends StepController {
 
         if (distinctCount > 1) {
             // All the values should be the same
-            addWarning(1,
-                       3,
-                       "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
+            addWarning("6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
         }
     }
 

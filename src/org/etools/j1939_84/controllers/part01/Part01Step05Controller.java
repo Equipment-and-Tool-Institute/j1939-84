@@ -57,7 +57,7 @@ public class Part01Step05Controller extends StepController {
     protected void run() throws Throwable {
         List<VehicleIdentificationPacket> packets = getVehicleInformationModule().reportVin(getListener());
         if (packets.isEmpty()) {
-            addFailure(1, 5, "6.1.5.2.a - No VIN was provided");
+            addFailure("6.1.5.2.a - No VIN was provided");
             return; // No point in continuing
         }
 

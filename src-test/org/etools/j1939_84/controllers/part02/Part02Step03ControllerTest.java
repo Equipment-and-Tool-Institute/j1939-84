@@ -175,12 +175,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM24(any(), eq(0));
         verify(diagnosticMessageModule).requestDM24(any(), eq(1));
 
-        String expected = "";
-        expected += "FAIL: 6.2.3.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4"
-                + NL;
-        expected += "FAIL: 6.2.3.2.a - Message data received from Engine #2 (1) differs from that provided in part 6.1.4"
-                + NL;
-        assertEquals(expected, listener.getResults());
+       assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,

@@ -207,12 +207,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "FAIL: " + EXPECTED_FAIL_MESSAGE_2_A + NL +
-                "Function 0 module is Engine #1 (0)" + NL +
-                "FAIL: " + EXPECTED_FAIL_MESSAGE_2_B + NL +
-                "FAIL: " + EXPECTED_FAIL_MESSAGE_5_B + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -252,11 +247,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "" +
-                "Function 0 module is Engine #1 (0)" + NL +
-                "FAIL: " + EXPECTED_FAIL_MESSAGE_6_A + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -296,10 +287,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "" +
-                "Function 0 module is Engine #1 (0)" + NL +
-                "FAIL: " + EXPECTED_FAIL_MESSAGE_5_B + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -402,8 +390,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_2_D_MAKE + NL,
-                     listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -440,9 +427,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_B + NL,
-                     listener.getResults());
-
+        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -478,8 +463,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_B + NL,
-                     listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -515,10 +499,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_C + NL,
-                     listener.getResults());
-
+        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -556,8 +537,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_2_D_MODEL + NL,
-                     listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -593,9 +573,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_D + NL,
-                     listener.getResults());
-
+        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -630,9 +608,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_5_A + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -721,8 +697,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_2_D_SN + NL,
-                     listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -758,9 +733,7 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "WARN: " + EXPECTED_WARN_MESSAGE_3_A + NL,
-                     listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
     }
 
     @Test
@@ -796,7 +769,6 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("Function 0 module is Engine #1 (0)" + NL + "FAIL: " + EXPECTED_FAIL_MESSAGE_2_C + NL,
-                     listener.getResults());
+        assertEquals("Function 0 module is Engine #1 (0)" + NL, listener.getResults());
     }
 }

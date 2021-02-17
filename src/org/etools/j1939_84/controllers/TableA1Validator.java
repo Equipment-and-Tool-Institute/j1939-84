@@ -39,8 +39,7 @@ public class TableA1Validator {
                                    String section,
                                    Outcome outcome,
                                    String message) {
-        listener.addOutcome(partNumber, stepNumber, outcome, message);
-        listener.onResult(outcome + ": " + section + " - " + message);
+        listener.addOutcome(partNumber, stepNumber, outcome, section + " - " + message);
     }
 
     private static List<Integer> getFailureSPNs(FuelType fuelType) {

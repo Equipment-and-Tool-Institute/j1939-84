@@ -187,10 +187,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)"
-                        + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     /**
@@ -223,10 +220,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)"
-                        + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     /**
@@ -252,9 +246,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                "FAIL: 6.1.6.2.a - Engine model year does not match user input" + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     /**
@@ -287,9 +279,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)" + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     /**
@@ -354,9 +344,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                "FAIL: 6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)" + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -397,11 +385,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                "FAIL: 6.1.6.2.b - Indicates 'V' instead of 'E' for cert type" + NL
-                        + "FAIL: 6.1.6.2.c - Not formatted correctly"
-                        + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     /*

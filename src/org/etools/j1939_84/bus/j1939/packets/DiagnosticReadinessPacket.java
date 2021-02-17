@@ -92,8 +92,8 @@ public abstract class DiagnosticReadinessPacket extends GenericPacket {
      *
      * @return {@link Set}
      */
-    public Set<MonitoredSystem> getMonitoredSystems() {
-        Set<MonitoredSystem> set = new HashSet<>();
+    public List<MonitoredSystem> getMonitoredSystems() {
+        List<MonitoredSystem> set = new ArrayList<>();
         set.addAll(getContinuouslyMonitoredSystems());
         set.addAll(getNonContinuouslyMonitoredSystems());
         return set;

@@ -137,8 +137,7 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
         verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
                                                        "6.1.23.2.a - ECU Engine #1 (0) reported MIL not off");
 
-        String expectedResults = "FAIL: 6.1.23.2.a - ECU Engine #1 (0) reported MIL not off" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }

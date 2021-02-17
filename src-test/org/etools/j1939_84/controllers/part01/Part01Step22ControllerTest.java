@@ -208,14 +208,7 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM29(any(), eq(4));
         verify(diagnosticMessageModule).requestDM29(any(), eq(7));
 
-        String expected = "";
-        expected += "FAIL: 6.1.22.2.a - Turbocharger (2) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0" + NL;
-        expected += "FAIL: 6.1.22.2.b - Transmission #1 (3) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0" + NL;
-        expected += "FAIL: 6.1.22.2.b - Shift Console - Secondary (6) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0" + NL;
-        expected += "FAIL: 6.1.22.2.c - A non-OBD ECU Shift Console - Secondary (6) reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0" + NL;
-        expected += "FAIL: 6.1.22.4.a - Difference compared to data received during global request from Power TakeOff - (Main or Rear) (7)" + NL;
-        expected += "FAIL: 6.1.22.4.b - OBD module Transmission #2 (4) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART,
                                         STEP,
@@ -262,10 +255,7 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.22.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
 
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.1.22.2.d - No OBD ECU provided DM29" + NL;
-        expectedResults += "FAIL: 6.1.22.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }

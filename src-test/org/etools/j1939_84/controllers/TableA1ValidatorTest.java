@@ -5,6 +5,7 @@
 package org.etools.j1939_84.controllers;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.INFO;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.times;
@@ -15,7 +16,6 @@ import static org.mockito.Mockito.when;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
@@ -25,7 +25,6 @@ import org.etools.j1939_84.bus.j1939.packets.model.Spn;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.junit.After;
 import org.junit.Before;
@@ -120,10 +119,8 @@ public class TableA1ValidatorTest {
 
         instance.reportDuplicateSPNs(packets, listener, 1, 26, "6.1.26");
 
-        verify(listener).addOutcome(1, 26, FAIL, "N.5 SPN 92 provided by more than one module");
-        verify(listener).onResult("FAIL: 6.1.26 - N.5 SPN 92 provided by more than one module");
-        verify(listener).addOutcome(1, 26, WARN, "N.5 SPN 84 provided by more than one module");
-        verify(listener).onResult("WARN: 6.1.26 - N.5 SPN 84 provided by more than one module");
+        verify(listener).addOutcome(1, 26, FAIL, "6.1.26 - N.5 SPN 92 provided by more than one module");
+        verify(listener).addOutcome(1, 26, WARN, "6.1.26 - N.5 SPN 84 provided by more than one module");
     }
 
     @Test
@@ -216,14 +213,12 @@ public class TableA1ValidatorTest {
         verify(listener).onResult("10:15:30.0000 packet1 packet");
         verify(listener).onResult("Found: packet1");
         verify(listener, times(2)).onResult("");
-        verify(listener).addOutcome(1, 26, WARN, "N.8 Engine #1 (0) reported value for SPN 2 (200.0) is implausible");
-        verify(listener).onResult("WARN: 6.1.26 - N.8 Engine #1 (0) reported value for SPN 2 (200.0) is implausible");
+        verify(listener).addOutcome(1, 26, WARN, "6.1.26 - N.8 Engine #1 (0) reported value for SPN 2 (200.0) is implausible");
 
         verify(listener).onResult("PGN 22222 with Supported SPNs ");
         verify(listener).onResult("10:15:30.0000 packet2 packet");
         verify(listener).onResult("Found: packet2");
-        verify(listener).addOutcome(1, 26, WARN, "N.8 Engine #1 (0) reported value for SPN 3 (100.0) is implausible");
-        verify(listener).onResult("WARN: 6.1.26 - N.8 Engine #1 (0) reported value for SPN 3 (100.0) is implausible");
+        verify(listener).addOutcome(1, 26, WARN, "6.1.26 - N.8 Engine #1 (0) reported value for SPN 3 (100.0) is implausible");
     }
 
     @Test
@@ -279,12 +274,9 @@ public class TableA1ValidatorTest {
         verify(listener).onResult("10:15:30.0000 packet1 packet");
         verify(listener).onResult("Found: packet1");
 
-        verify(listener).addOutcome(1, 26, FAIL, "N.6 SPN 544 provided by non-OBD Module Turbocharger (2)");
-        verify(listener).onResult("FAIL: 6.1.26 - N.6 SPN 544 provided by non-OBD Module Turbocharger (2)");
-        verify(listener).addOutcome(1, 26, WARN, "N.6 SPN 190 provided by non-OBD Module Turbocharger (2)");
-        verify(listener).onResult("WARN: 6.1.26 - N.6 SPN 190 provided by non-OBD Module Turbocharger (2)");
-        verify(listener).addOutcome(1, 26, Outcome.INFO, "N.6 SPN 96 provided by non-OBD Module Turbocharger (2)");
-        verify(listener).onResult("INFO: 6.1.26 - N.6 SPN 96 provided by non-OBD Module Turbocharger (2)");
+        verify(listener).addOutcome(1, 26, FAIL, "6.1.26 - N.6 SPN 544 provided by non-OBD Module Turbocharger (2)");
+        verify(listener).addOutcome(1, 26, WARN, "6.1.26 - N.6 SPN 190 provided by non-OBD Module Turbocharger (2)");
+        verify(listener).addOutcome(1, 26, INFO, "6.1.26 - N.6 SPN 96 provided by non-OBD Module Turbocharger (2)");
     }
 
     @Before

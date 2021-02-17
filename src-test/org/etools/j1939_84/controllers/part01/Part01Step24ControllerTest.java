@@ -161,8 +161,7 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
                                                        FAIL,
                                                        "6.1.24.2.a - Engine #1 (0) provided freeze frame data other than no freeze frame data stored");
 
-        String expectedResults = "FAIL: 6.1.24.2.a - Engine #1 (0) provided freeze frame data other than no freeze frame data stored" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }

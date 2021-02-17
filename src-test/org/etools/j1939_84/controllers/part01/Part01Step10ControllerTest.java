@@ -141,10 +141,7 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
         verify(dataRepository).isObdModule(1);
         verify(dataRepository).isObdModule(2);
 
-        String expected = "";
-        expected += "FAIL: 6.1.10.3.a - The request for DM11 was NACK'ed by Engine #2 (1)" + NL;
-        expected += "WARN: 6.1.10.3.a - The request for DM11 was ACK'ed by Engine #1 (0)" + NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
 
         String expectedMessages = "";
         expectedMessages += "Waiting for 5 seconds" + NL;

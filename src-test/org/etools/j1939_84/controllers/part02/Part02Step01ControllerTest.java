@@ -8,7 +8,6 @@ import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNIN
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.atLeastOnce;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -21,7 +20,6 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -101,6 +99,7 @@ public class Part02Step01ControllerTest {
     @Test
     public void testRun() {
         when(engineSpeedModule.isEngineRunning()).thenReturn(true);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -108,7 +107,7 @@ public class Part02Step01ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).isEngineRunning();
         verify(vehicleInformationModule).setJ1939(j1939);
 
@@ -127,7 +126,7 @@ public class Part02Step01ControllerTest {
     @Test
     public void testWaitForKeyOn() {
         when(engineSpeedModule.isEngineRunning()).thenReturn(false);
-        when(engineSpeedModule.getEngineSpeed()).thenReturn(148.6);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("148.6 RPMs");
 
         new Timer().schedule(new TimerTask() {
             @Override
@@ -143,7 +142,7 @@ public class Part02Step01ControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).isEngineRunning();
-        verify(engineSpeedModule, times(2)).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(mockListener).onUrgentMessage("Please turn the Key ON with Engine ON", "Adjust Key Switch", WARNING);
 
@@ -163,7 +162,7 @@ public class Part02Step01ControllerTest {
     public void testEngineThrowInterruptedException() {
 
         when(engineSpeedModule.isEngineRunning()).thenReturn(false);
-        when(engineSpeedModule.getEngineSpeed()).thenReturn(300.0);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("300.0 RPMs");
         instance.execute(listener, j1939, reportFileModule);
         new Timer().schedule(new TimerTask() {
             @Override
@@ -176,7 +175,7 @@ public class Part02Step01ControllerTest {
         runnableCaptor.getValue().run();
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule).getEngineSpeed();
+        verify(engineSpeedModule).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).isEngineRunning();
 
         verify(mockListener).addOutcome(2, 1, ABORT, "User cancelled testing at Part 2 Step 1");
@@ -195,7 +194,6 @@ public class Part02Step01ControllerTest {
 
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 300.0 RPMs" + NL;
-        expectedResults += "ABORT: User cancelled testing at Part 2 Step 1"+NL;
         assertEquals(expectedResults, listener.getResults());
     }
 }

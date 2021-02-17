@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.FuelType.BI_DSL;
 import static org.etools.j1939_84.model.FuelType.BI_GAS;
 import static org.etools.j1939_84.model.Outcome.FAIL;
@@ -278,9 +277,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        String expectedResults = "FAIL: 6.1.12.1.a - No test result for Supported SPN 0 from Engine #1 (0)" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -395,10 +392,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-
-        assertEquals(
-                "FAIL: 6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly" + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -452,9 +446,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                "FAIL: 6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly" + NL,
-                listener.getResults());
+        assertEquals("",listener.getResults());
     }
 
     @Test
@@ -509,9 +501,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly" + NL;
-
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     /**
@@ -570,8 +560,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.1.12.1.c - #1 SLOT identifier for SPN 157 from Engine #1 (0) is invalid" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -716,11 +705,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.1.12.1.b - Test result for SPN 157 FMI 18 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly" + NL;
-        expectedResults += "FAIL: 6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly" + NL;
-        expectedResults += "WARN: 6.1.12.1.d - Engine #1 (0) returned duplicate test results for SPN 157 FMI 18" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test

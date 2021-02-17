@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.NOT_SUPPORTED;
@@ -190,7 +189,7 @@ public class Part03Step09ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM12(any());
         verify(diagnosticMessageModule).requestDM12(any(), eq(0));
 
-        assertEquals("FAIL: 6.3.9.2.a - Engine #1 (0) reported an active DTC" + NL, listener.getResults());
+        assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -211,7 +210,7 @@ public class Part03Step09ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM12(any());
         verify(diagnosticMessageModule).requestDM12(any(), eq(0));
 
-        assertEquals("FAIL: 6.3.9.2.a - Engine #1 (0) did not report MIL 'off'" + NL, listener.getResults());
+        assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -231,8 +230,7 @@ public class Part03Step09ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM12(any());
         verify(diagnosticMessageModule).requestDM12(any(), eq(0));
 
-        assertEquals("FAIL: 6.3.9.2.a - Non-OBD ECU Engine #2 (1) did not report MIL off or not supported" + NL,
-                     listener.getResults());
+        assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -254,8 +252,7 @@ public class Part03Step09ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM12(any());
         verify(diagnosticMessageModule).requestDM12(any(), eq(0));
 
-        assertEquals("FAIL: 6.3.9.4.a - Difference compared to data received during global request from Engine #1 (0)" + NL,
-                     listener.getResults());
+        assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -279,9 +276,7 @@ public class Part03Step09ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM12(any(), eq(0));
         verify(diagnosticMessageModule).requestDM12(any(), eq(1));
 
-        assertEquals(
-                "FAIL: 6.3.9.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query" + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -297,7 +292,7 @@ public class Part03Step09ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).requestDM12(any());
 
-        assertEquals("FAIL: 6.3.9.2.d - No OBD ECU provided a DM12" + NL, listener.getResults());
+        assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.3.9.2.d - No OBD ECU provided a DM12");
     }
 

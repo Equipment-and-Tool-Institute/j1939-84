@@ -130,12 +130,13 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         partResultRepository.setStepResult(1, stepResult);
 
         when(engineSpeedModule.isEngineRunning()).thenReturn(false, false, false, true);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         runTest();
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).isEngineRunning();
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         String urgentMessages = "";
         urgentMessages += "Ready to transition from Part 1 to Part 2 of the test" + NL;
@@ -177,7 +178,6 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
-        expectedResults += "ABORT: User cancelled testing at Part 1 Step 27" + NL;
         assertEquals(expectedResults, listener.getResults());
 
         assertEquals("", listener.getMilestones());
@@ -215,12 +215,13 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         partResultRepository.setStepResult(1, stepResult);
 
         when(engineSpeedModule.isEngineRunning()).thenReturn(false, false, false, true);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         runTest();
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).isEngineRunning();
 
         String urgentMessages = "";
@@ -268,12 +269,13 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         partResultRepository.setStepResult(PART_NUMBER, stepResult);
 
         when(engineSpeedModule.isEngineRunning()).thenReturn(false, false, false, true);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         runTest();
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).isEngineRunning();
-        verify(engineSpeedModule, atLeastOnce()).getEngineSpeed();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         String urgentMessages = "";
         urgentMessages += "Ready to transition from Part 1 to Part 2 of the test" + NL;
@@ -299,11 +301,10 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
-        String expected = "";
-        expected += "Initial Engine Speed = 0.0 RPMs" + NL;
-        expected += "Final Engine Speed = 0.0 RPMs" + NL;
-        assertEquals(expected, listener.getResults());
+        String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
+        expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
         assertEquals("", listener.getMilestones());
     }
 

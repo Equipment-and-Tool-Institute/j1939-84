@@ -147,10 +147,7 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM12(any());
         verify(diagnosticMessageModule).requestDM12(any(), eq(0x01));
 
-        String expectedResults = "FAIL: 6.1.18.2.c - No OBD ECU provided DM12" + NL;
-        expectedResults += "FAIL: 6.1.18.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query"
-                + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
@@ -188,15 +185,7 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM12(any(), eq(0x01));
         verify(diagnosticMessageModule).requestDM12(any(), eq(0x03));
 
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.1.18.2.a - Engine #2 (1) reported active DTCs" + NL;
-        expectedResults += "FAIL: 6.1.18.2.a - Transmission #1 (3) reported active DTCs" + NL;
-        expectedResults += "FAIL: 6.1.18.2.b - Engine #2 (1) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.18.2.b - Transmission #1 (3) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.18.4.a - Difference compared to data received during global request from Transmission #1 (3)"
-                + NL;
-
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -250,14 +239,7 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM12(any(), eq(0x01));
         verify(diagnosticMessageModule).requestDM12(any(), eq(0x03));
 
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.1.18.2.a - Engine #2 (1) reported active DTCs" + NL;
-        expectedResults += "FAIL: 6.1.18.2.a - Transmission #1 (3) reported active DTCs" + NL;
-        expectedResults += "FAIL: 6.1.18.2.b - Engine #2 (1) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.18.2.b - Transmission #1 (3) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.1.18.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
-
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
