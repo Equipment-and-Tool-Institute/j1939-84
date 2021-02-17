@@ -264,7 +264,8 @@ assertEquals("", listener.getResults());
                 "    Misfire                        supported, not complete" + NL +
                 "    NMHC converting catalyst       supported, not complete" + NL +
                 "    NOx catalyst/adsorber          supported, not complete" + NL +
-                "    Secondary air system       not supported,     complete" + NL;
+                "    Secondary air system       not supported,     complete" + NL +
+                NL;
 
         assertEquals(expectedResults, listener.getResults());
     }

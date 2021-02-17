@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -157,8 +156,7 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
                                                        FAIL,
                                                        "6.2.14.2.a - Engine #1 (0) provided freeze frame data other than no freeze frame data stored");
 
-        String expectedResults = "FAIL: 6.2.14.2.a - Engine #1 (0) provided freeze frame data other than no freeze frame data stored" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }

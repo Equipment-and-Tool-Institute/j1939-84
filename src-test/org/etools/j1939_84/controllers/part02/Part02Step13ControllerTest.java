@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.bus.j1939.packets.DTCLampStatus.create;
 import static org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode.create;
@@ -146,8 +145,7 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
                                                        FAIL,
                                                        "6.2.13.2.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
 
-        String expectedResults = "FAIL: 6.2.13.2.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -231,10 +229,7 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
                                                        FAIL,
                                                        "6.2.13.2.a - ECU Turbocharger (2) reported MIL not off/alt-off");
 
-        String expectedResults = "FAIL: 6.2.13.2.a - ECU Engine #1 (0) reported MIL not off/alt-off" + NL;
-        expectedResults += "FAIL: 6.2.13.2.a - ECU Engine #2 (1) reported MIL not off/alt-off" + NL;
-        expectedResults += "FAIL: 6.2.13.2.a - ECU Turbocharger (2) reported MIL not off/alt-off" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }

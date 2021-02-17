@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -23,8 +22,8 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -174,14 +173,7 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x02));
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.2.11.2.b - Engine #2 (1) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.2.11.2.b - Transmission #1 (3) reported an all pending DTC" + NL;
-        expectedResults += "FAIL: 6.2.11.2.c - Engine #2 (1) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.2.11.2.c - Transmission #1 (3) did not report MIL off" + NL;
-        expectedResults += "FAIL: 6.2.11.4.a - Difference compared to data received during global request from Transmission #1 (3)" + NL;
-
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART, STEP, FAIL, "6.2.11.2.b - Engine #2 (1) reported an all pending DTC");
         verify(mockListener).addOutcome(PART,

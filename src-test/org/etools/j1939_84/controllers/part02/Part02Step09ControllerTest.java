@@ -4,7 +4,6 @@
 
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -126,8 +125,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.9.4.a - Difference compared to data received during global request from Engine #1 (0)");
 
-        assertEquals("FAIL: 6.2.9.4.a - Difference compared to data received during global request from Engine #1 (0)" + NL,
-                     listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -182,10 +180,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.9.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
 
-        assertEquals(
-                "FAIL: 6.2.9.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query"
-                        + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -213,9 +208,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.9.2.c - Engine #1 (0) reported > 0 distance with MIL on");
 
-        assertEquals(
-                "FAIL: 6.2.9.2.c - Engine #1 (0) reported > 0 distance with MIL on" + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -243,9 +236,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.9.2.c - Engine #1 (0) reported > 0 time with MIL on");
 
-        assertEquals(
-                "FAIL: 6.2.9.2.c - Engine #1 (0) reported > 0 time with MIL on" + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -270,10 +261,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
                                         WARN,
                                         "6.2.9.2.e - No OBD ECU reported time (SPN 3296) for DM21");
 
-        String expected = "";
-        expected += "FAIL: 6.2.9.2.b - No ECU reported time (SPN 3295) or distance (SPN 3069) with MIL on" + NL;
-        expected += "WARN: 6.2.9.2.e - No OBD ECU reported time (SPN 3296) for DM21" + NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -301,9 +289,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
                                         WARN,
                                         "6.2.9.2.e - No OBD ECU reported time (SPN 3296) for DM21");
 
-        assertEquals(
-                "WARN: 6.2.9.2.e - No OBD ECU reported time (SPN 3296) for DM21" + NL,
-                listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -331,9 +317,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.9.2.d - Engine #1 (0) reported zero time SCC (SPN 3296)");
 
-        assertEquals(
-                "FAIL: 6.2.9.2.d - Engine #1 (0) reported zero time SCC (SPN 3296)" + NL,
-                listener.getResults());
+        assertEquals("",listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }

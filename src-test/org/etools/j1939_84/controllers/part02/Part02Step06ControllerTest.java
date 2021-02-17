@@ -23,8 +23,8 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -73,7 +73,7 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
 
     @Mock
     private VehicleInformationModule vehicleInformationModule;
-    
+
     @Mock
     private DiagnosticMessageModule diagnosticMessageModule;
 
@@ -148,10 +148,7 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(NL + NL +
-                             "FAIL: 6.2.6.2.a - Engine #2 (1) reported different Engine Family Name when compared to data received in part 1"
-                             + NL,
-                     listener.getResults());
+        assertEquals(NL + NL, listener.getResults());
     }
 
     @Test
@@ -178,10 +175,7 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals(
-                NL + "FAIL: 6.2.6.2.a - Engine #1 (0) reported different Model Year when compared to data received in part 1"
-                        + NL + NL,
-                listener.getResults());
+        assertEquals(NL + NL, listener.getResults());
     }
 
     @Test

@@ -25,8 +25,8 @@ import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
@@ -159,10 +159,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                                         INFO,
                                         "6.2.8.5 - No responses received from Engine #2 (1)");
 
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.2.8.2.c - Engine #2 (1) did not provide a NACK and did not provide a DM26 response" + NL;
-        expectedResults += "INFO: 6.2.8.5 - No responses received from Engine #2 (1)" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }
@@ -197,7 +194,8 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(3));
         when(diagnosticMessageModule.requestDM26(any(), eq(3))).thenReturn(new RequestResult<>(true));
 
-        when(diagnosticMessageModule.requestDM26(any())).thenReturn(new RequestResult<>(false, packet0, packet1, packet2));
+        when(diagnosticMessageModule.requestDM26(any()))
+                .thenReturn(new RequestResult<>(false, packet0, packet1, packet2));
 
         runTest();
 
@@ -208,13 +206,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x02));
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x03));
 
-        String expectedResults = "";
-        expectedResults += "FAIL: 6.2.8.2.a - Difference from Engine #1 (0) regarding readiness status this cycle compared to responses in part 1 after DM11." + NL;
-        expectedResults += "FAIL: 6.2.8.2.b - Engine #2 (1) indicates number of warm-ups since code clear greater than zero" + NL;
-        expectedResults += "FAIL: 6.2.8.2.a - Difference from Turbocharger (2) regarding readiness status this cycle compared to responses in part 1 after DM11." + NL;
-        expectedResults += "FAIL: 6.2.8.2.b - Turbocharger (2) indicates number of warm-ups since code clear greater than zero" + NL;
-        expectedResults += "FAIL: 6.2.8.2.c - Transmission #1 (3) did not provide a NACK and did not provide a DM26 response" + NL;
-        expectedResults += "" + NL;
+        String expectedResults = "" + NL;
         expectedResults += "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
         expectedResults += "    Boost pressure control sys     enabled, not complete" + NL;
@@ -233,21 +225,6 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         expectedResults += "    NOx catalyst/adsorber          enabled, not complete" + NL;
         expectedResults += "    Secondary air system           enabled, not complete" + NL;
         expectedResults += "" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor A/C system refrigerant is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Boost pressure control sys is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Catalyst is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Cold start aid system is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor EGR/VVT system is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Evaporative system is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Exhaust Gas Sensor is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Heated catalyst is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor NMHC converting catalyst is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor NOx catalyst/adsorber is supported by more than one OBD ECU" + NL;
-        expectedResults += "WARN: 6.2.8.3.a - Required monitor Secondary air system is supported by more than one OBD ECU" + NL;
-        expectedResults += "FAIL: 6.2.8.5.a - Difference in data between DS and global responses from Engine #1 (0)" + NL;
-        expectedResults += "INFO: 6.2.8.5 - No responses received from Transmission #1 (3)" + NL;
 
         assertEquals(expectedResults, listener.getResults());
 

@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket.PGN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -146,9 +145,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM20(any());
         verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
 
-        String expected = "FAIL: 6.2.4.2.b - ECU Engine #1 (0) reported a denominator that does not match denominator recorded in part 1"
-                + NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
@@ -193,8 +190,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM20(any());
         verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
 
-        String expected = "FAIL: 6.2.4.4.a - Difference compared to data received during global request from Engine #1 (0)" + NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
@@ -237,9 +233,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM20(any());
         verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
 
-        String expected = "FAIL: 6.2.4.2.a - ECU Engine #1 (0) reported ignition cycle is invalid.  Expected 2 but was 4"
-                + NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
@@ -288,9 +282,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM20(any(), eq(0x17));
 
-        String expected = "FAIL: 6.2.4.4.b - OBD module Instrument Cluster #1 (23) did not provide a response to Global query and did not provide a NACK for the DS query"
-                + NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
@@ -335,9 +327,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM20(any());
         verify(diagnosticMessageModule).requestDM20(any(), eq(0x00));
 
-        String expected = "FAIL: 6.2.4.2.a - ECU Engine #1 (0) reported different SPNs as supported for data than in part 1"
-                + NL;
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 

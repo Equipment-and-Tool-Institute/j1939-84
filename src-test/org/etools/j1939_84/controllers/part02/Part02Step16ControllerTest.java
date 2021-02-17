@@ -4,7 +4,6 @@
 
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.INSIDE;
 import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.NOT_AVAILABLE;
@@ -169,10 +168,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).requestDM34(any());
 
-        String expected = "";
-        expected += "FAIL: 6.2.16.2.a - No ECU responded to the global request" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
@@ -201,15 +197,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM34(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM34(any());
 
-        String expected = "";
-        expected += "FAIL: 6.2.16.2.b - Engine #1 (0) reported NOx control area != 0b00" + NL;
-        expected += "FAIL: 6.2.16.2.b - Engine #1 (0) reported PM control area != 0b00" + NL;
-        expected += "FAIL: 6.2.16.2.c - Engine #1 (0) reported NOx carve-out area != 0b00 or 0b11" + NL;
-        expected += "FAIL: 6.2.16.2.c - Engine #1 (0) reported NOx deficiency area != 0b00 or 0b11" + NL;
-        expected += "FAIL: 6.2.16.2.c - Engine #1 (0) reported PM carve-out area != 0b00 or 0b11" + NL;
-        expected += "FAIL: 6.2.16.2.c - Engine #1 (0) reported PM deficiency area != 0b00 or 0b11" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
@@ -258,10 +246,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM34(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM34(any());
 
-        String expected = "";
-        expected += "FAIL: 6.1.16.4.a - Difference compared to data received during global request from Engine #1 (0)" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
@@ -291,10 +276,7 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM34(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM34(any());
 
-        String expected = "";
-        expected += "FAIL: 6.2.16.4.b - NACK received from Engine #1 (0) which responded to the global query" + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 

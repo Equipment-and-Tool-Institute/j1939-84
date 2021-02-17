@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket.create;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
@@ -232,9 +231,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.2.7.2.a - There are no positive responses to a DS Component ID request from Transmission #1 (3)" + NL;
-        expectedResults += "WARN: 6.2.7.5.a - Transmission #1 (3) did not provide a positive respond to global query while engine running" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -360,11 +357,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.2.7.2.b - Engine #1 (0) reported component identification as: ComponentIdentification{make='BatMan', model='TheBtCave', serialNumber='ST109823456', unitNumber='Land'}, Part 01 Step 09 reported it as: ComponentIdentification{make='BatMan', model='TheBatCave', serialNumber='ST109823456', unitNumber='Land'}" + NL +
-                "FAIL: 6.2.7.2.b - Engine #2 (1) reported component identification as: ComponentIdentification{make='AquaMan', model='TheWater', serialNumber='ST109888765', unitNumber='Ocean'}, Part 01 Step 09 reported it as: ComponentIdentification{make='AquaMan', model='TheWater', serialNumber='ST109888765', unitNumber='Ocan'}" + NL +
-                "FAIL: 6.2.7.2.b - Turbocharger (2) reported component identification as: ComponentIdentification{make='SuperMan', model='TheCrystalIcePalace', serialNumber='ST10983456', unitNumber='Air'}, Part 01 Step 09 reported it as: ComponentIdentification{make='SuperMan', model='TheCrystalIcePalace', serialNumber='ST109823456', unitNumber='Air'}" + NL +
-                "FAIL: 6.2.7.2.b - Transmission #1 (3) reported component identification as: ComponentIdentification{make='WonderWoman', model='TheLair', serialNumber='WW109877654', unitNumber='Lasso'}, Part 01 Step 09 reported it as: ComponentIdentification{make='WW', model='TheLair', serialNumber='WW109877654', unitNumber='Lasso'}" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -546,8 +539,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.2.7.4.b - No OBD module claimed function 0" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -650,9 +642,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.2.7.2.b - Engine #1 (0) reported component identification as: ComponentIdentification{make='CatWoman', model='TheBatCave', serialNumber='CW019823456', unitNumber='Roofs'}, Part 01 Step 09 reported it as: ComponentIdentification{make='BatMan', model='TheBatCave', serialNumber='ST109823456', unitNumber='Land'}" + NL;
-        expectedResults += "FAIL: 6.2.7.4.b - The Component ID Global responses do not contain a match for Engine #1 (0), which claimed function 0 in Part 1 Step 9" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
 
     }
 
@@ -747,8 +737,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.2.7.4.b - The Component ID Global responses do not contain a match for Engine #1 (0), which claimed function 0 in Part 1 Step 9" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -842,8 +831,7 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "FAIL: 6.2.7.4.b - No packet was received for Engine #1 (0) which claimed function 0 in Part 1 Step 9" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
@@ -943,7 +931,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        String expectedResults = "WARN: 6.2.7.5.a - Transmission #1 (3) did not provide a positive respond to global query while engine running" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 }

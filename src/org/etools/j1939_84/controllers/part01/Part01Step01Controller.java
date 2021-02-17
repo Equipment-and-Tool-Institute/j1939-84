@@ -67,7 +67,7 @@ public class Part01Step01Controller extends StepController {
             @Override public void onResult(VehicleInformation vehInfo) {
                 if (vehInfo == null) {
                     try {
-                        getListener().onResult("User cancelled the test at Part " + getPartNumber() + " Step " + getStepNumber());
+                        getListener().onResult("User cancelled testing at Part " + getPartNumber() + " Step " + getStepNumber());
                         setEnding(Ending.STOPPED);
                         incrementProgress("User cancelled testing");
                     } catch (InterruptedException e) {
