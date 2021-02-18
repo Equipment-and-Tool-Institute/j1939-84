@@ -3,15 +3,36 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
+import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
+import static org.etools.j1939_84.model.Outcome.ABORT;
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
+import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -61,15 +82,18 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     private StepController instance;
+    
+    private DateTimeModule dateTimeModule;
 
     @Before
     public void setUp() throws Exception {
         dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
-
+        dateTimeModule = new TestDateTimeModule();
+        
         instance = new Part04Step02Controller(executor,
                                               bannerModule,
-                                              new TestDateTimeModule(),
+                                              dateTimeModule,
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
@@ -117,12 +141,297 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testHappyPathNoFailures() {
+    public void testNoResponses() {
+
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(true));
+
+        String promptMsg = "No module has reported a confirmed and active DTC." + NL + "Do you wish to continue?";
+        String promptTitle = "No Confirmed and Active DTCs Found";
+
+        doAnswer(invocationOnMock -> {
+            QuestionListener questionListener = invocationOnMock.getArgument(3);
+            questionListener.answered(NO);
+            return null;
+        }).when(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
 
         runTest();
 
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        StringBuilder expectedMessages = new StringBuilder();
+        for (int i = 1; i <= 300; i++) {
+            expectedMessages.append("Step 4.2. Requesting DM12 Attempt ").append(i).append(NL);
+        }
+        expectedMessages.append("User cancelled testing at Part 4 Step 2").append(NL);
+        expectedMessages.append("Step 4.2. Requesting DM12 Attempt 1");
+        assertEquals(expectedMessages.toString(), listener.getMessages());
+
+        assertEquals("", listener.getMilestones());
+
+        StringBuilder expectedResults = new StringBuilder();
+        for (int i = 1; i <= 300; i++) {
+            expectedResults.append(NL).append("Attempt ").append(i).append(NL);
+        }
+        assertEquals(expectedResults.toString(), listener.getResults());
+
+        verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
+        verify(diagnosticMessageModule, times(300)).requestDM12(any());
+        verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 4 Step 2");
+
+        assertEquals(299000, dateTimeModule.getTimeAsLong());
+    }
+
+    @Test
+    public void testNoDTCs() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        var DM12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, DM12));
+
+        String promptMsg = "No module has reported a confirmed and active DTC." + NL + "Do you wish to continue?";
+        String promptTitle = "No Confirmed and Active DTCs Found";
+
+        doAnswer(invocationOnMock -> {
+            QuestionListener questionListener = invocationOnMock.getArgument(3);
+            questionListener.answered(NO);
+            return null;
+        }).when(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
+
+        runTest();
+
+        StringBuilder expectedMessages = new StringBuilder();
+        for (int i = 1; i <= 300; i++) {
+            expectedMessages.append("Step 4.2. Requesting DM12 Attempt ").append(i).append(NL);
+        }
+        expectedMessages.append("User cancelled testing at Part 4 Step 2").append(NL);
+        expectedMessages.append("Step 4.2. Requesting DM12 Attempt 1");
+        assertEquals(expectedMessages.toString(), listener.getMessages());
+
+        assertEquals("", listener.getMilestones());
+
+        StringBuilder expectedResults = new StringBuilder();
+        for (int i = 1; i <= 300; i++) {
+            expectedResults.append(NL).append("Attempt ").append(i).append(NL);
+        }
+        assertEquals(expectedResults.toString(), listener.getResults());
+
+        verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
+        verify(diagnosticMessageModule, times(300)).requestDM12(any());
+        verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 4 Step 2");
+
+        assertEquals(299000, dateTimeModule.getTimeAsLong());
+    }
+
+    @Test
+    public void testMultipleDTCFailure() {
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dtc2 = DiagnosticTroubleCode.create(456, 3, 0, 1);
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1, dtc2);
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12));
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12));
+
+        runTest();
+
+        String expectedMessages = "Step 4.2. Requesting DM12 Attempt 1";
+        assertEquals(expectedMessages, listener.getMessages());
+
+        assertEquals("", listener.getMilestones());
+
+        String expectedResults = "" + NL;
+        expectedResults += "Attempt 1" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(diagnosticMessageModule).requestDM12(any());
+        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+
+        assertEquals(0, dateTimeModule.getTimeAsLong());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.4.2.3.a - Engine #1 (0) reported > 1 confirmed and active DTC");
+    }
+
+    @Test
+    public void testDTCsMultipleModulesFailure() {
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
+        dataRepository.putObdModule(obdModuleInformation);
+
+
+        var dm12_0 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
+        var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1);
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12_0, dm12_1));
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12_0));
+
+        runTest();
+
+        String expectedMessages = "Step 4.2. Requesting DM12 Attempt 1";
+        assertEquals(expectedMessages, listener.getMessages());
+
+        assertEquals("", listener.getMilestones());
+
+        String expectedResults = "" + NL;
+        expectedResults += "Attempt 1" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(diagnosticMessageModule).requestDM12(any());
+        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+
+        assertEquals(0, dateTimeModule.getTimeAsLong());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.4.2.3.b - More than one ECU reported a confirmed and active DTC");
+    }
+
+    @Test
+    public void testMILNotOnFailure() {
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
+        dataRepository.putObdModule(obdModuleInformation);
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12));
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12));
+
+        runTest();
+
+        String expectedMessages = "Step 4.2. Requesting DM12 Attempt 1";
+        assertEquals(expectedMessages, listener.getMessages());
+
+        assertEquals("", listener.getMilestones());
+
+        String expectedResults = "" + NL;
+        expectedResults += "Attempt 1" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(diagnosticMessageModule).requestDM12(any());
+        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+
+        assertEquals(0, dateTimeModule.getTimeAsLong());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.4.2.2.a - No ECU reported MIL on");
+    }
+
+    @Test
+    public void testDifferentDTCsFailure() {
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dtc2 = DiagnosticTroubleCode.create(456, 12, 0, 1);
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc2);
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12));
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12));
+
+        runTest();
+
+        String expectedMessages = "Step 4.2. Requesting DM12 Attempt 1";
+        assertEquals(expectedMessages, listener.getMessages());
+
+        assertEquals("", listener.getMilestones());
+
+        String expectedResults = "" + NL;
+        expectedResults += "Attempt 1" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(diagnosticMessageModule).requestDM12(any());
+        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+
+        assertEquals(0, dateTimeModule.getTimeAsLong());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.4.2.2.b - Engine #1 (0) reported DM12 DTC(s) different than DM6 pending DTC(s) in part 3");
+    }
+
+    @Test
+    public void testGlobalDSDifferenceFailure() {
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        var dm6 = DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(dm6);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm12_1 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
+        var dm12_2 = DM12MILOnEmissionDTCPacket.create(0, ON, ON, OFF, OFF, dtc1);
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12_1));
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12_2));
+
+        runTest();
+
+        String expectedMessages = "Step 4.2. Requesting DM12 Attempt 1";
+        assertEquals(expectedMessages, listener.getMessages());
+
+        assertEquals("", listener.getMilestones());
+
+        String expectedResults = "" + NL;
+        expectedResults += "Attempt 1" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(diagnosticMessageModule).requestDM12(any());
+        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+
+        assertEquals(0, dateTimeModule.getTimeAsLong());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.4.2.5.a - Difference compared to data received during global request from Engine #1 (0)");
+    }
+
+    @Test
+    public void testNoNACKFailure() {
+        var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12));
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(new BusResult<>(false, dm12));
+
+        when(diagnosticMessageModule.requestDM12(any(), eq(1))).thenReturn(new BusResult<>(true));
+
+        runTest();
+
+        String expectedMessages = "Step 4.2. Requesting DM12 Attempt 1";
+        assertEquals(expectedMessages, listener.getMessages());
+
+        assertEquals("", listener.getMilestones());
+
+        String expectedResults = "" + NL;
+        expectedResults += "Attempt 1" + NL;
+        assertEquals(expectedResults, listener.getResults());
+
+        verify(diagnosticMessageModule).requestDM12(any());
+        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM12(any(), eq(1));
+
+        assertEquals(0, dateTimeModule.getTimeAsLong());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.4.2.5.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
     }
 
 }
