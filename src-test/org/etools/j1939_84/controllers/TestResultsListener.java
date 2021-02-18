@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.ArrayList;
 import java.util.List;
+import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.StepResult;
@@ -32,6 +33,8 @@ public class TestResultsListener implements ResultsListener {
 
     private boolean success;
 
+    private final List<ActionOutcome> outcomes = new ArrayList<>();
+
     public TestResultsListener() {
         this(null);
     }
@@ -42,6 +45,7 @@ public class TestResultsListener implements ResultsListener {
 
     @Override
     public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
+        outcomes.add(new ActionOutcome(outcome, message));
         mockListener.addOutcome(partNumber, stepNumber, outcome, message);
     }
 
@@ -140,7 +144,10 @@ public class TestResultsListener implements ResultsListener {
     @Override
     public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
         mockListener.onVehicleInformationReceived(vehicleInformation);
+    }
 
+    public List<ActionOutcome> getOutcomes() {
+        return outcomes;
     }
 
 }

@@ -219,7 +219,12 @@ public class Engine implements AutoCloseable {
 
         // DM12
         sim.response(p -> isRequestFor(DM12MILOnEmissionDTCPacket.PGN, p),
-                     () -> Packet.create(DM12MILOnEmissionDTCPacket.PGN, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
+                     () -> DM12MILOnEmissionDTCPacket.create(0,
+                                                              ON,
+                                                              OFF,
+                                                              ON,
+                                                              ON,
+                                                              DiagnosticTroubleCode.create(123, 12, 0, 1)).getPacket());
 
         // DM23
         sim.response(p -> isRequestFor(64949, p), () -> Packet.create(64949, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
