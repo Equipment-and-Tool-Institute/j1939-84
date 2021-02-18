@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part04;
 
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -111,22 +112,10 @@ public class Part04Step03Controller extends StepController {
         }
 
         // 6.4.3.2.c Fail if any OBD ECU reports fewer active DTCs in its DM1 response than its DM12 response.
-        for (OBDModuleInformation moduleInfo : getDataRepository().getObdModules()) {
-            int moduleAddress = moduleInfo.getSourceAddress();
-            String moduleName = Lookup.getAddressName(moduleAddress);
-            DM12MILOnEmissionDTCPacket dm12 = moduleInfo.get(DM12MILOnEmissionDTCPacket.class);
-            List<DiagnosticTroubleCode> existingDTCs = dm12 == null ? List.of() : dm12.getDtcs();
-
-            List<DM1ActiveDTCsPacket> modulePackets = packets.stream()
-                    .filter(p -> p.getSourceAddress() == moduleAddress)
-                    .collect(Collectors.toList());
-            for (DM1ActiveDTCsPacket packet : modulePackets) {
-                if (packet.getDtcs().size() < existingDTCs.size()) {
-                    addFailure("6.4.3.2.c - " + moduleName + " reported fewer active DTCs in its DM1 response than its DM12 response");
-                    break;
-                }
-            }
-        }
+        packets.stream()
+                .filter(p -> p.getDtcs().size() < getDTCs(p.getSourceAddress()).size())
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> addFailure("6.4.3.2.c - " + moduleName + " reported fewer active DTCs in its DM1 response than its DM12 response"));
 
         // 6.4.3.2.d Warn if any non-OBD ECU reports an Active DTC.
         packets.stream()
@@ -141,6 +130,20 @@ public class Part04Step03Controller extends StepController {
             addWarning("6.4.3.2.e - More than 1 active DTC is reported by the vehicle");
         }
 
+    }
+
+    private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {
+        List<DiagnosticTroubleCode> results = new ArrayList<>();
+
+        OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(moduleAddress);
+        if (obdModuleInformation != null) {
+            DM12MILOnEmissionDTCPacket packet = obdModuleInformation.get(DM12MILOnEmissionDTCPacket.class);
+            if (packet != null) {
+                results.addAll(packet.getDtcs());
+            }
+        }
+
+        return results;
     }
 
 }
