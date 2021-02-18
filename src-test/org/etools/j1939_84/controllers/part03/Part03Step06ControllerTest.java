@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
@@ -23,7 +24,6 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -138,7 +138,7 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(new RequestResult<>(false, dm1_0, dm1_21));
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_21));
 
         runTest();
 
@@ -156,7 +156,7 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(new RequestResult<>(false, dm1_0, dm1_21));
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_21));
 
         runTest();
 
@@ -169,7 +169,7 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoMessages() {
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of());
 
         runTest();
 
@@ -186,7 +186,7 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
     public void testFailureForNoOBDSupport() {
         var dm1 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF);
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(new RequestResult<>(false, dm1));
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1));
 
         runTest();
 
@@ -207,7 +207,7 @@ public class Part03Step06ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(new RequestResult<>(false, dm1_0, dm1_21));
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_21));
 
         runTest();
 

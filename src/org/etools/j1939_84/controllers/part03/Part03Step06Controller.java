@@ -62,7 +62,7 @@ public class Part03Step06Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.3.6.1.a Receive DM1 broadcast info (PGN 65226 (SPNs 1213-1215, 1706, and 3038)).
-        List<DM1ActiveDTCsPacket> packets = getDiagnosticMessageModule().readDM1(getListener()).getPackets();
+        List<DM1ActiveDTCsPacket> packets = getDiagnosticMessageModule().readDM1(getListener());
 
         // 6.3.6.2.a Fail if no OBD ECU supports DM1.
         boolean noObdDM1s = packets.stream().noneMatch(p -> getDataRepository().isObdModule(p.getSourceAddress()));

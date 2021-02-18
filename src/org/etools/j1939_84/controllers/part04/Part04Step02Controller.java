@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -16,6 +17,7 @@ import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -125,23 +127,11 @@ public class Part04Step02Controller extends StepController {
         }
 
         // 6.4.2.2.b. Fail if DM12 DTC(s) is (are) not the same SPN+FMI(s) as DM6 pending DTC in part 3.
-        for (OBDModuleInformation moduleInfo : getDataRepository().getObdModules()) {
-            int moduleAddress = moduleInfo.getSourceAddress();
-            String moduleName = Lookup.getAddressName(moduleAddress);
-            var dm6 = moduleInfo.get(DM6PendingEmissionDTCPacket.class);
-            var existingDTCs = toString(dm6 == null ? List.of() : dm6.getDtcs());
-
-            List<DM12MILOnEmissionDTCPacket> packets = globalPackets.stream()
-                    .filter(p -> p.getSourceAddress() == moduleAddress)
-                    .collect(Collectors.toList());
-            for (DM12MILOnEmissionDTCPacket packet : packets) {
-                var packetDTCs = toString(packet.getDtcs());
-                if (!packetDTCs.equals(existingDTCs)) {
-                    addFailure("6.4.2.2.b - " + moduleName + " reported DM12 DTC(s) different than DM6 pending DTC(s) in part 3");
-                    break;
-                }
-            }
-        }
+        globalPackets.stream()
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                .filter(p -> !toString(p.getDtcs()).equals(toString(getDTCs(p.getSourceAddress()))))
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> addFailure("6.4.2.2.b - " + moduleName + " reported DM12 DTC(s) different than DM6 pending DTC(s) in part 3"));
 
         // 6.4.2.3.a. Warn if any ECU reports > 1 confirmed and active DTC.
         globalPackets.stream()
@@ -173,6 +163,20 @@ public class Part04Step02Controller extends StepController {
         // 6.4.2.5.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
         List<AcknowledgmentPacket> dsAcks = filterRequestResultAcks(dsResults);
         checkForNACKs(globalPackets, dsAcks, obdModuleAddresses, "6.4.2.5.b");
+    }
+
+    private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {
+        List<DiagnosticTroubleCode> results = new ArrayList<>();
+
+        OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(moduleAddress);
+        if (obdModuleInformation != null) {
+            DM6PendingEmissionDTCPacket packet = obdModuleInformation.get(DM6PendingEmissionDTCPacket.class);
+            if (packet != null) {
+                results.addAll(packet.getDtcs());
+            }
+        }
+
+        return results;
     }
 
 }

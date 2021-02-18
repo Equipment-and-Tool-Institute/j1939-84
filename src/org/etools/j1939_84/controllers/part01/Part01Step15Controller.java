@@ -3,20 +3,17 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.NOT_SUPPORTED;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -67,8 +64,7 @@ public class Part01Step15Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.15.1.a. Gather broadcast DM1 data from all ECUs (PGN 65226)
-        RequestResult<DM1ActiveDTCsPacket> results = getDiagnosticMessageModule().readDM1(getListener());
-        List<DM1ActiveDTCsPacket> packets = results.getPackets();
+        List<DM1ActiveDTCsPacket> packets = getDiagnosticMessageModule().readDM1(getListener());
 
         boolean foundObdPacket = false;
 
@@ -77,10 +73,6 @@ public class Part01Step15Controller extends StepController {
             boolean isObdModule = getDataRepository().isObdModule(sourceAddress);
             String moduleName = Lookup.getAddressName(sourceAddress);
             foundObdPacket |= isObdModule;
-
-            Packet dm1Packet = dm1.getPacket();
-            getListener().onResult(NL + getDateTimeModule().format(dm1Packet.getTimestamp()) + " " + dm1Packet);
-            getListener().onResult(dm1.toString());
 
             // 6.1.15.2.a. Fail if any OBD ECU reports an active DTC.
             if (isObdModule && !dm1.getDtcs().isEmpty()) {

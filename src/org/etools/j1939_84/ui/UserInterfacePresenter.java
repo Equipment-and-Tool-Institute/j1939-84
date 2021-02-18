@@ -27,6 +27,7 @@ import org.etools.j1939_84.bus.j1939.J1939TP;
 import org.etools.j1939_84.controllers.OverallController;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.StepResult;
@@ -224,6 +225,7 @@ public class UserInterfacePresenter implements UserInterfaceContract.Presenter {
         return new ResultsListener() {
             @Override
             public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
+                onResult(new ActionOutcome(outcome, message).toString());
             }
 
             @Override
