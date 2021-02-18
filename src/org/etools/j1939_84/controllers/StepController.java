@@ -29,6 +29,7 @@ import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
@@ -337,6 +338,13 @@ public abstract class StepController extends Controller {
                 .filter(Optional::isPresent)
                 .map(Optional::get)
                 .collect(Collectors.toList());
+    }
+
+    protected static String toString(List<DiagnosticTroubleCode> dtcs) {
+        return dtcs.stream()
+                .map(d -> d.getSuspectParameterNumber() + ":" + d.getFailureModeIndicator())
+                .sorted()
+                .collect(Collectors.joining(","));
     }
 
 }

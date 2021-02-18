@@ -16,7 +16,6 @@ import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -174,13 +173,6 @@ public class Part04Step02Controller extends StepController {
         // 6.4.2.5.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
         List<AcknowledgmentPacket> dsAcks = filterRequestResultAcks(dsResults);
         checkForNACKs(globalPackets, dsAcks, obdModuleAddresses, "6.4.2.5.b");
-    }
-
-    private static String toString(List<DiagnosticTroubleCode> dtcs) {
-        return dtcs.stream()
-                .map(d -> d.getSuspectParameterNumber() + ":" + d.getFailureModeIndicator())
-                .sorted()
-                .collect(Collectors.joining(","));
     }
 
 }
