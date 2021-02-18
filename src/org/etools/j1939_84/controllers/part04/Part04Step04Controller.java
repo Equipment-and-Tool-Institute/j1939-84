@@ -3,8 +3,14 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -53,11 +59,39 @@ public class Part04Step04Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.4.4.1.a Global DM2 [(send Request (PGN 59904) for PGN 65227 (SPNs 1213-1215, 1706, and 3038)]).
+        var globalPackets = getDiagnosticMessageModule().requestDM2(getListener()).getPackets();
+
         // 6.4.4.2.a (if supported) Fail if any OBD ECU reports > 0 previously active DTCs.
+        globalPackets.stream()
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                .filter(p -> !p.getDtcs().isEmpty())
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> addFailure("6.4.4.2.a - OBD ECU " + moduleName + " reported a previously active DTC"));
+
         // 6.4.4.2.b (if supported) Fail if any OBD ECU reports a different MIL status (e.g., on and flashing, or off) than it did in DM12 response earlier in this part.
+        globalPackets.stream()
+                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                .filter(p -> p.getMalfunctionIndicatorLampStatus() !=
+                        getDataRepository().getObdModule(p.getSourceAddress())
+                                .get(DM12MILOnEmissionDTCPacket.class)
+                                .getMalfunctionIndicatorLampStatus())
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> addFailure("6.4.4.2.b - OBD ECU " + moduleName + " did not report MIL off"));
+
+        List<Integer> obdAddresses = getDataRepository().getObdModuleAddresses();
+
         // 6.4.4.3.a DS DM2 to each OBD ECU.
+        var dsResult = obdAddresses.stream()
+                .map(address -> getDiagnosticMessageModule().requestDM2(getListener(), address))
+                .collect(Collectors.toList());
+
         // 6.4.4.4.a (if supported) Fail if any difference compared to data received from global request.
+        List<DM2PreviouslyActiveDTC> dsPackets = filterPackets(dsResult);
+        compareRequestPackets(globalPackets, dsPackets, "6.4.4.4.a");
+
         // 6.4.4.4.b (if supported) Fail if NACK not received from OBD ECUs that did not respond to global query.
+        List<AcknowledgmentPacket> dsAcks = filterAcks(dsResult);
+        checkForNACKs(globalPackets, dsAcks, obdAddresses, "6.4.4.4.b");
     }
 
 }
