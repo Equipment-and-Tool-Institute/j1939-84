@@ -51,6 +51,14 @@ public class DM31DtcToLampAssociation extends GenericPacket {
         return "DM31";
     }
 
+    public DTCLampStatus findLampStatusForDTC(DiagnosticTroubleCode dtc) {
+        return getDtcLampStatuses().stream()
+                .filter(l -> l.getDtc().getSuspectParameterNumber() == dtc.getSuspectParameterNumber())
+                .filter(l -> l.getDtc().getFailureModeIndicator() == dtc.getFailureModeIndicator())
+                .findFirst()
+                .orElse(null);
+    }
+
     /**
      * Parses the packet to populate all the member variables
      */
