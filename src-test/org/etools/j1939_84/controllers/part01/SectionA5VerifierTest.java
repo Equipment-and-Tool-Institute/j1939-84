@@ -1435,11 +1435,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         SupportedSPN supportedSPN21 = mock(SupportedSPN.class);
 
         OBDModuleInformation obdModuleInfo0 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo0.getTestResultSpns()).thenReturn(List.of(supportedSPN0));
+        when(obdModuleInfo0.getTestResultSPNs()).thenReturn(List.of(supportedSPN0));
         OBDModuleInformation obdModuleInfo17 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo17.getTestResultSpns()).thenReturn(List.of(supportedSPN17));
+        when(obdModuleInfo17.getTestResultSPNs()).thenReturn(List.of(supportedSPN17));
         OBDModuleInformation obdModuleInfo21 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo21.getTestResultSpns()).thenReturn(List.of(supportedSPN21));
+        when(obdModuleInfo21.getTestResultSPNs()).thenReturn(List.of(supportedSPN21));
 
         when(dataRepository.getObdModule(0x00)).thenReturn(obdModuleInfo0);
         when(dataRepository.getObdModule(0x17)).thenReturn(obdModuleInfo17);
@@ -1515,11 +1515,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         SupportedSPN supportedSPN21 = mock(SupportedSPN.class);
 
         OBDModuleInformation obdModuleInfo0 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo0.getTestResultSpns()).thenReturn(List.of(supportedSPN0));
+        when(obdModuleInfo0.getTestResultSPNs()).thenReturn(List.of(supportedSPN0));
         OBDModuleInformation obdModuleInfo17 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo17.getTestResultSpns()).thenReturn(List.of(supportedSPN17));
+        when(obdModuleInfo17.getTestResultSPNs()).thenReturn(List.of(supportedSPN17));
         OBDModuleInformation obdModuleInfo21 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo21.getTestResultSpns()).thenReturn(List.of(supportedSPN21));
+        when(obdModuleInfo21.getTestResultSPNs()).thenReturn(List.of(supportedSPN21));
 
         when(dataRepository.getObdModule(0x00)).thenReturn(obdModuleInfo0);
         when(dataRepository.getObdModule(0x17)).thenReturn(obdModuleInfo17);
@@ -1831,11 +1831,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         SupportedSPN supportedSPN21 = mock(SupportedSPN.class);
 
         OBDModuleInformation obdModuleInfo0 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo0.getTestResultSpns()).thenReturn(List.of(supportedSPN0));
+        when(obdModuleInfo0.getTestResultSPNs()).thenReturn(List.of(supportedSPN0));
         OBDModuleInformation obdModuleInfo17 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo17.getTestResultSpns()).thenReturn(List.of(supportedSPN17));
+        when(obdModuleInfo17.getTestResultSPNs()).thenReturn(List.of(supportedSPN17));
         OBDModuleInformation obdModuleInfo21 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo21.getTestResultSpns()).thenReturn(List.of(supportedSPN21));
+        when(obdModuleInfo21.getTestResultSPNs()).thenReturn(List.of(supportedSPN21));
 
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
         when(dataRepository.getObdModule(0x00)).thenReturn(obdModuleInfo0);
@@ -2221,11 +2221,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         SupportedSPN supportedSPN21 = mock(SupportedSPN.class);
 
         OBDModuleInformation obdModuleInfo0 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo0.getTestResultSpns()).thenReturn(List.of(supportedSPN0));
+        when(obdModuleInfo0.getTestResultSPNs()).thenReturn(List.of(supportedSPN0));
         OBDModuleInformation obdModuleInfo17 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo17.getTestResultSpns()).thenReturn(List.of(supportedSPN17));
+        when(obdModuleInfo17.getTestResultSPNs()).thenReturn(List.of(supportedSPN17));
         OBDModuleInformation obdModuleInfo21 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo21.getTestResultSpns()).thenReturn(List.of(supportedSPN21));
+        when(obdModuleInfo21.getTestResultSPNs()).thenReturn(List.of(supportedSPN21));
 
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
         when(dataRepository.getObdModule(0x00)).thenReturn(obdModuleInfo0);
@@ -2578,11 +2578,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         SupportedSPN supportedSPN21 = mock(SupportedSPN.class);
 
         OBDModuleInformation obdModuleInfo0 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo0.getTestResultSpns()).thenReturn(List.of(supportedSPN0));
+        when(obdModuleInfo0.getTestResultSPNs()).thenReturn(List.of(supportedSPN0));
         OBDModuleInformation obdModuleInfo17 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo17.getTestResultSpns()).thenReturn(List.of(supportedSPN17));
+        when(obdModuleInfo17.getTestResultSPNs()).thenReturn(List.of(supportedSPN17));
         OBDModuleInformation obdModuleInfo21 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo21.getTestResultSpns()).thenReturn(List.of(supportedSPN21));
+        when(obdModuleInfo21.getTestResultSPNs()).thenReturn(List.of(supportedSPN21));
 
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
         when(dataRepository.getObdModule(0x00)).thenReturn(obdModuleInfo0);
@@ -2809,11 +2809,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         SupportedSPN supportedSPN21 = mock(SupportedSPN.class);
 
         OBDModuleInformation obdModuleInfo0 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo0.getTestResultSpns()).thenReturn(List.of(supportedSPN0));
+        when(obdModuleInfo0.getTestResultSPNs()).thenReturn(List.of(supportedSPN0));
         OBDModuleInformation obdModuleInfo17 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo17.getTestResultSpns()).thenReturn(List.of(supportedSPN17));
+        when(obdModuleInfo17.getTestResultSPNs()).thenReturn(List.of(supportedSPN17));
         OBDModuleInformation obdModuleInfo21 = mock(OBDModuleInformation.class);
-        when(obdModuleInfo21.getTestResultSpns()).thenReturn(List.of(supportedSPN21));
+        when(obdModuleInfo21.getTestResultSPNs()).thenReturn(List.of(supportedSPN21));
 
         when(dataRepository.getObdModuleAddresses()).thenReturn(obdModuleAddresses);
         when(dataRepository.getObdModule(0x00)).thenReturn(obdModuleInfo0);

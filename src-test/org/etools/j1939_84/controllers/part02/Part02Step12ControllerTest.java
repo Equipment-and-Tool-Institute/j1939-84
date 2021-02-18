@@ -130,7 +130,7 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
         DM29DtcCounts packet1 = DM29DtcCounts.create(1, 0, 0, 0, 0, 0);
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(1);
-        obdModuleInformation.setLastDM27(dm27(1));
+        obdModuleInformation.set(dm27(1));
         dataRepository.putObdModule(obdModuleInformation);
 
         when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, packet1));
@@ -152,7 +152,7 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
 
         //Module 0 will support DM27 and have no errors
         OBDModuleInformation module0 = new OBDModuleInformation(0);
-        module0.setLastDM27(dm27(0));
+        module0.set(dm27(0));
         dataRepository.putObdModule(module0);
         DM29DtcCounts packet0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0);
 
@@ -162,7 +162,7 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
 
         //Module 2 will support DM27 but return bad values
         OBDModuleInformation module2 = new OBDModuleInformation(2);
-        module2.setLastDM27(dm27(2));
+        module2.set(dm27(2));
         dataRepository.putObdModule(module2);
         DM29DtcCounts packet2 = DM29DtcCounts.create(0x02, 0x00, 0x00, 0x04, 0x00, 0xFF);
 

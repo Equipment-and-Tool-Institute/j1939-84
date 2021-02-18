@@ -97,7 +97,7 @@ public class Part01Step12Controller extends StepController {
             int sourceAddress = obdModule.getSourceAddress();
             String moduleName = Lookup.getAddressName(sourceAddress);
 
-            for (SupportedSPN spn : obdModule.getTestResultSpns()) {
+            for (SupportedSPN spn : obdModule.getTestResultSPNs()) {
                 var dm30Packets = getDiagnosticMessageModule().getDM30Packets(getListener(), sourceAddress, spn);
                 if (dm30Packets.isEmpty()) {
                     addFailure("6.1.12.1.a - No test result for Supported SPN " + spn.getSpn() + " from " + moduleName);

@@ -92,7 +92,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
     private OBDModuleInformation createOBDModuleInformation(List<SupportedSPN> testResultSpns) {
         OBDModuleInformation module = mock(OBDModuleInformation.class);
-        when(module.getTestResultSpns()).thenReturn(testResultSpns);
+        when(module.getTestResultSPNs()).thenReturn(testResultSpns);
 
         return module;
     }

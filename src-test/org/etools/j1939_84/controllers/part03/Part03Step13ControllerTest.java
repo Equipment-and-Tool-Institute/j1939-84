@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part03;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -14,13 +15,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
+import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.FreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
@@ -151,8 +152,8 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
     public void testHappyPath() {
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(102, 4, 0, 1);
-        moduleInfo.setEmissionDTCs(List.of(dtc));
-        moduleInfo.setDm24(createDM24());
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc));
+        moduleInfo.set(createDM24());
         dataRepository.putObdModule(moduleInfo);
 
         when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(new BusResult<>(false, createDM25()));
@@ -248,8 +249,8 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         DM24SPNSupportPacket dm24 = DM24SPNSupportPacket.create(0, SupportedSPN.create(91, true, true, true, 1));
         DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(102, 4, 0, 1);
-        moduleInfo.setEmissionDTCs(List.of(dtc));
-        moduleInfo.setDm24(dm24);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc));
+        moduleInfo.set(dm24);
         dataRepository.putObdModule(moduleInfo);
 
         DM25ExpandedFreezeFrame dm25 = DM25ExpandedFreezeFrame.create(0, new FreezeFrame(dtc, Spn.create(91, 10)));
@@ -282,9 +283,9 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
     public void testFailureForDifferentDTC() {
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         DiagnosticTroubleCode dtc1 = DiagnosticTroubleCode.create(555, 4, 0, 1);
-        moduleInfo.setEmissionDTCs(List.of(dtc1));
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
         DM24SPNSupportPacket dm24 = DM24SPNSupportPacket.create(0, SupportedSPN.create(91, true, true, true, 1));
-        moduleInfo.setDm24(dm24);
+        moduleInfo.set(dm24);
         dataRepository.putObdModule(moduleInfo);
 
         DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(102, 4, 0, 1);
@@ -316,9 +317,9 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
     public void testFailureMultipleFreezeFrames() {
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         DiagnosticTroubleCode dtc1 = DiagnosticTroubleCode.create(102, 4, 0, 1);
-        moduleInfo.setEmissionDTCs(List.of(dtc1));
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
         DM24SPNSupportPacket dm24 = DM24SPNSupportPacket.create(0, SupportedSPN.create(91, true, true, true, 1));
-        moduleInfo.setDm24(dm24);
+        moduleInfo.set(dm24);
         dataRepository.putObdModule(moduleInfo);
 
         DiagnosticTroubleCode dtc2 = DiagnosticTroubleCode.create(999, 4, 0, 2);
@@ -359,11 +360,11 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
     public void testFailureMismatchedDataLengths() {
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(102, 4, 0, 1);
-        moduleInfo.setEmissionDTCs(List.of(dtc));
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc));
         DM24SPNSupportPacket dm24 = DM24SPNSupportPacket.create(0,
                                                                 SupportedSPN.create(91, true, true, true, 1),
                                                                 SupportedSPN.create(92, true, true, true, 1));
-        moduleInfo.setDm24(dm24);
+        moduleInfo.set(dm24);
         dataRepository.putObdModule(moduleInfo);
 
         DM25ExpandedFreezeFrame dm25 = DM25ExpandedFreezeFrame.create(0, new FreezeFrame(dtc, Spn.create(91, 10)));

@@ -74,7 +74,7 @@ public class Part01Step21Controller extends StepController {
                 .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .forEach(p -> {
                     var obdModule = getDataRepository().getObdModule(p.getSourceAddress());
-                    obdModule.setLastDM27(p);
+                    obdModule.set(p);
                     getDataRepository().putObdModule(obdModule);
                 });
 

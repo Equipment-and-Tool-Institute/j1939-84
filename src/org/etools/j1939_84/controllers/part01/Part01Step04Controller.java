@@ -103,7 +103,7 @@ public class Part01Step04Controller extends StepController {
             OBDModuleInformation info = getDataRepository().getObdModule(p.getSourceAddress());
             if (info != null) {
                 // 6.1.4.1.d. Create ECU specific list of supported SPNs for test results.
-                info.setDm24(p);
+                info.set(p);
                 getDataRepository().putObdModule(info);
             }
         });

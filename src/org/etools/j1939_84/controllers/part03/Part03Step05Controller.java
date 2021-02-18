@@ -13,6 +13,7 @@ import java.util.concurrent.Executors;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
+import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DTCLampStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -66,7 +67,8 @@ public class Part03Step05Controller extends StepController {
 
         getDataRepository().getObdModules()
                 .stream()
-                .filter(info -> !info.getEmissionDTCs().isEmpty())
+                .filter(info -> info.get(DM6PendingEmissionDTCPacket.class) != null)
+                .filter(info -> !info.get(DM6PendingEmissionDTCPacket.class).getDtcs().isEmpty())
                 .map(OBDModuleInformation::getSourceAddress)
                 .forEach(moduleAddress -> {
                     String moduleName = Lookup.getAddressName(moduleAddress);

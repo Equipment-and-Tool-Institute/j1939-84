@@ -12,11 +12,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
+import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -157,8 +157,8 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
-        moduleInfo.setLastDM27(dm27);
-        moduleInfo.setEmissionDTCs(List.of(dtc1));
+        moduleInfo.set(dm27);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
@@ -183,8 +183,8 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
-        moduleInfo.setLastDM27(dm27);
-        moduleInfo.setEmissionDTCs(List.of(dtc1));
+        moduleInfo.set(dm27);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
@@ -209,8 +209,8 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
-        moduleInfo.setLastDM27(dm27);
-        moduleInfo.setEmissionDTCs(List.of(dtc1));
+        moduleInfo.set(dm27);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
@@ -234,7 +234,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF);
-        moduleInfo.setLastDM27(dm27);
+        moduleInfo.set(dm27);
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
@@ -260,8 +260,8 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(456, 12, 0, 1);
         var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
-        moduleInfo.setLastDM27(dm27);
-        moduleInfo.setEmissionDTCs(List.of(dtc1, dtc2));
+        moduleInfo.set(dm27);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1, dtc2));
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
@@ -286,7 +286,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1);
-        moduleInfo.setLastDM27(dm27);
+        moduleInfo.set(dm27);
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
@@ -311,8 +311,8 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF);
-        moduleInfo.setLastDM27(dm27);
-        moduleInfo.setEmissionDTCs(List.of(dtc1));
+        moduleInfo.set(dm27);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
@@ -338,8 +338,8 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(435, 12, 0, 1);
         var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2);
-        moduleInfo.setLastDM27(dm27);
-        moduleInfo.setEmissionDTCs(List.of(dtc1));
+        moduleInfo.set(dm27);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
@@ -363,7 +363,7 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        moduleInfo.setEmissionDTCs(List.of(dtc1));
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
@@ -438,8 +438,8 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
         var dtc2 = DiagnosticTroubleCode.create(456, 12, 0, 1);
         var dm27 = DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2);
-        moduleInfo.setLastDM27(dm27);
-        moduleInfo.setEmissionDTCs(List.of(dtc1, dtc2));
+        moduleInfo.set(dm27);
+        moduleInfo.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1, dtc2));
         dataRepository.putObdModule(moduleInfo);
 
         runTest();
@@ -468,14 +468,14 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation moduleInfo0 = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        moduleInfo0.setLastDM27(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
-        moduleInfo0.setEmissionDTCs(List.of(dtc1));
+        moduleInfo0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
+        moduleInfo0.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
         dataRepository.putObdModule(moduleInfo0);
 
         OBDModuleInformation moduleInfo1 = new OBDModuleInformation(1);
         var dtc2 = DiagnosticTroubleCode.create(456, 12, 0, 1);
-        moduleInfo1.setLastDM27(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc2));
-        moduleInfo1.setEmissionDTCs(List.of(dtc2));
+        moduleInfo1.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc2));
+        moduleInfo1.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc2));
         dataRepository.putObdModule(moduleInfo1);
 
         runTest();
@@ -503,8 +503,8 @@ public class Part03Step04ControllerTest extends AbstractControllerTest {
 
         OBDModuleInformation moduleInfo0 = new OBDModuleInformation(0);
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 0, 1);
-        moduleInfo0.setLastDM27(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
-        moduleInfo0.setEmissionDTCs(List.of(dtc1));
+        moduleInfo0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1));
+        moduleInfo0.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
         dataRepository.putObdModule(moduleInfo0);
 
         runTest();

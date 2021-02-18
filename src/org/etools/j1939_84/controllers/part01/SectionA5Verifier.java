@@ -504,7 +504,7 @@ public class SectionA5Verifier {
         // 0xFFFF for limits)
         List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
         obdModuleAddresses.forEach(address -> {
-            for (SupportedSPN supportedSPN : dataRepository.getObdModule(address).getTestResultSpns()) {
+            for (SupportedSPN supportedSPN : dataRepository.getObdModule(address).getTestResultSPNs()) {
                 dm30Packets.addAll(
                         diagnosticMessageModule.getDM30Packets(listener, address, supportedSPN)
                                 .stream()

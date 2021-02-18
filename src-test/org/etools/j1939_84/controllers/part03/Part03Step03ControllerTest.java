@@ -25,6 +25,7 @@ import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -215,13 +216,13 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
                                                                            dtc1);
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
-        obdModule1.setEmissionDTCs(List.of(dtc1));
+        obdModule1.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
         dataRepository.putObdModule(obdModule1);
 
         OBDModuleInformation obdModule3 = new OBDModuleInformation(0x03);
         DiagnosticTroubleCode dtc3 = DiagnosticTroubleCode.create(609, 19, 1, 1);
-        obdModule3.setEmissionDTCs(List.of(dtc3));
-        obdModule3.setLastDM27(packet3);
+        obdModule3.set(DM6PendingEmissionDTCPacket.create(3, OFF, OFF, OFF, OFF, dtc3));
+        obdModule3.set(packet3);
         dataRepository.putObdModule(obdModule3);
 
         when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false, packet1));
@@ -234,10 +235,10 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
-        assertEquals(List.of(dtc1), dataRepository.getObdModule(0x01).getEmissionDTCs());
-        assertEquals(packet1, dataRepository.getObdModule(0x01).getLastDM27());
-        assertEquals(List.of(dtc3), dataRepository.getObdModule(0x03).getEmissionDTCs());
-        assertNull(dataRepository.getObdModule(0x03).getLastDM27());
+        assertEquals(List.of(dtc1), dataRepository.getObdModule(0x01).get(DM6PendingEmissionDTCPacket.class).getDtcs());
+        assertEquals(packet1, dataRepository.getObdModule(0x01).get(DM27AllPendingDTCsPacket.class));
+        assertEquals(List.of(dtc3), dataRepository.getObdModule(0x03).get(DM6PendingEmissionDTCPacket.class).getDtcs());
+        assertNull(dataRepository.getObdModule(0x03).get(DM27AllPendingDTCsPacket.class));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -256,7 +257,7 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
                                                                            dtc);
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
-        obdModule1.setEmissionDTCs(List.of(dtc));
+        obdModule1.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc));
         dataRepository.putObdModule(obdModule1);
 
         when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false, packet1));
@@ -267,7 +268,8 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any());
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x01));
 
-        assertEquals(dataRepository.getObdModule(packet1.getSourceAddress()).getLastDM27(), packet1);
+        assertEquals(dataRepository.getObdModule(packet1.getSourceAddress()).get(DM27AllPendingDTCsPacket.class),
+                     packet1);
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -296,10 +298,10 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
                                                                            dtc2);
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
-        obdModule1.setEmissionDTCs(List.of(dtc1));
+        obdModule1.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
         dataRepository.putObdModule(obdModule1);
         OBDModuleInformation obdModule2 = new OBDModuleInformation(0x02);
-        obdModule2.setEmissionDTCs(List.of(dtc22));
+        obdModule2.set(DM6PendingEmissionDTCPacket.create(2, OFF, OFF, OFF, OFF, dtc22));
         dataRepository.putObdModule(obdModule2);
 
         when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false, packet1, packet2));
@@ -332,9 +334,9 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
                                         "6.3.3.2.a - OBD module Turbocharger (2) reported different DTC than observed in Step 6.3.2.1");
 
         //verify we did NOT update the obd's dtc values set in the data repo
-        assertEquals(dataRepository.getObdModule(0x01).getEmissionDTCs(), List.of(dtc1));
-        assertEquals(dataRepository.getObdModule(0x01).getLastDM27(), packet1);
-        assertEquals(dataRepository.getObdModule(0x02).getEmissionDTCs(), List.of(dtc22));
-        assertEquals(dataRepository.getObdModule(0x02).getLastDM27(), packet2);
+        assertEquals(List.of(dtc1), dataRepository.getObdModule(0x01).get(DM6PendingEmissionDTCPacket.class).getDtcs());
+        assertEquals(dataRepository.getObdModule(0x01).get(DM27AllPendingDTCsPacket.class), packet1);
+        assertEquals(List.of(dtc22), dataRepository.getObdModule(0x02).get(DM6PendingEmissionDTCPacket.class).getDtcs());
+        assertEquals(dataRepository.getObdModule(0x02).get(DM27AllPendingDTCsPacket.class), packet2);
     }
 }

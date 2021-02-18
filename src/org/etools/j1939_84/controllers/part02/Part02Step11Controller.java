@@ -17,8 +17,8 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -63,9 +63,9 @@ public class Part02Step11Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-
         // 6.2.11.1.a. Global DM27 (send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 3038, 1706)).
-        List<DM27AllPendingDTCsPacket> globalPackets = getDiagnosticMessageModule().requestDM27(getListener()).getPackets();
+        List<DM27AllPendingDTCsPacket> globalPackets = getDiagnosticMessageModule().requestDM27(getListener())
+                .getPackets();
         Set<Integer> globalPacketAddresses = globalPackets.stream()
                 .map(ParsedPacket::getSourceAddress)
                 .collect(Collectors.toSet());
@@ -73,21 +73,20 @@ public class Part02Step11Controller extends StepController {
         // 6.2.11.2.a. (if supported) Fail if any OBD ECU that supported DM27 in step 6.1.20 fails to respond.
         getDataRepository().getObdModules()
                 .stream()
-                .filter(m -> m.getLastDM27() != null)
+                .filter(m -> m.get(DM27AllPendingDTCsPacket.class) != null)
                 .map(OBDModuleInformation::getSourceAddress)
                 .filter(o -> !globalPacketAddresses.contains(o))
                 .map(Lookup::getAddressName)
                 .forEach(moduleName -> addFailure("6.2.11.2.a - " + moduleName + " supported DM27 in part 1 but failed to respond"));
 
         //Refresh the last DM27 as this required later in Part 2
-        getDataRepository().getObdModules().forEach(obdModuleInformation -> {
-            var dm27 = globalPackets.stream()
-                    .filter(p -> p.getSourceAddress() == obdModuleInformation.getSourceAddress())
-                    .findFirst()
-                    .orElse(null);
-            obdModuleInformation.setLastDM27(dm27);
-            getDataRepository().putObdModule(obdModuleInformation);
-        });
+        getDataRepository().getObdModules().forEach(obdModuleInformation -> globalPackets.stream()
+                .filter(p -> p.getSourceAddress() == obdModuleInformation.getSourceAddress())
+                .findFirst()
+                .ifPresent(p -> {
+                    obdModuleInformation.set(p);
+                    getDataRepository().putObdModule(obdModuleInformation);
+                }));
 
         // 6.2.11.2.b. (if supported) Fail if any OBD ECU reports an all pending DTC.
         globalPackets.stream()

@@ -67,7 +67,7 @@ public class Part03Step12Controller extends StepController {
         filterPackets(dsResults).forEach(packet -> {
             int sourceAddress = packet.getSourceAddress();
             OBDModuleInformation info = getDataRepository().getObdModule(sourceAddress);
-            if (!info.getSupportedSpns().equals(packet.getSupportedSpns())) {
+            if (!info.getSupportedSPNs().equals(packet.getSupportedSpns())) {
                 addFailure("6.3.12.2.a - Message data received from " + Lookup.getAddressName(sourceAddress) + " differs from that provided in part 6.1.4");
             }
         });

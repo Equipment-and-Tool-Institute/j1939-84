@@ -13,6 +13,7 @@ import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
+import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.FreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
@@ -115,7 +116,7 @@ public class Part03Step13Controller extends StepController {
         // 6.3.13.1.c. Translate and print in log file all received freeze frame data with data labels assuming data
         // received in order expected by DM24 response for visual check by test log reviewer.
         for (OBDModuleInformation moduleInformation : getDataRepository().getObdModules()) {
-            DM24SPNSupportPacket dm24 = moduleInformation.getDm24();
+            DM24SPNSupportPacket dm24 = moduleInformation.get(DM24SPNSupportPacket.class);
             if (dm24 == null) {
                 continue;
             }
@@ -166,7 +167,8 @@ public class Part03Step13Controller extends StepController {
         // 6.3.13.2.d. Fail if freeze frame data does not include the same SPN+FMI as DM6 pending DTC earlier in this part.
         for (DM25ExpandedFreezeFrame dm25 : packets) {
             var pendingDTCs = getDataRepository().getObdModule(dm25.getSourceAddress())
-                    .getEmissionDTCs()
+                    .get(DM6PendingEmissionDTCPacket.class)
+                    .getDtcs()
                     .stream()
                     .map(dtc -> dtc.getSuspectParameterNumber() + ":" + dtc.getFailureModeIndicator())
                     .collect(Collectors.toList());

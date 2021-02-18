@@ -135,7 +135,7 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
         var spn = SupportedSPN.create(123, false, false, false, 0);
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
-        moduleInfo.setDm24(DM24SPNSupportPacket.create(0, spn));
+        moduleInfo.set(DM24SPNSupportPacket.create(0, spn));
         dataRepository.putObdModule(moduleInfo);
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -161,7 +161,7 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
         var spn2 = SupportedSPN.create(123, true, true, true, 1);
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
-        moduleInfo.setDm24(DM24SPNSupportPacket.create(0, spn1));
+        moduleInfo.set(DM24SPNSupportPacket.create(0, spn1));
         dataRepository.putObdModule(moduleInfo);
 
         var dm24 = DM24SPNSupportPacket.create(0, spn2);
@@ -182,7 +182,7 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
         var spn2 = SupportedSPN.create(456, false, false, false, 0);
 
         OBDModuleInformation moduleInfo = new OBDModuleInformation(0);
-        moduleInfo.setDm24(DM24SPNSupportPacket.create(0, spn1));
+        moduleInfo.set(DM24SPNSupportPacket.create(0, spn1));
         dataRepository.putObdModule(moduleInfo);
 
         var dm24 = DM24SPNSupportPacket.create(0, spn2);

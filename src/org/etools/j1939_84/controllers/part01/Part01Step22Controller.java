@@ -9,6 +9,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
+import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -120,7 +121,7 @@ public class Part01Step22Controller extends StepController {
     private boolean supportsDM27(int address) {
         return getDataRepository().getObdModules()
                 .stream()
-                .filter(m -> m.getLastDM27() != null)
+                .filter(m -> m.get(DM27AllPendingDTCsPacket.class) != null)
                 .map(OBDModuleInformation::getSourceAddress)
                 .anyMatch(a -> a == address);
     }

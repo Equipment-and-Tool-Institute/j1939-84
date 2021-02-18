@@ -122,7 +122,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         obdModule0.setScaledTestResults(List.of(testResult1, testResult2));
 
         SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
-        obdModule0.setSupportedSpns(List.of(spn1));
+        obdModule0.setSupportedSPNs(List.of(spn1));
 
         dataRepository.putObdModule(obdModule0);
 
@@ -152,7 +152,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         obdModule0.setScaledTestResults(List.of(testResult1));
 
         SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
-        obdModule0.setSupportedSpns(List.of(spn1));
+        obdModule0.setSupportedSPNs(List.of(spn1));
 
         dataRepository.putObdModule(obdModule0);
 
@@ -200,7 +200,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
         SupportedSPN spn2 = SupportedSPN.create(987, true, false, false, 1);
-        obdModule0.setDm24(DM24SPNSupportPacket.create(0, spn1, spn2));
+        obdModule0.set(DM24SPNSupportPacket.create(0, spn1, spn2));
         dataRepository.putObdModule(obdModule0);
 
         OBDModuleInformation obdModule3 = new OBDModuleInformation(3);
@@ -243,7 +243,7 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         SupportedSPN spn1 = SupportedSPN.create(5319, true, false, false, 1);
         SupportedSPN spn2 = SupportedSPN.create(987, true, false, false, 1);
-        obdModule0.setDm24(DM24SPNSupportPacket.create(0, spn1, spn2));
+        obdModule0.set(DM24SPNSupportPacket.create(0, spn1, spn2));
         dataRepository.putObdModule(obdModule0);
 
         when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn1)))

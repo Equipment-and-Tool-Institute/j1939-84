@@ -170,7 +170,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         DM26TripDiagnosticReadinessPacket packet0 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(PGN, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
         OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
-        obdModule0.setLastDM26(packet0);
+        obdModule0.set(packet0);
         dataRepository.putObdModule(obdModule0);
         DM26TripDiagnosticReadinessPacket packet00 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(PGN, 0x00, 0x99, 0xAA, 0xBB, 0xCC, 0xDD, 0xEE, 0xFF, 0x00));
@@ -180,7 +180,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
         DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(
                 Packet.create(PGN, 0x01, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
-        obdModule1.setLastDM26(packet1);
+        obdModule1.set(packet1);
         dataRepository.putObdModule(obdModule1);
         when(diagnosticMessageModule.requestDM26(any(), eq(1))).thenReturn(new RequestResult<>(false, packet1));
 
@@ -358,7 +358,7 @@ public class Part02Step08ControllerTest extends AbstractControllerTest {
                 Packet.create(PGN, 0x01, 0x00, 0x00, 0x00, 0x44, 0x55, 0x66, 0x77, 0x88));
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
-        obdModule1.setLastDM26(packet1);
+        obdModule1.set(packet1);
         dataRepository.putObdModule(obdModule1);
 
         when(diagnosticMessageModule.requestDM26(any())).thenReturn(new RequestResult<>(false, packet1));

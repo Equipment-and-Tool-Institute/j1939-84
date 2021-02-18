@@ -81,7 +81,7 @@ public class Part02Step03Controller extends StepController {
             int sourceAddress = packet.getSourceAddress();
             OBDModuleInformation info = getDataRepository().getObdModule(sourceAddress);
             if (info != null) {
-                List<SupportedSPN> part1SPNs = info.getSupportedSpns();
+                List<SupportedSPN> part1SPNs = info.getSupportedSPNs();
                 List<SupportedSPN> part2SPNs = packet.getSupportedSpns();
                 if (!part1SPNs.equals(part2SPNs)) {
                     addFailure("6.2.3.2.a - Message data received from " + Lookup.getAddressName(sourceAddress) + " differs from that provided in part 6.1.4");
