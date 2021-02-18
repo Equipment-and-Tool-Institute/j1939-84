@@ -59,7 +59,7 @@ public class DM31DtcToLampAssociationTest {
         assertEquals(expected, instance.toString());
 
         DTCLampStatus dtcLampStatus0 = instance.getDtcLampStatuses().get(0);
-        DiagnosticTroubleCode actualDTC = dtcLampStatus0.getDtcs();
+        DiagnosticTroubleCode actualDTC = dtcLampStatus0.getDtc();
         assertEquals(0x0261, actualDTC.getSuspectParameterNumber());
         assertEquals(0x01, actualDTC.getConversionMethod());
         assertEquals(0x13, actualDTC.getFailureModeIndicator());
@@ -116,7 +116,7 @@ public class DM31DtcToLampAssociationTest {
         assertEquals(expected, instance.toString());
 
         DTCLampStatus lampStatus0 = lampStatuses.get(0);
-        DiagnosticTroubleCode dtc0 = lampStatus0.getDtcs();
+        DiagnosticTroubleCode dtc0 = lampStatus0.getDtc();
         assertEquals(0x01, dtc0.getConversionMethod());
         assertEquals(0x13, dtc0.getFailureModeIndicator());
         assertEquals(0x01, dtc0.getOccurrenceCount());
@@ -127,7 +127,7 @@ public class DM31DtcToLampAssociationTest {
         assertEquals(LampStatus.OFF, instance.getDtcLampStatuses().get(0).getAmberWarningLampStatus());
 
         DTCLampStatus lampStatus1 = lampStatuses.get(1);
-        DiagnosticTroubleCode dtc1 = lampStatus1.getDtcs();
+        DiagnosticTroubleCode dtc1 = lampStatus1.getDtc();
         assertEquals(0x0, dtc1.getConversionMethod());
         assertEquals(0x1F, dtc1.getFailureModeIndicator());
         assertEquals(0x23, dtc1.getOccurrenceCount());
@@ -138,7 +138,7 @@ public class DM31DtcToLampAssociationTest {
         assertEquals(LampStatus.OFF, lampStatus1.getAmberWarningLampStatus());
 
         DTCLampStatus lampStatus2 = lampStatuses.get(2);
-        DiagnosticTroubleCode dtc2 = lampStatus2.getDtcs();
+        DiagnosticTroubleCode dtc2 = lampStatus2.getDtc();
         assertEquals(0x00, dtc2.getConversionMethod());
         assertEquals(0x04, dtc2.getFailureModeIndicator());
         assertEquals(0x00, dtc2.getOccurrenceCount());

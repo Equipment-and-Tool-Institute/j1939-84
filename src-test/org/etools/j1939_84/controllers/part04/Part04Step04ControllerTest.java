@@ -239,7 +239,7 @@ public class Part04Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.4.2.a - OBD ECU Engine #1 (0) reported a previously active DTC");
+                                        "6.4.4.2.a - OBD ECU Engine #1 (0) reported > 0 previously active DTCs");
     }
 
     @Test
@@ -269,7 +269,7 @@ public class Part04Step04ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.4.2.b - OBD ECU Engine #1 (0) did not report MIL off");
+                                        "6.4.4.2.b - OBD ECU Engine #1 (0) reported a MIL status differing from DM12 response earlier in this part");
     }
 
     @Test

@@ -142,7 +142,7 @@ public class DTCLampStatusTest {
                 0xFF };// Lamp Status/State
         DTCLampStatus instance = new DTCLampStatus(data);
         DiagnosticTroubleCode expected = new DiagnosticTroubleCode(new int[] { 0x61, 0x02, 0x13, 0x81 });
-        assertEquals(expected, instance.getDtcs());
+        assertEquals(expected, instance.getDtc());
     }
 
     /**

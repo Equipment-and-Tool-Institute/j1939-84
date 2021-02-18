@@ -102,7 +102,7 @@ public class DTCLampStatus {
      *
      * @return DTC
      */
-    public DiagnosticTroubleCode getDtcs() {
+    public DiagnosticTroubleCode getDtc() {
         if (dtc == null) {
             dtc = parseDTC();
         }
@@ -182,7 +182,7 @@ public class DTCLampStatus {
                             getMalfunctionIndicatorLampStatus(),
                             getProtectLampStatus(),
                             getRedStopLampStatus(),
-                            getDtcs());
+                            getDtc());
     }
 
     private DiagnosticTroubleCode parseDTC() {
@@ -195,7 +195,7 @@ public class DTCLampStatus {
                 + ", RSL: " + getRedStopLampStatus()
                 + ", AWL: " + getAmberWarningLampStatus()
                 + ", PL: " + getProtectLampStatus() + NL;
-        result += getDtcs().toString();
+        result += getDtc().toString();
         return result;
     }
 }
