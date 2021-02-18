@@ -66,7 +66,7 @@ public class Part04Step04Controller extends StepController {
                 .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                 .filter(p -> p.getDtcs().size() > 0)
                 .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.4.4.2.a - OBD ECU " + moduleName + " reported a previously active DTC"));
+                .forEach(moduleName -> addFailure("6.4.4.2.a - OBD ECU " + moduleName + " reported > 0 previously active DTCs"));
 
         // 6.4.4.2.b (if supported) Fail if any OBD ECU reports a different MIL status (e.g., on and flashing, or off) than it did in DM12 response earlier in this part.
         globalPackets.stream()
@@ -78,7 +78,7 @@ public class Part04Step04Controller extends StepController {
                                 .get(DM12MILOnEmissionDTCPacket.class)
                                 .getMalfunctionIndicatorLampStatus())
                 .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.4.4.2.b - OBD ECU " + moduleName + " did not report MIL off"));
+                .forEach(moduleName -> addFailure("6.4.4.2.b - OBD ECU " + moduleName + " reported a MIL status differing from DM12 response earlier in this part"));
 
         List<Integer> obdAddresses = getDataRepository().getObdModuleAddresses();
 
