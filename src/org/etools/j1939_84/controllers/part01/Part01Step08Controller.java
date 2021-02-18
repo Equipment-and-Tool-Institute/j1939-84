@@ -23,6 +23,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * 6.1.8 DM20: Monitor Performance Ratio
+ *
  * @author Garrison Garland (garrison@soliddesign.net)
  */
 public class Part01Step08Controller extends StepController {
@@ -81,7 +82,8 @@ public class Part01Step08Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.1.8.1.a. Global DM20 (send Request (PGN 59904) for PGN 49664
-        List<DM20MonitorPerformanceRatioPacket> globalDM20s = getDiagnosticMessageModule().requestDM20(getListener()).getPackets();
+        List<DM20MonitorPerformanceRatioPacket> globalDM20s = getDiagnosticMessageModule().requestDM20(getListener())
+                .getPackets();
 
         // 6.1.8.1 Actions:
         // 6.1.8.1.a.i. Create list of ECU address
@@ -118,14 +120,14 @@ public class Part01Step08Controller extends StepController {
             List<Integer> SPNa = new ArrayList<>(List.of(5322, 5318, 3058, 3064, 5321, 3055));
             SPNa.removeAll(dm20Spns);
             if (!SPNa.isEmpty()) {
-                msg += " Not Supported SPNs: " + toString(SPNa);
+                msg += " Not Supported SPNs: " + spnToString(SPNa);
                 failure = true;
             }
 
             List<Integer> SPNn = new ArrayList<>(List.of(4792, 5308, 4364));
             SPNn.removeAll(dm20Spns);
             if (SPNn.size() == 3) {
-                msg += " None of these SPNs are supported: " + toString(SPNn);
+                msg += " None of these SPNs are supported: " + spnToString(SPNn);
                 failure = true;
             }
         } else if (fuelType.isSparkIgnition()) {
@@ -134,7 +136,7 @@ public class Part01Step08Controller extends StepController {
             List<Integer> SPNsi = new ArrayList<>(List.of(3054, 3058, 3306, 3053, 3050, 3051, 3055, 3056, 3057));
             SPNsi.removeAll(dm20Spns);
             if (!SPNsi.isEmpty()) {
-                msg += " Not Supported SPNs: " + toString(SPNsi);
+                msg += " Not Supported SPNs: " + spnToString(SPNsi);
                 failure = true;
             }
         } else {
@@ -145,7 +147,7 @@ public class Part01Step08Controller extends StepController {
         }
     }
 
-    private static String toString(List<Integer> spns) {
+    private static String spnToString(List<Integer> spns) {
         return spns.stream().map(i -> "" + i).sorted().collect(Collectors.joining(", "));
     }
 }
