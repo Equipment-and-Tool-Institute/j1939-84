@@ -78,7 +78,7 @@ public class Part01Step14Controller extends StepController {
                     .peek(p -> {
                         // 6.1.14.1.a.i. Create list by ECU address of all data and current status for use later in the test.
                         OBDModuleInformation moduleInformation = getDataRepository().getObdModule(p.getSourceAddress());
-                        moduleInformation.setLastDM26(p);
+                        moduleInformation.set(p);
                         getDataRepository().putObdModule(moduleInformation);
                     })
                     .collect(Collectors.toList());

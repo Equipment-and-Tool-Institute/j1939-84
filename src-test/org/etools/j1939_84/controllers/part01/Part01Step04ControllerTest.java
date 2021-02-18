@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.FuelType.BI_GAS;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
@@ -178,9 +177,6 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
 
-        String expected = "";
-        expected += "FAIL: 6.1.4.2.b - N.2 One or more SPNs for data stream is not supported" + NL;
-        expected += "FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported" + NL;
         assertEquals("", listener.getResults());
 
         verify(mockListener)
@@ -213,11 +209,6 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
     public void testErroredObject() {
         DM24SPNSupportPacket packet1 = mock(DM24SPNSupportPacket.class);
         when(packet1.getSourceAddress()).thenReturn(0);
-
-        List<SupportedSPN> supportedSpns = new ArrayList<>();
-        SupportedSPN spn1 = mock(SupportedSPN.class);
-        supportedSpns.add(spn1);
-        when(packet1.getSupportedSpns()).thenReturn(supportedSpns);
 
         OBDModuleInformation obdInfo1 = new OBDModuleInformation(0);
         OBDModuleInformation obdInfo4 = new OBDModuleInformation(1);
@@ -256,10 +247,6 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
 
-        String expected = "";
-        expected += "FAIL: 6.1.4.2.a - Retry was required to obtain DM24 response from Engine #2 (1)" + NL;
-        expected += "FAIL: 6.1.4.2.b - N.2 One or more SPNs for data stream is not supported" + NL;
-        expected += "FAIL: 6.1.4.2.c - One or more SPNs for freeze frame are not supported" + NL;
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
@@ -418,7 +405,7 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
                 new SupportedSPN(convertToIntArray(spn92Packet1)),
                 new SupportedSPN(convertToIntArray(spn512Packet1)),
                 new SupportedSPN(convertToIntArray(spn513Packet1)));
-        assertEquals(expectedPacket1Spns, obdInfo0.getSupportedSpns());
+        assertEquals(expectedPacket1Spns, obdInfo0.getSupportedSPNs());
 
         byte[] spn92 = { 0x5C, 0x00, 0x1C, 0x01 };
         byte[] spn512 = { 0x00, 0x02, 0x1C, 0x01 };
@@ -651,6 +638,6 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
             }
         };
         expectedPacket4Spns.sort(Comparator.comparingInt(SupportedSPN::getSpn));
-        assertEquals(expectedPacket4Spns, obdInfo1.getSupportedSpns());
+        assertEquals(expectedPacket4Spns, obdInfo1.getSupportedSPNs());
     }
 }

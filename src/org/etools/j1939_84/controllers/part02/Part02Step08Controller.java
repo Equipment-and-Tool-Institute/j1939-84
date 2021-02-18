@@ -84,7 +84,8 @@ public class Part02Step08Controller extends StepController {
                 resultPackets.stream()
                         .map(DiagnosticReadinessPacket::getMonitoredSystems)
                         .filter(set -> {
-                            DM26TripDiagnosticReadinessPacket lastDM26 = obdModuleInformation.getLastDM26();
+                            DM26TripDiagnosticReadinessPacket lastDM26 = obdModuleInformation.get(
+                                    DM26TripDiagnosticReadinessPacket.class);
                             return lastDM26 == null || !Objects.equals(set, lastDM26.getMonitoredSystems());
                         })
                         .findFirst()

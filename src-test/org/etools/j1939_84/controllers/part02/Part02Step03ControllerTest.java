@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part02;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -148,7 +147,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
 
             OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
             obdInfo0.setObdCompliance((byte) 4);
-            obdInfo0.setSupportedSpns(List.of(spn1, spn2, mock(SupportedSPN.class)));
+            obdInfo0.setSupportedSPNs(List.of(spn1, spn2, mock(SupportedSPN.class)));
             dataRepository.putObdModule(obdInfo0);
         }
 
@@ -165,7 +164,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
 
             OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
             obdInfo1.setObdCompliance((byte) 4);
-            obdInfo1.setSupportedSpns(List.of(spn1));
+            obdInfo1.setSupportedSPNs(List.of(spn1));
             dataRepository.putObdModule( obdInfo1);
         }
 
@@ -225,7 +224,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
 
             OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
             obdInfo0.setObdCompliance((byte) 4);
-            obdInfo0.setSupportedSpns(List.of(spn1, spn2));
+            obdInfo0.setSupportedSPNs(List.of(spn1, spn2));
             dataRepository.putObdModule( obdInfo0);
         }
 
@@ -242,7 +241,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
 
             OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
             obdInfo1.setObdCompliance((byte) 4);
-            obdInfo1.setSupportedSpns(List.of(spn1, spn2));
+            obdInfo1.setSupportedSPNs(List.of(spn1, spn2));
             dataRepository.putObdModule(obdInfo1);
         }
 

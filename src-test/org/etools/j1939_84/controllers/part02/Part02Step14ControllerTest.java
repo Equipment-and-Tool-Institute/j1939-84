@@ -143,7 +143,7 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.setDm24(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
         dataRepository.putObdModule(obdInfo);
 
         runTest();
@@ -165,7 +165,7 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
     public void testNoResponses() {
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.setDm24(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
         dataRepository.putObdModule(obdInfo);
 
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(true));
@@ -198,7 +198,7 @@ public class Part02Step14ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.setDm24(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
         dataRepository.putObdModule(obdInfo);
 
         runTest();

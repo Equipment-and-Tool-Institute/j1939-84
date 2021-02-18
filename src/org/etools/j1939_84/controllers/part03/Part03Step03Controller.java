@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
 
 import java.util.List;
@@ -12,6 +11,7 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -93,20 +93,21 @@ public class Part03Step03Controller extends StepController {
 
     private void clearLastDm27(int obdAddress) {
         OBDModuleInformation obdModule = getDataRepository().getObdModule(obdAddress);
-        obdModule.setLastDM27(null);
+        obdModule.remove(DM27AllPendingDTCsPacket.class);
         getDataRepository().putObdModule(obdModule);
     }
 
     private void updateObdLastDM27(DM27AllPendingDTCsPacket packet) {
         OBDModuleInformation obdModule = getDataRepository().getObdModule(packet.getSourceAddress());
-        obdModule.setLastDM27(packet);
+        obdModule.set(packet);
         getDataRepository().putObdModule(obdModule);
     }
 
     private void verifyDtcsAreSame(DM27AllPendingDTCsPacket packet) {
         List<DiagnosticTroubleCode> packetDtcs = packet.getDtcs();
         OBDModuleInformation obdModule = getDataRepository().getObdModule(packet.getSourceAddress());
-        List<DiagnosticTroubleCode> obdDtcs = obdModule.getEmissionDTCs();
+        DM6PendingEmissionDTCPacket dm6 = obdModule.get(DM6PendingEmissionDTCPacket.class);
+        List<DiagnosticTroubleCode> obdDtcs = dm6 == null ? List.of() : dm6.getDtcs();
         // 6.3.3.2.a Fail if (if supported) no ECU reports the same DTC observed in step 6.3.2.1 in a positive DM27 response.
         if (packetDtcs.size() != obdDtcs.size() || !packetDtcs.equals(obdDtcs)) {
             addFailure(
@@ -118,7 +119,8 @@ public class Part03Step03Controller extends StepController {
     private void checkForAdditionalDtc(DM27AllPendingDTCsPacket packet) {
         List<DiagnosticTroubleCode> packetDtcs = packet.getDtcs();
         OBDModuleInformation obdModule = getDataRepository().getObdModule(packet.getSourceAddress());
-        List<DiagnosticTroubleCode> obdDtcs = obdModule.getEmissionDTCs();
+        DM6PendingEmissionDTCPacket dm6 = obdModule.get(DM6PendingEmissionDTCPacket.class);
+        List<DiagnosticTroubleCode> obdDtcs = dm6 == null ? List.of() : dm6.getDtcs();
         // 6.3.3.3.a. Warn if (if supported) any ECU additional DTCs are provided than the DTC observed in step 6.3.2.1 in a positive DM27 response.
         if (packetDtcs.size() > obdDtcs.size()) {
             addWarning("6.3.3.3.a - OBD module " + getAddressName(packet.getSourceAddress()) +

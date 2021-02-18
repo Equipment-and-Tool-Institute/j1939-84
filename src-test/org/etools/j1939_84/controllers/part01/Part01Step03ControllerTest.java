@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -180,29 +179,12 @@ public class Part01Step03ControllerTest {
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(dataRepository).getObdModules();
         verify(diagnosticMessageModule).requestDM5(any());
-        verify(dataRepository).putObdModule(obdInfo1);
+        verify(dataRepository, times(2)).putObdModule(any());
         verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-
-        verify(dataRepository).putObdModule(obdInfo2);
-        verify(mockListener).addOutcome(1, 3, FAIL, "6.1.3.2.b - The request for DM5 was NACK'ed");
-
         verify(mockListener).addOutcome(1,
                                         3,
                                         WARN,
                                         "6.1.3.3.a - An ECU responded with a value for OBD Compliance that was not identical to other ECUs");
-
-        String expectedObd = "OBD Module Information: " + NL;
-        expectedObd += "sourceAddress is : 0" + NL;
-        expectedObd += "obdCompliance is : 4" + NL;
-        expectedObd += "function is : -1" + NL;
-        expectedObd += "ignition cycles is : 0" + NL;
-        expectedObd += "engine family name is : " + NL;
-        expectedObd += "model year is : " + NL;
-        expectedObd += "Scaled Test Results: []" + NL;
-        expectedObd += "Performance Ratios: []" + NL;
-        expectedObd += "Monitored Systems: []" + NL;
-        expectedObd += "Supported SPNs: " + NL;
-        assertEquals(expectedObd, obdInfo1.toString());
     }
 
     @Test
@@ -310,7 +292,7 @@ public class Part01Step03ControllerTest {
 
         verify(dataRepository).getVehicleInformation();
         verify(dataRepository).getObdModules();
-        verify(dataRepository).putObdModule(obdInfo);
+        verify(dataRepository).putObdModule(any());
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM5(any());

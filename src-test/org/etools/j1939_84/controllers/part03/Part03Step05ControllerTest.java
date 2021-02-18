@@ -15,11 +15,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
+import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DTCLampStatus;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -165,7 +165,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(false, dm31));
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.setEmissionDTCs(List.of(dtc));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc));
         dataRepository.putObdModule(obdModuleInformation);
 
         runTest();
@@ -184,7 +184,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(false, dm31));
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.setEmissionDTCs(List.of(dtc));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc));
         dataRepository.putObdModule(obdModuleInformation);
 
         runTest();
@@ -203,7 +203,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
 
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.setEmissionDTCs(List.of(dtc));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc));
         dataRepository.putObdModule(obdModuleInformation);
 
         runTest();
@@ -221,7 +221,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
 
         var dtc = DiagnosticTroubleCode.create(123, 12, 0, 1);
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.setEmissionDTCs(List.of(dtc));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc));
         dataRepository.putObdModule(obdModuleInformation);
 
         runTest();
@@ -245,7 +245,7 @@ public class Part03Step05ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM31(any(), eq(0))).thenReturn(new RequestResult<>(false, dm31));
 
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
-        obdModuleInformation.setEmissionDTCs(List.of(dtc));
+        obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc));
         dataRepository.putObdModule(obdModuleInformation);
 
         runTest();

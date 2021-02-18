@@ -119,7 +119,7 @@ public class Part03Step02Controller extends StepController {
                 .filter(p -> !p.getDtcs().isEmpty())
                 .forEach(p -> {
                     var moduleInfo = getDataRepository().getObdModule(p.getSourceAddress());
-                    moduleInfo.setEmissionDTCs(p.getDtcs());
+                    moduleInfo.set(p);
                     getDataRepository().putObdModule(moduleInfo);
                 });
 

@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -149,7 +148,7 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.setDm24(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
         dataRepository.putObdModule(obdInfo);
 
         runTest();
@@ -170,7 +169,7 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
     public void testNoResponses() {
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.setDm24(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
         dataRepository.putObdModule(obdInfo);
 
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(true));
@@ -201,7 +200,7 @@ public class Part01Step24ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00))).thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0);
-        obdInfo.setDm24(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
+        obdInfo.set(DM24SPNSupportPacket.create(0, SupportedSPN.create(123, true, true, true, 1)));
         dataRepository.putObdModule(obdInfo);
 
         runTest();

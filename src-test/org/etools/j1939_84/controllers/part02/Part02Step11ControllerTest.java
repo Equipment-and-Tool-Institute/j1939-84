@@ -146,7 +146,7 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
                 Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
-        obdModule1.setLastDM27(packet1);
+        obdModule1.set(packet1);
         dataRepository.putObdModule(obdModule1);
         when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
 
@@ -156,7 +156,7 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
                 Packet.create(PGN, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
         OBDModuleInformation obdModule2 = new OBDModuleInformation(3);
-        obdModule2.setLastDM27(packet3);
+        obdModule2.set(packet3);
         dataRepository.putObdModule(obdModule2);
 
         DM27AllPendingDTCsPacket obdPacket3 = new DM27AllPendingDTCsPacket(
@@ -193,7 +193,7 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(Packet.create(PGN, 0x01, 0, 0xFF, 0, 0, 0, 0));
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
-        obdModule1.setLastDM27(packet1);
+        obdModule1.set(packet1);
         dataRepository.putObdModule(obdModule1);
         when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
 

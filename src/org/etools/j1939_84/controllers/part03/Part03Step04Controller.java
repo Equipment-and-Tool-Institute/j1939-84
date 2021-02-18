@@ -8,7 +8,9 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.Lookup;
+import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
+import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -97,14 +99,17 @@ public class Part03Step04Controller extends StepController {
             // 6.3.4.2.c Fail if any ECU reports a different number of emission-related pending DTCs than
             // what that ECU reported in DM6 earlier in this part.
             boolean hasEmissionDTCDifference = modulePackets.stream()
-                    .anyMatch(p -> p.getEmissionRelatedPendingDTCCount() != obdModuleInformation.getEmissionDTCs()
-                            .size());
+                    .anyMatch(p -> {
+                        var dm6 = obdModuleInformation.get(DM6PendingEmissionDTCPacket.class);
+                        int existingSize = dm6 == null ? 0 : dm6.getDtcs().size();
+                        return p.getEmissionRelatedPendingDTCCount() != existingSize;
+                    });
             if (hasEmissionDTCDifference) {
                 addFailure("6.3.4.2.c - " + moduleName + " reported a different number of emission-related pending DTCs " +
                                    "than what it reported in the previous DM6");
             }
 
-            var lastDM27 = obdModuleInformation.getLastDM27();
+            var lastDM27 = obdModuleInformation.get(DM27AllPendingDTCsPacket.class);
             if (lastDM27 != null) {
                 // 6.3.4.2.d For OBD ECUs that support DM27, fail if any ECU reports a lower number of
                 // all pending DTCs (SPN 4105) than the number of emission-related pending DTCs.
