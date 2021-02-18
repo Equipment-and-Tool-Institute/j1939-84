@@ -74,6 +74,15 @@ public class Part04Step03Controller extends StepController {
             addFailure("6.4.3.2.a - No ECU reported an active DTC and MIL on");
         }
 
+        //Save DM1 for use later
+        packets.forEach(p -> {
+            OBDModuleInformation moduleInfo = getDataRepository().getObdModule(p.getSourceAddress());
+            if (moduleInfo != null) {
+                moduleInfo.set(p);
+                getDataRepository().putObdModule(moduleInfo);
+            }
+        });
+
         // 6.4.3.2.b Fail if any OBD ECU report does not include its DM12 DTCs in the list of active DTCs.
         for (OBDModuleInformation moduleInfo : getDataRepository().getObdModules()) {
             int moduleAddress = moduleInfo.getSourceAddress();
