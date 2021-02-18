@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -21,7 +22,6 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
@@ -120,7 +120,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of());
 
         runTest();
 
@@ -159,7 +159,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
         when(diagnosticMessageModule.readDM1(any()))
-                .thenReturn(new RequestResult<>(false, packet1, packet2, packet3, packet4, packet5));
+                .thenReturn(List.of(packet1, packet2, packet3, packet4, packet5));
 
         runTest();
 
@@ -220,47 +220,7 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
                                         WARN,
                                         "6.1.15.3.b - Non-OBD Module Engine #1 (0) reported SPN conversion method (SPN 1706) equal to 1");
 
-        String expected = "" + NL;
-        expected += "10:15:30.0000 18FECA01 [14] 00 00 61 02 13 80 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM1 from Engine #2 (1): MIL: alternate off, RSL: alternate off, AWL: alternate off, PL: alternate off"
-                + NL;
-        expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
-        expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
-                + NL;
-        expected += "" + NL;
-        expected += "10:15:30.0000 18FECA17 [14] 00 00 61 02 13 80 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM1 from Instrument Cluster #1 (23): MIL: alternate off, RSL: alternate off, AWL: alternate off, PL: alternate off"
-                + NL;
-        expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
-        expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
-                + NL;
-        expected += "" + NL;
-        expected += "10:15:30.0000 18FECA03 [14] AA 55 61 02 13 80 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM1 from Transmission #1 (3): MIL: other, RSL: other, AWL: other, PL: other" + NL;
-        expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
-        expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
-                + NL;
-        expected += "" + NL;
-        expected += "10:15:30.0000 18FECA00 [14] 40 00 61 02 13 80 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM1 from Engine #1 (0): MIL: slow flash, RSL: alternate off, AWL: alternate off, PL: alternate off"
-                + NL;
-        expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
-        expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
-                + NL;
-        expected += "" + NL;
-        expected += "10:15:30.0000 18FECA00 [14] C0 C0 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM1 from Engine #1 (0): MIL: not supported, RSL: alternate off, AWL: alternate off, PL: alternate off"
-                + NL;
-        expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
-        expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
-                + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     /**
@@ -303,24 +263,13 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(new RequestResult<>(false, packet1, packet2));
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(packet1, packet2));
 
         runTest();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).readDM1(any());
 
-        String expected = "" + NL;
-        expected += "10:15:30.0000 18FECA01 [8] 00 FF 00 00 00 00 FF FF" + NL;
-        expected += "DM1 from Engine #2 (1): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
-        expected += "" + NL;
-        expected += "10:15:30.0000 18FECA17 [14] 00 FF 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM1 from Instrument Cluster #1 (23): MIL: off, RSL: off, AWL: off, PL: off" + NL;
-        expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
-        expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
-                + NL;
-
-        assertEquals(expected, listener.getResults());
+        assertEquals("", listener.getResults());
     }
 }
