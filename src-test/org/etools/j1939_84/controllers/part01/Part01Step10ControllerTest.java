@@ -134,7 +134,7 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM11(any());
 
-        verify(mockListener).addOutcome(1, 10, FAIL, "6.1.10.3.a - The request for DM11 was NACK'ed by Engine #2 (1)");
+        verify(mockListener).addOutcome(1, 10, FAIL, "6.1.10.2.a - The request for DM11 was NACK'ed by Engine #2 (1)");
         verify(mockListener).addOutcome(1, 10, WARN, "6.1.10.3.a - The request for DM11 was ACK'ed by Engine #1 (0)");
 
         verify(dataRepository).isObdModule(0);
@@ -186,11 +186,11 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
         verify(dataRepository).isObdModule(0);
 
         String expectedMessages = "";
-        expectedMessages += "Waiting for 5 seconds" + NL;
-        expectedMessages += "Waiting for 4 seconds" + NL;
-        expectedMessages += "Waiting for 3 seconds" + NL;
-        expectedMessages += "Waiting for 2 seconds" + NL;
-        expectedMessages += "Waiting for 1 seconds";
+        expectedMessages += "Step 1.10.1.c. Waiting for 5 seconds" + NL;
+        expectedMessages += "Step 1.10.1.c. Waiting for 4 seconds" + NL;
+        expectedMessages += "Step 1.10.1.c. Waiting for 3 seconds" + NL;
+        expectedMessages += "Step 1.10.1.c. Waiting for 2 seconds" + NL;
+        expectedMessages += "Step 1.10.1.c. Waiting for 1 seconds";
         assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());

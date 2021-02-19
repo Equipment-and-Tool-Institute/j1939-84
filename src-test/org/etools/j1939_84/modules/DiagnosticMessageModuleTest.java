@@ -166,28 +166,7 @@ public class DiagnosticMessageModuleTest {
     }
 
     @Test
-    public void testRequestDM11GlobalWithNoResponsesOneModule() throws BusException {
-        final int pgn = DM11ClearActiveDTCsPacket.PGN;
-
-        doReturn(Stream.empty(), Stream.empty(), Stream.empty()).when(j1939).read(anyLong(), any());
-
-        String expected = "";
-        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.0000 Global DM11 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] D3 FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
-        expected += "ERROR: Clearing Diagnostic Trouble Codes failed." + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        assertEquals(List.of(), instance.requestDM11(listener));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM11GlobalWithOneModule() throws BusException {
+    public void testRequestDM11() throws BusException {
         final int pgn = DM11ClearActiveDTCsPacket.PGN;
 
         DataRepository.getInstance().putObdModule(new OBDModuleInformation(0));
@@ -201,116 +180,14 @@ public class DiagnosticMessageModuleTest {
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
-        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
         expected += "10:15:30.0000 Global DM11 Request" + NL;
         expected += "10:15:30.0000 18EAFFA5 [3] D3 FE 00 (TX)" + NL;
         expected += "10:15:30.0000 18E8A500 [8] 00 FF FF FF A5 D3 FE 00" + NL;
         expected += "Acknowledgment from Engine #1 (0): Response: ACK, Group Function: 255, Address Acknowledged: 165, PGN Requested: 65235"
                 + NL;
-        expected += "Diagnostic Trouble Codes were successfully cleared." + NL;
 
         TestResultsListener listener = new TestResultsListener();
         assertEquals(List.of(packet1), instance.requestDM11(listener));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM11GlobalWithOneModuleWithNack() throws BusException {
-        final int pgn = DM11ClearActiveDTCsPacket.PGN;
-
-        TestResultsListener listener = new TestResultsListener();
-        assertEquals(List.of(), instance.requestDM11(listener));
-
-        String expected = "";
-        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.0000 Global DM11 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] D3 FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 Error: Timeout - No Response." + NL;
-        expected += "ERROR: Clearing Diagnostic Trouble Codes failed." + NL;
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM11WithManyModules() throws BusException {
-        final int pgn = DM11ClearActiveDTCsPacket.PGN;
-
-        Packet requestPacket = Packet.create(REQUEST_PGN | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-
-        AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
-                Packet.create(ACK_PGN | GLOBAL_ADDR, 0x00, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
-        AcknowledgmentPacket packet2 = new AcknowledgmentPacket(
-                Packet.create(ACK_PGN | GLOBAL_ADDR, 0x17, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
-        AcknowledgmentPacket packet3 = new AcknowledgmentPacket(
-                Packet.create(ACK_PGN | GLOBAL_ADDR, 0x21, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
-
-        String expected = "";
-        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.0000 Global DM11 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] D3 FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 18E8FF00 [8] 00 FF FF FF A5 D3 FE 00" + NL;
-        expected += "Acknowledgment from Engine #1 (0): Response: ACK, Group Function: 255, Address Acknowledged: 165, PGN Requested: 65235"
-                + NL;
-        expected += "10:15:30.0000 18E8FF17 [8] 00 FF FF FF A5 D3 FE 00" + NL;
-        expected += "Acknowledgment from Instrument Cluster #1 (23): Response: ACK, Group Function: 255, Address Acknowledged: 165, PGN Requested: 65235"
-                + NL;
-        expected += "10:15:30.0000 18E8FF21 [8] 00 FF FF FF A5 D3 FE 00" + NL;
-        expected += "Acknowledgment from Body Controller (33): Response: ACK, Group Function: 255, Address Acknowledged: 165, PGN Requested: 65235"
-                + NL;
-        expected += "Diagnostic Trouble Codes were successfully cleared." + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        assertEquals(List.of(packet1, packet2, packet3), instance.requestDM11(listener));
-        assertEquals(expected, listener.getResults());
-
-        verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-        verify(j1939).read(anyLong(), any());
-    }
-
-    @Test
-    public void testRequestDM11WithManyModulesWithNack() throws BusException {
-        final int pgn = DM11ClearActiveDTCsPacket.PGN;
-        DataRepository.getInstance().putObdModule(new OBDModuleInformation(0));
-        DataRepository.getInstance().putObdModule(new OBDModuleInformation(0x17));
-        DataRepository.getInstance().putObdModule(new OBDModuleInformation(0x21));
-
-        Packet requestPacket = Packet.create(REQUEST_PGN | GLOBAL_ADDR, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
-        doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
-
-        AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
-                Packet.create(ACK_PGN | BUS_ADDR, 0x00, 0x01, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
-        AcknowledgmentPacket packet2 = new AcknowledgmentPacket(
-                Packet.create(ACK_PGN | BUS_ADDR, 0x17, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
-        AcknowledgmentPacket packet3 = new AcknowledgmentPacket(
-                Packet.create(ACK_PGN | BUS_ADDR, 0x21, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
-
-        String expected = "";
-        expected += "10:15:30.0000 Clearing Diagnostic Trouble Codes" + NL;
-        expected += "10:15:30.0000 Global DM11 Request" + NL;
-        expected += "10:15:30.0000 18EAFFA5 [3] D3 FE 00 (TX)" + NL;
-        expected += "10:15:30.0000 18E8A500 [8] 01 FF FF FF A5 D3 FE 00" + NL;
-        expected += "Acknowledgment from Engine #1 (0): Response: NACK, Group Function: 255, Address Acknowledged: 165, PGN Requested: 65235"
-                + NL;
-        expected += "10:15:30.0000 18E8A517 [8] 00 FF FF FF A5 D3 FE 00" + NL;
-        expected += "Acknowledgment from Instrument Cluster #1 (23): Response: ACK, Group Function: 255, Address Acknowledged: 165, PGN Requested: 65235"
-                + NL;
-        expected += "10:15:30.0000 18E8A521 [8] 00 FF FF FF A5 D3 FE 00" + NL;
-        expected += "Acknowledgment from Body Controller (33): Response: ACK, Group Function: 255, Address Acknowledged: 165, PGN Requested: 65235"
-                + NL;
-        expected += "ERROR: Clearing Diagnostic Trouble Codes failed." + NL;
-
-        TestResultsListener listener = new TestResultsListener();
-        assertEquals(List.of(packet1, packet2, packet3), instance.requestDM11(listener));
         assertEquals(expected, listener.getResults());
 
         verify(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
