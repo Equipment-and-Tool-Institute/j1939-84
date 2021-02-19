@@ -151,7 +151,7 @@ public class Part03Step13Controller extends StepController {
         for (DM25ExpandedFreezeFrame dm25 : packets) {
             String moduleName = dm25.getModuleName();
             int expectedLength = getDataRepository().getObdModule(dm25.getSourceAddress())
-                    .getFreezeFrameSpns()
+                    .getFreezeFrameSPNs()
                     .stream()
                     .mapToInt(SupportedSPN::getLength)
                     .sum();

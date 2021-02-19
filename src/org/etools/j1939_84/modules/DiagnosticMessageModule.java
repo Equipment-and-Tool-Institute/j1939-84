@@ -53,7 +53,6 @@ public class DiagnosticMessageModule extends FunctionalModule {
         super();
     }
 
-
     public static List<CompositeMonitoredSystem> getCompositeSystems(Collection<MonitoredSystem> monitoredSystems,
                                                                      boolean isDM5) {
         Map<CompositeSystem, CompositeMonitoredSystem> map = new HashMap<>();
@@ -171,6 +170,7 @@ public class DiagnosticMessageModule extends FunctionalModule {
     public BusResult<DM24SPNSupportPacket> requestDM24(ResultsListener listener, int obdModuleAddress) {
         return requestDMPackets("DM24", DM24SPNSupportPacket.class, obdModuleAddress, listener).busResult();
     }
+
     public BusResult<DM25ExpandedFreezeFrame> requestDM25(ResultsListener listener, int address) {
         return requestDMPackets("DM25", DM25ExpandedFreezeFrame.class, address, listener).busResult();
     }
@@ -207,11 +207,20 @@ public class DiagnosticMessageModule extends FunctionalModule {
         return requestDMPackets("DM29", DM29DtcCounts.class, address, listener).busResult();
     }
 
-    public List<DM30ScaledTestResultsPacket> getDM30Packets(ResultsListener listener, int address, SupportedSPN spn) {
-        int spnId = spn.getSpn();
-        BusResult<DM30ScaledTestResultsPacket> result = getJ1939().requestDM7(spnId, address, listener);
-        listener.onResult("");
-        return result.requestResult().getPackets();
+    public List<DM30ScaledTestResultsPacket> requestTestResults(ResultsListener listener, int address) {
+        return requestTestResults(listener, address, 246, 5846, 31);
+    }
+
+    public List<DM30ScaledTestResultsPacket> requestTestResults(ResultsListener listener, int address, SupportedSPN spn) {
+        return requestTestResults(listener, address, 247, spn.getSpn(), 31);
+    }
+
+    public List<DM30ScaledTestResultsPacket> requestTestResults(ResultsListener listener,
+                                                                int address,
+                                                                int tid,
+                                                                int spn,
+                                                                int fmi) {
+        return getJ1939().requestTestResults(tid, spn, fmi, address, listener).requestResult().getPackets();
     }
 
     public RequestResult<DM31DtcToLampAssociation> requestDM31(ResultsListener listener) {

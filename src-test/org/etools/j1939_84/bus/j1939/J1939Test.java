@@ -23,7 +23,6 @@ import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
-
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.EchoBus;
@@ -56,7 +55,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
-@RunWith(MockitoJUnitRunner.class)
+@SuppressWarnings("OptionalGetWithoutIsPresent") @RunWith(MockitoJUnitRunner.class)
 public class J1939Test {
 
     final private static class TestPacket extends GenericPacket {
@@ -121,14 +120,14 @@ public class J1939Test {
             }).start();
             System.err.format("### pre %d%n", System.currentTimeMillis());
             BusResult<VehicleIdentificationPacket> response = j1939.requestDS("test",
-                    J1939.getPgn(VehicleIdentificationPacket.class),
-                    Packet.create(0xEA00,
-                            0xF9,
-                            true,
-                            VehicleIdentificationPacket.PGN,
-                            VehicleIdentificationPacket.PGN >> 8,
-                            VehicleIdentificationPacket.PGN >> 16),
-                    NOOP);
+                                                                              J1939.getPgn(VehicleIdentificationPacket.class),
+                                                                              Packet.create(0xEA00,
+                                                                                            0xF9,
+                                                                                            true,
+                                                                                            VehicleIdentificationPacket.PGN,
+                                                                                            VehicleIdentificationPacket.PGN >> 8,
+                                                                                            VehicleIdentificationPacket.PGN >> 16),
+                                                                              NOOP);
             System.err.format("### post %d%n", System.currentTimeMillis());
             final String vin2 = response.getPacket().get().left.get().getVin();
             System.err.format("### vin %d%n", System.currentTimeMillis());
@@ -324,8 +323,8 @@ public class J1939Test {
                 System.err.format("complete:  %d  %s%n", System.currentTimeMillis() - start, timeString);
             }).start();
             RequestResult<ComponentIdentificationPacket> response = j1939.requestGlobal("test",
-                    ComponentIdentificationPacket.class,
-                    NOOP);
+                                                                                        ComponentIdentificationPacket.class,
+                                                                                        NOOP);
             List<Either<ComponentIdentificationPacket, AcknowledgmentPacket>> l;
             l = response.getEither();
             System.err.format("### post %d%n", System.currentTimeMillis() - start);
@@ -364,7 +363,7 @@ public class J1939Test {
         }).start();
 
         long start = System.currentTimeMillis();
-        BusResult<DM30ScaledTestResultsPacket> requestDm7 = j1939.requestDM7(123, 0, NOOP);
+        BusResult<DM30ScaledTestResultsPacket> requestDm7 = j1939.requestTestResults(247, 123, 31, 0, NOOP);
         long duration = System.currentTimeMillis() - start;
         Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = requestDm7
                 .getPacket();
@@ -386,7 +385,7 @@ public class J1939Test {
         Bus bus = new EchoBus(0xF9);
         J1939 j1939 = new J1939(bus);
         long start = System.currentTimeMillis();
-        var result = j1939.requestDM7(123, 0, NOOP).getPacket();
+        var result = j1939.requestTestResults(247, 123, 31, 0, NOOP).getPacket();
         assertFalse(result.isPresent());
         assertEquals(220 * 3, System.currentTimeMillis() - start, 40);
     }
@@ -408,8 +407,10 @@ public class J1939Test {
         }
     }
 
+    /**
+     * Request the VIN with a long delay and verify the error.
+     */
     @Test
-    /** request the VIN with a long delay and verify the error. */
     public void testBamTimeout() throws Exception {
         EchoBus bus2 = new EchoBus(0);
         Bus bus = new J1939TP(bus2, 0);
@@ -422,7 +423,7 @@ public class J1939Test {
                 // wait to cause warning
                 Thread.sleep(650);
                 bus.send(Packet.create(VehicleIdentificationPacket.PGN, 0xFF, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
-                        13, 14, 15, 16, 17));
+                                       13, 14, 15, 16, 17));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -433,11 +434,12 @@ public class J1939Test {
         assertEquals(0, response.getPackets().size());
         /* verify there is an error */
         assertTrue(listener.getResults()
-                .matches("(?s).*Error: Timeout - No Response\\..*"));
+                           .matches("(?s).*Error: Timeout - No Response\\..*"));
     }
 
-    @Test
+
     /** Request the VIN without a delay and verify no warning. */
+    @Test
     public void testBamTimeoutNoWarn() throws Exception {
         EchoBus bus2 = new EchoBus(0);
         Bus bus = new J1939TP(bus2, 0);
@@ -448,7 +450,7 @@ public class J1939Test {
                 requestStream.findAny();
                 // Thread.sleep(300); test the test
                 bus.send(Packet.create(VehicleIdentificationPacket.PGN, 0xFF, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
-                        13, 14, 15, 16, 17));
+                                       13, 14, 15, 16, 17));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -458,11 +460,14 @@ public class J1939Test {
                 .requestGlobal("VIN", VehicleIdentificationPacket.class, listener);
         assertEquals(1, response.getPackets().size());
         /* verify there is not a warning. */
-        assertTrue(!listener.getResults().matches("(?s).*Warning: Late BAM response.*"));
+        assertFalse(listener.getResults().matches("(?s).*Warning: Late BAM response.*"));
     }
 
+
+    /**
+     *  Request the VIN with a delay and verify the warning.
+     *  */
     @Test
-    /** Request the VIN with a delay and verify the warning. */
     public void testBamTimeoutWarn() throws Exception {
         EchoBus bus2 = new EchoBus(0);
         Bus bus = new J1939TP(bus2, 0);
@@ -475,7 +480,7 @@ public class J1939Test {
                 // wait to cause warning
                 Thread.sleep(300);
                 bus.send(Packet.create(VehicleIdentificationPacket.PGN, 0xFF, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12,
-                        13, 14, 15, 16, 17));
+                                       13, 14, 15, 16, 17));
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -486,7 +491,8 @@ public class J1939Test {
         assertEquals(1, response.getPackets().size());
         /* verify there is a warning */
         assertTrue(listener.getResults()
-                .matches("(?s).*Warning: Late BAM response:  [\\d:\\.]+ 18ECFF00 \\[8\\] 20 11 00 03 FF EC FE 00.*"));
+                           .matches(
+                                   "(?s).*Warning: Late BAM response:  [\\d:.]+ 18ECFF00 \\[8] 20 11 00 03 FF EC FE 00.*"));
     }
 
     @Test
@@ -520,7 +526,7 @@ public class J1939Test {
      */
     @Test
     public void testRequestDM7Timesout() throws Exception {
-        Object packet = instance.requestDM7(1024, 0, NOOP).getPacket().orElse(null);
+        Object packet = instance.requestTestResults(247, 1024, 31, 0, NOOP).getPacket().orElse(null);
         assertNull(packet);
 
         verify(bus, times(3)).send(sendPacketCaptor.capture());
@@ -535,11 +541,11 @@ public class J1939Test {
     @Test
     public void testRequestDM7WillTryThreeTimes() throws Exception {
         Packet packet1 = Packet.create(DM30ScaledTestResultsPacket.PGN
-                | BUS_ADDR, 0x00, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0x0A, 0x0B, 0x0C, 0x0D);
+                                               | BUS_ADDR, 0x00, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0x0A, 0x0B, 0x0C, 0x0D);
         when(bus.read(230, MILLISECONDS)).thenReturn(Stream.of()).thenReturn(Stream.of())
                 .thenReturn(Stream.of(packet1));
 
-        Object packet = instance.requestDM7(1024, 0, NOOP).getPacket().orElse(null);
+        Object packet = instance.requestTestResults(247, 1024, 31, 0, NOOP).getPacket().orElse(null);
         assertNotNull(packet);
 
         verify(bus, times(3)).send(sendPacketCaptor.capture());
@@ -584,8 +590,8 @@ public class J1939Test {
         when(bus.read(ArgumentMatchers.anyLong(), ArgumentMatchers.any(TimeUnit.class)))
                 .thenThrow(new BusException("Testing"));
         Stream<DM5DiagnosticReadinessPacket> response = instance.requestGlobal(null,
-                DM5DiagnosticReadinessPacket.class,
-                NOOP)
+                                                                               DM5DiagnosticReadinessPacket.class,
+                                                                               NOOP)
                 .getEither().stream().flatMap(e -> e.left.stream());
         assertEquals(0, response.count());
     }
@@ -601,8 +607,8 @@ public class J1939Test {
 
         Packet requestPacket = instance.createRequestPacket(EngineHoursPacket.PGN, ENGINE_ADDR);
         BusResult<EngineHoursPacket> response = instance.requestDS(null,
-                EngineHoursPacket.class, ENGINE_ADDR,
-                NOOP);
+                                                                   EngineHoursPacket.class, ENGINE_ADDR,
+                                                                   NOOP);
         assertEquals(3365299.25, response.getPacket().get().left.get().getEngineHours(), 0.0001);
 
         verify(bus).send(requestPacket);
@@ -621,10 +627,10 @@ public class J1939Test {
                 .thenReturn(Stream.empty()).thenReturn(Stream.empty());
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
         Stream<VehicleIdentificationPacket> response = instance.<VehicleIdentificationPacket>requestGlobal(null,
-                J1939.getPgn(
-                        VehicleIdentificationPacket.class),
-                request,
-                NOOP)
+                                                                                                           J1939.getPgn(
+                                                                                                                   VehicleIdentificationPacket.class),
+                                                                                                           request,
+                                                                                                           NOOP)
                 .getEither()
                 .stream()
                 .flatMap(e -> e.left.stream());
@@ -646,10 +652,10 @@ public class J1939Test {
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
 
         Stream<VehicleIdentificationPacket> response = instance.<VehicleIdentificationPacket>requestGlobal(null,
-                J1939.getPgn(
-                        VehicleIdentificationPacket.class),
-                request,
-                NOOP)
+                                                                                                           J1939.getPgn(
+                                                                                                                   VehicleIdentificationPacket.class),
+                                                                                                           request,
+                                                                                                           NOOP)
                 .getEither()
                 .stream()
                 .flatMap(e -> e.left.stream());
@@ -672,10 +678,10 @@ public class J1939Test {
         Packet requestPacket = instance.createRequestPacket(DM11ClearActiveDTCsPacket.PGN, GLOBAL_ADDR);
 
         List<AcknowledgmentPacket> responses = instance.<DM11ClearActiveDTCsPacket>requestGlobal(null,
-                J1939.getPgn(
-                        DM11ClearActiveDTCsPacket.class),
-                requestPacket,
-                NOOP)
+                                                                                                 J1939.getPgn(
+                                                                                                         DM11ClearActiveDTCsPacket.class),
+                                                                                                 requestPacket,
+                                                                                                 NOOP)
                 .getEither()
                 .stream()
                 .map(e -> (AcknowledgmentPacket) e.resolve())
@@ -705,10 +711,10 @@ public class J1939Test {
 
         Packet request = instance.createRequestPacket(VehicleIdentificationPacket.PGN, 0xFF);
         Stream<VehicleIdentificationPacket> response = instance.<VehicleIdentificationPacket>requestGlobal(null,
-                J1939.getPgn(
-                        VehicleIdentificationPacket.class),
-                request,
-                NOOP)
+                                                                                                           J1939.getPgn(
+                                                                                                                   VehicleIdentificationPacket.class),
+                                                                                                           request,
+                                                                                                           NOOP)
                 .getEither()
                 .stream()
                 .flatMap(e -> e.left.stream());

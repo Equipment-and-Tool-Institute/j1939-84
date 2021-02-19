@@ -38,7 +38,7 @@ public class ParsedPacket {
     }
 
     public static int[] toInts(int value) {
-        return new int[] { (byte) (value & 0xFF), (byte) ((value >> 8) & 0xFF) };
+        return new int[] { (value & 0xFF), ((value >> 8) & 0xFF) };
     }
 
     public static int[] to3Ints(int value) {

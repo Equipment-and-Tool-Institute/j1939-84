@@ -1445,11 +1445,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dataRepository.getObdModule(0x17)).thenReturn(obdModuleInfo17);
         when(dataRepository.getObdModule(0x21)).thenReturn(obdModuleInfo21);
 
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x00), eq(supportedSPN0)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x00), eq(supportedSPN0)))
                 .thenReturn(List.of(dm30Packet0));
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x17), eq(supportedSPN17)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x17), eq(supportedSPN17)))
                 .thenReturn(List.of(dm30Packet17));
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x21), eq(supportedSPN21)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x21), eq(supportedSPN21)))
                 .thenReturn(List.of(dm30Packet21));
 
         instance.setJ1939(j1939);
@@ -1469,9 +1469,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).setJ1939(j1939);
 
         verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN0));
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x17), eq(supportedSPN17));
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x21), eq(supportedSPN21));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN0));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x17), eq(supportedSPN17));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x21), eq(supportedSPN21));
 
         verify(vehicleInformationModule).setJ1939(j1939);
     }
@@ -1525,11 +1525,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dataRepository.getObdModule(0x17)).thenReturn(obdModuleInfo17);
         when(dataRepository.getObdModule(0x21)).thenReturn(obdModuleInfo21);
 
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x00), eq(supportedSPN0)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x00), eq(supportedSPN0)))
                 .thenReturn(List.of(dm30Packet0));
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x17), eq(supportedSPN17)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x17), eq(supportedSPN17)))
                 .thenReturn(List.of(dm30Packet17));
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x21), eq(supportedSPN21)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x21), eq(supportedSPN21)))
                 .thenReturn(List.of(dm30Packet21));
 
         instance.setJ1939(j1939);
@@ -1555,9 +1555,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).setJ1939(j1939);
 
         verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN0));
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x17), eq(supportedSPN17));
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x21), eq(supportedSPN21));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN0));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x17), eq(supportedSPN17));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x21), eq(supportedSPN21));
 
         verify(vehicleInformationModule).setJ1939(j1939);
     }
@@ -1890,11 +1890,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM33(any(), eq(0x21)))
                 .thenReturn(new RequestResult<>(false, List.of(dm33Packet21), List.of()));
 
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x00), eq(supportedSPN0)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x00), eq(supportedSPN0)))
                 .thenReturn(List.of(dm30Packet0));
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x17), eq(supportedSPN17)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x17), eq(supportedSPN17)))
                 .thenReturn(List.of(dm30Packet17));
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x21), eq(supportedSPN21)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x21), eq(supportedSPN21)))
                 .thenReturn(List.of(dm30Packet21));
 
         when(vehicleInformationModule.requestEngineHours(any()))
@@ -2082,9 +2082,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x21));
 
         verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN0));
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x17), eq(supportedSPN17));
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x21), eq(supportedSPN21));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN0));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x17), eq(supportedSPN17));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x21), eq(supportedSPN21));
 
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).requestEngineHours(any());
@@ -2285,11 +2285,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 new RequestResult<>(false, List.of(dm33Packet21),
                                     List.of()));
 
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x00), eq(supportedSPN0)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x00), eq(supportedSPN0)))
                 .thenReturn(List.of(dm30Packet0));
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x17), eq(supportedSPN17)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x17), eq(supportedSPN17)))
                 .thenReturn(List.of(dm30Packet17));
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x21), eq(supportedSPN21)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x21), eq(supportedSPN21)))
                 .thenReturn(List.of(dm30Packet21));
 
         when(vehicleInformationModule.requestEngineHours(any()))
@@ -2466,9 +2466,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x21));
 
         verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN0));
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x17), eq(supportedSPN17));
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x21), eq(supportedSPN21));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN0));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x17), eq(supportedSPN17));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x21), eq(supportedSPN21));
 
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).requestEngineHours(any());
@@ -2631,11 +2631,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM33(any(), eq(0x21))).thenReturn(
                 new RequestResult<>(false, List.of(dm33Packet21), List.of()));
 
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x00), eq(supportedSPN0)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x00), eq(supportedSPN0)))
                 .thenReturn(List.of(dm30Packet0));
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x17), eq(supportedSPN17)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x17), eq(supportedSPN17)))
                 .thenReturn(List.of(dm30Packet17));
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x21), eq(supportedSPN21)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x21), eq(supportedSPN21)))
                 .thenReturn(List.of(dm30Packet21));
 
         when(vehicleInformationModule.requestEngineHours(any()))
@@ -2709,9 +2709,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x21));
 
         verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN0));
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x17), eq(supportedSPN17));
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x21), eq(supportedSPN21));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN0));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x17), eq(supportedSPN17));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x21), eq(supportedSPN21));
 
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).requestEngineHours(any());
@@ -2862,11 +2862,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM33(any(), eq(0x21))).thenReturn(
                 new RequestResult<>(false, List.of(dm33Packet21), List.of()));
 
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x00), eq(supportedSPN0)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x00), eq(supportedSPN0)))
                 .thenReturn(List.of(dm30Packet0));
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x17), eq(supportedSPN17)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x17), eq(supportedSPN17)))
                 .thenReturn(List.of(dm30Packet17));
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0x21), eq(supportedSPN21)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0x21), eq(supportedSPN21)))
                 .thenReturn(List.of(dm30Packet21));
 
         when(vehicleInformationModule.requestEngineHours(any()))
@@ -2941,9 +2941,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x21));
 
         verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN0));
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x17), eq(supportedSPN17));
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x21), eq(supportedSPN21));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN0));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x17), eq(supportedSPN17));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x21), eq(supportedSPN21));
 
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(vehicleInformationModule).requestEngineHours(any());

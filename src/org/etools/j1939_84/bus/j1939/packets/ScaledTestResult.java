@@ -84,10 +84,10 @@ public class ScaledTestResult {
         testIdentifier = data[0];
         spn = SupportedSPN.parseSPN(Arrays.copyOfRange(data, 1, 4));
         fmi = data[3] & 0x1F;
-        slotNumber = (data[5] << 8) | data[4];
-        testValue = (data[7] << 8) | data[6];
-        testMaximum = (data[9] << 8) | data[8];
-        testMinimum = (data[11] << 8) | data[10];
+        slotNumber = ((data[5] << 8) | data[4]) & 0xFFFF;
+        testValue = ((data[7] << 8) | data[6]) & 0xFFFF;
+        testMaximum = ((data[9] << 8) | data[8]) & 0xFFFF;
+        testMinimum = ((data[11] << 8) | data[10]) & 0xFFFF;
     }
 
     public int[] getData() {
@@ -209,6 +209,12 @@ public class ScaledTestResult {
      */
     public int getTestValue() {
         return testValue;
+    }
+
+    public boolean isInitialized() {
+        boolean initHigh = getTestValue() == 0xFB00 && getTestMinimum() == 0xFFFF && getTestMaximum() == 0xFFFF;
+        boolean initLow = getTestValue() == 0x0000 && getTestMinimum() == 0x0000 && getTestMaximum() == 0x0000;
+        return initHigh || initLow;
     }
 
     /**

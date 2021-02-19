@@ -41,9 +41,11 @@ public class OBDModuleInformation implements Cloneable {
 
     private final List<ScaledTestResult> scaledTestResults = new ArrayList<>();
 
+    private final List<ScaledTestResult> nonInitializedTests = new ArrayList<>();
+
     private final int sourceAddress;
 
-    private final List<SupportedSPN> supportedSpns = new ArrayList<>();
+    private final List<SupportedSPN> supportedSPNs = new ArrayList<>();
 
     private String engineFamilyName = "";
 
@@ -76,6 +78,7 @@ public class OBDModuleInformation implements Cloneable {
         obdInfo.setSupportedSPNs(getSupportedSPNs());
         obdInfo.setEngineFamilyName(getEngineFamilyName());
         obdInfo.setModelYear(getModelYear());
+        obdInfo.setNonInitializedTests(getNonInitializedTests());
         obdInfo.packetArchive = packetArchive;
 
         return obdInfo;
@@ -97,7 +100,7 @@ public class OBDModuleInformation implements Cloneable {
         return componentIdentification;
     }
 
-    public List<SupportedSPN> getDataStreamSpns() {
+    public List<SupportedSPN> getDataStreamSPNs() {
         return getSupportedSPNs().stream()
                 .filter(SupportedSPN::supportsDataStream)
                 .collect(Collectors.toList());
@@ -107,7 +110,7 @@ public class OBDModuleInformation implements Cloneable {
      * Returns the List of SupportedSPNs filtering out 'dis-allowed' SPNs
      */
     public List<SupportedSPN> getFilteredDataStreamSPNs() {
-        return getDataStreamSpns().stream()
+        return getDataStreamSPNs().stream()
                 .filter(s -> !getOmittedDataStreamSPNs().contains(s.getSpn()))
                 .collect(Collectors.toList());
     }
@@ -120,7 +123,7 @@ public class OBDModuleInformation implements Cloneable {
         omittedSPNs.add(spn);
     }
 
-    public List<SupportedSPN> getFreezeFrameSpns() {
+    public List<SupportedSPN> getFreezeFrameSPNs() {
         return getSupportedSPNs().stream()
                 .filter(SupportedSPN::supportsExpandedFreezeFrame)
                 .collect(Collectors.toList());
@@ -151,7 +154,7 @@ public class OBDModuleInformation implements Cloneable {
     }
 
     public List<SupportedSPN> getSupportedSPNs() {
-        return (get(DM24SPNSupportPacket.class) == null ? supportedSpns : get(DM24SPNSupportPacket.class).getSupportedSpns()).stream()
+        return (get(DM24SPNSupportPacket.class) == null ? supportedSPNs : get(DM24SPNSupportPacket.class).getSupportedSpns()).stream()
                 .sorted(Comparator.comparingInt(SupportedSPN::getSpn))
                 .collect(Collectors.toList());
     }
@@ -194,9 +197,18 @@ public class OBDModuleInformation implements Cloneable {
         this.scaledTestResults.addAll(scaledTestResults);
     }
 
-    public void setSupportedSPNs(List<SupportedSPN> supportedSpns) {
-        this.supportedSpns.clear();
-        this.supportedSpns.addAll(supportedSpns);
+    public void setSupportedSPNs(List<SupportedSPN> supportedSPNs) {
+        this.supportedSPNs.clear();
+        this.supportedSPNs.addAll(supportedSPNs);
+    }
+
+    public List<ScaledTestResult> getNonInitializedTests() {
+        return nonInitializedTests;
+    }
+
+    public void setNonInitializedTests(List<ScaledTestResult> tests) {
+        this.nonInitializedTests.clear();
+        this.nonInitializedTests.addAll(tests);
     }
 
     public String getEngineFamilyName() {

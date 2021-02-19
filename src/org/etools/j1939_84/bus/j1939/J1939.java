@@ -465,24 +465,26 @@ public class J1939 {
                 .collect(Collectors.toList());
     }
 
-    /** Request test results with a DM7. */
-    public BusResult<DM30ScaledTestResultsPacket> requestDM7(int spn, int address, ResultsListener listener) {
-
+    public BusResult<DM30ScaledTestResultsPacket> requestTestResults(int tid,
+                                                                     int spn,
+                                                                     int fmi,
+                                                                     int address,
+                                                                     ResultsListener listener) {
         if (address == GLOBAL_ADDR) {
             throw new IllegalArgumentException("DM7 request to global.");
         }
 
         Packet request = Packet.create(DM7CommandTestsPacket.PGN | address,
-                getBusAddress(),
-                true,
-                247,
-                spn & 0xFF,
-                (spn >> 8) & 0xFF,
-                (((spn >> 16) & 0xFF) << 5) | 31,
-                0xFF,
-                0xFF,
-                0xFF,
-                0xFF);
+                                       getBusAddress(),
+                                       true,
+                                       tid,
+                                       spn & 0xFF,
+                                       (spn >> 8) & 0xFF,
+                                       (((spn >> 16) & 0xFF) << 5) | (fmi & 0x1F),
+                                       0xFF,
+                                       0xFF,
+                                       0xFF,
+                                       0xFF);
 
         String title = "Sending DM7 for DM30 to " + Lookup.getAddressName(address) + " for SPN " + spn;
         listener.onResult(getDateTimeModule().getTime() + " " + title);

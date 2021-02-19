@@ -69,7 +69,7 @@ public class Part02Step10Controller extends StepController {
             //6.2.10.1.a. DS DM7 to each OBD ECU with TID 247+ for each DM24 SPN +FMI 31 provided by OBD ECU’s DM24 response.
             List<ScaledTestResult> newTestResults = obdModule.getTestResultSPNs()
                     .stream()
-                    .flatMap(spn -> getDiagnosticMessageModule().getDM30Packets(getListener(), sourceAddress, spn).stream())
+                    .flatMap(spn -> getDiagnosticMessageModule().requestTestResults(getListener(), sourceAddress, spn).stream())
                     .flatMap(p -> p.getTestResults().stream())
                     .collect(Collectors.toList());
 
