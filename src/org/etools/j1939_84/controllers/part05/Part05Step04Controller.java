@@ -3,10 +3,19 @@
  */
 package org.etools.j1939_84.controllers.part05;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import org.etools.j1939_84.bus.j1939.BusResult;
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939_84.bus.j1939.packets.LampStatus;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -53,10 +62,57 @@ public class Part05Step04Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.5.4.1.a DS DM28 ([send Request (PGN 59904) for PGN 64896 (SPNs 1213-1215, 3038, 1706)]) to each OBD ECU.
+        var responses = getDataRepository().getObdModuleAddresses()
+                .stream()
+                .map(a -> getDiagnosticMessageModule().requestDM28(getListener(), a))
+                .map(BusResult::requestResult)
+                .collect(Collectors.toList());
+
+        var packets = filterRequestResultPackets(responses);
+
         // 6.5.4.2.a Fail if no ECU reports a permanent DTC.
+        boolean noDTCs = packets.stream().allMatch(p -> p.getDtcs().isEmpty());
+        if (noDTCs) {
+            addFailure("6.5.4.2.a - No ECU reported a permanent DTC");
+        }
+
         // 6.5.4.2.b Fail if any ECU reports a different MIL status than it did for DM12 response earlier in this part.
+        packets.stream()
+                .filter(p -> p.getMalfunctionIndicatorLampStatus() != getDM12MilStatus(p.getSourceAddress()))
+                .map(ParsedPacket::getModuleName)
+                .forEach(moduleName -> addFailure("6.5.4.2.b - " + moduleName + " reported a different MIL status " +
+                                                          "than it did for DM12 response earlier in this part"));
+
         // 6.5.4.2.c Fail if permanent DTC does not match DM12 active DTC from earlier in this part.
+        packets.forEach(p -> {
+            var dm12DTCs = getDTCs(p.getSourceAddress());
+            for (DiagnosticTroubleCode dtc : p.getDtcs()) {
+                if (!listContainsDTC(dm12DTCs, dtc)) {
+                    int spn = dtc.getSuspectParameterNumber();
+                    int fmi = dtc.getFailureModeIndicator();
+                    addFailure("6.5.4.2.c - " + p.getModuleName() + " permanent DTC (" + spn + ":" + fmi + ") does not match DM12 active DTC from earlier in this part");
+                }
+            }
+        });
+
         // 6.5.4.2.d Fail if NACK not received from OBD ECUs that did not provide a DM28 message.
+        checkForNACKsFromObdModules(packets, filterRequestResultAcks(responses), "6.5.4.2.d");
+
+    }
+
+    private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {
+        var packet = getDTCPacket(moduleAddress);
+        return packet == null ? List.of() : packet.getDtcs();
+    }
+
+    private DiagnosticTroubleCodePacket getDTCPacket(int moduleAddress) {
+        OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(moduleAddress);
+        return obdModuleInformation == null ? null : obdModuleInformation.get(DM12MILOnEmissionDTCPacket.class);
+    }
+
+    private LampStatus getDM12MilStatus(int moduleAddress) {
+        var packet = getDTCPacket(moduleAddress);
+        return packet == null ? null : packet.getMalfunctionIndicatorLampStatus();
     }
 
 }
