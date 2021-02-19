@@ -4,6 +4,7 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,11 +16,23 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  * The Parsed DM20 {@link Packet}
  *
  * @author Matt Gumbel (matt@soliddesign.net)
- *
  */
 public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
 
-    public static final int PGN = 49664; // Hex value: 0xC200
+    public static final int PGN = 49664; // 0xC200
+
+    public static DM20MonitorPerformanceRatioPacket create(int sourceAddress,
+                                                           int ignitionCycles,
+                                                           int obdConditions,
+                                                           PerformanceRatio... ratios) {
+        int[] data = new int[0];
+        data = join(data, toInts(ignitionCycles));
+        data = join(data, toInts(obdConditions));
+        for (PerformanceRatio ratio : ratios) {
+            data = join(data, ratio.getData());
+        }
+        return new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, sourceAddress, data));
+    }
 
     private List<PerformanceRatio> ratios;
 
@@ -40,7 +53,7 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
      * Helper method to find the longest {@link PerformanceRatio} name
      *
      * @param ratios
-     *            all the {@link PerformanceRatio}s
+     *         all the {@link PerformanceRatio}s
      * @return the length of the longest name
      */
     private int getLongestName(List<PerformanceRatio> ratios) {
@@ -78,9 +91,9 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
      * Pads the String with spaces on the left
      *
      * @param string
-     *            the String to pad
+     *         the String to pad
      * @param length
-     *            the maximum number of spaces
+     *         the maximum number of spaces
      * @return the padded string
      */
     private String padLeft(String string, int length) {
@@ -91,9 +104,9 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
      * Pads the String with spaces on the right
      *
      * @param string
-     *            the String to pad
+     *         the String to pad
      * @param length
-     *            the maximum number of spaces
+     *         the maximum number of spaces
      * @return the padded string
      */
     private String padRight(String string, int length) {
