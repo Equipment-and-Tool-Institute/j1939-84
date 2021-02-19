@@ -347,4 +347,10 @@ public abstract class StepController extends Controller {
                 .collect(Collectors.joining(","));
     }
 
+    protected static boolean listContainsDTC(List<DiagnosticTroubleCode> dtcs, DiagnosticTroubleCode dtc) {
+        var dtcString = toString(List.of(dtc));
+        var listString = toString(dtcs);
+        return listString.contains(dtcString);
+    }
+
 }
