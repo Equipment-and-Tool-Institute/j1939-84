@@ -4,6 +4,9 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.BUSY;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -110,16 +113,9 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testError() {
-        AcknowledgmentPacket ackPacket = mock(AcknowledgmentPacket.class);
-        when(ackPacket.getResponse()).thenReturn(Response.ACK);
-        when(ackPacket.getSourceAddress()).thenReturn(0);
-
-        AcknowledgmentPacket ackPacket2 = mock(AcknowledgmentPacket.class);
-        when(ackPacket2.getSourceAddress()).thenReturn(2);
-
-        AcknowledgmentPacket nackPacket = mock(AcknowledgmentPacket.class);
-        when(nackPacket.getResponse()).thenReturn(Response.NACK);
-        when(nackPacket.getSourceAddress()).thenReturn(1);
+        AcknowledgmentPacket ackPacket = AcknowledgmentPacket.create(0, ACK);
+        AcknowledgmentPacket nackPacket = AcknowledgmentPacket.create(1, NACK);
+        AcknowledgmentPacket ackPacket2 = AcknowledgmentPacket.create(2, BUSY);
 
         List<AcknowledgmentPacket> acknowledgmentPackets = List.of(ackPacket, nackPacket, ackPacket2);
 
@@ -144,11 +140,11 @@ public class Part01Step10ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
 
         String expectedMessages = "";
-        expectedMessages += "Waiting for 5 seconds" + NL;
-        expectedMessages += "Waiting for 4 seconds" + NL;
-        expectedMessages += "Waiting for 3 seconds" + NL;
-        expectedMessages += "Waiting for 2 seconds" + NL;
-        expectedMessages += "Waiting for 1 seconds";
+        expectedMessages += "Step 1.10.1.c. Waiting for 5 seconds" + NL;
+        expectedMessages += "Step 1.10.1.c. Waiting for 4 seconds" + NL;
+        expectedMessages += "Step 1.10.1.c. Waiting for 3 seconds" + NL;
+        expectedMessages += "Step 1.10.1.c. Waiting for 2 seconds" + NL;
+        expectedMessages += "Step 1.10.1.c. Waiting for 1 seconds";
         assertEquals(expectedMessages, listener.getMessages());
         assertEquals("", listener.getMilestones());
     }

@@ -82,7 +82,7 @@ public class Part01Step27Controller extends StepController {
         //      iii. The engine shall be allowed to idle one minute
         incrementProgress("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
         if (!isDevEnv()) {
-            pause("Allowing engine to idle for %1$d seconds", 60L);
+            pause("Step 1.27.b.iii Allowing engine to idle for %1$d seconds", 60L);
         }
     }
 

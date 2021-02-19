@@ -52,6 +52,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
+import org.etools.j1939_84.bus.j1939.packets.DM3DiagnosticDataClearPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
@@ -278,6 +279,9 @@ public class J1939 {
         case DM2PreviouslyActiveDTC.PGN:
             return new DM2PreviouslyActiveDTC(packet);
 
+        case DM3DiagnosticDataClearPacket.PGN:
+            return new DM3DiagnosticDataClearPacket(packet);
+
         case DM5DiagnosticReadinessPacket.PGN:
             return new DM5DiagnosticReadinessPacket(packet);
 
@@ -451,15 +455,19 @@ public class J1939 {
         return bus.read(timeout, unit);
     }
 
-    /**
-     * DM11 is special. There is not always a response and any response should
-     * be treated specially.
-     */
-    public List<AcknowledgmentPacket> requestDM11(ResultsListener listener) {
-        listener.onResult(getDateTimeModule().getTime() + " " + "Global DM11 Request");
-        int pgn = DM11ClearActiveDTCsPacket.PGN;
+    public List<AcknowledgmentPacket> requestForAcks(ResultsListener listener, String title, int pgn) {
+        listener.onResult(getDateTimeModule().getTime() + " " + title);
         Packet requestPacket = createRequestPacket(pgn, GLOBAL_ADDR);
         return requestGlobalOnce(pgn, requestPacket, listener)
+                .stream()
+                .flatMap(e -> e.right.stream())
+                .collect(Collectors.toList());
+    }
+
+    public List<AcknowledgmentPacket> requestForAcks(ResultsListener listener, String title, int pgn, int address) {
+        listener.onResult(getDateTimeModule().getTime() + " " + title);
+        Packet requestPacket = createRequestPacket(pgn, address);
+        return requestDSOnce(pgn, requestPacket, listener)
                 .stream()
                 .flatMap(e -> e.right.stream())
                 .collect(Collectors.toList());
