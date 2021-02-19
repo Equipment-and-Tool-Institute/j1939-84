@@ -364,7 +364,7 @@ public class J1939Test {
         }).start();
 
         long start = System.currentTimeMillis();
-        BusResult<DM30ScaledTestResultsPacket> requestDm7 = j1939.requestDM7(123, 0, NOOP);
+        BusResult<DM30ScaledTestResultsPacket> requestDm7 = j1939.requestTestResults(247, 123, 0, NOOP);
         long duration = System.currentTimeMillis() - start;
         Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> result = requestDm7
                 .getPacket();
@@ -386,7 +386,7 @@ public class J1939Test {
         Bus bus = new EchoBus(0xF9);
         J1939 j1939 = new J1939(bus);
         long start = System.currentTimeMillis();
-        var result = j1939.requestDM7(123, 0, NOOP).getPacket();
+        var result = j1939.requestTestResults(247, 123, 0, NOOP).getPacket();
         assertFalse(result.isPresent());
         assertEquals(220 * 3, System.currentTimeMillis() - start, 40);
     }
@@ -520,7 +520,7 @@ public class J1939Test {
      */
     @Test
     public void testRequestDM7Timesout() throws Exception {
-        Object packet = instance.requestDM7(1024, 0, NOOP).getPacket().orElse(null);
+        Object packet = instance.requestTestResults(247, 1024, 0, NOOP).getPacket().orElse(null);
         assertNull(packet);
 
         verify(bus, times(3)).send(sendPacketCaptor.capture());
@@ -539,7 +539,7 @@ public class J1939Test {
         when(bus.read(230, MILLISECONDS)).thenReturn(Stream.of()).thenReturn(Stream.of())
                 .thenReturn(Stream.of(packet1));
 
-        Object packet = instance.requestDM7(1024, 0, NOOP).getPacket().orElse(null);
+        Object packet = instance.requestTestResults(247, 1024, 0, NOOP).getPacket().orElse(null);
         assertNotNull(packet);
 
         verify(bus, times(3)).send(sendPacketCaptor.capture());

@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939_84.model.FuelType.BATT_ELEC;
 import static org.etools.j1939_84.model.FuelType.BI_DSL;
 import static org.etools.j1939_84.model.FuelType.BI_GAS;
 import static org.etools.j1939_84.model.Outcome.FAIL;
@@ -10,25 +11,20 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
-import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
@@ -59,7 +55,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     @Mock
     private BannerModule bannerModule;
 
-    @Mock
     private DataRepository dataRepository;
 
     @Mock
@@ -90,10 +85,9 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    private OBDModuleInformation createOBDModuleInformation(List<SupportedSPN> testResultSpns) {
-        OBDModuleInformation module = mock(OBDModuleInformation.class);
-        when(module.getTestResultSPNs()).thenReturn(testResultSpns);
-
+    private OBDModuleInformation createOBDModuleInformation(SupportedSPN... testResultSpns) {
+        OBDModuleInformation module = new OBDModuleInformation(0);
+        module.setSupportedSPNs(List.of(testResultSpns));
         return module;
     }
 
@@ -101,6 +95,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     public void setUp() {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
+        dataRepository = DataRepository.newInstance();
 
         instance = new Part01Step12Controller(executor,
                                               engineSpeedModule,
@@ -127,7 +122,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  bannerModule,
                                  vehicleInformationModule,
-                                 dataRepository,
                                  mockListener,
                                  tableA7Validator,
                                  diagnosticMessageModule);
@@ -135,53 +129,33 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testCompressionIgnition() {
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(BI_DSL);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(BI_DSL);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        List<SupportedSPN> supportedSPNs = new ArrayList<>();
-        SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        when(supportedSPN.getSpn()).thenReturn(159);
-        supportedSPNs.add(supportedSPN);
+        SupportedSPN supportedSPN = SupportedSPN.create(159, true, true, true, 1);
+        dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+        ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 147, 31, 1, 0, 0, 0);
+        ScaledTestResult scaledTestResult2 = ScaledTestResult.create(247, 159, 31, 8, 0, 0, 0);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0,
+                                                                                    scaledTestResult,
+                                                                                    scaledTestResult2);
 
-        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
-
-        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getSpn()).thenReturn(157);
-
-        ScaledTestResult scaledTestResult2 = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult2);
-        when(scaledTestResult2.getSpn()).thenReturn(159);
-        int slotNumber2 = 8;
-        when(scaledTestResult2.getSlot()).thenReturn(J1939DaRepository.findSlot(slotNumber2));
-
-        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
-        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
-        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
-        dm30Packets.add(dm30Packet);
-
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
+        when(diagnosticMessageModule.requestTestResults(any(),
+                                                        eq(0),
+                                                        eq(supportedSPN))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForCompressionIgnition(any(), any())).thenReturn(true);
 
         runTest();
 
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(any());
-
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
 
-        // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
@@ -189,53 +163,33 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testCompressionIgnitionFailure() {
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(BI_DSL);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(BI_DSL);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        List<SupportedSPN> supportedSPNs = new ArrayList<>();
-        SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        when(supportedSPN.getSpn()).thenReturn(159);
-        supportedSPNs.add(supportedSPN);
+        SupportedSPN supportedSPN = SupportedSPN.create(159, true, true, true, 1);
+        dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+        ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 31, 1, 0, 0, 0);
+        ScaledTestResult scaledTestResult2 = ScaledTestResult.create(247, 159, 31, 8, 0, 0, 0);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0,
+                                                                                    scaledTestResult,
+                                                                                    scaledTestResult2);
 
-        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
-
-        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getSpn()).thenReturn(157);
-
-        ScaledTestResult scaledTestResult2 = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult2);
-        when(scaledTestResult2.getSpn()).thenReturn(159);
-        int slotNumber2 = 8;
-        when(scaledTestResult2.getSlot()).thenReturn(J1939DaRepository.findSlot(slotNumber2));
-
-        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
-        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
-        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
-        dm30Packets.add(dm30Packet);
-
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
+        when(diagnosticMessageModule.requestTestResults(any(),
+                                                        eq(0),
+                                                        eq(supportedSPN))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForCompressionIgnition(any(), any())).thenReturn(false);
 
         runTest();
 
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(any());
-
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
 
-        // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
@@ -243,38 +197,28 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testEmptyTestResults() {
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(BI_GAS);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        List<SupportedSPN> supportedSPNs = new ArrayList<>();
-        SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        supportedSPNs.add(supportedSPN);
+        SupportedSPN supportedSPN = SupportedSPN.create(0, true, true, true, 1);
+        dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
-
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(List.of());
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of());
 
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
-
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.1.12.1.a - No test result for Supported SPN 0 from Engine #1 (0)");
 
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
 
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
-        // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
@@ -297,45 +241,26 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testIgnitionUnknown() {
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(FuelType.BATT_ELEC);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(BATT_ELEC);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        List<SupportedSPN> supportedSPNs = new ArrayList<>();
-        SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        when(supportedSPN.getSpn()).thenReturn(157);
-        supportedSPNs.add(supportedSPN);
+        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, 1);
+        dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+        ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0, 0, 0);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
 
-        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
-        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getSlot()).thenReturn(J1939DaRepository.findSlot(242));
-        when(scaledTestResult.getTestMaximum()).thenReturn(0x0000);
-        when(scaledTestResult.getTestMinimum()).thenReturn(0x0000);
-        when(scaledTestResult.getTestValue()).thenReturn(0x0000);
-        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
-        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
-        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
-        dm30Packets.add(dm30Packet);
-
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
+        when(diagnosticMessageModule.requestTestResults(any(),
+                                                        eq(0),
+                                                        eq(supportedSPN))).thenReturn(List.of(dm30Packet));
 
         runTest();
 
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(any());
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
 
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
+        verify(tableA7Validator).findDuplicates(any());
 
-        verify(tableA7Validator).findDuplicates(scaledTestsResults);
-
-        // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
@@ -343,50 +268,31 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testInvalidScaledTestMaximum() {
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(BI_GAS);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        List<SupportedSPN> supportedSPNs = new ArrayList<>();
-        SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        when(supportedSPN.getSpn()).thenReturn(157);
-        supportedSPNs.add(supportedSPN);
+        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, 1);
+        dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+        ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0, 0x88, 0);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
 
-        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
-        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getTestMaximum()).thenReturn(0x88);
-        when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getSlot()).thenReturn(J1939DaRepository.findSlot(242));
-
-        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
-        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
-        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
-        dm30Packets.add(dm30Packet);
-
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
 
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(any());
-
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
 
-        verify(tableA7Validator).findDuplicates(scaledTestsResults);
+        verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         // Verify the documentation was recorded correctly
@@ -397,167 +303,98 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testInvalidScaledTestMinimum() {
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(BI_GAS);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        List<SupportedSPN> supportedSPNs = new ArrayList<>();
-        SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        when(supportedSPN.getSpn()).thenReturn(157);
-        supportedSPNs.add(supportedSPN);
+        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, 1);
+        dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+        ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0xFB00, 0, 0x88);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
 
-        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
-        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getTestValue()).thenReturn(0xFB00);
-        when(scaledTestResult.getTestMinimum()).thenReturn(0x88);
-        when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getSlot()).thenReturn(J1939DaRepository.findSlot(242));
-
-        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
-        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
-        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
-        dm30Packets.add(dm30Packet);
-
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
-
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
 
-        verify(tableA7Validator).findDuplicates(scaledTestsResults);
+        verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
-        // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-        assertEquals("",listener.getResults());
+        assertEquals("", listener.getResults());
     }
 
     @Test
     public void testInvalidScaledTestMinimum2() {
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(BI_GAS);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        List<SupportedSPN> supportedSPNs = new ArrayList<>();
-        SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        when(supportedSPN.getSpn()).thenReturn(157);
-        supportedSPNs.add(supportedSPN);
+        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, 1);
+        dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+        ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0x25, 0, 0);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
 
-        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
-        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getTestValue()).thenReturn(0x25);
-        when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getSlot()).thenReturn(J1939DaRepository.findSlot(242));
-
-        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
-        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
-        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
-        dm30Packets.add(dm30Packet);
-
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(Set.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
 
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(any());
-
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(supportedSPN));
 
-        verify(tableA7Validator).findDuplicates(scaledTestsResults);
+        verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
-        // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
 
-    /**
-     * Test method for
-     * {@link Part01Step12Controller#run()}.
-     */
+
     @Test
     public void testInvalidSlot() {
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(BI_GAS);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        List<SupportedSPN> supportedSPNs = new ArrayList<>();
-        SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        when(supportedSPN.getSpn()).thenReturn(157);
-        supportedSPNs.add(supportedSPN);
+        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, 1);
+        dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+        ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 1, 0xFB00, 0xFFFF, 0xFFFF);
 
-        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
-        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
-        when(scaledTestResult.getTestValue()).thenReturn(0xFB00);
-        when(scaledTestResult.getTestMinimum()).thenReturn(0xFFFF);
-        when(scaledTestResult.getTestMaximum()).thenReturn(0xFFFF);
-        when(scaledTestResult.getSpn()).thenReturn(157);
-        scaledTestsResults.add(scaledTestResult);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
 
-        int slotNumber = 1;
-        when(scaledTestResult.getSlot()).thenReturn(J1939DaRepository.findSlot(slotNumber));
-
-        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
-        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
-        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
-        dm30Packets.add(dm30Packet);
-
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
         runTest();
 
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(any());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.12.1.c - #1 SLOT identifier for SPN 157 from Engine #1 (0) is invalid");
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
-                                        "6.1.12.1.c - #1 SLOT identifier for SPN 157 from Engine #1 (0) is invalid");
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
 
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
-
-        verify(tableA7Validator).findDuplicates(scaledTestsResults);
+        verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
-        // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
@@ -565,25 +402,14 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoOBDModules() {
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
-
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(BI_DSL);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(BI_DSL);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
 
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-
-        verify(diagnosticMessageModule).setJ1939(j1939);
-
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
 
-        verify(vehicleInformation).getFuelType();
-
-        // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
@@ -591,98 +417,55 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testOneModule() {
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(BI_GAS);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        List<SupportedSPN> supportedSPNs = new ArrayList<>();
-        SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        when(supportedSPN.getSpn()).thenReturn(157);
-        supportedSPNs.add(supportedSPN);
+        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, 1);
+        dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+        ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 8, 0, 0, 0);
 
-        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
-        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getSlot()).thenReturn(J1939DaRepository.findSlot(242));
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
 
-        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
-        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
-        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
-        dm30Packets.add(dm30Packet);
-
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
 
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(any());
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
 
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
-
-        verify(tableA7Validator).findDuplicates(scaledTestsResults);
+        verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
-        // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
     }
 
     @Test
     public void testReportedDuplicates() {
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(BI_GAS);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        List<SupportedSPN> supportedSPNs = new ArrayList<>();
-        SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        when(supportedSPN.getSpn()).thenReturn(157);
-        supportedSPNs.add(supportedSPN);
+        SupportedSPN supportedSPN = SupportedSPN.create(157, true, true, true, 1);
+        dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+        ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 18, 242, 0x0000, 0xFFFF, 0xFB00);
+        ScaledTestResult scaledTestResult2 = ScaledTestResult.create(247, 157, 0, 242, 0xFB00, 0xFF00, 0xFFFF);
 
-        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
-        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getTestValue()).thenReturn(0x0000);
-        when(scaledTestResult.getTestMinimum()).thenReturn(0xFB00);
-        when(scaledTestResult.getSpn()).thenReturn(157);
-        when(scaledTestResult.getFmi()).thenReturn(18);
-        when(scaledTestResult.getSlot()).thenReturn(J1939DaRepository.findSlot(242));
-        ScaledTestResult scaledTestResult2 = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult2);
-        when(scaledTestResult2.getTestValue()).thenReturn(0xFB00);
-        when(scaledTestResult2.getTestMinimum()).thenReturn(0xFFFF);
-        when(scaledTestResult2.getTestMaximum()).thenReturn(0xFF00);
-        when(scaledTestResult2.getSpn()).thenReturn(157);
-        when(scaledTestResult2.getSlot()).thenReturn(J1939DaRepository.findSlot(242));
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult, scaledTestResult2);
 
-        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
-        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
-        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
-        dm30Packets.add(dm30Packet);
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of(dm30Packet));
 
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
-
-        when(tableA7Validator.findDuplicates(scaledTestsResults)).thenReturn(List.of(scaledTestResult));
+        when(tableA7Validator.findDuplicates(any())).thenReturn(List.of(scaledTestResult));
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
-
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(any());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -697,9 +480,9 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         WARN,
                                         "6.1.12.1.d - Engine #1 (0) returned duplicate test results for SPN 157 FMI 18");
 
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
 
-        verify(tableA7Validator).findDuplicates(scaledTestsResults);
+        verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
         // Verify the documentation was recorded correctly
@@ -710,53 +493,29 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testSparkIgnitionFailure() {
-        VehicleInformation vehicleInformation = mock(VehicleInformation.class);
-        when(vehicleInformation.getFuelType()).thenReturn(BI_GAS);
-        when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setFuelType(BI_GAS);
+        dataRepository.setVehicleInformation(vehicleInformation);
 
-        Collection<OBDModuleInformation> obdModuleInformations = new ArrayList<>();
-        List<SupportedSPN> supportedSPNs = new ArrayList<>();
-        SupportedSPN supportedSPN = mock(SupportedSPN.class);
-        when(supportedSPN.getSpn()).thenReturn(159);
-        supportedSPNs.add(supportedSPN);
+        SupportedSPN supportedSPN = SupportedSPN.create(159, true, true, true, 1);
+        dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
-        obdModuleInformations.add(createOBDModuleInformation(supportedSPNs));
-        when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
+        ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 18, 242, 0, 0, 0);
+        ScaledTestResult scaledTestResult2 = ScaledTestResult.create(247, 159, 18, 8, 0, 0, 0);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult, scaledTestResult2);
 
-        List<ScaledTestResult> scaledTestsResults = new ArrayList<>();
-
-        ScaledTestResult scaledTestResult = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult);
-        when(scaledTestResult.getSpn()).thenReturn(157);
-
-        ScaledTestResult scaledTestResult2 = mock(ScaledTestResult.class);
-        scaledTestsResults.add(scaledTestResult2);
-        when(scaledTestResult2.getSpn()).thenReturn(159);
-        int slotNumber2 = 8;
-        when(scaledTestResult2.getSlot()).thenReturn(J1939DaRepository.findSlot(slotNumber2));
-
-        List<DM30ScaledTestResultsPacket> dm30Packets = new ArrayList<>();
-        DM30ScaledTestResultsPacket dm30Packet = mock(DM30ScaledTestResultsPacket.class);
-        when(dm30Packet.getTestResults()).thenReturn(scaledTestsResults);
-        dm30Packets.add(dm30Packet);
-
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(supportedSPN))).thenReturn(dm30Packets);
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(false);
 
         runTest();
 
-        verify(dataRepository).getObdModules();
-        verify(dataRepository).getVehicleInformation();
-        verify(dataRepository).putObdModule(any());
-
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
-        // Verify the documentation was recorded correctly
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());

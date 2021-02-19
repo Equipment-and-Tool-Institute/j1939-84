@@ -68,7 +68,7 @@ public class Part01Step24Controller extends StepController {
         // freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]
         getDataRepository().getObdModules()
                 .stream()
-                .filter(module -> !module.getFreezeFrameSpns().isEmpty())
+                .filter(module -> !module.getFreezeFrameSPNs().isEmpty())
                 .map(OBDModuleInformation::getSourceAddress)
                 .flatMap(address -> getDiagnosticMessageModule().requestDM25(getListener(), address)
                         .getPacket()

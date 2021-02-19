@@ -85,8 +85,8 @@ public class Part01Step12Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        // 6.1.12.1.a. DS DM7 with TID 247 using FMI 31 for each SPNSP identified as providing test results in a
-        // DM24 response in step 6.1.4.1 to the SPNSP’s respective OBD ECU.
+        // 6.1.12.1.a. DS DM7 with TID 247 using FMI 31 for each SPN identified as providing test results in a
+        // DM24 response in step 6.1.4.1 to the SPN’s respective OBD ECU.
         // Create list of ECU address+SPN+FMI supported test results.
         // A.K.A Get all the obdModuleAddresses then send DM7 to each address we have and get supported SPNs
         List<ScaledTestResult> vehicleTestResults = new ArrayList<>();
@@ -98,7 +98,7 @@ public class Part01Step12Controller extends StepController {
             String moduleName = Lookup.getAddressName(sourceAddress);
 
             for (SupportedSPN spn : obdModule.getTestResultSPNs()) {
-                var dm30Packets = getDiagnosticMessageModule().getDM30Packets(getListener(), sourceAddress, spn);
+                var dm30Packets = getDiagnosticMessageModule().requestTestResults(getListener(), sourceAddress, spn);
                 if (dm30Packets.isEmpty()) {
                     addFailure("6.1.12.1.a - No test result for Supported SPN " + spn.getSpn() + " from " + moduleName);
                 } else {
@@ -154,11 +154,7 @@ public class Part01Step12Controller extends StepController {
         // limit/max test limit as initialized (after code clear) values (either
         // 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000).
         for (ScaledTestResult result : testResults) {
-            boolean isMaximum = result.getTestValue() == 0xFB00 &&
-                    result.getTestMinimum() == 0xFFFF && result.getTestMaximum() == 0xFFFF;
-            boolean isMinimum = result.getTestValue() == 0x0000 &&
-                    result.getTestMinimum() == 0x0000 && result.getTestMaximum() == 0x0000;
-            if (!isMaximum && !isMinimum) {
+            if (!result.isInitialized()) {
                 addFailure("6.1.12.1.b - Test result for SPN " + spnId + " FMI " + result.getFmi() + " from " + moduleName + " does not report the test result/min test limit/max test limit initialized properly");
             }
 

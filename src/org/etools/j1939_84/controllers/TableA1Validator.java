@@ -461,7 +461,7 @@ public class TableA1Validator {
         String moduleName = Lookup.getAddressName(moduleAddress);
 
         OBDModuleInformation moduleInformation = dataRepository.getObdModule(moduleAddress);
-        List<Integer> dataStreamSPNs = moduleInformation.getDataStreamSpns()
+        List<Integer> dataStreamSPNs = moduleInformation.getDataStreamSPNs()
                 .stream()
                 .map(SupportedSPN::getSpn).collect(Collectors.toList());
 

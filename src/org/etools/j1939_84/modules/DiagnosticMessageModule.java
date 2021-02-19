@@ -207,11 +207,16 @@ public class DiagnosticMessageModule extends FunctionalModule {
         return requestDMPackets("DM29", DM29DtcCounts.class, address, listener).busResult();
     }
 
-    public List<DM30ScaledTestResultsPacket> getDM30Packets(ResultsListener listener, int address, SupportedSPN spn) {
-        int spnId = spn.getSpn();
-        BusResult<DM30ScaledTestResultsPacket> result = getJ1939().requestDM7(spnId, address, listener);
-        listener.onResult("");
-        return result.requestResult().getPackets();
+    public List<DM30ScaledTestResultsPacket> requestTestResults(ResultsListener listener, int address) {
+        return getJ1939().requestTestResults(246, 5846, address, listener).requestResult().getPackets();
+    }
+
+    public List<DM30ScaledTestResultsPacket> requestTestResults(ResultsListener listener, int address, SupportedSPN spn) {
+        return getJ1939().requestTestResults(247, spn.getSpn(), address, listener).requestResult().getPackets();
+    }
+
+    public List<DM30ScaledTestResultsPacket> requestLastTestResults(ResultsListener listener, int address, SupportedSPN spn) {
+        return getJ1939().requestTestResults(250, spn.getSpn(), address, listener).requestResult().getPackets();
     }
 
     public RequestResult<DM31DtcToLampAssociation> requestDM31(ResultsListener listener) {

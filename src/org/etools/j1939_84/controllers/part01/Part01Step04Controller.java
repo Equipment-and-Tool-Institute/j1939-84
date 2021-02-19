@@ -110,7 +110,7 @@ public class Part01Step04Controller extends StepController {
 
         // 6.1.4.1.d. Create ECU specific list of supported SPNs for test results.
         List<Integer> dataStreamSPNs = getDataRepository().getObdModules().stream()
-                .map(OBDModuleInformation::getDataStreamSpns)
+                .map(OBDModuleInformation::getDataStreamSPNs)
                 .flatMap(Collection::stream)
                 .map(SupportedSPN::getSpn)
                 .distinct()
@@ -127,7 +127,7 @@ public class Part01Step04Controller extends StepController {
 
         // 6.1.4.1.e. Create ECU specific list of supported freeze frame SPNs.
         List<Integer> freezeFrameSPNs = getDataRepository().getObdModules().stream()
-                .map(OBDModuleInformation::getFreezeFrameSpns)
+                .map(OBDModuleInformation::getFreezeFrameSPNs)
                 .flatMap(Collection::stream)
                 .map(SupportedSPN::getSpn)
                 .distinct()

@@ -126,12 +126,12 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule0);
 
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn1)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(spn1)))
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult1)));
 
         runTest();
 
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(spn1));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(spn1));
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
@@ -156,13 +156,13 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(obdModule0);
 
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn1)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(spn1)))
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult1),
                                     DM30ScaledTestResultsPacket.create(0, testResult2)));
 
         runTest();
 
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(spn1));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(spn1));
 
         verify(mockListener).addOutcome(PART,
                                         STEP,
@@ -206,14 +206,14 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModule3 = new OBDModuleInformation(3);
         dataRepository.putObdModule(obdModule3);
 
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn1)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(spn1)))
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult1)));
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn2)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(spn2)))
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult2)));
 
         runTest();
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(spn1));
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(spn2));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(spn1));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(spn2));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -246,15 +246,15 @@ public class Part02Step10ControllerTest extends AbstractControllerTest {
         obdModule0.set(DM24SPNSupportPacket.create(0, spn1, spn2));
         dataRepository.putObdModule(obdModule0);
 
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn1)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(spn1)))
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult1)));
-        when(diagnosticMessageModule.getDM30Packets(any(), eq(0), eq(spn2)))
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(spn2)))
                 .thenReturn(List.of(DM30ScaledTestResultsPacket.create(0, testResult2)));
 
         runTest();
 
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(spn1));
-        verify(diagnosticMessageModule).getDM30Packets(any(), eq(0x00), eq(spn2));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(spn1));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(spn2));
 
         verify(mockListener).addOutcome(PART,
                                         STEP,
