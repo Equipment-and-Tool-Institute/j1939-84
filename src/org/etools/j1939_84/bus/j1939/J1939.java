@@ -466,9 +466,10 @@ public class J1939 {
     }
 
     public BusResult<DM30ScaledTestResultsPacket> requestTestResults(int tid,
-                                                                      int spn,
-                                                                      int address,
-                                                                      ResultsListener listener) {
+                                                                     int spn,
+                                                                     int fmi,
+                                                                     int address,
+                                                                     ResultsListener listener) {
         if (address == GLOBAL_ADDR) {
             throw new IllegalArgumentException("DM7 request to global.");
         }
@@ -479,7 +480,7 @@ public class J1939 {
                                        tid,
                                        spn & 0xFF,
                                        (spn >> 8) & 0xFF,
-                                       (((spn >> 16) & 0xFF) << 5) | 31,
+                                       (((spn >> 16) & 0xFF) << 5) | (fmi & 0x1F),
                                        0xFF,
                                        0xFF,
                                        0xFF,
