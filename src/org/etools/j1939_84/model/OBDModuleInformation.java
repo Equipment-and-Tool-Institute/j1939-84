@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
@@ -151,6 +152,10 @@ public class OBDModuleInformation implements Cloneable {
 
     public int getSourceAddress() {
         return sourceAddress;
+    }
+
+    public String getModuleName() {
+        return Lookup.getAddressName(getSourceAddress());
     }
 
     public List<SupportedSPN> getSupportedSPNs() {
