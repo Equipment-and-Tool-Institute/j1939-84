@@ -17,9 +17,11 @@ import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.BusResult;
+import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
+import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
@@ -36,6 +38,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
 import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
+import org.etools.j1939_84.bus.j1939.packets.DM3DiagnosticDataClearPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
@@ -103,6 +106,17 @@ public class DiagnosticMessageModule extends FunctionalModule {
         return requestDMPackets("DM2", DM2PreviouslyActiveDTC.class, address, listener).busResult();
     }
 
+    public List<AcknowledgmentPacket> requestDM3(ResultsListener listener) {
+        return getJ1939().requestForAcks(listener, "Global DM3 Request", DM3DiagnosticDataClearPacket.PGN);
+    }
+
+    public List<AcknowledgmentPacket> requestDM3(ResultsListener listener, int address) {
+        return getJ1939().requestForAcks(listener,
+                                         "DS DM3 Request to " + Lookup.getAddressName(address),
+                                         DM3DiagnosticDataClearPacket.PGN,
+                                         address);
+    }
+
     public RequestResult<DM5DiagnosticReadinessPacket> requestDM5(ResultsListener listener) {
         return requestDMPackets("DM5", DM5DiagnosticReadinessPacket.class, GLOBAL_ADDR, listener);
     }
@@ -120,7 +134,7 @@ public class DiagnosticMessageModule extends FunctionalModule {
     }
 
     public List<AcknowledgmentPacket> requestDM11(ResultsListener listener) {
-        return getJ1939().requestDM11(listener);
+        return getJ1939().requestForAcks(listener, "Global DM11 Request", DM11ClearActiveDTCsPacket.PGN);
     }
 
     public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener) {

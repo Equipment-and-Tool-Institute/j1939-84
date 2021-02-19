@@ -167,7 +167,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         expectedMessages.append("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
         int minuteCounter = 60;
         for (int i = minuteCounter; i > 0; i--) {
-            expectedMessages.append(NL).append("Allowing engine to idle for ").append(i).append(" seconds");
+            expectedMessages.append(NL).append("Step 1.27.b.iii Allowing engine to idle for ").append(i).append(" seconds");
         }
         expectedMessages.append(NL).append("User cancelled testing at Part 1 Step 27");
         assertEquals(expectedMessages.toString(), listener.getMessages());
@@ -246,7 +246,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         expectedMessages.append("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
         int minuteCounter = 60;
         for (int i = minuteCounter; i > 0; i--) {
-            expectedMessages.append(NL).append("Allowing engine to idle for ").append(i).append(" seconds");
+            expectedMessages.append(NL).append("Step 1.27.b.iii Allowing engine to idle for ").append(i).append(" seconds");
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
@@ -297,7 +297,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         expectedMessages.append("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
         int minuteCounter = 60;
         for (int i = minuteCounter; i > 0; i--) {
-            expectedMessages.append(NL).append("Allowing engine to idle for ").append(i).append(" seconds");
+            expectedMessages.append(NL).append("Step 1.27.b.iii Allowing engine to idle for ").append(i).append(" seconds");
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
 

@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.model.Outcome.INCOMPLETE;
 
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -42,24 +43,34 @@ public class SectionA5Verifier {
 
     private final DataRepository dataRepository;
     private final DiagnosticMessageModule diagnosticMessageModule;
-
     private final VehicleInformationModule vehicleInformationModule;
+    private final int partNumber;
+    private final int stepNumber;
 
-    public SectionA5Verifier(DataRepository dataRepository) {
-        this(dataRepository, new DiagnosticMessageModule(), new VehicleInformationModule());
+    public SectionA5Verifier(int partNumber, int stepNumber) {
+        this(DataRepository.getInstance(), new DiagnosticMessageModule(), new VehicleInformationModule(), partNumber, stepNumber);
     }
 
     protected SectionA5Verifier(DataRepository dataRepository,
                                 DiagnosticMessageModule diagnosticMessageModule,
-                                VehicleInformationModule vehicleInformationModule) {
+                                VehicleInformationModule vehicleInformationModule,
+                                int partNumber,
+                                int stepNumber) {
         this.dataRepository = dataRepository;
         this.diagnosticMessageModule = diagnosticMessageModule;
         this.vehicleInformationModule = vehicleInformationModule;
+        this.partNumber = partNumber;
+        this.stepNumber = stepNumber;
     }
 
     public void setJ1939(J1939 j1939) {
         diagnosticMessageModule.setJ1939(j1939);
         vehicleInformationModule.setJ1939(j1939);
+    }
+
+    public void verifyDataNotErased(ResultsListener listener, String section) {
+        //TODO
+        listener.addOutcome(partNumber, stepNumber, INCOMPLETE, section +" - hasn't finishing implementing this");
     }
 
     public boolean verify(List<DM28PermanentEmissionDTCPacket> previousDM28Packets,

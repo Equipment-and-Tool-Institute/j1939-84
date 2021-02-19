@@ -3,15 +3,30 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.BUSY;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.DENIED;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.controllers.part01.SectionA5Verifier;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -56,6 +71,9 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    @Mock
+    private SectionA5Verifier verifier;
+
     private TestResultsListener listener;
 
     private DataRepository dataRepository;
@@ -73,7 +91,8 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              diagnosticMessageModule,
+                                              verifier);
 
         setup(instance,
               listener,
@@ -93,7 +112,8 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  vehicleInformationModule,
                                  diagnosticMessageModule,
-                                 mockListener);
+                                 mockListener,
+                                 verifier);
     }
 
     @Test
@@ -119,10 +139,115 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
 
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        dataRepository.putObdModule(new OBDModuleInformation(2));
+
+        when(diagnosticMessageModule.requestDM3(any(), eq(0)))
+                .thenReturn(List.of(AcknowledgmentPacket.create(0, NACK)));
+        when(diagnosticMessageModule.requestDM3(any(), eq(0)))
+                .thenReturn(List.of(AcknowledgmentPacket.create(0, DENIED)));
+        when(diagnosticMessageModule.requestDM3(any(), eq(0)))
+                .thenReturn(List.of());
+
         runTest();
 
-        assertEquals("", listener.getMessages());
+        verify(diagnosticMessageModule).requestDM3(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM3(any(), eq(1));
+        verify(diagnosticMessageModule).requestDM3(any(), eq(2));
+        verify(diagnosticMessageModule).requestDM3(any());
+
+        verify(verifier).setJ1939(any());
+        verify(verifier).verifyDataNotErased(any(), eq("6.4.13.2.a"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.4.13.4.a"));
+
+        String expected = "";
+        expected += "Step 4.13.1.b. Waiting 5 seconds" + NL;
+        expected += "Step 4.13.1.b. Waiting 4 seconds" + NL;
+        expected += "Step 4.13.1.b. Waiting 3 seconds" + NL;
+        expected += "Step 4.13.1.b. Waiting 2 seconds" + NL;
+        expected += "Step 4.13.1.b. Waiting 1 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 5 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 4 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 3 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 2 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 1 seconds";
+        assertEquals(expected, listener.getMessages());
         assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testFailureForWrongResponse() {
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        when(diagnosticMessageModule.requestDM3(any(), eq(0)))
+                .thenReturn(List.of(AcknowledgmentPacket.create(0, ACK)));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM3(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM3(any());
+
+        verify(verifier).setJ1939(any());
+        verify(verifier).verifyDataNotErased(any(), eq("6.4.13.2.a"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.4.13.4.a"));
+
+        String expected = "";
+        expected += "Step 4.13.1.b. Waiting 5 seconds" + NL;
+        expected += "Step 4.13.1.b. Waiting 4 seconds" + NL;
+        expected += "Step 4.13.1.b. Waiting 3 seconds" + NL;
+        expected += "Step 4.13.1.b. Waiting 2 seconds" + NL;
+        expected += "Step 4.13.1.b. Waiting 1 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 5 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 4 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 3 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 2 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 1 seconds";
+        assertEquals(expected, listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.4.13.2.a - Engine #1 (0) did not NACK with control byte 1 or 2 or 3");
+    }
+
+    @Test
+    public void testWarningForBusy() {
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        when(diagnosticMessageModule.requestDM3(any(), eq(0)))
+                .thenReturn(List.of(AcknowledgmentPacket.create(0, BUSY)));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM3(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM3(any());
+
+        verify(verifier).setJ1939(any());
+        verify(verifier).verifyDataNotErased(any(), eq("6.4.13.2.a"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.4.13.4.a"));
+
+        String expected = "";
+        expected += "Step 4.13.1.b. Waiting 5 seconds" + NL;
+        expected += "Step 4.13.1.b. Waiting 4 seconds" + NL;
+        expected += "Step 4.13.1.b. Waiting 3 seconds" + NL;
+        expected += "Step 4.13.1.b. Waiting 2 seconds" + NL;
+        expected += "Step 4.13.1.b. Waiting 1 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 5 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 4 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 3 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 2 seconds" + NL;
+        expected += "Step 4.13.3.b. Waiting 1 seconds";
+        assertEquals(expected, listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.4.13.2.b - Engine #1 (0) NACKs with control = 3");
     }
 
 }

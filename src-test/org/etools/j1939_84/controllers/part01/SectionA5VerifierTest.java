@@ -88,15 +88,15 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     private VehicleInformationModule vehicleInformationModule;
 
     @Before
-    public void setUp() throws Exception {
+    public void setUp() {
         DateTimeModule.setInstance(new TestDateTimeModule());
         listener = new TestResultsListener(mockListener);
 
-        instance = new SectionA5Verifier(dataRepository, diagnosticMessageModule, vehicleInformationModule);
+        instance = new SectionA5Verifier(dataRepository, diagnosticMessageModule, vehicleInformationModule, 1,1);
     }
 
     @After
-    public void tearDown() throws Exception {
+    public void tearDown() {
         DateTimeModule.setInstance(null);
         verifyNoMoreInteractions(dataRepository,
                                  diagnosticMessageModule,
@@ -104,17 +104,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                                  vehicleInformationModule);
     }
 
-    /**
-     * Test method for
-     * {@link org.etools.j1939_84.controllers.part01.SectionA5Verifier#setJ1939(org.etools.j1939_84.bus.j1939.J1939)}.
-     */
+
     @Test
     public void testSetJ1939() {
-
         instance.setJ1939(j1939);
-
         verify(diagnosticMessageModule).setJ1939(j1939);
-
         verify(vehicleInformationModule).setJ1939(j1939);
     }
 
