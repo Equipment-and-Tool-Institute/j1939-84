@@ -3,8 +3,17 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
+import static org.etools.j1939_84.bus.j1939.Lookup.getAddressName;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
+import org.etools.j1939_84.bus.j1939.BusResult;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -53,10 +62,34 @@ public class Part04Step05Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.4.5.1.a DS DM23 [(send Request (PGN 59904) for PGN 64949 (SPNs 1213-1215, 1706, and 3038)]) to each OBD ECU.
-        // 6.4.5.2.a Fail if any ECU reports > 0 previously active DTC.
-        // 6.4.5.2.b Fail if any ECU reports a different MIL status than it did in DM12 response earlier in this part.
-        // 6.4.5.2.c Fail if NACK not received from OBD ECUs that did not provide DM23 response.
+        List<BusResult<DM23PreviouslyMILOnEmissionDTCPacket>> dsResults = new ArrayList<>();
+        getDataRepository().getObdModuleAddresses().forEach(address -> {
+            BusResult<DM23PreviouslyMILOnEmissionDTCPacket> result = getDiagnosticMessageModule().requestDM23(
+                    getListener(),
+                    address);
+            result.getPacket().ifPresentOrElse(p -> {
+                dsResults.add(result);
+                if(p.left.isPresent()){
+                    DM23PreviouslyMILOnEmissionDTCPacket dm23 = p.left.get();
+                    // 6.4.5.2.a Fail if any ECU reports > 0 previously active DTC.
+                    if (dm23.getDtcs().size() > 0) {
+                        addFailure("6.4.5.2.a - OBD module " + dm23.getModuleName() + " reported active distance > 0");
+                    }
+                }
+                if(p.right.isPresent()){
+                    AcknowledgmentPacket ackPacket = p.right.get();
+                    if (ackPacket.getResponse() != NACK) {
+                        addFailure("6.4.5.2.c - NACK not received from  " + getAddressName(ackPacket.getSourceAddress()) + " and did not provide a response to DS DM21 query");
+                    }
+                }
+            }, () -> {
+                // 6.4.5.2.c Fail if NACK not received from OBD ECUs that did not provide DM23 response.
+                addFailure("6.4.5.2.c - NACK not received from  " + getAddressName(address) + " and did not provide a response to DS DM21 query");
+            });
+        });
         // 6.4.5.2.d Fail if no OBD ECU provides DM23.
+        if (dsResults.isEmpty()) {
+            addFailure("6.4.5.2.d - No OBD module provided a DM23");
+        }
     }
-
 }

@@ -80,7 +80,7 @@ public class Part03Step15Controller extends StepController {
                                 // if this isn't a NACK we have report the failure
                                 AcknowledgmentPacket ackPacket = packet.right.get();
                                 if(ackPacket.getResponse() != NACK){
-                                    addFailure("6.3.15.2.b - NACK not recieved from  " + getAddressName(address) + " and did not provide a response to DS DM21 query");
+                                    addFailure("6.3.15.2.b - NACK not received from  " + getAddressName(address) + " and did not provide a response to DS DM21 query");
                                 }
                             }
                         }, () -> {
