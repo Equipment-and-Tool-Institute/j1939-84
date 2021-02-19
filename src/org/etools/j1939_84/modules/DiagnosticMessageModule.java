@@ -18,7 +18,6 @@ import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
@@ -123,17 +122,7 @@ public class DiagnosticMessageModule extends FunctionalModule {
     }
 
     public List<AcknowledgmentPacket> requestDM11(ResultsListener listener) {
-        listener.onResult(getTime() + " Clearing Diagnostic Trouble Codes");
-
-        List<AcknowledgmentPacket> responses = getJ1939().requestDM11(listener);
-
-        if (!responses.isEmpty() && responses.stream().allMatch(t -> t.getResponse() == Response.ACK)) {
-            listener.onResult("Diagnostic Trouble Codes were successfully cleared.");
-        } else {
-            listener.onResult("ERROR: Clearing Diagnostic Trouble Codes failed.");
-        }
-
-        return responses;
+        return getJ1939().requestDM11(listener);
     }
 
     public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener) {
