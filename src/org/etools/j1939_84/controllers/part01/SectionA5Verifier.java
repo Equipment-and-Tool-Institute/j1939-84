@@ -506,7 +506,7 @@ public class SectionA5Verifier {
         obdModuleAddresses.forEach(address -> {
             for (SupportedSPN supportedSPN : dataRepository.getObdModule(address).getTestResultSPNs()) {
                 dm30Packets.addAll(
-                        diagnosticMessageModule.requestTestResults(listener, address, supportedSPN)
+                        diagnosticMessageModule.requestTestResults(listener, address, 247, supportedSPN.getSpn(), 31)
                                 .stream()
                                 .filter(packet -> packet.getTestResults().size() != 0)
                                 .filter(p -> {

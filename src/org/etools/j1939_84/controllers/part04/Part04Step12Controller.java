@@ -66,7 +66,11 @@ public class Part04Step12Controller extends StepController {
             if (!obdModuleInformation.getScaledTestResults().isEmpty()) {
 
                 // 6.4.12.1.a. DS DM7 to each OBD ECU that provided test results in part 1 using TID 246, SPN 5846, and FMI 31.
-                var resultPackets = getDiagnosticMessageModule().requestTestResults(getListener(), moduleAddress);
+                var resultPackets = getDiagnosticMessageModule().requestTestResults(getListener(),
+                                                                                    moduleAddress,
+                                                                                    246,
+                                                                                    5846,
+                                                                                    31);
 
                 List<DM30ScaledTestResultsPacket> packets = new ArrayList<>(resultPackets);
                 if (packets.isEmpty()) {
@@ -74,8 +78,7 @@ public class Part04Step12Controller extends StepController {
                     var testResultSPNs = obdModuleInformation.getTestResultSPNs();
                     testResultSPNs.stream()
                             .map(spn -> getDiagnosticMessageModule().requestTestResults(getListener(),
-                                                                                        moduleAddress,
-                                                                                        spn))
+                                                                                        moduleAddress, 247, spn.getSpn(), 31))
                             .flatMap(Collection::stream)
                             .forEach(packets::add);
                 }

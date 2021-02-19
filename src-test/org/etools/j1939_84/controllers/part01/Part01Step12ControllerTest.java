@@ -144,14 +144,16 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
-                                                        eq(supportedSPN))).thenReturn(List.of(dm30Packet));
+                                                        eq(247),
+                                                        eq(supportedSPN.getSpn()),
+                                                        eq(31))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForCompressionIgnition(any(), any())).thenReturn(true);
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
@@ -178,14 +180,16 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
-                                                        eq(supportedSPN))).thenReturn(List.of(dm30Packet));
+                                                        eq(247),
+                                                        eq(supportedSPN.getSpn()),
+                                                        eq(31))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForCompressionIgnition(any(), any())).thenReturn(false);
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForCompressionIgnition(any(), any());
@@ -204,7 +208,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         SupportedSPN supportedSPN = SupportedSPN.create(0, true, true, true, 1);
         dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
-        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of());
+        when(diagnosticMessageModule.requestTestResults(any(),
+                                                        eq(0),
+                                                        eq(247),
+                                                        eq(supportedSPN.getSpn()),
+                                                        eq(31))).thenReturn(List.of());
 
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
@@ -215,7 +223,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.12.1.a - No test result for Supported SPN 0 from Engine #1 (0)");
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
 
@@ -253,11 +261,13 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestTestResults(any(),
                                                         eq(0),
-                                                        eq(supportedSPN))).thenReturn(List.of(dm30Packet));
+                                                        eq(247),
+                                                        eq(supportedSPN.getSpn()),
+                                                        eq(31))).thenReturn(List.of(dm30Packet));
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
         verify(tableA7Validator).findDuplicates(any());
 
@@ -278,7 +288,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0, 0x88, 0);
         DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
 
-        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of(dm30Packet));
+        when(diagnosticMessageModule.requestTestResults(any(),
+                                                        eq(0),
+                                                        eq(247),
+                                                        eq(supportedSPN.getSpn()),
+                                                        eq(31))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
@@ -290,7 +304,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -313,7 +327,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0xFB00, 0, 0x88);
         DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
 
-        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of(dm30Packet));
+        when(diagnosticMessageModule.requestTestResults(any(),
+                                                        eq(0),
+                                                        eq(247),
+                                                        eq(supportedSPN.getSpn()),
+                                                        eq(31))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
@@ -324,7 +342,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -346,7 +364,11 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 0, 242, 0x25, 0, 0);
         DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
 
-        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of(dm30Packet));
+        when(diagnosticMessageModule.requestTestResults(any(),
+                                                        eq(0),
+                                                        eq(247),
+                                                        eq(157),
+                                                        eq(31))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(Set.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
@@ -358,7 +380,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.1.12.1.b - Test result for SPN 157 FMI 0 from Engine #1 (0) does not report the test result/min test limit/max test limit initialized properly");
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -367,7 +389,6 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
     }
-
 
     @Test
     public void testInvalidSlot() {
@@ -382,15 +403,22 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
 
-        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of(dm30Packet));
+        when(diagnosticMessageModule.requestTestResults(any(),
+                                                        eq(0),
+                                                        eq(247),
+                                                        eq(157),
+                                                        eq(31))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
         runTest();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.12.1.c - #1 SLOT identifier for SPN 157 from Engine #1 (0) is invalid");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.12.1.c - #1 SLOT identifier for SPN 157 from Engine #1 (0) is invalid");
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -428,14 +456,18 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
 
         DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult);
 
-        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of(dm30Packet));
+        when(diagnosticMessageModule.requestTestResults(any(),
+                                                        eq(0),
+                                                        eq(247),
+                                                        eq(157),
+                                                        eq(31))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -458,9 +490,15 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 18, 242, 0x0000, 0xFFFF, 0xFB00);
         ScaledTestResult scaledTestResult2 = ScaledTestResult.create(247, 157, 0, 242, 0xFB00, 0xFF00, 0xFFFF);
 
-        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult, scaledTestResult2);
+        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0,
+                                                                                    scaledTestResult,
+                                                                                    scaledTestResult2);
 
-        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of(dm30Packet));
+        when(diagnosticMessageModule.requestTestResults(any(),
+                                                        eq(0),
+                                                        eq(247),
+                                                        eq(157),
+                                                        eq(31))).thenReturn(List.of(dm30Packet));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of(scaledTestResult));
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(true);
@@ -480,7 +518,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
                                         WARN,
                                         "6.1.12.1.d - Engine #1 (0) returned duplicate test results for SPN 157 FMI 18");
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());
@@ -500,18 +538,23 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
         SupportedSPN supportedSPN = SupportedSPN.create(159, true, true, true, 1);
         dataRepository.putObdModule(createOBDModuleInformation(supportedSPN));
 
-        ScaledTestResult scaledTestResult = ScaledTestResult.create(247, 157, 18, 242, 0, 0, 0);
         ScaledTestResult scaledTestResult2 = ScaledTestResult.create(247, 159, 18, 8, 0, 0, 0);
-        DM30ScaledTestResultsPacket dm30Packet = DM30ScaledTestResultsPacket.create(0, scaledTestResult, scaledTestResult2);
+        DM30ScaledTestResultsPacket dm30Packet2 = DM30ScaledTestResultsPacket.create(0, scaledTestResult2);
 
-        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(supportedSPN))).thenReturn(List.of(dm30Packet));
+        when(diagnosticMessageModule.requestTestResults(any(),
+                                                        eq(0),
+                                                        eq(247),
+                                                        eq(159),
+                                                        eq(31))).thenReturn(List.of(dm30Packet2));
 
         when(tableA7Validator.findDuplicates(any())).thenReturn(List.of());
         when(tableA7Validator.validateForSparkIgnition(any(), any())).thenReturn(false);
 
         runTest();
 
-        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(supportedSPN));
+        assertEquals(List.of(), listener.getOutcomes());
+
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN.getSpn()), eq(31));
 
         verify(tableA7Validator).findDuplicates(any());
         verify(tableA7Validator).validateForSparkIgnition(any(), any());

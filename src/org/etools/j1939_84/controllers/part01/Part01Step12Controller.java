@@ -98,13 +98,18 @@ public class Part01Step12Controller extends StepController {
             String moduleName = Lookup.getAddressName(sourceAddress);
 
             for (SupportedSPN spn : obdModule.getTestResultSPNs()) {
-                var dm30Packets = getDiagnosticMessageModule().requestTestResults(getListener(), sourceAddress, spn);
+                int spnId = spn.getSpn();
+                var dm30Packets = getDiagnosticMessageModule().requestTestResults(getListener(),
+                                                                                  sourceAddress,
+                                                                                  247,
+                                                                                  spnId,
+                                                                                  31);
                 if (dm30Packets.isEmpty()) {
-                    addFailure("6.1.12.1.a - No test result for Supported SPN " + spn.getSpn() + " from " + moduleName);
+                    addFailure("6.1.12.1.a - No test result for Supported SPN " + spnId + " from " + moduleName);
                 } else {
                     List<ScaledTestResult> testResults = dm30Packets
                             .stream()
-                            .peek(p -> verifyDM30PacketSupported(p, spn))
+                            .peek(p -> verifyDM30PacketSupported(p, spnId))
                             .flatMap(p -> p.getTestResults().stream())
                             .collect(Collectors.toList());
 
@@ -133,8 +138,7 @@ public class Part01Step12Controller extends StepController {
 
     }
 
-    private void verifyDM30PacketSupported(DM30ScaledTestResultsPacket packet, SupportedSPN spn) {
-        int spnId = spn.getSpn();
+    private void verifyDM30PacketSupported(DM30ScaledTestResultsPacket packet, int spnId) {
 
         String moduleName = Lookup.getAddressName(packet.getSourceAddress());
 

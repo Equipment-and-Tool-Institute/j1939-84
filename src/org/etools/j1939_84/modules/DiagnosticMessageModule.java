@@ -43,7 +43,6 @@ import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.RequestResult;
 
@@ -205,14 +204,6 @@ public class DiagnosticMessageModule extends FunctionalModule {
 
     public BusResult<DM29DtcCounts> requestDM29(ResultsListener listener, int address) {
         return requestDMPackets("DM29", DM29DtcCounts.class, address, listener).busResult();
-    }
-
-    public List<DM30ScaledTestResultsPacket> requestTestResults(ResultsListener listener, int address) {
-        return requestTestResults(listener, address, 246, 5846, 31);
-    }
-
-    public List<DM30ScaledTestResultsPacket> requestTestResults(ResultsListener listener, int address, SupportedSPN spn) {
-        return requestTestResults(listener, address, 247, spn.getSpn(), 31);
     }
 
     public List<DM30ScaledTestResultsPacket> requestTestResults(ResultsListener listener,
