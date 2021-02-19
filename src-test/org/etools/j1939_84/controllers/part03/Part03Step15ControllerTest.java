@@ -220,10 +220,10 @@ public class Part03Step15ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.15.2.b - NACK not recieved from  Engine #2 (1) and did not provide a response to DS DM21 query");
+                                        "6.3.15.2.b - NACK not received from  Engine #2 (1) and did not provide a response to DS DM21 query");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.3.15.2.b - NACK not recieved from  Turbocharger (2) and did not provide a response to DS DM21 query");
+                                        "6.3.15.2.b - NACK not received from  Turbocharger (2) and did not provide a response to DS DM21 query");
     }
 }

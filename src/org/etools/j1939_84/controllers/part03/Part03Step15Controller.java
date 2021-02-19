@@ -85,7 +85,7 @@ public class Part03Step15Controller extends StepController {
                             }
                         }, () -> {
                             // 6.3.15.2.b. Fail if NACK not received from OBD ECUs that did not provide DM21 response to DS query.
-                            addFailure("6.3.15.2.b - NACK not recieved from  " + getAddressName(address) + " and did not provide a response to DS DM21 query");
+                            addFailure("6.3.15.2.b - NACK not received from  " + getAddressName(address) + " and did not provide a response to DS DM21 query");
                         }));
     }
 

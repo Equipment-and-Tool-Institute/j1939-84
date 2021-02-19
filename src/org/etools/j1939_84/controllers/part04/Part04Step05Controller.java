@@ -13,9 +13,11 @@ import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -73,18 +75,24 @@ public class Part04Step05Controller extends StepController {
                     DM23PreviouslyMILOnEmissionDTCPacket dm23 = p.left.get();
                     // 6.4.5.2.a Fail if any ECU reports > 0 previously active DTC.
                     if (dm23.getDtcs().size() > 0) {
-                        addFailure("6.4.5.2.a - OBD module " + dm23.getModuleName() + " reported active distance > 0");
+                        addFailure("6.4.5.2.a - OBD module " + dm23.getModuleName() + " reported > 0 previously active DTC");
+                    }
+                    // 6.4.5.2.b Fail if any ECU reports a different MIL status than it did in DM12
+                    // response earlier in this part.
+                    var dm12 = getDataRepository().getObdModule(address).get(DM12MILOnEmissionDTCPacket.class);
+                    if(dm12 != null && dm23.getMalfunctionIndicatorLampStatus() != dm12.getMalfunctionIndicatorLampStatus()){
+                        addFailure("6.4.5.2.b - OBD module " + dm23.getModuleName() + " reported a MIL status different from the DM12 response earlier in this part");
                     }
                 }
                 if(p.right.isPresent()){
                     AcknowledgmentPacket ackPacket = p.right.get();
                     if (ackPacket.getResponse() != NACK) {
-                        addFailure("6.4.5.2.c - NACK not received from  " + getAddressName(ackPacket.getSourceAddress()) + " and did not provide a response to DS DM21 query");
+                        addFailure("6.4.5.2.c - NACK not received from  " + getAddressName(ackPacket.getSourceAddress()) + " and did not provide a response to DS DM23 query");
                     }
                 }
             }, () -> {
                 // 6.4.5.2.c Fail if NACK not received from OBD ECUs that did not provide DM23 response.
-                addFailure("6.4.5.2.c - NACK not received from  " + getAddressName(address) + " and did not provide a response to DS DM21 query");
+                addFailure("6.4.5.2.c - NACK not received from  " + getAddressName(address) + " and did not provide a response to DS DM23 query");
             });
         });
         // 6.4.5.2.d Fail if no OBD ECU provides DM23.

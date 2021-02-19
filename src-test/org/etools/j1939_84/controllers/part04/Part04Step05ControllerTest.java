@@ -213,7 +213,7 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.5.2.c - NACK not received from  Engine #2 (1) and did not provide a response to DS DM21 query");
+                                        "6.4.5.2.c - NACK not received from  Engine #2 (1) and did not provide a response to DS DM23 query");
     }
 
     @Test
@@ -238,7 +238,7 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.5.2.a - OBD module Engine #1 (0) reported active distance > 0");
+                                        "6.4.5.2.a - OBD module Engine #1 (0) reported > 0 previously active DTC");
     }
 
     @Test
@@ -274,11 +274,14 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
-
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.5.2.c - NACK not received from  Engine #1 (0) and did not provide a response to DS DM21 query");
+                                        "6.4.5.2.b - OBD module Engine #1 (0) reported a MIL status different from the DM12 response earlier in this part");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.4.5.2.c - NACK not received from  Engine #1 (0) and did not provide a response to DS DM23 query");
     }
 
     @Test
@@ -306,7 +309,7 @@ public class Part04Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.4.5.2.c - NACK not received from  Engine #1 (0) and did not provide a response to DS DM21 query");
+                                        "6.4.5.2.c - NACK not received from  Engine #1 (0) and did not provide a response to DS DM23 query");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
