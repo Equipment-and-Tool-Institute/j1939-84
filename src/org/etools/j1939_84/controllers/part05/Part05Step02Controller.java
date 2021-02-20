@@ -3,8 +3,14 @@
  */
 package org.etools.j1939_84.controllers.part05;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.FAST_FLASH;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.SLOW_FLASH;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -52,11 +58,45 @@ public class Part05Step02Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
+
+        clearPreviousDM12Packets();
+
         // 6.5.2.1.a Global DM12 [(send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 1706, and 3038)]).
+        var globalPackets = getDiagnosticMessageModule().requestDM12(getListener()).getPackets();
+
         // 6.5.2.2.a Fail if no OBD ECU reporting MIL on. See Section A.8 for allowed values.
+        boolean noMilOn = globalPackets.stream().noneMatch(p -> (p.getMalfunctionIndicatorLampStatus() == ON));
+        if (noMilOn) {
+            addFailure("6.5.2.2.a - No OBD ECU reported MIL on");
+        }
+
         // 6.5.2.2.b Fail if all OBD ECUs report no DM12 DTC set.
-        // 6.5.2.2.c Fail if DM12 DTC reported does not match the DM6 DTC SPN and FMI reported from step 6.4.2.
-        // 6.5.2.2.d Fail if any ECU reporting MIL as ON, flashing. See Section A.8 for allowed values.
+        boolean noDM12 = globalPackets.stream().noneMatch(p -> (p.getDtcs().size() > 0));
+        if (noDM12) {
+            addFailure("6.5.2.2.b - All OBD ECUs report no DM12 DTCs");
+        }
+
+        globalPackets.forEach(packet -> {
+            // 6.5.2.2.c Fail if DM12 DTC reported does not match the DM6 DTC SPN and FMI reported from step 6.4.2.
+            var dm6 = getDataRepository().getObdModule(packet.getSourceAddress())
+                    .get(DM6PendingEmissionDTCPacket.class);
+            if (!toString(packet.getDtcs()).equals(toString(dm6.getDtcs()))) {
+                addFailure("6.5.2.2.c - OBD module " + packet.getModuleName() +
+                                   " had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.4.2");
+
+            }
+            // 6.5.2.2.d Fail if any ECU reporting MIL as ON, flashing. See Section A.8 for allowed values.
+            if (packet.getMalfunctionIndicatorLampStatus() == FAST_FLASH ||
+                    packet.getMalfunctionIndicatorLampStatus() == SLOW_FLASH) {
+                addFailure("6.5.2.2.d - OBD module " + packet.getModuleName() +
+                                   " reported a MIL as " + packet.getMalfunctionIndicatorLampStatus());
+
+            }
+        });
+    }
+
+    private void clearPreviousDM12Packets() {
+        getDataRepository().getObdModules().forEach(module -> module.remove(DM12MILOnEmissionDTCPacket.class));
     }
 
 }
