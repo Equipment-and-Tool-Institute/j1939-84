@@ -3,15 +3,29 @@
  */
 package org.etools.j1939_84.controllers.part05;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.*;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.Outcome;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -118,8 +132,120 @@ public class Part05Step02ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        var dtc_1 = DiagnosticTroubleCode.create(609,19,1,1);
+        var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1);
+
+        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1);
+        var obdModule0 = new OBDModuleInformation(0);
+        obdModule0.set(dm6);
+        var obdModule1 = new OBDModuleInformation(1);
+        obdModule1.set(dm6_1);
+        dataRepository.putObdModule(obdModule0);
+        dataRepository.putObdModule(obdModule1);
+
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12, dm12_1));
 
         runTest();
+
+        verify(diagnosticMessageModule).requestDM12(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testFailures() {
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        var dtc_1 = DiagnosticTroubleCode.create(609,19,1,1);
+        var dtc_2 = DiagnosticTroubleCode.create(4334, 4, 0, 0);
+        var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, SLOW_FLASH, OFF, OFF, OFF, dtc_1, dtc_2);
+
+        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc_1);
+        var obdModule0 = new OBDModuleInformation(0);
+        obdModule0.set(dm6);
+        var obdModule1 = new OBDModuleInformation(1);
+        obdModule1.set(dm6_1);
+        dataRepository.putObdModule(obdModule0);
+        dataRepository.putObdModule(obdModule1);
+
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12, dm12_1));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM12(any());
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                                        "6.5.2.2.a - No OBD ECU reported MIL on");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                                        "6.5.2.2.c - OBD module Engine #2 (1) had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.4.2");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                                        "6.5.2.2.d - OBD module Engine #2 (1) reported a MIL as slow flash");
+
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testEmptyFailures() {
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF);
+
+        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, SLOW_FLASH, OFF, OFF, OFF);
+        var obdModule0 = new OBDModuleInformation(0);
+        obdModule0.set(dm6);
+        var obdModule1 = new OBDModuleInformation(1);
+        obdModule1.set(dm6_1);
+        dataRepository.putObdModule(obdModule0);
+        dataRepository.putObdModule(obdModule1);
+
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12, dm12_1));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM12(any());
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                                        "6.5.2.2.a - No OBD ECU reported MIL on");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                                        "6.5.2.2.b - All OBD ECUs report no DM12 DTCs");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testLampStateFailures() {
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF);
+        var dtc_1 = DiagnosticTroubleCode.create(609,19,1,1);
+        var dtc_2 = DiagnosticTroubleCode.create(4334, 4, 0, 0);
+        var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, FAST_FLASH, OFF, OFF, OFF);
+
+        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc_1, dtc_2);
+        var obdModule0 = new OBDModuleInformation(0);
+        obdModule0.set(dm6);
+        var obdModule1 = new OBDModuleInformation(1);
+        obdModule1.set(dm6_1);
+        dataRepository.putObdModule(obdModule0);
+        dataRepository.putObdModule(obdModule1);
+
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12, dm12_1));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM12(any());
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                                        "6.5.2.2.b - All OBD ECUs report no DM12 DTCs");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                                        "6.5.2.2.c - OBD module Engine #2 (1) had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.4.2");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+                                        "6.5.2.2.d - OBD module Engine #2 (1) reported a MIL as fast flash");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
