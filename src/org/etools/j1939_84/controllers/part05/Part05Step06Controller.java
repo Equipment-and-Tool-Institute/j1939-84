@@ -3,10 +3,14 @@
  */
 package org.etools.j1939_84.controllers.part05;
 
+import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -54,6 +58,18 @@ public class Part05Step06Controller extends StepController {
     protected void run() throws Throwable {
         // 6.5.6.1.a. DS DM20 {(send Request (PGN 59904) for PGN 49664 (SPN 3048)]) to OBD ECU(s) that provided DM20 data in part 1.
         // 6.5.6.1.b. Store each ignition cycle counter value (SPN 3048) for future use.
+        getDataRepository().getObdModuleAddresses()
+                .stream()
+                .sorted()
+                .map(address -> getDiagnosticMessageModule().requestDM20(getListener(), address))
+                .map(BusResult::requestResult)
+                .map(RequestResult::getPackets)
+                .flatMap(Collection::stream)
+                .forEach(packet -> {
+                    OBDModuleInformation obdModule = getDataRepository().getObdModule(packet.getSourceAddress());
+                    obdModule.setIgnitionCycleCounterValue(packet.getIgnitionCycles());
+                    getDataRepository().putObdModule(obdModule);
+                });
     }
 
 }
