@@ -6,7 +6,6 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.SequenceInputStream;
 import java.nio.charset.StandardCharsets;
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
@@ -193,50 +192,34 @@ public class J1939DaRepository {
         Map<Integer, Slot> slots = new HashMap<>();
         String[] values;
 
-        final InputStream is = Resources.class.getResourceAsStream("j1939da-slots.csv");
+        final InputStream is = new SequenceInputStream(Resources.class.getResourceAsStream("j1939da-slots.csv"),
+                Resources.class.getResourceAsStream("j1939da-slots-addendum.csv"));
         final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
         try (CSVReader reader = new CSVReaderBuilder(isReader)
                 .withSkipLines(2)
                 .build()) {
             while ((values = reader.readNext()) != null) {
-                final int id = Integer.parseInt(values[0]);
-                final String name = values[1];
-                final String type = values[2];
-                final Double scaling = Double.parseDouble(values[3]);
-                final String unit = values[4];
-                final Double offset = Double.parseDouble(values[5]);
-                final int length = Integer.parseInt(values[6]);
-                Slot slot = new Slot(id, name, type, scaling, offset, unit, length);
-                slots.put(id, slot);
+                if (values.length > 1 && !values[0].startsWith(";")) {
+                    try {
+                        final int id = Integer.parseInt(values[0]);
+                        final String name = values[1];
+                        final String type = values[2];
+                        final Double scaling = Double.parseDouble(values[3]);
+                        final String unit = values[4];
+                        final Double offset = Double.parseDouble(values[5]);
+                        final int length = Integer.parseInt(values[6]);
+                        Slot slot = new Slot(id, name, type, scaling, offset, unit, length);
+                        slots.put(id, slot);
+                    } catch (Exception e) {
+                        getLogger().log(Level.SEVERE,
+                                "Error loading slot:" + Arrays.asList(values), e);
+                    }
+                }
             }
         } catch (Exception e) {
             getLogger().log(Level.SEVERE, "Error loading map from slots", e);
         }
         return slots;
-    }
-
-    static public void main(String... a) {
-        loadLookUpTables();
-        List<PgnDefinition> pgns = new ArrayList<>(pgnLut.values());
-        pgns.sort(Comparator.comparing(PgnDefinition::getId));
-        for (PgnDefinition d : pgns) {
-            if (d.getAcronym().startsWith("DM") && !J1939.isManual(d.getId())) {
-                System.err.format("PGN: %6d (%04X): %6d %s%n", d.getId(), d.getId(), d.getBroadcastPeriod(),
-                        d.getAcronym());
-                for (SpnDefinition s : d.getSpnDefinitions()) {
-                    int slotNumber = s.getSlotNumber();
-                    Slot slot = findSlot(slotNumber, -s.getSpnId());
-
-                    if (slot == null) {
-                        System.err.format("  SPN: %6d (%04X): %3d.%-3d %3d %6d %s%n", s.getSpnId(), s.getSpnId(),
-                                s.getStartByte(),
-                                s.getStartBit(),
-                                slot != null ? slot.getLength() : -1, s.getSlotNumber(), s.getLabel());
-                    }
-                }
-            }
-        }
-
     }
 
     static private int parseTransmissionRate(String transmissionRate) throws ParseError {

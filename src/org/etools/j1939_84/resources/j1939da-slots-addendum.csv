@@ -35,7 +35,7 @@
 -4130,PM NTE Deficiency Area Status,,1,BIT,0,2
 
 ; DM33
--4124,EI-AECD Number,,1,,0,,0,8
+-4124,EI-AECD Number,,1,,0,8
 -4125,EI-AECD Engine Hours Timer 1,,1,,0,32
 -4126,EI-AECD Engine Hours Timer 2,,1,,0,32
 
