@@ -15,6 +15,7 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
@@ -242,6 +243,10 @@ public class OBDModuleInformation implements Cloneable {
 
     public <T extends GenericPacket> T get(Class<T> clazz) {
         return packetArchive.get(clazz);
+    }
+
+    public boolean supportsDM27() {
+        return get(DM27AllPendingDTCsPacket.class) != null;
     }
 
     private static class PacketArchive {
