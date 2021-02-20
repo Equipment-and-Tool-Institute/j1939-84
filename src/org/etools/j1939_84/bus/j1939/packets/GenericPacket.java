@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
@@ -19,8 +20,13 @@ import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 
 public class GenericPacket extends ParsedPacket {
 
+    private static J1939DaRepository getJ1939DaRepository() {
+        return J1939DaRepository.getInstance();
+    }
+
     private final SpnDataParser parser;
     private final PgnDefinition pgnDefinition;
+
     private List<Spn> spns;
 
     public GenericPacket(Packet packet) {
@@ -61,7 +67,7 @@ public class GenericPacket extends ParsedPacket {
             List<SpnDefinition> spnDefinitions = getPgnDefinition().getSpnDefinitions();
             byte[] bytes = getPacket().getBytes();
             for (SpnDefinition definition : spnDefinitions) {
-                Slot slot = getJ1939DaRepository().findSLOT(definition.getSlotNumber());
+                Slot slot = getJ1939DaRepository().findSLOT(definition.getSlotNumber(), definition.getSpnId());
                 byte[] data = parser.parse(bytes, definition, slot.getLength());
                 spns.add(new Spn(definition.getSpnId(), definition.getLabel(), slot, data));
             }
@@ -81,10 +87,6 @@ public class GenericPacket extends ParsedPacket {
             getLogger().log(Level.SEVERE, "Error creating string", e);
         }
         return result.toString();
-    }
-
-    private static J1939DaRepository getJ1939DaRepository() {
-        return J1939DaRepository.getInstance();
     }
 
 }

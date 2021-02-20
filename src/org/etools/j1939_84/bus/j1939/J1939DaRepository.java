@@ -2,10 +2,9 @@ package org.etools.j1939_84.bus.j1939;
 
 import static org.etools.j1939_84.J1939_84.getLogger;
 
-import com.opencsv.CSVReader;
-import com.opencsv.CSVReaderBuilder;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.SequenceInputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -24,10 +23,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 import java.util.stream.StreamSupport;
+
 import org.etools.j1939_84.bus.j1939.packets.Slot;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.resources.Resources;
+
+import com.opencsv.CSVReader;
+import com.opencsv.CSVReaderBuilder;
 
 public class J1939DaRepository {
     static class ParseError extends Exception {
@@ -41,9 +44,31 @@ public class J1939DaRepository {
 
     private static Map<Integer, PgnDefinition> pgnLut;
 
+    /**
+     * The Map of SLOT ID to Slot for lookups
+     */
+    private static Map<Integer, Slot> slots;
+
     private static Map<Integer, SpnDefinition> spnLut;
 
     private static Map<Integer, Set<Integer>> spnToPgnMap = null;
+
+    public static Slot findSlot(int slotId, int spn) {
+        if (slots == null) {
+            slots = loadSlots();
+        }
+        Slot slot = slots.get(slotId);
+        if (slot == null) {
+            slot = slots.get(-spn);
+        }
+        if (slot == null) {
+            if (slotId != -1) {
+                getLogger().log(Level.INFO, "Unable to find SLOT " + slotId);
+            }
+            return new Slot(slotId, "Unknown", "UNK", 1.0, 0.0, null, 0);
+        }
+        return slot;
+    }
 
     public static J1939DaRepository getInstance() {
         return instance;
@@ -54,7 +79,8 @@ public class J1939DaRepository {
             // parse the selected columns from J1939DA. The source data is
             // unaltered, so some processing is required to convert byte.bit
             // specifications into ints.
-            final InputStream is = Resources.class.getResourceAsStream("j1939da-extract.csv");
+            final InputStream is = new SequenceInputStream(Resources.class.getResourceAsStream("j1939da-extract.csv"),
+                    Resources.class.getResourceAsStream("j1939da-addendum.csv"));
             final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.ISO_8859_1);
             try (CSVReader reader = new CSVReaderBuilder(isReader).withSkipLines(2).build()) {
                 // collect spns under the pgn
@@ -91,9 +117,10 @@ public class J1939DaRepository {
                                 String spnIdStr = line[5];
                                 if (!spnIdStr.isBlank()) {
                                     String label = shortenLabel(line[6]);
-                                    spnDef = new SpnDefinition(Integer.parseInt(spnIdStr), label, startByte,
-                                                               startBit,
-                                                               line[7].isBlank() ? -1 : Integer.parseInt(line[7]));
+                                    int spnId = Integer.parseInt(spnIdStr);
+                                    spnDef = new SpnDefinition(spnId, label, startByte,
+                                            startBit,
+                                            line[7].isBlank() ? -spnId : Integer.parseInt(line[7]));
                                 }
                                 String pgnIdStr = line[0];
                                 PgnDefinition pgnDef = null;
@@ -103,17 +130,17 @@ public class J1939DaRepository {
                                     int transmissionRate = parseTransmissionRate(line[3]);
                                     String label = shortenLabel(line[1]);
                                     pgnDef = new PgnDefinition(Integer.parseInt(pgnIdStr),
-                                                               label,
-                                                               line[2],
-                                                               transmissionRate == 0,
-                                                               transmissionRate < 0,
-                                                               Math.abs(transmissionRate),
-                                                               Collections.singletonList(spnDef));
+                                            label,
+                                            line[2],
+                                            transmissionRate == 0,
+                                            transmissionRate < 0,
+                                            Math.abs(transmissionRate),
+                                            Collections.singletonList(spnDef));
                                 }
                                 return new Object[] { pgnDef, spnDef };
                             } catch (ParseError e) {
                                 System.err.format("%d %s \n\t%s%n", reader.getLinesRead(), e.getMessage(),
-                                                  Arrays.asList(line));
+                                        Arrays.asList(line));
                                 return null;
                             }
                         })
@@ -122,20 +149,21 @@ public class J1939DaRepository {
                 pgnLut = table.stream()
                         .flatMap(row -> row[0] == null ? Stream.empty() : Stream.of((PgnDefinition) row[0]))
                         .collect(Collectors.toMap(PgnDefinition::getId, pgnDef -> pgnDef,
-                                                  (a, b) -> new PgnDefinition(a.getId(),
-                                                                              shortenLabel(a.getLabel()),
-                                                                              a.getAcronym(),
-                                                                              a.isOnRequest(),
-                                                                              a.isVariableBroadcast(),
-                                                                              a.getBroadcastPeriod(),
-                                                                              Stream.concat(a.getSpnDefinitions()
-                                                                                                    .stream(), b
-                                                                                                    .getSpnDefinitions()
-                                                                                                    .stream())
-                                                                                      .sorted(Comparator
-                                                                                                      .comparing(s -> s.getStartByte() * 8 + s
-                                                                                                              .getStartBit()))
-                                                                                      .collect(Collectors.toList()))));
+                                (a, b) -> new PgnDefinition(a.getId(),
+                                        shortenLabel(a.getLabel()),
+                                        a.getAcronym(),
+                                        a.isOnRequest(),
+                                        a.isVariableBroadcast(),
+                                        a.getBroadcastPeriod(),
+                                        Stream.concat(a.getSpnDefinitions()
+                                                .stream(),
+                                                b
+                                                        .getSpnDefinitions()
+                                                        .stream())
+                                                .sorted(Comparator
+                                                        .comparing(s -> s.getStartByte() * 8 + s
+                                                                .getStartBit()))
+                                                .collect(Collectors.toList()))));
                 spnLut = table.stream()
                         .map(row -> ((SpnDefinition) row[1]))
                         .filter(Objects::nonNull)
@@ -156,18 +184,59 @@ public class J1939DaRepository {
         }
     }
 
+    /**
+     * Read the slots.csv file which contains all the SLOTs
+     *
+     * @return Map of SLOT ID to Slot
+     */
+    private static Map<Integer, Slot> loadSlots() {
+        Map<Integer, Slot> slots = new HashMap<>();
+        String[] values;
+
+        final InputStream is = Resources.class.getResourceAsStream("j1939da-slots.csv");
+        final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
+        try (CSVReader reader = new CSVReaderBuilder(isReader)
+                .withSkipLines(2)
+                .build()) {
+            while ((values = reader.readNext()) != null) {
+                final int id = Integer.parseInt(values[0]);
+                final String name = values[1];
+                final String type = values[2];
+                final Double scaling = Double.parseDouble(values[3]);
+                final String unit = values[4];
+                final Double offset = Double.parseDouble(values[5]);
+                final int length = Integer.parseInt(values[6]);
+                Slot slot = new Slot(id, name, type, scaling, offset, unit, length);
+                slots.put(id, slot);
+            }
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, "Error loading map from slots", e);
+        }
+        return slots;
+    }
+
     static public void main(String... a) {
         loadLookUpTables();
         List<PgnDefinition> pgns = new ArrayList<>(pgnLut.values());
         pgns.sort(Comparator.comparing(PgnDefinition::getId));
         for (PgnDefinition d : pgns) {
-            System.err.format("PGN: %6d: %6d %s%n", d.getId(), d.getBroadcastPeriod(), d.getLabel());
-            for (SpnDefinition s : d.getSpnDefinitions()) {
-                Slot slot = findSlot(s.getSlotNumber());
-                System.err.format("  SPN: %6d: %3d.%-3d %3d %6d %s%n", s.getSpnId(), s.getStartByte(), s.getStartBit(),
-                                  slot.getLength(), s.getSlotNumber(), s.getLabel());
+            if (d.getAcronym().startsWith("DM") && !J1939.isManual(d.getId())) {
+                System.err.format("PGN: %6d (%04X): %6d %s%n", d.getId(), d.getId(), d.getBroadcastPeriod(),
+                        d.getAcronym());
+                for (SpnDefinition s : d.getSpnDefinitions()) {
+                    int slotNumber = s.getSlotNumber();
+                    Slot slot = findSlot(slotNumber, -s.getSpnId());
+
+                    if (slot == null) {
+                        System.err.format("  SPN: %6d (%04X): %3d.%-3d %3d %6d %s%n", s.getSpnId(), s.getSpnId(),
+                                s.getStartByte(),
+                                s.getStartBit(),
+                                slot != null ? slot.getLength() : -1, s.getSlotNumber(), s.getLabel());
+                    }
+                }
             }
         }
+
     }
 
     static private int parseTransmissionRate(String transmissionRate) throws ParseError {
@@ -343,6 +412,10 @@ public class J1939DaRepository {
         return pgnDefinition;
     }
 
+    public Slot findSLOT(int id, int spn) {
+        return findSlot(id, spn);
+    }
+
     public SpnDefinition findSpnDefinition(int spn) {
         loadLookUpTables();
         SpnDefinition spnDefinition = spnLut.get(spn);
@@ -366,60 +439,6 @@ public class J1939DaRepository {
     public Map<Integer, SpnDefinition> getSpnDefinitions() {
         loadLookUpTables();
         return Collections.unmodifiableMap(spnLut);
-    }
-
-    public Slot findSLOT(int id) {
-        return findSlot(id);
-    }
-
-    /**
-     * The Map of SLOT ID to Slot for lookups
-     */
-    private static Map<Integer, Slot> slots;
-
-    public static Slot findSlot(int id) {
-        if (slots == null) {
-            slots = loadSlots();
-        }
-        Slot slot = slots.get(id);
-        if (slot == null) {
-            if (id != -1) {
-                getLogger().log(Level.INFO, "Unable to find SLOT " + id);
-            }
-            return new Slot(id, "Unknown", "UNK", 1.0, 0.0, null, 0);
-        }
-        return slot;
-    }
-
-    /**
-     * Read the slots.csv file which contains all the SLOTs
-     *
-     * @return Map of SLOT ID to Slot
-     */
-    private static Map<Integer, Slot> loadSlots() {
-        Map<Integer, Slot> slots = new HashMap<>();
-        String[] values;
-
-        final InputStream is = Resources.class.getResourceAsStream("j1939da-slots.csv");
-        final InputStreamReader isReader = new InputStreamReader(is, StandardCharsets.UTF_8);
-        try (CSVReader reader = new CSVReaderBuilder(isReader)
-                .withSkipLines(2)
-                .build()) {
-            while ((values = reader.readNext()) != null) {
-                final int id = Integer.parseInt(values[0]);
-                final String name = values[1];
-                final String type = values[2];
-                final Double scaling = Double.parseDouble(values[3]);
-                final String unit = values[4];
-                final Double offset = Double.parseDouble(values[5]);
-                final int length = Integer.parseInt(values[6]);
-                Slot slot = new Slot(id, name, type, scaling, offset, unit, length);
-                slots.put(id, slot);
-            }
-        } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "Error loading map from slots", e);
-        }
-        return slots;
     }
 
 }

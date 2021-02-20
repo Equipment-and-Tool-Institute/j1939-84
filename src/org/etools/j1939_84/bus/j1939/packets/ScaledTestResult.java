@@ -7,6 +7,7 @@ import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.toInts;
 import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.Arrays;
+
 import org.etools.j1939_84.NumberFormatter;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
@@ -16,28 +17,6 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 public class ScaledTestResult {
-
-    public static ScaledTestResult create(int testIdentifier,
-                                          int spn,
-                                          int fmi,
-                                          int slotNumber,
-                                          int testValue,
-                                          int testMaximum,
-                                          int testMinimum) {
-
-        int[] data = new int[4];
-        data[0] = (testIdentifier & 0xFF);
-        data[1] = (byte) (spn & 0xFF);
-        data[2] = (byte) ((spn >> 8) & 0xFF);
-        data[3] = (byte) (((spn >> 16 & 0xE0)) + (fmi & 0x1F));
-
-        data = join(data, toInts(slotNumber));
-        data = join(data, toInts(testValue));
-        data = join(data, toInts(testMaximum));
-        data = join(data, toInts(testMinimum));
-
-        return new ScaledTestResult(data);
-    }
 
     /**
      * The Possible Outcomes of the Test
@@ -63,6 +42,29 @@ public class ScaledTestResult {
         }
     }
 
+    public static ScaledTestResult create(int testIdentifier,
+                                          int spn,
+                                          int fmi,
+                                          int slotNumber,
+                                          int testValue,
+                                          int testMaximum,
+                                          int testMinimum) {
+
+        int[] data = new int[4];
+        data[0] = (testIdentifier & 0xFF);
+        data[1] = (byte) (spn & 0xFF);
+        data[2] = (byte) ((spn >> 8) & 0xFF);
+        data[3] = (byte) (((spn >> 16 & 0xE0)) + (fmi & 0x1F));
+
+        data = join(data, toInts(slotNumber));
+        data = join(data, toInts(testValue));
+        data = join(data, toInts(testMaximum));
+        data = join(data, toInts(testMinimum));
+
+        return new ScaledTestResult(data);
+    }
+
+    private final int[] data;
     private final int fmi;
     private Slot slot;
     private final int slotNumber;
@@ -71,13 +73,12 @@ public class ScaledTestResult {
     private final int testMaximum;
     private final int testMinimum;
     private final int testValue;
-    private final int[] data;
 
     /**
      * Constructor
      *
      * @param data
-     *         the data that contains the {@link ScaledTestResult}
+     *            the data that contains the {@link ScaledTestResult}
      */
     public ScaledTestResult(int[] data) {
         this.data = data;
@@ -137,7 +138,7 @@ public class ScaledTestResult {
      */
     public Slot getSlot() {
         if (slot == null) {
-            slot = J1939DaRepository.findSlot(slotNumber);
+            slot = J1939DaRepository.findSlot(slotNumber, spn);
         }
         return slot;
     }
@@ -211,12 +212,6 @@ public class ScaledTestResult {
         return testValue;
     }
 
-    public boolean isInitialized() {
-        boolean initHigh = getTestValue() == 0xFB00 && getTestMinimum() == 0xFFFF && getTestMaximum() == 0xFFFF;
-        boolean initLow = getTestValue() == 0x0000 && getTestMinimum() == 0x0000 && getTestMaximum() == 0x0000;
-        return initHigh || initLow;
-    }
-
     /**
      * Return true if the test has a maximum value
      *
@@ -233,6 +228,12 @@ public class ScaledTestResult {
      */
     private boolean hasMinimum() {
         return getTestMinimum() != 0xFFFF;
+    }
+
+    public boolean isInitialized() {
+        boolean initHigh = getTestValue() == 0xFB00 && getTestMinimum() == 0xFFFF && getTestMaximum() == 0xFFFF;
+        boolean initLow = getTestValue() == 0x0000 && getTestMinimum() == 0x0000 && getTestMaximum() == 0x0000;
+        return initHigh || initLow;
     }
 
     @Override

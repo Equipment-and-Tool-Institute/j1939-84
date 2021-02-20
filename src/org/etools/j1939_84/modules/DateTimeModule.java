@@ -8,11 +8,9 @@ import static java.time.temporal.ChronoField.MINUTE_OF_HOUR;
 import static java.time.temporal.ChronoField.NANO_OF_SECOND;
 import static java.time.temporal.ChronoField.SECOND_OF_MINUTE;
 
-import java.time.DateTimeException;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeFormatterBuilder;
-import java.time.temporal.TemporalAccessor;
 import java.util.concurrent.TimeUnit;
 
 /**
@@ -36,19 +34,6 @@ public class DateTimeModule {
     private DateTimeFormatter timeFormatter;
 
     protected DateTimeModule() {
-    }
-
-    /**
-     * Formats the given {@link TemporalAccessor} as a {@link String}
-     *
-     * @param time
-     *            the {@link TemporalAccessor} to format
-     * @return {@link String}
-     * @throws DateTimeException
-     *             if an error occurs during formatting
-     */
-    public String format(TemporalAccessor time) throws DateTimeException {
-        return getTimeFormatter().format(time);
     }
 
     /**

@@ -28,12 +28,6 @@ public class DateTimeModuleTest {
     }
 
     @Test
-    public void testFormat() throws Exception {
-        LocalTime dateTime = LocalTime.parse("10:15:30.000");
-        assertEquals("10:15:30.0000", instance.format(dateTime));
-    }
-
-    @Test
     public void testGetDateTime() {
         DateTimeModule instance = new DateTimeModule() {
             @Override

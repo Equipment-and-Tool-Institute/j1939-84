@@ -130,6 +130,12 @@ public class J1939 {
         return e.right.stream().anyMatch(p -> p.getResponse() == Response.BUSY);
     }
 
+    /** Used for development to detect DMs that are manually parsed. */
+    static public boolean isManual(int pgn) {
+        ParsedPacket processRaw = new J1939().processRaw(pgn, Packet.create(pgn, 0x0, new byte[8]));
+        return processRaw.getClass() != GenericPacket.class;
+    }
+
     /**
      * filter by pgn
      */
@@ -455,88 +461,6 @@ public class J1939 {
         return bus.read(timeout, unit);
     }
 
-    public List<AcknowledgmentPacket> requestForAcks(ResultsListener listener, String title, int pgn) {
-        listener.onResult(getDateTimeModule().getTime() + " " + title);
-        Packet requestPacket = createRequestPacket(pgn, GLOBAL_ADDR);
-        return requestGlobalOnce(pgn, requestPacket, listener)
-                .stream()
-                .flatMap(e -> e.right.stream())
-                .collect(Collectors.toList());
-    }
-
-    public List<AcknowledgmentPacket> requestForAcks(ResultsListener listener, String title, int pgn, int address) {
-        listener.onResult(getDateTimeModule().getTime() + " " + title);
-        Packet requestPacket = createRequestPacket(pgn, address);
-        return requestDSOnce(pgn, requestPacket, listener)
-                .stream()
-                .flatMap(e -> e.right.stream())
-                .collect(Collectors.toList());
-    }
-
-    public BusResult<DM30ScaledTestResultsPacket> requestTestResults(int tid,
-                                                                     int spn,
-                                                                     int fmi,
-                                                                     int address,
-                                                                     ResultsListener listener) {
-        if (address == GLOBAL_ADDR) {
-            throw new IllegalArgumentException("DM7 request to global.");
-        }
-
-        Packet request = Packet.create(DM7CommandTestsPacket.PGN | address,
-                                       getBusAddress(),
-                                       true,
-                                       tid,
-                                       spn & 0xFF,
-                                       (spn >> 8) & 0xFF,
-                                       (((spn >> 16) & 0xFF) << 5) | (fmi & 0x1F),
-                                       0xFF,
-                                       0xFF,
-                                       0xFF,
-                                       0xFF);
-
-        String title = "Sending DM7 for DM30 to " + Lookup.getAddressName(address) + " for SPN " + spn;
-        listener.onResult(getDateTimeModule().getTime() + " " + title);
-
-        try {
-            BusResult<DM30ScaledTestResultsPacket> result;
-            for (int i = 0; true; i++) {
-                Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = read(DS_TIMEOUT,
-                        MILLISECONDS)
-                                .filter(dsFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(),
-                                        getBusAddress()))
-                                .map(this::process);
-                Packet sent = bus.send(request);
-                if (sent != null) {
-                    listener.onResult(sent.toTimeString());
-                } else {
-                    warn("Failed to send: " + request);
-                }
-                Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> first = stream.findFirst();
-                result = new BusResult<>(i > 0, first);
-                result.getPacket().ifPresentOrElse(p -> {
-                    GenericPacket response = p.resolve();
-                    Packet packet = response.getPacket();
-                    listener.onResult(packet.toTimeString());
-                    listener.onResult(response.toString());
-                },
-                        () -> listener.onResult(getDateTimeModule().getTime() + " " + TIMEOUT_MESSAGE));
-                // if there is a valid response or a non-busy NACK, return it.
-                if (i == 2 || result.getPacket()
-                        // valid packet
-                        .map(e -> e.resolve(p -> true,
-                                // non-busy NACK
-                                p -> !p.getResponse().equals(BUSY)))
-                        .orElse(false)) {
-                    break;
-                }
-            }
-            return result;
-        } catch (BusException e) {
-            severe("Error requesting DS packet", e);
-            return new BusResult<>(true);
-        }
-    }
-
     public <T extends GenericPacket> BusResult<T> requestDS(String title,
                                                             Class<T> clas,
                                                             int address,
@@ -610,6 +534,24 @@ public class J1939 {
             severe("Error requesting DS packet", e);
             return Optional.empty();
         }
+    }
+
+    public List<AcknowledgmentPacket> requestForAcks(ResultsListener listener, String title, int pgn) {
+        listener.onResult(getDateTimeModule().getTime() + " " + title);
+        Packet requestPacket = createRequestPacket(pgn, GLOBAL_ADDR);
+        return requestGlobalOnce(pgn, requestPacket, listener)
+                .stream()
+                .flatMap(e -> e.right.stream())
+                .collect(Collectors.toList());
+    }
+
+    public List<AcknowledgmentPacket> requestForAcks(ResultsListener listener, String title, int pgn, int address) {
+        listener.onResult(getDateTimeModule().getTime() + " " + title);
+        Packet requestPacket = createRequestPacket(pgn, address);
+        return requestDSOnce(pgn, requestPacket, listener)
+                .stream()
+                .flatMap(e -> e.right.stream())
+                .collect(Collectors.toList());
     }
 
     public <T extends GenericPacket> RequestResult<T> requestGlobal(String title,
@@ -739,6 +681,70 @@ public class J1939 {
             result = Collections.emptyList();
         }
         return result;
+    }
+
+    public BusResult<DM30ScaledTestResultsPacket> requestTestResults(int tid,
+                                                                     int spn,
+                                                                     int fmi,
+                                                                     int address,
+                                                                     ResultsListener listener) {
+        if (address == GLOBAL_ADDR) {
+            throw new IllegalArgumentException("DM7 request to global.");
+        }
+
+        Packet request = Packet.create(DM7CommandTestsPacket.PGN | address,
+                getBusAddress(),
+                true,
+                tid,
+                spn & 0xFF,
+                (spn >> 8) & 0xFF,
+                (((spn >> 16) & 0xFF) << 5) | (fmi & 0x1F),
+                0xFF,
+                0xFF,
+                0xFF,
+                0xFF);
+
+        String title = "Sending DM7 for DM30 to " + Lookup.getAddressName(address) + " for SPN " + spn;
+        listener.onResult(getDateTimeModule().getTime() + " " + title);
+
+        try {
+            BusResult<DM30ScaledTestResultsPacket> result;
+            for (int i = 0; true; i++) {
+                Stream<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> stream = read(DS_TIMEOUT,
+                        MILLISECONDS)
+                                .filter(dsFilter(DM30ScaledTestResultsPacket.PGN, request.getDestination(),
+                                        getBusAddress()))
+                                .map(this::process);
+                Packet sent = bus.send(request);
+                if (sent != null) {
+                    listener.onResult(sent.toTimeString());
+                } else {
+                    warn("Failed to send: " + request);
+                }
+                Optional<Either<DM30ScaledTestResultsPacket, AcknowledgmentPacket>> first = stream.findFirst();
+                result = new BusResult<>(i > 0, first);
+                result.getPacket().ifPresentOrElse(p -> {
+                    GenericPacket response = p.resolve();
+                    Packet packet = response.getPacket();
+                    listener.onResult(packet.toTimeString());
+                    listener.onResult(response.toString());
+                },
+                        () -> listener.onResult(getDateTimeModule().getTime() + " " + TIMEOUT_MESSAGE));
+                // if there is a valid response or a non-busy NACK, return it.
+                if (i == 2 || result.getPacket()
+                        // valid packet
+                        .map(e -> e.resolve(p -> true,
+                                // non-busy NACK
+                                p -> !p.getResponse().equals(BUSY)))
+                        .orElse(false)) {
+                    break;
+                }
+            }
+            return result;
+        } catch (BusException e) {
+            severe("Error requesting DS packet", e);
+            return new BusResult<>(true);
+        }
     }
 
     private void warn(String message) {
