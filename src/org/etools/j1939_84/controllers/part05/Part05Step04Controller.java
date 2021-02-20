@@ -70,6 +70,13 @@ public class Part05Step04Controller extends StepController {
 
         var packets = filterRequestResultPackets(responses);
 
+        //Save the DM28 packet for later use
+        packets.forEach(p -> {
+            OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(p.getSourceAddress());
+            obdModuleInformation.set(p);
+            getDataRepository().putObdModule(obdModuleInformation);
+        });
+
         // 6.5.4.2.a Fail if no ECU reports a permanent DTC.
         boolean noDTCs = packets.stream().allMatch(p -> p.getDtcs().isEmpty());
         if (noDTCs) {
