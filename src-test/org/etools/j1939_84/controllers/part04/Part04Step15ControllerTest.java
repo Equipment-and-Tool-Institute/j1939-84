@@ -17,7 +17,6 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
-import javax.xml.transform.OutputKeys;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.QuestionListener;
@@ -71,19 +70,16 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
 
     private TestResultsListener listener;
 
-    private DataRepository dataRepository;
-
     private StepController instance;
 
     @Before
     public void setUp() throws Exception {
-        dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
 
         instance = new Part04Step15Controller(executor,
                                               bannerModule,
                                               new TestDateTimeModule(),
-                                              dataRepository,
+                                              DataRepository.newInstance(),
                                               engineSpeedModule,
                                               vehicleInformationModule,
                                               diagnosticMessageModule);
@@ -177,15 +173,10 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
         expectedMessages += "User cancelled testing at Part 4 Step 15";
         assertEquals(expectedMessages, listener.getMessages());
 
-        String expectedMilestones = "";
-        assertEquals(expectedMilestones, listener.getMilestones());
-
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
-
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -234,11 +225,9 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
         expectedMessages += "Part 4, Step 15 Remove implanted fault per manufacturer's instructions";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
         String expected = "Initial Engine Speed = 0.0 RPMs" + NL;
         expected += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expected, listener.getResults());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
@@ -289,14 +278,10 @@ public class Part04Step15ControllerTest extends AbstractControllerTest {
         expectedMessages += "User cancelled testing at Part 4 Step 15";
         assertEquals(expectedMessages, listener.getMessages());
 
-        assertEquals("", listener.getMilestones());
-
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
-
-        assertEquals("", listener.getMilestones());
     }
 
 }

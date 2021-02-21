@@ -18,8 +18,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
@@ -437,8 +435,7 @@ public class TableA1Validator {
             List<String> supportedSPNs = getSupportedSPNs(spns, packet);
             if (forceReporting || !supportedSPNs.isEmpty()) {
                 listener.onResult("PGN " + pgn + " with Supported SPNs " + String.join(", ", supportedSPNs));
-                Packet packetPacket = packet.getPacket();
-                listener.onResult(packetPacket.toTimeString());
+                listener.onResult(packet.getPacket().toTimeString());
                 listener.onResult("Found: " + packet.toString());
                 listener.onResult("");
             }
