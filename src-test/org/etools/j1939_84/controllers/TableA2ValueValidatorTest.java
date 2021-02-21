@@ -123,7 +123,7 @@ public class TableA2ValueValidatorTest {
         verify(mockListener).addOutcome(1,
                                         2,
                                         WARN,
-                                        "6.1.2 - SPN  3301, Time Since Engine Start: 0.000000 is = 0 seconds with rpm > 300");
+                                        "6.1.2 - SPN  3301, Time Since Engine Start: 0.000000 seconds is = 0 seconds with rpm > 300");
     }
 
     @Test

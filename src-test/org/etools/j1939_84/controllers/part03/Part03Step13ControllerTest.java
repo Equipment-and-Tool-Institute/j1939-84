@@ -204,7 +204,7 @@ public class Part03Step13ControllerTest extends AbstractControllerTest {
         expected += "SPN  3610, AFT 1 DPF Outlet Pressure: 0.200000 kPa" + NL;
         expected += "SPN  3246, AFT 1 DPF Outlet Temperature: 97.000000 °C" + NL;
         expected += "SPN   976, PTO Governor State: 11111" + NL;
-        expected += "SPN  3301, Time Since Engine Start: 26.000000" + NL;
+        expected += "SPN  3301, Time Since Engine Start: 26.000000 seconds" + NL;
         expected += "SPN   247, Engine Total Hours of Operation: 35.500000 h" + NL;
         expected += "SPN  1176, Engine Turbocharger 1 Compressor Intake Pressure: 101.500000 kPa" + NL;
         expected += "SPN  1172, Engine Turbocharger 1 Compressor Intake Temperature: 27.000000 °C" + NL;

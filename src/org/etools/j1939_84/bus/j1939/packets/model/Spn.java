@@ -9,19 +9,20 @@ import org.etools.j1939_84.utils.CollectionUtils;
 
 public class Spn {
 
-    private final int id;
-    private final String label;
-    private final Slot slot;
-    private final byte[] data;
-
     public static Spn create(int id, double value) {
         J1939DaRepository j1939DaRepository = J1939DaRepository.getInstance();
         SpnDefinition spnDefinition = j1939DaRepository.findSpnDefinition(id);
         String label = spnDefinition.getLabel();
-        Slot slot = j1939DaRepository.findSLOT(spnDefinition.getSlotNumber());
+        Slot slot = j1939DaRepository.findSLOT(spnDefinition.getSlotNumber(), id);
         byte[] data = slot.asBytes(value);
         return new Spn(id, label, slot, data);
     }
+
+    private final byte[] data;
+    private final int id;
+    private final String label;
+
+    private final Slot slot;
 
     public Spn(int id, String label, Slot slot, byte[] data) {
         this.id = id;
@@ -30,18 +31,17 @@ public class Spn {
         this.data = data;
     }
 
-    public int getId() {
-        return id;
-    }
-
     public int[] getData() {
         return CollectionUtils.toIntArray(data);
     }
 
+    public int getId() {
+        return id;
+    }
+
     /**
-     * Returns the scaled value of the data.
-     * This will return null if the value is NOT_AVAILABLE or ERROR.
-     * It will also return null if the type is ASCII.
+     * Returns the scaled value of the data. This will return null if the value
+     * is NOT_AVAILABLE or ERROR. It will also return null if the type is ASCII.
      *
      * @return Double or null
      */
@@ -54,15 +54,6 @@ public class Spn {
     }
 
     /**
-     * Returns true of the value of the SPN is NOT_AVAILABLE
-     *
-     * @return boolean
-     */
-    public boolean isNotAvailable() {
-        return slot.isNotAvailable(data);
-    }
-
-    /**
      * Returns true of the value of the SPN is ERROR
      *
      * @return boolean
@@ -71,12 +62,21 @@ public class Spn {
         return slot.isError(data);
     }
 
+    /**
+     * Returns true of the value of the SPN is NOT_AVAILABLE
+     *
+     * @return boolean
+     */
+    public boolean isNotAvailable() {
+        return slot.isNotAvailable(data);
+    }
+
     @Override
     public String toString() {
         return String.format("SPN %1$5s, %2$s: %3$s",
-                             id,
-                             label,
-                             slot.asString(data));
+                id,
+                label,
+                slot.asString(data));
     }
 
 }

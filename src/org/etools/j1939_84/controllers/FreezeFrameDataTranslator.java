@@ -12,6 +12,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.packets.FreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.Slot;
@@ -32,8 +33,8 @@ public class FreezeFrameDataTranslator {
     }
 
     /**
-     * Uses the data from the FreezeFrame and the list of Freeze Frame Supported SPNs
-     * to produce a List of SPNs which will have the data populated.
+     * Uses the data from the FreezeFrame and the list of Freeze Frame Supported
+     * SPNs to produce a List of SPNs which will have the data populated.
      */
     public List<Spn> getFreezeFrameSPNs(FreezeFrame freezeFrame, List<SupportedSPN> supportedSPNs) {
         List<SupportedSPN> supportedFreezeFrameSPNs = supportedSPNs.stream()
@@ -46,7 +47,8 @@ public class FreezeFrameDataTranslator {
         int actualLength = spnData.length;
         if (actualLength != expectedLength) {
             getLogger().log(Level.SEVERE,
-                            "The expected (" + expectedLength + ") and actual (" + actualLength + ") data lengths are different");
+                    "The expected (" + expectedLength + ") and actual (" + actualLength
+                            + ") data lengths are different");
             return List.of();
         }
 
@@ -60,19 +62,19 @@ public class FreezeFrameDataTranslator {
             SpnDefinition spnDefinition = getSpnDefinition(spnId);
             String label = spnDefinition.getLabel();
             int slotNumber = spnDefinition.getSlotNumber();
-            Slot slot = getSlotDefinition(slotNumber);
+            Slot slot = getSlotDefinition(slotNumber, spnId);
 
             spns.add(new Spn(spnId, label, slot, bytes));
         }
         return spns;
     }
 
-    private SpnDefinition getSpnDefinition(int spnId) {
-        return j1939DaRepository.findSpnDefinition(spnId);
+    private Slot getSlotDefinition(int slotNumber, int spnId) {
+        return j1939DaRepository.findSLOT(slotNumber, spnId);
     }
 
-    private Slot getSlotDefinition(int slotNumber) {
-        return j1939DaRepository.findSLOT(slotNumber);
+    private SpnDefinition getSpnDefinition(int spnId) {
+        return j1939DaRepository.findSpnDefinition(spnId);
     }
 
 }
