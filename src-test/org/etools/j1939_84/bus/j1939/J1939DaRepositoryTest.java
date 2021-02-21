@@ -36,7 +36,7 @@ public class J1939DaRepositoryTest {
                                                                                     Slot slot = j1939Da.findSLOT(s.getSlotNumber(),
                                                                                                                  s.getSpnId());
 
-                                                                                    if (slot.getByteLength() == 0) {
+                                                                                    if ("UNK".equals(slot.getType())) {
                                                                                         System.err.format("  SPN: %6d (%04X): %3d.%-3d %3d %6d %s%n",
                                                                                                           s.getSpnId(),
                                                                                                           s.getSpnId(),

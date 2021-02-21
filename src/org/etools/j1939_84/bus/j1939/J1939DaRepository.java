@@ -32,6 +32,13 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 
 public class J1939DaRepository {
+    static class ParseError extends Exception {
+        public ParseError(String string) {
+            super(string);
+        }
+
+    }
+
     final private static J1939DaRepository instance = new J1939DaRepository();
     private static Map<Integer, PgnDefinition> pgnLut;
     /**
@@ -39,6 +46,7 @@ public class J1939DaRepository {
      */
     private static Map<Integer, Slot> slots;
     private static Map<Integer, SpnDefinition> spnLut;
+
     private static Map<Integer, Set<Integer>> spnToPgnMap = null;
 
     public static Slot findSlot(int slotId, int spn) {
@@ -112,7 +120,7 @@ public class J1939DaRepository {
                                                                                                  startByte,
                                                                                                  startBit,
                                                                                                  line[7].isBlank()
-                                                                                                         ? -spnId
+                                                                                                         ? -1
                                                                                                          : Integer.parseInt(line[7]));
                                                                   }
                                                                   String pgnIdStr = line[0];
@@ -141,6 +149,13 @@ public class J1939DaRepository {
                                                           })
                                                           .filter(Objects::nonNull)
                                                           .collect(Collectors.toList());
+                spnLut = table.stream()
+                              .map(row -> ((SpnDefinition) row[1]))
+                              .filter(Objects::nonNull)
+                              // prefer the spn with a star byte over the one without
+                              .sorted(Comparator.comparing(s -> s.getStartByte()))
+                              .collect(Collectors.toMap(SpnDefinition::getSpnId, s -> s, (a, b) -> b));
+
                 pgnLut = table.stream()
                               .flatMap(row -> row[0] == null ? Stream.empty() : Stream.of((PgnDefinition) row[0]))
                               .collect(Collectors.toMap(PgnDefinition::getId,
@@ -156,16 +171,15 @@ public class J1939DaRepository {
                                                                                                   b
                                                                                                    .getSpnDefinitions()
                                                                                                    .stream())
+                                                                                          .map(s -> s.getSpnId())
+                                                                                          .distinct()
+                                                                                          .map(id -> spnLut.get(id))
                                                                                           .sorted(Comparator
                                                                                                             .comparing(s -> s.getStartByte()
                                                                                                                     * 8
                                                                                                                     + s
                                                                                                                        .getStartBit()))
                                                                                           .collect(Collectors.toList()))));
-                spnLut = table.stream()
-                              .map(row -> ((SpnDefinition) row[1]))
-                              .filter(Objects::nonNull)
-                              .collect(Collectors.toMap(SpnDefinition::getSpnId, s -> s, (a, b) -> a));
 
                 spnToPgnMap = new HashMap<>();
                 for (PgnDefinition pgnDefinition : pgnLut.values()) {
@@ -422,13 +436,6 @@ public class J1939DaRepository {
     public Map<Integer, SpnDefinition> getSpnDefinitions() {
         loadLookUpTables();
         return Collections.unmodifiableMap(spnLut);
-    }
-
-    static class ParseError extends Exception {
-        public ParseError(String string) {
-            super(string);
-        }
-
     }
 
 }
