@@ -35,10 +35,10 @@ public interface Bus extends AutoCloseable {
     /**
      * Returns the speed of the bus
      *
-     * @return the speed of the bus
+     * @return              the speed of the bus
      *
      * @throws BusException
-     *             if the speed cannot be determined
+     *                          if the speed cannot be determined
      */
     int getConnectionSpeed() throws BusException;
 
@@ -52,16 +52,16 @@ public interface Bus extends AutoCloseable {
     /**
      * Reads {@link Packet}s from the bus
      *
-     * @param timeout
-     *            the amount of time to read packets
+     * @param  timeout
+     *                          the amount of time to read packets
      *
-     * @param unit
-     *            the {@link TimeUnit} for the amount of time
+     * @param  unit
+     *                          the {@link TimeUnit} for the amount of time
      *
-     * @return a {@link Stream} of {@link Packet}
+     * @return              a {@link Stream} of {@link Packet}
      *
      * @throws BusException
-     *             if there is a problem reading packets
+     *                          if there is a problem reading packets
      */
     Stream<Packet> read(long timeout, TimeUnit unit) throws BusException;
 
@@ -70,25 +70,25 @@ public interface Bus extends AutoCloseable {
      * stream call like peek, map or forEach.
      *
      * @param stream
-     *            for which to reset timeout
+     *                   for which to reset timeout
      *
      * @param time
-     *            new timeout value
+     *                   new timeout value
      *
      * @param unit
-     *            the {@link TimeUnit} for the amount of time
+     *                   the {@link TimeUnit} for the amount of time
      */
     void resetTimeout(Stream<Packet> stream, int time, TimeUnit unit);
 
     /**
      * Sends a {@link Packet} to the vehicle communications bus
      *
-     * @param packet
-     *            the {@link Packet} to send
+     * @param  packet
+     *                          the {@link Packet} to send
      *
      * @throws BusException
-     *             if there is a problem sending the packet
-     * @return The echo of the packet sent. Useful for the timestamp.
+     *                          if there is a problem sending the packet
+     * @return              The echo of the packet sent. Useful for the timestamp.
      */
     Packet send(Packet packet) throws BusException;
 

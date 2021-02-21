@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part08;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -53,8 +54,10 @@ public class Part08Step05Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.8.5.1.a Global DM2 ([send Request (PGN 59904) for PGN 65227 (SPNs 1213-1215, 3038, 1706)]).
-        // 6.8.5.2.a (if supported) Fail if any OBD ECU does not include all DTCs from its DM23 response in its DM2 response.
-        // 6.8.5.2.b (if supported) Fail if any OBD ECU reporting a different MIL status than DM12 response earlier in this part.
+        // 6.8.5.2.a (if supported) Fail if any OBD ECU does not include all DTCs from its DM23 response in its DM2
+        // response.
+        // 6.8.5.2.b (if supported) Fail if any OBD ECU reporting a different MIL status than DM12 response earlier in
+        // this part.
     }
 
 }

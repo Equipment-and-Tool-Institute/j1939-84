@@ -35,9 +35,9 @@ public class Slot {
      * Returns the data as a scaled value include the units of measure (if
      * applicable)
      *
-     * @param data
-     *         the byte array containing the data from the packet
-     * @return a String of the value with units of measure
+     * @param  data
+     *                  the byte array containing the data from the packet
+     * @return      a String of the value with units of measure
      */
     public String asString(byte[] data) {
         if (data.length == 0) {
@@ -82,9 +82,9 @@ public class Slot {
      * Returns the data in a scaled value. If the type is ASCII or the value is
      * NOT_AVAILABLE or ERROR, null is returned
      *
-     * @param data
-     *         the byte array containing the data from the packet
-     * @return the scaled value or null
+     * @param  data
+     *                  the byte array containing the data from the packet
+     * @return      the scaled value or null
      */
     public Double asValue(byte[] data) {
         if (isAscii() || data.length == 0) {
@@ -205,9 +205,9 @@ public class Slot {
     /**
      * Returns a scaled value. That is result = value * scaling + offset
      *
-     * @param value
-     *         the value to scale
-     * @return double
+     * @param  value
+     *                   the value to scale
+     * @return       double
      */
     public double scale(double value) {
         double result = value;

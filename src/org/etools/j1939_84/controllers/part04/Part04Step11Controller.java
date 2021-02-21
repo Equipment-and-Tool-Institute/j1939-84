@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part04;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -57,16 +58,19 @@ public class Part04Step11Controller extends StepController {
         for (OBDModuleInformation obdModuleInformation : getDataRepository().getObdModules()) {
             int ignCycles = obdModuleInformation.getIgnitionCycleCounterValue();
             if (!obdModuleInformation.getPerformanceRatios().isEmpty()) {
-                // 6.4.11.1.a DS DM20 [(send Request (PGN 59904) for PGN 49664 (SPN 3048)]) to ECU(s) that responded in part 1 with DM20 data.
-                // 6.4.11.2.a Fail if ignition cycle counter (SPN 3048) for any ECU has not incremented by one compared to value recorded at end of part 3.
+                // 6.4.11.1.a DS DM20 [(send Request (PGN 59904) for PGN 49664 (SPN 3048)]) to ECU(s) that responded in
+                // part 1 with DM20 data.
+                // 6.4.11.2.a Fail if ignition cycle counter (SPN 3048) for any ECU has not incremented by one compared
+                // to value recorded at end of part 3.
                 getDiagnosticMessageModule().requestDM20(getListener(), obdModuleInformation.getSourceAddress())
-                        .requestResult()
-                        .getPackets()
-                        .stream()
-                        .filter(p -> p.getIgnitionCycles() != ignCycles + 1)
-                        .map(ParsedPacket::getModuleName)
-                        .forEach(moduleName -> addFailure("6.4.11.2.a - Ignition cycle counter (SPN 3048) from " + moduleName +
-                                                                  " has not incremented by one compared to the value recorded at the end of part 3"));
+                                            .requestResult()
+                                            .getPackets()
+                                            .stream()
+                                            .filter(p -> p.getIgnitionCycles() != ignCycles + 1)
+                                            .map(ParsedPacket::getModuleName)
+                                            .forEach(moduleName -> addFailure("6.4.11.2.a - Ignition cycle counter (SPN 3048) from "
+                                                    + moduleName +
+                                                    " has not incremented by one compared to the value recorded at the end of part 3"));
             }
         }
 

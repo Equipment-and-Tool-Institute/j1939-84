@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part09;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -52,8 +53,10 @@ public class Part09Step11Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.9.11.1.a. DS DM20 [(send Request (PGN 59904) for PGN 49664 (SPNs 3048-3049, 3066-3068)]) to ECUs that responded earlier in this part with DM20 data.
-        // 6.9.11.2.a. Fail if any value (ignition cycle, numerator, or denominator) is not equal to the value that it was earlier in Step 6.9.4.1.b (before DM11).
+        // 6.9.11.1.a. DS DM20 [(send Request (PGN 59904) for PGN 49664 (SPNs 3048-3049, 3066-3068)]) to ECUs that
+        // responded earlier in this part with DM20 data.
+        // 6.9.11.2.a. Fail if any value (ignition cycle, numerator, or denominator) is not equal to the value that it
+        // was earlier in Step 6.9.4.1.b (before DM11).
         // 6.9.11.2.b. Fail if any ECU now NACKs DM20 requests after previously providing data in 6.9.4.1.
         // 6.9.11.2.c. Fail if any NACK not received from an OBD ECU that did not provide a DM20 message.
     }

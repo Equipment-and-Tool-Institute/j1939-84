@@ -6,13 +6,14 @@ package org.etools.j1939_84.controllers.part02;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -67,14 +68,16 @@ public class Part02Step06Controller extends StepController {
             var obdModuleInfo = getDataRepository().getObdModule(address);
             for (DM56EngineFamilyPacket packet : packets) {
                 if (obdModuleInfo == null || !packet.getModelYearField().equals(obdModuleInfo.getModelYear())) {
-                    addFailure("6.2.6.2.a - " + moduleName + " reported different Model Year when compared to data received in part 1");
+                    addFailure("6.2.6.2.a - " + moduleName
+                            + " reported different Model Year when compared to data received in part 1");
                     break;
                 }
             }
 
             for (DM56EngineFamilyPacket packet : packets) {
                 if (obdModuleInfo == null || !packet.getFamilyName().equals(obdModuleInfo.getEngineFamilyName())) {
-                    addFailure("6.2.6.2.a - " + moduleName + " reported different Engine Family Name when compared to data received in part 1");
+                    addFailure("6.2.6.2.a - " + moduleName
+                            + " reported different Engine Family Name when compared to data received in part 1");
                     break;
                 }
             }

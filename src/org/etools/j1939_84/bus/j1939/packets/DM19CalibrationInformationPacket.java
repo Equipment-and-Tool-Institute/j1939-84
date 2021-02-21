@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
@@ -86,9 +87,9 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
         @Override
         public int hashCode() {
             return Objects.hash(getCalibrationIdentification(),
-                    getCalibrationVerificationNumber(),
-                    Arrays.hashCode(getRawCalId()),
-                    Arrays.hashCode(getRawCvn()));
+                                getCalibrationVerificationNumber(),
+                                Arrays.hashCode(getRawCalId()),
+                                Arrays.hashCode(getRawCvn()));
         }
 
         @Override
@@ -160,9 +161,9 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
     /**
      * Parses one calibration information from the packet
      *
-     * @param startingIndex
-     *                      the index of the data to start the parsing at
-     * @return The parsed {@link CalibrationInformation}
+     * @param  startingIndex
+     *                           the index of the data to start the parsing at
+     * @return               The parsed {@link CalibrationInformation}
      */
     private CalibrationInformation parseInformation(int startingIndex) {
         String cvn = String.format("%08X", getPacket().get32(startingIndex) & 0xFFFFFFFFL);

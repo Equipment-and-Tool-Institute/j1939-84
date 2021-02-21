@@ -27,6 +27,10 @@ import org.junit.Test;
 @SuppressWarnings("SimplifiableAssertion")
 public class MonitoredSystemTest {
 
+    private static MonitoredSystemStatus getStatus(boolean b) {
+        return findStatus(false, true, b);
+    }
+
     @Test
     public void testEqualsHashCode() {
         MonitoredSystem instance1 = new MonitoredSystem("Name", getStatus(true), 0, DIESEL_PARTICULATE_FILTER, true);
@@ -107,10 +111,6 @@ public class MonitoredSystemTest {
     public void testToString() {
         MonitoredSystem instance = new MonitoredSystem("Name", getStatus(true), 0, COLD_START_AID_SYSTEM, true);
         assertEquals("    Name     supported,     complete", instance.toString());
-    }
-
-    private static MonitoredSystemStatus getStatus(boolean b) {
-        return findStatus(false, true, b);
     }
 
 }

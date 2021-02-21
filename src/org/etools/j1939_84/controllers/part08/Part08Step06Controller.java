@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part08;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -53,7 +54,8 @@ public class Part08Step06Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.8.6.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)]). Fail Criteria
-        // 6.8.6.2.a Fail if any OBD ECU reports different number of DTCs than corresponding DM1 or DM2 response earlier this part.
+        // 6.8.6.2.a Fail if any OBD ECU reports different number of DTCs than corresponding DM1 or DM2 response earlier
+        // this part.
         // 6.8.6.3.a DS DM5 to each OBD ECU.
         // 6.8.6.4.a Fail if any difference in data compared to global response.
     }

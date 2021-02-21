@@ -20,13 +20,8 @@ import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 
 public class GenericPacket extends ParsedPacket {
 
-    private static J1939DaRepository getJ1939DaRepository() {
-        return J1939DaRepository.getInstance();
-    }
-
     private final SpnDataParser parser;
     private final PgnDefinition pgnDefinition;
-
     private List<Spn> spns;
 
     public GenericPacket(Packet packet) {
@@ -43,6 +38,10 @@ public class GenericPacket extends ParsedPacket {
         this.parser = parser;
     }
 
+    private static J1939DaRepository getJ1939DaRepository() {
+        return J1939DaRepository.getInstance();
+    }
+
     public String getAcronym() {
         return getPgnDefinition().getAcronym();
     }
@@ -50,6 +49,20 @@ public class GenericPacket extends ParsedPacket {
     @Override
     public String getName() {
         return getPgnDefinition().getLabel();
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder result = new StringBuilder();
+        try {
+            result.append(getStringPrefix()).append(NL);
+            for (Spn spn : getSpns()) {
+                result.append("  ").append(spn.toString()).append(NL);
+            }
+        } catch (Exception e) {
+            getLogger().log(Level.SEVERE, "Error creating string", e);
+        }
+        return result.toString();
     }
 
     public PgnDefinition getPgnDefinition() {
@@ -73,20 +86,6 @@ public class GenericPacket extends ParsedPacket {
             }
         }
         return spns;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder result = new StringBuilder();
-        try {
-            result.append(getStringPrefix()).append(NL);
-            for (Spn spn : getSpns()) {
-                result.append("  ").append(spn.toString()).append(NL);
-            }
-        } catch (Exception e) {
-            getLogger().log(Level.SEVERE, "Error creating string", e);
-        }
-        return result.toString();
     }
 
 }

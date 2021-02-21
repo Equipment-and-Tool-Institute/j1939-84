@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part07;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -52,9 +53,10 @@ public class Part07Step17Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.7.17.1.a. DS DM7 with TID 250 and each specific SPN+FMI that had non-initialized test results on list created in step 6.7.15.1.b.
+        // 6.7.17.1.a. DS DM7 with TID 250 and each specific SPN+FMI that had non-initialized test results on list
+        // created in step 6.7.15.1.b.
         // 6.7.17.2.a. Fail if any non-initialized tests reports now report initialized values.
-        // Use this to help verify no diagnostic information  was cleared with DM3 request.43
+        // Use this to help verify no diagnostic information was cleared with DM3 request.43
     }
 
 }

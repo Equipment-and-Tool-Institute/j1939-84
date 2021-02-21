@@ -111,18 +111,18 @@ public class LookupTest {
 
     @Test
     public void testGetOutcomeForDuplicateSpn() {
-        assertEquals(PASS, Lookup.getOutcomeForDuplicateSpn(123)); //Unknown
-        assertEquals(WARN, Lookup.getOutcomeForDuplicateSpn(84)); //WARN
-        assertEquals(PASS, Lookup.getOutcomeForDuplicateSpn(2848)); //PASS
-        assertEquals(FAIL, Lookup.getOutcomeForDuplicateSpn(102)); //FAIL
+        assertEquals(PASS, Lookup.getOutcomeForDuplicateSpn(123)); // Unknown
+        assertEquals(WARN, Lookup.getOutcomeForDuplicateSpn(84)); // WARN
+        assertEquals(PASS, Lookup.getOutcomeForDuplicateSpn(2848)); // PASS
+        assertEquals(FAIL, Lookup.getOutcomeForDuplicateSpn(102)); // FAIL
     }
 
     @Test
     public void testGetOutcomeForNonObdModuleProvidingSpn() {
-        assertEquals(PASS, Lookup.getOutcomeForNonObdModuleProvidingSpn(123)); //Unknown
-        assertEquals(WARN, Lookup.getOutcomeForNonObdModuleProvidingSpn(3226)); //WARN
-        assertEquals(PASS, Lookup.getOutcomeForNonObdModuleProvidingSpn(168)); //PASS
-        assertEquals(FAIL, Lookup.getOutcomeForNonObdModuleProvidingSpn(183)); //FAIL
+        assertEquals(PASS, Lookup.getOutcomeForNonObdModuleProvidingSpn(123)); // Unknown
+        assertEquals(WARN, Lookup.getOutcomeForNonObdModuleProvidingSpn(3226)); // WARN
+        assertEquals(PASS, Lookup.getOutcomeForNonObdModuleProvidingSpn(168)); // PASS
+        assertEquals(FAIL, Lookup.getOutcomeForNonObdModuleProvidingSpn(183)); // FAIL
 
     }
 }

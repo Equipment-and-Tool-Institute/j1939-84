@@ -9,6 +9,7 @@ import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNIN
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -78,7 +79,8 @@ public class Part04Step15Controller extends StepController {
 
     private void waitForManufacturerInterval() {
         if (!isDevEnv()) {
-            String message = "Please wait for the manufacturer's recommended interval with the key in off position" + NL;
+            String message = "Please wait for the manufacturer's recommended interval with the key in off position"
+                    + NL;
             message += "Press OK to continue the testing" + NL;
             displayInstructionAndWait(message, "Part 6.4.15.1.b", WARNING);
         }
@@ -93,6 +95,7 @@ public class Part04Step15Controller extends StepController {
             displayInstructionAndWait(message, boxTitle, WARNING);
         }
     }
+
     private void waitForEngineStart() {
         if (!isDevEnv()) {
             String message = "Turn ignition key to the ON position" + NL;

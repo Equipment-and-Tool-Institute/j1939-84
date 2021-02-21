@@ -90,7 +90,7 @@ public class VinDecoderTest {
     @Test
     public void testSanitize() {
         String actual = instance.sanitize(
-                "`1234567890-=~!@#$%^&*()_+qwertyuiop[]\\QWERTYUIOP{}|asdfghjkl;'ASDFGHJKL:\"zxcvbnm,./ZXCVBNM<>?");
+                                          "`1234567890-=~!@#$%^&*()_+qwertyuiop[]\\QWERTYUIOP{}|asdfghjkl;'ASDFGHJKL:\"zxcvbnm,./ZXCVBNM<>?");
         String expected = "1234567890WERTYUPWERTYUPASDFGHJKLASDFGHJKLZXCVBNMZXCVBNM";
         assertEquals(expected, actual);
     }

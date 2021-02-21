@@ -21,6 +21,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
@@ -82,7 +83,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
     private DataRepository dataRepository;
 
     private StepController instance;
-    
+
     private DateTimeModule dateTimeModule;
 
     @Before
@@ -90,7 +91,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
         dateTimeModule = new TestDateTimeModule();
-        
+
         instance = new Part04Step02Controller(executor,
                                               bannerModule,
                                               dateTimeModule,
@@ -264,7 +265,6 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(DM6PendingEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
         dataRepository.putObdModule(obdModuleInformation);
-
 
         var dm12_0 = DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1);
         var dm12_1 = DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1);

@@ -53,8 +53,9 @@ public class RP1210Test {
         }
 
         Optional<Adapter> adapter = adapters.stream()
-                .filter(a -> a.getDLLName().equals(args[0]) && a.getDeviceId() == Integer.parseInt(args[1]))
-                .findFirst();
+                                            .filter(a -> a.getDLLName().equals(args[0])
+                                                    && a.getDeviceId() == Integer.parseInt(args[1]))
+                                            .findFirst();
         if (!adapter.isPresent()) {
             throw new IllegalArgumentException("Unknown RP1210 Adapter");
         }
@@ -65,16 +66,16 @@ public class RP1210Test {
         {
             final Class<DM29DtcCounts> cls = DM29DtcCounts.class;
             new J1939(tpBus)
-                    .requestGlobal("Request " + cls, cls, new TestResultsListener() {
-                        @Override
-                        public void onResult(String result) {
-                            System.err.println("RST: " + result);
-                        }
-                    })
-                    .getEither()
-                    .stream()
-                    .map(pa -> pa.resolve())
-                    .forEach(p -> System.err.format("Response: %s%n", p));
+                            .requestGlobal("Request " + cls, cls, new TestResultsListener() {
+                                @Override
+                                public void onResult(String result) {
+                                    System.err.println("RST: " + result);
+                                }
+                            })
+                            .getEither()
+                            .stream()
+                            .map(pa -> pa.resolve())
+                            .forEach(p -> System.err.format("Response: %s%n", p));
             // read.forEach(p -> System.err.format("%8s %s%n", p.isTransmitted()
             // ? "echoed" : "", p.toTimeString()));
         }

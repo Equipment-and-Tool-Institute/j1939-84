@@ -21,8 +21,8 @@ public class ComponentIdentificationPacket extends GenericPacket {
     public static final int PGN = 65259;
 
     /*
-     * Helper method for unit testing purposes.  Allows us to easily create
-     * a packet from the expected human readable data type.  String are joined
+     * Helper method for unit testing purposes. Allows us to easily create
+     * a packet from the expected human readable data type. String are joined
      * together to create a byte representation of the data values joined together
      * with an '*" for parsing.
      */
@@ -52,7 +52,7 @@ public class ComponentIdentificationPacket extends GenericPacket {
      * Constructor
      *
      * @param packet
-     *         the {@link Packet} to parse
+     *                   the {@link Packet} to parse
      */
     public ComponentIdentificationPacket(Packet packet) {
         super(packet, new J1939DaRepository().findPgnDefinition(PGN));

@@ -10,6 +10,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
@@ -64,7 +65,7 @@ public class Part01Step07Controller extends StepController {
     protected void run() throws Throwable {
         // 6.1.7.1.a. Global DM19 (send Request (PGN 59904) for PGN 54016
         List<DM19CalibrationInformationPacket> globalDM19s = getVehicleInformationModule()
-                .reportCalibrationInformation(getListener());
+                                                                                          .reportCalibrationInformation(getListener());
 
         // 6.1.7.1.a.b. Create list of ECU address + CAL ID + CVN
         for (DM19CalibrationInformationPacket packet : globalDM19s) {
@@ -78,10 +79,10 @@ public class Part01Step07Controller extends StepController {
         }
 
         List<String> calIds = globalDM19s.stream()
-                .map(DM19CalibrationInformationPacket::getCalibrationInformation)
-                .flatMap(Collection::stream)
-                .map(CalibrationInformation::getCalibrationIdentification)
-                .collect(Collectors.toList());
+                                         .map(DM19CalibrationInformationPacket::getCalibrationInformation)
+                                         .flatMap(Collection::stream)
+                                         .map(CalibrationInformation::getCalibrationIdentification)
+                                         .collect(Collectors.toList());
         int expectedCalIdCount = getDataRepository().getVehicleInformation().getCalIds();
         if (calIds.size() < expectedCalIdCount) {
             addFailure("6.1.7.2.a Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units");
@@ -168,39 +169,40 @@ public class Part01Step07Controller extends StepController {
         // ECUs that responded to global DM19).
         globalDM19s.forEach(dm19 -> {
             BusResult<DM19CalibrationInformationPacket> result = getVehicleInformationModule()
-                    .reportCalibrationInformation(
-                            getListener(),
-                            dm19.getSourceAddress());
+                                                                                              .reportCalibrationInformation(
+                                                                                                                            getListener(),
+                                                                                                                            dm19.getSourceAddress());
             result.getPacket()
-                    // treat NACKs as failed response
-                    .flatMap(e -> e.left)
-                    // filter for only those that match
-                    .filter(info -> Objects.equals(dm19.getCalibrationInformation(), info.getCalibrationInformation()))
-                    // report everything that failed to respond or doesn't match
-                    .ifPresentOrElse(x -> {
-                    }, () -> addFailure(
-                            "6.1.7.5.a Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference "
-                                    + dm19.getCalibrationInformation()));
+                  // treat NACKs as failed response
+                  .flatMap(e -> e.left)
+                  // filter for only those that match
+                  .filter(info -> Objects.equals(dm19.getCalibrationInformation(), info.getCalibrationInformation()))
+                  // report everything that failed to respond or doesn't match
+                  .ifPresentOrElse(x -> {
+                  },
+                                   () -> addFailure(
+                                                    "6.1.7.5.a Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference "
+                                                            + dm19.getCalibrationInformation()));
             if (result.isRetryUsed()) {
                 addFailure("6.1.7.5.b NACK (PGN 59392) with mode/control byte = 3 (busy) received");
             }
         });
 
         Set<Integer> globalAddresses = globalDM19s.stream()
-                .map(ParsedPacket::getSourceAddress)
-                .collect(Collectors.toSet());
+                                                  .map(ParsedPacket::getSourceAddress)
+                                                  .collect(Collectors.toSet());
         List<Integer> obdAddresses = getDataRepository().getObdModuleAddresses();
         obdAddresses.removeAll(globalAddresses);
 
         for (int address : obdAddresses) {
             BusResult<DM19CalibrationInformationPacket> results = getVehicleInformationModule()
-                    .reportCalibrationInformation(
-                            getListener(),
-                            address);
+                                                                                               .reportCalibrationInformation(
+                                                                                                                             getListener(),
+                                                                                                                             address);
             results.getPacket()
-                    .flatMap(e -> e.left)
-                    // if there is a DM19, then there was not a NACK
-                    .ifPresent(dm19 -> addFailure("6.1.7.5.c NACK not received from OBD ECU that did not respond to global query"));
+                   .flatMap(e -> e.left)
+                   // if there is a DM19, then there was not a NACK
+                   .ifPresent(dm19 -> addFailure("6.1.7.5.c NACK not received from OBD ECU that did not respond to global query"));
         }
     }
 }

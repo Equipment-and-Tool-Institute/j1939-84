@@ -8,6 +8,7 @@ import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
@@ -16,8 +17,8 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  * (DM31)
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * <p>
- * DTC to Lamp Association
+ *         <p>
+ *         DTC to Lamp Association
  */
 public class DM31DtcToLampAssociation extends GenericPacket {
     // Hex value of PGN = 00A300
@@ -51,12 +52,26 @@ public class DM31DtcToLampAssociation extends GenericPacket {
         return "DM31";
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getStringPrefix()).append(NL);
+        sb.append("DTC Lamp Statuses: [").append(NL);
+        for (DTCLampStatus dtcLampStatus : getDtcLampStatuses()) {
+            sb.append(dtcLampStatus).append(NL);
+        }
+        sb.append("]");
+
+        return sb.toString();
+    }
+
     public DTCLampStatus findLampStatusForDTC(DiagnosticTroubleCode dtc) {
         return getDtcLampStatuses().stream()
-                .filter(l -> l.getDtc().getSuspectParameterNumber() == dtc.getSuspectParameterNumber())
-                .filter(l -> l.getDtc().getFailureModeIndicator() == dtc.getFailureModeIndicator())
-                .findFirst()
-                .orElse(null);
+                                   .filter(l -> l.getDtc()
+                                                 .getSuspectParameterNumber() == dtc.getSuspectParameterNumber())
+                                   .filter(l -> l.getDtc().getFailureModeIndicator() == dtc.getFailureModeIndicator())
+                                   .findFirst()
+                                   .orElse(null);
     }
 
     /**
@@ -70,19 +85,6 @@ public class DM31DtcToLampAssociation extends GenericPacket {
                 dtcLampStatuses.add(new DTCLampStatus(getPacket().getData(i, i + 6)));
             }
         }
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getStringPrefix()).append(NL);
-        sb.append("DTC Lamp Statuses: [").append(NL);
-        for (DTCLampStatus dtcLampStatus : getDtcLampStatuses()) {
-            sb.append(dtcLampStatus).append(NL);
-        }
-        sb.append("]");
-
-        return sb.toString();
     }
 
 }

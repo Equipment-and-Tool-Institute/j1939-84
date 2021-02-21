@@ -9,7 +9,9 @@ import java.util.logging.ConsoleHandler;
 import java.util.logging.FileHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import javax.swing.UIManager;
+
 import org.etools.j1939_84.ui.UserInterfaceView;
 
 /**
@@ -89,7 +91,7 @@ public class J1939_84 {
      * Launch the application.
      *
      * @param args
-     *         The arguments used to start the application
+     *                 The arguments used to start the application
      */
     public static void main(String[] args) {
         getLogger().info("J1939_84 starting");
@@ -116,18 +118,18 @@ public class J1939_84 {
 
     private static Boolean argAsBoolean(String[] args, String argName) {
         return Arrays.stream(args)
-                .filter(arg -> arg.contains(argName))
-                .map(s -> s.substring(s.indexOf('=') + 1))
-                .map(Boolean::parseBoolean)
-                .findFirst()
-                .orElse(false);
+                     .filter(arg -> arg.contains(argName))
+                     .map(s -> s.substring(s.indexOf('=') + 1))
+                     .map(Boolean::parseBoolean)
+                     .findFirst()
+                     .orElse(false);
     }
 
     /**
      * Sets the System Property to indicate the system is under development
      *
      * @param isDevEnv
-     *         - true to indicate the environment is under development
+     *                     - true to indicate the environment is under development
      */
     private static void setDevEnv(boolean isDevEnv) {
         System.setProperty(DEV_PROPERTY_NAME, Boolean.toString(isDevEnv));
@@ -137,7 +139,7 @@ public class J1939_84 {
      * Sets the System Property to indicate the system is under test
      *
      * @param testing
-     *         - true to indicate the system is under test
+     *                    - true to indicate the system is under test
      */
     public static void setTesting(boolean testing) {
         System.setProperty(TESTING_PROPERTY_NAME, Boolean.toString(testing));

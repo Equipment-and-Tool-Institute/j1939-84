@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -20,7 +21,7 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * The controller for 6.1.20 DM28: Permanent DTCs DTCs
+ *         The controller for 6.1.20 DM28: Permanent DTCs DTCs
  */
 
 public class Part01Step20Controller extends StepController {
@@ -31,12 +32,12 @@ public class Part01Step20Controller extends StepController {
 
     Part01Step20Controller(DataRepository dataRepository) {
         this(Executors.newSingleThreadScheduledExecutor(),
-                new EngineSpeedModule(),
-                new BannerModule(),
-                new VehicleInformationModule(),
-                new DiagnosticMessageModule(),
-                dataRepository,
-                DateTimeModule.getInstance());
+             new EngineSpeedModule(),
+             new BannerModule(),
+             new VehicleInformationModule(),
+             new DiagnosticMessageModule(),
+             dataRepository,
+             DateTimeModule.getInstance());
     }
 
     Part01Step20Controller(Executor executor,
@@ -66,18 +67,18 @@ public class Part01Step20Controller extends StepController {
 
         // 6.1.20.2.a. Fail if any ECU reports permanent DTCs.
         globalPackets.stream()
-                .filter(p -> !p.getDtcs().isEmpty())
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.1.20.2.a - " + moduleName + " reported permanent DTCs"));
+                     .filter(p -> !p.getDtcs().isEmpty())
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> addFailure("6.1.20.2.a - " + moduleName + " reported permanent DTCs"));
 
         // 6.1.20.2.b. Fail if any ECU does not report MIL off.
         globalPackets.stream()
-                .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.1.20.2.b - " + moduleName + " did not report MIL off"));
+                     .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> addFailure("6.1.20.2.b - " + moduleName + " did not report MIL off"));
 
         boolean obdModuleResponded = globalPackets.stream()
-                .anyMatch(p -> getDataRepository().isObdModule(p.getSourceAddress()));
+                                                  .anyMatch(p -> getDataRepository().isObdModule(p.getSourceAddress()));
         if (!obdModuleResponded) {
             // 6.1.20.2.c. Fail if no OBD ECU provides DM28.
             addFailure("6.1.20.2.c - No OBD ECU provided DM28");
@@ -87,8 +88,10 @@ public class Part01Step20Controller extends StepController {
 
         // 6.1.20.3.a. DS DM28 to all OBD ECUs.
         var dsResults = obdModuleAddresses
-                .stream().map(address -> getDiagnosticMessageModule().requestDM28(getListener(), address))
-                .collect(Collectors.toList());
+                                          .stream()
+                                          .map(address -> getDiagnosticMessageModule().requestDM28(getListener(),
+                                                                                                   address))
+                                          .collect(Collectors.toList());
 
         // 6.1.20.4.a. Fail if any difference compared to data received during global request.
         compareRequestPackets(globalPackets, filterPackets(dsResults), "6.1.20.4.a");

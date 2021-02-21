@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.Arrays;
 import java.util.Objects;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
@@ -14,12 +15,21 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  * The {@link ParsedPacket} for Diagnostic Trouble Code Counts Codes (DM29)
  *
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * <p>
- * This DM conveys the number of regulated DTC counts (Pending,
- * Permanent, MIL- On, PMIL-On)
+ *         <p>
+ *         This DM conveys the number of regulated DTC counts (Pending,
+ *         Permanent, MIL- On, PMIL-On)
  */
 public class DM29DtcCounts extends GenericPacket {
-    public static final int PGN = 40448; //9E00
+    public static final int PGN = 40448; // 9E00
+    private int allPendingDTCCount = -1;
+    private int emissionRelatedMILOnDTCCount = -1;
+    private int emissionRelatedPendingDTCCount = -1;
+    private int emissionRelatedPermanentDTCCount = -1;
+    private int emissionRelatedPreviouslyMILOnDTCCount = -1;
+
+    public DM29DtcCounts(Packet packet) {
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+    }
 
     public static DM29DtcCounts create(int source,
                                        int pendingCount,
@@ -38,16 +48,6 @@ public class DM29DtcCounts extends GenericPacket {
         data[7] = (byte) 0xFF;
 
         return new DM29DtcCounts(Packet.create(PGN, source, data));
-    }
-
-    private int allPendingDTCCount = -1;
-    private int emissionRelatedMILOnDTCCount = -1;
-    private int emissionRelatedPendingDTCCount = -1;
-    private int emissionRelatedPermanentDTCCount = -1;
-    private int emissionRelatedPreviouslyMILOnDTCCount = -1;
-
-    public DM29DtcCounts(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     public int getAllPendingDTCCount() {
@@ -90,6 +90,28 @@ public class DM29DtcCounts extends GenericPacket {
         return "DM29";
     }
 
+    @Override
+    public String toString() {
+        String result = "";
+        result += getStringPrefix() + NL;
+
+        String count = getValueWithUnits((byte) getEmissionRelatedPendingDTCCount(), null);
+        result += String.format("%1$-45s %2$20s", "Emission-Related Pending DTC Count", count) + NL;
+
+        count = getValueWithUnits((byte) getAllPendingDTCCount(), null);
+        result += String.format("%1$-45s %2$20s", "All Pending DTC Count", count) + NL;
+
+        count = getValueWithUnits((byte) getEmissionRelatedMILOnDTCCount(), null);
+        result += String.format("%1$-45s %2$20s", "Emission-Related MIL-On DTC Count", count) + NL;
+
+        count = getValueWithUnits((byte) getEmissionRelatedPreviouslyMILOnDTCCount(), null);
+        result += String.format("%1$-45s %2$20s", "Emission-Related Previously MIL-On DTC Count", count) + NL;
+
+        count = getValueWithUnits((byte) getEmissionRelatedPermanentDTCCount(), null);
+        result += String.format("%1$-45s %2$20s", "Emission-Related Permanent DTC Count", count);
+        return result;
+    }
+
     public boolean hasNonZeroCounts(Boolean allPendingSupported) {
         boolean result = false;
         if (allPendingSupported != null) {
@@ -114,6 +136,16 @@ public class DM29DtcCounts extends GenericPacket {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(),
+                            getAllPendingDTCCount(),
+                            getEmissionRelatedMILOnDTCCount(),
+                            getEmissionRelatedPendingDTCCount(),
+                            getEmissionRelatedPermanentDTCCount(),
+                            getEmissionRelatedPreviouslyMILOnDTCCount());
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -131,37 +163,6 @@ public class DM29DtcCounts extends GenericPacket {
                 && getEmissionRelatedPendingDTCCount() == that.getEmissionRelatedPendingDTCCount()
                 && getEmissionRelatedPermanentDTCCount() == that.getEmissionRelatedPermanentDTCCount()
                 && getEmissionRelatedPreviouslyMILOnDTCCount() == that.getEmissionRelatedPreviouslyMILOnDTCCount();
-    }
-
-    @Override public int hashCode() {
-        return Objects.hash(super.hashCode(),
-                            getAllPendingDTCCount(),
-                            getEmissionRelatedMILOnDTCCount(),
-                            getEmissionRelatedPendingDTCCount(),
-                            getEmissionRelatedPermanentDTCCount(),
-                            getEmissionRelatedPreviouslyMILOnDTCCount());
-    }
-
-    @Override
-    public String toString() {
-        String result = "";
-        result += getStringPrefix() + NL;
-
-        String count = getValueWithUnits((byte) getEmissionRelatedPendingDTCCount(), null);
-        result += String.format("%1$-45s %2$20s", "Emission-Related Pending DTC Count", count) + NL;
-
-        count = getValueWithUnits((byte) getAllPendingDTCCount(), null);
-        result += String.format("%1$-45s %2$20s", "All Pending DTC Count", count) + NL;
-
-        count = getValueWithUnits((byte) getEmissionRelatedMILOnDTCCount(), null);
-        result += String.format("%1$-45s %2$20s", "Emission-Related MIL-On DTC Count", count) + NL;
-
-        count = getValueWithUnits((byte) getEmissionRelatedPreviouslyMILOnDTCCount(), null);
-        result += String.format("%1$-45s %2$20s", "Emission-Related Previously MIL-On DTC Count", count) + NL;
-
-        count = getValueWithUnits((byte) getEmissionRelatedPermanentDTCCount(), null);
-        result += String.format("%1$-45s %2$20s", "Emission-Related Permanent DTC Count", count);
-        return result;
     }
 
 }

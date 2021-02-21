@@ -11,8 +11,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.packets.DM11ClearActiveDTCsPacket;
-import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.VehicleInformation;
 
@@ -57,11 +57,11 @@ public class DataRepository {
 
     public int getFunctionZeroAddress() {
         return obdModules.values()
-                .stream()
-                .filter(m -> m.getFunction() == 0)
-                .map(OBDModuleInformation::getSourceAddress)
-                .findFirst()
-                .orElse(-1);
+                         .stream()
+                         .filter(m -> m.getFunction() == 0)
+                         .map(OBDModuleInformation::getSourceAddress)
+                         .findFirst()
+                         .orElse(-1);
     }
 
     public OBDModuleInformation getObdModule(int sourceAddress) {
@@ -75,9 +75,9 @@ public class DataRepository {
 
     public Collection<OBDModuleInformation> getObdModules() {
         return obdModules.values()
-                .stream()
-                .sorted(Comparator.comparingInt(OBDModuleInformation::getSourceAddress))
-                .collect(Collectors.toList());
+                         .stream()
+                         .sorted(Comparator.comparingInt(OBDModuleInformation::getSourceAddress))
+                         .collect(Collectors.toList());
     }
 
     public VehicleInformation getVehicleInformation() {

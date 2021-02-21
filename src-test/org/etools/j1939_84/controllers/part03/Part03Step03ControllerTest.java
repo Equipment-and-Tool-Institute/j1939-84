@@ -20,6 +20,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -166,10 +167,28 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
     @Test
     public void testMoreEmptyPacketNoFailures() {
         AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                  Packet.create(PGN,
+                                                                                0x01,
+                                                                                0x11,
+                                                                                0x22,
+                                                                                0x33,
+                                                                                0x44,
+                                                                                0x55,
+                                                                                0x66,
+                                                                                0x77,
+                                                                                0x88));
 
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                        Packet.create(PGN,
+                                                                                      0x03,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      (byte) 0x0A,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
@@ -333,10 +352,11 @@ public class Part03Step03ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.3.3.2.a - OBD module Turbocharger (2) reported different DTC than observed in Step 6.3.2.1");
 
-        //verify we did NOT update the obd's dtc values set in the data repo
+        // verify we did NOT update the obd's dtc values set in the data repo
         assertEquals(List.of(dtc1), dataRepository.getObdModule(0x01).get(DM6PendingEmissionDTCPacket.class).getDtcs());
         assertEquals(dataRepository.getObdModule(0x01).get(DM27AllPendingDTCsPacket.class), packet1);
-        assertEquals(List.of(dtc22), dataRepository.getObdModule(0x02).get(DM6PendingEmissionDTCPacket.class).getDtcs());
+        assertEquals(List.of(dtc22),
+                     dataRepository.getObdModule(0x02).get(DM6PendingEmissionDTCPacket.class).getDtcs());
         assertEquals(dataRepository.getObdModule(0x02).get(DM27AllPendingDTCsPacket.class), packet2);
     }
 }

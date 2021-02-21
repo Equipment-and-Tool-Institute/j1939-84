@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part11;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -54,7 +55,8 @@ public class Part11Step06Controller extends StepController {
     protected void run() throws Throwable {
         // 6.11.6.1.a. Global DM28 [(send Request (PGN 59904) for PGN 64896 (SPNs 1213-1215, 1706, and 3038)]).
         // 6.11.6.2.a. Fail if no ECU reports a permanent DTC.
-        // 6.11.6.2.b. Fail if any ECU reports a different number of permanent DTCs than indicated in DM29 response earlier in test 6.11.4.
+        // 6.11.6.2.b. Fail if any ECU reports a different number of permanent DTCs than indicated in DM29 response
+        // earlier in test 6.11.4.
     }
 
 }

@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
@@ -209,7 +210,7 @@ public abstract class Controller {
      * the value has been set to Stopped or Aborted
      *
      * @throws InterruptedException
-     *         if the ending has been set
+     *                                  if the ending has been set
      */
     private static void checkEnding() throws InterruptedException {
         if (getEnding() != null && INTERUPPTABLE_ENDINGS.contains(getEnding())) {
@@ -222,12 +223,12 @@ public abstract class Controller {
      * {@link ResultsListener}
      *
      * @param listener
-     *         the {@link ResultsListener} that will be given the results
+     *                             the {@link ResultsListener} that will be given the results
      * @param j1939
-     *         the {@link J1939} to use for communications
+     *                             the {@link J1939} to use for communications
      * @param reportFileModule
-     *         the {@link ReportFileModule} that will be used to read and
-     *         generate the report
+     *                             the {@link ReportFileModule} that will be used to read and
+     *                             generate the report
      */
     public void execute(ResultsListener listener, J1939 j1939, ReportFileModule reportFileModule) {
         setupRun(listener, j1939, reportFileModule);
@@ -246,18 +247,18 @@ public abstract class Controller {
         }
 
         switch (ending) {
-        case ABORTED:
-            getBannerModule().reportAborted(getListener());
-            break;
-        case COMPLETED:
-            getBannerModule().reportFooter(getListener());
-            break;
-        case STOPPED:
-            getBannerModule().reportStopped(getListener());
-            break;
-        case FAILED:
-            getBannerModule().reportFailed(getListener());
-            break;
+            case ABORTED:
+                getBannerModule().reportAborted(getListener());
+                break;
+            case COMPLETED:
+                getBannerModule().reportFooter(getListener());
+                break;
+            case STOPPED:
+                getBannerModule().reportStopped(getListener());
+                break;
+            case FAILED:
+                getBannerModule().reportFailed(getListener());
+                break;
         }
 
         addBlankLineToReport();
@@ -388,10 +389,10 @@ public abstract class Controller {
     /**
      * Increments the overall progress and sends the message to the listener
      *
-     * @param message
-     *         the {@link String} message to display
+     * @param  message
+     *                                  the {@link String} message to display
      * @throws InterruptedException
-     *         if the operation has been Stopped
+     *                                  if the operation has been Stopped
      */
     protected void incrementProgress(String message) throws InterruptedException {
         getListener().onProgress(++currentStep, maxSteps, message);
@@ -412,7 +413,7 @@ public abstract class Controller {
      * subclasses. Callers should use execute() instead.
      *
      * @throws Throwable
-     *         if there is a problem
+     *                       if there is a problem
      */
     protected abstract void run() throws Throwable;
 
@@ -422,10 +423,10 @@ public abstract class Controller {
     }
 
     /**
-     * @param ending
-     *         the ending to set
+     * @param  ending
+     *                                  the ending to set
      * @throws InterruptedException
-     *         if the ending was set to ABORTED or STOPPED
+     *                                  if the ending was set to ABORTED or STOPPED
      */
     protected static void setEnding(Ending ending) throws InterruptedException {
         Controller.ending = ending;
@@ -436,7 +437,7 @@ public abstract class Controller {
      * Sets the {@link J1939} to be used for communications
      *
      * @param j1939
-     *         the {@link J1939} to set
+     *                  the {@link J1939} to set
      */
     private void setJ1939(J1939 j1939) {
         this.j1939 = j1939;
@@ -450,7 +451,7 @@ public abstract class Controller {
      * sets the maximum number of steps
      *
      * @param maxSteps
-     *         the maximum number of steps in the operation
+     *                     the maximum number of steps in the operation
      */
     protected void setupProgress(int maxSteps) {
         Controller.currentStep = 0;
@@ -479,10 +480,10 @@ public abstract class Controller {
      * Sends the message to the listener without incrementing the overall
      * progress
      *
-     * @param message
-     *         the message to send
+     * @param  message
+     *                                  the message to send
      * @throws InterruptedException
-     *         if the operation has been Stopped
+     *                                  if the operation has been Stopped
      */
     protected void updateProgress(String message) throws InterruptedException {
         getListener().onProgress(currentStep, maxSteps, message);

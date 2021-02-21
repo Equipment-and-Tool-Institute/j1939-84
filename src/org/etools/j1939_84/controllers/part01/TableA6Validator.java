@@ -10,6 +10,7 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus;
@@ -40,11 +41,14 @@ public class TableA6Validator {
         boolean passed = true;
         String name = system.getName().trim();
         if (acceptableStatuses.isEmpty()) {
-            listener.addOutcome(partNumber, stepNumber, WARN, "TableA6 " + name + " verification" + NL
-                                   + "This test is only valid for compression or spark ignition");
+            listener.addOutcome(partNumber,
+                                stepNumber,
+                                WARN,
+                                "TableA6 " + name + " verification" + NL
+                                        + "This test is only valid for compression or spark ignition");
 
         } else if (!acceptableStatuses.contains(system.getStatus())) {
-            listener.addOutcome(partNumber, stepNumber, FAIL, "TableA6 "+ name + " verification");
+            listener.addOutcome(partNumber, stepNumber, FAIL, "TableA6 " + name + " verification");
             passed = false;
         }
         return passed;
@@ -63,7 +67,7 @@ public class TableA6Validator {
         listener.addOutcome(partNumber,
                             stepNumber,
                             WARN,
-                            "TableA6 "+ system.getName().trim() + " is " + system.getStatus().toString());
+                            "TableA6 " + system.getName().trim() + " is " + system.getStatus().toString());
     }
 
     private FuelType getFuelType() {
@@ -403,46 +407,47 @@ public class TableA6Validator {
     private boolean validateSystem(MonitoredSystem system, ResultsListener listener, int partNumber, int stepNumber) {
 
         switch (system.getId()) {
-        case AC_SYSTEM_REFRIGERANT:
-            return validateAcSystemRefrigerant(system, listener, partNumber, stepNumber);
-        case BOOST_PRESSURE_CONTROL_SYS:
-            return validateBoostPressureControlSystem(system, listener, partNumber, stepNumber);
-        case CATALYST:
-            return validateCatalyst(system, listener, partNumber, stepNumber);
-        case COLD_START_AID_SYSTEM:
-            return validateColdStartAidSystem(system, listener, partNumber, stepNumber);
-        case COMPREHENSIVE_COMPONENT:
-            return validateComprehensiveComponent(system, listener, partNumber, stepNumber);
-        case DIESEL_PARTICULATE_FILTER:
-            return validateDieselParticulateFilter(system, listener, partNumber, stepNumber);
-        case EGR_VVT_SYSTEM:
-            return validateEgrVvtSystem(system, listener, partNumber, stepNumber);
-        case EVAPORATIVE_SYSTEM:
-            return validateEvaporativeSystem(system, listener, partNumber, stepNumber);
-        case EXHAUST_GAS_SENSOR:
-            return validateExhaustGasSensor(system, listener, partNumber, stepNumber);
-        case EXHAUST_GAS_SENSOR_HEATER:
-            return validateExhaustGasSensorHeater(system, listener, partNumber, stepNumber);
-        case FUEL_SYSTEM:
-            return validateFuelSystem(system, listener, partNumber, stepNumber);
-        case HEATED_CATALYST:
-            return validateHeatedCatalyst(system, listener, partNumber, stepNumber);
-        case MISFIRE:
-            return validateMisfire(system, listener, partNumber, stepNumber);
-        case NMHC_CONVERTING_CATALYST:
-            return validateNmhcConvertingCatalyst(system, listener, partNumber, stepNumber);
-        case NOX_CATALYST_ABSORBER:
-            return validateNoxCatalystAbsorber(system, listener, partNumber, stepNumber);
-        case SECONDARY_AIR_SYSTEM:
-            return validateSecondaryAirSystem(system, listener, partNumber, stepNumber);
-        default:
-            return false;
+            case AC_SYSTEM_REFRIGERANT:
+                return validateAcSystemRefrigerant(system, listener, partNumber, stepNumber);
+            case BOOST_PRESSURE_CONTROL_SYS:
+                return validateBoostPressureControlSystem(system, listener, partNumber, stepNumber);
+            case CATALYST:
+                return validateCatalyst(system, listener, partNumber, stepNumber);
+            case COLD_START_AID_SYSTEM:
+                return validateColdStartAidSystem(system, listener, partNumber, stepNumber);
+            case COMPREHENSIVE_COMPONENT:
+                return validateComprehensiveComponent(system, listener, partNumber, stepNumber);
+            case DIESEL_PARTICULATE_FILTER:
+                return validateDieselParticulateFilter(system, listener, partNumber, stepNumber);
+            case EGR_VVT_SYSTEM:
+                return validateEgrVvtSystem(system, listener, partNumber, stepNumber);
+            case EVAPORATIVE_SYSTEM:
+                return validateEvaporativeSystem(system, listener, partNumber, stepNumber);
+            case EXHAUST_GAS_SENSOR:
+                return validateExhaustGasSensor(system, listener, partNumber, stepNumber);
+            case EXHAUST_GAS_SENSOR_HEATER:
+                return validateExhaustGasSensorHeater(system, listener, partNumber, stepNumber);
+            case FUEL_SYSTEM:
+                return validateFuelSystem(system, listener, partNumber, stepNumber);
+            case HEATED_CATALYST:
+                return validateHeatedCatalyst(system, listener, partNumber, stepNumber);
+            case MISFIRE:
+                return validateMisfire(system, listener, partNumber, stepNumber);
+            case NMHC_CONVERTING_CATALYST:
+                return validateNmhcConvertingCatalyst(system, listener, partNumber, stepNumber);
+            case NOX_CATALYST_ABSORBER:
+                return validateNoxCatalystAbsorber(system, listener, partNumber, stepNumber);
+            case SECONDARY_AIR_SYSTEM:
+                return validateSecondaryAirSystem(system, listener, partNumber, stepNumber);
+            default:
+                return false;
         }
     }
 
     public boolean verify(ResultsListener listener, DiagnosticReadinessPacket packet, int partNumber, int stepNumber) {
-        return packet.getMonitoredSystems().stream()
-                .allMatch(system -> validateSystem(system, listener, partNumber, stepNumber));
+        return packet.getMonitoredSystems()
+                     .stream()
+                     .allMatch(system -> validateSystem(system, listener, partNumber, stepNumber));
     }
 
 }

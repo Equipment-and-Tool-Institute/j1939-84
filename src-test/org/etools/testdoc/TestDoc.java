@@ -7,9 +7,9 @@ import java.lang.annotation.Target;
 
 @Target({ TYPE, METHOD })
 public @interface TestDoc {
-	String[] dependsOn() default {};
+    String[] dependsOn() default {};
 
-	String description() default "";
+    String description() default "";
 
-	TestItem[] value() default {};
+    TestItem[] value() default {};
 }

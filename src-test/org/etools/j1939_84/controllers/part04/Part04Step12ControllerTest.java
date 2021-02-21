@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
@@ -128,7 +129,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
-        //Module 0 responses first time
+        // Module 0 responses first time
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         ScaledTestResult str0 = ScaledTestResult.create(247, 157, 8, 129, 100, 0, 1000);
         obdModuleInformation0.setScaledTestResults(List.of(str0));
@@ -137,9 +138,9 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation0);
         var dm30_0 = DM30ScaledTestResultsPacket.create(0, str0);
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(246), eq(5846), eq(31))).thenReturn(List.of(
-                dm30_0));
+                                                                                                                     dm30_0));
 
-        //Module 1 doesn't support TID 246 - requires another request
+        // Module 1 doesn't support TID 246 - requires another request
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         ScaledTestResult str1 = ScaledTestResult.create(247, 159, 8, 129, 0, 0, 0);
         obdModuleInformation1.setScaledTestResults(List.of(str1));
@@ -155,7 +156,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
                                                         eq(supportedSPN1.getSpn()),
                                                         eq(31))).thenReturn(List.of(dm30_1));
 
-        //Module 2 doesn't have Scaled Test Results
+        // Module 2 doesn't have Scaled Test Results
         dataRepository.putObdModule(new OBDModuleInformation(2));
 
         runTest();
@@ -164,7 +165,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestTestResults(any(), eq(1), eq(246), eq(5846), eq(31));
         verify(diagnosticMessageModule).requestTestResults(any(), eq(1), eq(247), eq(supportedSPN1.getSpn()), eq(31));
 
-        //Verify non-initialized tests are stored
+        // Verify non-initialized tests are stored
         List<ScaledTestResult> nonInitializedTests = dataRepository.getObdModule(0).getNonInitializedTests();
         assertEquals(1, nonInitializedTests.size());
         assertEquals(str0.getSpn(), nonInitializedTests.get(0).getSpn());
@@ -189,9 +190,9 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
         ScaledTestResult str1 = ScaledTestResult.create(247, 159, 8, 129, 0, 0, 0);
         var dm30_0 = DM30ScaledTestResultsPacket.create(0, str0, str1);
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(246), eq(5846), eq(31))).thenReturn(List.of(
-                dm30_0));
+                                                                                                                     dm30_0));
 
-        //Module 1 doesn't support TID 246 - requires another request
+        // Module 1 doesn't support TID 246 - requires another request
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         ScaledTestResult str11 = ScaledTestResult.create(247, 159, 8, 129, 0, 0, 0);
         obdModuleInformation1.setScaledTestResults(List.of(str1));
@@ -207,7 +208,7 @@ public class Part04Step12ControllerTest extends AbstractControllerTest {
                                                         eq(247),
                                                         eq(supportedSPN1.getSpn()),
                                                         eq(31)))
-                .thenReturn(List.of(dm30_1));
+                                                                .thenReturn(List.of(dm30_1));
 
         runTest();
 

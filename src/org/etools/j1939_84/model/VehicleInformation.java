@@ -132,8 +132,16 @@ public class VehicleInformation implements Cloneable {
 
     @Override
     public int hashCode() {
-        return Objects.hash(calIds, calIdsFound, certificationIntent, emissionUnits, emissionUnitsFound,
-                engineModelYear, fuelType, vehicleModelYear, vin, numberOfTripsForFaultBImplant);
+        return Objects.hash(calIds,
+                            calIdsFound,
+                            certificationIntent,
+                            emissionUnits,
+                            emissionUnitsFound,
+                            engineModelYear,
+                            fuelType,
+                            vehicleModelYear,
+                            vin,
+                            numberOfTripsForFaultBImplant);
     }
 
     public void setAddressClaim(RequestResult<AddressClaimPacket> addressClaim) {
@@ -200,17 +208,17 @@ public class VehicleInformation implements Cloneable {
                 + "Cert. Engine Family: " + certificationIntent + NL
                 + "Number of OBD ECUs Found: " + emissionUnitsFound.size() + NL
                 + emissionUnitsFound.stream()
-                        .map(m -> "     Make: " + m.getMake() + ", Model: " + m.getModel() + ", Serial: "
-                                + m.getSerialNumber())
-                        .collect(Collectors.joining(NL))
+                                    .map(m -> "     Make: " + m.getMake() + ", Model: " + m.getModel() + ", Serial: "
+                                            + m.getSerialNumber())
+                                    .collect(Collectors.joining(NL))
                 + NL
                 + "Number of CAL IDs Found: "
                 + calIdsFound.stream().mapToLong(dm19 -> dm19.getCalibrationInformation().size()).sum() + NL
                 + calIdsFound.stream()
-                        .map(DM19CalibrationInformationPacket::toString)
-                        .flatMap(String::lines)
-                        .map(s -> "     " + s)
-                        .collect(Collectors.joining(NL))
+                             .map(DM19CalibrationInformationPacket::toString)
+                             .flatMap(String::lines)
+                             .map(s -> "     " + s)
+                             .collect(Collectors.joining(NL))
                 + NL;
     }
 

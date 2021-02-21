@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part07;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -57,7 +58,8 @@ public class Part07Step16Controller extends StepController {
         // 6.7.16.2.a. Fail if any OBD ECU erases any diagnostic information as discussed in Section A.5.
         // 6.7.16.3.a. DS DM3 to each OBD ECU.
         // 6.7.16.3.b. Wait 5 seconds before checking for erased information.
-        // 6.7.16.4.a. Fail if any ECU does not NACK, or if any OBD ECU erases any diagnostic information. See Section A.5 for more information.
+        // 6.7.16.4.a. Fail if any ECU does not NACK, or if any OBD ECU erases any diagnostic information. See Section
+        // A.5 for more information.
     }
 
 }

@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.EngineHoursTimer;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -169,7 +170,6 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
@@ -198,7 +198,6 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
@@ -229,7 +228,6 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
@@ -265,7 +263,6 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 
@@ -296,7 +293,6 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        
         verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
         verify(diagnosticMessageModule).requestDM33(any());
 

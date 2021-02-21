@@ -17,6 +17,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -92,7 +93,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DateTimeModule.setInstance(new TestDateTimeModule());
         listener = new TestResultsListener(mockListener);
 
-        instance = new SectionA5Verifier(dataRepository, diagnosticMessageModule, vehicleInformationModule, 1,1);
+        instance = new SectionA5Verifier(dataRepository, diagnosticMessageModule, vehicleInformationModule, 1, 1);
     }
 
     @After
@@ -103,7 +104,6 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                                  mockListener,
                                  vehicleInformationModule);
     }
-
 
     @Test
     public void testSetJ1939() {
@@ -120,8 +120,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm12Packet.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
 
         when(diagnosticMessageModule.requestDM12(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm12Packet),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm12Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
 
@@ -146,13 +147,14 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm12Packet.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.FAST_FLASH);
 
         when(diagnosticMessageModule.requestDM12(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm12Packet),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm12Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
 
         assertFalse(instance.verifyDM12(
-                listener));
+                                        listener));
 
         String expectedMessages = "Section A.5 verification failed during DM12 check done at table step 1.b" + NL +
                 "Modules with source address 0, reported 0 DTCs." +
@@ -181,13 +183,14 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm12Packet.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.FAST_FLASH);
 
         when(diagnosticMessageModule.requestDM12(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm12Packet),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm12Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
 
         assertFalse(instance.verifyDM12(
-                listener));
+                                        listener));
 
         String expectedMessages = "Section A.5 verification failed during DM12 check done at table step 1.b" + NL +
                 "Modules with source address 0, reported 1 DTCs." +
@@ -215,8 +218,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     public void testVerifyDM20() {
         DM20MonitorPerformanceRatioPacket dm20Packet = mock(DM20MonitorPerformanceRatioPacket.class);
         when(diagnosticMessageModule.requestDM20(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm20Packet),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm20Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
 
@@ -246,8 +250,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM20MonitorPerformanceRatioPacket dm20Packet = mock(DM20MonitorPerformanceRatioPacket.class);
         when(dm20Packet.toString()).thenReturn("dm20Packet.toString()");
         when(diagnosticMessageModule.requestDM20(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm20Packet),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm20Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
 
@@ -279,7 +284,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     public void testVerifyDM21() {
         DM21DiagnosticReadinessPacket dm21Packet = mock(DM21DiagnosticReadinessPacket.class);
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm21Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm21Packet),
+                                                                                        List.of()));
         instance.setJ1939(j1939);
 
         assertTrue(instance.verifyDM21(listener));
@@ -307,7 +314,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM21DiagnosticReadinessPacket dm21Packet = mock(DM21DiagnosticReadinessPacket.class);
         when(dm21Packet.getMinutesWhileMILIsActivated()).thenReturn(15.0);
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm21Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm21Packet),
+                                                                                        List.of()));
         instance.setJ1939(j1939);
 
         assertFalse(instance.verifyDM21(listener));
@@ -341,7 +350,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM21DiagnosticReadinessPacket dm21Packet = mock(DM21DiagnosticReadinessPacket.class);
         when(dm21Packet.getKmWhileMILIsActivated()).thenReturn(15.0);
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm21Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm21Packet),
+                                                                                        List.of()));
         instance.setJ1939(j1939);
 
         assertFalse(instance.verifyDM21(listener));
@@ -375,7 +386,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM21DiagnosticReadinessPacket dm21Packet = mock(DM21DiagnosticReadinessPacket.class);
         when(dm21Packet.getMinutesSinceDTCsCleared()).thenReturn(15.0);
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm21Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm21Packet),
+                                                                                        List.of()));
         instance.setJ1939(j1939);
 
         assertFalse(instance.verifyDM21(listener));
@@ -411,7 +424,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm23Packet.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
 
         when(diagnosticMessageModule.requestDM23(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm23Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm23Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
 
@@ -442,7 +457,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm23Packet.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.ON);
 
         when(diagnosticMessageModule.requestDM23(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm23Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm23Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
 
@@ -488,14 +505,14 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM25ExpandedFreezeFrame dm25Packet21 = new DM25ExpandedFreezeFrame(dm25Pack21);
 
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet0));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet0));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x17)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet17));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet17));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x21)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet21));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet21));
 
         instance.setJ1939(j1939);
 
@@ -542,14 +559,14 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM25ExpandedFreezeFrame dm25Packet21 = new DM25ExpandedFreezeFrame(dm25Pack21);
 
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet0));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet0));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x17)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet17));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet17));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x21)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet21));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet21));
 
         instance.setJ1939(j1939);
 
@@ -600,14 +617,14 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM25ExpandedFreezeFrame dm25Packet21 = new DM25ExpandedFreezeFrame(dm25Pack21);
 
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet0));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet0));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x17)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet17));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet17));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x21)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet21));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet21));
 
         instance.setJ1939(j1939);
 
@@ -642,7 +659,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM26TripDiagnosticReadinessPacket dm26Packet = mock(DM26TripDiagnosticReadinessPacket.class);
 
         when(diagnosticMessageModule.requestDM26(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm26Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm26Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
         assertTrue(instance.verifyDM26(listener));
@@ -671,7 +690,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm26Packet.getWarmUpsSinceClear()).thenReturn((byte) 0x02);
 
         when(diagnosticMessageModule.requestDM26(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm26Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm26Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
         assertFalse(instance.verifyDM26(listener));
@@ -699,7 +720,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm28Packet.getDtcs()).thenReturn(List.of());
 
         when(diagnosticMessageModule.requestDM28(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm28Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm28Packet),
+                                                                                        List.of()));
         instance.setJ1939(j1939);
 
         assertTrue(instance.verifyDM28(List.of(dm28Packet),
@@ -726,31 +749,33 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     @Test
     public void testVerifyDM28Fail() {
         DM28PermanentEmissionDTCPacket dm28Packet = new DM28PermanentEmissionDTCPacket(Packet
-                                                                                               .create(DM28PermanentEmissionDTCPacket.PGN,
-                                                                                                       0x00,
-                                                                                                       0x42,
-                                                                                                       0xFD,
-                                                                                                       0x9D,
-                                                                                                       0x00,
-                                                                                                       0x07,
-                                                                                                       0x01,
-                                                                                                       0xFF,
-                                                                                                       0xFF));
+                                                                                             .create(DM28PermanentEmissionDTCPacket.PGN,
+                                                                                                     0x00,
+                                                                                                     0x42,
+                                                                                                     0xFD,
+                                                                                                     0x9D,
+                                                                                                     0x00,
+                                                                                                     0x07,
+                                                                                                     0x01,
+                                                                                                     0xFF,
+                                                                                                     0xFF));
 
         DM28PermanentEmissionDTCPacket previousDM28Packet = new DM28PermanentEmissionDTCPacket(Packet
-                                                                                                       .create(DM28PermanentEmissionDTCPacket.PGN,
-                                                                                                               0x00,
-                                                                                                               0x00,
-                                                                                                               0x00,
-                                                                                                               0x00,
-                                                                                                               0x00,
-                                                                                                               0x00,
-                                                                                                               0x00,
-                                                                                                               0x00,
-                                                                                                               0x00));
+                                                                                                     .create(DM28PermanentEmissionDTCPacket.PGN,
+                                                                                                             0x00,
+                                                                                                             0x00,
+                                                                                                             0x00,
+                                                                                                             0x00,
+                                                                                                             0x00,
+                                                                                                             0x00,
+                                                                                                             0x00,
+                                                                                                             0x00,
+                                                                                                             0x00));
 
         when(diagnosticMessageModule.requestDM28(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm28Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm28Packet),
+                                                                                        List.of()));
         instance.setJ1939(j1939);
 
         assertFalse(instance.verifyDM28(List.of(previousDM28Packet),
@@ -799,7 +824,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm29Packet.getEmissionRelatedPreviouslyMILOnDTCCount()).thenReturn(0);
 
         when(diagnosticMessageModule.requestDM29(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm29Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm29Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
         assertTrue(instance.verifyDM29(listener));
@@ -838,7 +865,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm29Packet.getEmissionRelatedMILOnDTCCount()).thenReturn(1);
 
         when(diagnosticMessageModule.requestDM29(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm29Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm29Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
         assertFalse(instance.verifyDM29(listener));
@@ -882,7 +911,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm29Packet.getEmissionRelatedPreviouslyMILOnDTCCount()).thenReturn(1);
 
         when(diagnosticMessageModule.requestDM29(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm29Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm29Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
         assertFalse(instance.verifyDM29(listener));
@@ -925,7 +956,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm29Packet.getEmissionRelatedPermanentDTCCount()).thenReturn(1);
 
         when(diagnosticMessageModule.requestDM29(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm29Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm29Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
         assertFalse(instance.verifyDM29(listener));
@@ -952,7 +985,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm31Packet.getDtcLampStatuses()).thenReturn(List.of());
 
         when(diagnosticMessageModule.requestDM31(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm31Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm31Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
 
@@ -983,7 +1018,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm31Packet.getDtcLampStatuses()).thenReturn(List.of(dm31DtcLampStatus));
 
         when(diagnosticMessageModule.requestDM31(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm31Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm31Packet),
+                                                                                        List.of()));
 
         instance.setJ1939(j1939);
 
@@ -1020,7 +1057,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         };
 
         DM33EmissionIncreasingAECDActiveTime dm33Packet0 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                DM33EmissionIncreasingAECDActiveTime.class);
         int[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x04, 0x00,
                 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x06, 0x00, 0x00, 0x00, 0x00,
                 0xFF, 0xFF, 0xFF, 0xFF, 0x0B, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF,
@@ -1031,10 +1068,10 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         Packet.create(0, 0, data);
         when(dm33Packet0.getSourceAddress()).thenReturn(0x00);
         DM33EmissionIncreasingAECDActiveTime dm33Packet17 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                 DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet17.getSourceAddress()).thenReturn(0x17);
         DM33EmissionIncreasingAECDActiveTime dm33Packet21 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                 DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
 
         List<DM33EmissionIncreasingAECDActiveTime> dm33Packets = new ArrayList<>() {
@@ -1047,11 +1084,17 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         //
         when(diagnosticMessageModule.requestDM33(any(), eq(0x00))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet0), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet0),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x17))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet17), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet17),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x21))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet21), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet21),
+                                                                                                  List.of()));
 
         instance.setJ1939(j1939);
 
@@ -1088,14 +1131,23 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         };
 
         DM33EmissionIncreasingAECDActiveTime dm33Packet0 = new DM33EmissionIncreasingAECDActiveTime(
-                Packet.create(DM33EmissionIncreasingAECDActiveTime.PGN, 0x00,
-                              0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                                                    Packet.create(DM33EmissionIncreasingAECDActiveTime.PGN,
+                                                                                                                  0x00,
+                                                                                                                  0x01,
+                                                                                                                  0x00,
+                                                                                                                  0x00,
+                                                                                                                  0x00,
+                                                                                                                  0x00,
+                                                                                                                  0xFF,
+                                                                                                                  0xFF,
+                                                                                                                  0xFF,
+                                                                                                                  0xFF));
         DM33EmissionIncreasingAECDActiveTime dm33Packet17 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                 DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet17.getSourceAddress()).thenReturn(0x17);
         when(dm33Packet17.toString()).thenReturn("dm33Packet17.toString()");
         DM33EmissionIncreasingAECDActiveTime dm33Packet21 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                 DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
         when(dm33Packet21.toString()).thenReturn("dm33Packet21.toString()");
 
@@ -1107,11 +1159,17 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         };
 
         when(diagnosticMessageModule.requestDM33(any(), eq(0x00))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet0), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet0),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x17))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet17), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet17),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x21))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet21), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet21),
+                                                                                                  List.of()));
 
         instance.setJ1939(j1939);
 
@@ -1157,14 +1215,23 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         };
 
         DM33EmissionIncreasingAECDActiveTime dm33Packet0 = new DM33EmissionIncreasingAECDActiveTime(
-                Packet.create(DM33EmissionIncreasingAECDActiveTime.PGN, 0x00,
-                              0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                                                    Packet.create(DM33EmissionIncreasingAECDActiveTime.PGN,
+                                                                                                                  0x00,
+                                                                                                                  0x01,
+                                                                                                                  0x00,
+                                                                                                                  0x00,
+                                                                                                                  0x00,
+                                                                                                                  0x00,
+                                                                                                                  0xFF,
+                                                                                                                  0xFF,
+                                                                                                                  0xFF,
+                                                                                                                  0xFF));
         DM33EmissionIncreasingAECDActiveTime dm33Packet17 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                 DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet17.toString()).thenReturn("dm33Packet17.toString()");
         when(dm33Packet17.getSourceAddress()).thenReturn(0x17);
         DM33EmissionIncreasingAECDActiveTime dm33Packet21 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                 DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet21.toString()).thenReturn("dm33Packet21.toString()");
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
 
@@ -1176,11 +1243,17 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         };
 
         when(diagnosticMessageModule.requestDM33(any(), eq(0x00))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet0), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet0),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x17))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet17), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet17),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x21))).thenReturn(
-                new RequestResult<>(false, List.of(), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(),
+                                                                                                  List.of()));
 
         instance.setJ1939(j1939);
 
@@ -1221,8 +1294,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
 
         DM5DiagnosticReadinessPacket dm5Packet = mock(DM5DiagnosticReadinessPacket.class);
         when(diagnosticMessageModule.requestDM5(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm5Packet),
-                                                List.of()));
+                                                       .thenReturn(new RequestResult<>(false,
+                                                                                       List.of(dm5Packet),
+                                                                                       List.of()));
 
         instance.setJ1939(j1939);
 
@@ -1262,8 +1336,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm5MonitoredSystem.getStatus()).thenReturn(dm5Status);
         when(dm5Packet.getContinuouslyMonitoredSystems()).thenReturn(List.of(dm5MonitoredSystem));
         when(diagnosticMessageModule.requestDM5(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm5Packet),
-                                                List.of()));
+                                                       .thenReturn(new RequestResult<>(false,
+                                                                                       List.of(dm5Packet),
+                                                                                       List.of()));
 
         instance.setJ1939(j1939);
 
@@ -1304,8 +1379,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm5MonitoredSystem.getStatus()).thenReturn(dm5Status);
         when(dm5Packet.getContinuouslyMonitoredSystems()).thenReturn(List.of(dm5MonitoredSystem));
         when(diagnosticMessageModule.requestDM5(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm5Packet),
-                                                List.of()));
+                                                       .thenReturn(new RequestResult<>(false,
+                                                                                       List.of(dm5Packet),
+                                                                                       List.of()));
 
         instance.setJ1939(j1939);
 
@@ -1340,8 +1416,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm6Packet.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.OFF);
 
         when(diagnosticMessageModule.requestDM6(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm6Packet),
-                                                List.of()));
+                                                       .thenReturn(new RequestResult<>(false,
+                                                                                       List.of(dm6Packet),
+                                                                                       List.of()));
         instance.setJ1939(j1939);
 
         assertTrue(instance.verifyDM6(listener));
@@ -1372,8 +1449,9 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm6Packet.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.SLOW_FLASH);
 
         when(diagnosticMessageModule.requestDM6(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm6Packet),
-                                                List.of()));
+                                                       .thenReturn(new RequestResult<>(false,
+                                                                                       List.of(dm6Packet),
+                                                                                       List.of()));
         instance.setJ1939(j1939);
 
         assertFalse(instance.verifyDM6(listener));
@@ -1442,11 +1520,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dataRepository.getObdModule(0x21)).thenReturn(obdModuleInfo21);
 
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN0).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet0));
+                                                                                                                      .thenReturn(List.of(dm30Packet0));
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x17), eq(247), eq(supportedSPN17).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet17));
+                                                                                                                       .thenReturn(List.of(dm30Packet17));
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x21), eq(247), eq(supportedSPN21).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet21));
+                                                                                                                       .thenReturn(List.of(dm30Packet21));
 
         instance.setJ1939(j1939);
 
@@ -1522,11 +1600,11 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dataRepository.getObdModule(0x21)).thenReturn(obdModuleInfo21);
 
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN0).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet0));
+                                                                                                                      .thenReturn(List.of(dm30Packet0));
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x17), eq(247), eq(supportedSPN17).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet17));
+                                                                                                                       .thenReturn(List.of(dm30Packet17));
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x21), eq(247), eq(supportedSPN21).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet21));
+                                                                                                                       .thenReturn(List.of(dm30Packet21));
 
         instance.setJ1939(j1939);
 
@@ -1564,18 +1642,19 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         EngineHoursPacket engineHoursPacket = mock(EngineHoursPacket.class);
 
         when(vehicleInformationModule.requestEngineHours(any()))
-                .thenReturn(new RequestResult<>(false, List.of(engineHoursPacket),
-                                                List.of()));
+                                                                .thenReturn(new RequestResult<>(false,
+                                                                                                List.of(engineHoursPacket),
+                                                                                                List.of()));
 
         instance.setJ1939(j1939);
 
         assertTrue(instance.verifyEngineHours(
-                List.of(engineHoursPacket),
-                listener));
+                                              List.of(engineHoursPacket),
+                                              listener));
 
         assertEquals(
-                "PASS: Section A.5 Step 9.b Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle time (PGN 65244 (SPN 235)) Verification",
-                listener.getMessages());
+                     "PASS: Section A.5 Step 9.b Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle time (PGN 65244 (SPN 235)) Verification",
+                     listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -1593,19 +1672,39 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     public void testVerifyEngineHoursEmptyPackets() {
 
         EngineHoursPacket engineHoursPacket = new EngineHoursPacket(
-                Packet.create(EngineHoursPacket.PGN, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                    Packet.create(EngineHoursPacket.PGN,
+                                                                                  0x00,
+                                                                                  0x11,
+                                                                                  0x22,
+                                                                                  0x33,
+                                                                                  0x44,
+                                                                                  0x55,
+                                                                                  0x66,
+                                                                                  0x77,
+                                                                                  0x88));
         EngineHoursPacket engineHoursPacket1 = new EngineHoursPacket(
-                Packet.create(EngineHoursPacket.PGN, 0x03, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11));
+                                                                     Packet.create(EngineHoursPacket.PGN,
+                                                                                   0x03,
+                                                                                   0x88,
+                                                                                   0x77,
+                                                                                   0x66,
+                                                                                   0x55,
+                                                                                   0x44,
+                                                                                   0x33,
+                                                                                   0x22,
+                                                                                   0x11));
 
         when(vehicleInformationModule.requestEngineHours(any()))
-                .thenReturn(new RequestResult<>(false, Arrays.asList(engineHoursPacket, engineHoursPacket1),
-                                                List.of()));
+                                                                .thenReturn(new RequestResult<>(false,
+                                                                                                Arrays.asList(engineHoursPacket,
+                                                                                                              engineHoursPacket1),
+                                                                                                List.of()));
 
         instance.setJ1939(j1939);
 
         assertFalse(instance.verifyEngineHours(
-                List.of(),
-                listener));
+                                               List.of(),
+                                               listener));
 
         String expected = "";
         expected += "Section A.5 verification failed Cumulative engine runtime (PGN 65253 (SPN 247))" + NL;
@@ -1640,19 +1739,39 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
     public void testVerifyEngineHoursFail() {
 
         EngineHoursPacket engineHoursPacket = new EngineHoursPacket(
-                Packet.create(EngineHoursPacket.PGN, 0x00, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                    Packet.create(EngineHoursPacket.PGN,
+                                                                                  0x00,
+                                                                                  0x11,
+                                                                                  0x22,
+                                                                                  0x33,
+                                                                                  0x44,
+                                                                                  0x55,
+                                                                                  0x66,
+                                                                                  0x77,
+                                                                                  0x88));
         EngineHoursPacket engineHoursPacket1 = new EngineHoursPacket(
-                Packet.create(EngineHoursPacket.PGN, 0x03, 0x88, 0x77, 0x66, 0x55, 0x44, 0x33, 0x22, 0x11));
+                                                                     Packet.create(EngineHoursPacket.PGN,
+                                                                                   0x03,
+                                                                                   0x88,
+                                                                                   0x77,
+                                                                                   0x66,
+                                                                                   0x55,
+                                                                                   0x44,
+                                                                                   0x33,
+                                                                                   0x22,
+                                                                                   0x11));
 
         when(vehicleInformationModule.requestEngineHours(any()))
-                .thenReturn(new RequestResult<>(false, Arrays.asList(engineHoursPacket, engineHoursPacket1),
-                                                List.of()));
+                                                                .thenReturn(new RequestResult<>(false,
+                                                                                                Arrays.asList(engineHoursPacket,
+                                                                                                              engineHoursPacket1),
+                                                                                                List.of()));
 
         instance.setJ1939(j1939);
 
         assertFalse(instance.verifyEngineHours(
-                List.of(engineHoursPacket),
-                listener));
+                                               List.of(engineHoursPacket),
+                                               listener));
 
         String expected = "";
         expected += "Section A.5 verification failed Cumulative engine runtime (PGN 65253 (SPN 247))" + NL;
@@ -1709,7 +1828,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm5Packet.getContinuouslyMonitoredSystems()).thenReturn(List.of(monitoredSystemDM5));
         when(dm5Packet.getActiveCodeCount()).thenReturn((byte) 2);
         when(dm5Packet.toString()).thenReturn(
-                "DM5 from Engine #1 (0): OBD Compliance: HD OBD (20), Active Codes: 11, Previously Active Codes: 22");
+                                              "DM5 from Engine #1 (0): OBD Compliance: HD OBD (20), Active Codes: 11, Previously Active Codes: 22");
 
         DM6PendingEmissionDTCPacket dm6Packet = mock(DM6PendingEmissionDTCPacket.class);
         DiagnosticTroubleCode diagnosticTroubleCodeDM6 = mock(DiagnosticTroubleCode.class);
@@ -1755,7 +1874,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         String expectedDM28String = "DM28 from Engine #1 (0): MIL: on, RSL: off, AWL: off, PL: other" + NL +
                 "DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 1 times";
         when(dm28Packet.toString()).thenReturn(
-                expectedDM28String);
+                                               expectedDM28String);
         when(dm28Packet.getDtcs()).thenReturn(List.of(diagnosticTroubleCode28));
 
         DM29DtcCounts dm29Packet = mock(DM29DtcCounts.class);
@@ -1786,13 +1905,13 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dm31Packet.getDtcLampStatuses()).thenReturn(List.of(dtcLampStatusDM31));
 
         DM33EmissionIncreasingAECDActiveTime dm33Packet0 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet0.getSourceAddress()).thenReturn(0x00);
         DM33EmissionIncreasingAECDActiveTime dm33Packet17 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                 DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet17.getSourceAddress()).thenReturn(0x17);
         DM33EmissionIncreasingAECDActiveTime dm33Packet21 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                 DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
 
         EngineHoursPacket engineHoursPacket = mock(EngineHoursPacket.class);
@@ -1842,61 +1961,75 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                                                                                        List.of(dm5Packet),
                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM20(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(dm20Packet),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm20Packet),
+                                                                                        List.of()));
 
         when(diagnosticMessageModule.requestDM6(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(dm6Packet),
-                                                List.of()));
+                                                       .thenReturn(new RequestResult<>(false,
+                                                                                       List.of(dm6Packet),
+                                                                                       List.of()));
         when(diagnosticMessageModule.requestDM12(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(dm12Packet),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm12Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(dm21Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm21Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM23(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(dm23Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm23Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet0));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet0));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x17)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet17));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet17));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x21)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet21));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet21));
         when(diagnosticMessageModule.requestDM26(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(dm26Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm26Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM28(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(dm28Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm28Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM29(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm29Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm29Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM31(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm31Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm31Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x00))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet0), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet0),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x17)))
-                .thenReturn(new RequestResult<>(false, List.of(dm33Packet17), List.of()));
+                                                                  .thenReturn(new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet17),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x21)))
-                .thenReturn(new RequestResult<>(false, List.of(dm33Packet21), List.of()));
+                                                                  .thenReturn(new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet21),
+                                                                                                  List.of()));
 
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN0).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet0));
+                                                                                                                      .thenReturn(List.of(dm30Packet0));
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x17), eq(247), eq(supportedSPN17).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet17));
+                                                                                                                       .thenReturn(List.of(dm30Packet17));
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x21), eq(247), eq(supportedSPN21).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet21));
+                                                                                                                       .thenReturn(List.of(dm30Packet21));
 
         when(vehicleInformationModule.requestEngineHours(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(engineHoursPacket),
-                                                List.of()));
+                                                                .thenReturn(new RequestResult<>(false,
+                                                                                                List.of(engineHoursPacket),
+                                                                                                List.of()));
 
         instance.setJ1939(j1939);
 
@@ -2148,7 +2281,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         String expectedDM28String = "DM28 from Engine #1 (0): MIL: on, RSL: off, AWL: off, PL: other" + NL +
                 "DTC: Engine Fuel 1 Injector Metering Rail 1 Pressure (157) Mechanical System Not Responding Or Out Of Adjustment (7) 1 times";
         when(dm28Packet.toString()).thenReturn(
-                expectedDM28String);
+                                               expectedDM28String);
 
         DM29DtcCounts dm29Packet = mock(DM29DtcCounts.class);
         when(dm29Packet.getAllPendingDTCCount()).thenReturn(-1);
@@ -2174,15 +2307,15 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM31DtcToLampAssociation dm31Packet = mock(DM31DtcToLampAssociation.class);
 
         DM33EmissionIncreasingAECDActiveTime dm33Packet0 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet0.getSourceAddress()).thenReturn(0);
         when(dm33Packet0.toString()).thenReturn("DM33 from source address 0");
         DM33EmissionIncreasingAECDActiveTime dm33Packet17 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                 DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet17.getSourceAddress()).thenReturn(0x17);
         when(dm33Packet17.toString()).thenReturn("DM33 from source address 17");
         DM33EmissionIncreasingAECDActiveTime dm33Packet21 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                 DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
         when(dm33Packet21.toString()).thenReturn("DM33 from source address 21");
 
@@ -2229,68 +2362,79 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dataRepository.getObdModule(0x21)).thenReturn(obdModuleInfo21);
 
         when(diagnosticMessageModule.requestDM5(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(dm5Packet),
-                                                List.of()));
+                                                       .thenReturn(new RequestResult<>(false,
+                                                                                       List.of(dm5Packet),
+                                                                                       List.of()));
         when(diagnosticMessageModule.requestDM20(any()))
-                .thenReturn(new RequestResult<>(false, List.of(),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(),
+                                                                                        List.of()));
 
         when(diagnosticMessageModule.requestDM6(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(dm6Packet),
-                                                List.of()));
+                                                       .thenReturn(new RequestResult<>(false,
+                                                                                       List.of(dm6Packet),
+                                                                                       List.of()));
         when(diagnosticMessageModule.requestDM12(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(dm12Packet),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm12Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(dm21Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm21Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM23(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm23Packet),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm23Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet0));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet0));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x17)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet17));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet17));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x21)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet21));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet21));
         when(diagnosticMessageModule.requestDM26(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(dm26Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm26Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM28(any()))
-                .thenReturn(new RequestResult<>(false, List.of(),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM29(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(dm29Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm29Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM31(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(dm31Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm31Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x00))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet0),
-                                    List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet0),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x17))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet17),
-                                    List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet17),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x21))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet21),
-                                    List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet21),
+                                                                                                  List.of()));
 
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN0).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet0));
+                                                                                                                      .thenReturn(List.of(dm30Packet0));
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x17), eq(247), eq(supportedSPN17).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet17));
+                                                                                                                       .thenReturn(List.of(dm30Packet17));
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x21), eq(247), eq(supportedSPN21).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet21));
+                                                                                                                       .thenReturn(List.of(dm30Packet21));
 
         when(vehicleInformationModule.requestEngineHours(any()))
-                .thenReturn(new RequestResult<>(false, List.of(),
-                                                List.of()));
+                                                                .thenReturn(new RequestResult<>(false,
+                                                                                                List.of(),
+                                                                                                List.of()));
 
         instance.setJ1939(j1939);
 
@@ -2526,7 +2670,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM31DtcToLampAssociation dm31Packet = mock(DM31DtcToLampAssociation.class);
 
         DM33EmissionIncreasingAECDActiveTime dm33Packet0 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                DM33EmissionIncreasingAECDActiveTime.class);
         int[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x04, 0x00,
                 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x06, 0x00, 0x00, 0x00, 0x00,
                 0xFF, 0xFF, 0xFF, 0xFF, 0x0B, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF,
@@ -2537,10 +2681,10 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         Packet.create(0, 0, data);
         when(dm33Packet0.getSourceAddress()).thenReturn(0x00);
         DM33EmissionIncreasingAECDActiveTime dm33Packet17 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                 DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet17.getSourceAddress()).thenReturn(0x17);
         DM33EmissionIncreasingAECDActiveTime dm33Packet21 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                 DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
 
         EngineHoursPacket engineHoursPacket = mock(EngineHoursPacket.class);
@@ -2586,56 +2730,80 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dataRepository.getObdModule(0x21)).thenReturn(obdModuleInfo21);
 
         when(diagnosticMessageModule.requestDM5(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm5Packet),
-                                                List.of()));
+                                                       .thenReturn(new RequestResult<>(false,
+                                                                                       List.of(dm5Packet),
+                                                                                       List.of()));
         when(diagnosticMessageModule.requestDM20(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm20Packet),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm20Packet),
+                                                                                        List.of()));
 
         when(diagnosticMessageModule.requestDM6(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm6Packet),
-                                                List.of()));
+                                                       .thenReturn(new RequestResult<>(false,
+                                                                                       List.of(dm6Packet),
+                                                                                       List.of()));
         when(diagnosticMessageModule.requestDM12(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm12Packet),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm12Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm21Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm21Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM23(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm23Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm23Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet0));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet0));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x17)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet17));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet17));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x21)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet21));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet21));
 
         when(diagnosticMessageModule.requestDM26(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm26Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm26Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM28(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm28Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm28Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM29(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm29Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm29Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM31(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm31Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm31Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x00))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet0), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet0),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x17))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet17), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet17),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x21))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet21), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet21),
+                                                                                                  List.of()));
 
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN0).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet0));
+                                                                                                                      .thenReturn(List.of(dm30Packet0));
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x17), eq(247), eq(supportedSPN17).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet17));
+                                                                                                                       .thenReturn(List.of(dm30Packet17));
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x21), eq(247), eq(supportedSPN21).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet21));
+                                                                                                                       .thenReturn(List.of(dm30Packet21));
 
         when(vehicleInformationModule.requestEngineHours(any()))
-                .thenReturn(new RequestResult<>(false, List.of(engineHoursPacket), List.of()));
+                                                                .thenReturn(new RequestResult<>(false,
+                                                                                                List.of(engineHoursPacket),
+                                                                                                List.of()));
 
         instance.setJ1939(j1939);
 
@@ -2675,7 +2843,8 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 NL +
                 "PASS: Section A.5 Step 9.b Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle time (PGN 65244 (SPN 235)) Verification";
         assertEquals(
-                expectedMessages, listener.getMessages());
+                     expectedMessages,
+                     listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
@@ -2772,7 +2941,7 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         DM31DtcToLampAssociation dm31Packet = mock(DM31DtcToLampAssociation.class);
 
         DM33EmissionIncreasingAECDActiveTime dm33Packet0 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                DM33EmissionIncreasingAECDActiveTime.class);
         int[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x04, 0x00,
                 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF, 0x06, 0x00, 0x00, 0x00, 0x00,
                 0xFF, 0xFF, 0xFF, 0xFF, 0x0B, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF,
@@ -2783,10 +2952,10 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         Packet.create(0, 0, data);
         when(dm33Packet0.getSourceAddress()).thenReturn(0x00);
         DM33EmissionIncreasingAECDActiveTime dm33Packet17 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                 DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet17.getSourceAddress()).thenReturn(0x17);
         DM33EmissionIncreasingAECDActiveTime dm33Packet21 = mock(
-                DM33EmissionIncreasingAECDActiveTime.class);
+                                                                 DM33EmissionIncreasingAECDActiveTime.class);
         when(dm33Packet21.getSourceAddress()).thenReturn(0x21);
 
         EngineHoursPacket engineHoursPacket = mock(EngineHoursPacket.class);
@@ -2817,57 +2986,80 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
         when(dataRepository.getObdModule(0x21)).thenReturn(obdModuleInfo21);
 
         when(diagnosticMessageModule.requestDM5(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm5Packet),
-                                                List.of()));
+                                                       .thenReturn(new RequestResult<>(false,
+                                                                                       List.of(dm5Packet),
+                                                                                       List.of()));
         when(diagnosticMessageModule.requestDM20(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm20Packet),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm20Packet),
+                                                                                        List.of()));
 
         when(diagnosticMessageModule.requestDM6(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm6Packet),
-                                                List.of()));
+                                                       .thenReturn(new RequestResult<>(false,
+                                                                                       List.of(dm6Packet),
+                                                                                       List.of()));
         when(diagnosticMessageModule.requestDM12(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm12Packet),
-                                                List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm12Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM21(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm21Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm21Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM23(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm23Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm23Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x00)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet0));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet0));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x17)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet17));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet17));
         when(diagnosticMessageModule.requestDM25(any(), eq(0x21)))
-                .thenReturn(
-                        new BusResult<>(false, dm25Packet21));
+                                                                  .thenReturn(
+                                                                              new BusResult<>(false, dm25Packet21));
 
         when(diagnosticMessageModule.requestDM26(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm26Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm26Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM28(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm28Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm28Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM29(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm29Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm29Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM31(any()))
-                .thenReturn(new RequestResult<>(false, List.of(dm31Packet), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(dm31Packet),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x00))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet0), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet0),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x17))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet17), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet17),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM33(any(), eq(0x21))).thenReturn(
-                new RequestResult<>(false, List.of(dm33Packet21), List.of()));
+                                                                              new RequestResult<>(false,
+                                                                                                  List.of(dm33Packet21),
+                                                                                                  List.of()));
 
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x00), eq(247), eq(supportedSPN0).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet0));
+                                                                                                                      .thenReturn(List.of(dm30Packet0));
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x17), eq(247), eq(supportedSPN17).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet17));
+                                                                                                                       .thenReturn(List.of(dm30Packet17));
         when(diagnosticMessageModule.requestTestResults(any(), eq(0x21), eq(247), eq(supportedSPN21).getSpn(), eq(31)))
-                .thenReturn(List.of(dm30Packet21));
+                                                                                                                       .thenReturn(List.of(dm30Packet21));
 
         when(vehicleInformationModule.requestEngineHours(any()))
-                .thenReturn(new RequestResult<>(false, List.of(engineHoursPacket),
-                                                List.of()));
+                                                                .thenReturn(new RequestResult<>(false,
+                                                                                                List.of(engineHoursPacket),
+                                                                                                List.of()));
 
         instance.setJ1939(j1939);
 
@@ -2907,7 +3099,8 @@ public class SectionA5VerifierTest extends AbstractControllerTest {
                 NL +
                 "PASS: Section A.5 Step 9.b Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle time (PGN 65244 (SPN 235)) Verification";
         assertEquals(
-                expectedMessages, listener.getMessages());
+                     expectedMessages,
+                     listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 

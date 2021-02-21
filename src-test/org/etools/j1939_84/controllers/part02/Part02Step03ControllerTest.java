@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
@@ -91,13 +92,13 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
         listener = new TestResultsListener(mockListener);
 
         instance = new Part02Step03Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                diagnosticMessageModule,
-                dataRepository,
-                DateTimeModule.getInstance());
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              diagnosticMessageModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance());
 
         setup(instance,
               listener,
@@ -165,7 +166,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
             OBDModuleInformation obdInfo1 = new OBDModuleInformation(1);
             obdInfo1.setObdCompliance((byte) 4);
             obdInfo1.setSupportedSPNs(List.of(spn1));
-            dataRepository.putObdModule( obdInfo1);
+            dataRepository.putObdModule(obdInfo1);
         }
 
         runTest();
@@ -174,7 +175,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM24(any(), eq(0));
         verify(diagnosticMessageModule).requestDM24(any(), eq(1));
 
-       assertEquals("", listener.getResults());
+        assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -207,8 +208,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.2.3.2.b"),
-            description = "Verify that step completes without errors when none of the fail criteria are met.")
+    @TestDoc(value = @TestItem(verifies = "6.2.3.2.b"), description = "Verify that step completes without errors when none of the fail criteria are met.")
     public void testNoFailures() {
 
         {
@@ -225,7 +225,7 @@ public class Part02Step03ControllerTest extends AbstractControllerTest {
             OBDModuleInformation obdInfo0 = new OBDModuleInformation(0);
             obdInfo0.setObdCompliance((byte) 4);
             obdInfo0.setSupportedSPNs(List.of(spn1, spn2));
-            dataRepository.putObdModule( obdInfo0);
+            dataRepository.putObdModule(obdInfo0);
         }
 
         {

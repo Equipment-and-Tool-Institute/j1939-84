@@ -14,13 +14,13 @@ import org.etools.j1939_84.controllers.ResultsListener;
  */
 public interface VehicleInformationListener {
 
-	/**
-	 * Called once the user has entered all the information
-	 *
-	 * @param vehicleInformation the {@link VehicleInformation} from the user. This
-	 *                           will be null if the cancelled/closed the dialog.
-	 */
-	void onResult(VehicleInformation vehicleInformation);
+    /**
+     * Called once the user has entered all the information
+     *
+     * @param vehicleInformation the {@link VehicleInformation} from the user. This
+     *                               will be null if the cancelled/closed the dialog.
+     */
+    void onResult(VehicleInformation vehicleInformation);
 
-	ResultsListener getResultsListener();
+    ResultsListener getResultsListener();
 }

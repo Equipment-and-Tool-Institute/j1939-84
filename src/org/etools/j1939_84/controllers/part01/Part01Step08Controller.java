@@ -9,6 +9,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -83,7 +84,7 @@ public class Part01Step08Controller extends StepController {
 
         // 6.1.8.1.a. Global DM20 (send Request (PGN 59904) for PGN 49664
         List<DM20MonitorPerformanceRatioPacket> globalDM20s = getDiagnosticMessageModule().requestDM20(getListener())
-                .getPackets();
+                                                                                          .getPackets();
 
         // 6.1.8.1 Actions:
         // 6.1.8.1.a.i. Create list of ECU address
@@ -99,9 +100,9 @@ public class Part01Step08Controller extends StepController {
 
         // Gather all the spn of performance ratio from the vehicle
         Set<Integer> dm20Spns = globalDM20s.stream()
-                .flatMap(dm20 -> dm20.getRatios().stream())
-                .map(PerformanceRatio::getSpn)
-                .collect(Collectors.toSet());
+                                           .flatMap(dm20 -> dm20.getRatios().stream())
+                                           .map(PerformanceRatio::getSpn)
+                                           .collect(Collectors.toSet());
 
         verifyMinimumExpectedSpnSupported(dm20Spns);
     }

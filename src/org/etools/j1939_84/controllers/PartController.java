@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.StepResult;
 import org.etools.j1939_84.modules.BannerModule;
@@ -45,8 +46,9 @@ public abstract class PartController extends Controller {
     protected void run() throws Throwable {
         List<StepController> stepControllers = getStepControllers();
         int totalSteps = stepControllers.stream()
-                .mapToInt(StepController::getTotalSteps)
-                .sum() + stepControllers.size();
+                                        .mapToInt(StepController::getTotalSteps)
+                                        .sum()
+                + stepControllers.size();
         setupProgress(totalSteps);
 
         PartResult partResult = getPartResult();

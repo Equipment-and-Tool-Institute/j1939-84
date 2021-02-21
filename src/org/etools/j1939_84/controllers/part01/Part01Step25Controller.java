@@ -10,6 +10,7 @@ import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Respons
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
@@ -24,8 +25,8 @@ import org.etools.j1939_84.utils.CollectionUtils;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * <p>
- * The controller for 6.1.25 DM20: Monitor performance ratio
+ *         <p>
+ *         The controller for 6.1.25 DM20: Monitor performance ratio
  */
 
 public class Part01Step25Controller extends StepController {
@@ -75,7 +76,7 @@ public class Part01Step25Controller extends StepController {
             String moduleName = getAddressName(moduleAddress);
             if (dm20BusResult.isRetryUsed()) {
                 addFailure("6.1.25.2.a - Retry was required to obtain DM20 response:" + NL
-                                   + moduleName + " required a retry when DS requesting DM20");
+                        + moduleName + " required a retry when DS requesting DM20");
             }
 
             // 6.1.25.1.b. If no response, then retry DS DM20 request to the OBD ECU. [Do not attempt
@@ -87,13 +88,14 @@ public class Part01Step25Controller extends StepController {
                 if (optionalLeft.isPresent()) {
                     DM20MonitorPerformanceRatioPacket dm20 = optionalLeft.get();
 
-                    //6.1.25.1.a.i. Store ignition cycle counter value (SPN 3048) for later use.
+                    // 6.1.25.1.a.i. Store ignition cycle counter value (SPN 3048) for later use.
                     module.setIgnitionCycleCounterValue(dm20.getIgnitionCycles());
                     getDataRepository().putObdModule(module);
 
                     // 6.1.25.2.b. Fail if any difference compared to data received during global request earlier
                     if (!CollectionUtils.areTwoCollectionsEqual(module.getPerformanceRatios(), dm20.getRatios())) {
-                        String failureMessage = "6.1.25.2.b - Difference compared to data received during global request earlier" + NL;
+                        String failureMessage = "6.1.25.2.b - Difference compared to data received during global request earlier"
+                                + NL;
                         failureMessage += moduleName;
                         failureMessage += " had a difference between stored performance ratios and DS requested DM20 response ratios";
                         addFailure(failureMessage);
@@ -101,7 +103,8 @@ public class Part01Step25Controller extends StepController {
                 } else {
                     Optional<AcknowledgmentPacket> optionalRight = result.right;
                     if (optionalRight.isEmpty() || optionalRight.get().getResponse() != Response.NACK) {
-                        // 6.1.25.2.c. Fail if NACK not received from OBD ECUs that did not respond to global query in test 1.8.
+                        // 6.1.25.2.c. Fail if NACK not received from OBD ECUs that did not respond to global query in
+                        // test 1.8.
                         addFailure("6.1.25.2.c - NACK not received from OBD ECUs that did not respond to global query");
                     }
                 }

@@ -4,6 +4,7 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import java.util.Objects;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 
 /**
@@ -56,35 +57,20 @@ public class DiagnosticTroubleCode {
 
     public static DiagnosticTroubleCode create(int spn, int fmi, int cm, int oc) {
 
-        //spn bytes 1 - 3 use the spn
-        int spnByte1 =  spn & 0xFF;
+        // spn bytes 1 - 3 use the spn
+        int spnByte1 = spn & 0xFF;
         int spnByte2 = (spn >> 8) & 0xFF;
 
         int spnByte3 = 0xFF;
         spnByte3 &= (spn >> 16) << 5;
 
         int[] bytes = new int[4];
-        bytes[0] = spnByte1; //spn bytes 1
-        bytes[1] = spnByte2; //spn bytes 2
+        bytes[0] = spnByte1; // spn bytes 1
+        bytes[1] = spnByte2; // spn bytes 2
         bytes[2] = (spnByte3 | (fmi & 0x1F)); // spn bytes 3 && fmi
         bytes[3] = ((cm << 7) | (oc & 0x7F)); // cm & oc
 
         return new DiagnosticTroubleCode(bytes);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-        if (!(obj instanceof DiagnosticTroubleCode)) {
-            return false;
-        }
-        DiagnosticTroubleCode that = (DiagnosticTroubleCode) obj;
-        return (getSuspectParameterNumber() == that.getSuspectParameterNumber() &&
-                getOccurrenceCount() == that.getOccurrenceCount() &&
-                getFailureModeIndicator() == that.getFailureModeIndicator() &&
-                getConversionMethod() == that.getConversionMethod());
     }
 
     /**
@@ -139,6 +125,21 @@ public class DiagnosticTroubleCode {
                             getFailureModeIndicator(),
                             getConversionMethod(),
                             getSuspectParameterNumber());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+        if (!(obj instanceof DiagnosticTroubleCode)) {
+            return false;
+        }
+        DiagnosticTroubleCode that = (DiagnosticTroubleCode) obj;
+        return (getSuspectParameterNumber() == that.getSuspectParameterNumber() &&
+                getOccurrenceCount() == that.getOccurrenceCount() &&
+                getFailureModeIndicator() == that.getFailureModeIndicator() &&
+                getConversionMethod() == that.getConversionMethod());
     }
 
     @Override

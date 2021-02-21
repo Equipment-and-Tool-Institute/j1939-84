@@ -9,19 +9,9 @@ import org.etools.j1939_84.utils.CollectionUtils;
 
 public class Spn {
 
-    public static Spn create(int id, double value) {
-        J1939DaRepository j1939DaRepository = J1939DaRepository.getInstance();
-        SpnDefinition spnDefinition = j1939DaRepository.findSpnDefinition(id);
-        String label = spnDefinition.getLabel();
-        Slot slot = j1939DaRepository.findSLOT(spnDefinition.getSlotNumber(), id);
-        byte[] data = slot.asBytes(value);
-        return new Spn(id, label, slot, data);
-    }
-
     private final byte[] data;
     private final int id;
     private final String label;
-
     private final Slot slot;
 
     public Spn(int id, String label, Slot slot, byte[] data) {
@@ -29,6 +19,15 @@ public class Spn {
         this.label = label;
         this.slot = slot;
         this.data = data;
+    }
+
+    public static Spn create(int id, double value) {
+        J1939DaRepository j1939DaRepository = J1939DaRepository.getInstance();
+        SpnDefinition spnDefinition = j1939DaRepository.findSpnDefinition(id);
+        String label = spnDefinition.getLabel();
+        Slot slot = j1939DaRepository.findSLOT(spnDefinition.getSlotNumber(), id);
+        byte[] data = slot.asBytes(value);
+        return new Spn(id, label, slot, data);
     }
 
     public int[] getData() {
@@ -74,9 +73,9 @@ public class Spn {
     @Override
     public String toString() {
         return String.format("SPN %1$5s, %2$s: %3$s",
-                id,
-                label,
-                slot.asString(data));
+                             id,
+                             label,
+                             slot.asString(data));
     }
 
 }

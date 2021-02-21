@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
@@ -26,8 +27,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
- * <p>
- * The controller for DM24: SPN support
+ *         <p>
+ *         The controller for DM24: SPN support
  */
 public class Part01Step04Controller extends StepController {
 
@@ -84,19 +85,22 @@ public class Part01Step04Controller extends StepController {
         //
         // [Do not attempt retry for NACKs that indicate not supported].
         getDataRepository().getObdModules()
-                .stream()
-                .mapToInt(OBDModuleInformation::getSourceAddress)
-                .forEach(sourceAddress -> {
-                    BusResult<DM24SPNSupportPacket> result = getDiagnosticMessageModule().requestDM24(getListener(),
-                                                                                                      sourceAddress);
-                    result.getPacket().flatMap(packet -> packet.left).ifPresent(destinationSpecificPackets::add);
+                           .stream()
+                           .mapToInt(OBDModuleInformation::getSourceAddress)
+                           .forEach(sourceAddress -> {
+                               BusResult<DM24SPNSupportPacket> result = getDiagnosticMessageModule().requestDM24(getListener(),
+                                                                                                                 sourceAddress);
+                               result.getPacket()
+                                     .flatMap(packet -> packet.left)
+                                     .ifPresent(destinationSpecificPackets::add);
 
-                    // 6.1.4.2.a. Fail if retry was required to obtain DM24 response.
-                    if (result.isRetryUsed()) {
-                        String moduleName = Lookup.getAddressName(sourceAddress);
-                        addFailure("6.1.4.2.a - Retry was required to obtain DM24 response from " + moduleName);
-                    }
-                });
+                               // 6.1.4.2.a. Fail if retry was required to obtain DM24 response.
+                               if (result.isRetryUsed()) {
+                                   String moduleName = Lookup.getAddressName(sourceAddress);
+                                   addFailure("6.1.4.2.a - Retry was required to obtain DM24 response from "
+                                           + moduleName);
+                               }
+                           });
 
         // 6.1.4.1.c Create vehicle list of supported SPNs for data stream
         destinationSpecificPackets.forEach(p -> {
@@ -109,13 +113,14 @@ public class Part01Step04Controller extends StepController {
         });
 
         // 6.1.4.1.d. Create ECU specific list of supported SPNs for test results.
-        List<Integer> dataStreamSPNs = getDataRepository().getObdModules().stream()
-                .map(OBDModuleInformation::getDataStreamSPNs)
-                .flatMap(Collection::stream)
-                .map(SupportedSPN::getSpn)
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
+        List<Integer> dataStreamSPNs = getDataRepository().getObdModules()
+                                                          .stream()
+                                                          .map(OBDModuleInformation::getDataStreamSPNs)
+                                                          .flatMap(Collection::stream)
+                                                          .map(SupportedSPN::getSpn)
+                                                          .distinct()
+                                                          .sorted()
+                                                          .collect(Collectors.toList());
 
         FuelType fuelType = getDataRepository().getVehicleInformation().getFuelType();
         boolean dataStreamOk = supportedSpnModule.validateDataStreamSpns(getListener(), dataStreamSPNs, fuelType);
@@ -126,13 +131,14 @@ public class Part01Step04Controller extends StepController {
         }
 
         // 6.1.4.1.e. Create ECU specific list of supported freeze frame SPNs.
-        List<Integer> freezeFrameSPNs = getDataRepository().getObdModules().stream()
-                .map(OBDModuleInformation::getFreezeFrameSPNs)
-                .flatMap(Collection::stream)
-                .map(SupportedSPN::getSpn)
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
+        List<Integer> freezeFrameSPNs = getDataRepository().getObdModules()
+                                                           .stream()
+                                                           .map(OBDModuleInformation::getFreezeFrameSPNs)
+                                                           .flatMap(Collection::stream)
+                                                           .map(SupportedSPN::getSpn)
+                                                           .distinct()
+                                                           .sorted()
+                                                           .collect(Collectors.toList());
 
         boolean freezeFrameOk = supportedSpnModule.validateFreezeFrameSpns(getListener(), freezeFrameSPNs);
         if (!freezeFrameOk) {

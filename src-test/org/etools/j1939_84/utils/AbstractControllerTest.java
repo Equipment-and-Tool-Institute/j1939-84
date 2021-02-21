@@ -6,6 +6,7 @@ package org.etools.j1939_84.utils;
 import static org.mockito.Mockito.verify;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.Controller;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -17,9 +18,9 @@ import org.mockito.ArgumentCaptor;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * <p>
- * This class provides the basic method for running a test on a class
- * that extends {@link Controller}.
+ *         <p>
+ *         This class provides the basic method for running a test on a class
+ *         that extends {@link Controller}.
  */
 public abstract class AbstractControllerTest {
 

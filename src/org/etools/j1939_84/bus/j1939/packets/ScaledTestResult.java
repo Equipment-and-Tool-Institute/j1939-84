@@ -18,28 +18,31 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  */
 public class ScaledTestResult {
 
+    private final int[] data;
+    private final int fmi;
+    private final int slotNumber;
+    private final int spn;
+    private final int testIdentifier;
+    private final int testMaximum;
+    private final int testMinimum;
+    private final int testValue;
+    private Slot slot;
+
     /**
-     * The Possible Outcomes of the Test
+     * Constructor
      *
-     * @author Matt Gumbel (matt@soliddesign.net)
+     * @param data
+     *                 the data that contains the {@link ScaledTestResult}
      */
-    public enum TestResult {
-
-        CANNOT_BE_PERFORMED("Test Cannot Be Performed"),
-        FAILED("Test Failed"),
-        NOT_COMPLETE("Test Not Complete"),
-        PASSED("Test Passed");
-
-        private final String string;
-
-        TestResult(String string) {
-            this.string = string;
-        }
-
-        @Override
-        public String toString() {
-            return string;
-        }
+    public ScaledTestResult(int[] data) {
+        this.data = data;
+        testIdentifier = data[0];
+        spn = SupportedSPN.parseSPN(Arrays.copyOfRange(data, 1, 4));
+        fmi = data[3] & 0x1F;
+        slotNumber = ((data[5] << 8) | data[4]) & 0xFFFF;
+        testValue = ((data[7] << 8) | data[6]) & 0xFFFF;
+        testMaximum = ((data[9] << 8) | data[8]) & 0xFFFF;
+        testMinimum = ((data[11] << 8) | data[10]) & 0xFFFF;
     }
 
     public static ScaledTestResult create(int testIdentifier,
@@ -62,33 +65,6 @@ public class ScaledTestResult {
         data = join(data, toInts(testMinimum));
 
         return new ScaledTestResult(data);
-    }
-
-    private final int[] data;
-    private final int fmi;
-    private Slot slot;
-    private final int slotNumber;
-    private final int spn;
-    private final int testIdentifier;
-    private final int testMaximum;
-    private final int testMinimum;
-    private final int testValue;
-
-    /**
-     * Constructor
-     *
-     * @param data
-     *            the data that contains the {@link ScaledTestResult}
-     */
-    public ScaledTestResult(int[] data) {
-        this.data = data;
-        testIdentifier = data[0];
-        spn = SupportedSPN.parseSPN(Arrays.copyOfRange(data, 1, 4));
-        fmi = data[3] & 0x1F;
-        slotNumber = ((data[5] << 8) | data[4]) & 0xFFFF;
-        testValue = ((data[7] << 8) | data[6]) & 0xFFFF;
-        testMaximum = ((data[9] << 8) | data[8]) & 0xFFFF;
-        testMinimum = ((data[11] << 8) | data[10]) & 0xFFFF;
     }
 
     public int[] getData() {
@@ -249,6 +225,30 @@ public class ScaledTestResult {
             result += " Max: " + (hasMaximum() ? NumberFormatter.format(getScaledTestMaximum()) : "N/A") + unit + "";
         }
         return result;
+    }
+
+    /**
+     * The Possible Outcomes of the Test
+     *
+     * @author Matt Gumbel (matt@soliddesign.net)
+     */
+    public enum TestResult {
+
+        CANNOT_BE_PERFORMED("Test Cannot Be Performed"),
+        FAILED("Test Failed"),
+        NOT_COMPLETE("Test Not Complete"),
+        PASSED("Test Passed");
+
+        private final String string;
+
+        TestResult(String string) {
+            this.string = string;
+        }
+
+        @Override
+        public String toString() {
+            return string;
+        }
     }
 
 }

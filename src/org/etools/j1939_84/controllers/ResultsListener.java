@@ -4,7 +4,9 @@
 package org.etools.j1939_84.controllers;
 
 import java.util.List;
+
 import javax.swing.JOptionPane;
+
 import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.model.PartResult;
 import org.etools.j1939_84.model.StepResult;
@@ -24,7 +26,11 @@ public interface ResultsListener {
     public enum MessageType {
         // The values correspond to JOptionPane Types
 
-        ERROR(JOptionPane.OK_CANCEL_OPTION), INFO(JOptionPane.INFORMATION_MESSAGE), PLAIN(JOptionPane.PLAIN_MESSAGE), QUESTION(JOptionPane.YES_NO_OPTION), WARNING(JOptionPane.OK_CANCEL_OPTION);
+        ERROR(JOptionPane.OK_CANCEL_OPTION),
+        INFO(JOptionPane.INFORMATION_MESSAGE),
+        PLAIN(JOptionPane.PLAIN_MESSAGE),
+        QUESTION(JOptionPane.YES_NO_OPTION),
+        WARNING(JOptionPane.OK_CANCEL_OPTION);
 
         private final int value;
 
@@ -114,8 +120,8 @@ public interface ResultsListener {
      * Called when the {@link Controller} has completed
      *
      * @param success
-     *         true if the completion was normal; false if the process was
-     *         Stopped
+     *                    true if the completion was normal; false if the process was
+     *                    Stopped
      */
     void onComplete(boolean success);
 
@@ -123,11 +129,11 @@ public interface ResultsListener {
      * Called when a dialog needs to be displayed to the user
      *
      * @param message
-     *         the message to display
+     *                    the message to display
      * @param title
-     *         the title of the dialog
+     *                    the title of the dialog
      * @param type
-     *         the type of dialog to display (Error, Warning, Info, etc)
+     *                    the type of dialog to display (Error, Warning, Info, etc)
      */
     void onMessage(String message, String title, MessageType type);
 
@@ -135,11 +141,11 @@ public interface ResultsListener {
      * Called when the {@link Controller} has progressed
      *
      * @param currentStep
-     *         the current step in the process
+     *                        the current step in the process
      * @param totalSteps
-     *         the total number of steps in the process
+     *                        the total number of steps in the process
      * @param message
-     *         the message about the current step
+     *                        the message about the current step
      */
     void onProgress(int currentStep, int totalSteps, String message);
 
@@ -148,7 +154,7 @@ public interface ResultsListener {
      * message
      *
      * @param message
-     *         the message about the current step
+     *                    the message about the current step
      */
     void onProgress(String message);
 
@@ -156,7 +162,7 @@ public interface ResultsListener {
      * Called when the {@link Controller} has results to report
      *
      * @param results
-     *         the results
+     *                    the results
      */
     void onResult(List<String> results);
 
@@ -164,7 +170,7 @@ public interface ResultsListener {
      * Called when the {@link Controller} has a result to report
      *
      * @param result
-     *         the result
+     *                   the result
      */
     void onResult(String result);
 
@@ -173,11 +179,11 @@ public interface ResultsListener {
      * the application to pause until the user responds.
      *
      * @param message
-     *         the message to display
+     *                    the message to display
      * @param title
-     *         the title of the dialog
+     *                    the title of the dialog
      * @param type
-     *         the type of dialog to display (Error, Warning, Info, etc)
+     *                    the type of dialog to display (Error, Warning, Info, etc)
      */
     void onUrgentMessage(String message, String title, MessageType type);
 
@@ -186,14 +192,14 @@ public interface ResultsListener {
      * display a form used to gather that information
      *
      * @param message
-     *         the message to display
+     *                     the message to display
      * @param title
-     *         the title of the dialog
+     *                     the title of the dialog
      * @param type
-     *         the type of dialog to display (Error, Warning, Info, etc)
+     *                     the type of dialog to display (Error, Warning, Info, etc)
      * @param listener
-     *         the {@link QuestionListener} that will be called
-     *         once the user has entered the {@link QuestionListener}
+     *                     the {@link QuestionListener} that will be called
+     *                     once the user has entered the {@link QuestionListener}
      */
     void onUrgentMessage(String message, String title, MessageType type, QuestionListener listener);
 
@@ -202,8 +208,8 @@ public interface ResultsListener {
      * display a form used to gather that information
      *
      * @param listener
-     *         the {@link VehicleInformationListener} that will be called
-     *         once the user has entered the {@link VehicleInformation}
+     *                     the {@link VehicleInformationListener} that will be called
+     *                     once the user has entered the {@link VehicleInformation}
      */
     void onVehicleInformationNeeded(VehicleInformationListener listener);
 

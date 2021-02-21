@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket.CalibrationInformation;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
@@ -104,8 +105,8 @@ public class OBDModuleInformation implements Cloneable {
 
     public List<SupportedSPN> getDataStreamSPNs() {
         return getSupportedSPNs().stream()
-                .filter(SupportedSPN::supportsDataStream)
-                .collect(Collectors.toList());
+                                 .filter(SupportedSPN::supportsDataStream)
+                                 .collect(Collectors.toList());
     }
 
     /**
@@ -113,8 +114,8 @@ public class OBDModuleInformation implements Cloneable {
      */
     public List<SupportedSPN> getFilteredDataStreamSPNs() {
         return getDataStreamSPNs().stream()
-                .filter(s -> !getOmittedDataStreamSPNs().contains(s.getSpn()))
-                .collect(Collectors.toList());
+                                  .filter(s -> !getOmittedDataStreamSPNs().contains(s.getSpn()))
+                                  .collect(Collectors.toList());
     }
 
     public List<Integer> getOmittedDataStreamSPNs() {
@@ -127,8 +128,8 @@ public class OBDModuleInformation implements Cloneable {
 
     public List<SupportedSPN> getFreezeFrameSPNs() {
         return getSupportedSPNs().stream()
-                .filter(SupportedSPN::supportsExpandedFreezeFrame)
-                .collect(Collectors.toList());
+                                 .filter(SupportedSPN::supportsExpandedFreezeFrame)
+                                 .collect(Collectors.toList());
     }
 
     public int getFunction() {
@@ -160,15 +161,16 @@ public class OBDModuleInformation implements Cloneable {
     }
 
     public List<SupportedSPN> getSupportedSPNs() {
-        return (get(DM24SPNSupportPacket.class) == null ? supportedSPNs : get(DM24SPNSupportPacket.class).getSupportedSpns()).stream()
-                .sorted(Comparator.comparingInt(SupportedSPN::getSpn))
-                .collect(Collectors.toList());
+        return (get(DM24SPNSupportPacket.class) == null ? supportedSPNs
+                : get(DM24SPNSupportPacket.class).getSupportedSpns()).stream()
+                                                                     .sorted(Comparator.comparingInt(SupportedSPN::getSpn))
+                                                                     .collect(Collectors.toList());
     }
 
     public List<SupportedSPN> getTestResultSPNs() {
         return getSupportedSPNs().stream()
-                .filter(SupportedSPN::supportsScaledTestResults)
-                .collect(Collectors.toList());
+                                 .filter(SupportedSPN::supportsScaledTestResults)
+                                 .collect(Collectors.toList());
     }
 
     public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {

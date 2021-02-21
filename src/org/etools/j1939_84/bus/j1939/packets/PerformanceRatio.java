@@ -8,7 +8,9 @@ import static org.etools.j1939_84.bus.j1939.packets.ParsedPacket.toInts;
 
 import java.util.Comparator;
 import java.util.Objects;
+
 import javax.annotation.Nonnull;
+
 import org.etools.j1939_84.NumberFormatter;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.utils.CollectionUtils;
@@ -22,45 +24,29 @@ import org.etools.j1939_84.utils.CollectionUtils;
 public class PerformanceRatio implements Comparable<PerformanceRatio> {
 
     private final int denominator;
-    private String name;
     private final int numerator;
-    private String source;
     private final int sourceAddress;
     private final int spn;
+    private String name;
+    private String source;
 
     /**
      * Constructor
      *
      * @param spn
-     *         the Suspect Parameter Number
+     *                          the Suspect Parameter Number
      * @param numerator
-     *         the value of the numerator
+     *                          the value of the numerator
      * @param denominator
-     *         the value of the denominator
+     *                          the value of the denominator
      * @param sourceAddress
-     *         the source address of the module this ratio is from
+     *                          the source address of the module this ratio is from
      */
     public PerformanceRatio(int spn, int numerator, int denominator, int sourceAddress) {
         this.spn = spn;
         this.numerator = numerator;
         this.denominator = denominator;
         this.sourceAddress = sourceAddress;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof PerformanceRatio)) {
-            return false;
-        }
-        PerformanceRatio that = (PerformanceRatio) obj;
-        return getSpn() == that.getSpn()
-                && getNumerator() == that.getNumerator()
-                && getDenominator() == that.getDenominator()
-                && sourceAddress == that.sourceAddress;
     }
 
     public int[] getData() {
@@ -144,6 +130,22 @@ public class PerformanceRatio implements Comparable<PerformanceRatio> {
     @Override
     public int hashCode() {
         return Objects.hash(getSpn(), getNumerator(), getDenominator(), sourceAddress);
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof PerformanceRatio)) {
+            return false;
+        }
+        PerformanceRatio that = (PerformanceRatio) obj;
+        return getSpn() == that.getSpn()
+                && getNumerator() == that.getNumerator()
+                && getDenominator() == that.getDenominator()
+                && sourceAddress == that.sourceAddress;
     }
 
     @Override

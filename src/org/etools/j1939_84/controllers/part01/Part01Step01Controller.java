@@ -9,6 +9,7 @@ import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNIN
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
@@ -58,16 +59,18 @@ public class Part01Step01Controller extends StepController {
      * Sends the request to the UI to gather vehicle information from the user.
      *
      * @throws InterruptedException
-     *         if the cancelled the operation
+     *                                  if the cancelled the operation
      */
     private void collectVehicleInformation() throws InterruptedException {
 
         getListener().onVehicleInformationNeeded(new VehicleInformationListener() {
 
-            @Override public void onResult(VehicleInformation vehInfo) {
+            @Override
+            public void onResult(VehicleInformation vehInfo) {
                 if (vehInfo == null) {
                     try {
-                        getListener().onResult("User cancelled testing at Part " + getPartNumber() + " Step " + getStepNumber());
+                        getListener().onResult("User cancelled testing at Part " + getPartNumber() + " Step "
+                                + getStepNumber());
                         setEnding(Ending.STOPPED);
                         incrementProgress("User cancelled testing");
                     } catch (InterruptedException e) {
@@ -79,7 +82,8 @@ public class Part01Step01Controller extends StepController {
                 }
             }
 
-            @Override public ResultsListener getResultsListener() {
+            @Override
+            public ResultsListener getResultsListener() {
                 return getListener();
             }
         });

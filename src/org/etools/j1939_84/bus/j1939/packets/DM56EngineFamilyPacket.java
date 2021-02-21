@@ -1,6 +1,7 @@
 package org.etools.j1939_84.bus.j1939.packets;
 
 import java.util.Arrays;
+
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
@@ -54,18 +55,18 @@ public class DM56EngineFamilyPacket extends GenericPacket {
         return NAME;
     }
 
+    @Override
+    public String toString() {
+        return getStringPrefix() + J1939_84.NL +
+                "Model Year: " + getModelYearField() + J1939_84.NL +
+                "Family Name: " + getFamilyName();
+    }
+
     public Integer getVehicleModelYear() {
         return !isEngineModelYear() ? getModelYearInt() : null;
     }
 
     private boolean isEngineModelYear() {
         return getModelYearField().contains("E-MY");
-    }
-
-    @Override
-    public String toString() {
-        return getStringPrefix() + J1939_84.NL +
-                "Model Year: " + getModelYearField() + J1939_84.NL +
-                "Family Name: " + getFamilyName();
     }
 }

@@ -65,9 +65,9 @@ public class HighResVehicleDistancePacketTest {
         assertEquals(ParsedPacket.NOT_AVAILABLE, instance.getTotalVehicleDistance(), 0.0);
 
         String expected = "";
-        expected += "High Resolution Vehicle Distance from Engine #1 (0): "+NL;
-        expected += "  SPN   917, Total Vehicle Distance (High Resolution): Not Available"+NL;
-        expected += "  SPN   918, Trip Distance (High Resolution): 5721008725.000000 m"+NL;
+        expected += "High Resolution Vehicle Distance from Engine #1 (0): " + NL;
+        expected += "  SPN   917, Total Vehicle Distance (High Resolution): Not Available" + NL;
+        expected += "  SPN   918, Trip Distance (High Resolution): 5721008725.000000 m" + NL;
         assertEquals(expected, instance.toString());
 
     }

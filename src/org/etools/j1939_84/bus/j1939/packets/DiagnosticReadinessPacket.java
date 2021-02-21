@@ -19,10 +19,10 @@ import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.SECONDARY_AI
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.model.PgnDefinition;
 
@@ -55,22 +55,6 @@ public abstract class DiagnosticReadinessPacket extends GenericPacket {
         boolean supported = isOBDModule() && (getByte(lowerByte) & mask) == mask;
         MonitoredSystemStatus status = MonitoredSystemStatus.findStatus(isDM5(), supported, !notCompleted);
         return new MonitoredSystem(name, status, getSourceAddress(), compositeSystem, isDM5());
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (!(obj instanceof DiagnosticReadinessPacket)) {
-            return false;
-        }
-
-        DiagnosticReadinessPacket that = (DiagnosticReadinessPacket) obj;
-        return getSourceAddress() == that.getSourceAddress()
-                && Objects.equals(getContinuouslyMonitoredSystems(), that.getContinuouslyMonitoredSystems())
-                && Objects.equals(getNonContinuouslyMonitoredSystems(), that.getNonContinuouslyMonitoredSystems());
     }
 
     /**
@@ -128,6 +112,22 @@ public abstract class DiagnosticReadinessPacket extends GenericPacket {
     @Override
     public int hashCode() {
         return Objects.hash(getContinuouslyMonitoredSystems(), getNonContinuouslyMonitoredSystems());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof DiagnosticReadinessPacket)) {
+            return false;
+        }
+
+        DiagnosticReadinessPacket that = (DiagnosticReadinessPacket) obj;
+        return getSourceAddress() == that.getSourceAddress()
+                && Objects.equals(getContinuouslyMonitoredSystems(), that.getContinuouslyMonitoredSystems())
+                && Objects.equals(getNonContinuouslyMonitoredSystems(), that.getNonContinuouslyMonitoredSystems());
     }
 
     /**

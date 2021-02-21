@@ -8,6 +8,7 @@ import static org.etools.j1939_84.utils.CollectionUtils.join;
 
 import java.util.ArrayList;
 import java.util.List;
+
 import org.etools.j1939_84.NumberFormatter;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
@@ -52,9 +53,9 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
     /**
      * Helper method to find the longest {@link PerformanceRatio} name
      *
-     * @param ratios
-     *         all the {@link PerformanceRatio}s
-     * @return the length of the longest name
+     * @param  ratios
+     *                    all the {@link PerformanceRatio}s
+     * @return        the length of the longest name
      */
     private int getLongestName(List<PerformanceRatio> ratios) {
         return ratios.stream().mapToInt(t -> t.getName().length()).max().orElse(50);
@@ -90,11 +91,11 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
     /**
      * Pads the String with spaces on the left
      *
-     * @param string
-     *         the String to pad
-     * @param length
-     *         the maximum number of spaces
-     * @return the padded string
+     * @param  string
+     *                    the String to pad
+     * @param  length
+     *                    the maximum number of spaces
+     * @return        the padded string
      */
     private String padLeft(String string, int length) {
         return String.format("%1$" + length + "s", string);
@@ -103,11 +104,11 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
     /**
      * Pads the String with spaces on the right
      *
-     * @param string
-     *         the String to pad
-     * @param length
-     *         the maximum number of spaces
-     * @return the padded string
+     * @param  string
+     *                    the String to pad
+     * @param  length
+     *                    the maximum number of spaces
+     * @return        the padded string
      */
     private String padRight(String string, int length) {
         return String.format("%1$-" + length + "s", string);
@@ -135,10 +136,12 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
         sb.append(getStringPrefix()).append(" [").append(NL);
         int max = getLongestName(getRatios()) + 1;
         sb.append(padRight("", max)).append("  Num'r /  Den'r").append(NL);
-        sb.append(padRight("Ignition Cycles", max)).append(padLeft(NumberFormatter.format(getIgnitionCycles()), 16))
-                .append(NL);
+        sb.append(padRight("Ignition Cycles", max))
+          .append(padLeft(NumberFormatter.format(getIgnitionCycles()), 16))
+          .append(NL);
         sb.append(padRight("OBD Monitoring Conditions Encountered", max))
-                .append(padLeft(NumberFormatter.format(getOBDConditionsCount()), 16)).append(NL);
+          .append(padLeft(NumberFormatter.format(getOBDConditionsCount()), 16))
+          .append(NL);
 
         for (PerformanceRatio ratio : getRatios()) {
             sb.append(padRight(ratio.getName(), max));

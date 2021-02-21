@@ -24,7 +24,7 @@ public class Resources {
      */
     public static List<Image> getLogoImages() {
         return Stream.of("logo.png", "logo-128.png", "logo-64.png", "logo-48.png")
-                .map(r -> new ImageIcon(Resources.class.getResource("logo-64.png")).getImage())
-                .collect(Collectors.toList());
+                     .map(r -> new ImageIcon(Resources.class.getResource("logo-64.png")).getImage())
+                     .collect(Collectors.toList());
     }
 }

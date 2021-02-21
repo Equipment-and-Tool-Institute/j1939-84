@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
@@ -63,29 +64,31 @@ public class Part04Step04Controller extends StepController {
 
         // 6.4.4.2.a (if supported) Fail if any OBD ECU reports > 0 previously active DTCs.
         globalPackets.stream()
-                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> p.getDtcs().size() > 0)
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.4.4.2.a - OBD ECU " + moduleName + " reported > 0 previously active DTCs"));
+                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                     .filter(p -> p.getDtcs().size() > 0)
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> addFailure("6.4.4.2.a - OBD ECU " + moduleName
+                             + " reported > 0 previously active DTCs"));
 
-        // 6.4.4.2.b (if supported) Fail if any OBD ECU reports a different MIL status (e.g., on and flashing, or off) than it did in DM12 response earlier in this part.
+        // 6.4.4.2.b (if supported) Fail if any OBD ECU reports a different MIL status (e.g., on and flashing, or off)
+        // than it did in DM12 response earlier in this part.
         globalPackets.stream()
-                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> getDataRepository().getObdModule(p.getSourceAddress())
-                        .get(DM12MILOnEmissionDTCPacket.class) != null)
-                .filter(p -> p.getMalfunctionIndicatorLampStatus() !=
-                        getDataRepository().getObdModule(p.getSourceAddress())
-                                .get(DM12MILOnEmissionDTCPacket.class)
-                                .getMalfunctionIndicatorLampStatus())
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.4.4.2.b - OBD ECU " + moduleName + " reported a MIL status differing from DM12 response earlier in this part"));
+                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                     .filter(p -> getDataRepository().getObdModule(p.getSourceAddress())
+                                                     .get(DM12MILOnEmissionDTCPacket.class) != null)
+                     .filter(p -> p.getMalfunctionIndicatorLampStatus() != getDataRepository().getObdModule(p.getSourceAddress())
+                                                                                              .get(DM12MILOnEmissionDTCPacket.class)
+                                                                                              .getMalfunctionIndicatorLampStatus())
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> addFailure("6.4.4.2.b - OBD ECU " + moduleName
+                             + " reported a MIL status differing from DM12 response earlier in this part"));
 
         List<Integer> obdAddresses = getDataRepository().getObdModuleAddresses();
 
         // 6.4.4.3.a DS DM2 to each OBD ECU.
         var dsResult = obdAddresses.stream()
-                .map(address -> getDiagnosticMessageModule().requestDM2(getListener(), address))
-                .collect(Collectors.toList());
+                                   .map(address -> getDiagnosticMessageModule().requestDM2(getListener(), address))
+                                   .collect(Collectors.toList());
 
         // 6.4.4.4.a (if supported) Fail if any difference compared to data received from global request.
         List<DM2PreviouslyActiveDTC> dsPackets = filterPackets(dsResult);

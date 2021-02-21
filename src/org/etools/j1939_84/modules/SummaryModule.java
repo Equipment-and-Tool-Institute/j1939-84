@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.Arrays;
 import java.util.List;
+
 import org.etools.j1939_84.controllers.PartResultRepository;
 import org.etools.j1939_84.model.ActionOutcome;
 import org.etools.j1939_84.model.IResult;
@@ -71,10 +72,10 @@ public class SummaryModule {
 
     public long getOutcomeCount(Outcome outcome) {
         return getPartResults().stream()
-                .flatMap(p -> p.getStepResults().stream())
-                .flatMap(s -> s.getOutcomes().stream())
-                .filter(o -> o.getOutcome() == outcome)
-                .count();
+                               .flatMap(p -> p.getStepResults().stream())
+                               .flatMap(s -> s.getOutcomes().stream())
+                               .filter(o -> o.getOutcome() == outcome)
+                               .count();
     }
 
     private String println(IResult iResult) {
@@ -83,7 +84,7 @@ public class SummaryModule {
         Outcome outcome = iResult.getOutcome();
         String result = "(" + outcome + ")";
 
-        //Name[...](Result) with min 3 dots
+        // Name[...](Result) with min 3 dots
         int totalLength = name.length() + result.length() + 3;
 
         if (totalLength > LINE_LENGTH) {

@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -43,8 +44,7 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  */
 @RunWith(MockitoJUnitRunner.class)
-@TestDoc(value = @TestItem(verifies = "Part 1 Step 6",
-        description = "DM56: Model year and certification engine family"))
+@TestDoc(value = @TestItem(verifies = "Part 1 Step 6", description = "DM56: Model year and certification engine family"))
 public class Part01Step06ControllerTest extends AbstractControllerTest {
 
     private static final String familyName = "YCALIF HD OBD*";
@@ -122,13 +122,13 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(null);
 
         instance = new Part01Step06Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                DateTimeModule.getInstance(),
-                diagnosticMessageModule);
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance(),
+                                              diagnosticMessageModule);
 
         setup(instance,
               listener,
@@ -157,8 +157,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
      * in a position less than twelve
      */
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.1.6.2.e",
-            description = "Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)"))
+    @TestDoc(value = @TestItem(verifies = "6.1.6.2.e", description = "Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)"))
     public void testAsteriskPositionLessThanTwelve() {
         String famName = familyName.replace("A", "*");
 
@@ -194,8 +193,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
      * The asterisk termination at a char location of greater than 12
      */
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.1.6.2.e",
-            description = "Engine family has > 12 characters before first asterisk character"))
+    @TestDoc(value = @TestItem(verifies = "6.1.6.2.e", description = "Engine family has > 12 characters before first asterisk character"))
     public void testAsteriskTerminationGreaterThanTwelve() {
         String famName = familyName.replace("*", "44*");
 
@@ -253,8 +251,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
      * The asterisk termination at a char location of greater than 12
      */
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.1.6.2.e",
-            description = "Engine family has > 12 characters before first asterisk character"))
+    @TestDoc(value = @TestItem(verifies = "6.1.6.2.e", description = "Engine family has > 12 characters before first asterisk character"))
     public void testFamilyNameLessThan13Characters() {
         String famName = familyName.replace(" OBD*", "");
 
@@ -287,8 +284,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
      * characters before first 'null' character (ASCII 0x00) correct behavior
      */
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.1.6.2.e.",
-            description = "Engine family has 12 characters before first 'null' character"))
+    @TestDoc(value = @TestItem(verifies = "6.1.6.2.e.", description = "Engine family has 12 characters before first 'null' character"))
     public void testFamilyNameWithNullTermination() {
         // Remove asterisk from name to test valid null termination
         String famName = familyName.replace('*', Character.MIN_VALUE);
@@ -317,8 +313,7 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
      * characters before first 'null' character (ASCII 0x00) correct behavior
      */
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.1.6.2.e.",
-            description = "Engine family has <> 12 characters before first 'null' character"))
+    @TestDoc(value = @TestItem(verifies = "6.1.6.2.e.", description = "Engine family has <> 12 characters before first 'null' character"))
     public void testFamilyNameWithNullTerminationGreaterThanTwelve() {
         // Remove asterisk from name to test valid null termination
         String famName = familyName.replace("*", "4");
@@ -363,8 +358,8 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
      */
     @Test
     @TestDoc(value = { @TestItem(verifies = "6.1.6.2.b"),
-            @TestItem(verifies = "6.1.6.2.c") },
-            description = "Indicates 'V' instead of 'E' for cert type" + "<br/>" + "&nbsp"
+            @TestItem(verifies = "6.1.6.2.c") }, description = "Indicates 'V' instead of 'E' for cert type" + "<br/>"
+                    + "&nbsp"
                     + "Not formatted correctly")
     public void testModelYearField() {
         List<DM56EngineFamilyPacket> parsedPackets = List.of(createDM56(0, 2006, "2006V-MY", null, familyName));

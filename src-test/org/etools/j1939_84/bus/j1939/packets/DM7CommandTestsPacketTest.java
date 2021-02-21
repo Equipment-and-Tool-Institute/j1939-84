@@ -5,9 +5,8 @@ package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-
 import org.etools.j1939_84.bus.Packet;
+import org.junit.Test;
 
 /**
  * Unit tests for the {@link DM7CommandTestsPacket} class

@@ -41,7 +41,8 @@ public class EngineHoursPacketTest {
         expected += "  SPN   247, Engine Total Hours of Operation: Error" + NL;
         expected += "  SPN   249, Engine Total Revolutions: 2289526357000.000000 r" + NL;
 
-        assertEquals(expected, instance.toString());    }
+        assertEquals(expected, instance.toString());
+    }
 
     @Test
     public void testGetEngineHoursAndToStringAtMax() {
@@ -53,7 +54,8 @@ public class EngineHoursPacketTest {
         expected += "Engine Hours from Engine #1 (0): " + NL;
         expected += "  SPN   247, Engine Total Hours of Operation: 210554060.750000 h" + NL;
         expected += "  SPN   249, Engine Total Revolutions: 2289526357000.000000 r" + NL;
-        assertEquals(expected, instance.toString());    }
+        assertEquals(expected, instance.toString());
+    }
 
     @Test
     public void testGetEngineHoursAndToStringAtNotAvailable() {
@@ -65,7 +67,8 @@ public class EngineHoursPacketTest {
         expected += "Engine Hours from Engine #1 (0): " + NL;
         expected += "  SPN   247, Engine Total Hours of Operation: Not Available" + NL;
         expected += "  SPN   249, Engine Total Revolutions: 2289526357000.000000 r" + NL;
-        assertEquals(expected, instance.toString());    }
+        assertEquals(expected, instance.toString());
+    }
 
     @Test
     public void testGetEngineHoursAndToStringAtValue() {
@@ -78,7 +81,8 @@ public class EngineHoursPacketTest {
         expected += "  SPN   247, Engine Total Hours of Operation: 76.700000 h" + NL;
         expected += "  SPN   249, Engine Total Revolutions: 2289526357000.000000 r" + NL;
 
-        assertEquals(expected, instance.toString());    }
+        assertEquals(expected, instance.toString());
+    }
 
     @Test
     public void testGetEngineHoursAtZero() {

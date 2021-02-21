@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part09;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -52,7 +53,8 @@ public class Part09Step18Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.9.18.1.a. DS DM23 [(send Request (PGN 59904) for PGN 64949 (SPNs 1213-1215, 1706, and 3038)]) to each OBD ECU.
+        // 6.9.18.1.a. DS DM23 [(send Request (PGN 59904) for PGN 64949 (SPNs 1213-1215, 1706, and 3038)]) to each OBD
+        // ECU.
         // 6.9.18.2.a. Fail if any ECU reports a previously active DTC.
         // 6.9.18.2.b. Fail if any ECU does not report MIL off. See Section A.8 for allowed values.
         // 6.9.18.2.c. Fail if NACK not received from OBD ECUs that did not provide DM23 message

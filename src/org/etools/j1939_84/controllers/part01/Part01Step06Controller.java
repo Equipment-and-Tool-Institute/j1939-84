@@ -6,12 +6,13 @@ package org.etools.j1939_84.controllers.part01;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -112,7 +113,7 @@ public class Part01Step06Controller extends StepController {
             if ((-1 < asteriskIndex && asteriskIndex <= 12)
                     || (char13 != Character.MIN_VALUE && char13 != '*' && familyName.contains("*"))) {
                 addFailure(
-                        "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
+                           "6.1.6.2.e. - Engine family has <> 12 characters before first asterisk character (ASCII 0x2A)");
                 break;
             } else if (familyName.length() < 13 || !familyName.contains("*") && char13 != Character.MIN_VALUE) {
                 addFailure("6.1.6.2.e. - Engine family has <> 12 characters before first 'null' character (ASCII 0x00)");

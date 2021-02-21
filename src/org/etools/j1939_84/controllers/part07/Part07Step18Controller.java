@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part07;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -54,7 +55,8 @@ public class Part07Step18Controller extends StepController {
     protected void run() throws Throwable {
         // 6.7.18.1.a. Turn the engine off.
         // 6.7.18.1.b. Keep the ignition key in the off position.
-        // 6.7.18.1.c. Implant Fault B according to engine manufacturer’s instruction. (See Section 5 for additional discussion.)
+        // 6.7.18.1.c. Implant Fault B according to engine manufacturer’s instruction. (See Section 5 for additional
+        // discussion.)
         // 6.7.18.1.d. Turn ignition key to the ON position.
         // 6.7.18.1.e. Start the engine for cycle 8a.
         // 6.7.18.1.f. Wait for manufacturer’s recommended time for Fault B to be detected as failed.

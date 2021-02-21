@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
@@ -63,14 +64,14 @@ public class Part05Step04Controller extends StepController {
     protected void run() throws Throwable {
         // 6.5.4.1.a DS DM28 ([send Request (PGN 59904) for PGN 64896 (SPNs 1213-1215, 3038, 1706)]) to each OBD ECU.
         var responses = getDataRepository().getObdModuleAddresses()
-                .stream()
-                .map(a -> getDiagnosticMessageModule().requestDM28(getListener(), a))
-                .map(BusResult::requestResult)
-                .collect(Collectors.toList());
+                                           .stream()
+                                           .map(a -> getDiagnosticMessageModule().requestDM28(getListener(), a))
+                                           .map(BusResult::requestResult)
+                                           .collect(Collectors.toList());
 
         var packets = filterRequestResultPackets(responses);
 
-        //Save the DM28 packet for later use
+        // Save the DM28 packet for later use
         packets.forEach(p -> {
             OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(p.getSourceAddress());
             obdModuleInformation.set(p);
@@ -85,10 +86,10 @@ public class Part05Step04Controller extends StepController {
 
         // 6.5.4.2.b Fail if any ECU reports a different MIL status than it did for DM12 response earlier in this part.
         packets.stream()
-                .filter(p -> p.getMalfunctionIndicatorLampStatus() != getDM12MilStatus(p.getSourceAddress()))
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.5.4.2.b - " + moduleName + " reported a different MIL status " +
-                                                          "than it did for DM12 response earlier in this part"));
+               .filter(p -> p.getMalfunctionIndicatorLampStatus() != getDM12MilStatus(p.getSourceAddress()))
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.5.4.2.b - " + moduleName + " reported a different MIL status " +
+                       "than it did for DM12 response earlier in this part"));
 
         // 6.5.4.2.c Fail if permanent DTC does not match DM12 active DTC from earlier in this part.
         packets.forEach(p -> {
@@ -97,7 +98,8 @@ public class Part05Step04Controller extends StepController {
                 if (!listContainsDTC(dm12DTCs, dtc)) {
                     int spn = dtc.getSuspectParameterNumber();
                     int fmi = dtc.getFailureModeIndicator();
-                    addFailure("6.5.4.2.c - " + p.getModuleName() + " permanent DTC (" + spn + ":" + fmi + ") does not match DM12 active DTC from earlier in this part");
+                    addFailure("6.5.4.2.c - " + p.getModuleName() + " permanent DTC (" + spn + ":" + fmi
+                            + ") does not match DM12 active DTC from earlier in this part");
                 }
             }
         });

@@ -24,6 +24,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -74,7 +75,7 @@ public abstract class StepController extends Controller {
      * the proper adjustments.
      *
      * @throws InterruptedException
-     *         if the user cancels the operation
+     *                                  if the user cancels the operation
      */
     protected void ensureKeyOnEngineOn() throws InterruptedException {
         try {
@@ -100,7 +101,7 @@ public abstract class StepController extends Controller {
      * the proper adjustments.
      *
      * @throws InterruptedException
-     *         if the user cancels the operation
+     *                                  if the user cancels the operation
      */
     protected void ensureKeyOnEngineOff() throws InterruptedException {
         try {
@@ -126,7 +127,7 @@ public abstract class StepController extends Controller {
      * the proper adjustments.
      *
      * @throws InterruptedException
-     *         if the user cancels the operation
+     *                                  if the user cancels the operation
      */
     protected void ensureKeyOffEngineOff() throws InterruptedException {
         try {
@@ -193,15 +194,16 @@ public abstract class StepController extends Controller {
                                          String section) {
         for (GenericPacket globalPacket : globalPackets) {
             Optional<? extends GenericPacket> dsOptional = dsPackets.stream()
-                    .filter(dsPacket -> dsPacket.getSourceAddress() == globalPacket.getSourceAddress())
-                    .findFirst();
+                                                                    .filter(dsPacket -> dsPacket.getSourceAddress() == globalPacket.getSourceAddress())
+                                                                    .findFirst();
 
             if (dsOptional.isPresent()) {
                 byte[] dsBytes = dsOptional.get().getPacket().getBytes();
                 byte[] globalBytes = globalPacket.getPacket().getBytes();
                 if (!Arrays.equals(dsBytes, globalBytes)) {
                     String moduleName = Lookup.getAddressName(dsOptional.get().getSourceAddress());
-                    addFailure(section + " - Difference compared to data received during global request from " + moduleName);
+                    addFailure(section + " - Difference compared to data received during global request from "
+                            + moduleName);
                 }
             }
         }
@@ -214,22 +216,23 @@ public abstract class StepController extends Controller {
         List<Integer> addresses = new ArrayList<>(obdModuleAddresses);
 
         globalPackets
-                .stream()
-                .map(ParsedPacket::getSourceAddress)
-                .forEach(addresses::remove);
+                     .stream()
+                     .map(ParsedPacket::getSourceAddress)
+                     .forEach(addresses::remove);
 
         dsAcks
-                .stream()
-                .filter(ack -> ack.getResponse() == NACK)
-                .map(ParsedPacket::getSourceAddress)
-                .forEach(addresses::remove);
+              .stream()
+              .filter(ack -> ack.getResponse() == NACK)
+              .map(ParsedPacket::getSourceAddress)
+              .forEach(addresses::remove);
 
         addresses.stream()
-                .distinct()
-                .sorted()
-                .map(Lookup::getAddressName)
-                .map(moduleName -> section + " - OBD module " + moduleName + " did not provide a response to Global query and did not provide a NACK for the DS query")
-                .forEach(this::addFailure);
+                 .distinct()
+                 .sorted()
+                 .map(Lookup::getAddressName)
+                 .map(moduleName -> section + " - OBD module " + moduleName
+                         + " did not provide a response to Global query and did not provide a NACK for the DS query")
+                 .forEach(this::addFailure);
     }
 
     protected void checkForNACKsFromObdModules(List<? extends GenericPacket> packets,
@@ -240,29 +243,30 @@ public abstract class StepController extends Controller {
 
         packets.stream().map(ParsedPacket::getSourceAddress).forEach(missingAddresses::remove);
         acks.stream()
-                .filter(a -> a.getResponse() == NACK)
-                .map(ParsedPacket::getSourceAddress)
-                .forEach(missingAddresses::remove);
+            .filter(a -> a.getResponse() == NACK)
+            .map(ParsedPacket::getSourceAddress)
+            .forEach(missingAddresses::remove);
 
         missingAddresses.stream()
-                .distinct()
-                .sorted()
-                .map(Lookup::getAddressName)
-                .map(moduleName -> section + " - OBD module " + moduleName + " did not provide a NACK for the DS query")
-                .forEach(this::addFailure);
+                        .distinct()
+                        .sorted()
+                        .map(Lookup::getAddressName)
+                        .map(moduleName -> section + " - OBD module " + moduleName
+                                + " did not provide a NACK for the DS query")
+                        .forEach(this::addFailure);
     }
 
     protected void waitForFault(String boxTitle) {
         String message = "Implant Fault A according to engine manufacturer’s instruction" + NL;
         message += "Press OK when ready to continue testing" + NL;
-        if(!isDevEnv()) {
+        if (!isDevEnv()) {
             displayInstructionAndWait(message, boxTitle, WARNING);
         }
     }
 
     protected QuestionListener getQuestionListener() {
         return answerType -> {
-            //end test if user hits cancel button
+            // end test if user hits cancel button
             if (answerType == CANCEL || answerType == NO) {
                 try {
                     abort();
@@ -285,20 +289,20 @@ public abstract class StepController extends Controller {
 
     protected void reportDuplicateCompositeSystems(List<? extends DiagnosticReadinessPacket> packets, String section) {
         List<CompositeSystem> compositeSystems = packets.stream()
-                .flatMap(packet -> packet.getMonitoredSystems().stream())
-                .filter(system -> system.getStatus().isEnabled())
-                .map(MonitoredSystem::getId)
-                .filter(system -> system != CompositeSystem.COMPREHENSIVE_COMPONENT)
-                .collect(Collectors.toList());
+                                                        .flatMap(packet -> packet.getMonitoredSystems().stream())
+                                                        .filter(system -> system.getStatus().isEnabled())
+                                                        .map(MonitoredSystem::getId)
+                                                        .filter(system -> system != CompositeSystem.COMPREHENSIVE_COMPONENT)
+                                                        .collect(Collectors.toList());
 
         compositeSystems.stream()
-                .filter(system -> Collections.frequency(compositeSystems, system) > 1)
-                .distinct()
-                .sorted()
-                .map(CompositeSystem::getName)
-                .map(String::trim)
-                .map(m -> section + " - Required monitor " + m + " is supported by more than one OBD ECU")
-                .forEach(this::addWarning);
+                        .filter(system -> Collections.frequency(compositeSystems, system) > 1)
+                        .distinct()
+                        .sorted()
+                        .map(CompositeSystem::getName)
+                        .map(String::trim)
+                        .map(m -> section + " - Required monitor " + m + " is supported by more than one OBD ECU")
+                        .forEach(this::addWarning);
     }
 
     protected void pause(String message, long secondsToSleep) {
@@ -319,32 +323,34 @@ public abstract class StepController extends Controller {
         return results.stream().flatMap(r -> r.getPackets().stream()).collect(Collectors.toList());
     }
 
-    protected static <T extends GenericPacket> List<AcknowledgmentPacket> filterRequestResultAcks(List<RequestResult<T>> results) {
+    protected static <T extends GenericPacket>
+              List<AcknowledgmentPacket>
+              filterRequestResultAcks(List<RequestResult<T>> results) {
         return results.stream().flatMap(r -> r.getAcks().stream()).collect(Collectors.toList());
     }
 
     protected static <T extends GenericPacket> List<T> filterPackets(List<BusResult<T>> results) {
         return results.stream()
-                .map(BusResult::requestResult)
-                .flatMap(r -> r.getPackets().stream())
-                .collect(Collectors.toList());
+                      .map(BusResult::requestResult)
+                      .flatMap(r -> r.getPackets().stream())
+                      .collect(Collectors.toList());
     }
 
     protected static <T extends GenericPacket> List<AcknowledgmentPacket> filterAcks(List<BusResult<T>> results) {
         return results.stream()
-                .map(BusResult::getPacket)
-                .filter(Optional::isPresent)
-                .map(p -> p.get().right)
-                .filter(Optional::isPresent)
-                .map(Optional::get)
-                .collect(Collectors.toList());
+                      .map(BusResult::getPacket)
+                      .filter(Optional::isPresent)
+                      .map(p -> p.get().right)
+                      .filter(Optional::isPresent)
+                      .map(Optional::get)
+                      .collect(Collectors.toList());
     }
 
     protected static String toString(List<DiagnosticTroubleCode> dtcs) {
         return dtcs.stream()
-                .map(d -> d.getSuspectParameterNumber() + ":" + d.getFailureModeIndicator())
-                .sorted()
-                .collect(Collectors.joining(","));
+                   .map(d -> d.getSuspectParameterNumber() + ":" + d.getFailureModeIndicator())
+                   .sorted()
+                   .collect(Collectors.joining(","));
     }
 
     protected static boolean listContainsDTC(List<DiagnosticTroubleCode> dtcs, DiagnosticTroubleCode dtc) {

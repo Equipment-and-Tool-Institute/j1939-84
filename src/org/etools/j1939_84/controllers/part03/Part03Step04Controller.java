@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
@@ -66,22 +67,24 @@ public class Part03Step04Controller extends StepController {
 
         // 6.3.4.2.a Fail if any ECU reports > 0 for MIL on, previous MIL on, or permanent fault counts.
         packets.stream()
-                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0)
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addFailure("6.3.4.2.a - " + moduleName + " reported > 0 for MIL on count"));
+               .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0)
+               .map(ParsedPacket::getSourceAddress)
+               .map(Lookup::getAddressName)
+               .forEach(moduleName -> addFailure("6.3.4.2.a - " + moduleName + " reported > 0 for MIL on count"));
 
         packets.stream()
-                .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addFailure("6.3.4.2.a - " + moduleName + " reported > 0 for previous MIL on count"));
+               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
+               .map(ParsedPacket::getSourceAddress)
+               .map(Lookup::getAddressName)
+               .forEach(moduleName -> addFailure("6.3.4.2.a - " + moduleName
+                       + " reported > 0 for previous MIL on count"));
 
         packets.stream()
-                .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0)
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addFailure("6.3.4.2.a - " + moduleName + " reported > 0 for permanent DTC count"));
+               .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0)
+               .map(ParsedPacket::getSourceAddress)
+               .map(Lookup::getAddressName)
+               .forEach(moduleName -> addFailure("6.3.4.2.a - " + moduleName
+                       + " reported > 0 for permanent DTC count"));
 
         // 6.3.4.2.b Fail if no ECU reports > 0 emission-related pending (SPN 4104).
         boolean isNoPendingCounts = packets.stream().noneMatch(p -> p.getEmissionRelatedPendingDTCCount() > 0);
@@ -93,20 +96,22 @@ public class Part03Step04Controller extends StepController {
             int moduleAddress = obdModuleInformation.getSourceAddress();
             String moduleName = Lookup.getAddressName(moduleAddress);
             List<DM29DtcCounts> modulePackets = packets.stream()
-                    .filter(p -> p.getSourceAddress() == moduleAddress)
-                    .collect(Collectors.toList());
+                                                       .filter(p -> p.getSourceAddress() == moduleAddress)
+                                                       .collect(Collectors.toList());
 
             // 6.3.4.2.c Fail if any ECU reports a different number of emission-related pending DTCs than
             // what that ECU reported in DM6 earlier in this part.
             boolean hasEmissionDTCDifference = modulePackets.stream()
-                    .anyMatch(p -> {
-                        var dm6 = obdModuleInformation.get(DM6PendingEmissionDTCPacket.class);
-                        int existingSize = dm6 == null ? 0 : dm6.getDtcs().size();
-                        return p.getEmissionRelatedPendingDTCCount() != existingSize;
-                    });
+                                                            .anyMatch(p -> {
+                                                                var dm6 = obdModuleInformation.get(DM6PendingEmissionDTCPacket.class);
+                                                                int existingSize = dm6 == null ? 0
+                                                                        : dm6.getDtcs().size();
+                                                                return p.getEmissionRelatedPendingDTCCount() != existingSize;
+                                                            });
             if (hasEmissionDTCDifference) {
-                addFailure("6.3.4.2.c - " + moduleName + " reported a different number of emission-related pending DTCs " +
-                                   "than what it reported in the previous DM6");
+                addFailure("6.3.4.2.c - " + moduleName
+                        + " reported a different number of emission-related pending DTCs " +
+                        "than what it reported in the previous DM6");
             }
 
             var lastDM27 = obdModuleInformation.get(DM27AllPendingDTCsPacket.class);
@@ -114,81 +119,91 @@ public class Part03Step04Controller extends StepController {
                 // 6.3.4.2.d For OBD ECUs that support DM27, fail if any ECU reports a lower number of
                 // all pending DTCs (SPN 4105) than the number of emission-related pending DTCs.
                 boolean isLower = modulePackets.stream()
-                        .anyMatch(p -> p.getAllPendingDTCCount() < p.getEmissionRelatedPendingDTCCount());
+                                               .anyMatch(p -> p.getAllPendingDTCCount() < p.getEmissionRelatedPendingDTCCount());
                 if (isLower) {
                     addFailure("6.3.4.2.d - " + moduleName + " reported a lower number of " +
-                                       "all pending DTCs than the number of emission-related pending DTCs");
+                            "all pending DTCs than the number of emission-related pending DTCs");
                 }
 
                 // 6.3.4.2.e For OBD ECUs that support DM27, fail if any ECU reports a lower number of
                 // all pending DTCs than what that ECU reported in DM27 earlier in this part.
                 boolean hasDifference = modulePackets.stream()
-                        .anyMatch(p -> p.getAllPendingDTCCount() < lastDM27.getDtcs().size());
+                                                     .anyMatch(p -> p.getAllPendingDTCCount() < lastDM27.getDtcs()
+                                                                                                        .size());
                 if (hasDifference) {
-                    addFailure("6.3.4.2.e - " + moduleName + " reported a lower number of all pending DTCs than what it reported in DM27 earlier");
+                    addFailure("6.3.4.2.e - " + moduleName
+                            + " reported a lower number of all pending DTCs than what it reported in DM27 earlier");
                 }
             } else {
-                // 6.3.4.2.f For OBD ECUs that do not support DM27, fail if any ECU does not report number of all pending DTCs = 0xFF.
+                // 6.3.4.2.f For OBD ECUs that do not support DM27, fail if any ECU does not report number of all
+                // pending DTCs = 0xFF.
                 boolean hasWrongValue = modulePackets.stream().anyMatch(p -> p.getAllPendingDTCCount() != 0xFF);
                 if (hasWrongValue) {
-                    addFailure("6.3.4.2.f - " + moduleName + " does not support DM27 and did not report all pending DTCs = 0xFF");
+                    addFailure("6.3.4.2.f - " + moduleName
+                            + " does not support DM27 and did not report all pending DTCs = 0xFF");
                 }
             }
         }
 
-        // 6.3.4.2.g For non-OBD ECUs, fail if any ECU reports pending, MIL-on, previously MIL-on or permanent DTC count greater than 0.
+        // 6.3.4.2.g For non-OBD ECUs, fail if any ECU reports pending, MIL-on, previously MIL-on or permanent DTC count
+        // greater than 0.
         packets.stream()
-                .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addFailure("6.3.4.2.g - Non-OBD ECU " + moduleName + " reported > 0 for pending DTC count"));
+               .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
+               .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
+               .map(ParsedPacket::getSourceAddress)
+               .map(Lookup::getAddressName)
+               .forEach(moduleName -> addFailure("6.3.4.2.g - Non-OBD ECU " + moduleName
+                       + " reported > 0 for pending DTC count"));
 
         packets.stream()
-                .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0)
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addFailure("6.3.4.2.g - Non-OBD ECU " + moduleName + " reported > 0 for MIL-on count"));
+               .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
+               .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0)
+               .map(ParsedPacket::getSourceAddress)
+               .map(Lookup::getAddressName)
+               .forEach(moduleName -> addFailure("6.3.4.2.g - Non-OBD ECU " + moduleName
+                       + " reported > 0 for MIL-on count"));
 
         packets.stream()
-                .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addFailure("6.3.4.2.g - Non-OBD ECU " + moduleName + " reported > 0 for previous MIL-on count"));
+               .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
+               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
+               .map(ParsedPacket::getSourceAddress)
+               .map(Lookup::getAddressName)
+               .forEach(moduleName -> addFailure("6.3.4.2.g - Non-OBD ECU " + moduleName
+                       + " reported > 0 for previous MIL-on count"));
 
         packets.stream()
-                .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0)
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addFailure("6.3.4.2.g - Non-OBD ECU " + moduleName + " reported > 0 for permanent DTC count"));
+               .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
+               .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 0)
+               .map(ParsedPacket::getSourceAddress)
+               .map(Lookup::getAddressName)
+               .forEach(moduleName -> addFailure("6.3.4.2.g - Non-OBD ECU " + moduleName
+                       + " reported > 0 for permanent DTC count"));
 
         // 6.3.4.3.a Warn if any ECU reports > 1 for pending or all pending.
         packets.stream()
-                .filter(p -> p.getEmissionRelatedPendingDTCCount() > 1)
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addWarning("6.3.4.3.a - " + moduleName + " reported > 1 for pending DTC count"));
+               .filter(p -> p.getEmissionRelatedPendingDTCCount() > 1)
+               .map(ParsedPacket::getSourceAddress)
+               .map(Lookup::getAddressName)
+               .forEach(moduleName -> addWarning("6.3.4.3.a - " + moduleName + " reported > 1 for pending DTC count"));
 
         packets.stream()
-                .filter(p -> p.getAllPendingDTCCount() > 1)
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addWarning("6.3.4.3.a - " + moduleName + " reported > 1 for all pending DTC count"));
+               .filter(p -> p.getAllPendingDTCCount() > 1)
+               .map(ParsedPacket::getSourceAddress)
+               .map(Lookup::getAddressName)
+               .forEach(moduleName -> addWarning("6.3.4.3.a - " + moduleName
+                       + " reported > 1 for all pending DTC count"));
 
         // 6.3.4.3.b Warn if more than one ECU reports > 0 for pending or all pending.
         var modulesReportingPendingCount = packets.stream()
-                .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
-                .count();
+                                                  .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
+                                                  .count();
         if (modulesReportingPendingCount > 1) {
             addWarning("6.3.4.3.b - More than one ECU reported > 0 for pending DTC count");
         }
 
         var modulesReportingAllPendingCount = packets.stream()
-                .filter(p -> p.getAllPendingDTCCount() > 0)
-                .count();
+                                                     .filter(p -> p.getAllPendingDTCCount() > 0)
+                                                     .count();
         if (modulesReportingAllPendingCount > 1) {
             addWarning("6.3.4.3.b - More than one ECU reported > 0 for all pending DTC count");
         }

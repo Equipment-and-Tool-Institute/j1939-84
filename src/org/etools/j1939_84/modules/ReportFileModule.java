@@ -19,6 +19,7 @@ import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
@@ -62,14 +63,15 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      * Constructor exposed for testing
      *
      * @param logger
-     *            The {@link Logger} to use for logging
+     *                          The {@link Logger} to use for logging
      * @param summaryModule
-     *            The {@link SummaryModule}
+     *                          The {@link SummaryModule}
      * @param bannerModule
-     *            The {@link BannerModule}
+     *                          The {@link BannerModule}
      */
-    public ReportFileModule(Logger logger, SummaryModule summaryModule,
-            BannerModule bannerModule) {
+    public ReportFileModule(Logger logger,
+                            SummaryModule summaryModule,
+                            BannerModule bannerModule) {
         super();
         this.logger = logger;
         this.summaryModule = summaryModule;
@@ -183,8 +185,8 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
      * Reports the information about the report file
      *
      * @param listener
-     *            the {@link ResultsListener} that will be notified of the
-     *            results
+     *                     the {@link ResultsListener} that will be notified of the
+     *                     results
      */
     public void reportFileInformation(ResultsListener listener) {
         listener.onResult(getTime() + " File: " + reportFile.getAbsolutePath());
@@ -193,10 +195,10 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     /**
      * Sets the File that will be used to log results to
      *
-     * @param reportFile
-     *            the File used for the report
+     * @param  reportFile
+     *                         the File used for the report
      * @throws IOException
-     *             if there is problem with the file
+     *                         if there is problem with the file
      */
     public void setReportFile(File reportFile) throws IOException {
         if (writer != null) {
@@ -213,10 +215,10 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     /**
      * Writes a result to the report file
      *
-     * @param result
-     *            the result to write
+     * @param  result
+     *                         the result to write
      * @throws IOException
-     *             if there is a problem writing to the file
+     *                         if there is a problem writing to the file
      */
     private void write(String result) throws IOException {
         writer.write(result + NL);
@@ -237,10 +239,13 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
             tempFileWriter.write("Addresses Claimed" + NL);
             if (vehicleInformation != null && vehicleInformation.getAddressClaim() != null) {
                 tempFileWriter
-                        .write(vehicleInformation.getAddressClaim().getPackets().stream()
-                                .filter(Objects::nonNull)
-                                .map(a -> "    " + a.getPacket() + " " + a.getSource())
-                                .collect(Collectors.joining(NL)) + NL); // FIXME
+                              .write(vehicleInformation.getAddressClaim()
+                                                       .getPackets()
+                                                       .stream()
+                                                       .filter(Objects::nonNull)
+                                                       .map(a -> "    " + a.getPacket() + " " + a.getSource())
+                                                       .collect(Collectors.joining(NL))
+                                      + NL); // FIXME
             } else {
                 tempFileWriter.write(" IS EMPTY" + NL);
             }
@@ -259,7 +264,8 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
 
             tempFileWriter.write(summaryModule.generateSummary());
             tempFileWriter
-                    .write(bannerModule.getDate() + " " + bannerModule.getTime() + " END TEST SUMMARY REPORT" + NL);
+                          .write(bannerModule.getDate() + " " + bannerModule.getTime() + " END TEST SUMMARY REPORT"
+                                  + NL);
 
             tempFileWriter.write(PAGE_BREAK);
             tempFileWriter.flush();

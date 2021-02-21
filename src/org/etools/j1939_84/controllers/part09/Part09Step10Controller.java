@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part09;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -52,10 +53,11 @@ public class Part09Step10Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.9.10.1.a. DS DM7 with TID 250 and each SPN+FMI from list in part 1 to the OBD ECU that supports the SPN and FMI with test results.
+        // 6.9.10.1.a. DS DM7 with TID 250 and each SPN+FMI from list in part 1 to the OBD ECU that supports the SPN and
+        // FMI with test results.
         // 6.9.10.2.a. Fail if any test result not initialized.
         // 6.9.10.2.b. Fail if any difference in what ECU+SPN+FMI combinations have test results compared to the
-        //   combinations identified in part 1 as having test results.
+        // combinations identified in part 1 as having test results.
     }
 
 }

@@ -19,12 +19,13 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.io.File;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
+
 import javax.swing.JOptionPane;
+
 import org.etools.j1939_84.TestExecutor;
 import org.etools.j1939_84.bus.Adapter;
 import org.etools.j1939_84.bus.BusException;
@@ -46,6 +47,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Unit testing the {@link UserInterfacePresenter}
  *
@@ -56,6 +59,27 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class UserInterfacePresenterTest {
 
     private static final String path = "file\\location\\name.j1939-84";
+    private final Adapter adapter1 = new Adapter("Adapter1", "SD", (short) 1);
+    private final Adapter adapter2 = new Adapter("Adapter2", "SD", (short) 2);
+    @Mock
+    private VehicleInformationModule comparisonModule;
+    private TestExecutor executor;
+    @Mock
+    private HelpView helpView;
+    private UserInterfacePresenter instance;
+    @Mock
+    private OverallController overallController;
+    @Mock
+    private ReportFileModule reportFileModule;
+    @Mock
+    private RP1210 rp1210;
+    @Mock
+    private RP1210Bus rp1210Bus;
+    @Mock
+    private Runtime runtime;
+    private Thread shutdownHook;
+    @Mock
+    private UserInterfaceContract.View view;
 
     private static File mockFile(boolean newFile) throws IOException {
         File file = mock(File.class);
@@ -65,40 +89,6 @@ public class UserInterfacePresenterTest {
         when(file.createNewFile()).thenReturn(newFile);
         return file;
     }
-
-    private final Adapter adapter1 = new Adapter("Adapter1", "SD", (short) 1);
-
-    private final Adapter adapter2 = new Adapter("Adapter2", "SD", (short) 2);
-
-    @Mock
-    private VehicleInformationModule comparisonModule;
-
-    private TestExecutor executor;
-
-    @Mock
-    private HelpView helpView;
-
-    private UserInterfacePresenter instance;
-
-    @Mock
-    private OverallController overallController;
-
-    @Mock
-    private ReportFileModule reportFileModule;
-
-    @Mock
-    private RP1210 rp1210;
-
-    @Mock
-    private RP1210Bus rp1210Bus;
-
-    @Mock
-    private Runtime runtime;
-
-    private Thread shutdownHook;
-
-    @Mock
-    private UserInterfaceContract.View view;
 
     @Before
     public void setUp() throws Exception {
@@ -286,15 +276,16 @@ public class UserInterfacePresenterTest {
     public void testOnFileChosenExistingFileWithProblem() throws Exception {
         File file = mockFile(true);
 
-        Mockito.doThrow(new IOException("There was a failure")).when(reportFileModule)
-                .setReportFile(eq(file));
+        Mockito.doThrow(new IOException("There was a failure"))
+               .when(reportFileModule)
+               .setReportFile(eq(file));
 
         instance.onFileChosen(file);
         executor.run();
 
         assertNull(instance.getReportFile());
         verify(view).displayDialog("File cannot be used." + NL + "There was a failure" + NL
-                                           + "Please select a different file.",
+                + "Please select a different file.",
                                    "File Error",
                                    JOptionPane.ERROR_MESSAGE,
                                    false);
@@ -363,7 +354,7 @@ public class UserInterfacePresenterTest {
 
         assertNull(instance.getReportFile());
         verify(view).displayDialog("File cannot be used." + NL + "File cannot be created" + NL
-                                           + "Please select a different file.",
+                + "Please select a different file.",
                                    "File Error",
                                    JOptionPane.ERROR_MESSAGE,
                                    false);

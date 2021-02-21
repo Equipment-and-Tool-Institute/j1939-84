@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC.PGN;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
@@ -16,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
@@ -259,7 +259,9 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(packet1.getSourceAddress()).thenReturn(0);
         when(packet1.getMalfunctionIndicatorLampStatus()).thenReturn(LampStatus.ON);
         when(diagnosticMessageModule.requestDM2(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
+                                                       .thenReturn(new RequestResult<>(false,
+                                                                                       List.of(packet1),
+                                                                                       List.of()));
 
         runTest();
 
@@ -274,7 +276,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         String expected = "";
-       // expected += "FAIL: 6.1.16.2.c - Non-OBD ECU Engine #1 (0) did not report MIL off or not supported" + NL;
+        // expected += "FAIL: 6.1.16.2.c - Non-OBD ECU Engine #1 (0) did not report MIL off or not supported" + NL;
         assertEquals(expected, listener.getResults());
     }
 
@@ -283,23 +285,35 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
     public void testResponseNotNACK() {
 
         DM2PreviouslyActiveDTC packet1 = new DM2PreviouslyActiveDTC(
-                Packet.create(PGN, 0, new byte[] { 0x00, (byte) 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
+                                                                    Packet.create(PGN,
+                                                                                  0,
+                                                                                  new byte[] { 0x00, (byte) 0xFF, 0x00,
+                                                                                          0x00, 0x00, 0x00, 0x00,
+                                                                                          0x00 }));
 
         when(diagnosticMessageModule.requestDM2(any())).thenReturn(requestResult(packet1));
 
         // Set up the destination specific packets we will be returning when
         // requested
         DM2PreviouslyActiveDTC packet2 = new DM2PreviouslyActiveDTC(
-                Packet.create(PGN, 0, new byte[] { 0x00, (byte) 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
+                                                                    Packet.create(PGN,
+                                                                                  0,
+                                                                                  new byte[] { 0x00, (byte) 0xFF, 0x00,
+                                                                                          0x00, 0x00, 0x00, 0x00,
+                                                                                          0x00 }));
 
         when(diagnosticMessageModule.requestDM2(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet2));
+                                                              .thenReturn(new BusResult<>(false, packet2));
 
         // add ACK/NACK packets to the listing for complete reality testing
         DM2PreviouslyActiveDTC packet4 = new DM2PreviouslyActiveDTC(
-                Packet.create(PGN, 3, new byte[] { 0x00, (byte) 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
+                                                                    Packet.create(PGN,
+                                                                                  3,
+                                                                                  new byte[] { 0x00, (byte) 0xFF, 0x00,
+                                                                                          0x00, 0x00, 0x00, 0x00,
+                                                                                          0x00 }));
         when(diagnosticMessageModule.requestDM2(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, packet4));
+                                                              .thenReturn(new BusResult<>(false, packet4));
 
         // Return the modules address so that we can do the destination specific
         // calls
@@ -349,12 +363,12 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(packet2.getPacket()).thenReturn(packet2Packet);
 
         when(diagnosticMessageModule.requestDM2(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet2));
+                                                              .thenReturn(new BusResult<>(false, packet2));
 
         // add ACK/NACK packets to the listing for complete reality testing
         AcknowledgmentPacket packet4 = mock(AcknowledgmentPacket.class);
         when(diagnosticMessageModule.requestDM2(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, packet4));
+                                                              .thenReturn(new BusResult<>(false, packet4));
 
         // Return the modules address so that we can do the destination specific
         // calls
@@ -382,14 +396,24 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
     public void testTwoObdModulesOneWithResponseOneWithNack2() {
 
         DM2PreviouslyActiveDTC packet1 = new DM2PreviouslyActiveDTC(
-                Packet.create(PGN, 0, new byte[] { 0x00, (byte) 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
+                                                                    Packet.create(PGN,
+                                                                                  0,
+                                                                                  new byte[] { 0x00, (byte) 0xFF, 0x00,
+                                                                                          0x00, 0x00, 0x00, 0x00,
+                                                                                          0x00 }));
         when(diagnosticMessageModule.requestDM2(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
+                                                       .thenReturn(new RequestResult<>(false,
+                                                                                       List.of(packet1),
+                                                                                       List.of()));
 
         // Set up the destination specific packets we will be returning when
         // requested
         DM2PreviouslyActiveDTC packet2 = new DM2PreviouslyActiveDTC(
-                Packet.create(PGN, 0, new byte[] { 0x00, (byte) 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 }));
+                                                                    Packet.create(PGN,
+                                                                                  0,
+                                                                                  new byte[] { 0x00, (byte) 0xFF, 0x00,
+                                                                                          0x00, 0x00, 0x00, 0x00,
+                                                                                          0x00 }));
         when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(new BusResult<>(false, packet2));
 
         // add ACK/NACK packets to the listing for complete reality testing
@@ -398,7 +422,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
         when(packet4.getSourceAddress()).thenReturn(3);
 
         when(diagnosticMessageModule.requestDM2(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, packet4));
+                                                              .thenReturn(new BusResult<>(false, packet4));
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
         dataRepository.putObdModule(new OBDModuleInformation(3));

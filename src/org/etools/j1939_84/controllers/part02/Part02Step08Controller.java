@@ -13,6 +13,7 @@ import java.util.Objects;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
@@ -22,8 +23,8 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -75,34 +76,40 @@ public class Part02Step08Controller extends StepController {
             int address = obdModuleInformation.getSourceAddress();
             String moduleName = Lookup.getAddressName(address);
 
-            RequestResult<DM26TripDiagnosticReadinessPacket> result = getDiagnosticMessageModule().requestDM26(getListener(), address);
+            RequestResult<DM26TripDiagnosticReadinessPacket> result = getDiagnosticMessageModule().requestDM26(getListener(),
+                                                                                                               address);
             var resultPackets = result.getPackets();
             if (resultPackets != null) {
                 dsPackets.addAll(resultPackets);
 
-                // 6.2.8.2.a Fail if any difference in any ECU regarding readiness status this cycle compared to responses in part 1 after DM11.
+                // 6.2.8.2.a Fail if any difference in any ECU regarding readiness status this cycle compared to
+                // responses in part 1 after DM11.
                 resultPackets.stream()
-                        .map(DiagnosticReadinessPacket::getMonitoredSystems)
-                        .filter(set -> {
-                            DM26TripDiagnosticReadinessPacket lastDM26 = obdModuleInformation.get(
-                                    DM26TripDiagnosticReadinessPacket.class);
-                            return lastDM26 == null || !Objects.equals(set, lastDM26.getMonitoredSystems());
-                        })
-                        .findFirst()
-                        .ifPresent(p -> addFailure("6.2.8.2.a - Difference from " + moduleName + " regarding readiness status this cycle compared to responses in part 1 after DM11."));
+                             .map(DiagnosticReadinessPacket::getMonitoredSystems)
+                             .filter(set -> {
+                                 DM26TripDiagnosticReadinessPacket lastDM26 = obdModuleInformation.get(
+                                                                                                       DM26TripDiagnosticReadinessPacket.class);
+                                 return lastDM26 == null || !Objects.equals(set, lastDM26.getMonitoredSystems());
+                             })
+                             .findFirst()
+                             .ifPresent(p -> addFailure("6.2.8.2.a - Difference from " + moduleName
+                                     + " regarding readiness status this cycle compared to responses in part 1 after DM11."));
 
                 // 6.2.8.2.b Fail if any ECU reports number of warm-ups SCC (SPN 3302) greater than zero.
                 resultPackets.stream()
-                        .filter(p -> p.getWarmUpsSinceClear() > 0)
-                        .findFirst()
-                        .ifPresent(p -> addFailure("6.2.8.2.b - " + moduleName + " indicates number of warm-ups since code clear greater than zero"));
+                             .filter(p -> p.getWarmUpsSinceClear() > 0)
+                             .findFirst()
+                             .ifPresent(p -> addFailure("6.2.8.2.b - " + moduleName
+                                     + " indicates number of warm-ups since code clear greater than zero"));
 
                 // 6.2.8.2.c Fail if NACK not received from OBD ECUs that did not provide a DM26 response.
                 if (resultPackets.isEmpty() && result.getAcks().stream().noneMatch(p -> p.getResponse() == NACK)) {
-                    addFailure("6.2.8.2.c - " + moduleName + " did not provide a NACK and did not provide a DM26 response");
+                    addFailure("6.2.8.2.c - " + moduleName
+                            + " did not provide a NACK and did not provide a DM26 response");
                 }
 
-                // 6.2.8.1.a.i. Record time since engine start (SPN 3301) from each ECU and timestamp of when message was received.
+                // 6.2.8.1.a.i. Record time since engine start (SPN 3301) from each ECU and timestamp of when message
+                // was received.
                 // This is accomplished by keeping around the packets received.
             }
         });
@@ -113,13 +120,14 @@ public class Part02Step08Controller extends StepController {
             getListener().onResult("");
             getListener().onResult("Vehicle Composite of DM26:");
             getListener().onResult(compositeSystems.stream()
-                                           .sorted()
-                                           .map(MonitoredSystem::toString)
-                                           .collect(Collectors.toList()));
+                                                   .sorted()
+                                                   .map(MonitoredSystem::toString)
+                                                   .collect(Collectors.toList()));
             getListener().onResult("");
         }
 
-        // 6.2.8.3.a Warn if any individual required monitor, except Continuous Component Monitoring (CCM) is supported by more than one OBD ECU.
+        // 6.2.8.3.a Warn if any individual required monitor, except Continuous Component Monitoring (CCM) is supported
+        // by more than one OBD ECU.
         reportDuplicateCompositeSystems(dsPackets, "6.2.8.3.a");
 
         // 6.2.8.4.a Global DM26.
@@ -164,4 +172,3 @@ public class Part02Step08Controller extends StepController {
     }
 
 }
-

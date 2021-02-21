@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers.part04;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -56,7 +57,8 @@ public class Part04Step14Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.4.14.1.a. DS DM7 with TID 250 and each specific SPN+FMI that had non-initialized test results on list created in test 6.4.14.1.
+        // 6.4.14.1.a. DS DM7 with TID 250 and each specific SPN+FMI that had non-initialized test results on list
+        // created in test 6.4.14.1.
         for (OBDModuleInformation obdModuleInformation : getDataRepository().getObdModules()) {
             int moduleAddress = obdModuleInformation.getSourceAddress();
             String moduleName = obdModuleInformation.getModuleName();
@@ -67,11 +69,13 @@ public class Part04Step14Controller extends StepController {
 
                 // 6.4.14.2.a. Fail if any [Scaled Test Result is] now reporting initialized values.
                 getDiagnosticMessageModule().requestTestResults(getListener(), moduleAddress, 250, spn, fmi)
-                        .stream()
-                        .map(DM30ScaledTestResultsPacket::getTestResults)
-                        .flatMap(Collection::stream)
-                        .filter(ScaledTestResult::isInitialized)
-                        .forEach(s -> addFailure("6.4.14.2.a - " + moduleName + " is now reporting an initialize test for SPN = " + spn + ", FMI = " + fmi));
+                                            .stream()
+                                            .map(DM30ScaledTestResultsPacket::getTestResults)
+                                            .flatMap(Collection::stream)
+                                            .filter(ScaledTestResult::isInitialized)
+                                            .forEach(s -> addFailure("6.4.14.2.a - " + moduleName
+                                                    + " is now reporting an initialize test for SPN = " + spn
+                                                    + ", FMI = " + fmi));
             }
         }
 

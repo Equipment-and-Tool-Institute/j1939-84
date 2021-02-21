@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.modules.BannerModule;
@@ -231,44 +232,56 @@ public class AbstractPartControllerTest {
         StringBuilder expectedMilestones = new StringBuilder("Begin Part: " + partName + NL);
         for (int i = 1; i <= stepControllers.size(); i++) {
             String stepName = Lookup.getStepName(partNumber, i);
-            expectedMilestones.append("Begin Step: Step ").append(partNumber).append(".")
-                    .append(i)
-                    .append(". ")
-                    .append(stepName)
-                    .append(NL);
-            expectedMilestones.append("End Step: Step ").append(partNumber).append(".")
-                    .append(i)
-                    .append(". ")
-                    .append(stepName)
-                    .append(NL);
+            expectedMilestones.append("Begin Step: Step ")
+                              .append(partNumber)
+                              .append(".")
+                              .append(i)
+                              .append(". ")
+                              .append(stepName)
+                              .append(NL);
+            expectedMilestones.append("End Step: Step ")
+                              .append(partNumber)
+                              .append(".")
+                              .append(i)
+                              .append(". ")
+                              .append(stepName)
+                              .append(NL);
         }
         expectedMilestones.append("End Part: ").append(partName);
         assertEquals(expectedMilestones.toString(), listener.getMilestones());
 
         StringBuilder expectedMessages = new StringBuilder();
         for (int i = 1; i <= stepControllers.size(); i++) {
-            expectedMessages.append(NL).append("Step ").append(partNumber).append(".")
-                    .append(i)
-                    .append(". ")
-                    .append(Lookup.getStepName(partNumber, i));
+            expectedMessages.append(NL)
+                            .append("Step ")
+                            .append(partNumber)
+                            .append(".")
+                            .append(i)
+                            .append(". ")
+                            .append(Lookup.getStepName(partNumber, i));
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
         StringBuilder expectedResults = new StringBuilder(NL + "Start " + partName + NL);
         for (int i = 1; i <= stepControllers.size(); i++) {
             String stepName = Lookup.getStepName(partNumber, i);
-            expectedResults.append(NL).append("Start Step ").append(partNumber).append(".")
-                    .append(i)
-                    .append(". ")
-                    .append(stepName)
-                    .append(NL)
-                    .append(NL)
-                    .append(NL);
-            expectedResults.append("End Step ").append(partNumber).append(".")
-                    .append(i)
-                    .append(". ")
-                    .append(stepName)
-                    .append(NL);
+            expectedResults.append(NL)
+                           .append("Start Step ")
+                           .append(partNumber)
+                           .append(".")
+                           .append(i)
+                           .append(". ")
+                           .append(stepName)
+                           .append(NL)
+                           .append(NL)
+                           .append(NL);
+            expectedResults.append("End Step ")
+                           .append(partNumber)
+                           .append(".")
+                           .append(i)
+                           .append(". ")
+                           .append(stepName)
+                           .append(NL);
         }
         expectedResults.append(NL).append(NL);
         expectedResults.append("End ").append(partName).append(NL).append(NL);

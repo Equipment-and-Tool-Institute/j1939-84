@@ -12,10 +12,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -38,6 +38,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * The unit test for {@link Part01Step05Controller}
@@ -94,13 +96,13 @@ public class Part01Step05ControllerTest {
         dataRepository = DataRepository.newInstance();
 
         instance = new Part01Step05Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                vinDecoder,
-                dataRepository,
-                DateTimeModule.getInstance());
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              vinDecoder,
+                                              dataRepository,
+                                              DateTimeModule.getInstance());
     }
 
     @After
@@ -115,19 +117,17 @@ public class Part01Step05ControllerTest {
     }
 
     @Test
-    @TestDoc(
-            value = { @TestItem(verifies = "6.1.5.2.b"), @TestItem(verifies = "6.1.5.2.c"),
-                    @TestItem(verifies = "6.1.5.2.d"), @TestItem(verifies = "6.1.5.2.e"),
-                    @TestItem(verifies = "6.1.5.3.a"), @TestItem(verifies = "6.1.5.3.b"),
-                    @TestItem(verifies = "6.1.5.3.d") },
-            description = "More than one OBD ECU responded with VIN" + "<br>" + "VIN does not match user entered VIN."
+    @TestDoc(value = { @TestItem(verifies = "6.1.5.2.b"), @TestItem(verifies = "6.1.5.2.c"),
+            @TestItem(verifies = "6.1.5.2.d"), @TestItem(verifies = "6.1.5.2.e"),
+            @TestItem(verifies = "6.1.5.3.a"), @TestItem(verifies = "6.1.5.3.b"),
+            @TestItem(verifies = "6.1.5.3.d") }, description = "More than one OBD ECU responded with VIN" + "<br>"
+                    + "VIN does not match user entered VIN."
                     + "<br>" + "VIN Model Year does not match user entered Vehicle Model Year" + "<br>"
                     + "VIN is not valid (not 17 legal chars, incorrect checksum, or non-numeric sequence" + "<br>"
                     + "Non-OBD ECU responded with VIN" + "<br>" + "More than one VIN response from an ECU" + "<br>"
                     + "Manufacturer defined data follows the VIN")
 
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
@@ -150,7 +150,6 @@ public class Part01Step05ControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(2));
         dataRepository.putObdModule(new OBDModuleInformation(3));
         dataRepository.setVehicleInformation(vehicleInformation);
-
 
         runTest();
 
@@ -201,10 +200,8 @@ public class Part01Step05ControllerTest {
     }
 
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.1.5",
-            description = "Verify no failures when no fail criteria are met."))
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+    @TestDoc(value = @TestItem(verifies = "6.1.5", description = "Verify no failures when no fail criteria are met."))
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testNoError() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
@@ -214,7 +211,6 @@ public class Part01Step05ControllerTest {
         when(packet.getVin()).thenReturn("vin");
         when(packet.getManufacturerData()).thenReturn("");
         packets.add(packet);
-
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         vehicleInformation.setVehicleModelYear(2006);
@@ -245,10 +241,8 @@ public class Part01Step05ControllerTest {
             @TestItem(verifies = "6.1.5.2.c,d,e"),
             @TestItem(verifies = "6.1.5.2.d"),
             @TestItem(verifies = "6.1.5.2.e"),
-            @TestItem(verifies = "6.1.5.3.a,b,c,d") },
-            description = "Verify fails and warns are reported.")
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+            @TestItem(verifies = "6.1.5.3.a,b,c,d") }, description = "Verify fails and warns are reported.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testNoObdResponses() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();
         VehicleIdentificationPacket packet = mock(VehicleIdentificationPacket.class);
@@ -271,7 +265,7 @@ public class Part01Step05ControllerTest {
         dataRepository.setVehicleInformation(vehicleInformation);
 
         runTest();
-        
+
         verify(engineSpeedModule).setJ1939(j1939);
 
         verify(mockListener).addOutcome(1,
@@ -321,8 +315,7 @@ public class Part01Step05ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     @TestDoc(@TestItem(verifies = "6.1.5.3.a,b,c,d"))
     public void testWarnError() {
         List<VehicleIdentificationPacket> packets = new ArrayList<>();

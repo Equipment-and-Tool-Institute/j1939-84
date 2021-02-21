@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.ComponentIdentificationPacket;
@@ -130,13 +131,13 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
 
         instance = new Part01Step09Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                DateTimeModule.getInstance(),
-                diagnosticMessageModule);
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance(),
+                                              diagnosticMessageModule);
 
         setup(instance,
               listener,
@@ -190,10 +191,11 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false));
+                                                                                     .thenReturn(new BusResult<>(false));
 
         runTest();
 
@@ -230,12 +232,15 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet0));
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet0));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, packet0));
+                                                                                     .thenReturn(new BusResult<>(false,
+                                                                                                                 packet0));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
+                                                                                     .thenReturn(new BusResult<>(false,
+                                                                                                                 packet1));
         runTest();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, EXPECTED_FAIL_MESSAGE_6_A);
@@ -271,11 +276,13 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
         // Global request response
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet2));
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet2));
 
         // Destination specific responses
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet1));
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet1));
 
         runTest();
 
@@ -321,16 +328,24 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet0x00, packet0x01, packet0x02, packet0x03));
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet0x00,
+                                                                                                           packet0x01,
+                                                                                                           packet0x02,
+                                                                                                           packet0x03));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, packet0x00));
+                                                                                     .thenReturn(new BusResult<>(false,
+                                                                                                                 packet0x00));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet0x01));
+                                                                                     .thenReturn(new BusResult<>(false,
+                                                                                                                 packet0x01));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x02)))
-                .thenReturn(new BusResult<>(false, packet0x02));
+                                                                                     .thenReturn(new BusResult<>(false,
+                                                                                                                 packet0x02));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x03)))
-                .thenReturn(new BusResult<>(false, packet0x03));
+                                                                                     .thenReturn(new BusResult<>(false,
+                                                                                                                 packet0x03));
 
         runTest();
         assertEquals(packet0x00.getComponentIdentification(),
@@ -373,12 +388,13 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule0x00);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false,
-                                                List.of(packet),
-                                                List.of()));
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           List.of(packet),
+                                                                                                           List.of()));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
@@ -412,10 +428,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
@@ -448,10 +466,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
@@ -484,10 +504,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
@@ -504,8 +526,8 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testModelContainsNonPrintableAsciiCharacterFailure() {
-        //char unprintableAsciiNull = 0x0;
-        char unprintableAsciiCarriageReturn = 0xD;//0xD;
+        // char unprintableAsciiNull = 0x0;
+        char unprintableAsciiCarriageReturn = 0xD;// 0xD;
         String model = unprintableAsciiCarriageReturn + "TheBatCave";
         ComponentIdentificationPacket packet = create(0x00,
                                                       "Bat",
@@ -523,9 +545,11 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
@@ -558,10 +582,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
@@ -593,10 +619,11 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false));
+                                                                           .thenReturn(new RequestResult<>(false));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 
@@ -673,16 +700,24 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule0x03);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet0x00, packet0x01, packet0x02, packet0x03));
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet0x00,
+                                                                                                           packet0x01,
+                                                                                                           packet0x02,
+                                                                                                           packet0x03));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet0x00));
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet0x00));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(1)))
-                .thenReturn(new BusResult<>(false, packet0x01));
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet0x01));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(2)))
-                .thenReturn(new BusResult<>(false, packet0x02));
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet0x02));
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(3)))
-                .thenReturn(new BusResult<>(false, packet0x03));
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet0x03));
 
         runTest();
 
@@ -718,10 +753,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule0x00);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, packet));
+                                                                                     .thenReturn(new BusResult<>(false,
+                                                                                                                 packet));
 
         runTest();
 
@@ -754,10 +791,12 @@ public class Part01Step09ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModule0x00);
 
         when(vehicleInformationModule.reportComponentIdentification(any()))
-                .thenReturn(new RequestResult<>(false, packet));
+                                                                           .thenReturn(new RequestResult<>(false,
+                                                                                                           packet));
 
         when(vehicleInformationModule.reportComponentIdentification(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, packet));
+                                                                                  .thenReturn(new BusResult<>(false,
+                                                                                                              packet));
 
         runTest();
 

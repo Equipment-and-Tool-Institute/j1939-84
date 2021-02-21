@@ -13,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Optional;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -147,8 +148,10 @@ public class Part03Step14ControllerTest extends AbstractControllerTest {
                 0xBB, // Applicable System Monitor Denominator
         };
 
-        DM20MonitorPerformanceRatioPacket dm20Packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
-        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(new BusResult<>(false,dm20Packet));
+        DM20MonitorPerformanceRatioPacket dm20Packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN,
+                                                                                                           0x00,
+                                                                                                           data));
+        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(new BusResult<>(false, dm20Packet));
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0);
         dataRepository.putObdModule(obdModule1);
@@ -162,6 +165,7 @@ public class Part03Step14ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).requestDM20(any(), eq(0));
     }
+
     @Test
     public void testEmptyPackets() {
 

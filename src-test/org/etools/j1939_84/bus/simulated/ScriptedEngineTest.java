@@ -16,7 +16,7 @@ import org.junit.Test;
 public class ScriptedEngineTest {
     private boolean reqResp(String req, String resp) {
         return ScriptedEngine.isRequestForPredicate(parsePacket(resp))
-                .test(parsePacket(req));
+                             .test(parsePacket(req));
     }
 
     @Test
@@ -48,7 +48,7 @@ public class ScriptedEngineTest {
     public void testPriority1() throws Exception {
 
         try (Bus bus = new EchoBus(0xF9);
-                Sim sim = new Sim(bus)) {
+             Sim sim = new Sim(bus)) {
             bus.log(p -> "P: " + p);
             Packet respFF = Packet.parsePacket("1812FF00 00 11 22 33 44 55 66 77");
             sim.response(ScriptedEngine.isRequestForPredicate(respFF), () -> respFF);
@@ -69,7 +69,7 @@ public class ScriptedEngineTest {
     public void testPriority2() throws Exception {
 
         try (Bus bus = new EchoBus(0xF9);
-                Sim sim = new Sim(bus)) {
+             Sim sim = new Sim(bus)) {
             bus.log(p -> "P: " + p);
             Packet respFF = Packet.parsePacket("18FF0100 00 11 22 33 44 55 66 77");
             sim.response(ScriptedEngine.isRequestForPredicate(respFF), () -> respFF);
@@ -90,7 +90,7 @@ public class ScriptedEngineTest {
     public void testPriority3() throws Exception {
 
         try (Bus bus = new EchoBus(0xF9);
-                Sim sim = new Sim(bus)) {
+             Sim sim = new Sim(bus)) {
             bus.log(p -> "P: " + p);
             Packet respF9 = Packet.parsePacket("1812F901 00 11 22 33 44 55 66 77");
             Packet respFF = Packet.parsePacket("1812FF01 00 11 22 33 44 55 66 77");

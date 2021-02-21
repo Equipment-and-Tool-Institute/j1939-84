@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
@@ -169,7 +170,7 @@ public class Part04Step03ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testDifferentDTCsFailure() {
-        //Module 0 Different DTCs
+        // Module 0 Different DTCs
         var dtc1 = DiagnosticTroubleCode.create(123, 12, 1, 1);
         OBDModuleInformation moduleInfo0 = new OBDModuleInformation(0);
         moduleInfo0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc1));
@@ -177,7 +178,7 @@ public class Part04Step03ControllerTest extends AbstractControllerTest {
         var dtc2 = DiagnosticTroubleCode.create(456, 9, 1, 1);
         var dm1_0 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc2);
 
-        //Module 1 No active DTC in DM1
+        // Module 1 No active DTC in DM1
         OBDModuleInformation moduleInfo1 = new OBDModuleInformation(1);
         moduleInfo1.set(DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1));
         dataRepository.putObdModule(moduleInfo1);

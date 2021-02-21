@@ -20,6 +20,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.PartResultRepository;
@@ -140,9 +141,11 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
         String urgentMessages = "";
         urgentMessages += "Ready to transition from Part 1 to Part 2 of the test" + NL;
-        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1." + NL;
+        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1."
+                + NL;
         urgentMessages += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
-        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?" + NL;
+        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?"
+                + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 2"), eq(QUESTION), any());
 
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
@@ -167,7 +170,10 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         expectedMessages.append("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
         int minuteCounter = 60;
         for (int i = minuteCounter; i > 0; i--) {
-            expectedMessages.append(NL).append("Step 1.27.b.iii Allowing engine to idle for ").append(i).append(" seconds");
+            expectedMessages.append(NL)
+                            .append("Step 1.27.b.iii Allowing engine to idle for ")
+                            .append(i)
+                            .append(" seconds");
         }
         expectedMessages.append(NL).append("User cancelled testing at Part 1 Step 27");
         assertEquals(expectedMessages.toString(), listener.getMessages());
@@ -226,9 +232,11 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
         String urgentMessages = "";
         urgentMessages += "Ready to transition from Part 1 to Part 2 of the test" + NL;
-        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1." + NL;
+        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1."
+                + NL;
         urgentMessages += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
-        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?" + NL;
+        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?"
+                + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
                                              eq(QUESTION),
@@ -246,7 +254,10 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         expectedMessages.append("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
         int minuteCounter = 60;
         for (int i = minuteCounter; i > 0; i--) {
-            expectedMessages.append(NL).append("Step 1.27.b.iii Allowing engine to idle for ").append(i).append(" seconds");
+            expectedMessages.append(NL)
+                            .append("Step 1.27.b.iii Allowing engine to idle for ")
+                            .append(i)
+                            .append(" seconds");
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
@@ -258,7 +269,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMilestones());
     }
 
-    //FIXME - this needs to be fixed when we figure out how to throw the InterruptedException.
+    // FIXME - this needs to be fixed when we figure out how to throw the InterruptedException.
     @Test
     public void testEngineThrowInterruptedException() {
         String expectedTitle = "Start Part 2";
@@ -279,9 +290,11 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
         String urgentMessages = "";
         urgentMessages += "Ready to transition from Part 1 to Part 2 of the test" + NL;
-        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1." + NL;
+        urgentMessages += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1."
+                + NL;
         urgentMessages += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
-        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?" + NL;
+        urgentMessages += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?"
+                + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
                                              eq(QUESTION),
@@ -297,7 +310,10 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         expectedMessages.append("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
         int minuteCounter = 60;
         for (int i = minuteCounter; i > 0; i--) {
-            expectedMessages.append(NL).append("Step 1.27.b.iii Allowing engine to idle for ").append(i).append(" seconds");
+            expectedMessages.append(NL)
+                            .append("Step 1.27.b.iii Allowing engine to idle for ")
+                            .append(i)
+                            .append(" seconds");
         }
         assertEquals(expectedMessages.toString(), listener.getMessages());
 

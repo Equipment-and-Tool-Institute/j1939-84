@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,6 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -88,13 +88,13 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(null);
 
         instance = new Part01Step21Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                diagnosticMessageModule,
-                dataRepository,
-                DateTimeModule.getInstance());
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              diagnosticMessageModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance());
 
         setup(instance,
               listener,
@@ -137,9 +137,9 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         when(diagnosticMessageModule.requestDM27(any()))
-                .thenReturn(new RequestResult<>(false, List.of(), List.of()));
+                                                        .thenReturn(new RequestResult<>(false, List.of(), List.of()));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
+                                                                  .thenReturn(new BusResult<>(false, Optional.empty()));
 
         runTest();
 
@@ -160,22 +160,51 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailures() {
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                        Packet.create(PGN,
+                                                                                      0x01,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      0x33,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                        Packet.create(PGN,
+                                                                                      0x03,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x04,
+                                                                                      0x00,
+                                                                                      0xFF,
+                                                                                      0xFF,
+                                                                                      0xFF,
+                                                                                      0xFF));
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
         DM27AllPendingDTCsPacket obdPacket3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                           Packet.create(PGN,
+                                                                                         0x03,
+                                                                                         0x11,
+                                                                                         0x22,
+                                                                                         0x13,
+                                                                                         0x44,
+                                                                                         0x55,
+                                                                                         0x66,
+                                                                                         0x77,
+                                                                                         0x88));
 
         when(diagnosticMessageModule.requestDM27(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1, packet3), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(packet1, packet3),
+                                                                                        List.of()));
 
         when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
+                                                                  .thenReturn(new BusResult<>(false, packet1));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x03)))
-                .thenReturn(new BusResult<>(false, obdPacket3));
+                                                                  .thenReturn(new BusResult<>(false, obdPacket3));
 
         runTest();
 
@@ -187,35 +216,30 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
 
         verify(mockListener).addOutcome(
-                PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.21.2.a - Engine #2 (1) reported an all pending DTC"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.a - Engine #2 (1) reported an all pending DTC");
         verify(mockListener).addOutcome(
-                PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC");
         verify(mockListener).addOutcome(
-                PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.21.2.b - Engine #2 (1) did not report MIL off"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.b - Engine #2 (1) did not report MIL off");
         verify(mockListener).addOutcome(
-                PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.21.2.b - Transmission #1 (3) did not report MIL off"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.b - Transmission #1 (3) did not report MIL off");
         verify(mockListener).addOutcome(
-                PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -226,10 +250,28 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
     @Test
     public void testMoreEmptyPacketNoFailures() {
         AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                  Packet.create(PGN,
+                                                                                0x01,
+                                                                                0x11,
+                                                                                0x22,
+                                                                                0x33,
+                                                                                0x44,
+                                                                                0x55,
+                                                                                0x66,
+                                                                                0x77,
+                                                                                0x88));
 
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                        Packet.create(PGN,
+                                                                                      0x03,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      (byte) 0x0A,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
@@ -263,18 +305,54 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
     @Test
     public void testMoreFailures() {
         AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                  Packet.create(PGN,
+                                                                                0x01,
+                                                                                0x11,
+                                                                                0x22,
+                                                                                0x33,
+                                                                                0x44,
+                                                                                0x55,
+                                                                                0x66,
+                                                                                0x77,
+                                                                                0x88));
 
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                        Packet.create(PGN,
+                                                                                      0x01,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      0x33,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                        Packet.create(PGN,
+                                                                                      0x03,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      (byte) 0x0A,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
         DM27AllPendingDTCsPacket packet3b = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                         Packet.create(PGN,
+                                                                                       0x03,
+                                                                                       0x00,
+                                                                                       0x00,
+                                                                                       0x00,
+                                                                                       0x00,
+                                                                                       0xFF,
+                                                                                       0xFF,
+                                                                                       0xFF,
+                                                                                       0xFF));
 
         when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false,
                                                                                         List.of(packet3),
@@ -290,29 +368,25 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
         verify(mockListener).addOutcome(
-                PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC");
         verify(mockListener).addOutcome(
-                PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.21.2.b - Transmission #1 (3) did not report MIL off"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.b - Transmission #1 (3) did not report MIL off");
         verify(mockListener).addOutcome(
-                PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.4.a - Difference compared to data received during global request from Transmission #1 (3)");
         verify(mockListener).addOutcome(
-                PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
@@ -330,19 +404,47 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
     @Test
     public void testMoreNackFailures() {
         AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                  Packet.create(PGN,
+                                                                                0x03,
+                                                                                0x11,
+                                                                                0x22,
+                                                                                0x33,
+                                                                                0x44,
+                                                                                0x55,
+                                                                                0x66,
+                                                                                0x77,
+                                                                                0x88));
 
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                        Packet.create(PGN,
+                                                                                      0x01,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      0x33,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77,
-                              0x88));
+                                                                        Packet.create(PGN,
+                                                                                      0x03,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      (byte) 0x0A,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
         when(diagnosticMessageModule.requestDM27(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1, packet3), List.of(ackPacket)));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(packet1, packet3),
+                                                                                        List.of(ackPacket)));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x03))).thenReturn(new BusResult<>(false, Optional.empty()));
 
@@ -354,29 +456,25 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM27(any(), eq(0x03));
 
         verify(mockListener).addOutcome(
-                PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.21.2.a - Engine #2 (1) reported an all pending DTC"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.a - Engine #2 (1) reported an all pending DTC");
         verify(mockListener).addOutcome(
-                PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.a - Transmission #1 (3) reported an all pending DTC");
         verify(mockListener).addOutcome(
-                PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.21.2.b - Engine #2 (1) did not report MIL off"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.b - Engine #2 (1) did not report MIL off");
         verify(mockListener).addOutcome(
-                PART_NUMBER,
-                STEP_NUMBER,
-                FAIL,
-                "6.1.21.2.b - Transmission #1 (3) did not report MIL off"
-        );
+                                        PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.1.21.2.b - Transmission #1 (3) did not report MIL off");
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -387,14 +485,25 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
     public void testNoErrors() {
 
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x01, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                        Packet.create(PGN,
+                                                                                      0x01,
+                                                                                      0x00,
+                                                                                      0xFF,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         when(diagnosticMessageModule.requestDM27(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(packet1),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
+                                                                  .thenReturn(new BusResult<>(false, packet1));
 
         runTest();
 
@@ -411,16 +520,36 @@ public class Part01Step21ControllerTest extends AbstractControllerTest {
     public void testPacketWithDTCsErrors() {
 
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x01, 0x00, 0xFF, 0x00, 0x00, 0x61, 0x02, 0x13, 0x81));
+                                                                        Packet.create(PGN,
+                                                                                      0x01,
+                                                                                      0x00,
+                                                                                      0xFF,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x61,
+                                                                                      0x02,
+                                                                                      0x13,
+                                                                                      0x81));
         DM27AllPendingDTCsPacket packet2 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x02, 0x00, 0xFF, 0x00, 0x00, 0x61, 0x02, 0x13, 0x81));
+                                                                        Packet.create(PGN,
+                                                                                      0x02,
+                                                                                      0x00,
+                                                                                      0xFF,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x61,
+                                                                                      0x02,
+                                                                                      0x13,
+                                                                                      0x81));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         when(diagnosticMessageModule.requestDM27(any()))
-                .thenReturn(new RequestResult<>(false, Arrays.asList(packet1, packet2), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        Arrays.asList(packet1, packet2),
+                                                                                        List.of()));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
+                                                                  .thenReturn(new BusResult<>(false, packet1));
 
         runTest();
 

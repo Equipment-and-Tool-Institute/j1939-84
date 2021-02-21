@@ -11,6 +11,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.model.ExpectedTestResult;
@@ -39,9 +40,9 @@ public class TableA7Validator {
             boolean isValid = rowValidator.isValid(actualTestResults, expectedTestResults, minimumContains);
             if (!isValid) {
                 listener.addOutcome(PART_NUMBER,
-                        STEP_NUMBER,
-                        Outcome.FAIL,
-                        monitorName + " is missing required Test Result");
+                                    STEP_NUMBER,
+                                    Outcome.FAIL,
+                                    monitorName + " is missing required Test Result");
             }
             return isValid;
         }
@@ -66,17 +67,17 @@ public class TableA7Validator {
         rows.add(new Row("Fuel system pressure control low", 1, etr(157, 18), etr(164, 18), etr(3055, 18)));
         rows.add(new Row("Fuel system pressure control high", 1, etr(157, 16), etr(164, 16), etr(3055, 16)));
         rows.add(new Row("Injector Quantity (High Flow) or Injector Timing",
-                1,
-                etr(651, 7),
-                etr(651, 16),
-                etr(5358, 16),
-                etr(1413, 16)));
+                         1,
+                         etr(651, 7),
+                         etr(651, 16),
+                         etr(5358, 16),
+                         etr(1413, 16)));
         rows.add(new Row("Injector Quantity (Low Flow) or Injector Timing",
-                1,
-                etr(651, 7),
-                etr(651, 18),
-                etr(5358, 16),
-                etr(1413, 16)));
+                         1,
+                         etr(651, 7),
+                         etr(651, 18),
+                         etr(5358, 16),
+                         etr(1413, 16)));
         rows.add(new Row("% of misfire", 1, etr(1323, 31)));
         rows.add(new Row("% of misfire", 1, etr(1324, 31)));
         rows.add(new Row("% of misfire", 1, etr(1325, 31)));
@@ -88,18 +89,18 @@ public class TableA7Validator {
         rows.add(new Row("Over Boost", 1, etr(102, 16), etr(1127, 16), etr(3563, 16), etr(4817, 16)));
         rows.add(new Row("Charge Air Undercooling", 1, etr(2630, 16), etr(105, 16), etr(1636, 16), etr(5285, 18)));
         rows.add(new Row(
-                "Conversion Efficiency, or Aftertreatment Assistance: Exotherm to assist PM reg., or Aftertreatment Assistance: Feedgas to assist SCR",
-                1,
-                etr(5018, 18),
-                etr(5298, 18),
-                etr(5300, 31)));
+                         "Conversion Efficiency, or Aftertreatment Assistance: Exotherm to assist PM reg., or Aftertreatment Assistance: Feedgas to assist SCR",
+                         1,
+                         etr(5018, 18),
+                         etr(5298, 18),
+                         etr(5300, 31)));
         rows.add(new Row("Conversion Efficiency", 1, etr(4364, 17), etr(4364, 18), etr(4364, 31)));
         rows.add(new Row("SCR or Other Reductant delivery performance",
-                1,
-                etr(3361, 7),
-                etr(4331, 15),
-                etr(4331, 18),
-                etr(4334, 18)));
+                         1,
+                         etr(3361, 7),
+                         etr(4331, 15),
+                         etr(4331, 18),
+                         etr(4334, 18)));
         rows.add(new Row("Filtering Performance", 1, etr(3251, 2), etr(3936, 2), etr(3936, 16), etr(3639, 18)));
         rows.add(new Row("Incomplete regeneration", 1, etr(3713, 31), etr(5319, 7), etr(5319, 31)));
         rows.add(new Row("NOx Sensor Performance Monitoring Capability", 1, etr(3226, 16), etr(3226, 20)));
@@ -139,12 +140,14 @@ public class TableA7Validator {
     public Collection<ScaledTestResult> findDuplicates(Collection<ScaledTestResult> testResults) {
 
         List<ExpectedTestResult> expectedTestResults = testResults.stream()
-                .map(r -> new ExpectedTestResult(r.getSpn(), r.getFmi()))
-                .collect(Collectors.toList());
+                                                                  .map(r -> new ExpectedTestResult(r.getSpn(),
+                                                                                                   r.getFmi()))
+                                                                  .collect(Collectors.toList());
 
         Set<ExpectedTestResult> duplicates = expectedTestResults.stream()
-                .filter(r -> Collections.frequency(expectedTestResults, r) > 1)
-                .collect(Collectors.toSet());
+                                                                .filter(r -> Collections.frequency(expectedTestResults,
+                                                                                                   r) > 1)
+                                                                .collect(Collectors.toSet());
 
         Set<ScaledTestResult> results = new HashSet<>();
         for (ExpectedTestResult etr : duplicates) {

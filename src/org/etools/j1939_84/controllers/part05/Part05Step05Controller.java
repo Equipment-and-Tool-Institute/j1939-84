@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers.part05;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
@@ -65,67 +66,76 @@ public class Part05Step05Controller extends StepController {
 
         // 6.5.5.2.a Fail if any ECU reports > 0 for emission-related pending.
         packets.stream()
-                .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.5.5.2.a - " + moduleName + " reported > 0 for emissions-related pending"));
+               .filter(p -> p.getEmissionRelatedPendingDTCCount() > 0)
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.5.5.2.a - " + moduleName
+                       + " reported > 0 for emissions-related pending"));
 
         // 6.5.5.2.a Fail if any ECU reports > 0 for previous MIL on.
         packets.stream()
-                .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.5.5.2.a - " + moduleName + " reported > 0 for previous MIL on"));
+               .filter(p -> p.getEmissionRelatedPreviouslyMILOnDTCCount() > 0)
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.5.5.2.a - " + moduleName + " reported > 0 for previous MIL on"));
 
         // 6.5.5.2.b Fail if no ECU reports > 0 MIL on DTCs where the same ECU provides one or more permanent DTCs.
         boolean noReports = packets.stream()
-                .noneMatch(p -> p.getEmissionRelatedMILOnDTCCount() > 0 && p.getEmissionRelatedPermanentDTCCount() > 0);
+                                   .noneMatch(p -> p.getEmissionRelatedMILOnDTCCount() > 0
+                                           && p.getEmissionRelatedPermanentDTCCount() > 0);
         if (noReports) {
             addFailure("6.5.5.2.b - No ECU reported > 0 MIL on DTCs and > 0 permanent DTCs");
         }
 
-        // 6.5.5.2.c Fail if any ECU reports a different number of MIL on DTCs than what that ECU reported in DM12 earlier in this part.
+        // 6.5.5.2.c Fail if any ECU reports a different number of MIL on DTCs than what that ECU reported in DM12
+        // earlier in this part.
         packets.stream()
-                .filter(p -> p.getEmissionRelatedMILOnDTCCount() != getDM12DTCs(p.getSourceAddress()).size())
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.5.5.2.c - " + moduleName + " reported a different number of MIL on DTCs than what it reported in DM12 earlier in this part"));
+               .filter(p -> p.getEmissionRelatedMILOnDTCCount() != getDM12DTCs(p.getSourceAddress()).size())
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.5.5.2.c - " + moduleName
+                       + " reported a different number of MIL on DTCs than what it reported in DM12 earlier in this part"));
 
-        // 6.5.5.2.d Fail if any ECU reports a different number of permanent DTCs than what that ECU reported in DM28 earlier in this part.
+        // 6.5.5.2.d Fail if any ECU reports a different number of permanent DTCs than what that ECU reported in DM28
+        // earlier in this part.
         packets.stream()
-                .filter(p -> p.getEmissionRelatedPermanentDTCCount() != getDM28DTCs(p.getSourceAddress()).size())
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.5.5.2.c - " + moduleName + " reported a different number of permanent DTCs than what it reported in DM28 earlier in this part"));
+               .filter(p -> p.getEmissionRelatedPermanentDTCCount() != getDM28DTCs(p.getSourceAddress()).size())
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.5.5.2.c - " + moduleName
+                       + " reported a different number of permanent DTCs than what it reported in DM28 earlier in this part"));
 
         // 6.5.5.2.e.i. For OBD ECUs that support DM27, Fail if any ECU reports > 0 for all pending DTCs (SPN 4105).
         packets.stream()
-                .filter(p -> isDM27Supported(p.getSourceAddress()))
-                .filter(p -> p.getAllPendingDTCCount() > 0)
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.5.5.2.e.i - " + moduleName + " reported > 0 for all pending DTCs"));
+               .filter(p -> isDM27Supported(p.getSourceAddress()))
+               .filter(p -> p.getAllPendingDTCCount() > 0)
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.5.5.2.e.i - " + moduleName + " reported > 0 for all pending DTCs"));
 
         // 6.5.5.2.e.ii. For OBD ECUs that support DM27, Fail if any ECU reports 0xFF for all pending DTCs.
         packets.stream()
-                .filter(p -> isDM27Supported(p.getSourceAddress()))
-                .filter(p -> (byte) p.getAllPendingDTCCount() == (byte) 0xFF)
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.5.5.2.e.i - " + moduleName + " reported 0xFF for all pending DTCs"));
+               .filter(p -> isDM27Supported(p.getSourceAddress()))
+               .filter(p -> (byte) p.getAllPendingDTCCount() == (byte) 0xFF)
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.5.5.2.e.i - " + moduleName
+                       + " reported 0xFF for all pending DTCs"));
 
-        // 6.5.5.2.f.i For ECUs that do not support DM27, Fail if any ECU does not report number of all pending DTCs (SPN 4105) = 0xFF.
+        // 6.5.5.2.f.i For ECUs that do not support DM27, Fail if any ECU does not report number of all pending DTCs
+        // (SPN 4105) = 0xFF.
         packets.stream()
-                .filter(p -> !isDM27Supported(p.getSourceAddress()))
-                .filter(p -> (byte) p.getAllPendingDTCCount() != (byte) 0xFF)
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.5.5.2.e.i - " + moduleName + " did not report all pending DTCs = 0xFF"));
+               .filter(p -> !isDM27Supported(p.getSourceAddress()))
+               .filter(p -> (byte) p.getAllPendingDTCCount() != (byte) 0xFF)
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.5.5.2.e.i - " + moduleName
+                       + " did not report all pending DTCs = 0xFF"));
 
         // 6.5.5.3.a Warn if any ECU reports > 1 for MIL on
         packets.stream()
-                .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 1)
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addWarning("6.5.5.3.a - " + moduleName + " reported > 1 for MIL on"));
+               .filter(p -> p.getEmissionRelatedMILOnDTCCount() > 1)
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addWarning("6.5.5.3.a - " + moduleName + " reported > 1 for MIL on"));
 
         // 6.5.5.3.a Warn if any ECU reports > 1 for permanent.
         packets.stream()
-                .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 1)
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addWarning("6.5.5.3.a - " + moduleName + " reported > 1 for permanent"));
+               .filter(p -> p.getEmissionRelatedPermanentDTCCount() > 1)
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addWarning("6.5.5.3.a - " + moduleName + " reported > 1 for permanent"));
 
         // 6.5.5.3.b Warn if more than one ECU reports > 0 for MIL on
         long milOnCount = packets.stream().filter(p -> p.getEmissionRelatedMILOnDTCCount() > 0).count();

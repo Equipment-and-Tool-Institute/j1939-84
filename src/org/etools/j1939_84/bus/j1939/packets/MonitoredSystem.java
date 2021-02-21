@@ -24,16 +24,16 @@ public class MonitoredSystem implements Comparable<MonitoredSystem> {
      * Creates a Monitored System
      *
      * @param name
-     *         the Name of the Monitored System
+     *                          the Name of the Monitored System
      * @param status
-     *         the {@link MonitoredSystemStatus} of the Monitored System
+     *                          the {@link MonitoredSystemStatus} of the Monitored System
      * @param sourceAddress
-     *         the source address that reported this
+     *                          the source address that reported this
      * @param id
-     *         the unique id for this system. This allows
-     *         {@link MonitoredSystem} from various source addresses to be
+     *                          the unique id for this system. This allows
+     *                          {@link MonitoredSystem} from various source addresses to be
      * @param isDM5
-     *         indicates this is from a DM5 Packet
+     *                          indicates this is from a DM5 Packet
      */
     public MonitoredSystem(String name,
                            MonitoredSystemStatus status,
@@ -57,23 +57,6 @@ public class MonitoredSystem implements Comparable<MonitoredSystem> {
             result = getStatus().toString().compareTo(o.getStatus().toString());
         }
         return result;
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (!(obj instanceof MonitoredSystem)) {
-            return false;
-        }
-
-        MonitoredSystem that = (MonitoredSystem) obj;
-        return Objects.equals(getName(), that.getName())
-                && Objects.equals(getStatus(), that.getStatus())
-                && Objects.equals(getSourceAddress(), that.getSourceAddress())
-                && Objects.equals(getId(), that.getId());
     }
 
     /**
@@ -117,6 +100,23 @@ public class MonitoredSystem implements Comparable<MonitoredSystem> {
     @Override
     public int hashCode() {
         return Objects.hash(getName(), getStatus(), getSourceAddress(), getId());
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof MonitoredSystem)) {
+            return false;
+        }
+
+        MonitoredSystem that = (MonitoredSystem) obj;
+        return Objects.equals(getName(), that.getName())
+                && Objects.equals(getStatus(), that.getStatus())
+                && Objects.equals(getSourceAddress(), that.getSourceAddress())
+                && Objects.equals(getId(), that.getId());
     }
 
     @Override

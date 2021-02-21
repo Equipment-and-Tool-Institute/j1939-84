@@ -5,9 +5,8 @@ package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.junit.Assert.assertEquals;
 
-import org.junit.Test;
-
 import org.etools.j1939_84.bus.Packet;
+import org.junit.Test;
 
 /**
  * Unit tests the {@link DM23PreviouslyMILOnEmissionDTCPacket} class

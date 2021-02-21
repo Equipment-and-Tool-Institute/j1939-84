@@ -126,11 +126,11 @@ public class MultiQueue<T> implements AutoCloseable {
      * Duplicates a stream. Remember, if the stream is not read before the timeout,
      * then the stream will be empty.
      *
-     * @param stream Original stream.
-     * @param time   New timeout for this stream.
-     * @param unit
-     * @return The new stream, independent of the original, but starting at the same
-     *         location the original is right now.
+     * @param  stream Original stream.
+     * @param  time   New timeout for this stream.
+     * @param  unit
+     * @return        The new stream, independent of the original, but starting at the same
+     *                location the original is right now.
      */
     public Stream<T> duplicate(Stream<T> stream, int time, TimeUnit unit) {
         SpliteratorImplementation<T> oldSpliterator = spliterators.get(stream);
@@ -164,12 +164,12 @@ public class MultiQueue<T> implements AutoCloseable {
 
     /**
      *
-     * @param timeout
-     *                The stream will be valid for a period of timeout. If the
-     *                stream is not read prior to timeout, then it will be empty.
-     * @param unit
-     *                the TimeUnit for the timeout
-     * @return the stream
+     * @param  timeout
+     *                     The stream will be valid for a period of timeout. If the
+     *                     stream is not read prior to timeout, then it will be empty.
+     * @param  unit
+     *                     the TimeUnit for the timeout
+     * @return         the stream
      */
     synchronized public Stream<T> stream(long timeout, TimeUnit unit) {
         SpliteratorImplementation<T> spliterator = new SpliteratorImplementation<>(list, timeout, unit);

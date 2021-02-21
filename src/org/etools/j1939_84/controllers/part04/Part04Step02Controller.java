@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -75,10 +76,10 @@ public class Part04Step02Controller extends StepController {
         boolean foundDTC = false;
         while (!foundDTC) {
             // 6.4.2.1.a. Global DM12 ([send Request (PGN 59904) for PGN 65236 (SPN 1213-1215, 1706, and 3038)])
-            //   to retrieve confirmed and active DTCs.
+            // to retrieve confirmed and active DTCs.
 
             // 6.4.2.1.a.i. Repeat request no more frequently than once per second until one or more ECUs
-            //   reports a confirmed and active DTC.
+            // reports a confirmed and active DTC.
 
             attempts++;
             updateProgress("Step 4.2. Requesting DM12 Attempt " + attempts);
@@ -87,10 +88,10 @@ public class Part04Step02Controller extends StepController {
             globalPackets = getDiagnosticMessageModule().requestDM12(getListener()).getPackets();
 
             foundDTC = globalPackets.stream()
-                    .map(DiagnosticTroubleCodePacket::getDtcs)
-                    .map(dtcs -> !dtcs.isEmpty())
-                    .findFirst()
-                    .orElse(false);
+                                    .map(DiagnosticTroubleCodePacket::getDtcs)
+                                    .map(dtcs -> !dtcs.isEmpty())
+                                    .findFirst()
+                                    .orElse(false);
 
             if (!foundDTC) {
                 if (attempts == 5 * 60) {
@@ -100,7 +101,7 @@ public class Part04Step02Controller extends StepController {
 
                     // This will throw an exception if the user chooses 'no'
                     displayInstructionAndWait("No module has reported a confirmed and active DTC." + NL +
-                                                      "Do you wish to continue?",
+                            "Do you wish to continue?",
                                               "No Confirmed and Active DTCs Found",
                                               QUESTION);
                     attempts = 0;
@@ -110,15 +111,15 @@ public class Part04Step02Controller extends StepController {
             }
         }
 
-        //Save the DTCs per module
+        // Save the DTCs per module
         globalPackets.stream()
-                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> !p.getDtcs().isEmpty())
-                .forEach(p -> {
-                    var moduleInfo = getDataRepository().getObdModule(p.getSourceAddress());
-                    moduleInfo.set(p);
-                    getDataRepository().putObdModule(moduleInfo);
-                });
+                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                     .filter(p -> !p.getDtcs().isEmpty())
+                     .forEach(p -> {
+                         var moduleInfo = getDataRepository().getObdModule(p.getSourceAddress());
+                         moduleInfo.set(p);
+                         getDataRepository().putObdModule(moduleInfo);
+                     });
 
         // 6.4.2.2.a. Fail if no ECU reports MIL on. See Section A.8 for allowed values.
         boolean isMILOn = globalPackets.stream().anyMatch(p -> p.getMalfunctionIndicatorLampStatus() == ON);
@@ -128,22 +129,24 @@ public class Part04Step02Controller extends StepController {
 
         // 6.4.2.2.b. Fail if DM12 DTC(s) is (are) not the same SPN+FMI(s) as DM6 pending DTC in part 3.
         globalPackets.stream()
-                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> !toString(p.getDtcs()).equals(toString(getDTCs(p.getSourceAddress()))))
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.4.2.2.b - " + moduleName + " reported DM12 DTC(s) different than DM6 pending DTC(s) in part 3"));
+                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                     .filter(p -> !toString(p.getDtcs()).equals(toString(getDTCs(p.getSourceAddress()))))
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> addFailure("6.4.2.2.b - " + moduleName
+                             + " reported DM12 DTC(s) different than DM6 pending DTC(s) in part 3"));
 
         // 6.4.2.3.a. Warn if any ECU reports > 1 confirmed and active DTC.
         globalPackets.stream()
-                .filter(p -> p.getDtcs().size() > 1)
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addWarning("6.4.2.3.a - " + moduleName + " reported > 1 confirmed and active DTC"));
+                     .filter(p -> p.getDtcs().size() > 1)
+                     .map(ParsedPacket::getSourceAddress)
+                     .map(Lookup::getAddressName)
+                     .forEach(moduleName -> addWarning("6.4.2.3.a - " + moduleName
+                             + " reported > 1 confirmed and active DTC"));
 
         // 6.4.2.3.b. Warn if more than one ECU reports a confirmed and active DTC.
         long modulesWithFaults = globalPackets.stream()
-                .filter(p -> !p.getDtcs().isEmpty())
-                .count();
+                                              .filter(p -> !p.getDtcs().isEmpty())
+                                              .count();
         if (modulesWithFaults > 1) {
             addWarning("6.4.2.3.b - More than one ECU reported a confirmed and active DTC");
         }
@@ -152,9 +155,10 @@ public class Part04Step02Controller extends StepController {
 
         // 6.4.2.4.a. DS DM12 to each OBD ECU.
         List<RequestResult<DM12MILOnEmissionDTCPacket>> dsResults = obdModuleAddresses.stream()
-                .map(address -> getDiagnosticMessageModule().requestDM12(getListener(), address))
-                .map(BusResult::requestResult)
-                .collect(Collectors.toList());
+                                                                                      .map(address -> getDiagnosticMessageModule().requestDM12(getListener(),
+                                                                                                                                               address))
+                                                                                      .map(BusResult::requestResult)
+                                                                                      .collect(Collectors.toList());
 
         // 6.4.2.5.a. Fail if any difference compared to data received from global request.
         List<DM12MILOnEmissionDTCPacket> dsPackets = filterRequestResultPackets(dsResults);

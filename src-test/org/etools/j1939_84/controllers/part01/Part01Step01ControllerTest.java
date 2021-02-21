@@ -15,10 +15,10 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -45,6 +45,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * The unit test for {@link Part01Step01Controller}
@@ -156,31 +158,25 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
      */
     @Test
     @TestDoc(value = {
-            @TestItem(verifies = "6.1.1.1.a,b,c", dependsOn = "UserInterfacePresenterTest",
-                    description = "Verify that the UI presents the data."),
+            @TestItem(verifies = "6.1.1.1.a,b,c", dependsOn = "UserInterfacePresenterTest", description = "Verify that the UI presents the data."),
             @TestItem(verifies = "6.1.1.1.d", dependsOn = "EngineSpeedModuleTest"),
             @TestItem(verifies = "6.1.1.1", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-            @TestItem(verifies = "6.1.1.1.e.i",
-                    dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest.testGetVin",
-                            "VehicleInformationModuleTest.testGetVinNoResponse",
-                            "VehicleInformationModuleTest.testGetVinWithDifferentResponses",
-                            "VehicleInformationModuleTest.testReportVin",
-                            "VehicleInformationModuleTest.testReportVinWithNoResponses", "VinDecoderTest" }),
-            @TestItem(verifies = "6.1.1.1.e.ii",
-                    dependsOn = { "VinDecoderTest" }),
-            @TestItem(verifies = "6.1.1.1.e.iv",
-                    dependsOn = { "FuelTypeTest" }),
-            @TestItem(verifies = "6.1.1.1.e.v",
-                    dependsOn = { "VehicleInformationTest",
-                            "VehicleInformationModuleTest.testReportCalibrationInformation",
-                            "VehicleInformationModuleTest.testReportCalibrationInformationWithNoResponses",
-                            "VehicleInformationModuleTest.testRunHappyPath",
-                            "VehicleInformationModuleTest.testRunNoModulesRespond",
-                            "VehicleInformationModuleTest.testRunWithWarningsAndFailures" }),
-    },
-            description = "Verify vehicle data collection and that the correct instructions to the user are transmistted to the UI presenter.")
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+            @TestItem(verifies = "6.1.1.1.e.i", dependsOn = { "VehicleInformationTest",
+                    "VehicleInformationModuleTest.testGetVin",
+                    "VehicleInformationModuleTest.testGetVinNoResponse",
+                    "VehicleInformationModuleTest.testGetVinWithDifferentResponses",
+                    "VehicleInformationModuleTest.testReportVin",
+                    "VehicleInformationModuleTest.testReportVinWithNoResponses", "VinDecoderTest" }),
+            @TestItem(verifies = "6.1.1.1.e.ii", dependsOn = { "VinDecoderTest" }),
+            @TestItem(verifies = "6.1.1.1.e.iv", dependsOn = { "FuelTypeTest" }),
+            @TestItem(verifies = "6.1.1.1.e.v", dependsOn = { "VehicleInformationTest",
+                    "VehicleInformationModuleTest.testReportCalibrationInformation",
+                    "VehicleInformationModuleTest.testReportCalibrationInformationWithNoResponses",
+                    "VehicleInformationModuleTest.testRunHappyPath",
+                    "VehicleInformationModuleTest.testRunNoModulesRespond",
+                    "VehicleInformationModuleTest.testRunWithWarningsAndFailures" }),
+    }, description = "Verify vehicle data collection and that the correct instructions to the user are transmistted to the UI presenter.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRun() {
 
         String expectedTitle = "Start Part 1";
@@ -211,7 +207,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         verify(vehicleInformationModule).setJ1939(j1939);
 
         ArgumentCaptor<VehicleInformationListener> vehicleInfoCaptor = ArgumentCaptor
-                .forClass(VehicleInformationListener.class);
+                                                                                     .forClass(VehicleInformationListener.class);
         verify(mockListener).onVehicleInformationNeeded(vehicleInfoCaptor.capture());
         vehicleInfoCaptor.getValue().onResult(vehicleInfo);
 
@@ -238,17 +234,14 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
     @TestDoc(value = {
             @TestItem(verifies = "6.1.1.1.a,b,c", dependsOn = "UserInterfacePresenterTest"),
             @TestItem(verifies = "6.1.1.1.d", dependsOn = "EngineSpeedModuleTest"),
-            @TestItem(verifies = "6.1.1.1.e",
-                    dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
-    },
-            description = "Verify vehicle data collection is empty when the engine is not running and no data is collected.")
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+            @TestItem(verifies = "6.1.1.1.e", dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }),
+    }, description = "Verify vehicle data collection is empty when the engine is not running and no data is collected.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRunVehicleInfoNull() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
         ArgumentCaptor<VehicleInformationListener> vehicleInfoCaptor = ArgumentCaptor
-                .forClass(VehicleInformationListener.class);
+                                                                                     .forClass(VehicleInformationListener.class);
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -298,11 +291,9 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
     @TestDoc(value = {
             @TestItem(verifies = "6.1.1.1.a,b,c", dependsOn = "UserInterfacePresenterTest"),
             @TestItem(verifies = "6.1.1.1.d", dependsOn = "EngineSpeedModuleTest"),
-            @TestItem(verifies = "6.1.1.1.e",
-                    dependsOn = { "VehicleInformationTest", "VehicleInformationModuleTest" }) },
-            description = "After the key was detected off, notify user to 'Please turn the Engine OFF with Key ON.', then continue with data collection.")
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+            @TestItem(verifies = "6.1.1.1.e", dependsOn = { "VehicleInformationTest",
+                    "VehicleInformationModuleTest" }) }, description = "After the key was detected off, notify user to 'Please turn the Engine OFF with Key ON.', then continue with data collection.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testWaitForKey() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");

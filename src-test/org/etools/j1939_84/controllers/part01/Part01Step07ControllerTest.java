@@ -15,11 +15,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -45,6 +45,8 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * The unit test for {@link Part01Step07Controller}
@@ -156,14 +158,12 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
             @TestItem(verifies = "6.1.7"),
             @TestItem(verifies = "6.1.7.1.a"),
             @TestItem(verifies = "6.1.7.1.b"),
-            @TestItem(verifies = "6.1.7.1.c") },
-            description = "Global DM19 (send Request (PGN 59904) for PGN 54016 (SPNs 1634 and 1635))"
+            @TestItem(verifies = "6.1.7.1.c") }, description = "Global DM19 (send Request (PGN 59904) for PGN 54016 (SPNs 1634 and 1635))"
                     + "<br>"
                     + "Create list of ECU address + CAL ID + CVN. [An ECU address may report more than one CAL ID and CVN]"
                     + "<br>"
                     + "Display this list in the log. [Note display the CVNs using big endian format and not little endian format as given in the response]")
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRunHappyPath() {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
@@ -181,7 +181,8 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0)))
-                .thenReturn(new BusResult<>(false, dm19));
+                                                                                 .thenReturn(new BusResult<>(false,
+                                                                                                             dm19));
 
         ArrayList<Integer> addresses = new ArrayList<>();
         addresses.add(0);
@@ -206,10 +207,8 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.1.7.2.a",
-            description = "Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units"))
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+    @TestDoc(value = @TestItem(verifies = "6.1.7.2.a", description = "Total number of reported CAL IDs is < user entered value for number of emission or diagnostic critical control units"))
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRunNoModulesRespond() {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
@@ -254,8 +253,7 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
             @TestItem(verifies = "6.1.7.5.b"),
             @TestItem(verifies = "6.1.7.5.c ") })
     @SuppressFBWarnings(value = {
-            "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT" },
-            justification = "The method is called just to get some exception.")
+            "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT" }, justification = "The method is called just to get some exception.")
     public void testRunWithWarningsAndFailures() {
         List<DM19CalibrationInformationPacket> globalDM19s = new ArrayList<>();
 
@@ -291,18 +289,52 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
 
         Packet packet0E = Packet.create(0,
                                         0x0E,
-                                        0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
-                                        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                        0xFF, 0xFF, 0xFF);
+                                        0x00,
+                                        0x00,
+                                        0x00,
+                                        0x00,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF);
         DM19CalibrationInformationPacket dm190E = new DM19CalibrationInformationPacket(packet0E);
         globalDM19s.add(dm190E);
 
         // Module 1E - CalId all 0xFF and CVN all 0x00 as OBD Module
         Packet packet1E = Packet.create(0,
                                         0x1E,
-                                        0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF,
-                                        0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF,
-                                        0xFF, 0xFF, 0xFF);
+                                        0x00,
+                                        0x00,
+                                        0x00,
+                                        0x00,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF);
         DM19CalibrationInformationPacket dm191E = new DM19CalibrationInformationPacket(packet1E);
         globalDM19s.add(dm191E);
 
@@ -331,27 +363,37 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         when(dataRepository.getVehicleInformation()).thenReturn(vehicleInformation);
 
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0A)))
-                .thenReturn(new BusResult<>(true, dm190A));
+                                                                                    .thenReturn(new BusResult<>(true,
+                                                                                                                dm190A));
         DM19CalibrationInformationPacket dm190B2 = createDM19(0x0B, "ABCD", "1234", 1);
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0B)))
-                .thenReturn(new BusResult<>(false, dm190B2));
+                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                dm190B2));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1B)))
-                .thenReturn(new BusResult<>(false, dm191B));
+                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                dm191B));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0C)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
+                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                Optional.empty()));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1C)))
-                .thenReturn(new BusResult<>(false, dm191C));
+                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                dm191C));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0D)))
-                .thenReturn(new BusResult<>(false, dm190D));
+                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                dm190D));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1D)))
-                .thenReturn(new BusResult<>(false, dm191D));
+                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                dm191D));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0E)))
-                .thenReturn(new BusResult<>(false, dm190E));
+                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                dm190E));
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x1E)))
-                .thenReturn(new BusResult<>(false, dm191E));
+                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                dm191E));
         DM19CalibrationInformationPacket dm190F = createDM19(0x0F, "ABCD", "1234", 1);
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x0F)))
-                .thenReturn(new BusResult<>(false, dm190F));
+                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                dm190F));
 
         ArrayList<Integer> addresses = new ArrayList<>();
         addresses.add(0x0A);
@@ -399,12 +441,18 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         WARN,
                                         "6.1.7.3.b More than one CAL ID and CVN pair is provided in a single DM19 message");
 
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener, times(2)).addOutcome(PART_NUMBER,
+                                                  STEP_NUMBER,
+                                                  FAIL,
                                                   "6.1.7.2.b.i <> 1 CVN for every CAL ID");
-        verify(mockListener, times(4)).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
+        verify(mockListener, times(4)).addOutcome(PART_NUMBER,
+                                                  STEP_NUMBER,
+                                                  WARN,
                                                   "6.1.7.3.c.i Warn if any non-OBD ECU provides CAL ID");
 
-        verify(mockListener, times(2)).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
+        verify(mockListener, times(2)).addOutcome(PART_NUMBER,
+                                                  STEP_NUMBER,
+                                                  WARN,
                                                   "6.1.7.3.c.ii <> 1 CVN for every CAL ID");
         verify(mockListener, times(2)).addOutcome(PART_NUMBER,
                                                   STEP_NUMBER,
@@ -414,9 +462,13 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                                   STEP_NUMBER,
                                                   WARN,
                                                   "6.1.7.3.c.iii Warn if CAL ID not formatted correctly (contains non-printable ASCII)");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.1.7.2.b.ii CAL ID not formatted correctly (padded incorrectly)");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
                                         "6.1.7.3.c.iii CAL ID not formatted correctly (padded incorrectly)");
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.7.2.b.iii Received CAL ID is all 0xFF");
@@ -424,7 +476,9 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, WARN, "6.1.7.3.c.iv Received CAL ID is all 0xFF");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.1.7.3.c.iv Received CVN is all 0x00");
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.1.7.5.b NACK (PGN 59392) with mode/control byte = 3 (busy) received");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -434,7 +488,9 @@ public class Part01Step07ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.1.7.5.a Compared ECU address + CAL ID + CVN list created from global DM19 request and found difference [CAL ID of CALID and CVN of ]");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.1.7.5.c NACK not received from OBD ECU that did not respond to global query");
 
         verify(vehicleInformationModule).reportCalibrationInformation(any());

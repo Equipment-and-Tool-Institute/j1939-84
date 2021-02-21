@@ -9,6 +9,7 @@ import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNIN
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -76,18 +77,19 @@ public class Part03Step16Controller extends StepController {
         waitForEngineStart();
     }
 
-    private void confirmFault(){
+    private void confirmFault() {
         String message = "Please confirm Fault A is still implanted according to the manufacturer's instruction" + NL;
         message += "Press OK when ready to continue testing" + NL;
         String boxTitle = "Part 6.3.16.1.b";
-        if(!isDevEnv()) {
+        if (!isDevEnv()) {
             displayInstructionAndWait(message, boxTitle, WARNING);
         }
     }
 
     private void waitForManufacturerInterval() {
         if (!isDevEnv()) {
-            String message = "Please wait for the manufacturer's recommended interval with the key in off position" + NL;
+            String message = "Please wait for the manufacturer's recommended interval with the key in off position"
+                    + NL;
             message += "Press OK to continue the testing" + NL;
             displayInstructionAndWait(message, "Part 6.3.16.1.c", WARNING);
         }

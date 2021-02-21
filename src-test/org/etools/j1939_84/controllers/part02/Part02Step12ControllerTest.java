@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -81,13 +82,13 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(null);
 
         instance = new Part02Step12Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                DateTimeModule.getInstance(),
-                diagnosticMessageModule);
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance(),
+                                              diagnosticMessageModule);
 
         setup(instance,
               listener,
@@ -150,42 +151,49 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailures() {
 
-        //Module 0 will support DM27 and have no errors
+        // Module 0 will support DM27 and have no errors
         OBDModuleInformation module0 = new OBDModuleInformation(0);
         module0.set(dm27(0));
         dataRepository.putObdModule(module0);
         DM29DtcCounts packet0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0);
 
-        //Module 1 will not support DM27 and have no errors
+        // Module 1 will not support DM27 and have no errors
         dataRepository.putObdModule(new OBDModuleInformation(1));
         DM29DtcCounts packet1 = DM29DtcCounts.create(0x01, 0, 0xFF, 0, 0, 0);
 
-        //Module 2 will support DM27 but return bad values
+        // Module 2 will support DM27 but return bad values
         OBDModuleInformation module2 = new OBDModuleInformation(2);
         module2.set(dm27(2));
         dataRepository.putObdModule(module2);
         DM29DtcCounts packet2 = DM29DtcCounts.create(0x02, 0x00, 0x00, 0x04, 0x00, 0xFF);
 
-        //Module 3 will not support DM27 but return bad values
+        // Module 3 will not support DM27 but return bad values
         dataRepository.putObdModule(new OBDModuleInformation(3));
         DM29DtcCounts packet3 = DM29DtcCounts.create(0x03, 0x00, 0x00, 0x04, 0x00, 0xFF);
 
-        //Module 4 will not respond at all
+        // Module 4 will not respond at all
         dataRepository.putObdModule(new OBDModuleInformation(4));
 
-        //Module 5 will be a non-obd module with no issues
+        // Module 5 will be a non-obd module with no issues
         DM29DtcCounts packet5 = DM29DtcCounts.create(0x05, 0, 0xFF, 0, 0, 0);
 
-        //Module 6 will be a non-obd module with bad values
+        // Module 6 will be a non-obd module with bad values
         DM29DtcCounts packet6 = DM29DtcCounts.create(0x06, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
 
-        //Module 7 will return different values global/ds
+        // Module 7 will return different values global/ds
         dataRepository.putObdModule(new OBDModuleInformation(7));
         DM29DtcCounts packet71 = DM29DtcCounts.create(0x07, 0, 0xFF, 0, 0, 0);
         DM29DtcCounts packet72 = DM29DtcCounts.create(0x07, 1, 0xFF, 0, 0, 0);
 
         when(diagnosticMessageModule.requestDM29(any()))
-                .thenReturn(new RequestResult<>(false, packet0, packet1, packet2, packet3, packet5, packet6, packet71));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        packet0,
+                                                                                        packet1,
+                                                                                        packet2,
+                                                                                        packet3,
+                                                                                        packet5,
+                                                                                        packet6,
+                                                                                        packet71));
 
         when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
         when(diagnosticMessageModule.requestDM29(any(), eq(1))).thenReturn(new BusResult<>(false, packet1));

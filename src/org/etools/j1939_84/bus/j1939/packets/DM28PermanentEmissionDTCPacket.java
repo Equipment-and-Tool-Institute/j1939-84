@@ -13,7 +13,7 @@ import org.etools.j1939_84.bus.Packet;
  */
 public class DM28PermanentEmissionDTCPacket extends DiagnosticTroubleCodePacket {
 
-    public static final int PGN = 64896; //0xFD80
+    public static final int PGN = 64896; // 0xFD80
 
     public static DM28PermanentEmissionDTCPacket create(int address,
                                                         LampStatus mil,

@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part08;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -53,11 +54,13 @@ public class Part08Step09Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.8.9.1.a. Global DM31 [(send Request (PGN 59904) for PGN 41728 (SPNs 1214, 1215, 4113, 4117)]).
-        // 6.8.9.2.a. (if supported) Fail if no ECU reports same DTC as MIL on for as was reported in DM12 earlier in this part.
+        // 6.8.9.2.a. (if supported) Fail if no ECU reports same DTC as MIL on for as was reported in DM12 earlier in
+        // this part.
         // See Section A.8 for allowed values of SPN 4113 and 4117.
         // 6.8.9.2.b. (if supported) Fail if any ECU reports additional or fewer DTCs than those reported in DM12
         // and DM23 responses earlier in this part.
-        // 6.8.9.2.c. (if supported) Fail if no ECU reports the same DTC as MIL off for the previous active DTC reported in DM23 earlier in this part.
+        // 6.8.9.2.c. (if supported) Fail if no ECU reports the same DTC as MIL off for the previous active DTC reported
+        // in DM23 earlier in this part.
     }
 
 }

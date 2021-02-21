@@ -8,6 +8,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.utils.CollectionUtils;
 
@@ -17,7 +18,12 @@ import org.etools.j1939_84.utils.CollectionUtils;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  */
 public class DM25ExpandedFreezeFrame extends GenericPacket {
-    public static final int PGN = 64951; //0xFDB7
+    public static final int PGN = 64951; // 0xFDB7
+    private List<FreezeFrame> freezeFrames;
+
+    public DM25ExpandedFreezeFrame(Packet packet) {
+        super(packet);
+    }
 
     public static DM25ExpandedFreezeFrame create(int sourceAddress, FreezeFrame... freezeFrames) {
 
@@ -27,12 +33,6 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
         }
 
         return new DM25ExpandedFreezeFrame(Packet.create(PGN, sourceAddress, data));
-    }
-
-    private List<FreezeFrame> freezeFrames;
-
-    public DM25ExpandedFreezeFrame(Packet packet) {
-        super(packet);
     }
 
     /**
@@ -50,6 +50,23 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
     @Override
     public String getName() {
         return "DM25";
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getStringPrefix()).append(NL);
+        sb.append("Freeze Frames: [").append(NL);
+        if (getFreezeFrames().isEmpty()) {
+            sb.append("No Freeze Frames").append(NL);
+        } else {
+            for (FreezeFrame frameFrame : getFreezeFrames()) {
+                sb.append(frameFrame).append(NL);
+            }
+        }
+        sb.append("]");
+
+        return sb.toString();
     }
 
     private void parseChunk(int chunkLength) {
@@ -88,23 +105,6 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
             chunkLength = 8; // The data doesn't match spec
         }
         parseChunk(chunkLength);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getStringPrefix()).append(NL);
-        sb.append("Freeze Frames: [").append(NL);
-        if (getFreezeFrames().isEmpty()) {
-            sb.append("No Freeze Frames").append(NL);
-        } else {
-            for (FreezeFrame frameFrame : getFreezeFrames()) {
-                sb.append(frameFrame).append(NL);
-            }
-        }
-        sb.append("]");
-
-        return sb.toString();
     }
 
 }

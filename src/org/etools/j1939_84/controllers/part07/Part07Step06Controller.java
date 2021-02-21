@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part07;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -55,7 +56,8 @@ public class Part07Step06Controller extends StepController {
         // 6.7.6.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNSPs 1218-1219)]).
         // 6.7.6.2.a Fail if any OBD ECU reports > 0 for active DTCs.
         // 6.7.6.2.b Fail if no ECU reports > 0 for previously active DTCs.
-        // 6.7.6.2.c Fail if any OBD ECU reports a different number of previously active DTCs than in DM2 response earlier in this Part.
+        // 6.7.6.2.c Fail if any OBD ECU reports a different number of previously active DTCs than in DM2 response
+        // earlier in this Part.
     }
 
 }

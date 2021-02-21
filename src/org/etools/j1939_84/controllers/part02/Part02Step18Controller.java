@@ -9,6 +9,7 @@ import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNIN
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -19,9 +20,9 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * 6.2.18 Part 2 to Part 3 transition
- * <p>
- * This step is similar to Part 01 Step 27 & Part 02 Step 01
+ *         6.2.18 Part 2 to Part 3 transition
+ *         <p>
+ *         This step is similar to Part 01 Step 27 & Part 02 Step 01
  */
 public class Part02Step18Controller extends StepController {
 
@@ -64,13 +65,14 @@ public class Part02Step18Controller extends StepController {
         incrementProgress("Part 2, Step 18 Turn Engine Off and keep the ignition key in the off position");
         ensureKeyOffEngineOff();
 
-        // 6.2.18.1.b. Implant Fault A according to engine manufacturer’s instruction. (See section 5 for additional discussion).
+        // 6.2.18.1.b. Implant Fault A according to engine manufacturer’s instruction. (See section 5 for additional
+        // discussion).
         incrementProgress("Waiting for implant of Fault A according to the engine manufacturer's instruction");
         if (!isDevEnv()) {
             waitForFault("Part 6.2.18.1.b");
         }
 
-        // 6.2.18.1.c. Turn ignition key to the ON position.        
+        // 6.2.18.1.c. Turn ignition key to the ON position.
         // 6.2.18.1.d. Observe MIL and Wait to Start Lamps in Instrument Cluster
         // 6.2.18.1.e. Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished.
         incrementProgress("Part 2, Step 18 Turn ignition key to the ON position after MIL & WSL have cleared");

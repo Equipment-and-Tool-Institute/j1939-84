@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
@@ -134,7 +135,7 @@ public class Part04Step08ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
-        //Module 0 provides a response
+        // Module 0 provides a response
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         obdModuleInformation0.set(createDM12(0, 231, 12, ON));
         dataRepository.putObdModule(obdModuleInformation0);
@@ -142,13 +143,13 @@ public class Part04Step08ControllerTest extends AbstractControllerTest {
         var dm6_0 = createDM6(0, 0, 0, ON);
         when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6_0));
 
-        //Module 1 provides a NACK
+        // Module 1 provides a NACK
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         dataRepository.putObdModule(obdModuleInformation1);
         var nack = AcknowledgmentPacket.create(1, NACK);
         when(diagnosticMessageModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(false, nack));
 
-        //Module 2 is not an OBD Module
+        // Module 2 is not an OBD Module
         var dm6_2 = createDM6(2, 0, 0, ON);
 
         when(diagnosticMessageModule.requestDM6(any())).thenReturn(new RequestResult<>(false, dm6_0, dm6_2));
@@ -262,7 +263,7 @@ public class Part04Step08ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testFailureForNoNACK() {
-        //Module 0 provides a response
+        // Module 0 provides a response
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         obdModuleInformation0.set(createDM12(0, 231, 12, ON));
         dataRepository.putObdModule(obdModuleInformation0);
@@ -270,7 +271,7 @@ public class Part04Step08ControllerTest extends AbstractControllerTest {
         var dm6_0 = createDM6(0, 0, 0, ON);
         when(diagnosticMessageModule.requestDM6(any(), eq(0))).thenReturn(new RequestResult<>(false, dm6_0));
 
-        //Module 1 doesn't provide a NACK
+        // Module 1 doesn't provide a NACK
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         dataRepository.putObdModule(obdModuleInformation1);
         when(diagnosticMessageModule.requestDM6(any(), eq(1))).thenReturn(new RequestResult<>(true));

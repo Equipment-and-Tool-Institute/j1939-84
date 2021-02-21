@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
@@ -83,13 +84,13 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
         listener = new TestResultsListener(mockListener);
 
         instance = new Part01Step15Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                diagnosticMessageModule,
-                dataRepository,
-                new TestDateTimeModule());
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              diagnosticMessageModule,
+                                              dataRepository,
+                                              new TestDateTimeModule());
 
         setup(instance,
               listener,
@@ -140,26 +141,96 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailures() {
         DM1ActiveDTCsPacket packet1 = new DM1ActiveDTCsPacket(
-                Packet.create(PGN, 0x01, 0x00, 0x00, 0x61, 0x02, 0x13, 0x80, 0x21, 0x06,
-                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                                                              Packet.create(PGN,
+                                                                            0x01,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x61,
+                                                                            0x02,
+                                                                            0x13,
+                                                                            0x80,
+                                                                            0x21,
+                                                                            0x06,
+                                                                            0x1F,
+                                                                            0x00,
+                                                                            0xEE,
+                                                                            0x10,
+                                                                            0x04,
+                                                                            0x00));
         DM1ActiveDTCsPacket packet2 = new DM1ActiveDTCsPacket(
-                Packet.create(PGN, 0x17, 0x00, 0x00, 0x61, 0x02, 0x13, 0x80, 0x21, 0x06,
-                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                                                              Packet.create(PGN,
+                                                                            0x17,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x61,
+                                                                            0x02,
+                                                                            0x13,
+                                                                            0x80,
+                                                                            0x21,
+                                                                            0x06,
+                                                                            0x1F,
+                                                                            0x00,
+                                                                            0xEE,
+                                                                            0x10,
+                                                                            0x04,
+                                                                            0x00));
         DM1ActiveDTCsPacket packet3 = new DM1ActiveDTCsPacket(
-                Packet.create(PGN, 0x03, 0xAA, 0x55, 0x61, 0x02, 0x13, 0x80, 0x21, 0x06,
-                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                                                              Packet.create(PGN,
+                                                                            0x03,
+                                                                            0xAA,
+                                                                            0x55,
+                                                                            0x61,
+                                                                            0x02,
+                                                                            0x13,
+                                                                            0x80,
+                                                                            0x21,
+                                                                            0x06,
+                                                                            0x1F,
+                                                                            0x00,
+                                                                            0xEE,
+                                                                            0x10,
+                                                                            0x04,
+                                                                            0x00));
         DM1ActiveDTCsPacket packet4 = new DM1ActiveDTCsPacket(
-                Packet.create(PGN, 0x00, 0x40, 0x00, 0x61, 0x02, 0x13, 0x80, 0x21, 0x06,
-                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                                                              Packet.create(PGN,
+                                                                            0x00,
+                                                                            0x40,
+                                                                            0x00,
+                                                                            0x61,
+                                                                            0x02,
+                                                                            0x13,
+                                                                            0x80,
+                                                                            0x21,
+                                                                            0x06,
+                                                                            0x1F,
+                                                                            0x00,
+                                                                            0xEE,
+                                                                            0x10,
+                                                                            0x04,
+                                                                            0x00));
         DM1ActiveDTCsPacket packet5 = new DM1ActiveDTCsPacket(
-                Packet.create(PGN, 0x00, 0xC0, 0xC0, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
-                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                                                              Packet.create(PGN,
+                                                                            0x00,
+                                                                            0xC0,
+                                                                            0xC0,
+                                                                            0x61,
+                                                                            0x02,
+                                                                            0x13,
+                                                                            0x00,
+                                                                            0x21,
+                                                                            0x06,
+                                                                            0x1F,
+                                                                            0x00,
+                                                                            0xEE,
+                                                                            0x10,
+                                                                            0x04,
+                                                                            0x00));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
         when(diagnosticMessageModule.readDM1(any()))
-                .thenReturn(List.of(packet1, packet2, packet3, packet4, packet5));
+                                                    .thenReturn(List.of(packet1, packet2, packet3, packet4, packet5));
 
         runTest();
 
@@ -256,10 +327,33 @@ public class Part01Step15ControllerTest extends AbstractControllerTest {
     @Test
     public void testRun() {
         DM1ActiveDTCsPacket packet1 = new DM1ActiveDTCsPacket(
-                Packet.create(PGN, 0x01, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF));
+                                                              Packet.create(PGN,
+                                                                            0x01,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0xFF));
         DM1ActiveDTCsPacket packet2 = new DM1ActiveDTCsPacket(
-                Packet.create(PGN, 0x17, 0x00, 0xFF, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
-                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                                                              Packet.create(PGN,
+                                                                            0x17,
+                                                                            0x00,
+                                                                            0xFF,
+                                                                            0x61,
+                                                                            0x02,
+                                                                            0x13,
+                                                                            0x00,
+                                                                            0x21,
+                                                                            0x06,
+                                                                            0x1F,
+                                                                            0x00,
+                                                                            0xEE,
+                                                                            0x10,
+                                                                            0x04,
+                                                                            0x00));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 

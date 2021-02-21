@@ -8,9 +8,8 @@ import static org.junit.Assert.assertFalse;
 
 import java.util.List;
 
-import org.junit.Test;
-
 import org.etools.j1939_84.bus.Packet;
+import org.junit.Test;
 
 /**
  * Unit tests the {@link DM26TripDiagnosticReadinessPacket} class
@@ -34,40 +33,6 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
     @Override
     public void test0x00() {
         super.test0x00();
-    }
-
-    @Test
-    public void test0xFF() {
-        DiagnosticReadinessPacket instance = createInstance(0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-        {
-            List<MonitoredSystem> systems = instance.getContinuouslyMonitoredSystems();
-            for (MonitoredSystem system : systems) {
-                assertEquals(system.getName() + " is wrong", findStatus(true, false), system.getStatus());
-            }
-        }
-        {
-            List<MonitoredSystem> systems = instance.getNonContinuouslyMonitoredSystems();
-            for (MonitoredSystem system : systems) {
-                assertEquals(system.getName() + " is wrong", findStatus(true, false), system.getStatus());
-            }
-        }
-    }
-
-    @Test
-    public void test0xFFWith0x05AsThirdByte() {
-        DiagnosticReadinessPacket instance = createInstance(0xFF, 0xFF, 0x05, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-        {
-            List<MonitoredSystem> systems = instance.getContinuouslyMonitoredSystems();
-            for (MonitoredSystem system : systems) {
-                assertEquals(system.getName() + " is wrong", findStatus(true, false), system.getStatus());
-            }
-        }
-        {
-            List<MonitoredSystem> systems = instance.getNonContinuouslyMonitoredSystems();
-            for (MonitoredSystem system : systems) {
-                assertEquals(system.getName() + " is wrong", findStatus(true, false), system.getStatus());
-            }
-        }
     }
 
     @Test
@@ -125,6 +90,58 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
     }
 
     @Test
+    @Override
+    public void testNotEqualsNonContinouslyMonitoredSystemsCompleted() {
+        super.testNotEqualsNonContinouslyMonitoredSystemsCompleted();
+    }
+
+    @Test
+    @Override
+    public void testNotEqualsNonContinouslyMonitoredSystemsSupported() {
+        super.testNotEqualsNonContinouslyMonitoredSystemsSupported();
+    }
+
+    @Test
+    @Override
+    public void testNotEqualsSourceAddress() {
+        super.testNotEqualsSourceAddress();
+    }
+
+    @Test
+    public void test0xFF() {
+        DiagnosticReadinessPacket instance = createInstance(0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        {
+            List<MonitoredSystem> systems = instance.getContinuouslyMonitoredSystems();
+            for (MonitoredSystem system : systems) {
+                assertEquals(system.getName() + " is wrong", findStatus(true, false), system.getStatus());
+            }
+        }
+        {
+            List<MonitoredSystem> systems = instance.getNonContinuouslyMonitoredSystems();
+            for (MonitoredSystem system : systems) {
+                assertEquals(system.getName() + " is wrong", findStatus(true, false), system.getStatus());
+            }
+        }
+    }
+
+    @Test
+    public void test0xFFWith0x05AsThirdByte() {
+        DiagnosticReadinessPacket instance = createInstance(0xFF, 0xFF, 0x05, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
+        {
+            List<MonitoredSystem> systems = instance.getContinuouslyMonitoredSystems();
+            for (MonitoredSystem system : systems) {
+                assertEquals(system.getName() + " is wrong", findStatus(true, false), system.getStatus());
+            }
+        }
+        {
+            List<MonitoredSystem> systems = instance.getNonContinuouslyMonitoredSystems();
+            for (MonitoredSystem system : systems) {
+                assertEquals(system.getName() + " is wrong", findStatus(true, false), system.getStatus());
+            }
+        }
+    }
+
+    @Test
     public void testGetTimeSinceEngineStart() {
         Packet packet = Packet.create(0, 0, 11, 22, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance = new DM26TripDiagnosticReadinessPacket(packet);
@@ -167,24 +184,6 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
     }
 
     @Test
-    @Override
-    public void testNotEqualsNonContinouslyMonitoredSystemsCompleted() {
-        super.testNotEqualsNonContinouslyMonitoredSystemsCompleted();
-    }
-
-    @Test
-    @Override
-    public void testNotEqualsNonContinouslyMonitoredSystemsSupported() {
-        super.testNotEqualsNonContinouslyMonitoredSystemsSupported();
-    }
-
-    @Test
-    @Override
-    public void testNotEqualsSourceAddress() {
-        super.testNotEqualsSourceAddress();
-    }
-
-    @Test
     public void testNotEqualsTimeSinceClear() {
         Packet packet1 = Packet.create(0, 0, 11, 22, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance1 = new DM26TripDiagnosticReadinessPacket(packet1);
@@ -224,7 +223,7 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
         Packet packet = Packet.create(0, 0, 11, 22, 20, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance = new DM26TripDiagnosticReadinessPacket(packet);
         assertEquals("DM26 from Engine #1 (0): Warm-ups: 20, Time Since Engine Start: 5,643 seconds",
-                instance.toString());
+                     instance.toString());
     }
 
     @Test
@@ -239,6 +238,6 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
         Packet packet = Packet.create(0, 0, 00, 0xFF, 0xFF, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance = new DM26TripDiagnosticReadinessPacket(packet);
         assertEquals("DM26 from Engine #1 (0): Warm-ups: not available, Time Since Engine Start: not available",
-                instance.toString());
+                     instance.toString());
     }
 }

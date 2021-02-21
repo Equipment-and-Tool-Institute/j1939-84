@@ -47,20 +47,24 @@ public class RequestResultTest {
      */
     @Test
     public void testEquals() {
-        RequestResult<?> expected = new RequestResult<>(false, Collections.singletonList(packet),
-                Collections.singletonList(ackPacket));
+        RequestResult<?> expected = new RequestResult<>(false,
+                                                        Collections.singletonList(packet),
+                                                        Collections.singletonList(ackPacket));
         assertTrue(instance.equals(expected));
 
-        RequestResult<?> expected2 = new RequestResult<>(true, Collections.emptyList(),
-                Collections.singletonList(ackPacket));
+        RequestResult<?> expected2 = new RequestResult<>(true,
+                                                         Collections.emptyList(),
+                                                         Collections.singletonList(ackPacket));
         assertFalse(instance.equals(expected2));
 
-        RequestResult<?> expected3 = new RequestResult<>(false, Collections.emptyList(),
-                Collections.singletonList(ackPacket));
+        RequestResult<?> expected3 = new RequestResult<>(false,
+                                                         Collections.emptyList(),
+                                                         Collections.singletonList(ackPacket));
         assertFalse(instance.equals(expected3));
 
-        RequestResult<?> expected4 = new RequestResult<>(false, Collections.singletonList(packet),
-                Collections.emptyList());
+        RequestResult<?> expected4 = new RequestResult<>(false,
+                                                         Collections.singletonList(packet),
+                                                         Collections.emptyList());
         assertFalse(instance.equals(expected4));
 
         assertTrue(instance.equals(instance));
@@ -101,15 +105,19 @@ public class RequestResultTest {
      */
     @Test
     public void testHashCode() {
-        RequestResult<?> instance1 = new RequestResult<>(false, Collections.singletonList(packet),
-                Collections.singletonList(ackPacket));
-        RequestResult<?> instance2 = new RequestResult<>(false, Collections.singletonList(packet),
-                Collections.singletonList(ackPacket));
+        RequestResult<?> instance1 = new RequestResult<>(false,
+                                                         Collections.singletonList(packet),
+                                                         Collections.singletonList(ackPacket));
+        RequestResult<?> instance2 = new RequestResult<>(false,
+                                                         Collections.singletonList(packet),
+                                                         Collections.singletonList(ackPacket));
         assertTrue(instance1.hashCode() == instance2.hashCode());
-        RequestResult<?> instance11 = new RequestResult<>(true, Collections.singletonList(packet),
-                Collections.singletonList(ackPacket));
-        RequestResult<?> instance22 = new RequestResult<>(false, Collections.singletonList(packet),
-                Collections.singletonList(ackPacket));
+        RequestResult<?> instance11 = new RequestResult<>(true,
+                                                          Collections.singletonList(packet),
+                                                          Collections.singletonList(ackPacket));
+        RequestResult<?> instance22 = new RequestResult<>(false,
+                                                          Collections.singletonList(packet),
+                                                          Collections.singletonList(ackPacket));
         assertTrue(instance11.hashCode() != instance22.hashCode());
 
     }
@@ -163,15 +171,15 @@ public class RequestResultTest {
         RequestResult<?> instance1 = new RequestResult<>(false, Collections.emptyList(), Collections.emptyList());
         StringBuilder expected1 = new StringBuilder("RequestResult");
         expected1.append(NL)
-                .append("Retry  used : false")
-                .append(NL)
-                .append("Response packets :")
-                .append(NL)
-                .append("No packets returned")
-                .append(NL)
-                .append("Ack packets :")
-                .append(NL)
-                .append("No acks returned");
+                 .append("Retry  used : false")
+                 .append(NL)
+                 .append("Response packets :")
+                 .append(NL)
+                 .append("No packets returned")
+                 .append(NL)
+                 .append("Ack packets :")
+                 .append(NL)
+                 .append("No acks returned");
         assertEquals(expected1.toString(), instance1.toString());
 
         boolean thrown = false;

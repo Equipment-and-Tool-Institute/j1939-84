@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part07;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -54,7 +55,8 @@ public class Part07Step12Controller extends StepController {
     protected void run() throws Throwable {
         // 6.7.12.1.a. DS DM25 ([send Request (PGNPG 59904) for PGNPG 64951 (SPNSPs 3300, 1214-1215)]) to each OBD ECU.
         // 6.7.12.2.a. Fail if no ECU reports Freeze Frame data.
-        // 6.7.12.2.b. Fail if DTC in reported Freeze Frame data does not include the DTC provided by DM23 earlier in this part.
+        // 6.7.12.2.b. Fail if DTC in reported Freeze Frame data does not include the DTC provided by DM23 earlier in
+        // this part.
         // 6.7.12.2.c. Fail if NACK not received from OBD ECUs that did not provide DM25 message.
         // 6.7.12.3.a. Warn if more than one Freeze Frame is provided
     }

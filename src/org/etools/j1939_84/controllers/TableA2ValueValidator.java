@@ -7,6 +7,7 @@ package org.etools.j1939_84.controllers;
 import static org.etools.j1939_84.model.Outcome.WARN;
 
 import java.util.List;
+
 import org.etools.j1939_84.bus.j1939.packets.FreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
 
@@ -43,12 +44,12 @@ public class TableA2ValueValidator {
         }
 
         Double engineSpeed = freezeFrame.getSPNs()
-                .stream()
-                .filter(s -> ENGINE_SPEED_SPNS.contains(s.getId()))
-                .filter(Spn::hasValue)
-                .map(Spn::getValue)
-                .findFirst()
-                .orElse(null);
+                                        .stream()
+                                        .filter(s -> ENGINE_SPEED_SPNS.contains(s.getId()))
+                                        .filter(Spn::hasValue)
+                                        .map(Spn::getValue)
+                                        .findFirst()
+                                        .orElse(null);
 
         if (engineSpeed == null) {
             listener.onResult("Unable to confirm engine speed");

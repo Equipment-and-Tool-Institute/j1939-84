@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part06;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -53,10 +54,10 @@ public class Part06Step03Controller extends StepController {
     @Override
     protected void run() throws Throwable {
 
-        //6.6.3.1.a DS DM12 [(send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 3038, 1706))] to each OBD ECU.
-        //6.6.3.2.a Fail if no ([OBD]) ECU reports an MIL-on active DTC.
-        //6.6.3.2.b Fail if no ECU reports MIL on. See Section A.8 for allowed values.
-        //6.6.3.2.c Fail if NACK not received from OBD ECUs that did not provide a DM12 message.
+        // 6.6.3.1.a DS DM12 [(send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 3038, 1706))] to each OBD ECU.
+        // 6.6.3.2.a Fail if no ([OBD]) ECU reports an MIL-on active DTC.
+        // 6.6.3.2.b Fail if no ECU reports MIL on. See Section A.8 for allowed values.
+        // 6.6.3.2.c Fail if NACK not received from OBD ECUs that did not provide a DM12 message.
     }
 
 }

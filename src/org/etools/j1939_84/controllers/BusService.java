@@ -11,6 +11,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
@@ -39,13 +40,13 @@ public class BusService {
      */
     public List<Integer> collectBroadcastPGNs(List<Integer> pgns) {
         return pgns.stream()
-                .map(j1939DaRepository::findPgnDefinition)
-                .filter(Objects::nonNull)
-                .filter(d -> d.getBroadcastPeriod() > 0)
-                .map(PgnDefinition::getId)
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
+                   .map(j1939DaRepository::findPgnDefinition)
+                   .filter(Objects::nonNull)
+                   .filter(d -> d.getBroadcastPeriod() > 0)
+                   .map(PgnDefinition::getId)
+                   .distinct()
+                   .sorted()
+                   .collect(Collectors.toList());
     }
 
     /**
@@ -54,68 +55,72 @@ public class BusService {
      */
     public List<Integer> collectNonOnRequestPGNs(List<Integer> spns) {
         return spns.stream()
-                .map(j1939DaRepository::getPgnForSpn)
-                .filter(Objects::nonNull)
-                .flatMap(Collection::stream)
-                .distinct()
-                .map(j1939DaRepository::findPgnDefinition)
-                .filter(Objects::nonNull)
-                .filter(pgnDef -> !pgnDef.isOnRequest())
-                .map(PgnDefinition::getId)
-                .sorted()
-                .collect(Collectors.toList());
+                   .map(j1939DaRepository::getPgnForSpn)
+                   .filter(Objects::nonNull)
+                   .flatMap(Collection::stream)
+                   .distinct()
+                   .map(j1939DaRepository::findPgnDefinition)
+                   .filter(Objects::nonNull)
+                   .filter(pgnDef -> !pgnDef.isOnRequest())
+                   .map(PgnDefinition::getId)
+                   .sorted()
+                   .collect(Collectors.toList());
     }
 
     /**
      * Sends a Destination Specific Request for the given PGN to the given
      * moduleAddress
      *
-     * @param pgn
-     *         the PGN of interest
-     * @param moduleAddress
-     *         the module address of interest
-     * @return List of Packets received
+     * @param  pgn
+     *                           the PGN of interest
+     * @param  moduleAddress
+     *                           the module address of interest
+     * @return               List of Packets received
      */
     public Stream<GenericPacket> dsRequest(int pgn, int moduleAddress, String spns) {
-        String message = "DS Request for PGN " + pgn + " to " + Lookup.getAddressName(moduleAddress) + " for SPNs " + spns;
+        String message = "DS Request for PGN " + pgn + " to " + Lookup.getAddressName(moduleAddress) + " for SPNs "
+                + spns;
         listener.onResult("");
         Packet requestPacket = j1939.createRequestPacket(pgn, moduleAddress);
         return j1939.requestDS(message, pgn, requestPacket, listener)
-                .getPacket()
-                .stream()
-                .filter(p -> p.left.isPresent())
-                .map(p -> p.left.get());
+                    .getPacket()
+                    .stream()
+                    .filter(p -> p.left.isPresent())
+                    .map(p -> p.left.get());
     }
 
     /**
      * Determines the PGNs (ids) which will need to be requested.
      *
-     * @param missingSPNs
-     *         the collection of SPNs which need to be request
-     * @param supportedSPNs
-     *         the collection of SPNs which are supported by the module in
-     *         the data stream
-     * @return list of PGNs
+     * @param  missingSPNs
+     *                           the collection of SPNs which need to be request
+     * @param  supportedSPNs
+     *                           the collection of SPNs which are supported by the module in
+     *                           the data stream
+     * @return               list of PGNs
      */
     public List<Integer> getPGNsForDSRequest(Collection<Integer> missingSPNs, Collection<Integer> supportedSPNs) {
         Stream<Integer> onRequestPGNs = j1939DaRepository.getPgnDefinitions()
-                .values()
-                .stream()
-                .filter(PgnDefinition::isOnRequest)
-                .filter(pgnDef -> pgnDef.getSpnDefinitions().stream()
-                        .anyMatch(s -> supportedSPNs.contains(s.getSpnId())))
-                .map(PgnDefinition::getId);
+                                                         .values()
+                                                         .stream()
+                                                         .filter(PgnDefinition::isOnRequest)
+                                                         .filter(pgnDef -> pgnDef.getSpnDefinitions()
+                                                                                 .stream()
+                                                                                 .anyMatch(s -> supportedSPNs.contains(s.getSpnId())))
+                                                         .map(PgnDefinition::getId);
 
         Stream<Integer> missingPGNs = j1939DaRepository.getPgnDefinitions()
-                .values()
-                .stream()
-                .filter(pgnDef -> pgnDef.getSpnDefinitions().stream().anyMatch(s -> missingSPNs.contains(s.getSpnId())))
-                .map(PgnDefinition::getId);
+                                                       .values()
+                                                       .stream()
+                                                       .filter(pgnDef -> pgnDef.getSpnDefinitions()
+                                                                               .stream()
+                                                                               .anyMatch(s -> missingSPNs.contains(s.getSpnId())))
+                                                       .map(PgnDefinition::getId);
 
         return Stream.concat(missingPGNs, onRequestPGNs)
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
+                     .distinct()
+                     .sorted()
+                     .collect(Collectors.toList());
     }
 
     /**
@@ -125,21 +130,22 @@ public class BusService {
         listener.onResult("");
         Packet requestPacket = j1939.createRequestPacket(pgn, J1939.GLOBAL_ADDR);
         RequestResult<GenericPacket> globalResult = j1939.requestGlobal(message,
-                                                                        pgn, requestPacket, listener
-        );
+                                                                        pgn,
+                                                                        requestPacket,
+                                                                        listener);
         return globalResult
-                .getEither()
-                .stream()
-                .flatMap(e -> e.left.stream());
+                           .getEither()
+                           .stream()
+                           .flatMap(e -> e.left.stream());
     }
 
     /**
      * Reads the bus for the given number of seconds returning a Stream of Packets
      * found
      *
-     * @param seconds
-     *         the number of seconds to read the bus
-     * @return the Stream of GenericPackets that were received
+     * @param  seconds
+     *                     the number of seconds to read the bus
+     * @return         the Stream of GenericPackets that were received
      */
     public Stream<GenericPacket> readBus(int seconds) {
         return readBus(seconds, genericPacket -> true);
@@ -149,9 +155,9 @@ public class BusService {
      * Reads the bus for the given number of seconds returning a Stream of Packets
      * found
      *
-     * @param seconds
-     *         the number of seconds to read the bus
-     * @return the Steam of GenericPackets that were received
+     * @param  seconds
+     *                     the number of seconds to read the bus
+     * @return         the Steam of GenericPackets that were received
      */
     public Stream<GenericPacket> readBus(int seconds, Predicate<GenericPacket> filter) {
         listener.onResult("Reading bus for " + seconds + " seconds");
@@ -159,15 +165,15 @@ public class BusService {
         new Thread(() -> {
             long secondsToGo = seconds;
             while (secondsToGo > 0) {
-                secondsToGo = (stopTime - dateTimeModule.getTimeAsLong() ) / 1000;
+                secondsToGo = (stopTime - dateTimeModule.getTimeAsLong()) / 1000;
                 listener.onProgress(String.format("Reading bus for %1$d seconds", secondsToGo));
                 dateTimeModule.pauseFor(1000);
             }
         }).start();
 
         return j1939.read(GenericPacket.class, seconds, TimeUnit.SECONDS)
-                .flatMap(e -> e.left.stream())
-                .filter(filter);
+                    .flatMap(e -> e.left.stream())
+                    .filter(filter);
     }
 
     /**

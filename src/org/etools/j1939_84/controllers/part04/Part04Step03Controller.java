@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
@@ -70,12 +71,13 @@ public class Part04Step03Controller extends StepController {
 
         // 6.4.3.2.a Fail if no ECU reports an active DTC and MIL on.
         boolean noReports = packets.stream()
-                .noneMatch(p -> !p.getDtcs().isEmpty() || p.getMalfunctionIndicatorLampStatus() == ON);
+                                   .noneMatch(p -> !p.getDtcs().isEmpty()
+                                           || p.getMalfunctionIndicatorLampStatus() == ON);
         if (noReports) {
             addFailure("6.4.3.2.a - No ECU reported an active DTC and MIL on");
         }
 
-        //Save DM1 for use later
+        // Save DM1 for use later
         packets.forEach(p -> {
             OBDModuleInformation moduleInfo = getDataRepository().getObdModule(p.getSourceAddress());
             if (moduleInfo != null) {
@@ -92,8 +94,8 @@ public class Part04Step03Controller extends StepController {
             List<DiagnosticTroubleCode> existingDTCs = dm12 == null ? List.of() : dm12.getDtcs();
 
             List<DM1ActiveDTCsPacket> modulePackets = packets.stream()
-                    .filter(p -> p.getSourceAddress() == moduleAddress)
-                    .collect(Collectors.toList());
+                                                             .filter(p -> p.getSourceAddress() == moduleAddress)
+                                                             .collect(Collectors.toList());
             for (DM1ActiveDTCsPacket packet : modulePackets) {
                 boolean failure = false;
                 var packetDTCs = toString(packet.getDtcs());
@@ -101,7 +103,8 @@ public class Part04Step03Controller extends StepController {
                     String key = dtc.getSuspectParameterNumber() + ":" + dtc.getFailureModeIndicator();
                     if (!packetDTCs.contains(key)) {
                         failure = true;
-                        addFailure("6.4.3.2.b - " + moduleName + " did not include its DM12 DTCs in the list of active DTCs");
+                        addFailure("6.4.3.2.b - " + moduleName
+                                + " did not include its DM12 DTCs in the list of active DTCs");
                         break;
                     }
                 }
@@ -113,16 +116,17 @@ public class Part04Step03Controller extends StepController {
 
         // 6.4.3.2.c Fail if any OBD ECU reports fewer active DTCs in its DM1 response than its DM12 response.
         packets.stream()
-                .filter(p -> p.getDtcs().size() < getDTCs(p.getSourceAddress()).size())
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.4.3.2.c - " + moduleName + " reported fewer active DTCs in its DM1 response than its DM12 response"));
+               .filter(p -> p.getDtcs().size() < getDTCs(p.getSourceAddress()).size())
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.4.3.2.c - " + moduleName
+                       + " reported fewer active DTCs in its DM1 response than its DM12 response"));
 
         // 6.4.3.2.d Warn if any non-OBD ECU reports an Active DTC.
         packets.stream()
-                .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> !p.getDtcs().isEmpty())
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addWarning("6.4.3.2.d - Non-OBD ECU " + moduleName + " reported an active DTC"));
+               .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
+               .filter(p -> !p.getDtcs().isEmpty())
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addWarning("6.4.3.2.d - Non-OBD ECU " + moduleName + " reported an active DTC"));
 
         // 6.4.3.2.e Warn if more than 1 active DTC is reported by the vehicle.
         long dtcCount = packets.stream().map(DiagnosticTroubleCodePacket::getDtcs).mapToLong(Collection::size).sum();

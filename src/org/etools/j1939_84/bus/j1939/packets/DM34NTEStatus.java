@@ -7,11 +7,22 @@ package org.etools.j1939_84.bus.j1939.packets;
 import static org.etools.j1939_84.J1939_84.NL;
 
 import java.util.Arrays;
+
 import org.etools.j1939_84.bus.Packet;
 
 public class DM34NTEStatus extends GenericPacket {
 
-    public static final int PGN = 40960; //0xA000
+    public static final int PGN = 40960; // 0xA000
+    private AreaStatus noxNTEControlAreaStatus;
+    private AreaStatus noxNTECarveOutAreaStatus;
+    private AreaStatus noxNTEDeficiencyAreaStatus;
+    private AreaStatus pmNTEControlAreaStatus;
+    private AreaStatus pmNTECarveOutAreaStatus;
+    private AreaStatus pmNTEDeficiencyAreaStatus;
+
+    public DM34NTEStatus(Packet packet) {
+        super(packet);
+    }
 
     public static DM34NTEStatus create(int source,
                                        AreaStatus noxNTEControlAreaStatus,
@@ -39,44 +50,21 @@ public class DM34NTEStatus extends GenericPacket {
         return new DM34NTEStatus(Packet.create(PGN, source, data));
     }
 
-    public enum AreaStatus {
-        OUTSIDE("Outside Area", 0),
-        INSIDE("Inside Area", 1),
-        RESERVED("Reserved", 2),
-        NOT_AVAILABLE("Not available", 3),
-        UNKNOWN("Unknown", -1);
-
-        private final String string;
-        private final int value;
-
-        AreaStatus(String string, int value) {
-            this.string = string;
-            this.value = value;
-        }
-
-        @Override
-        public String toString() {
-            return string + " (" + value + ")";
-        }
-
-        private static AreaStatus findValue(int value) {
-            return Arrays.stream(AreaStatus.values()).filter(e -> e.value == value).findFirst().orElse(UNKNOWN);
-        }
-    }
-
-    public DM34NTEStatus(Packet packet) {
-        super(packet);
-    }
-
-    private AreaStatus noxNTEControlAreaStatus;
-    private AreaStatus noxNTECarveOutAreaStatus;
-    private AreaStatus noxNTEDeficiencyAreaStatus;
-    private AreaStatus pmNTEControlAreaStatus;
-    private AreaStatus pmNTECarveOutAreaStatus;
-    private AreaStatus pmNTEDeficiencyAreaStatus;
-
     public String getName() {
         return "DM34 NTE Status";
+    }
+
+    @Override
+    public String toString() {
+        String result = getStringPrefix() + " {" + NL;
+        result += "                          NOx NTE Control Area Status = " + getNoxNTEControlAreaStatus() + NL;
+        result += "  Manufacturer-specific NOx NTE Carve-out Area Status = " + getNoxNTECarveOutAreaStatus() + NL;
+        result += "                       NOx NTE Deficiency Area Status = " + getNoxNTEDeficiencyAreaStatus() + NL;
+        result += "                           PM NTE Control Area Status = " + getPmNTEControlAreaStatus() + NL;
+        result += "   Manufacturer-specific PM NTE Carve-out Area Status = " + getPmNTECarveOutAreaStatus() + NL;
+        result += "                        PM NTE Deficiency Area Status = " + getPmNTEDeficiencyAreaStatus() + NL;
+        result += "}" + NL;
+        return result;
     }
 
     public AreaStatus getNoxNTEControlAreaStatus() {
@@ -131,16 +119,28 @@ public class DM34NTEStatus extends GenericPacket {
         pmNTEDeficiencyAreaStatus = AreaStatus.findValue(getShaveAndAHaircut(1, 0x0C, 2));
     }
 
-    @Override
-    public String toString() {
-        String result = getStringPrefix() + " {" + NL;
-        result += "                          NOx NTE Control Area Status = " + getNoxNTEControlAreaStatus() + NL;
-        result += "  Manufacturer-specific NOx NTE Carve-out Area Status = " + getNoxNTECarveOutAreaStatus() + NL;
-        result += "                       NOx NTE Deficiency Area Status = " + getNoxNTEDeficiencyAreaStatus() + NL;
-        result += "                           PM NTE Control Area Status = " + getPmNTEControlAreaStatus() + NL;
-        result += "   Manufacturer-specific PM NTE Carve-out Area Status = " + getPmNTECarveOutAreaStatus() + NL;
-        result += "                        PM NTE Deficiency Area Status = " + getPmNTEDeficiencyAreaStatus() + NL;
-        result += "}" + NL;
-        return result;
+    public enum AreaStatus {
+        OUTSIDE("Outside Area", 0),
+        INSIDE("Inside Area", 1),
+        RESERVED("Reserved", 2),
+        NOT_AVAILABLE("Not available", 3),
+        UNKNOWN("Unknown", -1);
+
+        private final String string;
+        private final int value;
+
+        AreaStatus(String string, int value) {
+            this.string = string;
+            this.value = value;
+        }
+
+        private static AreaStatus findValue(int value) {
+            return Arrays.stream(AreaStatus.values()).filter(e -> e.value == value).findFirst().orElse(UNKNOWN);
+        }
+
+        @Override
+        public String toString() {
+            return string + " (" + value + ")";
+        }
     }
 }

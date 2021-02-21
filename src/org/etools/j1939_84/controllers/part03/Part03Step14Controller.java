@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers.part03;
 import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -57,19 +58,20 @@ public class Part03Step14Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.3.14.1.a. DS DM20 (send Request (PGN 59904) for PGN 49664 (SPNs 3048)) to ECU(s) that responded in part 1 with DM20 data.
+        // 6.3.14.1.a. DS DM20 (send Request (PGN 59904) for PGN 49664 (SPNs 3048)) to ECU(s) that responded in part 1
+        // with DM20 data.
         // 6.3.14.1.b. Store ignition cycle counter value (SPN 3048).
         getDataRepository().getObdModuleAddresses()
-                .stream()
-                .sorted()
-                .map(address -> getDiagnosticMessageModule().requestDM20(getListener(), address))
-                .map(BusResult::requestResult)
-                .map(RequestResult::getPackets)
-                .flatMap(Collection::stream)
-                .forEach(packet -> {
-                    OBDModuleInformation obdModule = getDataRepository().getObdModule(packet.getSourceAddress());
-                    obdModule.setIgnitionCycleCounterValue(packet.getIgnitionCycles());
-                    getDataRepository().putObdModule(obdModule);
-                });
+                           .stream()
+                           .sorted()
+                           .map(address -> getDiagnosticMessageModule().requestDM20(getListener(), address))
+                           .map(BusResult::requestResult)
+                           .map(RequestResult::getPackets)
+                           .flatMap(Collection::stream)
+                           .forEach(packet -> {
+                               OBDModuleInformation obdModule = getDataRepository().getObdModule(packet.getSourceAddress());
+                               obdModule.setIgnitionCycleCounterValue(packet.getIgnitionCycles());
+                               getDataRepository().putObdModule(obdModule);
+                           });
     }
 }

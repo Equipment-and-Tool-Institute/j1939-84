@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
@@ -64,20 +65,21 @@ public class Part04Step08Controller extends StepController {
 
         // 6.4.8.2.a Fail if any ECU reports a pending DTC.
         globalPackets.stream()
-                .filter(p -> !p.getDtcs().isEmpty())
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.4.8.2.a - " + moduleName + " reported a pending DTC"));
+                     .filter(p -> !p.getDtcs().isEmpty())
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> addFailure("6.4.8.2.a - " + moduleName + " reported a pending DTC"));
 
         // 6.4.8.2.b Fail if any ECU reports a different MIL status than it did for DM12 response earlier in this part.
         globalPackets.stream()
-                .filter(p -> getLampStatus(p.getSourceAddress()) != null)
-                .filter(p -> p.getMalfunctionIndicatorLampStatus() != getLampStatus(p.getSourceAddress()))
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.4.8.2.b - " + moduleName + " reported a different MIL status that it did for DM12 response earlier in this part"));
+                     .filter(p -> getLampStatus(p.getSourceAddress()) != null)
+                     .filter(p -> p.getMalfunctionIndicatorLampStatus() != getLampStatus(p.getSourceAddress()))
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> addFailure("6.4.8.2.b - " + moduleName
+                             + " reported a different MIL status that it did for DM12 response earlier in this part"));
 
         // 6.4.8.2.c Fail if no OBD ECU provides a DM6 response.
         boolean obdResponse = globalPackets.stream()
-                .anyMatch(p -> getDataRepository().isObdModule(p.getSourceAddress()));
+                                           .anyMatch(p -> getDataRepository().isObdModule(p.getSourceAddress()));
         if (!obdResponse) {
             addFailure("6.4.8.2.c - No OBD ECU provided a DM6 response");
         }
@@ -86,8 +88,10 @@ public class Part04Step08Controller extends StepController {
 
         // 6.4.8.3.a DS DM6 to each OBD ECU.
         var dsResults = obdModuleAddresses
-                .stream().map(address -> getDiagnosticMessageModule().requestDM6(getListener(), address))
-                .collect(Collectors.toList());
+                                          .stream()
+                                          .map(address -> getDiagnosticMessageModule().requestDM6(getListener(),
+                                                                                                  address))
+                                          .collect(Collectors.toList());
 
         // 6.4.8.4.a Fail if any difference compared to data received from global request.
         compareRequestPackets(globalPackets, filterRequestResultPackets(dsResults), "6.4.8.4.a");

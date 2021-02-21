@@ -64,8 +64,8 @@ public class VinDecoder {
     /**
      * Calculate VIN checksum char
      *
-     * @param vin a VIN to get the checksum for
-     * @return checksum for provided VIN
+     * @param  vin a VIN to get the checksum for
+     * @return     checksum for provided VIN
      */
     public char calculateCheckSum(String vin) {
         int sum = 0;
@@ -79,9 +79,9 @@ public class VinDecoder {
     /**
      * Returns the Model Year of the Vehicle based upon the VIN
      *
-     * @param vin the VIN of interest
-     * @return an int representing the Model Year of the Vehicle. If the VIN is
-     *         invalid, -1 is returned
+     * @param  vin the VIN of interest
+     * @return     an int representing the Model Year of the Vehicle. If the VIN is
+     *             invalid, -1 is returned
      */
     public int getModelYear(String vin) {
         if (isVinValid(vin)) {
@@ -96,8 +96,8 @@ public class VinDecoder {
     /**
      * Determines if the given Model Year is compatible with this decoder
      *
-     * @param modelYear the Model Year of interest
-     * @return true if the Model Year is usable
+     * @param  modelYear the Model Year of interest
+     * @return           true if the Model Year is usable
      */
     public boolean isModelYearValid(int modelYear) {
         return MODEL_YEARS.containsValue(modelYear);
@@ -106,9 +106,9 @@ public class VinDecoder {
     /**
      * Check whether provided VIN is a valid one
      *
-     * @param vin a string to validate
-     * @return {@code true} if specified parameter is a valid VIN,
-     *         {@code false} otherwise
+     * @param  vin a string to validate
+     * @return     {@code true} if specified parameter is a valid VIN,
+     *             {@code false} otherwise
      */
     public boolean isVinValid(String vin) {
         String sanitizedVin = sanitize(vin);
@@ -132,8 +132,8 @@ public class VinDecoder {
     /**
      * Removes all non-valid VIN characters from the given String
      *
-     * @param vin the String to sanitize
-     * @return the sanitized String
+     * @param  vin the String to sanitize
+     * @return     the sanitized String
      */
     public String sanitize(String vin) {
         return vin != null ? vin.toUpperCase().replaceAll("[^ABCDEFGHJKLMNPRSTUVWXYZ0-9]", "") : null;

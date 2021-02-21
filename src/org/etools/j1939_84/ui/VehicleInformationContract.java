@@ -26,7 +26,7 @@ public interface VehicleInformationContract {
          * Called when the Emissions Unit count changes
          *
          * @param count
-         *            the new value
+         *                  the new value
          */
         void onCalIdsChanged(int count);
 
@@ -39,7 +39,7 @@ public interface VehicleInformationContract {
          * Called when the text in the Certification Intent changes
          *
          * @param certification
-         *            the new value
+         *                          the new value
          */
         void onCertificationChanged(String certification);
 
@@ -52,7 +52,7 @@ public interface VehicleInformationContract {
          * Called when the Emissions Unit count changes
          *
          * @param count
-         *            the new value
+         *                  the new value
          */
         void onEmissionUnitsChanged(int count);
 
@@ -60,7 +60,7 @@ public interface VehicleInformationContract {
          * Called when the Engine Model Year changes
          *
          * @param modelYear
-         *            the new value
+         *                      the new value
          */
         void onEngineModelYearChanged(int modelYear);
 
@@ -68,7 +68,7 @@ public interface VehicleInformationContract {
          * Called when the Fuel Type changes
          *
          * @param fuelType
-         *            the new value
+         *                     the new value
          */
         void onFuelTypeChanged(FuelType fuelType);
 
@@ -76,7 +76,7 @@ public interface VehicleInformationContract {
          * Called when number of trips for fault B implant changes
          *
          * @param trips
-         *            the new value
+         *                  the new value
          */
 
         void onNumberOfTripsForFaultBImplantChanged(int trips);
@@ -90,7 +90,7 @@ public interface VehicleInformationContract {
          * Called when the Vehicle Model Year changes
          *
          * @param modelYear
-         *            the new value
+         *                      the new value
          */
         void onVehicleModelYearChanged(int modelYear);
 
@@ -98,7 +98,7 @@ public interface VehicleInformationContract {
          * Called when the VIN changes
          *
          * @param vin
-         *            the new value
+         *                the new value
          */
         void onVinChanged(String vin);
 
@@ -111,7 +111,7 @@ public interface VehicleInformationContract {
          * Sets the Number of Calibration IDs expected on the Vehicle
          *
          * @param calIds
-         *            the number of Calibration IDs expected on the Vehicle
+         *                   the number of Calibration IDs expected on the Vehicle
          */
         void setCalIds(int calIds);
 
@@ -119,7 +119,7 @@ public interface VehicleInformationContract {
          * Sets the Certification Intent of the Vehicle/Engine
          *
          * @param certificationIntent
-         *            the certification intent to set
+         *                                the certification intent to set
          */
         void setCertificationIntent(String certificationIntent);
 
@@ -127,7 +127,7 @@ public interface VehicleInformationContract {
          * Sets the Number of Emissions Units expected on the Vehicle
          *
          * @param count
-         *            the number of Emissions Units expected on the Vehicle
+         *                  the number of Emissions Units expected on the Vehicle
          */
         void setEmissionUnits(int count);
 
@@ -135,7 +135,7 @@ public interface VehicleInformationContract {
          * Sets the Engine Model Year
          *
          * @param modelYear
-         *            the Engine Model year to set
+         *                      the Engine Model year to set
          */
         void setEngineModelYear(int modelYear);
 
@@ -143,7 +143,7 @@ public interface VehicleInformationContract {
          * Sets the Fuel Type
          *
          * @param fuelType
-         *            the Fuel Type to set
+         *                     the Fuel Type to set
          */
         void setFuelType(FuelType fuelType);
 
@@ -153,7 +153,7 @@ public interface VehicleInformationContract {
          * Enables and Disables the Ok Button
          *
          * @param isEnabled
-         *            true to enable the button
+         *                      true to enable the button
          */
         void setOkButtonEnabled(boolean isEnabled);
 
@@ -161,7 +161,7 @@ public interface VehicleInformationContract {
          * Sets the Vehicle Model Year
          *
          * @param modelYear
-         *            the Vehicle Model Year to set
+         *                      the Vehicle Model Year to set
          */
         void setVehicleModelYear(int modelYear);
 
@@ -169,7 +169,7 @@ public interface VehicleInformationContract {
          * Indicates if the Vehicle Model Year is valid
          *
          * @param isValid
-         *            true indicates the Vehicle Model Year is valid
+         *                    true indicates the Vehicle Model Year is valid
          */
         void setVehicleModelYearValid(boolean isValid);
 
@@ -177,7 +177,7 @@ public interface VehicleInformationContract {
          * Sets the VIN
          *
          * @param vin
-         *            the VIN to set
+         *                the VIN to set
          */
         void setVin(String vin);
 
@@ -185,7 +185,7 @@ public interface VehicleInformationContract {
          * Indicates if the VIN is valid
          *
          * @param isValid
-         *            true indicate the VIN is valid
+         *                    true indicate the VIN is valid
          */
         void setVinValid(boolean isValid);
 
@@ -193,7 +193,7 @@ public interface VehicleInformationContract {
          * Called to show or hide the dialog
          *
          * @param isVisible
-         *            true to show the dialog; false to hide the dialog;
+         *                      true to show the dialog; false to hide the dialog;
          */
         void setVisible(boolean isVisible);
 

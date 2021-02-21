@@ -6,6 +6,7 @@ package org.etools.j1939_84.bus.j1939.packets;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 
@@ -18,7 +19,7 @@ public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
 
     private static final List<Byte> obdValues = Arrays.asList(new Byte[] { 0x13, 0x14, 0x22, 0x23 });
 
-    public static final int PGN = 65230; //0xFECE
+    public static final int PGN = 65230; // 0xFECE
 
     public static DM5DiagnosticReadinessPacket create(int sourceAddress,
                                                       int activeCount,
@@ -32,76 +33,76 @@ public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
     @SuppressWarnings("DuplicateBranchesInSwitch")
     private static String lookupObdCompliance(byte value) {
         switch (value) {
-        case 1:
-            return "OBD II";
-        case 2:
-            return "OBD";
-        case 3:
-            return "OBD and OBD II";
-        case 4:
-            return "OBD I";
-        case 5:
-            return "Not intended to meet OBD II requirements";
-        case 6:
-            return "EOBD";
-        case 7:
-            return "EOBD and OBD II";
-        case 8:
-            return "EOBD and OBD";
-        case 9:
-            return "EOBD, OBD and OBD II";
-        case 10:
-            return "JOBD";
-        case 11:
-            return "JOBD and OBD II";
-        case 12:
-            return "JOBD and EOBD";
-        case 13:
-            return "JOBD, EOBD and OBD II";
-        case 14:
-            return "Heavy Duty Vehicles (EURO IV) B1";
-        case 15:
-            return "Heavy Duty Vehicles (EURO V) B2";
-        case 16:
-            return "Heavy Duty Vehicles (EURO EEC) C (gas engines)";
-        case 17:
-            return "EMD";
-        case 18:
-            return "EMD+";
-        case 19:
-            return "HD OBD P";
-        case 20:
-            return "HD OBD";
-        case 21:
-            return "WWH OBD";
-        case 22:
-            return "OBD II";
-        case 23:
-            return "HD EOBD";
+            case 1:
+                return "OBD II";
+            case 2:
+                return "OBD";
+            case 3:
+                return "OBD and OBD II";
+            case 4:
+                return "OBD I";
+            case 5:
+                return "Not intended to meet OBD II requirements";
+            case 6:
+                return "EOBD";
+            case 7:
+                return "EOBD and OBD II";
+            case 8:
+                return "EOBD and OBD";
+            case 9:
+                return "EOBD, OBD and OBD II";
+            case 10:
+                return "JOBD";
+            case 11:
+                return "JOBD and OBD II";
+            case 12:
+                return "JOBD and EOBD";
+            case 13:
+                return "JOBD, EOBD and OBD II";
+            case 14:
+                return "Heavy Duty Vehicles (EURO IV) B1";
+            case 15:
+                return "Heavy Duty Vehicles (EURO V) B2";
+            case 16:
+                return "Heavy Duty Vehicles (EURO EEC) C (gas engines)";
+            case 17:
+                return "EMD";
+            case 18:
+                return "EMD+";
+            case 19:
+                return "HD OBD P";
+            case 20:
+                return "HD OBD";
+            case 21:
+                return "WWH OBD";
+            case 22:
+                return "OBD II";
+            case 23:
+                return "HD EOBD";
 
-        case 25:
-            return "OBD-M (SI-SD/I)";
-        case 26:
-            return "EURO VI";
+            case 25:
+                return "OBD-M (SI-SD/I)";
+            case 26:
+                return "EURO VI";
 
-        case 34:
-            return "OBD, OBD II, HD OBD";
-        case 35:
-            return "OBD, OBD II, HD OBD P";
+            case 34:
+                return "OBD, OBD II, HD OBD";
+            case 35:
+                return "OBD, OBD II, HD OBD P";
 
-        case (byte) 251:
-            return "value 251";
-        case (byte) 252:
-            return "value 252";
-        case (byte) 253:
-            return "value 253";
-        case (byte) 254:
-            return "Error";
-        case (byte) 255:
-            return "Not available";
+            case (byte) 251:
+                return "value 251";
+            case (byte) 252:
+                return "value 252";
+            case (byte) 253:
+                return "value 253";
+            case (byte) 254:
+                return "Error";
+            case (byte) 255:
+                return "Not available";
 
-        default:
-            return "Reserved for SAE/Unknown";
+            default:
+                return "Reserved for SAE/Unknown";
         }
     }
 

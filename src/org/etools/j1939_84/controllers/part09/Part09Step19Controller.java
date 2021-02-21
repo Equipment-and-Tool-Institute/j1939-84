@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part09;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -52,7 +53,8 @@ public class Part09Step19Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.9.19.1.a. DS DM12 [(send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 1706, and 3038)]) to each OBD ECU.
+        // 6.9.19.1.a. DS DM12 [(send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 1706, and 3038)]) to each OBD
+        // ECU.
         // 6.9.19.2.a. Fail if any ECU reports an active MIL DTC.
         // 6.9.19.2.b. Fail if any ECU does not report MIL off.
         // 6.9.19.2.c. Fail if no DM12 message is received from any OBD ECU.

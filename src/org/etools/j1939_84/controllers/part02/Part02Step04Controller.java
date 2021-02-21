@@ -8,6 +8,7 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.logging.Level;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
@@ -23,8 +24,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Matt Gumbel (matt@soliddesign.net)
- * <p>
- * The controller for DM20: Monitor performance ratio
+ *         <p>
+ *         The controller for DM20: Monitor performance ratio
  */
 public class Part02Step04Controller extends StepController {
 
@@ -79,28 +80,30 @@ public class Part02Step04Controller extends StepController {
                 var part2Ratios = packet.getRatios();
 
                 var part1SPNs = part1Ratios.stream()
-                        .sorted()
-                        .map(PerformanceRatio::getSpn)
-                        .collect(Collectors.toList());
+                                           .sorted()
+                                           .map(PerformanceRatio::getSpn)
+                                           .collect(Collectors.toList());
                 var part2SPNs = part2Ratios.stream()
-                        .sorted()
-                        .map(PerformanceRatio::getSpn)
-                        .collect(Collectors.toList());
+                                           .sorted()
+                                           .map(PerformanceRatio::getSpn)
+                                           .collect(Collectors.toList());
                 if (!part1SPNs.equals(part2SPNs)) {
-                    addFailure("6.2.4.2.a - ECU " + moduleName + " reported different SPNs as supported for data than in part 1");
+                    addFailure("6.2.4.2.a - ECU " + moduleName
+                            + " reported different SPNs as supported for data than in part 1");
                 }
 
                 // 6.2.4.2.b. Fail if any denominator does not match denominator recorded in part 1.
                 var part1Dems = part1Ratios.stream()
-                        .sorted()
-                        .map(PerformanceRatio::getDenominator)
-                        .collect(Collectors.toList());
+                                           .sorted()
+                                           .map(PerformanceRatio::getDenominator)
+                                           .collect(Collectors.toList());
                 var part2Dems = part2Ratios.stream()
-                        .sorted()
-                        .map(PerformanceRatio::getDenominator)
-                        .collect(Collectors.toList());
+                                           .sorted()
+                                           .map(PerformanceRatio::getDenominator)
+                                           .collect(Collectors.toList());
                 if (!part1Dems.equals(part2Dems)) {
-                    addFailure("6.2.4.2.b - ECU " + moduleName + " reported a denominator that does not match denominator recorded in part 1");
+                    addFailure("6.2.4.2.b - ECU " + moduleName
+                            + " reported a denominator that does not match denominator recorded in part 1");
                 }
 
                 // 6.2.4.2.c. Fail if any ECU does not report a value for ignition cycle that is one cycle greater
@@ -121,10 +124,11 @@ public class Part02Step04Controller extends StepController {
 
         // 6.2.4.3.a. DS DM20 to ECUs that responded to global DM20 in part 1.
         List<BusResult<DM20MonitorPerformanceRatioPacket>> dsResults = getDataRepository().getObdModuleAddresses()
-                .stream()
-                .sorted()
-                .map(address -> getDiagnosticMessageModule().requestDM20(getListener(), address))
-                .collect(Collectors.toList());
+                                                                                          .stream()
+                                                                                          .sorted()
+                                                                                          .map(address -> getDiagnosticMessageModule().requestDM20(getListener(),
+                                                                                                                                                   address))
+                                                                                          .collect(Collectors.toList());
 
         // 6.2.4.4.a. Fail if any difference compared to data received during global request in 6.2.4.1.
         compareRequestPackets(globalPackets, filterPackets(dsResults), "6.2.4.4.a");

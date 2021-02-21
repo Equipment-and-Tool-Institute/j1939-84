@@ -6,14 +6,15 @@ package org.etools.j1939_84.controllers.part02;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -63,27 +64,30 @@ public class Part02Step14Controller extends StepController {
         // 6.2.14.2.a. Fail if any OBD ECU provides freeze frame data other than
         // bytes 1-5= 0x00 and bytes 6-8 = 0xFF (No freeze frame data available).
         getDataRepository().getObdModules()
-                .stream()
-                .filter(module -> !module.getFreezeFrameSPNs().isEmpty())
-                .map(OBDModuleInformation::getSourceAddress)
-                .flatMap(address -> getDiagnosticMessageModule().requestDM25(getListener(), address).getPacket().stream())
-                .flatMap(e -> e.left.stream())
-                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                .collect(Collectors.toList())
-                .stream()
-                .filter(packet -> {
-                    byte[] bytes = packet.getPacket().getBytes();
-                    return bytes[0] != 0x00
-                            || bytes[1] != 0x00
-                            || bytes[2] != 0x00
-                            || bytes[3] != 0x00
-                            || bytes[4] != 0x00
-                            || bytes[5] != (byte) 0xFF
-                            || bytes[6] != (byte) 0xFF
-                            || bytes[7] != (byte) 0xFF;
-                })
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addFailure("6.2.14.2.a - " + moduleName + " provided freeze frame data other than no freeze frame data stored"));
+                           .stream()
+                           .filter(module -> !module.getFreezeFrameSPNs().isEmpty())
+                           .map(OBDModuleInformation::getSourceAddress)
+                           .flatMap(address -> getDiagnosticMessageModule().requestDM25(getListener(), address)
+                                                                           .getPacket()
+                                                                           .stream())
+                           .flatMap(e -> e.left.stream())
+                           .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                           .collect(Collectors.toList())
+                           .stream()
+                           .filter(packet -> {
+                               byte[] bytes = packet.getPacket().getBytes();
+                               return bytes[0] != 0x00
+                                       || bytes[1] != 0x00
+                                       || bytes[2] != 0x00
+                                       || bytes[3] != 0x00
+                                       || bytes[4] != 0x00
+                                       || bytes[5] != (byte) 0xFF
+                                       || bytes[6] != (byte) 0xFF
+                                       || bytes[7] != (byte) 0xFF;
+                           })
+                           .map(ParsedPacket::getSourceAddress)
+                           .map(Lookup::getAddressName)
+                           .forEach(moduleName -> addFailure("6.2.14.2.a - " + moduleName
+                                   + " provided freeze frame data other than no freeze frame data stored"));
     }
 }

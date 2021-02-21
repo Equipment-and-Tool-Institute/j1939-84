@@ -13,6 +13,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -173,7 +174,10 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.3.12.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.3.12.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4");
     }
 
     @Test
@@ -194,7 +198,10 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.3.12.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.3.12.2.a - Message data received from Engine #1 (0) differs from that provided in part 6.1.4");
     }
 
     @Test
@@ -210,6 +217,9 @@ public class Part03Step12ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.3.12.2.b - OBD module Engine #1 (0) did not provide a NACK for the DS query");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.3.12.2.b - OBD module Engine #1 (0) did not provide a NACK for the DS query");
     }
 }

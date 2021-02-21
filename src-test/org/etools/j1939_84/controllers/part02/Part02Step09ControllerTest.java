@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
@@ -317,7 +318,7 @@ public class Part02Step09ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.2.9.2.d - Engine #1 (0) reported zero time SCC (SPN 3296)");
 
-        assertEquals("",listener.getResults());
+        assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
     }

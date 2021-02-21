@@ -11,6 +11,7 @@ import java.util.Set;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
@@ -27,8 +28,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * <p>
- * The controller for 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
+ *         <p>
+ *         The controller for 6.1.12 DM7/DM30: Command Non-continuously Monitored Test/Scaled Test Results
  */
 public class Part01Step12Controller extends StepController {
     //@formatter:off
@@ -108,15 +109,17 @@ public class Part01Step12Controller extends StepController {
                     addFailure("6.1.12.1.a - No test result for Supported SPN " + spnId + " from " + moduleName);
                 } else {
                     List<ScaledTestResult> testResults = dm30Packets
-                            .stream()
-                            .peek(p -> verifyDM30PacketSupported(p, spnId))
-                            .flatMap(p -> p.getTestResults().stream())
-                            .collect(Collectors.toList());
+                                                                    .stream()
+                                                                    .peek(p -> verifyDM30PacketSupported(p, spnId))
+                                                                    .flatMap(p -> p.getTestResults().stream())
+                                                                    .collect(Collectors.toList());
 
                     // 6.1.12.1.d. Warn if any ECU reports more than one set of test results for the same SPN+FMI.
                     tableA7Validator.findDuplicates(testResults)
-                            .forEach(dup -> addWarning("6.1.12.1.d - " + moduleName + " returned duplicate test results for SPN " + dup
-                                    .getSpn() + " FMI " + dup.getFmi()));
+                                    .forEach(dup -> addWarning("6.1.12.1.d - " + moduleName
+                                            + " returned duplicate test results for SPN " + dup
+                                                                                               .getSpn()
+                                            + " FMI " + dup.getFmi()));
 
                     moduleTestResults.addAll(testResults);
                 }
@@ -146,9 +149,10 @@ public class Part01Step12Controller extends StepController {
         // and a min and max test limit) for an SPN indicated as supported is
         // actually reported from the ECU/device that indicated support.
 
-        List<ScaledTestResult> testResults = packet.getTestResults().stream()
-                .filter(p -> p.getSpn() == spnId)
-                .collect(Collectors.toList());
+        List<ScaledTestResult> testResults = packet.getTestResults()
+                                                   .stream()
+                                                   .filter(p -> p.getSpn() == spnId)
+                                                   .collect(Collectors.toList());
 
         if (testResults.isEmpty()) {
             addFailure("6.1.12.1.a - No test result for Supported SPN " + spnId + " from " + moduleName);
@@ -159,7 +163,9 @@ public class Part01Step12Controller extends StepController {
         // 0xFB00/0xFFFF/0xFFFF or 0x0000/0x0000/0x0000).
         for (ScaledTestResult result : testResults) {
             if (!result.isInitialized()) {
-                addFailure("6.1.12.1.b - Test result for SPN " + spnId + " FMI " + result.getFmi() + " from " + moduleName + " does not report the test result/min test limit/max test limit initialized properly");
+                addFailure("6.1.12.1.b - Test result for SPN " + spnId + " FMI " + result.getFmi() + " from "
+                        + moduleName
+                        + " does not report the test result/min test limit/max test limit initialized properly");
             }
 
             // 6.1.12.1.c. Fail if the SLOT identifier for any test results is an
@@ -169,10 +175,12 @@ public class Part01Step12Controller extends StepController {
             if (result.getSlot() != null) {
                 int slotIdentifier = result.getSlot().getId();
                 if (!VALID_SLOTS.contains(slotIdentifier)) {
-                    addFailure("6.1.12.1.c - #" + slotIdentifier + " SLOT identifier for SPN " + spnId + " from " + moduleName + " is invalid");
+                    addFailure("6.1.12.1.c - #" + slotIdentifier + " SLOT identifier for SPN " + spnId + " from "
+                            + moduleName + " is invalid");
                 }
             } else {
-                addFailure("6.1.12.1.c - #" + result.getSlotNumber() + " SLOT identifier for SPN " + spnId + " from " + moduleName + " is undefined");
+                addFailure("6.1.12.1.c - #" + result.getSlotNumber() + " SLOT identifier for SPN " + spnId + " from "
+                        + moduleName + " is undefined");
             }
         }
     }

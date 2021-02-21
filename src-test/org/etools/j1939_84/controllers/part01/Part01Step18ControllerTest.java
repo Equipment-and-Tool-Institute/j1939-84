@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -15,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -88,13 +88,13 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(null);
 
         instance = new Part01Step18Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                diagnosticMessageModule,
-                dataRepository,
-                DateTimeModule.getInstance());
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              diagnosticMessageModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance());
 
         setup(instance,
               listener,
@@ -138,9 +138,9 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         when(diagnosticMessageModule.requestDM12(any()))
-                .thenReturn(new RequestResult<>(false, List.of(), List.of()));
+                                                        .thenReturn(new RequestResult<>(false, List.of(), List.of()));
         when(diagnosticMessageModule.requestDM12(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
+                                                                  .thenReturn(new BusResult<>(false, Optional.empty()));
 
         runTest();
 
@@ -150,7 +150,9 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.1.18.2.c - No OBD ECU provided DM12");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -161,23 +163,52 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailures() {
         DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                            Packet.create(PGN,
+                                                                                          0x01,
+                                                                                          0x11,
+                                                                                          0x22,
+                                                                                          0x33,
+                                                                                          0x44,
+                                                                                          0x55,
+                                                                                          0x66,
+                                                                                          0x77,
+                                                                                          0x88));
         DM12MILOnEmissionDTCPacket packet3 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                            Packet.create(PGN,
+                                                                                          0x03,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x04,
+                                                                                          0x00,
+                                                                                          0xFF,
+                                                                                          0xFF,
+                                                                                          0xFF,
+                                                                                          0xFF));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
         DM12MILOnEmissionDTCPacket obdPacket3 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                               Packet.create(PGN,
+                                                                                             0x03,
+                                                                                             0x11,
+                                                                                             0x22,
+                                                                                             0x13,
+                                                                                             0x44,
+                                                                                             0x55,
+                                                                                             0x66,
+                                                                                             0x77,
+                                                                                             0x88));
 
         when(diagnosticMessageModule.requestDM12(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1, packet3), List.of()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(packet1, packet3),
+                                                                                        List.of()));
 
         when(diagnosticMessageModule.requestDM12(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
+                                                                  .thenReturn(new BusResult<>(false, packet1));
         when(diagnosticMessageModule.requestDM12(any(), eq(0x03)))
-                .thenReturn(new BusResult<>(false, obdPacket3));
+                                                                  .thenReturn(new BusResult<>(false, obdPacket3));
 
         runTest();
 
@@ -211,26 +242,63 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
     @Test
     public void testMoreFailures() {
         AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                  Packet.create(PGN,
+                                                                                0x01,
+                                                                                0x11,
+                                                                                0x22,
+                                                                                0x33,
+                                                                                0x44,
+                                                                                0x55,
+                                                                                0x66,
+                                                                                0x77,
+                                                                                0x88));
 
         DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                            Packet.create(PGN,
+                                                                                          0x01,
+                                                                                          0x11,
+                                                                                          0x22,
+                                                                                          0x33,
+                                                                                          0x44,
+                                                                                          0x55,
+                                                                                          0x66,
+                                                                                          0x77,
+                                                                                          0x88));
         DM12MILOnEmissionDTCPacket packet3 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77,
-                              0x88));
+                                                                            Packet.create(PGN,
+                                                                                          0x03,
+                                                                                          0x11,
+                                                                                          0x22,
+                                                                                          (byte) 0x0A,
+                                                                                          0x44,
+                                                                                          0x55,
+                                                                                          0x66,
+                                                                                          0x77,
+                                                                                          0x88));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
         DM12MILOnEmissionDTCPacket packet3b = new DM12MILOnEmissionDTCPacket(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                             Packet.create(PGN,
+                                                                                           0x03,
+                                                                                           0x00,
+                                                                                           0x00,
+                                                                                           0x00,
+                                                                                           0x00,
+                                                                                           0xFF,
+                                                                                           0xFF,
+                                                                                           0xFF,
+                                                                                           0xFF));
 
         when(diagnosticMessageModule.requestDM12(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet1, packet3), List.of(ackPacket)));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(packet1, packet3),
+                                                                                        List.of(ackPacket)));
         when(diagnosticMessageModule.requestDM12(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
+                                                                  .thenReturn(new BusResult<>(false, Optional.empty()));
         when(diagnosticMessageModule.requestDM12(any(), eq(0x03)))
-                .thenReturn(new BusResult<>(false, packet3b));
+                                                                  .thenReturn(new BusResult<>(false, packet3b));
 
         runTest();
 
@@ -270,7 +338,16 @@ public class Part01Step18ControllerTest extends AbstractControllerTest {
     public void testNoErrors() {
 
         DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(PGN, 0x01, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                            Packet.create(PGN,
+                                                                                          0x01,
+                                                                                          0x00,
+                                                                                          0xFF,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00));
 
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
 

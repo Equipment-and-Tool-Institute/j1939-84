@@ -18,6 +18,7 @@ import java.lang.reflect.InvocationTargetException;
 import java.util.concurrent.Executor;
 import java.util.logging.Level;
 import java.util.prefs.Preferences;
+
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -38,6 +39,7 @@ import javax.swing.WindowConstants;
 import javax.swing.border.LineBorder;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.text.DefaultCaret;
+
 import org.etools.j1939_84.BuildNumber;
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Adapter;
@@ -58,54 +60,31 @@ import org.etools.j1939_84.ui.widgets.SmartScroller;
 public class UserInterfaceView implements UserInterfaceContract.View {
 
     private static final String SELECT_FILE = "Select File...";
-
-    private JButton abortButton;
-
-    private JComboBox<String> adapterComboBox;
-
-    private JLabel adapterLabel;
-
     private final BuildNumber buildNumber;
-
-    private JLabel calsLabel;
-
-    private JScrollPane calsScrollPane;
-
-    private JTextArea calsTextField;
-
     /**
      * The controller for the behavior of this view
      */
     private final Presenter controller;
-
-    private JFileChooser fileChooser;
-
-    private JLabel fileLabel;
-
-    private JFrame frame;
-
-    private JButton helpButton;
-
-    private JProgressBar progressBar;
-
-    private JButton readVehicleInfoButton;
-
-    private JPanel reportControlPanel;
-
-    private JScrollPane reportScrollPane;
-
-    private JPanel reportSetupPanel;
-
-    private JTextArea reportTextArea;
-
-    private JButton selectFileButton;
-
-    private JSplitPane splitPane;
-
-    private JButton startButton;
-
     private final Executor swingExecutor;
-
+    private JButton abortButton;
+    private JComboBox<String> adapterComboBox;
+    private JLabel adapterLabel;
+    private JLabel calsLabel;
+    private JScrollPane calsScrollPane;
+    private JTextArea calsTextField;
+    private JFileChooser fileChooser;
+    private JLabel fileLabel;
+    private JFrame frame;
+    private JButton helpButton;
+    private JProgressBar progressBar;
+    private JButton readVehicleInfoButton;
+    private JPanel reportControlPanel;
+    private JScrollPane reportScrollPane;
+    private JPanel reportSetupPanel;
+    private JTextArea reportTextArea;
+    private JButton selectFileButton;
+    private JSplitPane splitPane;
+    private JButton startButton;
     private JPanel topPanel;
 
     private JPanel vehicleInfoPanel;
@@ -130,12 +109,12 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      * Constructor exposed for testing
      *
      * @param controller
-     *            The {@link UserInterfacePresenter} that will control the UI
+     *                          The {@link UserInterfacePresenter} that will control the UI
      * @param buildNumber
-     *            The {@link BuildNumber} that will return the build number
+     *                          The {@link BuildNumber} that will return the build number
      * @param swingExecutor
-     *            The {@link Executor} used to make updates to the UI on the
-     *            Swing Thread
+     *                          The {@link Executor} used to make updates to the UI on the
+     *                          Swing Thread
      */
     UserInterfaceView(Presenter controller, BuildNumber buildNumber, Executor swingExecutor) {
         this.controller = controller;
@@ -206,6 +185,112 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     @Override
     public void displayForm(VehicleInformationListener listener, J1939 j1939) {
         SwingUtilities.invokeLater(() -> new VehicleInformationDialog(getFrame(), listener, j1939).setVisible(true));
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.etools.j1939_84.ui.IUserInterfaceView#setAdapterComboBoxEnabled(
+     * boolean)
+     */
+    @Override
+    public void setAdapterComboBoxEnabled(boolean enabled) {
+        refreshUI(() -> getAdapterComboBox().setEnabled(enabled));
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.etools.j1939_84.ui.IUserInterfaceView#setEngines(java.lang.
+     * String)
+     */
+    @Override
+    public void setEngineCals(String text) {
+        refreshUI(() -> {
+            getCalsTextField().setText(text);
+            getCalsTextField().setCaretPosition(0);
+        });
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.etools.j1939_84.ui.IUserInterfaceView#
+     * setProgressBarText(String)
+     */
+    @Override
+    public void setProgressBarText(String text) {
+        refreshUI(() -> getProgressBar().setString(text));
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.etools.j1939_84.ui.IUserInterfaceView#setProgressBarValue(int,
+     * int, int)
+     */
+    @Override
+    public void setProgressBarValue(int min, int max, int value) {
+        refreshUI(() -> {
+            getProgressBar().setMinimum(min);
+            getProgressBar().setMaximum(max);
+            getProgressBar().setValue(value);
+        });
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.etools.j1939_84.ui.IUserInterfaceView#
+     * setReadVehicleInfoButtonEnabled(boolean)
+     */
+    @Override
+    public void setReadVehicleInfoButtonEnabled(boolean enabled) {
+        refreshUI(() -> getReadVehicleInfoButton().setEnabled(enabled));
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.etools.j1939_84.ui.IUserInterfaceView#setSelectFileButtonEnabled(
+     * boolean)
+     */
+    @Override
+    public void setSelectFileButtonEnabled(boolean enabled) {
+        refreshUI(() -> getSelectFileButton().setEnabled(enabled));
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see
+     * org.etools.j1939_84.ui.IUserInterfaceView#setSelectFileButtonText(java.
+     * lang.String)
+     */
+    @Override
+    public void setSelectFileButtonText(String text) {
+        refreshUI(() -> getSelectFileButton().setText(text == null ? SELECT_FILE : text));
+    }
+
+    @Override
+    public void setStartButtonEnabled(boolean enabled) {
+        getStartButton().setEnabled(enabled);
+    }
+
+    @Override
+    public void setStopButtonEnabled(boolean enabled) {
+        refreshUI(() -> getStopButton().setEnabled(enabled));
+    }
+
+    /*
+     * (non-Javadoc)
+     *
+     * @see org.etools.j1939_84.ui.IUserInterfaceView#setVin(java.lang.String)
+     */
+    @Override
+    public void setVin(String vin) {
+        refreshUI(() -> getVinTextField().setText(vin));
     }
 
     /**
@@ -318,17 +403,18 @@ public class UserInterfaceView implements UserInterfaceContract.View {
             final String dir = Preferences.userNodeForPackage(getClass()).get(KEY, "");
             fileChooser = new JFileChooser(dir);
             final FileNameExtensionFilter filter = new FileNameExtensionFilter("J1939-84 Data Files",
-                    UserInterfacePresenter.FILE_SUFFIX);
+                                                                               UserInterfacePresenter.FILE_SUFFIX);
             fileChooser.setFileFilter(filter);
             fileChooser.setDialogTitle("Create Report File");
             fileChooser.addActionListener(
-                    e -> {
-                        final File file = fileChooser.getSelectedFile();
-                        if (file != null) {
-                            Preferences.userNodeForPackage(getClass()).put(KEY,
-                                    file.getParent());
-                        }
-                    });
+                                          e -> {
+                                              final File file = fileChooser.getSelectedFile();
+                                              if (file != null) {
+                                                  Preferences.userNodeForPackage(getClass())
+                                                             .put(KEY,
+                                                                  file.getParent());
+                                              }
+                                          });
         }
         return fileChooser;
     }
@@ -380,7 +466,7 @@ public class UserInterfaceView implements UserInterfaceContract.View {
     JButton getReadVehicleInfoButton() {
         if (readVehicleInfoButton == null) {
             readVehicleInfoButton = new JButton(
-                    "<html><center>Read</center><center>Vehicle</center><center>Info</center><html>");
+                                                "<html><center>Read</center><center>Vehicle</center><center>Info</center><html>");
             readVehicleInfoButton.setToolTipText("Queries the vehicle for VIN and Calibrations");
             readVehicleInfoButton.setEnabled(false);
             readVehicleInfoButton.setHorizontalAlignment(SwingConstants.CENTER);
@@ -745,116 +831,10 @@ public class UserInterfaceView implements UserInterfaceContract.View {
      * update the UI
      *
      * @param runnable
-     *            the {@link Runnable} to execute
+     *                     the {@link Runnable} to execute
      */
     private void refreshUI(Runnable runnable) {
         swingExecutor.execute(runnable);
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.etools.j1939_84.ui.IUserInterfaceView#setAdapterComboBoxEnabled(
-     * boolean)
-     */
-    @Override
-    public void setAdapterComboBoxEnabled(boolean enabled) {
-        refreshUI(() -> getAdapterComboBox().setEnabled(enabled));
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.etools.j1939_84.ui.IUserInterfaceView#setEngines(java.lang.
-     * String)
-     */
-    @Override
-    public void setEngineCals(String text) {
-        refreshUI(() -> {
-            getCalsTextField().setText(text);
-            getCalsTextField().setCaretPosition(0);
-        });
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.etools.j1939_84.ui.IUserInterfaceView#
-     * setProgressBarText(String)
-     */
-    @Override
-    public void setProgressBarText(String text) {
-        refreshUI(() -> getProgressBar().setString(text));
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.etools.j1939_84.ui.IUserInterfaceView#setProgressBarValue(int,
-     * int, int)
-     */
-    @Override
-    public void setProgressBarValue(int min, int max, int value) {
-        refreshUI(() -> {
-            getProgressBar().setMinimum(min);
-            getProgressBar().setMaximum(max);
-            getProgressBar().setValue(value);
-        });
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.etools.j1939_84.ui.IUserInterfaceView#
-     * setReadVehicleInfoButtonEnabled(boolean)
-     */
-    @Override
-    public void setReadVehicleInfoButtonEnabled(boolean enabled) {
-        refreshUI(() -> getReadVehicleInfoButton().setEnabled(enabled));
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.etools.j1939_84.ui.IUserInterfaceView#setSelectFileButtonEnabled(
-     * boolean)
-     */
-    @Override
-    public void setSelectFileButtonEnabled(boolean enabled) {
-        refreshUI(() -> getSelectFileButton().setEnabled(enabled));
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see
-     * org.etools.j1939_84.ui.IUserInterfaceView#setSelectFileButtonText(java.
-     * lang.String)
-     */
-    @Override
-    public void setSelectFileButtonText(String text) {
-        refreshUI(() -> getSelectFileButton().setText(text == null ? SELECT_FILE : text));
-    }
-
-    @Override
-    public void setStartButtonEnabled(boolean enabled) {
-        getStartButton().setEnabled(enabled);
-    }
-
-    @Override
-    public void setStopButtonEnabled(boolean enabled) {
-        refreshUI(() -> getStopButton().setEnabled(enabled));
-    }
-
-    /*
-     * (non-Javadoc)
-     *
-     * @see org.etools.j1939_84.ui.IUserInterfaceView#setVin(java.lang.String)
-     */
-    @Override
-    public void setVin(String vin) {
-        refreshUI(() -> getVinTextField().setText(vin));
     }
 
 }

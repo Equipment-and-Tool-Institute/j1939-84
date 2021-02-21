@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM56EngineFamilyPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -39,8 +40,7 @@ import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
-@TestDoc(value = @TestItem(verifies = "Part 2 Step 6",
-        description = "DM56: Model year and certification engine family"))
+@TestDoc(value = @TestItem(verifies = "Part 2 Step 6", description = "DM56: Model year and certification engine family"))
 public class Part02Step06ControllerTest extends AbstractControllerTest {
 
     private static DM56EngineFamilyPacket createDM56(String modelYear, String familyName) {
@@ -96,13 +96,13 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(null);
 
         Part02Step06Controller instance = new Part02Step06Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                DateTimeModule.getInstance(),
-                diagnosticMessageModule);
+                                                                     executor,
+                                                                     engineSpeedModule,
+                                                                     bannerModule,
+                                                                     vehicleInformationModule,
+                                                                     dataRepository,
+                                                                     DateTimeModule.getInstance(),
+                                                                     diagnosticMessageModule);
 
         setup(instance,
               listener,
@@ -125,8 +125,7 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.2.6.2.a",
-            description = "Engine Family is different from part 1"))
+    @TestDoc(value = @TestItem(verifies = "6.2.6.2.a", description = "Engine Family is different from part 1"))
     public void testCompareEngineFamily() {
 
         DM56EngineFamilyPacket packet0 = createDM56("Model Year", "Engine Family");
@@ -152,8 +151,7 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.2.6.2.a",
-            description = "Model year is different from part 1"))
+    @TestDoc(value = @TestItem(verifies = "6.2.6.2.a", description = "Model year is different from part 1"))
     public void testCompareModelYear() {
 
         DM56EngineFamilyPacket packet0 = createDM56("Model Year Different", "Engine Family");
@@ -179,8 +177,7 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.2.6.2.a",
-            description = "Model year and Engine Family are same as part 1"))
+    @TestDoc(value = @TestItem(verifies = "6.2.6.2.a", description = "Model year and Engine Family are same as part 1"))
     public void testNoFailures() {
 
         DM56EngineFamilyPacket packet0 = createDM56("Model Year", "Engine Family");

@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part09;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -52,7 +53,8 @@ public class Part09Step13Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.9.13.1.a. DS DM31 [(send Request (PGN 59904) for PGN 41728 (SPNs 1214-1215, 4113, 4117)]) to each ECU(s) that has any DM28 permanent DTCs.
+        // 6.9.13.1.a. DS DM31 [(send Request (PGN 59904) for PGN 41728 (SPNs 1214-1215, 4113, 4117)]) to each ECU(s)
+        // that has any DM28 permanent DTCs.
         // 6.9.13.2.a. (if supported) Fail if MIL is not reported off for all reported DTCs.
         // 6.9.13.2.b. (if supported) Fail if NACK not received from OBD ECUs that did not provide a DM31 message.
     }

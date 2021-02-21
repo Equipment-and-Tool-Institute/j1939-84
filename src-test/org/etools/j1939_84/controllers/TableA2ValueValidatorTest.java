@@ -11,6 +11,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 
 import java.util.List;
+
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.FreezeFrame;
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
@@ -58,7 +59,7 @@ public class TableA2ValueValidatorTest {
                                  Spn.create(512, 0),
                                  Spn.create(513, 1),
                                  Spn.create(3301, 1),
-                                 Spn.create(514,1));
+                                 Spn.create(514, 1));
         FreezeFrame freezeFrame = new FreezeFrame(dtc, spns);
         freezeFrame.setSPNs(spns);
 

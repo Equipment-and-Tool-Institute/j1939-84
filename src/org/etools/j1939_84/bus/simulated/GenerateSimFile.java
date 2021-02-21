@@ -44,29 +44,29 @@ public class GenerateSimFile {
     }
 
     final static private List<Integer> pgns = Arrays.asList(
-            61444,
-            65248,
-            65259,
-            65253,
-            0xEE00,
-            65260,
-            54016,
-            65231,
-            65236,
-            64949,
-            64896,
-            65235,
-            65230,
-            0xFDB8,
-            0xC200,
-            49408,
-            64950,
-            64711,
-            58112, // DM7
-            0xA400, // DM30
-            0xFED0, // DM8
-            0xFECA, // DM1
-            0xFECB // DM2
+                                                            61444,
+                                                            65248,
+                                                            65259,
+                                                            65253,
+                                                            0xEE00,
+                                                            65260,
+                                                            54016,
+                                                            65231,
+                                                            65236,
+                                                            64949,
+                                                            64896,
+                                                            65235,
+                                                            65230,
+                                                            0xFDB8,
+                                                            0xC200,
+                                                            49408,
+                                                            64950,
+                                                            64711,
+                                                            58112, // DM7
+                                                            0xA400, // DM30
+                                                            0xFED0, // DM8
+                                                            0xFECA, // DM1
+                                                            0xFECB // DM2
     );
 
     static public Integer getPgn(Packet p) {
@@ -86,11 +86,11 @@ public class GenerateSimFile {
      * requested.
      *
      * @param file
-     *            File to read.
+     *                     File to read.
      * @param bus
-     *            Bus to send packets on.
+     *                     Bus to send packets on.
      * @param requests
-     *            Out parameter of all requests in stream.
+     *                     Out parameter of all requests in stream.
      */
     public void load(File file, EchoBus bus, Map<Integer, String> requests) {
         // 0.000953 1 14F00131x Rx d 8 FF FF FF FF FF FF FF FF Length = 0
@@ -99,14 +99,14 @@ public class GenerateSimFile {
         LocalDateTime start = LocalDateTime.now();
         try (BufferedReader in = new BufferedReader(new FileReader(file))) {
             in.lines()
-                    .map(line -> Packet.parseVector(start, line))
-                    .filter(p -> p != null)
-                    .peek(p -> {
-                        if (getPgn(p) == 0xEA00) {
-                            requests.put(p.get24(0), "true");
-                        }
-                    })
-                    .forEach(p -> bus.send(p));
+              .map(line -> Packet.parseVector(start, line))
+              .filter(p -> p != null)
+              .peek(p -> {
+                  if (getPgn(p) == 0xEA00) {
+                      requests.put(p.get24(0), "true");
+                  }
+              })
+              .forEach(p -> bus.send(p));
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -124,7 +124,7 @@ public class GenerateSimFile {
         }
         int address = 0xF9;
         try (EchoBus bus = new EchoBus(address);
-                J1939TP tp = new J1939TP(bus, bus.getAddress())) {
+             J1939TP tp = new J1939TP(bus, bus.getAddress())) {
             Stream<Packet> out = tp.read(300, TimeUnit.DAYS);
 
             // load raw packets to read from TP layer
@@ -141,71 +141,72 @@ public class GenerateSimFile {
             // for each post TP packet
             int[] counter = { 0 };
             JsonArray json = out
-                    .peek(p -> counter[0]++)
-                    // only worry about PGNs that we use
-                    .filter(p -> {
-                        Integer pgn = getPgn(p);
-                        // FIXM
-                        return pgns.contains(pgn);// && (pgn > 0xF000 ||
-                                                  // destinationAddress == 0xFF
-                                                  // ||
-                                                  // destinationAddress ==
-                                                  // 0xF9);
-                    })
-                    // group sets of unique packets by PGN/DA/SA
-                    .collect(Collectors.groupingBy(p -> (p.getId(0xFFFF) << 8) | p.getSource(),
-                            Collectors.toCollection(() -> new LinkedHashSet<>())))
-                    // only consider each of those sets
-                    .values().stream()
-                    // sort by PGN/SA
-                    .sorted(Comparator.comparing((Set<Packet> set) -> set.iterator().next().getId(0xFFFF))
-                            .thenComparing(set -> set.iterator().next().getSource()))
-                    // sort each set of packets to a list to simplify manual
-                    // updates and merging.
-                    // .map(set ->
-                    // set.stream().sorted(Comparator.comparing((Packet p) ->
-                    // p.toString()))
-                    // .collect(Collectors.toList()))
-                    // for each set, make a JSON entry
-                    .map(packets -> {
-                        JsonObject o = new JsonObject();
+                                .peek(p -> counter[0]++)
+                                // only worry about PGNs that we use
+                                .filter(p -> {
+                                    Integer pgn = getPgn(p);
+                                    // FIXM
+                                    return pgns.contains(pgn);// && (pgn > 0xF000 ||
+                                                              // destinationAddress == 0xFF
+                                                              // ||
+                                                              // destinationAddress ==
+                                                              // 0xF9);
+                                })
+                                // group sets of unique packets by PGN/DA/SA
+                                .collect(Collectors.groupingBy(p -> (p.getId(0xFFFF) << 8) | p.getSource(),
+                                                               Collectors.toCollection(() -> new LinkedHashSet<>())))
+                                // only consider each of those sets
+                                .values()
+                                .stream()
+                                // sort by PGN/SA
+                                .sorted(Comparator.comparing((Set<Packet> set) -> set.iterator().next().getId(0xFFFF))
+                                                  .thenComparing(set -> set.iterator().next().getSource()))
+                                // sort each set of packets to a list to simplify manual
+                                // updates and merging.
+                                // .map(set ->
+                                // set.stream().sorted(Comparator.comparing((Packet p) ->
+                                // p.toString()))
+                                // .collect(Collectors.toList()))
+                                // for each set, make a JSON entry
+                                .map(packets -> {
+                                    JsonObject o = new JsonObject();
 
-                        // Just use first packet to gather information
-                        Packet examplePacket = packets.iterator().next();
+                                    // Just use first packet to gather information
+                                    Packet examplePacket = packets.iterator().next();
 
-                        // Information for humans
-                        int pgn = getPgn(examplePacket);
-                        o.addProperty("PGN", String.format("%04X", pgn));
-                        o.addProperty("SA", String.format("%02X", examplePacket.getSource()));
+                                    // Information for humans
+                                    int pgn = getPgn(examplePacket);
+                                    o.addProperty("PGN", String.format("%04X", pgn));
+                                    o.addProperty("SA", String.format("%02X", examplePacket.getSource()));
 
-                        // tag as on request or broadcast
-                        if (requests.containsKey(pgn)) {
-                            o.addProperty("onRequest", requests.get(pgn));
-                        } else {
-                            o.addProperty("period", 100);
-                        }
-                        // add the packets as individual environs, to allow
-                        // humans to tag with set,
-                        // setFor, isSet, clear, isClear.
-                        JsonArray packetArray = new JsonArray();
-                        o.add("packets", packetArray);
-                        for (Packet p : packets) {
-                            JsonObject pd = new JsonObject();
-                            packetArray.add(pd);
-                            pd.addProperty("packet", p.toString());
-                        }
+                                    // tag as on request or broadcast
+                                    if (requests.containsKey(pgn)) {
+                                        o.addProperty("onRequest", requests.get(pgn));
+                                    } else {
+                                        o.addProperty("period", 100);
+                                    }
+                                    // add the packets as individual environs, to allow
+                                    // humans to tag with set,
+                                    // setFor, isSet, clear, isClear.
+                                    JsonArray packetArray = new JsonArray();
+                                    o.add("packets", packetArray);
+                                    for (Packet p : packets) {
+                                        JsonObject pd = new JsonObject();
+                                        packetArray.add(pd);
+                                        pd.addProperty("packet", p.toString());
+                                    }
 
-                        return o;
-                    })
-                    // convert Stream to JsonArray
-                    .collect(Collectors.reducing(new JsonArray(), a -> {
-                        JsonArray array = new JsonArray();
-                        array.add(a);
-                        return array;
-                    }, (a, b) -> {
-                        a.addAll(b);
-                        return a;
-                    }));
+                                    return o;
+                                })
+                                // convert Stream to JsonArray
+                                .collect(Collectors.reducing(new JsonArray(), a -> {
+                                    JsonArray array = new JsonArray();
+                                    array.add(a);
+                                    return array;
+                                }, (a, b) -> {
+                                    a.addAll(b);
+                                    return a;
+                                }));
 
             try (PrintWriter w = new PrintWriter(new FileWriter(file + ".json"))) {
                 new GsonBuilder().setPrettyPrinting().create().toJson(json, w);

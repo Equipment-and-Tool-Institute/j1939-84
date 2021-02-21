@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part02;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -15,13 +16,13 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * <p>
- * The controller for 6.2.1 Part 2 Key On Engine Running Data Collection
- * </p>
- * <p>
- * Part 2 Purpose: Verify data in Key-on, engine running (KOER) operation
- * with no implanted faults.
- * </p>
+ *         <p>
+ *         The controller for 6.2.1 Part 2 Key On Engine Running Data Collection
+ *         </p>
+ *         <p>
+ *         Part 2 Purpose: Verify data in Key-on, engine running (KOER) operation
+ *         with no implanted faults.
+ *         </p>
  */
 public class Part02Step01Controller extends StepController {
 

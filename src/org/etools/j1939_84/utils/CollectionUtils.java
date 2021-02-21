@@ -10,7 +10,7 @@ public class CollectionUtils {
 
     public static boolean areTwoCollectionsEqual(Collection<?> collectionA, Collection<?> collectionB) {
 
-        //verify null checks
+        // verify null checks
         if (collectionA == null && collectionB == null) {
             return true;
         }
@@ -19,12 +19,12 @@ public class CollectionUtils {
             return false;
         }
 
-        //verify basic attributes
+        // verify basic attributes
         if (collectionA.size() != collectionB.size()) {
             return false;
         }
 
-        //ensure contents are the same
+        // ensure contents are the same
         for (Object itemA : collectionA) {
             if (!collectionB.contains(itemA)) {
                 return false;

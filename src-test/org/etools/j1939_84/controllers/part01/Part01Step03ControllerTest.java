@@ -13,11 +13,11 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
@@ -44,6 +44,8 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * The unit test for {@link Part01Step03Controller}
@@ -91,13 +93,13 @@ public class Part01Step03ControllerTest {
         DateTimeModule.setInstance(null);
 
         instance = new Part01Step03Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                diagnosticMessageModule,
-                dataRepository,
-                DateTimeModule.getInstance());
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              diagnosticMessageModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance());
     }
 
     @After
@@ -112,16 +114,13 @@ public class Part01Step03ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     @TestDoc(value = {
             @TestItem(verifies = "6.1.3.2.b"),
-            @TestItem(verifies = "6.1.3.3.a") },
-            description = "Verify there are fail messages for: <ul><li>Not all responses are identical.</li>"
+            @TestItem(verifies = "6.1.3.3.a") }, description = "Verify there are fail messages for: <ul><li>Not all responses are identical.</li>"
                     +
-                    "<li>The request for DM5 was NACK'ed</li></ul>",
-            dependsOn = {
-                    "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
+                    "<li>The request for DM5 was NACK'ed</li></ul>", dependsOn = {
+                            "DM5DiagnosticReadinessPacketTest", "DiagnosticReadinessPacketTest" })
     public void testBadECUValue() {
         List<DM5DiagnosticReadinessPacket> packets = new ArrayList<>();
         List<AcknowledgmentPacket> acks = new ArrayList<>();
@@ -200,10 +199,8 @@ public class Part01Step03ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
-    @TestDoc(value = @TestItem(verifies = "6.1.3.2.a"),
-            description = "There needs to be at least one OBD Module.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
+    @TestDoc(value = @TestItem(verifies = "6.1.3.2.a"), description = "There needs to be at least one OBD Module.")
     public void testModulesEmpty() {
         var packets = new ArrayList<DM5DiagnosticReadinessPacket>();
         List<AcknowledgmentPacket> acks = new ArrayList<>();
@@ -218,7 +215,7 @@ public class Part01Step03ControllerTest {
         Collection<OBDModuleInformation> obdInfoList = List.of();
         when(dataRepository.getObdModules()).thenReturn(obdInfoList);
         when(diagnosticMessageModule.requestDM5(any()))
-                .thenReturn(requestResult);
+                                                       .thenReturn(requestResult);
 
         instance.execute(listener, j1939, reportFileModule);
         ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
@@ -240,8 +237,7 @@ public class Part01Step03ControllerTest {
     }
 
     @Test
-    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-            justification = "The method is called just to get some exception.")
+    @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     @TestDoc(value = @TestItem(verifies = "6.1.3.2.b"), description = "The request for DM5 was NACK'ed")
     public void testRun() {
         List<DM5DiagnosticReadinessPacket> packets = new ArrayList<>();
@@ -274,7 +270,7 @@ public class Part01Step03ControllerTest {
         when(packet4.getOBDCompliance()).thenReturn((byte) 4);
         packets.add(packet4);
         when(diagnosticMessageModule.requestDM5(any()))
-                .thenReturn(requestResult);
+                                                       .thenReturn(requestResult);
 
         VehicleInformation vehicleInformation = new VehicleInformation();
         AddressClaimPacket addressClaimPacket = mock(AddressClaimPacket.class);

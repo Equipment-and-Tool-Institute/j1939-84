@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
@@ -43,16 +44,33 @@ public class TableA1Validator {
 
     private static List<Integer> getFailureSPNs(FuelType fuelType) {
         List<Integer> allRequiredSPNs = new ArrayList<>(
-                List.of(92, 102,
-                        512, 513, 514, 539, 540, 541, 542, 543, 544,
-                        2978, 3563));
+                                                        List.of(92,
+                                                                102,
+                                                                512,
+                                                                513,
+                                                                514,
+                                                                539,
+                                                                540,
+                                                                541,
+                                                                542,
+                                                                543,
+                                                                544,
+                                                                2978,
+                                                                3563));
 
         if (fuelType.isCompressionIgnition()) {
             allRequiredSPNs.addAll(List.of(3719, 5466));
         } else if (fuelType.isSparkIgnition()) {
             allRequiredSPNs.addAll(List.of(51,
-                    3217, 3227, 3241, 3245, 3249, 3464,
-                    4236, 4237, 4240));
+                                           3217,
+                                           3227,
+                                           3241,
+                                           3245,
+                                           3249,
+                                           3464,
+                                           4236,
+                                           4237,
+                                           4240));
         }
 
         return allRequiredSPNs;
@@ -64,32 +82,69 @@ public class TableA1Validator {
 
     private static List<String> getSupportedSPNs(Collection<Integer> supportedSPNs, GenericPacket packet) {
         return packet.getPgnDefinition()
-                .getSpnDefinitions()
-                .stream()
-                .map(SpnDefinition::getSpnId)
-                .filter(supportedSPNs::contains)
-                .sorted()
-                .map(Object::toString)
-                .collect(Collectors.toList());
+                     .getSpnDefinitions()
+                     .stream()
+                     .map(SpnDefinition::getSpnId)
+                     .filter(supportedSPNs::contains)
+                     .sorted()
+                     .map(Object::toString)
+                     .collect(Collectors.toList());
     }
 
     private static List<Integer> getWarningSPNs(FuelType fuelType) {
         List<Integer> allWarningSPNs = new ArrayList<>(List.of(
-                27, 84, 91, 94,
-                106, 108, 110, 132, 157, 158, 168, 183, 190,
-                235, 247, 248,
-                723,
-                1127, 1413, 1433, 1436, 1600, 1637,
-                2791,
-                4076, 4193, 4201, 4202,
-                5829, 5837,
-                6393, 6895, 7333));
+                                                               27,
+                                                               84,
+                                                               91,
+                                                               94,
+                                                               106,
+                                                               108,
+                                                               110,
+                                                               132,
+                                                               157,
+                                                               158,
+                                                               168,
+                                                               183,
+                                                               190,
+                                                               235,
+                                                               247,
+                                                               248,
+                                                               723,
+                                                               1127,
+                                                               1413,
+                                                               1433,
+                                                               1436,
+                                                               1600,
+                                                               1637,
+                                                               2791,
+                                                               4076,
+                                                               4193,
+                                                               4201,
+                                                               4202,
+                                                               5829,
+                                                               5837,
+                                                               6393,
+                                                               6895,
+                                                               7333));
 
         if (fuelType.isCompressionIgnition()) {
             allWarningSPNs.addAll(List.of(164,
-                    3031, 3226, 3251, 3515, 3516, 3518, 3609, 3610, 3700,
-                    5313, 5314, 5454, 5466, 5578, 5827,
-                    7346));
+                                          3031,
+                                          3226,
+                                          3251,
+                                          3515,
+                                          3516,
+                                          3518,
+                                          3609,
+                                          3610,
+                                          3700,
+                                          5313,
+                                          5314,
+                                          5454,
+                                          5466,
+                                          5578,
+                                          5827,
+                                          7346));
         }
         return allWarningSPNs;
     }
@@ -120,15 +175,15 @@ public class TableA1Validator {
 
     public TableA1Validator(DataRepository dataRepository) {
         this(new TableA1ValueValidator(dataRepository),
-                dataRepository,
-                new J1939DaRepository(),
-                DateTimeModule.getInstance());
+             dataRepository,
+             new J1939DaRepository(),
+             DateTimeModule.getInstance());
     }
 
     TableA1Validator(TableA1ValueValidator valueValidator,
-            DataRepository dataRepository,
-            J1939DaRepository j1939DaRepository,
-            DateTimeModule dateTimeModule) {
+                     DataRepository dataRepository,
+                     J1939DaRepository j1939DaRepository,
+                     DateTimeModule dateTimeModule) {
         this.dataRepository = dataRepository;
         this.valueValidator = valueValidator;
         this.j1939DaRepository = j1939DaRepository;
@@ -146,34 +201,35 @@ public class TableA1Validator {
 
         OBDModuleInformation moduleInformation = dataRepository.getObdModule(moduleAddress);
         List<Integer> dataStreamSPNs = moduleInformation.getDataStreamSPNs()
-                .stream()
-                .map(SupportedSPN::getSpn).collect(Collectors.toList());
+                                                        .stream()
+                                                        .map(SupportedSPN::getSpn)
+                                                        .collect(Collectors.toList());
 
         moduleInformation.getOmittedDataStreamSPNs()
-                .stream()
-                .filter(dataStreamSPNs::contains)
-                .forEach(spn -> reportOmittedSPN(listener, moduleName, spn));
+                         .stream()
+                         .filter(dataStreamSPNs::contains)
+                         .forEach(spn -> reportOmittedSPN(listener, moduleName, spn));
 
         moduleInformation.getFilteredDataStreamSPNs()
-                .stream()
-                .map(SupportedSPN::getSpn)
-                .sorted()
-                .distinct()
-                .forEach(spn -> {
-                    Set<Integer> pgns = j1939DaRepository.getPgnForSpn(spn);
-                    if (pgns == null) {
-                        listener.onResult("Unable to find PGN for SPN " + spn);
-                    } else if (pgns.size() > 1) {
-                        reportOmittedSPN(listener, moduleName, spn);
-                        moduleInformation.addOmittedDataStreamSPN(spn);
-                        dataRepository.putObdModule(moduleInformation);
-                    } else {
-                        int pgn = new ArrayList<>(pgns).get(0);
-                        List<Integer> spns = pgnMap.getOrDefault(pgn, new ArrayList<>());
-                        spns.add(spn);
-                        pgnMap.put(pgn, spns);
-                    }
-                });
+                         .stream()
+                         .map(SupportedSPN::getSpn)
+                         .sorted()
+                         .distinct()
+                         .forEach(spn -> {
+                             Set<Integer> pgns = j1939DaRepository.getPgnForSpn(spn);
+                             if (pgns == null) {
+                                 listener.onResult("Unable to find PGN for SPN " + spn);
+                             } else if (pgns.size() > 1) {
+                                 reportOmittedSPN(listener, moduleName, spn);
+                                 moduleInformation.addOmittedDataStreamSPN(spn);
+                                 dataRepository.putObdModule(moduleInformation);
+                             } else {
+                                 int pgn = new ArrayList<>(pgns).get(0);
+                                 List<Integer> spns = pgnMap.getOrDefault(pgn, new ArrayList<>());
+                                 spns.add(spn);
+                                 pgnMap.put(pgn, spns);
+                             }
+                         });
 
         // Sort SPNs
         for (int pgn : pgnMap.keySet()) {
@@ -203,12 +259,12 @@ public class TableA1Validator {
 
     private List<Integer> getModuleSupportedSPNs(Integer moduleAddress) {
         return getModules(moduleAddress)
-                .stream()
-                .flatMap(m -> m.getFilteredDataStreamSPNs().stream())
-                .map(SupportedSPN::getSpn)
-                .distinct()
-                .sorted()
-                .collect(Collectors.toList());
+                                        .stream()
+                                        .flatMap(m -> m.getFilteredDataStreamSPNs().stream())
+                                        .map(SupportedSPN::getSpn)
+                                        .distinct()
+                                        .sorted()
+                                        .collect(Collectors.toList());
     }
 
     private Set<Integer> getReportedPGNs(int moduleAddress) {
@@ -250,46 +306,46 @@ public class TableA1Validator {
         }
 
         duplicateSPNs.entrySet()
-                .stream()
-                .sorted(Comparator.comparingInt(Map.Entry::getKey))
-                .forEach(entry -> addOutcome(listener,
-                        partNumber,
-                        stepNumber,
-                        section,
-                        entry.getValue(),
-                        "N.5 SPN " + entry.getKey() + " provided by more than one module"));
+                     .stream()
+                     .sorted(Comparator.comparingInt(Map.Entry::getKey))
+                     .forEach(entry -> addOutcome(listener,
+                                                  partNumber,
+                                                  stepNumber,
+                                                  section,
+                                                  entry.getValue(),
+                                                  "N.5 SPN " + entry.getKey() + " provided by more than one module"));
     }
 
     public void reportExpectedMessages(ResultsListener listener) {
         listener.onResult("Expecting the following messages:");
         dataRepository.getObdModuleAddresses()
-                .stream()
-                .sorted()
-                .map(dataRepository::getObdModule)
-                .forEach(moduleInfo -> {
-                    String moduleName = Lookup.getAddressName(moduleInfo.getSourceAddress());
+                      .stream()
+                      .sorted()
+                      .map(dataRepository::getObdModule)
+                      .forEach(moduleInfo -> {
+                          String moduleName = Lookup.getAddressName(moduleInfo.getSourceAddress());
 
-                    Map<Integer, List<Integer>> pgnMap = getMessages(moduleInfo.getSourceAddress(), listener);
-                    pgnMap.keySet().stream().sorted().forEach(pgn -> {
-                        String spns = pgnMap.get(pgn)
-                                .stream()
-                                .sorted()
-                                .map(Object::toString)
-                                .collect(Collectors.joining(", "));
-                        String msg = "PGN " + pgn + " from " + moduleName + " with SPNs " + spns;
+                          Map<Integer, List<Integer>> pgnMap = getMessages(moduleInfo.getSourceAddress(), listener);
+                          pgnMap.keySet().stream().sorted().forEach(pgn -> {
+                              String spns = pgnMap.get(pgn)
+                                                  .stream()
+                                                  .sorted()
+                                                  .map(Object::toString)
+                                                  .collect(Collectors.joining(", "));
+                              String msg = "PGN " + pgn + " from " + moduleName + " with SPNs " + spns;
 
-                        PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
-                        if (pgnDefinition == null) {
-                            msg = "  ??? " + msg;
-                        } else if (pgnDefinition.isOnRequest()) {
-                            msg = "  Req " + msg;
-                        } else {
-                            msg = "  BCT " + msg;
-                        }
+                              PgnDefinition pgnDefinition = j1939DaRepository.findPgnDefinition(pgn);
+                              if (pgnDefinition == null) {
+                                  msg = "  ??? " + msg;
+                              } else if (pgnDefinition.isOnRequest()) {
+                                  msg = "  Req " + msg;
+                              } else {
+                                  msg = "  BCT " + msg;
+                              }
 
-                        listener.onResult(msg);
-                    });
-                });
+                              listener.onResult(msg);
+                          });
+                      });
     }
 
     /**
@@ -312,32 +368,32 @@ public class TableA1Validator {
         Collection<Integer> moduleSPNs = getModuleSupportedSPNs(moduleAddress);
 
         packet.getSpns()
-                .stream()
-                .sorted(Comparator.comparingInt(Spn::getId))
-                .forEach(spn -> {
-                    int spnId = spn.getId();
-                    Double value = spn.getValue();
-                    if ((spn.isError() && moduleSPNs.contains(spnId))
-                            || valueValidator.isImplausible(spnId, value, isEngineOn, fuelType)) {
-                        Set<Integer> invalid = invalidSPNs.getOrDefault(moduleAddress, new HashSet<>());
-                        if (!invalid.contains(spnId)) {
-                            reportPacketIfNotReported(packet, listener, true);
-                            String moduleName = Lookup.getAddressName(moduleAddress);
+              .stream()
+              .sorted(Comparator.comparingInt(Spn::getId))
+              .forEach(spn -> {
+                  int spnId = spn.getId();
+                  Double value = spn.getValue();
+                  if ((spn.isError() && moduleSPNs.contains(spnId))
+                          || valueValidator.isImplausible(spnId, value, isEngineOn, fuelType)) {
+                      Set<Integer> invalid = invalidSPNs.getOrDefault(moduleAddress, new HashSet<>());
+                      if (!invalid.contains(spnId)) {
+                          reportPacketIfNotReported(packet, listener, true);
+                          String moduleName = Lookup.getAddressName(moduleAddress);
 
-                            String message;
-                            if (spn.isError()) {
-                                message = "N.8 " + moduleName + " reported value for SPN " + spnId
-                                        + " (ERROR) is implausible";
-                            } else {
-                                message = "N.8 " + moduleName + " reported value for SPN " + spnId + " (" + value
-                                        + ") is implausible";
-                            }
-                            addOutcome(listener, partNumber, stepNumber, section, Outcome.WARN, message);
-                            invalid.add(spnId);
-                            invalidSPNs.put(moduleAddress, invalid);
-                        }
-                    }
-                });
+                          String message;
+                          if (spn.isError()) {
+                              message = "N.8 " + moduleName + " reported value for SPN " + spnId
+                                      + " (ERROR) is implausible";
+                          } else {
+                              message = "N.8 " + moduleName + " reported value for SPN " + spnId + " (" + value
+                                      + ") is implausible";
+                          }
+                          addOutcome(listener, partNumber, stepNumber, section, Outcome.WARN, message);
+                          invalid.add(spnId);
+                          invalidSPNs.put(moduleAddress, invalid);
+                      }
+                  }
+              });
     }
 
     /**
@@ -356,31 +412,32 @@ public class TableA1Validator {
         }
 
         Collection<Integer> supportedSPNs = getAllSupportedSPNs();
-        packet.getSpns().stream()
-                .filter(spn -> !spn.isNotAvailable())
-                .map(Spn::getId)
-                .filter(supportedSPNs::contains)
-                .distinct()
-                .sorted()
-                .forEach(id -> {
-                    Outcome outcome = Lookup.getOutcomeForNonObdModuleProvidingSpn(id);
-                    if (outcome != PASS) {
-                        Set<Integer> reported = nonObdProvidedSPNs.getOrDefault(sourceAddress, new HashSet<>());
-                        if (!reported.contains(id)) {
-                            String moduleName = Lookup.getAddressName(sourceAddress);
-                            reportPacketIfNotReported(packet, listener, true);
-                            addOutcome(listener,
-                                    partNumber,
-                                    stepNumber,
-                                    section,
-                                    outcome,
-                                    "N.6 SPN " + id + " provided by non-OBD Module " + moduleName);
-                            listener.onResult("");
-                            reported.add(id);
-                            nonObdProvidedSPNs.put(sourceAddress, reported);
-                        }
-                    }
-                });
+        packet.getSpns()
+              .stream()
+              .filter(spn -> !spn.isNotAvailable())
+              .map(Spn::getId)
+              .filter(supportedSPNs::contains)
+              .distinct()
+              .sorted()
+              .forEach(id -> {
+                  Outcome outcome = Lookup.getOutcomeForNonObdModuleProvidingSpn(id);
+                  if (outcome != PASS) {
+                      Set<Integer> reported = nonObdProvidedSPNs.getOrDefault(sourceAddress, new HashSet<>());
+                      if (!reported.contains(id)) {
+                          String moduleName = Lookup.getAddressName(sourceAddress);
+                          reportPacketIfNotReported(packet, listener, true);
+                          addOutcome(listener,
+                                     partNumber,
+                                     stepNumber,
+                                     section,
+                                     outcome,
+                                     "N.6 SPN " + id + " provided by non-OBD Module " + moduleName);
+                          listener.onResult("");
+                          reported.add(id);
+                          nonObdProvidedSPNs.put(sourceAddress, reported);
+                      }
+                  }
+              });
     }
 
     public void reportNotAvailableSPNs(GenericPacket packet,
@@ -397,28 +454,29 @@ public class TableA1Validator {
         Collection<Integer> moduleSPNs = getModuleSupportedSPNs(moduleAddress);
 
         // Find any Supported SPNs which has a value of Not Available
-        packet.getSpns().stream()
-                .filter(Spn::isNotAvailable)
-                .map(Spn::getId)
-                .filter(moduleSPNs::contains)
-                .sorted()
-                .forEach(spn -> {
-                    Set<Integer> naSPNs = notAvailableSPNs.getOrDefault(moduleAddress, new HashSet<>());
-                    if (!naSPNs.contains(spn)) {
-                        reportPacketIfNotReported(packet, listener, true);
-                        String moduleName = Lookup.getAddressName(moduleAddress);
-                        addOutcome(listener,
-                                partNumber,
-                                stepNumber,
-                                section,
-                                Outcome.FAIL,
-                                "SPN " + spn + " was received as NOT AVAILABLE from " + moduleName);
-                        listener.onResult("");
-                        naSPNs.add(spn);
-                        notAvailableSPNs.put(moduleAddress, naSPNs);
+        packet.getSpns()
+              .stream()
+              .filter(Spn::isNotAvailable)
+              .map(Spn::getId)
+              .filter(moduleSPNs::contains)
+              .sorted()
+              .forEach(spn -> {
+                  Set<Integer> naSPNs = notAvailableSPNs.getOrDefault(moduleAddress, new HashSet<>());
+                  if (!naSPNs.contains(spn)) {
+                      reportPacketIfNotReported(packet, listener, true);
+                      String moduleName = Lookup.getAddressName(moduleAddress);
+                      addOutcome(listener,
+                                 partNumber,
+                                 stepNumber,
+                                 section,
+                                 Outcome.FAIL,
+                                 "SPN " + spn + " was received as NOT AVAILABLE from " + moduleName);
+                      listener.onResult("");
+                      naSPNs.add(spn);
+                      notAvailableSPNs.put(moduleAddress, naSPNs);
 
-                    }
-                });
+                  }
+              });
     }
 
     private void reportOmittedSPN(ResultsListener listener, String moduleName, Integer spn) {
@@ -463,11 +521,11 @@ public class TableA1Validator {
         }
 
         Collection<Integer> providedSPNs = packet.getSpns()
-                .stream()
-                .filter(s -> !s.isNotAvailable())
-                .map(Spn::getId)
-                .filter(s -> !getModuleSupportedSPNs(sourceAddress).contains(s))
-                .collect(Collectors.toSet());
+                                                 .stream()
+                                                 .filter(s -> !s.isNotAvailable())
+                                                 .map(Spn::getId)
+                                                 .filter(s -> !getModuleSupportedSPNs(sourceAddress).contains(s))
+                                                 .collect(Collectors.toSet());
 
         Map<Integer, Outcome> outcomes = new HashMap<>();
 
@@ -490,11 +548,11 @@ public class TableA1Validator {
                     reportPacketIfNotReported(packet, listener, true);
                     String moduleName = Lookup.getAddressName(sourceAddress);
                     addOutcome(listener,
-                            partNumber,
-                            stepNumber,
-                            section,
-                            outcomes.get(spn),
-                            "N.7 Provided SPN " + spn + " is not indicated as supported by " + moduleName);
+                               partNumber,
+                               stepNumber,
+                               section,
+                               outcomes.get(spn),
+                               "N.7 Provided SPN " + spn + " is not indicated as supported by " + moduleName);
                     listener.onResult("");
                     reportedSPNs.add(spn);
                     providedNotSupportedSPNs.put(sourceAddress, reportedSPNs);

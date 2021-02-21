@@ -82,10 +82,11 @@ public class PartResult implements IResult {
     }
 
     public List<StepResult> getStepResults() {
-        return stepResults.entrySet().stream()
-                .sorted(comparingByKey())
-                .map(Map.Entry::getValue)
-                .collect(Collectors.toList());
+        return stepResults.entrySet()
+                          .stream()
+                          .sorted(comparingByKey())
+                          .map(Map.Entry::getValue)
+                          .collect(Collectors.toList());
     }
 
     private boolean hasOutcome(Outcome expectedOutcome) {

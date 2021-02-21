@@ -17,9 +17,9 @@ public class NumberFormatter {
     /**
      * Formats the given number
      *
-     * @param number
-     *            the number to format
-     * @return {@link String}
+     * @param  number
+     *                    the number to format
+     * @return        {@link String}
      */
     public static final String format(Number number) {
         return NumberFormat.getNumberInstance(Locale.US).format(number);

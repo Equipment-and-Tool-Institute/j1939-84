@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part09;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -57,7 +58,8 @@ public class Part09Step15Controller extends StepController {
         // 6.9.15.2.b. Fail if no ECU reports > 0 for permanent DTC.
         // 6.9.15.2.c. Fail if any ECU reports a different number for permanent DTC than what that ECU reported in DM28.
         // 6.9.15.2.d. For OBD ECUs that support DM27, fail if any ECU reports > 0 for all pending DTCs (SPN 4105).
-        // 6.9.15.2.e. For OBD ECUs that do not support DM27, fail if any ECU does not report number of all pending DTCs = 0xFF.
+        // 6.9.15.2.e. For OBD ECUs that do not support DM27, fail if any ECU does not report number of all pending DTCs
+        // = 0xFF.
         // 6.9.15.3.a. Warn if any ECU reports > 1 for permanent DTC.
         // 6.9.15.3.b. Warn if more than one ECU reports > 0 for permanent DTC.
     }

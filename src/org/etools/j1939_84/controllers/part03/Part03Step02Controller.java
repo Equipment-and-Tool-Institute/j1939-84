@@ -12,6 +12,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
@@ -73,7 +74,8 @@ public class Part03Step02Controller extends StepController {
         boolean foundDTC = false;
         while (!foundDTC) {
             // 6.3.2.1.a. Global DM6 (send Request (PGN 59904) for PGN 65227 (SPNs 1213-1215, 3038, 1706)).
-            // 6.3.2.1.a.i. Repeat request for DM6 no more frequently than once per s until one or more ECUs reports a pending DTC.
+            // 6.3.2.1.a.i. Repeat request for DM6 no more frequently than once per s until one or more ECUs reports a
+            // pending DTC.
             attempts++;
             updateProgress("Requesting DM6 Attempt " + attempts);
 
@@ -82,18 +84,18 @@ public class Part03Step02Controller extends StepController {
 
             // 6.3.2.2.a. Fail if no OBD ECU supports DM6.
             boolean hasNoObdPackets = globalPackets.stream()
-                    .map(ParsedPacket::getSourceAddress)
-                    .noneMatch(a -> getDataRepository().isObdModule(a));
+                                                   .map(ParsedPacket::getSourceAddress)
+                                                   .noneMatch(a -> getDataRepository().isObdModule(a));
             if (hasNoObdPackets) {
                 addFailure("6.3.2.2.a - No OBD ECU supports DM6");
                 break;
             }
 
             foundDTC = globalPackets.stream()
-                    .map(DiagnosticTroubleCodePacket::getDtcs)
-                    .map(dtcs -> !dtcs.isEmpty())
-                    .findFirst()
-                    .orElse(false);
+                                    .map(DiagnosticTroubleCodePacket::getDtcs)
+                                    .map(dtcs -> !dtcs.isEmpty())
+                                    .findFirst()
+                                    .orElse(false);
 
             if (!foundDTC) {
                 if (attempts == 5 * 60) {
@@ -103,7 +105,7 @@ public class Part03Step02Controller extends StepController {
 
                     // This will throw an exception if the user chooses 'no'
                     displayInstructionAndWait("No module has reported a Pending Emission DTC." + NL +
-                                                      "Do you wish to continue?",
+                            "Do you wish to continue?",
                                               "No Pending Emission DTCs Found",
                                               QUESTION);
                     attempts = 0;
@@ -113,27 +115,27 @@ public class Part03Step02Controller extends StepController {
             }
         }
 
-        //Save the DTCs per module
+        // Save the DTCs per module
         globalPackets.stream()
-                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> !p.getDtcs().isEmpty())
-                .forEach(p -> {
-                    var moduleInfo = getDataRepository().getObdModule(p.getSourceAddress());
-                    moduleInfo.set(p);
-                    getDataRepository().putObdModule(moduleInfo);
-                });
+                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                     .filter(p -> !p.getDtcs().isEmpty())
+                     .forEach(p -> {
+                         var moduleInfo = getDataRepository().getObdModule(p.getSourceAddress());
+                         moduleInfo.set(p);
+                         getDataRepository().putObdModule(moduleInfo);
+                     });
 
         // 6.3.2.3.a Warn if any ECU reports > 1 pending DTC
         globalPackets.stream()
-                .filter(p -> p.getDtcs().size() > 1)
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addWarning("6.3.2.3.a - " + moduleName + " reported > 1 pending DTC"));
+                     .filter(p -> p.getDtcs().size() > 1)
+                     .map(ParsedPacket::getSourceAddress)
+                     .map(Lookup::getAddressName)
+                     .forEach(moduleName -> addWarning("6.3.2.3.a - " + moduleName + " reported > 1 pending DTC"));
 
         // 6.3.2.3.b Warn if more than one ECU reports a pending DTC.
         long modulesWithFaults = globalPackets.stream()
-                .filter(p -> !p.getDtcs().isEmpty())
-                .count();
+                                              .filter(p -> !p.getDtcs().isEmpty())
+                                              .count();
         if (modulesWithFaults > 1) {
             addWarning("6.3.2.3.b - More than one ECU reported a pending DTC");
         }
@@ -142,8 +144,9 @@ public class Part03Step02Controller extends StepController {
 
         // 6.3.2.4 DS DM6 to each OBD ECU.
         List<RequestResult<DM6PendingEmissionDTCPacket>> dsResults = obdModuleAddresses.stream()
-                .map(address -> getDiagnosticMessageModule().requestDM6(getListener(), address))
-                .collect(Collectors.toList());
+                                                                                       .map(address -> getDiagnosticMessageModule().requestDM6(getListener(),
+                                                                                                                                               address))
+                                                                                       .collect(Collectors.toList());
 
         // 6.3.2.5.a Fail if any difference compared to data received with global request.
         List<DM6PendingEmissionDTCPacket> dsPackets = filterRequestResultPackets(dsResults);
@@ -151,14 +154,14 @@ public class Part03Step02Controller extends StepController {
 
         // 6.3.2.5.b Fail if all [OBD] ECUs do not report MIL off. See section A.8 for allowed values.
         dsPackets.stream()
-                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> {
-                    LampStatus milStatus = p.getMalfunctionIndicatorLampStatus();
-                    return milStatus != OFF && milStatus != ALTERNATE_OFF;
-                })
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addFailure("6.3.2.5.b - " + moduleName + " did not report MIL 'off'"));
+                 .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                 .filter(p -> {
+                     LampStatus milStatus = p.getMalfunctionIndicatorLampStatus();
+                     return milStatus != OFF && milStatus != ALTERNATE_OFF;
+                 })
+                 .map(ParsedPacket::getSourceAddress)
+                 .map(Lookup::getAddressName)
+                 .forEach(moduleName -> addFailure("6.3.2.5.b - " + moduleName + " did not report MIL 'off'"));
 
         // 6.3.2.5.c Fail if NACK not received from OBD ECUs that did not respond to global query.
         List<AcknowledgmentPacket> dsAcks = filterRequestResultAcks(dsResults);

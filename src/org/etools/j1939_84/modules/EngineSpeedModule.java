@@ -4,6 +4,7 @@
 package org.etools.j1939_84.modules;
 
 import java.util.concurrent.TimeUnit;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
 
@@ -23,8 +24,8 @@ public class EngineSpeedModule extends FunctionalModule {
         // The transmission rate changes based upon the engine speed. 100 ms is
         // the longest period between messages when the engine is off
         return getJ1939().read(EngineSpeedPacket.class, J1939.ENGINE_ADDR, 300, TimeUnit.MILLISECONDS)
-                .flatMap(e -> e.left)
-                .orElse(null);
+                         .flatMap(e -> e.left)
+                         .orElse(null);
     }
 
     /**
@@ -32,7 +33,7 @@ public class EngineSpeedModule extends FunctionalModule {
      * the engine is communicating
      *
      * @return true if the engine is communicating; false if the engine is not
-     * communicating
+     *         communicating
      */
     public boolean isEngineCommunicating() {
         return getEngineSpeedPacket() != null;

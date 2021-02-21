@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -14,6 +13,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.Collections;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
@@ -80,13 +80,13 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(null);
 
         instance = new Part01Step23Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                diagnosticMessageModule,
-                DateTimeModule.getInstance(),
-                DataRepository.newInstance());
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              diagnosticMessageModule,
+                                              DateTimeModule.getInstance(),
+                                              DataRepository.newInstance());
 
         setup(instance,
               listener,
@@ -124,17 +124,21 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
                 0x1D, // Lamp Status/State
         };
         DM31DtcToLampAssociation packet = new DM31DtcToLampAssociation(
-                Packet.create(PGN, 0x00, data));
+                                                                       Packet.create(PGN, 0x00, data));
 
         when(diagnosticMessageModule.requestDM31(any()))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet), Collections.emptyList()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        Collections.singletonList(packet),
+                                                                                        Collections.emptyList()));
 
         runTest();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM31(any());
 
-        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
+                                                       STEP_NUMBER,
+                                                       FAIL,
                                                        "6.1.23.2.a - ECU Engine #1 (0) reported MIL not off");
 
         assertEquals("", listener.getResults());
@@ -195,10 +199,12 @@ public class Part01Step23ControllerTest extends AbstractControllerTest {
                 0xFF, // Lamp Status/State
         };
         DM31DtcToLampAssociation packet = new DM31DtcToLampAssociation(
-                Packet.create(PGN, 0x00, data));
+                                                                       Packet.create(PGN, 0x00, data));
 
         when(diagnosticMessageModule.requestDM31(any()))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet), Collections.emptyList()));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        Collections.singletonList(packet),
+                                                                                        Collections.emptyList()));
 
         runTest();
 

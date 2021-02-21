@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part01;
 
 import java.util.Collection;
+
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.model.ExpectedTestResult;
 
@@ -14,8 +15,8 @@ import org.etools.j1939_84.model.ExpectedTestResult;
 public class TableA7RowValidator {
 
     public boolean isValid(Collection<ScaledTestResult> scaledTestResults,
-            Collection<ExpectedTestResult> expectedTestResults,
-            int minimumContains) {
+                           Collection<ExpectedTestResult> expectedTestResults,
+                           int minimumContains) {
 
         int matches = 0;
         for (ExpectedTestResult expectedTestResult : expectedTestResults) {

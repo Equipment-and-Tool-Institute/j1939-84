@@ -9,6 +9,7 @@ import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.junit.Test;
 
@@ -23,7 +24,14 @@ public class DM25ExpandedFreezeFrameTest {
     public void testActual() {
         Packet packet = Packet.create(PGN,
                                       0,
-                                      0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF);
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0xFF,
+                                      0xFF,
+                                      0xFF);
         DM25ExpandedFreezeFrame instance = new DM25ExpandedFreezeFrame(packet);
         List<FreezeFrame> freezeFrame = instance.getFreezeFrames();
         assertEquals(0, freezeFrame.size());
@@ -38,7 +46,14 @@ public class DM25ExpandedFreezeFrameTest {
     public void testActualWithBadFmi() {
         Packet packet = Packet.create(PGN,
                                       0,
-                                      0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFE, 0xFF);
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0xFF,
+                                      0xFE,
+                                      0xFF);
         DM25ExpandedFreezeFrame instance = new DM25ExpandedFreezeFrame(packet);
         List<FreezeFrame> freezeFrames = instance.getFreezeFrames();
         assertEquals(1, freezeFrames.size());
@@ -47,11 +62,12 @@ public class DM25ExpandedFreezeFrameTest {
         DiagnosticTroubleCode dtc = freezeFrame.getDtc();
         assertEquals(0, dtc.getSuspectParameterNumber());
         assertEquals(0, dtc.getFailureModeIndicator());
-        assertArrayEquals(new int[] { 0xFF, 0xFE, 0xFF ,0x00}, freezeFrame.getSpnData());
+        assertArrayEquals(new int[] { 0xFF, 0xFE, 0xFF, 0x00 }, freezeFrame.getSpnData());
         String expected = "DM25 from Engine #1 (0): " + NL;
         expected += "Freeze Frames: [" + NL;
         expected += "Freeze Frame: {" + NL;
-        expected += "DTC 0:0 - Unknown, Data Valid But Above Normal Operational Range - Most Severe Level - 0 times" + NL;
+        expected += "DTC 0:0 - Unknown, Data Valid But Above Normal Operational Range - Most Severe Level - 0 times"
+                + NL;
         expected += "SPN Data: FF FE FF 00" + NL;
         expected += "}" + NL;
         expected += "]";
@@ -62,7 +78,14 @@ public class DM25ExpandedFreezeFrameTest {
     public void testActualWithBadSpn() {
         Packet packet = Packet.create(PGN,
                                       0,
-                                      0x00, 0x01, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF);
+                                      0x00,
+                                      0x01,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0xFF,
+                                      0xFF,
+                                      0xFF);
 
         DM25ExpandedFreezeFrame instance = new DM25ExpandedFreezeFrame(packet);
 
@@ -78,7 +101,8 @@ public class DM25ExpandedFreezeFrameTest {
         String expected = "DM25 from Engine #1 (0): " + NL;
         expected += "Freeze Frames: [" + NL;
         expected += "Freeze Frame: {" + NL;
-        expected += "DTC 1:0 - Unknown, Data Valid But Above Normal Operational Range - Most Severe Level - 0 times" + NL;
+        expected += "DTC 1:0 - Unknown, Data Valid But Above Normal Operational Range - Most Severe Level - 0 times"
+                + NL;
         expected += "SPN Data: FF FF FF 00" + NL;
         expected += "}" + NL;
         expected += "]";

@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part08;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -52,8 +53,10 @@ public class Part08Step14Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.8.14.1.a. DS DM7 with TID 250 and specific SPN+FMI for each combination with non-initialized test results from list created earlier in this part.
-        // 6.8.14.2.a. Fail if any test results now have initialized values. Use this to help identify if any diagnostic information was erased.49
+        // 6.8.14.1.a. DS DM7 with TID 250 and specific SPN+FMI for each combination with non-initialized test results
+        // from list created earlier in this part.
+        // 6.8.14.2.a. Fail if any test results now have initialized values. Use this to help identify if any diagnostic
+        // information was erased.49
     }
 
 }

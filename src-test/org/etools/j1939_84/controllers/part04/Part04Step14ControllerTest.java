@@ -12,6 +12,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
@@ -136,11 +137,11 @@ public class Part04Step14ControllerTest extends AbstractControllerTest {
 
         var dm30_123_12 = DM30ScaledTestResultsPacket.create(0, str1);
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(250), eq(123), eq(12)))
-                .thenReturn(List.of(dm30_123_12));
+                                                                                                .thenReturn(List.of(dm30_123_12));
 
         var dm30_456_9 = DM30ScaledTestResultsPacket.create(0, str2);
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(250), eq(456), eq(9)))
-                .thenReturn(List.of(dm30_456_9));
+                                                                                               .thenReturn(List.of(dm30_456_9));
 
         runTest();
 
@@ -163,12 +164,12 @@ public class Part04Step14ControllerTest extends AbstractControllerTest {
         var str_123_12 = ScaledTestResult.create(247, 123, 12, 6, 0, 0, 0);
         var dm30_123_12 = DM30ScaledTestResultsPacket.create(0, str_123_12);
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(250), eq(123), eq(12)))
-                .thenReturn(List.of(dm30_123_12));
+                                                                                                .thenReturn(List.of(dm30_123_12));
 
         var str_456_9 = ScaledTestResult.create(247, 456, 9, 4, 0xFB00, 0xFFFF, 0xFFFF);
         var dm30_456_9 = DM30ScaledTestResultsPacket.create(0, str_456_9);
         when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(250), eq(456), eq(9)))
-                .thenReturn(List.of(dm30_456_9));
+                                                                                               .thenReturn(List.of(dm30_456_9));
 
         runTest();
 

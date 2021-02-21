@@ -15,34 +15,34 @@ import org.junit.Test;
  */
 public class NumberFormatterTest {
 
-	@Test
-	public void testFormatDropsDecimals() {
-		assertEquals("123.456", NumberFormatter.format(123.45600000000000000000000009));
-	}
+    @Test
+    public void testFormatDropsDecimals() {
+        assertEquals("123.456", NumberFormatter.format(123.45600000000000000000000009));
+    }
 
-	@Test
-	public void testFormatDropsDecimalZeros() {
-		assertEquals("123", NumberFormatter.format(123.0000));
-	}
+    @Test
+    public void testFormatDropsDecimalZeros() {
+        assertEquals("123", NumberFormatter.format(123.0000));
+    }
 
-	@Test
-	public void testFormatLargeDecimal() {
-		assertEquals("123,456.789", NumberFormatter.format(123456.789));
-	}
+    @Test
+    public void testFormatLargeDecimal() {
+        assertEquals("123,456.789", NumberFormatter.format(123456.789));
+    }
 
-	@Test
-	public void testFormatLargeNumber() {
-		assertEquals("123,456", NumberFormatter.format(123456));
-	}
+    @Test
+    public void testFormatLargeNumber() {
+        assertEquals("123,456", NumberFormatter.format(123456));
+    }
 
-	@Test
-	public void testFormatSmallNumber() {
-		assertEquals("123", NumberFormatter.format(123));
-	}
+    @Test
+    public void testFormatSmallNumber() {
+        assertEquals("123", NumberFormatter.format(123));
+    }
 
-	@Test
-	public void testFormatSmallNumberDecimal() {
-		assertEquals("123.456", NumberFormatter.format(123.456));
-	}
+    @Test
+    public void testFormatSmallNumberDecimal() {
+        assertEquals("123.456", NumberFormatter.format(123.456));
+    }
 
 }

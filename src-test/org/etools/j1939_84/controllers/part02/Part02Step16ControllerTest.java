@@ -5,10 +5,10 @@
 package org.etools.j1939_84.controllers.part02;
 
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.create;
 import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.INSIDE;
 import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.NOT_AVAILABLE;
 import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.AreaStatus.OUTSIDE;
-import static org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus.create;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -19,6 +19,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM34NTEStatus;
@@ -264,7 +265,9 @@ public class Part02Step16ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM34(any())).thenReturn(new RequestResult<>(false, globalPacket));
 
         when(diagnosticMessageModule.requestDM34(any(), eq(0)))
-                .thenReturn(new RequestResult<>(false, List.of(), List.of(dsPacket)));
+                                                               .thenReturn(new RequestResult<>(false,
+                                                                                               List.of(),
+                                                                                               List.of(dsPacket)));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setFuelType(FuelType.DSL);

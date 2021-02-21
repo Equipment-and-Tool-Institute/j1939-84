@@ -12,6 +12,7 @@ import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 import java.util.concurrent.TimeUnit;
 import java.util.logging.Level;
+
 import org.etools.j1939_84.J1939_84;
 import org.etools.j1939_84.bus.Bus;
 import org.etools.j1939_84.bus.BusException;
@@ -147,7 +148,9 @@ public class Engine implements AutoCloseable {
 
         sim.schedule(100, 100, TimeUnit.MILLISECONDS, () -> Packet.create(65248, ADDR, combine(NA4, DISTANCE)));
 
-        sim.schedule(50, 50, TimeUnit.MILLISECONDS,
+        sim.schedule(50,
+                     50,
+                     TimeUnit.MILLISECONDS,
                      () -> Packet.create(0x0C, 0xF00A, ADDR, false, combine(as4Bytes(0), NA4)));
 
         sim.response(p -> isRequestFor(65259, p), () -> Packet.create(65259, ADDR, COMPONENT_ID));
@@ -203,10 +206,19 @@ public class Engine implements AutoCloseable {
                                                 ENGINE_CAL_ID7)));
 
         // DM1
-        sim.schedule(1, 1, SECONDS,
+        sim.schedule(1,
+                     1,
+                     SECONDS,
                      () -> Packet.create(DM1ActiveDTCsPacket.PGN,
                                          ADDR,
-                                         0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF));
+                                         0x00,
+                                         0xFF,
+                                         0x00,
+                                         0x00,
+                                         0x00,
+                                         0x00,
+                                         0xFF,
+                                         0xFF));
 
         // DM6
         sim.response(p -> isRequestFor(65231, p),
@@ -215,16 +227,18 @@ public class Engine implements AutoCloseable {
                                                               OFF,
                                                               ON,
                                                               ON,
-                                                              DiagnosticTroubleCode.create(123, 12, 0, 1)).getPacket());
+                                                              DiagnosticTroubleCode.create(123, 12, 0, 1))
+                                                      .getPacket());
 
         // DM12
         sim.response(p -> isRequestFor(DM12MILOnEmissionDTCPacket.PGN, p),
                      () -> DM12MILOnEmissionDTCPacket.create(0,
-                                                              ON,
-                                                              OFF,
-                                                              ON,
-                                                              ON,
-                                                              DiagnosticTroubleCode.create(123, 12, 0, 1)).getPacket());
+                                                             ON,
+                                                             OFF,
+                                                             ON,
+                                                             ON,
+                                                             DiagnosticTroubleCode.create(123, 12, 0, 1))
+                                                     .getPacket());
 
         // DM23
         sim.response(p -> isRequestFor(64949, p), () -> Packet.create(64949, ADDR, 0x00, 0x00, 0x00, 0x00, 0x00));
@@ -233,17 +247,38 @@ public class Engine implements AutoCloseable {
         sim.response(p -> isRequestFor(DM27AllPendingDTCsPacket.PGN, p),
                      () -> Packet.create(DM27AllPendingDTCsPacket.PGN,
                                          ADDR,
-                                         0x03, 0xFF, 0x66, 0x00, 0x04, 0x01, 0xFF, 0xFF));
+                                         0x03,
+                                         0xFF,
+                                         0x66,
+                                         0x00,
+                                         0x04,
+                                         0x01,
+                                         0xFF,
+                                         0xFF));
         sim.response(p -> isRequestFor(DM27AllPendingDTCsPacket.PGN, p),
                      () -> Packet.create(DM27AllPendingDTCsPacket.PGN,
                                          0x17,
-                                         0x43, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF));
+                                         0x43,
+                                         0xFF,
+                                         0x00,
+                                         0x00,
+                                         0x00,
+                                         0x00,
+                                         0xFF,
+                                         0xFF));
 
         // DM28
         sim.response(p -> isRequestFor(DM28PermanentEmissionDTCPacket.PGN, p),
                      () -> Packet.create(DM28PermanentEmissionDTCPacket.PGN,
                                          ADDR,
-                                         0x03, 0xFF, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF));
+                                         0x03,
+                                         0xFF,
+                                         0x00,
+                                         0x00,
+                                         0x00,
+                                         0x00,
+                                         0xFF,
+                                         0xFF));
 
         // DM11
         sim.response(p -> isRequestFor(65235, p), p -> {
@@ -327,8 +362,14 @@ public class Engine implements AutoCloseable {
 
         // DM21
         sim.response(p -> isRequestFor(49408, p),
-                     p -> Packet.create(49408 | p.getSource(), ADDR,
-                                        0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                     p -> Packet.create(49408 | p.getSource(),
+                                        ADDR,
+                                        0x00,
+                                        0x00,
+                                        0x00,
+                                        0x00,
+                                        0x00,
+                                        0x00,
                                         dtcsCleared ? 0x00 : 0x10,
                                         0x00));
 
@@ -346,11 +387,25 @@ public class Engine implements AutoCloseable {
         sim.response(p -> isRequestFor(DM29DtcCounts.PGN, p),
                      p -> Packet.create(DM29DtcCounts.PGN | p.getSource(),
                                         ADDR,
-                                        0x00, 0x00, 0x01, 0x00, 0x01, 0xFF, 0xFF, 0xFF));
+                                        0x00,
+                                        0x00,
+                                        0x01,
+                                        0x00,
+                                        0x01,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF));
         sim.response(p -> isRequestFor(DM29DtcCounts.PGN, p),
                      p -> Packet.create(DM29DtcCounts.PGN | p.getSource(),
                                         0x33,
-                                        0x00, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF));
+                                        0x00,
+                                        0x00,
+                                        0x00,
+                                        0x00,
+                                        0x00,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF));
 
         // @formatter:off
         // DM30 response for DM7 Request for SPN 102
@@ -383,18 +438,40 @@ public class Engine implements AutoCloseable {
         // DM30 response for DM7 Request for SPN 1173
         sim.response(p -> isDM7For(1173, p),
                      p -> Packet
-                             .create(0xA400 | p.getSource(), ADDR, 0xF7, 0x95, 0x04, 0x10, 0x66, 0x01, 0x00, 0xFB, 0xFF,
-                                     0xFF, 0xFF, 0xFF));
+                                .create(0xA400 | p.getSource(),
+                                        ADDR,
+                                        0xF7,
+                                        0x95,
+                                        0x04,
+                                        0x10,
+                                        0x66,
+                                        0x01,
+                                        0x00,
+                                        0xFB,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF,
+                                        0xFF));
 
         // DM31 response
         sim.response(p -> isRequestFor(DM31DtcToLampAssociation.PGN, p),
                      () -> Packet.create(DM31DtcToLampAssociation.PGN | 0xFF,
                                          ADDR,
-                                         0x61, 0x02, 0x13, 0x81, 0x62, 0x1D));
+                                         0x61,
+                                         0x02,
+                                         0x13,
+                                         0x81,
+                                         0x62,
+                                         0x1D));
         sim.response(p -> isRequestFor(DM31DtcToLampAssociation.PGN, p),
                      () -> Packet.create(DM31DtcToLampAssociation.PGN | 0xFF,
                                          0x33,
-                                         0x21, 0x06, 0x1F, 0x23, 0x22, 0xDD));
+                                         0x21,
+                                         0x06,
+                                         0x1F,
+                                         0x23,
+                                         0x22,
+                                         0xDD));
 
         // @formatter:off
         // DM33 response for DM33 Global Request for PGN 41216

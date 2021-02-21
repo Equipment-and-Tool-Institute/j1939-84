@@ -8,6 +8,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.packets.model.Spn;
 import org.etools.j1939_84.utils.CollectionUtils;
 
@@ -16,11 +17,9 @@ import org.etools.j1939_84.utils.CollectionUtils;
  */
 public class FreezeFrame {
 
-    private List<Spn> spns;
-
     private final DiagnosticTroubleCode dtc;
-
     private final int[] spnData;
+    private List<Spn> spns;
 
     public FreezeFrame(DiagnosticTroubleCode dtc, Spn... spns) {
         this(dtc, Arrays.asList(spns));
@@ -67,9 +66,10 @@ public class FreezeFrame {
         result.append(NL);
         result.append(dtc).append(NL);
         result.append("SPN Data: ")
-                .append(Arrays.stream(spnData)
-                                .mapToObj(x -> String.format("%02X", x))
-                                .collect(Collectors.joining(" "))).append(NL);
+              .append(Arrays.stream(spnData)
+                            .mapToObj(x -> String.format("%02X", x))
+                            .collect(Collectors.joining(" ")))
+              .append(NL);
 
         List<Spn> spns = getSPNs();
         if (spns != null) {

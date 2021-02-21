@@ -16,6 +16,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -74,8 +75,8 @@ public class DiagnosticMessageModule extends FunctionalModule {
     public static List<CompositeMonitoredSystem> getCompositeSystems(List<? extends DiagnosticReadinessPacket> packets,
                                                                      boolean isDM5) {
         Set<MonitoredSystem> systems = packets.stream()
-                .flatMap(p -> p.getMonitoredSystems().stream())
-                .collect(Collectors.toSet());
+                                              .flatMap(p -> p.getMonitoredSystems().stream())
+                                              .collect(Collectors.toSet());
         return getCompositeSystems(systems, isDM5);
     }
 
@@ -84,14 +85,16 @@ public class DiagnosticMessageModule extends FunctionalModule {
         listener.onResult(getTime() + title);
 
         Collection<DM1ActiveDTCsPacket> allPackets = getJ1939()
-                .read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS)
-                .flatMap(r -> r.left.stream())
-                .collect(Collectors.toMap(ParsedPacket::getSourceAddress, p -> p, (address, packet) -> address))
-                .values();
+                                                               .read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS)
+                                                               .flatMap(r -> r.left.stream())
+                                                               .collect(Collectors.toMap(ParsedPacket::getSourceAddress,
+                                                                                         p -> p,
+                                                                                         (address, packet) -> address))
+                                                               .values();
 
         List<DM1ActiveDTCsPacket> packets = allPackets.stream()
-                .sorted(Comparator.comparing(o -> o.getPacket().getTimestamp()))
-                .collect(Collectors.toList());
+                                                      .sorted(Comparator.comparing(o -> o.getPacket().getTimestamp()))
+                                                      .collect(Collectors.toList());
 
         packets.forEach(dm1 -> listener.onResult(NL + dm1.getPacket().toTimeString() + NL + dm1.toString()));
 

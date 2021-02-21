@@ -9,6 +9,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response;
 import org.etools.j1939_84.bus.j1939.packets.AddressClaimPacket;
 import org.etools.j1939_84.bus.j1939.packets.CompositeMonitoredSystem;
@@ -76,20 +77,21 @@ public class Part01Step03Controller extends StepController {
             getListener().onResult(systems.stream().map(MonitoredSystem::toString).collect(Collectors.toList()));
         }
 
-        response.getPackets().stream()
+        response.getPackets()
+                .stream()
                 .filter(DM5DiagnosticReadinessPacket::isObd)
                 .forEach(p -> {
                     OBDModuleInformation info = new OBDModuleInformation(p.getSourceAddress());
                     info.setObdCompliance(p.getOBDCompliance());
                     info.setMonitoredSystems(p.getMonitoredSystems());
                     int function = getDataRepository().getVehicleInformation()
-                            .getAddressClaim()
-                            .getPackets()
-                            .stream()
-                            .filter(a -> a.getSourceAddress() == p.getSourceAddress())
-                            .map(AddressClaimPacket::getFunctionId)
-                            .findFirst()
-                            .orElse(-1);
+                                                      .getAddressClaim()
+                                                      .getPackets()
+                                                      .stream()
+                                                      .filter(a -> a.getSourceAddress() == p.getSourceAddress())
+                                                      .map(AddressClaimPacket::getFunctionId)
+                                                      .findFirst()
+                                                      .orElse(-1);
                     info.setFunction(function);
                     getDataRepository().putObdModule(info);
                 });
@@ -99,11 +101,11 @@ public class Part01Step03Controller extends StepController {
         }
 
         long distinctCount = response.getPackets()
-                .stream()
-                .map(DM5DiagnosticReadinessPacket::getOBDCompliance)
-                .filter(c -> c != (byte) 255 && c != (byte) 5) //Non-OBD values
-                .distinct()
-                .count();
+                                     .stream()
+                                     .map(DM5DiagnosticReadinessPacket::getOBDCompliance)
+                                     .filter(c -> c != (byte) 255 && c != (byte) 5) // Non-OBD values
+                                     .distinct()
+                                     .count();
 
         if (distinctCount > 1) {
             // All the values should be the same

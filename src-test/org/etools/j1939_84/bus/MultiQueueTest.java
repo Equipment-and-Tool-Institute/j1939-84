@@ -19,7 +19,7 @@ public class MultiQueueTest {
     /** Add 10000 items from 25 different threads in less than 1 s */
     @Test(timeout = 1000)
     @TestDoc(description = "Verifies that 10,000 items can be added from 25 threads and all 250,000 items are read by one thread in less than 1 s.")
-    public void bandwidthTest()  {
+    public void bandwidthTest() {
         try (MultiQueue<Integer> queue = new MultiQueue<>()) {
             long COUNT = 10000;
             int THREADS = 25;
@@ -34,13 +34,14 @@ public class MultiQueueTest {
                 });
             }
             assertEquals(COUNT * THREADS,
-                    stream
-                            // .peek(x -> System.err.println(x))
-                            .count());
+                         stream
+                               // .peek(x -> System.err.println(x))
+                               .count());
         }
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent") @Test()
+    @SuppressWarnings("OptionalGetWithoutIsPresent")
+    @Test()
     @TestDoc(description = "Verifies that the streams generated from the MultiQueue can correctly support multiple items, findFirst(), skip() and an empty stream.")
     public void simpleTest() throws BusException {
         try (MultiQueue<Integer> q = new MultiQueue<>()) {
@@ -115,11 +116,11 @@ public class MultiQueueTest {
             queue.add(2);
             queue.add(1);
             assertEquals(3,
-                    stream1.peek(n -> {
-                        System.err.println("Verify test:" + n);
-                        assertEquals(n - 1, queue.duplicate(stream1, 10, TimeUnit.MILLISECONDS).count());
-                    })
-                            .count());
+                         stream1.peek(n -> {
+                             System.err.println("Verify test:" + n);
+                             assertEquals(n - 1, queue.duplicate(stream1, 10, TimeUnit.MILLISECONDS).count());
+                         })
+                                .count());
         }
     }
 

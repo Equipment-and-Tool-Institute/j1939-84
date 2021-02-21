@@ -16,6 +16,7 @@ import static org.mockito.Mockito.when;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -102,9 +103,8 @@ public class Part01Step02ControllerTest {
     }
 
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.1.2.1.a",
-            description = "Verify if the engine is running that there are no messages when already KOEO.",
-            dependsOn = { "EngineSpeedModuleTest" }))
+    @TestDoc(value = @TestItem(verifies = "6.1.2.1.a", description = "Verify if the engine is running that there are no messages when already KOEO.", dependsOn = {
+            "EngineSpeedModuleTest" }))
     public void testRun() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
@@ -132,9 +132,8 @@ public class Part01Step02ControllerTest {
     }
 
     @Test
-    @TestDoc(value = @TestItem(verifies = "6.1.2.1.a",
-            description = "Verify user is requested to turn KOEO when engine is not KOEO.",
-            dependsOn = { "EngineSpeedModuleTest" }))
+    @TestDoc(value = @TestItem(verifies = "6.1.2.1.a", description = "Verify user is requested to turn KOEO when engine is not KOEO.", dependsOn = {
+            "EngineSpeedModuleTest" }))
     public void testWaitForKeyOn() {
         when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");

@@ -14,22 +14,22 @@ import javax.swing.event.DocumentListener;
  */
 public abstract class TextChangeListener implements DocumentListener {
 
-	@Override
-	public void changedUpdate(DocumentEvent e) {
-	}
+    @Override
+    public void insertUpdate(DocumentEvent e) {
+        textChanged();
+    }
 
-	@Override
-	public void insertUpdate(DocumentEvent e) {
-		textChanged();
-	}
+    @Override
+    public void removeUpdate(DocumentEvent e) {
+        textChanged();
+    }
 
-	@Override
-	public void removeUpdate(DocumentEvent e) {
-		textChanged();
-	}
+    @Override
+    public void changedUpdate(DocumentEvent e) {
+    }
 
-	/**
-	 * Called when the text has changed.
-	 */
-	public abstract void textChanged();
+    /**
+     * Called when the text has changed.
+     */
+    public abstract void textChanged();
 }

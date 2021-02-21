@@ -14,6 +14,7 @@ import static org.mockito.Mockito.when;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -131,7 +132,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packet));
         when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, packet));
+                                                                  .thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
         obdInfo.setIgnitionCycleCounterValue(1);
@@ -177,7 +178,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
 
         var packet2 = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, 0, 0, 0, 0, 0, 0, 0, 0, 0));
         when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, packet2));
+                                                                  .thenReturn(new BusResult<>(false, packet2));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
         obdInfo.setIgnitionCycleCounterValue(3);
@@ -220,7 +221,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packet));
         when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, packet));
+                                                                  .thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
         obdInfo.setIgnitionCycleCounterValue(1);
@@ -263,7 +264,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packet));
         when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, packet));
+                                                                  .thenReturn(new BusResult<>(false, packet));
 
         when(diagnosticMessageModule.requestDM20(any(), eq(0x17))).thenReturn(new BusResult<>(false));
 
@@ -313,7 +314,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
 
         when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false, packet));
         when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, packet));
+                                                                  .thenReturn(new BusResult<>(false, packet));
 
         OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
         obdInfo.setIgnitionCycleCounterValue(1);
@@ -400,7 +401,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
             var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x00, data));
             packetList.add(packet);
             when(diagnosticMessageModule.requestDM20(any(), eq(0x00)))
-                    .thenReturn(new BusResult<>(false, packet));
+                                                                      .thenReturn(new BusResult<>(false, packet));
 
             OBDModuleInformation obdInfo = new OBDModuleInformation(0x00);
             obdInfo.setIgnitionCycleCounterValue(1);
@@ -434,7 +435,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
             var packet = new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, 0x17, data));
             packetList.add(packet);
             when(diagnosticMessageModule.requestDM20(any(), eq(0x17)))
-                    .thenReturn(new BusResult<>(false, packet));
+                                                                      .thenReturn(new BusResult<>(false, packet));
 
             OBDModuleInformation obdInfo = new OBDModuleInformation(0x17);
             obdInfo.setPerformanceRatios(packet.getRatios());
@@ -443,8 +444,8 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
         }
 
         when(diagnosticMessageModule.requestDM20(any())).thenReturn(new RequestResult<>(false,
-                                                                    packetList,
-                                                                    List.of()));
+                                                                                        packetList,
+                                                                                        List.of()));
 
         runTest();
         verify(diagnosticMessageModule).setJ1939(j1939);
@@ -460,7 +461,7 @@ public class Part02Step04ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoPackets() {
         when(diagnosticMessageModule.requestDM20(any()))
-                .thenReturn(new RequestResult<>(false, List.of(), List.of()));
+                                                        .thenReturn(new RequestResult<>(false, List.of(), List.of()));
 
         runTest();
         verify(diagnosticMessageModule).setJ1939(j1939);

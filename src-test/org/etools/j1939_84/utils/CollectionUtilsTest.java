@@ -12,6 +12,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
@@ -37,7 +38,7 @@ public class CollectionUtilsTest {
         // verify two null lists of the same type
         assertTrue(CollectionUtils.areTwoCollectionsEqual(collectionA, collectionB));
 
-        //verify one list null nad one with real packet not equals
+        // verify one list null nad one with real packet not equals
         int[] dataA = {
                 0x00, // SPN least significant bit
                 0x00, // SPN most significant bit
@@ -47,13 +48,13 @@ public class CollectionUtilsTest {
                 0x00, // Lamp Status/State
         };
         Packet packetA = Packet.create(
-                0,
-                0x00,
-                dataA);
+                                       0,
+                                       0x00,
+                                       dataA);
         collectionA.add(packetA);
         assertFalse(CollectionUtils.areTwoCollectionsEqual(collectionA, collectionB));
 
-        //make them equal and verify again
+        // make them equal and verify again
         collectionB.add(packetA);
         assertTrue(CollectionUtils.areTwoCollectionsEqual(collectionA, collectionB));
 
@@ -67,9 +68,9 @@ public class CollectionUtilsTest {
                 0x00, // Lamp Status/State
         };
         Packet packetB = Packet.create(
-                0,
-                0x01,
-                dataB);
+                                       0,
+                                       0x01,
+                                       dataB);
         collectionB.add(packetB);
         assertFalse(CollectionUtils.areTwoCollectionsEqual(collectionA, collectionB));
     }
@@ -85,13 +86,13 @@ public class CollectionUtilsTest {
                 0x00, // Lamp Status/State
         };
         DM20MonitorPerformanceRatioPacket packetA = new DM20MonitorPerformanceRatioPacket(Packet.create(
-                DM20MonitorPerformanceRatioPacket.PGN,
-                0x00,
-                dataA));
+                                                                                                        DM20MonitorPerformanceRatioPacket.PGN,
+                                                                                                        0x00,
+                                                                                                        dataA));
         Collection<DM20MonitorPerformanceRatioPacket> collectionA = new HashSet<>();
         collectionA.add(packetA);
 
-        //  Verify inequality of a Collection<> and null
+        // Verify inequality of a Collection<> and null
         assertFalse(CollectionUtils.areTwoCollectionsEqual(collectionA, null));
 
         int[] dataB = new int[] {
@@ -99,7 +100,7 @@ public class CollectionUtilsTest {
                 0x22, // SPN, (bits 8-1) 8 least significant bits of SPN
                 0x0D, // SPN, (bits 8-1) second byte of SPN (most significant at bit 8)
                 0x1F, // SPN, (bits 8-6) 3 most significant bits(most significant at bit 8)
-                //       FMI, (bits 5-1) FMI (most significant at bit 5)
+                // FMI, (bits 5-1) FMI (most significant at bit 5)
                 0xD0, // SLOT Identifier
                 0x00, // SLOT Identifier
                 0xB7, // Test Value
@@ -107,7 +108,7 @@ public class CollectionUtilsTest {
                 0xE8, // Test Limit Maximum
                 0x03, // Test Limit Maximum
                 0x20, // Test Limit Minimum
-                0x03  //Test Limit Minimum
+                0x03  // Test Limit Minimum
         };
         DM30ScaledTestResultsPacket packetB = new DM30ScaledTestResultsPacket(Packet.create(DM30ScaledTestResultsPacket.PGN,
                                                                                             0x00,
@@ -118,7 +119,7 @@ public class CollectionUtilsTest {
         collectionB.add(packetB);
         assertFalse(CollectionUtils.areTwoCollectionsEqual(collectionA, collectionB));
 
-        //Verify inequality of one Collection<> and on List<>
+        // Verify inequality of one Collection<> and on List<>
         List<DM30ScaledTestResultsPacket> listC = new ArrayList<>();
         listC.add(packetB);
         assertTrue(CollectionUtils.areTwoCollectionsEqual(collectionB, listC));

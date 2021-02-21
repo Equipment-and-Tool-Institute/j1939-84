@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -16,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.PerformanceRatio;
@@ -53,7 +53,8 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         if (ratios != null) {
             List<PerformanceRatio> perfRatios = ratios.stream()
-                    .map(spn -> new PerformanceRatio(spn, 0, 0, 0)).collect(Collectors.toList());
+                                                      .map(spn -> new PerformanceRatio(spn, 0, 0, 0))
+                                                      .collect(Collectors.toList());
             when(packet.getRatios()).thenReturn(perfRatios);
         }
 
@@ -194,8 +195,8 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "",
-                listener.getResults());
+                     "",
+                     listener.getResults());
     }
 
     @Test
@@ -305,8 +306,8 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "",
-                listener.getResults());
+                     "",
+                     listener.getResults());
     }
 
     @Test
@@ -331,8 +332,8 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "",
-                listener.getResults());
+                     "",
+                     listener.getResults());
     }
 
     @Test
@@ -370,8 +371,8 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals(
-                "",
-                listener.getResults());
+                     "",
+                     listener.getResults());
     }
 
     @Test

@@ -20,7 +20,8 @@ import org.junit.Test;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-@SuppressWarnings("ALL") public class PacketTest {
+@SuppressWarnings("ALL")
+public class PacketTest {
 
     @Before
     public void setUp() {
@@ -191,7 +192,7 @@ import org.junit.Test;
                 0x30, 0x31, 0x32, 0x2A };
         Packet expected = Packet.create(06, 0xFEEC, 0x00, false, bytes);
         Packet instance = Packet
-                .parse("18FEEC00 33 48 41 4D 4B 53 54 4E 30 46 4C 35 37 35 30 31 32 2A");
+                                .parse("18FEEC00 33 48 41 4D 4B 53 54 4E 30 46 4C 35 37 35 30 31 32 2A");
 
         assertEquals(expected, instance);
     }
@@ -214,7 +215,7 @@ import org.junit.Test;
                 0x30, 0x31, 0x32, 0x2A };
         Packet expected = Packet.create(06, 0xFEEC, 0x00, true, bytes);
         Packet instance = Packet
-                .parse("18FEEC00 33 48 41 4D 4B 53 54 4E 30 46 4C 35 37 35 30 31 32 2A (TX)");
+                                .parse("18FEEC00 33 48 41 4D 4B 53 54 4E 30 46 4C 35 37 35 30 31 32 2A (TX)");
 
         assertEquals(expected, instance);
     }
@@ -223,7 +224,7 @@ import org.junit.Test;
     public void testToStringWithFormatter() {
         new TestDateTimeModule();
         Packet instance = Packet
-                .parse("18FEEC00 33 48 41 4D 4B 53 54 4E 30 46 4C 35 37 35 30 31 32 2A");
+                                .parse("18FEEC00 33 48 41 4D 4B 53 54 4E 30 46 4C 35 37 35 30 31 32 2A");
 
         String expected = "10:15:30.0000 18FEEC00 [18] 33 48 41 4D 4B 53 54 4E 30 46 4C 35 37 35 30 31 32 2A";
         String actual = instance.toTimeString();

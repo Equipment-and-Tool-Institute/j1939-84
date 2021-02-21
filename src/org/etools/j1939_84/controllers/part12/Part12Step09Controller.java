@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part12;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -56,17 +57,18 @@ public class Part12Step09Controller extends StepController {
         // 6.12.9.1.b. Wait 5 seconds before checking for erased data.
         // 6.12.9.2.a. Fail if any OBD ECU does not respond with a NACK.
         // 6.12.9.2.b. Check diagnostic information as described in Section A.5 and fail if any ECU partially erases
-        //   diagnostic information (pass if it erases either all or none).
+        // diagnostic information (pass if it erases either all or none).
         // 6.12.9.2.c. For systems with multiple ECUs, fail if one OBD ECU or more than one OBD ECU erases diagnostic
-        //   information and one or more other OBD ECUs do not erase diagnostic information.
+        // information and one or more other OBD ECUs do not erase diagnostic information.
         // 6.12.9.3.a. Global DM11.
         // 6.12.9.3.b. Wait 5 seconds before checking for erased data.
         // 6.12.9.4.a. Fail if any OBD ECU responds with a NACK.
         // 6.12.9.4.b. Warn if any OBD ECU responds with an ACK.
         // 6.12.9.4.c. Check diagnostic information and fail if any ECU partially erases diagnostic information
-        //   (pass if it erases either all or none).
+        // (pass if it erases either all or none).
         // 6.12.9.4.d. Fail if one OBD ECU or more than one OBD ECU erases diagnostic information and one or more
-        //   other ECUs do not erase diagnostic information. See Section A.5 for the methods to check for erasure of diagnostic information.
+        // other ECUs do not erase diagnostic information. See Section A.5 for the methods to check for erasure of
+        // diagnostic information.
     }
 
 }

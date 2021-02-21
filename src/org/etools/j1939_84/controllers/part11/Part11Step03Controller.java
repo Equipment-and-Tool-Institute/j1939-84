@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part11;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -53,7 +54,8 @@ public class Part11Step03Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.11.3.1.a. DS DM21 ([send Request (PGN 59904) for PGN 49408 (SPNs 3294, 3296)]) to each OBD ECU.
-        // 6.11.3.1.b. Record distance (SPN 3294) and time (SPN 3296) SCC (if supported) to compare later in test 6.11.12.
+        // 6.11.3.1.b. Record distance (SPN 3294) and time (SPN 3296) SCC (if supported) to compare later in test
+        // 6.11.12.
         // 6.11.3.2.a. Fail if NACK not received from OBD ECUs that did not provide a DM21 message.
     }
 

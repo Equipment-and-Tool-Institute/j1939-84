@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -65,27 +66,30 @@ public class Part03Step10Controller extends StepController {
 
         // 6.3.10.2.a. Fail if any ECU reports a previously active DTC.
         globalPackets.stream()
-                .filter(p -> !p.getDtcs().isEmpty())
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.3.10.2.a - " + moduleName + " reported an previously active DTC"));
+                     .filter(p -> !p.getDtcs().isEmpty())
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> addFailure("6.3.10.2.a - " + moduleName
+                             + " reported an previously active DTC"));
 
         // 6.3.10.2.b. Fail if any OBD ECU does not report MIL off.
         globalPackets.stream()
-                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.3.10.2.a - " + moduleName + " did not report MIL off"));
+                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                     .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> addFailure("6.3.10.2.a - " + moduleName + " did not report MIL off"));
 
         // 6.3.10.2.c. Fail if any non- OBD ECU does not report MIL off or not supported.
         globalPackets.stream()
-                .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF && p.getMalfunctionIndicatorLampStatus() != NOT_SUPPORTED)
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.3.10.2.a - Non-OBD ECU " + moduleName + " did not report MIL off or not supported"));
+                     .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
+                     .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF
+                             && p.getMalfunctionIndicatorLampStatus() != NOT_SUPPORTED)
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> addFailure("6.3.10.2.a - Non-OBD ECU " + moduleName
+                             + " did not report MIL off or not supported"));
 
         // 6.3.10.2.d. Fail if no OBD ECU provides DM23
         boolean noObdModuleResponded = globalPackets.stream()
-                .noneMatch(p -> getDataRepository().isObdModule(p.getSourceAddress()));
+                                                    .noneMatch(p -> getDataRepository().isObdModule(p.getSourceAddress()));
         if (noObdModuleResponded) {
             addFailure("6.3.10.2.d - No OBD ECU provided a DM23");
         }
@@ -94,8 +98,10 @@ public class Part03Step10Controller extends StepController {
 
         // 6.3.10.3.a. DS DM23 to each OBD ECU.
         var dsResults = obdModuleAddresses
-                .stream().map(address -> getDiagnosticMessageModule().requestDM23(getListener(), address))
-                .collect(Collectors.toList());
+                                          .stream()
+                                          .map(address -> getDiagnosticMessageModule().requestDM23(getListener(),
+                                                                                                   address))
+                                          .collect(Collectors.toList());
 
         // 6.3.10.4.a. Fail if any difference compared to data received from global request.
         compareRequestPackets(globalPackets, filterPackets(dsResults), "6.3.10.4.a");

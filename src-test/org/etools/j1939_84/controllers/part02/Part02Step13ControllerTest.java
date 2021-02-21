@@ -22,6 +22,7 @@ import static org.mockito.Mockito.when;
 import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -96,13 +97,13 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
 
         instance = new Part02Step13Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                DateTimeModule.getInstance(),
-                diagnosticMessageModule);
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance(),
+                                              diagnosticMessageModule);
 
         setup(instance,
               listener,
@@ -134,7 +135,9 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(obdModuleInformation);
 
         when(diagnosticMessageModule.requestDM31(any(), eq(0x00)))
-                .thenReturn(new RequestResult<>(false, List.of(), List.of()));
+                                                                  .thenReturn(new RequestResult<>(false,
+                                                                                                  List.of(),
+                                                                                                  List.of()));
 
         runTest();
 
@@ -166,7 +169,9 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
                                                                          PGN);
 
         when(diagnosticMessageModule.requestDM31(any(), eq(0x00)))
-                .thenReturn(new RequestResult<>(false, List.of(), List.of(ackPacket0x00)));
+                                                                  .thenReturn(new RequestResult<>(false,
+                                                                                                  List.of(),
+                                                                                                  List.of(ackPacket0x00)));
 
         runTest();
 
@@ -204,11 +209,17 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
                                                                            dtcLampStatus2);
 
         when(diagnosticMessageModule.requestDM31(any(), eq(0x00)))
-                .thenReturn(new RequestResult<>(false, List.of(packet), List.of()));
+                                                                  .thenReturn(new RequestResult<>(false,
+                                                                                                  List.of(packet),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM31(any(), eq(0x01)))
-                .thenReturn(new RequestResult<>(false, List.of(packet1), List.of()));
+                                                                  .thenReturn(new RequestResult<>(false,
+                                                                                                  List.of(packet1),
+                                                                                                  List.of()));
         when(diagnosticMessageModule.requestDM31(any(), eq(0x02)))
-                .thenReturn(new RequestResult<>(false, List.of(packet2), List.of()));
+                                                                  .thenReturn(new RequestResult<>(false,
+                                                                                                  List.of(packet2),
+                                                                                                  List.of()));
 
         runTest();
 
@@ -289,10 +300,12 @@ public class Part02Step13ControllerTest extends AbstractControllerTest {
                 0xFF, // Lamp Status/State
         };
         DM31DtcToLampAssociation packet = new DM31DtcToLampAssociation(
-                Packet.create(PGN, 0x00, data));
+                                                                       Packet.create(PGN, 0x00, data));
 
         when(diagnosticMessageModule.requestDM31(any(), eq(0)))
-                .thenReturn(new RequestResult<>(false, Collections.singletonList(packet), Collections.emptyList()));
+                                                               .thenReturn(new RequestResult<>(false,
+                                                                                               Collections.singletonList(packet),
+                                                                                               Collections.emptyList()));
 
         runTest();
 

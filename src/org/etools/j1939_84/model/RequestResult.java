@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
+
 import org.etools.j1939_84.bus.Either;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -44,9 +45,9 @@ public class RequestResult<T extends ParsedPacket> {
 
     /**
      * @param retryUsed
-     *         boolean representation of retry used
+     *                      boolean representation of retry used
      * @param packets
-     *         list of packets to be included in the requestResult
+     *                      list of packets to be included in the requestResult
      */
     public RequestResult(boolean retryUsed, List<T> packets, List<AcknowledgmentPacket> acks) {
         this.retryUsed = retryUsed;
@@ -90,9 +91,9 @@ public class RequestResult<T extends ParsedPacket> {
 
     public List<Either<T, AcknowledgmentPacket>> getEither() {
         return Stream
-                .concat(packets.stream().map(p -> new Either<>(p, (AcknowledgmentPacket) null)),
-                        acks.stream().map(a -> new Either<>((T) null, a)))
-                .collect(Collectors.toList());
+                     .concat(packets.stream().map(p -> new Either<>(p, (AcknowledgmentPacket) null)),
+                             acks.stream().map(a -> new Either<>((T) null, a)))
+                     .collect(Collectors.toList());
     }
 
     /**
@@ -128,25 +129,27 @@ public class RequestResult<T extends ParsedPacket> {
     public String toString() {
         StringBuilder sb = new StringBuilder("RequestResult");
         sb.append(NL)
-                .append("Retry  used : ")
-                .append(isRetryUsed())
-                .append(NL)
-                .append("Response packets :");
-        this.getPackets().forEach(packet -> sb.append(NL)
-                .append("Source address : ")
-                .append(packet.getSourceAddress())
-                .append(" returned ")
-                .append(packet.toString()));
+          .append("Retry  used : ")
+          .append(isRetryUsed())
+          .append(NL)
+          .append("Response packets :");
+        this.getPackets()
+            .forEach(packet -> sb.append(NL)
+                                 .append("Source address : ")
+                                 .append(packet.getSourceAddress())
+                                 .append(" returned ")
+                                 .append(packet.toString()));
         if (this.getPackets().isEmpty()) {
             sb.append(NL).append("No packets returned");
         }
         sb.append(NL)
-                .append("Ack packets :");
-        this.getAcks().forEach(ack -> sb.append(NL)
-                .append("Source address : ")
-                .append(ack.getSourceAddress())
-                .append(" returned ")
-                .append(ack.toString()));
+          .append("Ack packets :");
+        this.getAcks()
+            .forEach(ack -> sb.append(NL)
+                              .append("Source address : ")
+                              .append(ack.getSourceAddress())
+                              .append(" returned ")
+                              .append(ack.toString()));
         if (this.getAcks().isEmpty()) {
             sb.append(NL).append("No acks returned");
         }

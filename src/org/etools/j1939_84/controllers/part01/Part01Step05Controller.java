@@ -3,6 +3,7 @@ package org.etools.j1939_84.controllers.part01;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -62,7 +63,8 @@ public class Part01Step05Controller extends StepController {
         }
 
         long obdResponses = packets.stream()
-                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress())).count();
+                                   .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                                   .count();
         if (obdResponses > 1) {
             addFailure("6.1.5.2.b - More than one OBD ECU responded with VIN");
         }
@@ -84,8 +86,8 @@ public class Part01Step05Controller extends StepController {
         }
 
         long nonObdResponses = packets.stream()
-                .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
-                .count();
+                                      .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
+                                      .count();
         if (nonObdResponses > 0) {
             addWarning("6.1.5.3.a - Non-OBD ECU responded with VIN");
         }

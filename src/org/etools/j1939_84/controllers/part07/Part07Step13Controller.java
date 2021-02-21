@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part07;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -52,8 +53,10 @@ public class Part07Step13Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.7.13.1.a. DS DM20 [(send Request (PGN 59904) for PGN 49664 (SPN 3048)]) to ECU(s) that responded in part 5 with DM20 data.
-        // 6.7.13.2.a. Fail if ignition cycle counter (SPN 3048) for any ECU has incremented by other than 3 cycles from part 5.
+        // 6.7.13.1.a. DS DM20 [(send Request (PGN 59904) for PGN 49664 (SPN 3048)]) to ECU(s) that responded in part 5
+        // with DM20 data.
+        // 6.7.13.2.a. Fail if ignition cycle counter (SPN 3048) for any ECU has incremented by other than 3 cycles from
+        // part 5.
     }
 
 }

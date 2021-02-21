@@ -5,6 +5,7 @@ package org.etools.j1939_84.controllers.part08;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -53,7 +54,8 @@ public class Part08Step10Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.8.10.1.a. DS DM25 [(send Request (PGN 59904) for PGN 64951 (SPNs 3300, 1214, 1215)]) to each OBD ECU.
-        // 6.8.10.2.a. Fail if DTC(s) reported in the freeze frame does not include either the DTC reported in DM12 or the DTC reported in DM23 earlier in this part
+        // 6.8.10.2.a. Fail if DTC(s) reported in the freeze frame does not include either the DTC reported in DM12 or
+        // the DTC reported in DM23 earlier in this part
         // 6.8.10.2.b. Fail if no freeze frame data (i.e. an empty freeze frame) is provided.
         // 6.8.10.2.c. Fail if NACK not received from OBD that did not provide an DM25 message.
         // 6.8.10.3.a. Warn if DTC reported by DM23 earlier in this part is not present in the freeze frame data.

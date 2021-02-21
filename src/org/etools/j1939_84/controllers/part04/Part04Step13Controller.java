@@ -11,6 +11,7 @@ import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -71,11 +72,11 @@ public class Part04Step13Controller extends StepController {
 
         // 6.4.13.1.a. DS DM3 [(send Request (PGN 59904) for PGN 65228)] to each OBD ECU
         var dsPackets = getDataRepository().getObdModules()
-                .stream()
-                .map(OBDModuleInformation::getSourceAddress)
-                .map(a -> getDiagnosticMessageModule().requestDM3(getListener(), a))
-                .flatMap(Collection::stream)
-                .collect(Collectors.toList());
+                                           .stream()
+                                           .map(OBDModuleInformation::getSourceAddress)
+                                           .map(a -> getDiagnosticMessageModule().requestDM3(getListener(), a))
+                                           .flatMap(Collection::stream)
+                                           .collect(Collectors.toList());
 
         // 6.4.13.1.b. Wait 5 seconds before checking for erased information.
         pause("Step 4.13.1.b. Waiting %1$d seconds", 5L);
@@ -85,21 +86,22 @@ public class Part04Step13Controller extends StepController {
         // 2 - Access Denied
         // 3 - Cannot Respond
         dsPackets.stream()
-                .filter(p -> {
-                    AcknowledgmentPacket.Response r = p.getResponse();
-                    return r != NACK && r != DENIED && r != BUSY;
-                })
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addFailure("6.4.13.2.a - " + moduleName + " did not NACK with control byte 1 or 2 or 3"));
+                 .filter(p -> {
+                     AcknowledgmentPacket.Response r = p.getResponse();
+                     return r != NACK && r != DENIED && r != BUSY;
+                 })
+                 .map(ParsedPacket::getModuleName)
+                 .forEach(moduleName -> addFailure("6.4.13.2.a - " + moduleName
+                         + " did not NACK with control byte 1 or 2 or 3"));
 
         // 6.4.13.2.a. Fail if any ECU erases any diagnostic information. See Section A.5 for more information.
         verifier.verifyDataNotErased(getListener(), "6.4.13.2.a");
 
         // 6.4.13.2.b. Warn if any OBD ECU NACKs with control byte = 3.
         dsPackets.stream()
-                .filter(p -> p.getResponse() == BUSY)
-                .map(ParsedPacket::getModuleName)
-                .forEach(moduleName -> addWarning("6.4.13.2.b - " + moduleName + " NACKs with control = 3"));
+                 .filter(p -> p.getResponse() == BUSY)
+                 .map(ParsedPacket::getModuleName)
+                 .forEach(moduleName -> addWarning("6.4.13.2.b - " + moduleName + " NACKs with control = 3"));
 
         // 6.4.13.3.a. Global DM3
         getDiagnosticMessageModule().requestDM3(getListener());

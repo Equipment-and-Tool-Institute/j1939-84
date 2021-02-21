@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers.part01;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -19,8 +20,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * <p>
- * The controller for 6.1.24 DM25: Expanded freeze frame
+ *         <p>
+ *         The controller for 6.1.24 DM25: Expanded freeze frame
  */
 public class Part01Step24Controller extends StepController {
 
@@ -67,29 +68,30 @@ public class Part01Step24Controller extends StepController {
         // 6.1.24.2.a. Fail if any OBD ECU provides freeze frame data other than no
         // freeze frame data stored [i.e., bytes 1-5= 0x00 and bytes 6-8 = 0xFF]
         getDataRepository().getObdModules()
-                .stream()
-                .filter(module -> !module.getFreezeFrameSPNs().isEmpty())
-                .map(OBDModuleInformation::getSourceAddress)
-                .flatMap(address -> getDiagnosticMessageModule().requestDM25(getListener(), address)
-                        .getPacket()
-                        .stream())
-                .flatMap(e -> e.left.stream())
-                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                .collect(Collectors.toList())
-                .stream()
-                .filter(packet -> {
-                    byte[] bytes = packet.getPacket().getBytes();
-                    return bytes[0] != 0x00
-                            || bytes[1] != 0x00
-                            || bytes[2] != 0x00
-                            || bytes[3] != 0x00
-                            || bytes[4] != 0x00
-                            || bytes[5] != (byte) 0xFF
-                            || bytes[6] != (byte) 0xFF
-                            || bytes[7] != (byte) 0xFF;
-                })
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addFailure("6.1.24.2.a - " + moduleName + " provided freeze frame data other than no freeze frame data stored"));
+                           .stream()
+                           .filter(module -> !module.getFreezeFrameSPNs().isEmpty())
+                           .map(OBDModuleInformation::getSourceAddress)
+                           .flatMap(address -> getDiagnosticMessageModule().requestDM25(getListener(), address)
+                                                                           .getPacket()
+                                                                           .stream())
+                           .flatMap(e -> e.left.stream())
+                           .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                           .collect(Collectors.toList())
+                           .stream()
+                           .filter(packet -> {
+                               byte[] bytes = packet.getPacket().getBytes();
+                               return bytes[0] != 0x00
+                                       || bytes[1] != 0x00
+                                       || bytes[2] != 0x00
+                                       || bytes[3] != 0x00
+                                       || bytes[4] != 0x00
+                                       || bytes[5] != (byte) 0xFF
+                                       || bytes[6] != (byte) 0xFF
+                                       || bytes[7] != (byte) 0xFF;
+                           })
+                           .map(ParsedPacket::getSourceAddress)
+                           .map(Lookup::getAddressName)
+                           .forEach(moduleName -> addFailure("6.1.24.2.a - " + moduleName
+                                   + " provided freeze frame data other than no freeze frame data stored"));
     }
 }

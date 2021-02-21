@@ -1,5 +1,5 @@
 /*
-  Copyright 2020 Equipment & Tool Institute
+ * Copyright 2020 Equipment & Tool Institute
  */
 package org.etools.j1939_84.controllers.part01;
 
@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
@@ -86,13 +87,13 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
 
         instance = new Part01Step14Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                diagnosticMessageModule,
-                dataRepository,
-                DateTimeModule.getInstance());
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              diagnosticMessageModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance());
 
         setup(instance,
               listener,
@@ -143,12 +144,39 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailures() {
         DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                          Packet.create(PGN,
+                                                                                                        0x01,
+                                                                                                        0x11,
+                                                                                                        0x22,
+                                                                                                        0x33,
+                                                                                                        0x44,
+                                                                                                        0x55,
+                                                                                                        0x66,
+                                                                                                        0x77,
+                                                                                                        0x88));
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                                          Packet.create(PGN,
+                                                                                                        0x03,
+                                                                                                        0x00,
+                                                                                                        0x00,
+                                                                                                        0x04,
+                                                                                                        0x00,
+                                                                                                        0xFF,
+                                                                                                        0xFF,
+                                                                                                        0xFF,
+                                                                                                        0xFF));
 
         DM26TripDiagnosticReadinessPacket obdPacket3 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                             Packet.create(PGN,
+                                                                                                           0x03,
+                                                                                                           0x11,
+                                                                                                           0x22,
+                                                                                                           0x13,
+                                                                                                           0x44,
+                                                                                                           0x55,
+                                                                                                           0x66,
+                                                                                                           0x77,
+                                                                                                           0x88));
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
         obdModule1.setMonitoredSystems(packet1.getMonitoredSystems());
@@ -170,113 +198,95 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x03));
 
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.b - Transmission #1 (3) response for a monitor NOx catalyst/adsorber in DM5 is reported as not supported and is reported as enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.b - Transmission #1 (3) response for a monitor NOx catalyst/adsorber in DM5 is reported as not supported and is reported as enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.b - Transmission #1 (3) response for a monitor Secondary air system in DM5 is reported as not supported and is reported as enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.b - Transmission #1 (3) response for a monitor Secondary air system in DM5 is reported as not supported and is reported as enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.b - Transmission #1 (3) response for a monitor NMHC converting catalyst in DM5 is reported as not supported and is reported as enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.b - Transmission #1 (3) response for a monitor NMHC converting catalyst in DM5 is reported as not supported and is reported as enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.b - Transmission #1 (3) response for a monitor Cold start aid system in DM5 is reported as not supported and is reported as enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.b - Transmission #1 (3) response for a monitor Cold start aid system in DM5 is reported as not supported and is reported as enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.b - Transmission #1 (3) response for a monitor Exhaust Gas Sensor in DM5 is reported as not supported and is reported as enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.b - Transmission #1 (3) response for a monitor Exhaust Gas Sensor in DM5 is reported as not supported and is reported as enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.b - Transmission #1 (3) response for a monitor EGR/VVT system in DM5 is reported as not supported and is reported as enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.b - Transmission #1 (3) response for a monitor EGR/VVT system in DM5 is reported as not supported and is reported as enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.c - Transmission #1 (3) response indicates support for monitor Comprehensive component in DM5 but is reported as not enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.c - Transmission #1 (3) response indicates support for monitor Comprehensive component in DM5 but is reported as not enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.b - Transmission #1 (3) response for a monitor Heated catalyst in DM5 is reported as not supported and is reported as enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.b - Transmission #1 (3) response for a monitor Heated catalyst in DM5 is reported as not supported and is reported as enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.d - Engine #2 (1) response indicates number of warm-ups since code clear is not zero"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.d - Engine #2 (1) response indicates number of warm-ups since code clear is not zero");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.d - Transmission #1 (3) response indicates number of warm-ups since code clear is not zero"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.d - Transmission #1 (3) response indicates number of warm-ups since code clear is not zero");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.e - Engine #2 (1) response indicates time since engine start is not zero"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.e - Engine #2 (1) response indicates time since engine start is not zero");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                WARN,
-                "6.1.14.3.a - Required monitor A/C system refrigerant is supported by more than one OBD ECU"
-        );
+                                        1,
+                                        14,
+                                        WARN,
+                                        "6.1.14.3.a - Required monitor A/C system refrigerant is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                WARN,
-                "6.1.14.3.a - Required monitor Boost pressure control sys is supported by more than one OBD ECU"
-        );
+                                        1,
+                                        14,
+                                        WARN,
+                                        "6.1.14.3.a - Required monitor Boost pressure control sys is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                WARN,
-                "6.1.14.3.a - Required monitor Catalyst is supported by more than one OBD ECU"
-        );
+                                        1,
+                                        14,
+                                        WARN,
+                                        "6.1.14.3.a - Required monitor Catalyst is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                WARN,
-                "6.1.14.3.a - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU"
-        );
+                                        1,
+                                        14,
+                                        WARN,
+                                        "6.1.14.3.a - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                WARN,
-                "6.1.14.3.a - Required monitor Evaporative system is supported by more than one OBD ECU"
-        );
+                                        1,
+                                        14,
+                                        WARN,
+                                        "6.1.14.3.a - Required monitor Evaporative system is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                WARN,
-                "6.1.14.3.a - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU"
-        );
+                                        1,
+                                        14,
+                                        WARN,
+                                        "6.1.14.3.a - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.5.a - Difference compared to data received during global request from Transmission #1 (3)"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.5.a - Difference compared to data received during global request from Transmission #1 (3)");
 
         String expectedResults = "" + NL;
         expectedResults += "Vehicle Composite of DM26:" + NL;
@@ -336,12 +346,39 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
     @Test
     public void testMoreFailures() {
         DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                          Packet.create(PGN,
+                                                                                                        0x01,
+                                                                                                        0x11,
+                                                                                                        0x22,
+                                                                                                        0x33,
+                                                                                                        0x44,
+                                                                                                        0x55,
+                                                                                                        0x66,
+                                                                                                        0x77,
+                                                                                                        0x88));
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                          Packet.create(PGN,
+                                                                                                        0x03,
+                                                                                                        0x11,
+                                                                                                        0x22,
+                                                                                                        (byte) 0x0A,
+                                                                                                        0x44,
+                                                                                                        0x55,
+                                                                                                        0x66,
+                                                                                                        0x77,
+                                                                                                        0x88));
 
         DM26TripDiagnosticReadinessPacket obdPacket1 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                                             Packet.create(PGN,
+                                                                                                           0x03,
+                                                                                                           0x00,
+                                                                                                           0x00,
+                                                                                                           0x00,
+                                                                                                           0x00,
+                                                                                                           0xFF,
+                                                                                                           0xFF,
+                                                                                                           0xFF,
+                                                                                                           0xFF));
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
         obdModule1.setMonitoredSystems(obdPacket1.getMonitoredSystems());
@@ -357,113 +394,95 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM26(any(), eq(0x01));
 
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.a - Engine #2 (1) response for a monitor Exhaust Gas Sensor in DM5 is reported as supported and is reported as not enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.a - Engine #2 (1) response for a monitor Exhaust Gas Sensor in DM5 is reported as supported and is reported as not enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.a - Engine #2 (1) response for a monitor Heated catalyst in DM5 is reported as supported and is reported as not enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.a - Engine #2 (1) response for a monitor Heated catalyst in DM5 is reported as supported and is reported as not enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.a - Engine #2 (1) response for a monitor EGR/VVT system in DM5 is reported as supported and is reported as not enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.a - Engine #2 (1) response for a monitor EGR/VVT system in DM5 is reported as supported and is reported as not enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.b - Engine #2 (1) response for a monitor Comprehensive component in DM5 is reported as not supported and is reported as enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.b - Engine #2 (1) response for a monitor Comprehensive component in DM5 is reported as not supported and is reported as enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.a - Engine #2 (1) response for a monitor Secondary air system in DM5 is reported as supported and is reported as not enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.a - Engine #2 (1) response for a monitor Secondary air system in DM5 is reported as supported and is reported as not enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.a - Engine #2 (1) response for a monitor NOx catalyst/adsorber in DM5 is reported as supported and is reported as not enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.a - Engine #2 (1) response for a monitor NOx catalyst/adsorber in DM5 is reported as supported and is reported as not enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.a - Engine #2 (1) response for a monitor NMHC converting catalyst in DM5 is reported as supported and is reported as not enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.a - Engine #2 (1) response for a monitor NMHC converting catalyst in DM5 is reported as supported and is reported as not enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.a - Engine #2 (1) response for a monitor Cold start aid system in DM5 is reported as supported and is reported as not enabled by DM26 response"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.a - Engine #2 (1) response for a monitor Cold start aid system in DM5 is reported as supported and is reported as not enabled by DM26 response");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.d - Engine #2 (1) response indicates number of warm-ups since code clear is not zero"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.d - Engine #2 (1) response indicates number of warm-ups since code clear is not zero");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.d - Transmission #1 (3) response indicates number of warm-ups since code clear is not zero"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.d - Transmission #1 (3) response indicates number of warm-ups since code clear is not zero");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.e - Engine #2 (1) response indicates time since engine start is not zero"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.e - Engine #2 (1) response indicates time since engine start is not zero");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                FAIL,
-                "6.1.14.2.e - Transmission #1 (3) response indicates time since engine start is not zero"
-        );
+                                        1,
+                                        14,
+                                        FAIL,
+                                        "6.1.14.2.e - Transmission #1 (3) response indicates time since engine start is not zero");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                WARN,
-                "6.1.14.3.a - Required monitor A/C system refrigerant is supported by more than one OBD ECU"
-        );
+                                        1,
+                                        14,
+                                        WARN,
+                                        "6.1.14.3.a - Required monitor A/C system refrigerant is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                WARN,
-                "6.1.14.3.a - Required monitor Boost pressure control sys is supported by more than one OBD ECU"
-        );
+                                        1,
+                                        14,
+                                        WARN,
+                                        "6.1.14.3.a - Required monitor Boost pressure control sys is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                WARN,
-                "6.1.14.3.a - Required monitor Catalyst is supported by more than one OBD ECU"
-        );
+                                        1,
+                                        14,
+                                        WARN,
+                                        "6.1.14.3.a - Required monitor Catalyst is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                WARN,
-                "6.1.14.3.a - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU"
-        );
+                                        1,
+                                        14,
+                                        WARN,
+                                        "6.1.14.3.a - Required monitor Diesel Particulate Filter is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                WARN,
-                "6.1.14.3.a - Required monitor Evaporative system is supported by more than one OBD ECU"
-        );
+                                        1,
+                                        14,
+                                        WARN,
+                                        "6.1.14.3.a - Required monitor Evaporative system is supported by more than one OBD ECU");
         verify(mockListener).addOutcome(
-                1,
-                14,
-                WARN,
-                "6.1.14.3.a - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU"
-        );
+                                        1,
+                                        14,
+                                        WARN,
+                                        "6.1.14.3.a - Required monitor Exhaust Gas Sensor heater is supported by more than one OBD ECU");
 
         String expectedResults = NL + "Vehicle Composite of DM26:" + NL;
         expectedResults += "    A/C system refrigerant         enabled, not complete" + NL;
@@ -494,7 +513,16 @@ public class Part01Step14ControllerTest extends AbstractControllerTest {
     public void testRun() {
 
         DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(PGN, 0x01, 0x00, 0x00, 0x00, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                          Packet.create(PGN,
+                                                                                                        0x01,
+                                                                                                        0x00,
+                                                                                                        0x00,
+                                                                                                        0x00,
+                                                                                                        0x44,
+                                                                                                        0x55,
+                                                                                                        0x66,
+                                                                                                        0x77,
+                                                                                                        0x88));
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(0x01);
         obdModule1.setMonitoredSystems(packet1.getMonitoredSystems());

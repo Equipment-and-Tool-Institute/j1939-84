@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.Packet;
 
 /**
@@ -52,7 +53,7 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
      * Constructor
      *
      * @param packet
-     *         the {@link Packet} to parse
+     *                   the {@link Packet} to parse
      */
     public DiagnosticTroubleCodePacket(Packet packet) {
         super(packet);
@@ -86,11 +87,11 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
     /**
      * Helper method to get a {@link LampStatus}
      *
-     * @param mask
-     *         the bit mask
-     * @param shift
-     *         the number of bits to shift to the right
-     * @return the {@link LampStatus} that corresponds to the value
+     * @param  mask
+     *                   the bit mask
+     * @param  shift
+     *                   the number of bits to shift to the right
+     * @return       the {@link LampStatus} that corresponds to the value
      */
     private LampStatus getLampStatus(int mask, int shift) {
         int onOff = getShaveAndAHaircut(0, mask, shift);
@@ -163,7 +164,8 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
         return dtcs;
     }
 
-    @Override public boolean equals(Object o) {
+    @Override
+    public boolean equals(Object o) {
         if (this == o) {
             return true;
         }
@@ -182,7 +184,8 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
                 && getRedStopLampStatus() == that.getRedStopLampStatus();
     }
 
-    @Override public int hashCode() {
+    @Override
+    public int hashCode() {
         return Objects.hash(super.hashCode(),
                             getAmberWarningLampStatus(),
                             getDtcs(),

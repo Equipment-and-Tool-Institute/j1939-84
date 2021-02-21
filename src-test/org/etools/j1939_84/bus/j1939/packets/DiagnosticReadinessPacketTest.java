@@ -9,7 +9,6 @@ import static org.junit.Assert.assertTrue;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Set;
 
 import org.etools.j1939_84.bus.Packet;
 import org.junit.Ignore;
@@ -58,7 +57,8 @@ public abstract class DiagnosticReadinessPacketTest {
 
     public void testEqualsAndHashCodeSelf() {
         DiagnosticReadinessPacket instance = createInstance(
-                new int[] { 0x11, 0x22, 0x33, 0x00, 0x55, 0x66, 0x77, 0x88 });
+                0x11, 0x22, 0x33, 0x00, 0x55, 0x66, 0x77,
+                0x88);
         assertTrue(instance.equals(instance));
         assertTrue(instance.hashCode() == instance.hashCode());
     }
@@ -68,7 +68,7 @@ public abstract class DiagnosticReadinessPacketTest {
         for (int i = 1; i < 255; i++) {
             DiagnosticReadinessPacket instance2 = createInstance(0x11, 0x22, 0x33, i, 0x55, 0x66, 0x77, 0x88);
             boolean equal = Objects.equals(instance1.getContinuouslyMonitoredSystems(),
-                    instance2.getContinuouslyMonitoredSystems());
+                                           instance2.getContinuouslyMonitoredSystems());
             assertEquals("Failed at index " + i, equal, instance1.equals(instance2));
         }
     }
@@ -103,7 +103,7 @@ public abstract class DiagnosticReadinessPacketTest {
     }
 
     public void testGetMonitoredSystems() {
-        DiagnosticReadinessPacket instance = createInstance(new int[] { 0, 0, 0, 0, 0, 0, 0, 0 });
+        DiagnosticReadinessPacket instance = createInstance(0, 0, 0, 0, 0, 0, 0, 0);
 
         List<MonitoredSystem> nonContSystems = instance.getNonContinuouslyMonitoredSystems();
         List<MonitoredSystem> contSystems = instance.getContinuouslyMonitoredSystems();
@@ -167,27 +167,47 @@ public abstract class DiagnosticReadinessPacketTest {
 
     private void validateNonContinouslyMonitoredSystem1(CompositeSystem system, final int sourceAddress) {
         validateNonContinouslyMonitoredSystems1(system, sourceAddress, 0x00, 0x00, findStatus(false, true));
-        validateNonContinouslyMonitoredSystems1(system, sourceAddress, 0x00, system.getMask(),
-                findStatus(false, false));
-        validateNonContinouslyMonitoredSystems1(system, sourceAddress, system.getMask(), 0x00,
-                findStatus(true, true));
-        validateNonContinouslyMonitoredSystems1(system, sourceAddress, system.getMask(), system.getMask(),
-                findStatus(true, false));
+        validateNonContinouslyMonitoredSystems1(system,
+                                                sourceAddress,
+                                                0x00,
+                                                system.getMask(),
+                                                findStatus(false, false));
+        validateNonContinouslyMonitoredSystems1(system,
+                                                sourceAddress,
+                                                system.getMask(),
+                                                0x00,
+                                                findStatus(true, true));
+        validateNonContinouslyMonitoredSystems1(system,
+                                                sourceAddress,
+                                                system.getMask(),
+                                                system.getMask(),
+                                                findStatus(true, false));
     }
 
     private void validateNonContinouslyMonitoredSystem2(final CompositeSystem sys, final int sourceAddress) {
         validateNonContinouslyMonitoredSystems2(sys.getName(), sourceAddress, 0x00, 0x00, findStatus(false, true));
-        validateNonContinouslyMonitoredSystems2(sys.getName(), sourceAddress, 0x00, sys.getMask(),
-                findStatus(false, false));
-        validateNonContinouslyMonitoredSystems2(sys.getName(), sourceAddress, sys.getMask(), 0x00,
-                findStatus(true, true));
-        validateNonContinouslyMonitoredSystems2(sys.getName(), sourceAddress, sys.getMask(), sys.getMask(),
-                findStatus(true, false));
+        validateNonContinouslyMonitoredSystems2(sys.getName(),
+                                                sourceAddress,
+                                                0x00,
+                                                sys.getMask(),
+                                                findStatus(false, false));
+        validateNonContinouslyMonitoredSystems2(sys.getName(),
+                                                sourceAddress,
+                                                sys.getMask(),
+                                                0x00,
+                                                findStatus(true, true));
+        validateNonContinouslyMonitoredSystems2(sys.getName(),
+                                                sourceAddress,
+                                                sys.getMask(),
+                                                sys.getMask(),
+                                                findStatus(true, false));
     }
 
-    private void validateNonContinouslyMonitoredSystems1(CompositeSystem system, int sourceAddress, int lowerByte,
-            int upperByte,
-            MonitoredSystemStatus status) {
+    private void validateNonContinouslyMonitoredSystems1(CompositeSystem system,
+                                                         int sourceAddress,
+                                                         int lowerByte,
+                                                         int upperByte,
+                                                         MonitoredSystemStatus status) {
         DiagnosticReadinessPacket instance = createInstance(0, 0, 0, 0, lowerByte, 0, upperByte, 0);
 
         final List<MonitoredSystem> monitoredSystems = instance.getNonContinuouslyMonitoredSystems();
@@ -198,8 +218,11 @@ public abstract class DiagnosticReadinessPacketTest {
         assertEquals(status, monitoredSystem.getStatus());
     }
 
-    private void validateNonContinouslyMonitoredSystems2(String name, int index, int lowerByte, int upperByte,
-            MonitoredSystemStatus status) {
+    private void validateNonContinouslyMonitoredSystems2(String name,
+                                                         int index,
+                                                         int lowerByte,
+                                                         int upperByte,
+                                                         MonitoredSystemStatus status) {
         DiagnosticReadinessPacket instance = createInstance(0, 0, 0, 0, 0, lowerByte, 0, upperByte);
 
         final List<MonitoredSystem> systems = instance.getNonContinuouslyMonitoredSystems();

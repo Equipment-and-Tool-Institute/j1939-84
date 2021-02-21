@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -23,8 +24,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * <p>
- * The controller for 6.1.21 DM27: All Pending DTCs
+ *         <p>
+ *         The controller for 6.1.21 DM27: All Pending DTCs
  */
 
 public class Part01Step21Controller extends StepController {
@@ -67,38 +68,39 @@ public class Part01Step21Controller extends StepController {
 
         // 6.1.21.1.a. Global DM27 (send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 3038, 1706)).
         List<DM27AllPendingDTCsPacket> globalPackets = getDiagnosticMessageModule().requestDM27(getListener())
-                .getPackets();
+                                                                                   .getPackets();
 
-        //Save the packet for later use
+        // Save the packet for later use
         globalPackets.stream()
-                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                .forEach(p -> {
-                    var obdModule = getDataRepository().getObdModule(p.getSourceAddress());
-                    obdModule.set(p);
-                    getDataRepository().putObdModule(obdModule);
-                });
+                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                     .forEach(p -> {
+                         var obdModule = getDataRepository().getObdModule(p.getSourceAddress());
+                         obdModule.set(p);
+                         getDataRepository().putObdModule(obdModule);
+                     });
 
         // 6.1.21.2.a. Fail if any OBD ECU reports an all pending DTC.
         globalPackets.stream()
-                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> !p.getDtcs().isEmpty())
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addFailure("6.1.21.2.a - " + moduleName + " reported an all pending DTC"));
+                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                     .filter(p -> !p.getDtcs().isEmpty())
+                     .map(ParsedPacket::getSourceAddress)
+                     .map(Lookup::getAddressName)
+                     .forEach(moduleName -> addFailure("6.1.21.2.a - " + moduleName + " reported an all pending DTC"));
 
         // 6.1.21.2.b. Fail if any ECU does not report MIL off
         globalPackets.stream()
-                .filter(p -> p.getMalfunctionIndicatorLampStatus() != LampStatus.OFF)
-                .map(ParsedPacket::getSourceAddress)
-                .map(Lookup::getAddressName)
-                .forEach(moduleName -> addFailure("6.1.21.2.b - " + moduleName + " did not report MIL off"));
+                     .filter(p -> p.getMalfunctionIndicatorLampStatus() != LampStatus.OFF)
+                     .map(ParsedPacket::getSourceAddress)
+                     .map(Lookup::getAddressName)
+                     .forEach(moduleName -> addFailure("6.1.21.2.b - " + moduleName + " did not report MIL off"));
 
         List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
 
         // 6.1.21.3.a. DS DM28 to each OBD ECU.
         List<BusResult<DM27AllPendingDTCsPacket>> dsResults = obdModuleAddresses.stream()
-                .map(address -> getDiagnosticMessageModule().requestDM27(getListener(), address))
-                .collect(Collectors.toList());
+                                                                                .map(address -> getDiagnosticMessageModule().requestDM27(getListener(),
+                                                                                                                                         address))
+                                                                                .collect(Collectors.toList());
 
         // 6.1.20.4.a. Fail if any difference compared to data received during global request.
         List<DM27AllPendingDTCsPacket> dsPackets = filterPackets(dsResults);

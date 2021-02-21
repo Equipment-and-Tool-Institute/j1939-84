@@ -16,6 +16,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -135,14 +136,14 @@ public class Part05Step04ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
         var dtc = DiagnosticTroubleCode.create(123, 9, 0, 14);
 
-        //Module 0 will response
+        // Module 0 will response
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc));
         dataRepository.putObdModule(obdModuleInformation);
         var dm28 = DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc);
         when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(new BusResult<>(false, dm28));
 
-        //Module 1 will NACK
+        // Module 1 will NACK
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var nack = AcknowledgmentPacket.create(1, NACK);
         when(diagnosticMessageModule.requestDM28(any(), eq(1))).thenReturn(new BusResult<>(false, nack));

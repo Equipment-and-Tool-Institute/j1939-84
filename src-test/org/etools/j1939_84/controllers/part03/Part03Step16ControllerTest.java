@@ -17,6 +17,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.QuestionListener;
@@ -142,7 +143,8 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Please confirm Fault A is still implanted according to the manufacturer's instruction" + NL;
+        String urgentMessages = "Please confirm Fault A is still implanted according to the manufacturer's instruction"
+                + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
         String expectedTitle = "Part 6.3.16.1.b";
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
@@ -153,7 +155,8 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
 
         questionCaptor.getValue().answered(NO);
 
-        String urgentMessages2 = "Please wait for the manufacturer's recommended interval with the key in off position" + NL;
+        String urgentMessages2 = "Please wait for the manufacturer's recommended interval with the key in off position"
+                + NL;
         urgentMessages2 += "Press OK to continue the testing" + NL;
         String expectedTitle2 = "Part 6.3.16.1.c";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
@@ -201,7 +204,8 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Please confirm Fault A is still implanted according to the manufacturer's instruction" + NL;
+        String urgentMessages = "Please confirm Fault A is still implanted according to the manufacturer's instruction"
+                + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
         String expectedTitle = "Part 6.3.16.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
@@ -210,7 +214,8 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages2 = "Please wait for the manufacturer's recommended interval with the key in off position" + NL;
+        String urgentMessages2 = "Please wait for the manufacturer's recommended interval with the key in off position"
+                + NL;
         urgentMessages2 += "Press OK to continue the testing" + NL;
         String expectedTitle2 = "Part 6.3.16.1.c";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
@@ -252,7 +257,8 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
-        String urgentMessages = "Please confirm Fault A is still implanted according to the manufacturer's instruction" + NL;
+        String urgentMessages = "Please confirm Fault A is still implanted according to the manufacturer's instruction"
+                + NL;
         urgentMessages += "Press OK when ready to continue testing" + NL;
         String expectedTitle = "Part 6.3.16.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
@@ -261,7 +267,8 @@ public class Part03Step16ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages2 = "Please wait for the manufacturer's recommended interval with the key in off position" + NL;
+        String urgentMessages2 = "Please wait for the manufacturer's recommended interval with the key in off position"
+                + NL;
         urgentMessages2 += "Press OK to continue the testing" + NL;
         String expectedTitle2 = "Part 6.3.16.1.c";
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),

@@ -15,6 +15,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
@@ -130,19 +131,19 @@ public class Part05Step03ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
-        //Module 0 responds properly
+        // Module 0 responds properly
         var dtc0 = DiagnosticTroubleCode.create(123, 14, 1, 1);
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0));
         dataRepository.putObdModule(obdModuleInformation0);
         var dm1_0 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc0);
 
-        //Module 1 is an OBD Module without a DM12 from the previous step
+        // Module 1 is an OBD Module without a DM12 from the previous step
         var dtc1 = DiagnosticTroubleCode.create(456, 14, 1, 1);
         dataRepository.putObdModule(new OBDModuleInformation(1));
         var dm1_1 = DM1ActiveDTCsPacket.create(1, FAST_FLASH, OFF, OFF, OFF, dtc1);
 
-        //Module 2 is a non-OBD Module
+        // Module 2 is a non-OBD Module
         var dm1_2 = DM1ActiveDTCsPacket.create(2, OFF, OFF, OFF, OFF);
 
         when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1, dm1_2));

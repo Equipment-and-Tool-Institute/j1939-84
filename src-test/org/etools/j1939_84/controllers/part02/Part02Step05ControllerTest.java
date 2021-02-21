@@ -15,6 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -145,24 +146,75 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
      */
     @Test
     public void testRunHappyPathOneModuleThreeCalibration() {
-        //formatter:off
+        // formatter:off
         Packet packet = Packet.create(DM19CalibrationInformationPacket.PGN,
                                       0x00,
                                       // Cal #1
-                                      0x51, 0xBA, 0xFE, 0xBD, 0x41, 0x4E,
-                                      0x54, 0x35, 0x41, 0x53, 0x52, 0x31, 0x20,
-                                      0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                      0x51,
+                                      0xBA,
+                                      0xFE,
+                                      0xBD,
+                                      0x41,
+                                      0x4E,
+                                      0x54,
+                                      0x35,
+                                      0x41,
+                                      0x53,
+                                      0x52,
+                                      0x31,
+                                      0x20,
+                                      0x20,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
 
                                       // Cal #2
-                                      0x96, 0xBF, 0xDC, 0x40, 0x50, 0x42, 0x54,
-                                      0x35, 0x4D, 0x50, 0x52, 0x33, 0x00, 0x00,
-                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                      0x96,
+                                      0xBF,
+                                      0xDC,
+                                      0x40,
+                                      0x50,
+                                      0x42,
+                                      0x54,
+                                      0x35,
+                                      0x4D,
+                                      0x50,
+                                      0x52,
+                                      0x33,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
 
                                       // Cal #3
-                                      0x40, 0x91, 0xB9, 0x3E, 0x52, 0x50, 0x52,
-                                      0x42, 0x42, 0x41, 0x31, 0x30, 0x00, 0x00,
-                                      0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-        //formatter:on
+                                      0x40,
+                                      0x91,
+                                      0xB9,
+                                      0x3E,
+                                      0x52,
+                                      0x50,
+                                      0x52,
+                                      0x42,
+                                      0x42,
+                                      0x41,
+                                      0x31,
+                                      0x30,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00,
+                                      0x00);
+        // formatter:on
         DM19CalibrationInformationPacket dm19CalibrationInformationPacket = new DM19CalibrationInformationPacket(packet);
         OBDModuleInformation obd0x00 = new OBDModuleInformation(0x00);
         obd0x00.setCalibrationInformation(dm19CalibrationInformationPacket.getCalibrationInformation());
@@ -173,7 +225,8 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, dm19CalibrationInformationPacket));
+                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                dm19CalibrationInformationPacket));
 
         runTest();
 
@@ -189,7 +242,7 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
     }
 
     /*
-     *  Make sure we respond correctly when no OBDModule in the repository
+     * Make sure we respond correctly when no OBDModule in the repository
      */
     @Test
     public void testRunNoModulesRespond() {
@@ -207,52 +260,137 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
     @Test
     public void testRunWithWarningsAndFailures() {
 
-        //formatter:off
+        // formatter:off
         Packet packet0x00 = Packet.create(DM19CalibrationInformationPacket.PGN,
                                           0x00,
                                           // Cal #1
-                                          0x51, 0xBA, 0xFE, 0xBD, 0x41, 0x4E,
-                                          0x54, 0x35, 0x41, 0x53, 0x52, 0x31, 0x20,
-                                          0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                          0x51,
+                                          0xBA,
+                                          0xFE,
+                                          0xBD,
+                                          0x41,
+                                          0x4E,
+                                          0x54,
+                                          0x35,
+                                          0x41,
+                                          0x53,
+                                          0x52,
+                                          0x31,
+                                          0x20,
+                                          0x20,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
 
                                           // Cal #2
-                                          0x96, 0xBF, 0xDC, 0x40, 0x50, 0x42, 0x54,
-                                          0x35, 0x4D, 0x50, 0x52, 0x33, 0x00, 0x00,
-                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00,
+                                          0x96,
+                                          0xBF,
+                                          0xDC,
+                                          0x40,
+                                          0x50,
+                                          0x42,
+                                          0x54,
+                                          0x35,
+                                          0x4D,
+                                          0x50,
+                                          0x52,
+                                          0x33,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
 
                                           // Cal #3
-                                          0x40, 0x91, 0xB9, 0x3E, 0x52, 0x50, 0x52,
-                                          0x42, 0x42, 0x41, 0x31, 0x30, 0x00, 0x00,
-                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-        //formatter:on
+                                          0x40,
+                                          0x91,
+                                          0xB9,
+                                          0x3E,
+                                          0x52,
+                                          0x50,
+                                          0x52,
+                                          0x42,
+                                          0x42,
+                                          0x41,
+                                          0x31,
+                                          0x30,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00);
+        // formatter:on
         DM19CalibrationInformationPacket dm19CalibrationInformationPacket0x00 = new DM19CalibrationInformationPacket(
-                packet0x00);
+                                                                                                                     packet0x00);
         OBDModuleInformation obd0x00 = new OBDModuleInformation(0x00);
         obd0x00.setCalibrationInformation(dm19CalibrationInformationPacket0x00.getCalibrationInformation());
 
-        //formatter:off
+        // formatter:off
         Packet packet0x01 = Packet.create(DM19CalibrationInformationPacket.PGN,
                                           0x01,
                                           // Cal #1
-                                          0x00, 0xAC, 0xFF, 0x33, 0x41, 0x4E,
-                                          0x54, 0x35, 0x41, 0x53, 0x52, 0x31, 0x20,
-                                          0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-        //formatter:on
+                                          0x00,
+                                          0xAC,
+                                          0xFF,
+                                          0x33,
+                                          0x41,
+                                          0x4E,
+                                          0x54,
+                                          0x35,
+                                          0x41,
+                                          0x53,
+                                          0x52,
+                                          0x31,
+                                          0x20,
+                                          0x20,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00);
+        // formatter:on
         DM19CalibrationInformationPacket dm19CalibrationInformationPacket0x01 = new DM19CalibrationInformationPacket(
-                packet0x01);
+                                                                                                                     packet0x01);
         OBDModuleInformation obd0x01 = new OBDModuleInformation(0x01);
         obd0x01.setCalibrationInformation(dm19CalibrationInformationPacket0x01.getCalibrationInformation());
 
-        //formatter:off
+        // formatter:off
         Packet packet0x02 = Packet.create(DM19CalibrationInformationPacket.PGN,
                                           0x02,
                                           // Cal #1
-                                          0x96, 0xBF, 0xDC, 0x40, 0x50, 0x42, 0x54,
-                                          0x35, 0x4D, 0x50, 0x52, 0x33, 0x00, 0x00,
-                                          0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-        //formatter:on
+                                          0x96,
+                                          0xBF,
+                                          0xDC,
+                                          0x40,
+                                          0x50,
+                                          0x42,
+                                          0x54,
+                                          0x35,
+                                          0x4D,
+                                          0x50,
+                                          0x52,
+                                          0x33,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00,
+                                          0x00);
+        // formatter:on
         DM19CalibrationInformationPacket dm19CalibrationInformationPacket0x02 = new DM19CalibrationInformationPacket(
-                packet0x02);
+                                                                                                                     packet0x02);
         OBDModuleInformation obd0x02 = new OBDModuleInformation(0x02);
         obd0x02.setCalibrationInformation(dm19CalibrationInformationPacket0x02.getCalibrationInformation());
 
@@ -263,24 +401,44 @@ public class Part02Step05ControllerTest extends AbstractControllerTest {
 
         when(dataRepository.getObdModules()).thenReturn(obdModuleInformations);
 
-        //formatter:off
+        // formatter:off
         Packet packet0x01V2 = Packet.create(DM19CalibrationInformationPacket.PGN,
                                             0x01,
                                             // Cal #1
-                                            0x51, 0xBA, 0xFE, 0xBD, 0x41, 0x4E,
-                                            0x54, 0x35, 0x41, 0x53, 0x52, 0x31, 0x20,
-                                            0x20, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00);
-        //formatter:on
+                                            0x51,
+                                            0xBA,
+                                            0xFE,
+                                            0xBD,
+                                            0x41,
+                                            0x4E,
+                                            0x54,
+                                            0x35,
+                                            0x41,
+                                            0x53,
+                                            0x52,
+                                            0x31,
+                                            0x20,
+                                            0x20,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00,
+                                            0x00);
+        // formatter:on
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x00)))
-                .thenReturn(new BusResult<>(false, dm19CalibrationInformationPacket0x00));
+                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                dm19CalibrationInformationPacket0x00));
 
         DM19CalibrationInformationPacket dm19CalibrationInformationPacket0x01V2 = new DM19CalibrationInformationPacket(
-                packet0x01V2);
+                                                                                                                       packet0x01V2);
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, dm19CalibrationInformationPacket0x01V2));
+                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                dm19CalibrationInformationPacket0x01V2));
 
         when(vehicleInformationModule.reportCalibrationInformation(any(), eq(0x02)))
-                .thenReturn(new BusResult<>(false, Optional.empty()));
+                                                                                    .thenReturn(new BusResult<>(false,
+                                                                                                                Optional.empty()));
 
         runTest();
 

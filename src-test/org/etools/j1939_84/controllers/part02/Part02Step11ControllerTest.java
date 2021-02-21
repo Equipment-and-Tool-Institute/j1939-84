@@ -12,6 +12,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -78,13 +79,13 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
         DateTimeModule.setInstance(null);
 
         instance = new Part02Step11Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                dataRepository,
-                DateTimeModule.getInstance(),
-                diagnosticMessageModule);
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance(),
+                                              diagnosticMessageModule);
 
         setup(instance,
               listener,
@@ -143,7 +144,16 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailures() {
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                        Packet.create(PGN,
+                                                                                      0x01,
+                                                                                      0x11,
+                                                                                      0x22,
+                                                                                      0x33,
+                                                                                      0x44,
+                                                                                      0x55,
+                                                                                      0x66,
+                                                                                      0x77,
+                                                                                      0x88));
 
         OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
         obdModule1.set(packet1);
@@ -154,13 +164,31 @@ public class Part02Step11ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM27(any(), eq(0x02))).thenReturn(new BusResult<>(true));
 
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                        Packet.create(PGN,
+                                                                                      0x03,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x04,
+                                                                                      0x00,
+                                                                                      0xFF,
+                                                                                      0xFF,
+                                                                                      0xFF,
+                                                                                      0xFF));
         OBDModuleInformation obdModule2 = new OBDModuleInformation(3);
         obdModule2.set(packet3);
         dataRepository.putObdModule(obdModule2);
 
         DM27AllPendingDTCsPacket obdPacket3 = new DM27AllPendingDTCsPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                           Packet.create(PGN,
+                                                                                         0x03,
+                                                                                         0x11,
+                                                                                         0x22,
+                                                                                         0x13,
+                                                                                         0x44,
+                                                                                         0x55,
+                                                                                         0x66,
+                                                                                         0x77,
+                                                                                         0x88));
         when(diagnosticMessageModule.requestDM27(any(), eq(0x03))).thenReturn(new BusResult<>(false, obdPacket3));
 
         when(diagnosticMessageModule.requestDM27(any())).thenReturn(new RequestResult<>(false, packet1, packet3));

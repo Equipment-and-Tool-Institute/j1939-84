@@ -11,6 +11,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
@@ -48,7 +49,11 @@ public class SectionA5Verifier {
     private final int stepNumber;
 
     public SectionA5Verifier(int partNumber, int stepNumber) {
-        this(DataRepository.getInstance(), new DiagnosticMessageModule(), new VehicleInformationModule(), partNumber, stepNumber);
+        this(DataRepository.getInstance(),
+             new DiagnosticMessageModule(),
+             new VehicleInformationModule(),
+             partNumber,
+             stepNumber);
     }
 
     protected SectionA5Verifier(DataRepository dataRepository,
@@ -69,15 +74,15 @@ public class SectionA5Verifier {
     }
 
     public void verifyDataNotErased(ResultsListener listener, String section) {
-        //TODO
-        listener.addOutcome(partNumber, stepNumber, INCOMPLETE, section +" - hasn't finishing implementing this");
+        // TODO
+        listener.addOutcome(partNumber, stepNumber, INCOMPLETE, section + " - hasn't finishing implementing this");
     }
 
     public boolean verify(List<DM28PermanentEmissionDTCPacket> previousDM28Packets,
-            List<DM20MonitorPerformanceRatioPacket> previousDM20Packets,
-            List<DM33EmissionIncreasingAECDActiveTime> previousDM33Packets,
-            List<EngineHoursPacket> previousEngineHoursPackets,
-            ResultsListener listener) {
+                          List<DM20MonitorPerformanceRatioPacket> previousDM20Packets,
+                          List<DM33EmissionIncreasingAECDActiveTime> previousDM33Packets,
+                          List<EngineHoursPacket> previousEngineHoursPackets,
+                          ResultsListener listener) {
 
         boolean passed = true;
 
@@ -144,19 +149,24 @@ public class SectionA5Verifier {
     public boolean verifyDM12(ResultsListener listener) {
         // b. DM12 active shall report no DTCs and MIL off and not flashing
         List<DM12MILOnEmissionDTCPacket> dm12Packets = diagnosticMessageModule.requestDM12(listener)
-                .getPackets()
-                .stream()
-                .filter(t -> (!t.getDtcs().isEmpty()) ||
-                        (t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF))
-                .collect(Collectors.toList());
+                                                                              .getPackets()
+                                                                              .stream()
+                                                                              .filter(t -> (!t.getDtcs().isEmpty()) ||
+                                                                                      (t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF))
+                                                                              .collect(Collectors.toList());
 
         if (!dm12Packets.isEmpty()) {
             StringBuilder failureMessage = new StringBuilder(
-                    "Section A.5 verification failed during DM12 check done at table step 1.b");
+                                                             "Section A.5 verification failed during DM12 check done at table step 1.b");
             failureMessage.append(NL).append("Modules with source address ");
-            dm12Packets.forEach(packet -> failureMessage.append(packet.getSourceAddress()).append(", reported ")
-                    .append(packet.getDtcs().size()).append(" DTCs.").append(NL).append("MIL status is : ")
-                    .append(packet.getMalfunctionIndicatorLampStatus()).append("."));
+            dm12Packets.forEach(packet -> failureMessage.append(packet.getSourceAddress())
+                                                        .append(", reported ")
+                                                        .append(packet.getDtcs().size())
+                                                        .append(" DTCs.")
+                                                        .append(NL)
+                                                        .append("MIL status is : ")
+                                                        .append(packet.getMalfunctionIndicatorLampStatus())
+                                                        .append("."));
             listener.onProgress(failureMessage.toString());
             return false;
         } else {
@@ -172,17 +182,17 @@ public class SectionA5Verifier {
         // number of ignition cycles, general denominators, monitor specific
         // numerators, and monitor specific denominators.
         List<DM20MonitorPerformanceRatioPacket> dm20Packets = new ArrayList<>(diagnosticMessageModule
-                .requestDM20(listener)
-                .getPackets());
+                                                                                                     .requestDM20(listener)
+                                                                                                     .getPackets());
         if (!dm20Packets.equals(previousDM20Packets)) {
             StringBuilder failMessage = new StringBuilder(
-                    "Section A.5 verification failed during DM20 check done at table step 7.a");
+                                                          "Section A.5 verification failed during DM20 check done at table step 7.a");
             failMessage.append(NL)
-                    .append("Previous Monitor Performance Ratio (DM20):")
-                    .append(NL);
+                       .append("Previous Monitor Performance Ratio (DM20):")
+                       .append(NL);
             previousDM20Packets.forEach(p -> failMessage.append(p.toString()).append(NL));
             failMessage.append("Post Monitor Performance Ratio (DM20):")
-                    .append(NL);
+                       .append(NL);
             dm20Packets.forEach(p -> failMessage.append(p.toString()).append(NL));
             listener.onProgress(failMessage.toString());
             return false;
@@ -197,35 +207,39 @@ public class SectionA5Verifier {
         // on and minutes run with MIL on
         // 5.b. DM21 diagnostic readiness 2 shall report 0 for distance since
         // code clear and minutes run since code clear
-        List<DM21DiagnosticReadinessPacket> dm21Packets = diagnosticMessageModule.requestDM21(listener).getPackets()
-                .stream()
-                .filter(packet -> packet.getKmWhileMILIsActivated() != 0 ||
-                        packet.getMinutesWhileMILIsActivated() != 0 ||
-                        packet.getKmSinceDTCsCleared() != 0 ||
-                        packet.getMinutesSinceDTCsCleared() != 0)
-                .collect(Collectors.toList());
+        List<DM21DiagnosticReadinessPacket> dm21Packets = diagnosticMessageModule.requestDM21(listener)
+                                                                                 .getPackets()
+                                                                                 .stream()
+                                                                                 .filter(packet -> packet.getKmWhileMILIsActivated() != 0
+                                                                                         ||
+                                                                                         packet.getMinutesWhileMILIsActivated() != 0
+                                                                                         ||
+                                                                                         packet.getKmSinceDTCsCleared() != 0
+                                                                                         ||
+                                                                                         packet.getMinutesSinceDTCsCleared() != 0)
+                                                                                 .collect(Collectors.toList());
 
         if (!dm21Packets.isEmpty()) {
             StringBuilder failureMessage = new StringBuilder(
-                    "Section A.5 verification failed during DM21 check done at table step 3.b & 5.b");
+                                                             "Section A.5 verification failed during DM21 check done at table step 3.b & 5.b");
             failureMessage.append(NL).append("Modules with source address ");
             dm21Packets.forEach(packet -> failureMessage.append(packet.getSourceAddress())
-                    .append(", reported :")
-                    .append(NL)
-                    .append(packet.getKmWhileMILIsActivated())
-                    .append(" km(s) for distance with the MIL on")
-                    .append(NL)
-                    .append(packet.getMinutesWhileMILIsActivated())
-                    .append(" minute(s) run with the MIL on")
-                    .append(NL)
-                    .append(packet.getMinutesWhileMILIsActivated())
-                    .append(" minute(s) while MIL is activated")
-                    .append(NL)
-                    .append(packet.getKmSinceDTCsCleared())
-                    .append(" km(s) since DTC code clear sent")
-                    .append(NL)
-                    .append(packet.getMinutesSinceDTCsCleared())
-                    .append(" minute(s) since the DTC code clear sent"));
+                                                        .append(", reported :")
+                                                        .append(NL)
+                                                        .append(packet.getKmWhileMILIsActivated())
+                                                        .append(" km(s) for distance with the MIL on")
+                                                        .append(NL)
+                                                        .append(packet.getMinutesWhileMILIsActivated())
+                                                        .append(" minute(s) run with the MIL on")
+                                                        .append(NL)
+                                                        .append(packet.getMinutesWhileMILIsActivated())
+                                                        .append(" minute(s) while MIL is activated")
+                                                        .append(NL)
+                                                        .append(packet.getKmSinceDTCsCleared())
+                                                        .append(" km(s) since DTC code clear sent")
+                                                        .append(NL)
+                                                        .append(packet.getMinutesSinceDTCsCleared())
+                                                        .append(" minute(s) since the DTC code clear sent"));
             listener.onProgress(failureMessage.toString());
             return false;
         } else {
@@ -237,20 +251,27 @@ public class SectionA5Verifier {
     public boolean verifyDM23(ResultsListener listener) {
         // c. DM23 previously active shall report no DTCs and MIL off and not
         // flashing
-        List<DM23PreviouslyMILOnEmissionDTCPacket> dm23Packets = diagnosticMessageModule.requestDM23(listener).getPackets()
-                .stream()
-                .filter(t -> !t.getDtcs().isEmpty() ||
-                        t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF)
-                .collect(Collectors.toList());
+        List<DM23PreviouslyMILOnEmissionDTCPacket> dm23Packets = diagnosticMessageModule.requestDM23(listener)
+                                                                                        .getPackets()
+                                                                                        .stream()
+                                                                                        .filter(t -> !t.getDtcs()
+                                                                                                       .isEmpty()
+                                                                                                ||
+                                                                                                t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF)
+                                                                                        .collect(Collectors.toList());
         if (!dm23Packets.isEmpty()) {
             StringBuilder failureMessage = new StringBuilder(
-                    "Section A.5 verification failed during DM23 check done at table step 1.c");
+                                                             "Section A.5 verification failed during DM23 check done at table step 1.c");
             dm23Packets.forEach(packet -> failureMessage.append(NL)
-                    .append("Module with source address ")
-                    .append(packet.getSourceAddress())
-                    .append(", reported ")
-                    .append(packet.getDtcs().size()).append(" DTCs.").append(NL).append("MIL status is : ")
-                    .append(packet.getMalfunctionIndicatorLampStatus()).append("."));
+                                                        .append("Module with source address ")
+                                                        .append(packet.getSourceAddress())
+                                                        .append(", reported ")
+                                                        .append(packet.getDtcs().size())
+                                                        .append(" DTCs.")
+                                                        .append(NL)
+                                                        .append("MIL status is : ")
+                                                        .append(packet.getMalfunctionIndicatorLampStatus())
+                                                        .append("."));
             listener.onProgress(failureMessage.toString());
             return false;
         } else {
@@ -265,34 +286,37 @@ public class SectionA5Verifier {
         // freeze frame with bytes 1-5 = 0 and bytes 6-8 = 255 (**Remember array
         // are zero based**)
         List<DM25ExpandedFreezeFrame> dm25Packets = obdModuleAddresses.stream()
-                // convert address to DM25
-                .flatMap(address -> diagnosticMessageModule.requestDM25(listener, address).getPacket().stream())
-                // ignore DM25 NACKs
-                .flatMap(e -> e.left.stream())
-                // filter invalid DM25 out
-                .filter(packet -> {
-                    byte[] bytes = packet.getPacket().getBytes();
-                    return bytes[0] != 0x00
-                            || bytes[1] != 0x00
-                            || bytes[2] != 0x00
-                            || bytes[3] != 0x00
-                            || bytes[4] != 0x00
-                            || bytes[5] != (byte) 0xFF
-                            || bytes[6] != (byte) 0xFF
-                            || bytes[7] != (byte) 0xFF;
-                })
-                .collect(Collectors.toList());
+                                                                      // convert address to DM25
+                                                                      .flatMap(address -> diagnosticMessageModule.requestDM25(listener,
+                                                                                                                              address)
+                                                                                                                 .getPacket()
+                                                                                                                 .stream())
+                                                                      // ignore DM25 NACKs
+                                                                      .flatMap(e -> e.left.stream())
+                                                                      // filter invalid DM25 out
+                                                                      .filter(packet -> {
+                                                                          byte[] bytes = packet.getPacket().getBytes();
+                                                                          return bytes[0] != 0x00
+                                                                                  || bytes[1] != 0x00
+                                                                                  || bytes[2] != 0x00
+                                                                                  || bytes[3] != 0x00
+                                                                                  || bytes[4] != 0x00
+                                                                                  || bytes[5] != (byte) 0xFF
+                                                                                  || bytes[6] != (byte) 0xFF
+                                                                                  || bytes[7] != (byte) 0xFF;
+                                                                      })
+                                                                      .collect(Collectors.toList());
 
         if (!dm25Packets.isEmpty()) {
             // Verify the no data & DTC didn't cause freeze frame
             StringBuilder failureMessage = new StringBuilder(
-                    "Section A.5 verification failed during DM25 check done at table step 2.a");
+                                                             "Section A.5 verification failed during DM25 check done at table step 2.a");
             dm25Packets.forEach(packet -> failureMessage.append(NL)
-                    .append("Module with source address ")
-                    .append(packet.getSourceAddress())
-                    .append(", has ")
-                    .append(packet.getFreezeFrames().size())
-                    .append(" supported SPNs"));
+                                                        .append("Module with source address ")
+                                                        .append(packet.getSourceAddress())
+                                                        .append(", has ")
+                                                        .append(packet.getFreezeFrames().size())
+                                                        .append(" supported SPNs"));
             listener.onProgress(failureMessage.toString());
             return false;
         } else {
@@ -305,19 +329,20 @@ public class SectionA5Verifier {
         // 5. Activity since code clear
         // a. DM26 diagnostic readiness 3 shall report 0 for number of warm-ups
         // since code clear
-        List<DM26TripDiagnosticReadinessPacket> dm26Packets = diagnosticMessageModule.requestDM26(listener).getPackets()
-                .stream()
-                .filter(Objects::nonNull)
-                .filter(packet -> packet.getWarmUpsSinceClear() != 0)
-                .collect(Collectors.toList());
+        List<DM26TripDiagnosticReadinessPacket> dm26Packets = diagnosticMessageModule.requestDM26(listener)
+                                                                                     .getPackets()
+                                                                                     .stream()
+                                                                                     .filter(Objects::nonNull)
+                                                                                     .filter(packet -> packet.getWarmUpsSinceClear() != 0)
+                                                                                     .collect(Collectors.toList());
         if (!dm26Packets.isEmpty()) {
             StringBuilder failureMessage = new StringBuilder(
-                    "Section A.5 verification failed during DM26 check done at table step 5.a");
+                                                             "Section A.5 verification failed during DM26 check done at table step 5.a");
             failureMessage.append(NL).append("Modules with source address ");
             dm26Packets.forEach(packet -> failureMessage.append(packet.getSourceAddress())
-                    .append(", reported ")
-                    .append(packet.getWarmUpsSinceClear())
-                    .append(" warm-ups since code clear"));
+                                                        .append(", reported ")
+                                                        .append(packet.getWarmUpsSinceClear())
+                                                        .append(" warm-ups since code clear"));
             listener.onProgress(failureMessage.toString());
             return false;
         } else {
@@ -330,18 +355,23 @@ public class SectionA5Verifier {
         // 8. Permanent DTCs
         // a. DM28 Permanent DTCs shall not be erased/still report any permanent
         // DTC that was present before code clear.
-        List<DM28PermanentEmissionDTCPacket> dm28Packets = diagnosticMessageModule.requestDM28(listener).getPackets()
-                .stream()
-                .filter(t -> t.getDtcs().size() != 0)
-                .collect(Collectors.toList());
+        List<DM28PermanentEmissionDTCPacket> dm28Packets = diagnosticMessageModule.requestDM28(listener)
+                                                                                  .getPackets()
+                                                                                  .stream()
+                                                                                  .filter(t -> t.getDtcs().size() != 0)
+                                                                                  .collect(Collectors.toList());
         // Since we only care about packets that have dtc, let make sure both
         // both lists accurately reflect that.
         if (!previousDM28Packets.stream()
-                .filter(packet -> packet.getDtcs().size() != 0).collect(Collectors.toList()).equals(dm28Packets)) {
+                                .filter(packet -> packet.getDtcs().size() != 0)
+                                .collect(Collectors.toList())
+                                .equals(dm28Packets)) {
             StringBuilder failMessage = new StringBuilder(
-                    "Section A.5 verification failed during DM28 check done at table step 8.a");
-            failMessage.append(NL).append(
-                    "Pre DTC all clear code sent retrieved the DM28 packet :").append(NL);
+                                                          "Section A.5 verification failed during DM28 check done at table step 8.a");
+            failMessage.append(NL)
+                       .append(
+                               "Pre DTC all clear code sent retrieved the DM28 packet :")
+                       .append(NL);
             previousDM28Packets.forEach(packet -> failMessage.append(packet.toString()));
             failMessage.append(NL);
             failMessage.append("Post DTC all clear code sent retrieved the DM28 packet :");
@@ -358,20 +388,25 @@ public class SectionA5Verifier {
     public boolean verifyDM29(ResultsListener listener) {
         // d. DM29 shall report zero for number of pending, active, and
         // previously active DTCs
-        List<DM29DtcCounts> dm29Packets = diagnosticMessageModule.requestDM29(listener).getPackets().stream()
-                .filter(Objects::nonNull)
-                .filter(t -> t.getAllPendingDTCCount() != 0 ||
-                        t.getEmissionRelatedMILOnDTCCount() != 0 ||
-                        t.getEmissionRelatedPendingDTCCount() != 0 ||
-                        t.getEmissionRelatedPermanentDTCCount() != 0 ||
-                        t.getEmissionRelatedPreviouslyMILOnDTCCount() != 0)
-                .collect(Collectors.toList());
+        List<DM29DtcCounts> dm29Packets = diagnosticMessageModule.requestDM29(listener)
+                                                                 .getPackets()
+                                                                 .stream()
+                                                                 .filter(Objects::nonNull)
+                                                                 .filter(t -> t.getAllPendingDTCCount() != 0 ||
+                                                                         t.getEmissionRelatedMILOnDTCCount() != 0 ||
+                                                                         t.getEmissionRelatedPendingDTCCount() != 0 ||
+                                                                         t.getEmissionRelatedPermanentDTCCount() != 0 ||
+                                                                         t.getEmissionRelatedPreviouslyMILOnDTCCount() != 0)
+                                                                 .collect(Collectors.toList());
 
         if (!dm29Packets.isEmpty()) {
             StringBuilder failureMessage = new StringBuilder(
-                    "Section A.5 verification failed during DM29 check done at table step 1.d");
+                                                             "Section A.5 verification failed during DM29 check done at table step 1.d");
             failureMessage.append(NL).append("Modules with source address ");
-            dm29Packets.forEach(packet -> failureMessage.append(packet.getSourceAddress()).append(", ").append(packet.toString()).append(" "));
+            dm29Packets.forEach(packet -> failureMessage.append(packet.getSourceAddress())
+                                                        .append(", ")
+                                                        .append(packet.toString())
+                                                        .append(" "));
             listener.onProgress(failureMessage.toString());
             return false;
         } else {
@@ -384,18 +419,21 @@ public class SectionA5Verifier {
         // 3. MIL information
         // a. DM31 lamp status shall report no DTCs causing MIL on (if
         // supported, see section 6 provisions before section 6.1).
-        List<DM31DtcToLampAssociation> dm31Packets = diagnosticMessageModule.requestDM31(listener).getPackets().stream()
-                .filter(Objects::nonNull)
-                .filter(t -> !t.getDtcLampStatuses().isEmpty())
-                .collect(Collectors.toList());
+        List<DM31DtcToLampAssociation> dm31Packets = diagnosticMessageModule.requestDM31(listener)
+                                                                            .getPackets()
+                                                                            .stream()
+                                                                            .filter(Objects::nonNull)
+                                                                            .filter(t -> !t.getDtcLampStatuses()
+                                                                                           .isEmpty())
+                                                                            .collect(Collectors.toList());
         if (!dm31Packets.isEmpty()) {
             StringBuilder failureMessage = new StringBuilder(
-                    "Section A.5 verification failed during DM31 check done at table step 3.a");
+                                                             "Section A.5 verification failed during DM31 check done at table step 3.a");
             failureMessage.append(NL).append("Modules with source address ");
             dm31Packets.forEach(packet -> failureMessage.append(packet.getSourceAddress())
-                    .append(", is reporting ")
-                    .append(packet.getDtcLampStatuses().size())
-                    .append(" with DTC lamp status(es) causing MIL on."));
+                                                        .append(", is reporting ")
+                                                        .append(packet.getDtcLampStatuses().size())
+                                                        .append(" with DTC lamp status(es) causing MIL on."));
             listener.onProgress(failureMessage.toString());
             return false;
         } else {
@@ -405,24 +443,27 @@ public class SectionA5Verifier {
     }
 
     public boolean verifyDM33(List<DM33EmissionIncreasingAECDActiveTime> previousDM33Packets,
-            ResultsListener listener, List<Integer> obdModuleAddresses) {
+                              ResultsListener listener,
+                              List<Integer> obdModuleAddresses) {
         // 9. Engine runtime information
         // a. DM33 EI-AECD information shall not be reset/cleared for any
         // non-zero values present before code clear.
         List<DM33EmissionIncreasingAECDActiveTime> dm33Packets = new ArrayList<>();
-        obdModuleAddresses.forEach(address -> dm33Packets.addAll(new ArrayList<>(diagnosticMessageModule.requestDM33(listener, address).getPackets())));
+        obdModuleAddresses.forEach(address -> dm33Packets.addAll(new ArrayList<>(diagnosticMessageModule.requestDM33(listener,
+                                                                                                                     address)
+                                                                                                        .getPackets())));
 
         previousDM33Packets.sort(Comparator.comparingInt(ParsedPacket::getSourceAddress));
         dm33Packets.sort(Comparator.comparingInt(ParsedPacket::getSourceAddress));
 
         if (!previousDM33Packets.equals(dm33Packets)) {
             StringBuilder failMessage = new StringBuilder(
-                    "Section A.5 verification failed during DM33 check done at table step 9.a");
+                                                          "Section A.5 verification failed during DM33 check done at table step 9.a");
             failMessage.append(NL)
-                    .append("Pre DTC all clear code sent retrieved the DM33 packet :");
+                       .append("Pre DTC all clear code sent retrieved the DM33 packet :");
             previousDM33Packets.forEach(packet -> failMessage.append(NL).append("   ").append(packet.toString()));
             failMessage.append(NL)
-                    .append("Post DTC all clear code sent retrieved the DM33 packet :");
+                       .append("Post DTC all clear code sent retrieved the DM33 packet :");
             dm33Packets.forEach(packet -> failMessage.append(NL).append("   ").append(packet.toString()));
             listener.onProgress(failMessage.toString());
             return false;
@@ -436,20 +477,22 @@ public class SectionA5Verifier {
         // e. DM5 shall report zero for number of active and previously active DTCs
         boolean passTest = true;
         List<DM5DiagnosticReadinessPacket> dm5Packets = diagnosticMessageModule.requestDM5(listener)
-                .getPackets()
-                .stream()
-                .filter(Objects::nonNull)
-                .filter(t -> (t.getActiveCodeCount() != 0) || (t.getPreviouslyActiveCodeCount() != 0))
-                .collect(Collectors.toList());
+                                                                               .getPackets()
+                                                                               .stream()
+                                                                               .filter(Objects::nonNull)
+                                                                               .filter(t -> (t.getActiveCodeCount() != 0)
+                                                                                       || (t.getPreviouslyActiveCodeCount() != 0))
+                                                                               .collect(Collectors.toList());
         if (!dm5Packets.isEmpty()) {
             StringBuilder failureMessage = new StringBuilder(
-                    "Section A.5 verification failed during DM5 check done at table step 1.e");
+                                                             "Section A.5 verification failed during DM5 check done at table step 1.e");
             failureMessage.append(NL).append("Modules with source address ");
             dm5Packets.forEach(packet -> failureMessage.append(packet.getSourceAddress())
-                    .append(", reported ")
-                    .append(packet.getActiveCodeCount())
-                    .append(" active DTCs and ")
-                    .append(packet.getPreviouslyActiveCodeCount()).append(" previously active DTCs"));
+                                                       .append(", reported ")
+                                                       .append(packet.getActiveCodeCount())
+                                                       .append(" active DTCs and ")
+                                                       .append(packet.getPreviouslyActiveCodeCount())
+                                                       .append(" previously active DTCs"));
             listener.onProgress(failureMessage.toString());
             passTest = false;
         } else {
@@ -461,7 +504,7 @@ public class SectionA5Verifier {
         // except comprehensive components.
         List<MonitoredSystem> monitoredSystems = new ArrayList<>();
         StringBuilder failedMessage = new StringBuilder(
-                "Section A.5 verification failed during DM5 check done at table step 4.a");
+                                                        "Section A.5 verification failed during DM5 check done at table step 4.a");
         failedMessage.append(NL).append("Module address ");
 
         dm5Packets.forEach(packet -> {
@@ -488,18 +531,23 @@ public class SectionA5Verifier {
         // 1. Emission-related DTCs
         // a. DM6 pending shall report no DTCs and MIL off and not flashing
         List<DM6PendingEmissionDTCPacket> dm6Packets = diagnosticMessageModule.requestDM6(listener)
-                .getPackets()
-                .stream()
-                .filter(t -> (!t.getDtcs().isEmpty()) ||
-                        (t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF))
-                .collect(Collectors.toList());
+                                                                              .getPackets()
+                                                                              .stream()
+                                                                              .filter(t -> (!t.getDtcs().isEmpty()) ||
+                                                                                      (t.getMalfunctionIndicatorLampStatus() != LampStatus.OFF))
+                                                                              .collect(Collectors.toList());
         if (!dm6Packets.isEmpty()) {
             StringBuilder failureMessage = new StringBuilder(
-                    "Section A.5 verification failed at DM6 check done at table step 1.a");
+                                                             "Section A.5 verification failed at DM6 check done at table step 1.a");
             failureMessage.append(NL).append("Modules with source address ");
-            dm6Packets.forEach(packet -> failureMessage.append(packet.getSourceAddress()).append(", reported ")
-                    .append(packet.getDtcs().size()).append(" DTCs.").append(NL).append("MIL status is : ")
-                    .append(packet.getMalfunctionIndicatorLampStatus()).append("."));
+            dm6Packets.forEach(packet -> failureMessage.append(packet.getSourceAddress())
+                                                       .append(", reported ")
+                                                       .append(packet.getDtcs().size())
+                                                       .append(" DTCs.")
+                                                       .append(NL)
+                                                       .append("MIL status is : ")
+                                                       .append(packet.getMalfunctionIndicatorLampStatus())
+                                                       .append("."));
             listener.onProgress(failureMessage.toString());
             return false;
         } else {
@@ -517,44 +565,54 @@ public class SectionA5Verifier {
         obdModuleAddresses.forEach(address -> {
             for (SupportedSPN supportedSPN : dataRepository.getObdModule(address).getTestResultSPNs()) {
                 dm30Packets.addAll(
-                        diagnosticMessageModule.requestTestResults(listener, address, 247, supportedSPN.getSpn(), 31)
-                                .stream()
-                                .filter(packet -> packet.getTestResults().size() != 0)
-                                .filter(p -> {
-                                    for (ScaledTestResult result : p.getTestResults()) {
-                                        if (isInvalid(result.getTestMaximum()) || isInvalid(result.getTestValue())
-                                                || isInvalid(result.getTestMinimum())) {
-                                            return true;
-                                        }
-                                    }
-                                    return false;
-                                })
-                                .collect(Collectors.toList()));
+                                   diagnosticMessageModule.requestTestResults(listener,
+                                                                              address,
+                                                                              247,
+                                                                              supportedSPN.getSpn(),
+                                                                              31)
+                                                          .stream()
+                                                          .filter(packet -> packet.getTestResults().size() != 0)
+                                                          .filter(p -> {
+                                                              for (ScaledTestResult result : p.getTestResults()) {
+                                                                  if (isInvalid(result.getTestMaximum())
+                                                                          || isInvalid(result.getTestValue())
+                                                                          || isInvalid(result.getTestMinimum())) {
+                                                                      return true;
+                                                                  }
+                                                              }
+                                                              return false;
+                                                          })
+                                                          .collect(Collectors.toList()));
             }
         });
         if (!dm30Packets.isEmpty()) {
             StringBuilder failureMessage = new StringBuilder(
-                    "Section A.5 verification failed during DM7/DM30 check done at table step 6.a");
+                                                             "Section A.5 verification failed during DM7/DM30 check done at table step 6.a");
             failureMessage.append(NL).append("DM30 Scaled Test Results for");
             dm30Packets.forEach(packet -> {
-                failureMessage.append(NL).append("source address ").append(packet.getSourceAddress())
-                        .append(" are : [")
-                        .append(NL);
+                failureMessage.append(NL)
+                              .append("source address ")
+                              .append(packet.getSourceAddress())
+                              .append(" are : [")
+                              .append(NL);
                 for (ScaledTestResult testResult : packet.getTestResults()) {
                     int testMaximum = testResult.getTestMaximum();
                     if (isInvalid(testMaximum)) {
                         failureMessage.append("  TestMaximum failed and the value returned was : ")
-                                .append(testMaximum).append(NL);
+                                      .append(testMaximum)
+                                      .append(NL);
                     }
                     int testValue = testResult.getTestValue();
                     if (isInvalid(testValue)) {
                         failureMessage.append("  TestResult failed and the value returned was : ")
-                                .append(testResult.getTestValue()).append(NL);
+                                      .append(testResult.getTestValue())
+                                      .append(NL);
                     }
                     int testMinimum = testResult.getTestMinimum();
                     if (isInvalid(testMinimum)) {
                         failureMessage.append("  TestMinimum failed and the value returned was : ")
-                                .append(testResult.getTestMinimum()).append(NL);
+                                      .append(testResult.getTestMinimum())
+                                      .append(NL);
                     }
                     failureMessage.append("]");
                 }
@@ -572,36 +630,38 @@ public class SectionA5Verifier {
         // time (PGN 65244 (SPN 235)) shall not be reset/cleared for any
         // non-zero values present before code clear
         List<EngineHoursPacket> engineHourPackets = new ArrayList<>(vehicleInformationModule.requestEngineHours(listener)
-                .getPackets());
+                                                                                            .getPackets());
         if (!engineHourPackets.equals(previousEngineHoursPackets)) {
             StringBuilder failMessage = new StringBuilder(
-                    "Section A.5 verification failed Cumulative engine runtime (PGN 65253 (SPN 247))");
+                                                          "Section A.5 verification failed Cumulative engine runtime (PGN 65253 (SPN 247))");
             failMessage.append(NL)
-                    .append(" and engine idletime (PGN 65244 (SPN 235)) shall not be reset/cleared for any")
-                    .append(NL)
-                    .append(" non-zero values present before code clear check done at table step 9.b")
-                    .append(NL)
-                    .append("Previous packet(s) was/were:")
-                    .append(NL);
-            previousEngineHoursPackets.forEach(packet -> failMessage.append("   ").append(packet.toString())
-                    .append(NL));
+                       .append(" and engine idletime (PGN 65244 (SPN 235)) shall not be reset/cleared for any")
+                       .append(NL)
+                       .append(" non-zero values present before code clear check done at table step 9.b")
+                       .append(NL)
+                       .append("Previous packet(s) was/were:")
+                       .append(NL);
+            previousEngineHoursPackets.forEach(packet -> failMessage.append("   ")
+                                                                    .append(packet.toString())
+                                                                    .append(NL));
             if (previousEngineHoursPackets.isEmpty()) {
                 failMessage.append("   EMPTY")
-                        .append(NL);
+                           .append(NL);
             }
             failMessage.append("Current packet(s) was/were:")
-                    .append(NL);
-            engineHourPackets.forEach(packet -> failMessage.append("   ").append(packet.toString())
-                    .append(NL));
+                       .append(NL);
+            engineHourPackets.forEach(packet -> failMessage.append("   ")
+                                                           .append(packet.toString())
+                                                           .append(NL));
             if (engineHourPackets.isEmpty()) {
                 failMessage.append("   EMPTY")
-                        .append(NL);
+                           .append(NL);
             }
             listener.onProgress(failMessage.toString());
             return false;
         } else {
             listener.onProgress(
-                    "PASS: Section A.5 Step 9.b Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle time (PGN 65244 (SPN 235)) Verification");
+                                "PASS: Section A.5 Step 9.b Cumulative engine runtime (PGN 65253 (SPN 247)) and engine idle time (PGN 65244 (SPN 235)) Verification");
         }
         return true;
     }

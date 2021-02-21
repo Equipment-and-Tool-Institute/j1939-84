@@ -50,24 +50,17 @@ public class RP1210BusTest {
     private static final int ADDRESS = 0xA5;
     private static final byte[] ADDRESS_CLAIM_PARAMS = new byte[] { (byte) ADDRESS, 0, 0, (byte) 0xE0, (byte) 0xFF, 0,
             (byte) 0x81, 0, 0, 0 };
-
+    private final ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
     private Adapter adapter;
-
     @Mock
     private ScheduledExecutorService exec;
-
     private RP1210Bus instance;
-
     @Mock
     private Logger logger;
-
     @Mock
     private MultiQueue<Packet> queue;
-
     @Mock
     private RP1210Library rp1210Library;
-
-    private final ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
 
     private void createInstance() throws BusException {
         instance = new RP1210Bus(rp1210Library, exec, queue, adapter, ADDRESS, true, logger);
@@ -80,38 +73,38 @@ public class RP1210BusTest {
 
     private void startInstance() throws Exception {
         when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
-                .thenReturn((short) 1);
+                                                                                                   .thenReturn((short) 1);
         when(rp1210Library.RP1210_SendCommand(eq((short) 19),
-                eq((short) 1),
-                aryEq(ADDRESS_CLAIM_PARAMS),
-                eq((short) 10))).thenReturn((short) 0);
+                                              eq((short) 1),
+                                              aryEq(ADDRESS_CLAIM_PARAMS),
+                                              eq((short) 10))).thenReturn((short) 0);
         when(rp1210Library.RP1210_SendCommand(eq((short) 16),
-                eq((short) 1),
-                aryEq(new byte[] { (byte) 1 }),
-                eq((short) 1))).thenReturn((short) 0);
+                                              eq((short) 1),
+                                              aryEq(new byte[] { (byte) 1 }),
+                                              eq((short) 1))).thenReturn((short) 0);
         when(rp1210Library.RP1210_SendCommand(eq((short) 3),
-                eq((short) 1),
-                aryEq(new byte[] {}),
-                eq((short) 0))).thenReturn((short) 0);
+                                              eq((short) 1),
+                                              aryEq(new byte[] {}),
+                                              eq((short) 0))).thenReturn((short) 0);
 
         when(exec.scheduleAtFixedRate(runnableCaptor.capture(), eq(1L), eq(1L), eq(TimeUnit.MILLISECONDS)))
-                .thenReturn(null);
+                                                                                                           .thenReturn(null);
 
         createInstance();
 
         verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 1);
         verify(rp1210Library).RP1210_SendCommand(eq((short) 19),
-                eq((short) 1),
-                aryEq(ADDRESS_CLAIM_PARAMS),
-                eq((short) 10));
+                                                 eq((short) 1),
+                                                 aryEq(ADDRESS_CLAIM_PARAMS),
+                                                 eq((short) 10));
         verify(rp1210Library).RP1210_SendCommand(eq((short) 16),
-                eq((short) 1),
-                aryEq(new byte[] { (byte) 1 }),
-                eq((short) 1));
+                                                 eq((short) 1),
+                                                 aryEq(new byte[] { (byte) 1 }),
+                                                 eq((short) 1));
         verify(rp1210Library).RP1210_SendCommand(eq((short) 3),
-                eq((short) 1),
-                aryEq(new byte[] {}),
-                eq((short) 0));
+                                                 eq((short) 1),
+                                                 aryEq(new byte[] {}),
+                                                 eq((short) 0));
         verify(exec).scheduleAtFixedRate(any(Runnable.class), eq(1L), eq(1L), eq(TimeUnit.MILLISECONDS));
     }
 
@@ -123,14 +116,14 @@ public class RP1210BusTest {
     @Test
     public void testConstructorAddressClaimFails() throws Exception {
         when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
-                .thenReturn((short) 1);
+                                                                                                   .thenReturn((short) 1);
 
         when(rp1210Library.RP1210_SendCommand(eq((short) 19),
-                eq((short) 1),
-                aryEq(ADDRESS_CLAIM_PARAMS),
-                eq((short) 10))).thenReturn((short) -99);
+                                              eq((short) 1),
+                                              aryEq(ADDRESS_CLAIM_PARAMS),
+                                              eq((short) 10))).thenReturn((short) -99);
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
-            byte[] dest = (byte[]) arg0.getArgument(1);
+            byte[] dest = arg0.getArgument(1);
             final byte[] src = "Testing Failure".getBytes();
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
@@ -151,9 +144,9 @@ public class RP1210BusTest {
 
         verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 1);
         verify(rp1210Library).RP1210_SendCommand(eq((short) 19),
-                eq((short) 1),
-                aryEq(ADDRESS_CLAIM_PARAMS),
-                eq((short) 10));
+                                                 eq((short) 1),
+                                                 aryEq(ADDRESS_CLAIM_PARAMS),
+                                                 eq((short) 10));
         verify(rp1210Library).RP1210_GetErrorMsg(eq((short) 99), any());
         verify(exec).submit(any(Callable.class));
         verify(exec).shutdown();
@@ -162,9 +155,9 @@ public class RP1210BusTest {
     @Test
     public void testConstructorConnectFails() throws Exception {
         when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
-                .thenReturn((short) 134);
+                                                                                                   .thenReturn((short) 134);
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 134), any())).thenAnswer(arg0 -> {
-            byte[] dest = (byte[]) arg0.getArgument(1);
+            byte[] dest = arg0.getArgument(1);
             final byte[] src = "Device Not Connected".getBytes();
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
@@ -184,18 +177,18 @@ public class RP1210BusTest {
     @Test
     public void testConstructorEchoFails() throws Exception {
         when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
-                .thenReturn((short) 1);
+                                                                                                   .thenReturn((short) 1);
 
         when(rp1210Library.RP1210_SendCommand(eq((short) 19),
-                eq((short) 1),
-                aryEq(ADDRESS_CLAIM_PARAMS),
-                eq((short) 10))).thenReturn((short) 0);
+                                              eq((short) 1),
+                                              aryEq(ADDRESS_CLAIM_PARAMS),
+                                              eq((short) 10))).thenReturn((short) 0);
         when(rp1210Library.RP1210_SendCommand(eq((short) 16),
-                eq((short) 1),
-                aryEq(new byte[] { (byte) 1 }),
-                eq((short) 1))).thenReturn((short) -99);
+                                              eq((short) 1),
+                                              aryEq(new byte[] { (byte) 1 }),
+                                              eq((short) 1))).thenReturn((short) -99);
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
-            byte[] dest = (byte[]) arg0.getArgument(1);
+            byte[] dest = arg0.getArgument(1);
             final byte[] src = "Testing Failure".getBytes();
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
@@ -216,13 +209,13 @@ public class RP1210BusTest {
 
         verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 1);
         verify(rp1210Library).RP1210_SendCommand(eq((short) 19),
-                eq((short) 1),
-                aryEq(ADDRESS_CLAIM_PARAMS),
-                eq((short) 10));
+                                                 eq((short) 1),
+                                                 aryEq(ADDRESS_CLAIM_PARAMS),
+                                                 eq((short) 10));
         verify(rp1210Library).RP1210_SendCommand(eq((short) 16),
-                eq((short) 1),
-                aryEq(new byte[] { (byte) 1 }),
-                eq((short) 1));
+                                                 eq((short) 1),
+                                                 aryEq(new byte[] { (byte) 1 }),
+                                                 eq((short) 1));
         verify(rp1210Library).RP1210_GetErrorMsg(eq((short) 99), any());
         verify(exec).submit(any(Callable.class));
         verify(exec).shutdown();
@@ -231,23 +224,23 @@ public class RP1210BusTest {
     @Test
     public void testConstructorFilterFails() throws Exception {
         when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
-                .thenReturn((short) 1);
+                                                                                                   .thenReturn((short) 1);
 
         when(rp1210Library.RP1210_SendCommand(eq((short) 19),
-                eq((short) 1),
-                aryEq(ADDRESS_CLAIM_PARAMS),
-                eq((short) 10))).thenReturn((short) 0);
+                                              eq((short) 1),
+                                              aryEq(ADDRESS_CLAIM_PARAMS),
+                                              eq((short) 10))).thenReturn((short) 0);
         when(rp1210Library.RP1210_SendCommand(eq((short) 16),
-                eq((short) 1),
-                aryEq(new byte[] { (byte) 1 }),
-                eq((short) 1))).thenReturn((short) 0);
+                                              eq((short) 1),
+                                              aryEq(new byte[] { (byte) 1 }),
+                                              eq((short) 1))).thenReturn((short) 0);
         when(rp1210Library.RP1210_SendCommand(eq((short) 3),
-                eq((short) 1),
-                aryEq(new byte[] {}),
-                eq((short) 0))).thenReturn((short) -99);
+                                              eq((short) 1),
+                                              aryEq(new byte[] {}),
+                                              eq((short) 0))).thenReturn((short) -99);
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
-            byte[] dest = (byte[]) arg0.getArgument(1);
+            byte[] dest = arg0.getArgument(1);
             final byte[] src = "Testing Failure".getBytes();
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
@@ -268,17 +261,17 @@ public class RP1210BusTest {
 
         verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 1);
         verify(rp1210Library).RP1210_SendCommand(eq((short) 19),
-                eq((short) 1),
-                aryEq(ADDRESS_CLAIM_PARAMS),
-                eq((short) 10));
+                                                 eq((short) 1),
+                                                 aryEq(ADDRESS_CLAIM_PARAMS),
+                                                 eq((short) 10));
         verify(rp1210Library).RP1210_SendCommand(eq((short) 16),
-                eq((short) 1),
-                aryEq(new byte[] { (byte) 1 }),
-                eq((short) 1));
+                                                 eq((short) 1),
+                                                 aryEq(new byte[] { (byte) 1 }),
+                                                 eq((short) 1));
         verify(rp1210Library).RP1210_SendCommand(eq((short) 3),
-                eq((short) 1),
-                aryEq(new byte[] {}),
-                eq((short) 0));
+                                                 eq((short) 1),
+                                                 aryEq(new byte[] {}),
+                                                 eq((short) 0));
         verify(rp1210Library).RP1210_GetErrorMsg(eq((short) 99), any());
         verify(exec).submit(any(Callable.class));
         verify(exec).shutdown();
@@ -287,23 +280,23 @@ public class RP1210BusTest {
     @Test
     public void testConstructorStopFails() throws Exception {
         when(rp1210Library.RP1210_ClientConnect(0, (short) 42, "J1939:Baud=Auto", 0, 0, (short) 1))
-                .thenReturn((short) 1);
+                                                                                                   .thenReturn((short) 1);
 
         when(rp1210Library.RP1210_SendCommand(eq((short) 19),
-                eq((short) 1),
-                aryEq(ADDRESS_CLAIM_PARAMS),
-                eq((short) 10))).thenReturn((short) 0);
+                                              eq((short) 1),
+                                              aryEq(ADDRESS_CLAIM_PARAMS),
+                                              eq((short) 10))).thenReturn((short) 0);
         when(rp1210Library.RP1210_SendCommand(eq((short) 16),
-                eq((short) 1),
-                aryEq(new byte[] { (byte) 1 }),
-                eq((short) 1))).thenReturn((short) 0);
+                                              eq((short) 1),
+                                              aryEq(new byte[] { (byte) 1 }),
+                                              eq((short) 1))).thenReturn((short) 0);
         when(rp1210Library.RP1210_SendCommand(eq((short) 3),
-                eq((short) 1),
-                aryEq(new byte[] {}),
-                eq((short) 0))).thenReturn((short) -99);
+                                              eq((short) 1),
+                                              aryEq(new byte[] {}),
+                                              eq((short) 0))).thenReturn((short) -99);
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
-            byte[] dest = (byte[]) arg0.getArgument(1);
+            byte[] dest = arg0.getArgument(1);
             final byte[] src = "Testing Failure".getBytes();
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
@@ -323,17 +316,17 @@ public class RP1210BusTest {
 
         verify(rp1210Library).RP1210_ClientConnect(0, adapter.getDeviceId(), "J1939:Baud=Auto", 0, 0, (short) 1);
         verify(rp1210Library).RP1210_SendCommand(eq((short) 19),
-                eq((short) 1),
-                aryEq(ADDRESS_CLAIM_PARAMS),
-                eq((short) 10));
+                                                 eq((short) 1),
+                                                 aryEq(ADDRESS_CLAIM_PARAMS),
+                                                 eq((short) 10));
         verify(rp1210Library).RP1210_SendCommand(eq((short) 16),
-                eq((short) 1),
-                aryEq(new byte[] { (byte) 1 }),
-                eq((short) 1));
+                                                 eq((short) 1),
+                                                 aryEq(new byte[] { (byte) 1 }),
+                                                 eq((short) 1));
         verify(rp1210Library).RP1210_SendCommand(eq((short) 3),
-                eq((short) 1),
-                aryEq(new byte[] {}),
-                eq((short) 0));
+                                                 eq((short) 1),
+                                                 aryEq(new byte[] {}),
+                                                 eq((short) 0));
         verify(rp1210Library).RP1210_GetErrorMsg(eq((short) 99), any());
         verify(exec).submit(any(Callable.class));
         verify(exec).shutdown();
@@ -382,10 +375,10 @@ public class RP1210BusTest {
 
         verify(exec).submit(any(Callable.class));
         verify(rp1210Library).RP1210_SendMessage(eq((short) 1),
-                aryEq(encodedPacket),
-                eq((short) 14),
-                eq((short) 0),
-                eq((short) 0));
+                                                 aryEq(encodedPacket),
+                                                 eq((short) 14),
+                                                 eq((short) 0),
+                                                 eq((short) 0));
         verify(queue).stream(anyLong(), any());
     }
 
@@ -396,11 +389,16 @@ public class RP1210BusTest {
                 (byte) 0x06, (byte) 0x56, (byte) 0x34, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA, (byte) 0xBB,
                 (byte) 0xCC, (byte) 0xDD, (byte) 0xEE };
         when(rp1210Library.RP1210_ReadMessage(eq((short) 1), any(byte[].class), eq((short) 2048), eq((short) 0)))
-                .thenAnswer(arg0 -> {
-                    byte[] data = arg0.getArgument(1);
-                    System.arraycopy(encodedPacket, 0, data, 0, encodedPacket.length);
-                    return (short) encodedPacket.length;
-                }).thenReturn((short) 0);
+                                                                                                                 .thenAnswer(arg0 -> {
+                                                                                                                     byte[] data = arg0.getArgument(1);
+                                                                                                                     System.arraycopy(encodedPacket,
+                                                                                                                                      0,
+                                                                                                                                      data,
+                                                                                                                                      0,
+                                                                                                                                      encodedPacket.length);
+                                                                                                                     return (short) encodedPacket.length;
+                                                                                                                 })
+                                                                                                                 .thenReturn((short) 0);
 
         startInstance();
         Runnable runnable = runnableCaptor.getValue();
@@ -413,18 +411,18 @@ public class RP1210BusTest {
         assertEquals(packet, actual);
         verify(logger).log(eq(Level.FINE), anyString());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
-                any(byte[].class),
-                eq((short) 2048),
-                eq((short) 0));
+                                                           any(byte[].class),
+                                                           eq((short) 2048),
+                                                           eq((short) 0));
     }
 
     @Test
     public void testPollFails() throws Exception {
         when(rp1210Library.RP1210_ReadMessage(eq((short) 1), any(byte[].class), eq((short) 2048), eq((short) 0)))
-                .thenReturn((short) -99);
+                                                                                                                 .thenReturn((short) -99);
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
-            byte[] dest = (byte[]) arg0.getArgument(1);
+            byte[] dest = arg0.getArgument(1);
             final byte[] src = "Testing Failure".getBytes();
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
@@ -443,26 +441,31 @@ public class RP1210BusTest {
     @Test
     public void testPollTransmitted() throws Exception {
         Packet packet = Packet.create(0x06,
-                0x1234,
-                0x56,
-                true,
-                (byte) 0x77,
-                (byte) 0x88,
-                (byte) 0x99,
-                (byte) 0xAA,
-                (byte) 0xBB,
-                (byte) 0xCC,
-                (byte) 0xDD,
-                (byte) 0xEE);
+                                      0x1234,
+                                      0x56,
+                                      true,
+                                      (byte) 0x77,
+                                      (byte) 0x88,
+                                      (byte) 0x99,
+                                      (byte) 0xAA,
+                                      (byte) 0xBB,
+                                      (byte) 0xCC,
+                                      (byte) 0xDD,
+                                      (byte) 0xEE);
         byte[] encodedPacket = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x01, (byte) 0x34, (byte) 0x12, (byte) 0x00,
                 (byte) 0x06, (byte) 0x56, (byte) 0x34, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA, (byte) 0xBB,
                 (byte) 0xCC, (byte) 0xDD, (byte) 0xEE };
         when(rp1210Library.RP1210_ReadMessage(eq((short) 1), any(byte[].class), eq((short) 2048), eq((short) 0)))
-                .thenAnswer(arg0 -> {
-                    byte[] data = arg0.getArgument(1);
-                    System.arraycopy(encodedPacket, 0, data, 0, encodedPacket.length);
-                    return (short) encodedPacket.length;
-                }).thenReturn((short) 0);
+                                                                                                                 .thenAnswer(arg0 -> {
+                                                                                                                     byte[] data = arg0.getArgument(1);
+                                                                                                                     System.arraycopy(encodedPacket,
+                                                                                                                                      0,
+                                                                                                                                      data,
+                                                                                                                                      0,
+                                                                                                                                      encodedPacket.length);
+                                                                                                                     return (short) encodedPacket.length;
+                                                                                                                 })
+                                                                                                                 .thenReturn((short) 0);
 
         startInstance();
         Runnable runnable = runnableCaptor.getValue();
@@ -475,35 +478,40 @@ public class RP1210BusTest {
         assertEquals(packet, actual);
         verify(logger).log(eq(Level.FINE), anyString());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
-                any(byte[].class),
-                eq((short) 2048),
-                eq((short) 0));
+                                                           any(byte[].class),
+                                                           eq((short) 2048),
+                                                           eq((short) 0));
     }
 
     @Test
     public void testPollWithImposter() throws Exception {
         Packet packet = Packet.create(0x06,
-                0x1234,
-                ADDRESS,
-                false,
-                (byte) 0x77,
-                (byte) 0x88,
-                (byte) 0x99,
-                (byte) 0xAA,
-                (byte) 0xBB,
-                (byte) 0xCC,
-                (byte) 0xDD,
-                (byte) 0xEE);
+                                      0x1234,
+                                      ADDRESS,
+                                      false,
+                                      (byte) 0x77,
+                                      (byte) 0x88,
+                                      (byte) 0x99,
+                                      (byte) 0xAA,
+                                      (byte) 0xBB,
+                                      (byte) 0xCC,
+                                      (byte) 0xDD,
+                                      (byte) 0xEE);
         byte[] encodedPacket = new byte[] { 0x00, 0x00, 0x00, 0x00, 0x00, (byte) 0x34, (byte) 0x12, (byte) 0x00,
                 (byte) 0x06, (byte) ADDRESS, (byte) 0x34, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA,
                 (byte) 0xBB,
                 (byte) 0xCC, (byte) 0xDD, (byte) 0xEE };
         when(rp1210Library.RP1210_ReadMessage(eq((short) 1), any(byte[].class), eq((short) 2048), eq((short) 0)))
-                .thenAnswer(arg0 -> {
-                    byte[] data = arg0.getArgument(1);
-                    System.arraycopy(encodedPacket, 0, data, 0, encodedPacket.length);
-                    return (short) encodedPacket.length;
-                }).thenReturn((short) 0);
+                                                                                                                 .thenAnswer(arg0 -> {
+                                                                                                                     byte[] data = arg0.getArgument(1);
+                                                                                                                     System.arraycopy(encodedPacket,
+                                                                                                                                      0,
+                                                                                                                                      data,
+                                                                                                                                      0,
+                                                                                                                                      encodedPacket.length);
+                                                                                                                     return (short) encodedPacket.length;
+                                                                                                                 })
+                                                                                                                 .thenReturn((short) 0);
 
         startInstance();
         Runnable runnable = runnableCaptor.getValue();
@@ -516,9 +524,9 @@ public class RP1210BusTest {
         assertEquals(packet, actual);
         verify(logger).log(eq(Level.FINE), anyString());
         verify(rp1210Library, times(2)).RP1210_ReadMessage(eq((short) 1),
-                any(byte[].class),
-                eq((short) 2048),
-                eq((short) 0));
+                                                           any(byte[].class),
+                                                           eq((short) 2048),
+                                                           eq((short) 0));
         verify(logger).log(Level.WARNING, "Another module is using this address: 181234A5 [8] 77 88 99 AA BB CC DD EE");
     }
 
@@ -562,10 +570,10 @@ public class RP1210BusTest {
 
         verify(exec).submit(any(Callable.class));
         verify(rp1210Library).RP1210_SendMessage(eq((short) 1),
-                aryEq(encodedPacket),
-                eq((short) 14),
-                eq((short) 0),
-                eq((short) 0));
+                                                 aryEq(encodedPacket),
+                                                 eq((short) 14),
+                                                 eq((short) 0),
+                                                 eq((short) 0));
         verify(queue).stream(anyLong(), any());
     }
 
@@ -576,9 +584,12 @@ public class RP1210BusTest {
                 (byte) 0x34, (byte) 0x77, (byte) 0x88, (byte) 0x99, (byte) 0xAA, (byte) 0xBB, (byte) 0xCC, (byte) 0xDD,
                 (byte) 0xEE };
 
-        when(rp1210Library.RP1210_SendMessage((short) 1, encodedPacket, (short) encodedPacket.length, (short) 0,
-                (short) 0))
-                        .thenReturn((short) -99);
+        when(rp1210Library.RP1210_SendMessage((short) 1,
+                                              encodedPacket,
+                                              (short) encodedPacket.length,
+                                              (short) 0,
+                                              (short) 0))
+                                                         .thenReturn((short) -99);
 
         ArgumentCaptor<Callable<Short>> submitCaptor = ArgumentCaptor.forClass(Callable.class);
         Future<Short> future = mock(Future.class);
@@ -586,7 +597,7 @@ public class RP1210BusTest {
         when(exec.submit(submitCaptor.capture())).thenReturn(future);
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
-            byte[] dest = (byte[]) arg0.getArgument(1);
+            byte[] dest = arg0.getArgument(1);
             final byte[] src = "Testing Failure".getBytes();
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
@@ -604,10 +615,10 @@ public class RP1210BusTest {
 
         verify(exec).submit(any(Callable.class));
         verify(rp1210Library).RP1210_SendMessage(eq((short) 1),
-                aryEq(encodedPacket),
-                eq((short) 14),
-                eq((short) 0),
-                eq((short) 0));
+                                                 aryEq(encodedPacket),
+                                                 eq((short) 14),
+                                                 eq((short) 0),
+                                                 eq((short) 0));
         verify(rp1210Library).RP1210_GetErrorMsg(eq((short) 99), any());
         verify(queue).stream(anyLong(), any());
     }

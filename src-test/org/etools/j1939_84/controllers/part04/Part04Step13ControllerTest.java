@@ -19,6 +19,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -144,11 +145,13 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(2));
 
         when(diagnosticMessageModule.requestDM3(any(), eq(0)))
-                .thenReturn(List.of(AcknowledgmentPacket.create(0, NACK)));
+                                                              .thenReturn(List.of(AcknowledgmentPacket.create(0,
+                                                                                                              NACK)));
         when(diagnosticMessageModule.requestDM3(any(), eq(0)))
-                .thenReturn(List.of(AcknowledgmentPacket.create(0, DENIED)));
+                                                              .thenReturn(List.of(AcknowledgmentPacket.create(0,
+                                                                                                              DENIED)));
         when(diagnosticMessageModule.requestDM3(any(), eq(0)))
-                .thenReturn(List.of());
+                                                              .thenReturn(List.of());
 
         runTest();
 
@@ -182,7 +185,7 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         when(diagnosticMessageModule.requestDM3(any(), eq(0)))
-                .thenReturn(List.of(AcknowledgmentPacket.create(0, ACK)));
+                                                              .thenReturn(List.of(AcknowledgmentPacket.create(0, ACK)));
 
         runTest();
 
@@ -219,7 +222,8 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         when(diagnosticMessageModule.requestDM3(any(), eq(0)))
-                .thenReturn(List.of(AcknowledgmentPacket.create(0, BUSY)));
+                                                              .thenReturn(List.of(AcknowledgmentPacket.create(0,
+                                                                                                              BUSY)));
 
         runTest();
 

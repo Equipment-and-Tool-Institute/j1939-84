@@ -9,6 +9,7 @@ import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.LampStatus;
@@ -22,8 +23,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * <p>
- * The controller for 6.1.15 DM1: Active diagnostic trouble codes (DTCs)
+ *         <p>
+ *         The controller for 6.1.15 DM1: Active diagnostic trouble codes (DTCs)
  */
 public class Part01Step15Controller extends StepController {
 
@@ -83,12 +84,14 @@ public class Part01Step15Controller extends StepController {
             // for allowed values
             LampStatus milStatus = dm1.getMalfunctionIndicatorLampStatus();
             if (isObdModule && milStatus != OFF) {
-                addFailure("6.1.15.2.b - OBD Module " + moduleName + " did not report MIL off per Section A.8 allowed values");
+                addFailure("6.1.15.2.b - OBD Module " + moduleName
+                        + " did not report MIL off per Section A.8 allowed values");
 
                 // 6.1.15.3.a. Warn if any ECU reports the non-preferred MIL off format.
                 // See section A.8 for description of (0b00, 0b00).
                 if (milStatus == LampStatus.ALTERNATE_OFF) {
-                    addWarning("6.1.15.3.a - OBD Module " + moduleName + " reported the non-preferred MIL off format per Section A.8");
+                    addWarning("6.1.15.3.a - OBD Module " + moduleName
+                            + " reported the non-preferred MIL off format per Section A.8");
                 }
             }
             // 6.1.15.2.c. Fail if any non-OBD ECU does not report MIL off or not
@@ -101,10 +104,12 @@ public class Part01Step15Controller extends StepController {
                 if (dtc.getConversionMethod() == 1) {
                     if (isObdModule) {
                         // 6.1.15.2.d. Fail if any OBD ECU reports SPN conversion method (SPN 1706) equal to binary 1.
-                        addFailure("6.1.15.2.d - OBD Module " + moduleName + " reported SPN conversion method (SPN 1706) equal to binary 1");
+                        addFailure("6.1.15.2.d - OBD Module " + moduleName
+                                + " reported SPN conversion method (SPN 1706) equal to binary 1");
                     } else {
                         // 6.1.15.3.b. Warn if any non-OBD ECU reports SPN conversion method (SPN 1706) equal to 1.
-                        addWarning("6.1.15.3.b - Non-OBD Module " + moduleName + " reported SPN conversion method (SPN 1706) equal to 1");
+                        addWarning("6.1.15.3.b - Non-OBD Module " + moduleName
+                                + " reported SPN conversion method (SPN 1706) equal to 1");
                     }
                 }
             });

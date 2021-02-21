@@ -62,7 +62,7 @@ public class RP1210 {
      * Constructor exposed for testing
      *
      * @param basePath
-     *            the base path where the RP121032.ini file is located
+     *                     the base path where the RP121032.ini file is located
      */
     RP1210(String basePath) {
         base = basePath == null ? null : new File(basePath);
@@ -72,9 +72,9 @@ public class RP1210 {
      * Reads the file system to create and return a {@link List} of
      * {@link Adapter}s that can be used for communications with the vehicle
      *
-     * @return {@link List} of {@link Adapter}s
+     * @return              {@link List} of {@link Adapter}s
      * @throws BusException
-     *             if there is a problem generating the list
+     *                          if there is a problem generating the list
      */
     public List<Adapter> getAdapters() throws BusException {
         if (adapters == null) {
@@ -108,9 +108,9 @@ public class RP1210 {
      * {@link List} of {@link Adapter}s that can be used for vehicle
      * communications
      *
-     * @return a {@link List} of {@link Adapter}s
+     * @return              a {@link List} of {@link Adapter}s
      * @throws BusException
-     *             if there is a problem reading the file system
+     *                          if there is a problem reading the file system
      */
     private List<Adapter> parse() throws BusException {
         List<Adapter> list = new ArrayList<>();
@@ -126,8 +126,10 @@ public class RP1210 {
                         try {
                             timeStampWeight = Long.parseLong(vendorSection.getOrDefault("TimeStampWeight", "1"));
                         } catch (Throwable t) {
-                            J1939_84.getLogger().log(Level.SEVERE,
-                                    "Error Parsing TimeStampWeight from ini file.  Assuming 1000 (ms resolution).", t);
+                            J1939_84.getLogger()
+                                    .log(Level.SEVERE,
+                                         "Error Parsing TimeStampWeight from ini file.  Assuming 1000 (ms resolution).",
+                                         t);
                             timeStampWeight = 1000;
                         }
 
@@ -139,9 +141,11 @@ public class RP1210 {
                                 for (String devId : protocolSection.getOrDefault("Devices", "").split("\\s*,\\s*")) {
                                     final short deviceId = Short.parseShort(devId);
                                     final String deviceName = driver.get("DeviceInformation" + devId)
-                                            .getOrDefault("DeviceDescription", "UNKNOWN");
-                                    list.add(new Adapter(vendorName + " - " + deviceName, id, deviceId,
-                                            timeStampWeight));
+                                                                    .getOrDefault("DeviceDescription", "UNKNOWN");
+                                    list.add(new Adapter(vendorName + " - " + deviceName,
+                                                         id,
+                                                         deviceId,
+                                                         timeStampWeight));
                                 }
                             }
                         }
@@ -161,13 +165,13 @@ public class RP1210 {
      * vehicle. A {@link Bus} is returned which will be used to send and read
      * {@link Packet}s
      *
-     * @param adapter
-     *            the {@link Adapter} to use for communications
-     * @param address
-     *            the source address of the tool
-     * @return An {@link Bus}
+     * @param  adapter
+     *                          the {@link Adapter} to use for communications
+     * @param  address
+     *                          the source address of the tool
+     * @return              An {@link Bus}
      * @throws BusException
-     *             if there is a problem setting the adapter
+     *                          if there is a problem setting the adapter
      */
     public Bus setAdapter(Adapter adapter, int address) throws BusException {
         if (engine != null) {
@@ -189,8 +193,9 @@ public class RP1210 {
                 engine = new ScriptedEngine(bus, in);
             } catch (IOException | BusException e) {
                 throw new IllegalStateException(
-                        "Unexpected error opening simulated engine " + adapter.getDLLName() + "S.",
-                        e);
+                                                "Unexpected error opening simulated engine " + adapter.getDLLName()
+                                                        + "S.",
+                                                e);
             }
             return bus;
         } else {

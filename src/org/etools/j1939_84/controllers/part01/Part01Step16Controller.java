@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
+
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
@@ -19,8 +20,8 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
@@ -73,38 +74,41 @@ public class Part01Step16Controller extends StepController {
 
         // 6.1.16.2.a Fail if any OBD ECU reports a previously active DTC.
         globalPackets.stream()
-                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> !p.getDtcs().isEmpty())
-                .forEach(p -> {
-                    String moduleName = Lookup.getAddressName(p.getSourceAddress());
-                    addFailure("6.1.16.2.a - OBD ECU " + moduleName + " reported a previously active DTC");
-                });
+                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                     .filter(p -> !p.getDtcs().isEmpty())
+                     .forEach(p -> {
+                         String moduleName = Lookup.getAddressName(p.getSourceAddress());
+                         addFailure("6.1.16.2.a - OBD ECU " + moduleName + " reported a previously active DTC");
+                     });
 
         // 6.1.16.2.b Fail if any OBD ECU does not report MIL (Malfunction Indicator Lamp) off
         globalPackets.stream()
-                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
-                .forEach(p -> {
-                    String moduleName = Lookup.getAddressName(p.getSourceAddress());
-                    addFailure("6.1.16.2.b - OBD ECU " + moduleName + " did not report MIL off");
-                });
+                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                     .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
+                     .forEach(p -> {
+                         String moduleName = Lookup.getAddressName(p.getSourceAddress());
+                         addFailure("6.1.16.2.b - OBD ECU " + moduleName + " did not report MIL off");
+                     });
 
         // 6.1.16.2.c Fail if any non-OBD ECU does not report MIL off or not supported - LampStatus of OTHER
         globalPackets.stream()
-                .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
-                .filter(p -> {
-                    LampStatus milStatus = p.getMalfunctionIndicatorLampStatus();
-                    return milStatus != OFF && milStatus != NOT_SUPPORTED;
-                }).forEach(p -> {
-            String moduleName = Lookup.getAddressName(p.getSourceAddress());
-            addFailure("6.1.16.2.c - Non-OBD ECU " + moduleName + " did not report MIL off or not supported");
-        });
+                     .filter(p -> !getDataRepository().isObdModule(p.getSourceAddress()))
+                     .filter(p -> {
+                         LampStatus milStatus = p.getMalfunctionIndicatorLampStatus();
+                         return milStatus != OFF && milStatus != NOT_SUPPORTED;
+                     })
+                     .forEach(p -> {
+                         String moduleName = Lookup.getAddressName(p.getSourceAddress());
+                         addFailure("6.1.16.2.c - Non-OBD ECU " + moduleName
+                                 + " did not report MIL off or not supported");
+                     });
 
         List<Integer> obdAddresses = getDataRepository().getObdModuleAddresses();
         // 6.1.16.3.a DS DM2 to each OBD ECU
         List<BusResult<DM2PreviouslyActiveDTC>> dsResult = obdAddresses.stream()
-                .map(address -> getDiagnosticMessageModule().requestDM2(getListener(), address))
-                .collect(Collectors.toList());
+                                                                       .map(address -> getDiagnosticMessageModule().requestDM2(getListener(),
+                                                                                                                               address))
+                                                                       .collect(Collectors.toList());
 
         // 6.1.16.4.a Fail if any responses differ from global responses
         List<DM2PreviouslyActiveDTC> dsDM2s = filterPackets(dsResult);

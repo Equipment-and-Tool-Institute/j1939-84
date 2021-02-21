@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
-import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket.PGN;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
@@ -15,6 +14,7 @@ import static org.mockito.Mockito.when;
 
 import java.util.List;
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -87,13 +87,13 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
 
         instance = new Part01Step20Controller(
-                executor,
-                engineSpeedModule,
-                bannerModule,
-                vehicleInformationModule,
-                diagnosticMessageModule,
-                dataRepository,
-                DateTimeModule.getInstance());
+                                              executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              diagnosticMessageModule,
+                                              dataRepository,
+                                              DateTimeModule.getInstance());
 
         setup(instance,
               listener,
@@ -144,7 +144,9 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM28(any());
         verify(diagnosticMessageModule).requestDM28(any(), eq(0x01));
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.1.20.2.c - No OBD ECU provided DM28");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -159,23 +161,50 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
     @Test
     public void testFailures() {
         DM28PermanentEmissionDTCPacket packet1 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                    Packet.create(PGN,
+                                                                                                  0x01,
+                                                                                                  0x11,
+                                                                                                  0x22,
+                                                                                                  0x33,
+                                                                                                  0x44,
+                                                                                                  0x55,
+                                                                                                  0x66,
+                                                                                                  0x77,
+                                                                                                  0x88));
         DM28PermanentEmissionDTCPacket packet3 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x04, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                                    Packet.create(PGN,
+                                                                                                  0x03,
+                                                                                                  0x00,
+                                                                                                  0x00,
+                                                                                                  0x04,
+                                                                                                  0x00,
+                                                                                                  0xFF,
+                                                                                                  0xFF,
+                                                                                                  0xFF,
+                                                                                                  0xFF));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
         DM28PermanentEmissionDTCPacket obdPacket3 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, 0x13, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                       Packet.create(PGN,
+                                                                                                     0x03,
+                                                                                                     0x11,
+                                                                                                     0x22,
+                                                                                                     0x13,
+                                                                                                     0x44,
+                                                                                                     0x55,
+                                                                                                     0x66,
+                                                                                                     0x77,
+                                                                                                     0x88));
 
         when(diagnosticMessageModule.requestDM28(any()))
-                .thenReturn(new RequestResult<>(false, packet1, packet3));
+                                                        .thenReturn(new RequestResult<>(false, packet1, packet3));
 
         when(diagnosticMessageModule.requestDM28(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
+                                                                  .thenReturn(new BusResult<>(false, packet1));
         when(diagnosticMessageModule.requestDM28(any(), eq(0x03)))
-                .thenReturn(new BusResult<>(false, obdPacket3));
+                                                                  .thenReturn(new BusResult<>(false, obdPacket3));
 
         runTest();
 
@@ -185,13 +214,21 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.1.20.2.a - Engine #2 (1) reported permanent DTCs");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.1.20.2.a - Transmission #1 (3) reported permanent DTCs");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.1.20.2.b - Engine #2 (1) did not report MIL off");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.1.20.2.b - Transmission #1 (3) did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -202,26 +239,63 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
     @Test
     public void testMoreFailures() {
         AcknowledgmentPacket ackPacket = new AcknowledgmentPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                  Packet.create(PGN,
+                                                                                0x01,
+                                                                                0x11,
+                                                                                0x22,
+                                                                                0x33,
+                                                                                0x44,
+                                                                                0x55,
+                                                                                0x66,
+                                                                                0x77,
+                                                                                0x88));
 
         DM28PermanentEmissionDTCPacket packet1 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(PGN, 0x01, 0x11, 0x22, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                                    Packet.create(PGN,
+                                                                                                  0x01,
+                                                                                                  0x11,
+                                                                                                  0x22,
+                                                                                                  0x33,
+                                                                                                  0x44,
+                                                                                                  0x55,
+                                                                                                  0x66,
+                                                                                                  0x77,
+                                                                                                  0x88));
         DM28PermanentEmissionDTCPacket packet3 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(PGN, 0x03, 0x11, 0x22, (byte) 0x0A, 0x44, 0x55, 0x66, 0x77,
-                              0x88));
+                                                                                    Packet.create(PGN,
+                                                                                                  0x03,
+                                                                                                  0x11,
+                                                                                                  0x22,
+                                                                                                  (byte) 0x0A,
+                                                                                                  0x44,
+                                                                                                  0x55,
+                                                                                                  0x66,
+                                                                                                  0x77,
+                                                                                                  0x88));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
         dataRepository.putObdModule(new OBDModuleInformation(3));
 
         DM28PermanentEmissionDTCPacket packet3b = new DM28PermanentEmissionDTCPacket(
-                Packet.create(PGN, 0x03, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF));
+                                                                                     Packet.create(PGN,
+                                                                                                   0x03,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0x00,
+                                                                                                   0xFF,
+                                                                                                   0xFF,
+                                                                                                   0xFF,
+                                                                                                   0xFF));
 
         when(diagnosticMessageModule.requestDM28(any()))
-                .thenReturn(new RequestResult<>(false, List.of(packet3), List.of(ackPacket)));
+                                                        .thenReturn(new RequestResult<>(false,
+                                                                                        List.of(packet3),
+                                                                                        List.of(ackPacket)));
         when(diagnosticMessageModule.requestDM28(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
+                                                                  .thenReturn(new BusResult<>(false, packet1));
         when(diagnosticMessageModule.requestDM28(any(), eq(0x03)))
-                .thenReturn(new BusResult<>(false, packet3b));
+                                                                  .thenReturn(new BusResult<>(false, packet3b));
 
         runTest();
 
@@ -233,9 +307,13 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.1.20.2.a - Transmission #1 (3) reported permanent DTCs");
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL,
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
                                         "6.1.20.2.b - Transmission #1 (3) did not report MIL off");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
@@ -251,14 +329,23 @@ public class Part01Step20ControllerTest extends AbstractControllerTest {
     public void testNoErrors() {
 
         DM28PermanentEmissionDTCPacket packet1 = new DM28PermanentEmissionDTCPacket(
-                Packet.create(PGN, 0x01, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                                    Packet.create(PGN,
+                                                                                                  0x01,
+                                                                                                  0x00,
+                                                                                                  0xFF,
+                                                                                                  0x00,
+                                                                                                  0x00,
+                                                                                                  0x00,
+                                                                                                  0x00,
+                                                                                                  0x00,
+                                                                                                  0x00));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         when(diagnosticMessageModule.requestDM28(any()))
-                .thenReturn(new RequestResult<>(false, packet1));
+                                                        .thenReturn(new RequestResult<>(false, packet1));
         when(diagnosticMessageModule.requestDM28(any(), eq(0x01)))
-                .thenReturn(new BusResult<>(false, packet1));
+                                                                  .thenReturn(new BusResult<>(false, packet1));
 
         runTest();
 

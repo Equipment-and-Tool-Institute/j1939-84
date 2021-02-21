@@ -6,7 +6,6 @@ package org.etools.j1939_84.controllers.part08;
 import org.etools.j1939_84.controllers.AbstractPartControllerTest;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.controllers.part01.Part01Controller;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.junit.Before;
 

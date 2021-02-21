@@ -15,6 +15,7 @@ import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
+
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
@@ -134,17 +135,17 @@ public class Part04Step07ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
-        //Module 0 responds with the DM31
+        // Module 0 responds with the DM31
         OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
         obdModuleInformation0.set(createDM12(0, 123, 12, ON));
         dataRepository.putObdModule(obdModuleInformation0);
 
-        //Module 1 NACKs the request
+        // Module 1 NACKs the request
         OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
         obdModuleInformation1.set(createDM12(1, 472, 17, ON));
         dataRepository.putObdModule(obdModuleInformation1);
 
-        //Module 2 doesn't support DM12
+        // Module 2 doesn't support DM12
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(2);
         dataRepository.putObdModule(obdModuleInformation);
 

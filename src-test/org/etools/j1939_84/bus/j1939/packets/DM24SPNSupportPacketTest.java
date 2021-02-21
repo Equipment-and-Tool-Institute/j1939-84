@@ -9,6 +9,7 @@ import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 
 import java.util.List;
+
 import org.etools.j1939_84.bus.Packet;
 import org.etools.testdoc.TestDoc;
 import org.junit.Test;

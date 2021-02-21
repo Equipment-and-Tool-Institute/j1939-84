@@ -14,12 +14,12 @@ import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.verify;
 
-import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
+
 import org.etools.j1939_84.bus.BusException;
 import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
@@ -51,23 +51,23 @@ import org.junit.runner.RunWith;
 import org.mockito.Spy;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+
 /**
  * Unit tests for the {@link DiagnosticMessageModule} class
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
-@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT",
-        justification = "The values returned are properly ignored on verify statements.")
+@SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The values returned are properly ignored on verify statements.")
 @RunWith(MockitoJUnitRunner.class)
 public class DiagnosticMessageModuleTest {
 
+    public static final int REQUEST_PGN = 0xEA00;
+    public static final int ACK_PGN = AcknowledgmentPacket.PGN;
     /**
      * The Bus address of the tool for testing purposes
      */
     private static final int BUS_ADDR = 0xA5;
-    public static final int REQUEST_PGN = 0xEA00;
-    public static final int ACK_PGN = AcknowledgmentPacket.PGN;
-
     private DiagnosticMessageModule instance;
 
     @Spy
@@ -90,11 +90,25 @@ public class DiagnosticMessageModuleTest {
     @Test
     public void testReadDM1() throws BusException {
         DM1ActiveDTCsPacket packet = new DM1ActiveDTCsPacket(
-                Packet.create(65226, 0x00, 0x11, 0x01, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
-                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                                                             Packet.create(65226,
+                                                                           0x00,
+                                                                           0x11,
+                                                                           0x01,
+                                                                           0x61,
+                                                                           0x02,
+                                                                           0x13,
+                                                                           0x00,
+                                                                           0x21,
+                                                                           0x06,
+                                                                           0x1F,
+                                                                           0x00,
+                                                                           0xEE,
+                                                                           0x10,
+                                                                           0x04,
+                                                                           0x00));
 
         doReturn(Stream.of(packet.getPacket(), packet.getPacket(), packet.getPacket())).when(j1939)
-                .read(anyLong(), any());
+                                                                                       .read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
 
@@ -104,10 +118,12 @@ public class DiagnosticMessageModuleTest {
         expected += "10:15:30.0000 Reading the bus for published DM1 messages" + NL;
         expected += "" + NL;
         expected += "10:15:30.0000 18FECA00 [14] 11 01 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM1 from Engine #1 (0): MIL: alternate off, RSL: slow flash, AWL: alternate off, PL: fast flash" + NL;
+        expected += "DM1 from Engine #1 (0): MIL: alternate off, RSL: slow flash, AWL: alternate off, PL: fast flash"
+                + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times" + NL;
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+                + NL;
 
         assertEquals(expected, listener.getResults());
         verify(j1939).read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS);
@@ -132,16 +148,48 @@ public class DiagnosticMessageModuleTest {
     @Test
     public void testReadDM1WithTwoModules() throws BusException {
         DM1ActiveDTCsPacket packet1 = new DM1ActiveDTCsPacket(
-                Packet.create(65226, 0x00, 0x11, 0x01, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
-                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                                                              Packet.create(65226,
+                                                                            0x00,
+                                                                            0x11,
+                                                                            0x01,
+                                                                            0x61,
+                                                                            0x02,
+                                                                            0x13,
+                                                                            0x00,
+                                                                            0x21,
+                                                                            0x06,
+                                                                            0x1F,
+                                                                            0x00,
+                                                                            0xEE,
+                                                                            0x10,
+                                                                            0x04,
+                                                                            0x00));
 
         DM1ActiveDTCsPacket packet2 = new DM1ActiveDTCsPacket(
-                Packet.create(65226, 0x01, 0x11, 0x01, 0x61, 0x02, 0x13, 0x00, 0x21, 0x06,
-                              0x1F, 0x00, 0xEE, 0x10, 0x04, 0x00));
+                                                              Packet.create(65226,
+                                                                            0x01,
+                                                                            0x11,
+                                                                            0x01,
+                                                                            0x61,
+                                                                            0x02,
+                                                                            0x13,
+                                                                            0x00,
+                                                                            0x21,
+                                                                            0x06,
+                                                                            0x1F,
+                                                                            0x00,
+                                                                            0xEE,
+                                                                            0x10,
+                                                                            0x04,
+                                                                            0x00));
 
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet1.getPacket(), packet2.getPacket(),
-                           packet1.getPacket(), packet2.getPacket())).when(j1939)
-                .read(anyLong(), any());
+        doReturn(Stream.of(packet1.getPacket(),
+                           packet2.getPacket(),
+                           packet1.getPacket(),
+                           packet2.getPacket(),
+                           packet1.getPacket(),
+                           packet2.getPacket())).when(j1939)
+                                                .read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
 
@@ -150,16 +198,20 @@ public class DiagnosticMessageModuleTest {
         String expected = "10:15:30.0000 Reading the bus for published DM1 messages" + NL;
         expected += "" + NL;
         expected += "10:15:30.0000 18FECA00 [14] 11 01 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM1 from Engine #1 (0): MIL: alternate off, RSL: slow flash, AWL: alternate off, PL: fast flash" + NL;
+        expected += "DM1 from Engine #1 (0): MIL: alternate off, RSL: slow flash, AWL: alternate off, PL: fast flash"
+                + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times" + NL;
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+                + NL;
         expected += "" + NL;
         expected += "10:15:30.0000 18FECA01 [14] 11 01 61 02 13 00 21 06 1F 00 EE 10 04 00" + NL;
-        expected += "DM1 from Engine #2 (1): MIL: alternate off, RSL: slow flash, AWL: alternate off, PL: fast flash" + NL;
+        expected += "DM1 from Engine #2 (1): MIL: alternate off, RSL: slow flash, AWL: alternate off, PL: fast flash"
+                + NL;
         expected += "DTC 609:19 - Controller #2, Received Network Data In Error - 0 times" + NL;
         expected += "DTC 1569:31 - Engine Protection Torque Derate, Condition Exists - 0 times" + NL;
-        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times" + NL;
+        expected += "DTC 4334:4 - AFT 1 DEF Doser 1 Absolute Pressure, Voltage Below Normal, Or Shorted To Low Source - 0 times"
+                + NL;
         assertEquals(expected, listener.getResults());
         verify(j1939).read(DM1ActiveDTCsPacket.class, 3, TimeUnit.SECONDS);
         verify(j1939).read(anyLong(), any());
@@ -175,7 +227,16 @@ public class DiagnosticMessageModuleTest {
         doReturn(requestPacket1).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
-                Packet.create(ACK_PGN | BUS_ADDR, 0x00, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00));
+                                                                Packet.create(ACK_PGN | BUS_ADDR,
+                                                                              0x00,
+                                                                              0x00,
+                                                                              0xFF,
+                                                                              0xFF,
+                                                                              0xFF,
+                                                                              BUS_ADDR,
+                                                                              0xD3,
+                                                                              0xFE,
+                                                                              0x00));
 
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
@@ -203,7 +264,16 @@ public class DiagnosticMessageModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0);
 
         DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                            Packet.create(pgn,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0xFF,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
@@ -297,14 +367,42 @@ public class DiagnosticMessageModuleTest {
         DataRepository.getInstance().putObdModule(new OBDModuleInformation(0));
 
         DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                            Packet.create(pgn,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0xFF,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00));
         DM12MILOnEmissionDTCPacket packet2 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x17, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                            Packet.create(pgn,
+                                                                                          0x17,
+                                                                                          0x00,
+                                                                                          0xFF,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00));
         DM12MILOnEmissionDTCPacket packet3 = new DM12MILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                            Packet.create(pgn,
+                                                                                          0x21,
+                                                                                          0x00,
+                                                                                          0xFF,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00,
+                                                                                          0x00));
         TestResultsListener listener = new TestResultsListener();
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                          .read(anyLong(),
+                                                                                                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM12 Request" + NL;
@@ -317,7 +415,8 @@ public class DiagnosticMessageModuleTest {
         expected += "DM12 from Body Controller (33): MIL: off, RSL: off, AWL: off, PL: off, No DTCs" + NL;
 
         List<DM12MILOnEmissionDTCPacket> expectedPackets = List.of(packet1, packet2, packet3);
-        RequestResult<DM12MILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false, expectedPackets,
+        RequestResult<DM12MILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+                                                                                       expectedPackets,
                                                                                        List.of());
         assertEquals(expectedResult, instance.requestDM12(listener));
         assertEquals(expected, listener.getResults());
@@ -363,7 +462,8 @@ public class DiagnosticMessageModuleTest {
                 + NL;
 
         RequestResult<DM12MILOnEmissionDTCPacket> expectedResult = new RequestResult<>(false,
-                                                                                       List.of(packet1), List.of());
+                                                                                       List.of(packet1),
+                                                                                       List.of());
 
         assertEquals(expectedResult, instance.requestDM12(listener));
         assertEquals(expected, listener.getResults());
@@ -521,7 +621,16 @@ public class DiagnosticMessageModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x21);
 
         DM23PreviouslyMILOnEmissionDTCPacket packet1 = new DM23PreviouslyMILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                                                Packet.create(pgn,
+                                                                                                              0x21,
+                                                                                                              0x00,
+                                                                                                              0xFF,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
@@ -614,13 +723,41 @@ public class DiagnosticMessageModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         DM23PreviouslyMILOnEmissionDTCPacket packet1 = new DM23PreviouslyMILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                                                Packet.create(pgn,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0xFF,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00));
         DM23PreviouslyMILOnEmissionDTCPacket packet2 = new DM23PreviouslyMILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x17, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                                                Packet.create(pgn,
+                                                                                                              0x17,
+                                                                                                              0x00,
+                                                                                                              0xFF,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00));
         DM23PreviouslyMILOnEmissionDTCPacket packet3 = new DM23PreviouslyMILOnEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                                                                                                Packet.create(pgn,
+                                                                                                              0x21,
+                                                                                                              0x00,
+                                                                                                              0xFF,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00,
+                                                                                                              0x00));
+        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                          .read(anyLong(),
+                                                                                                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM23 Request" + NL;
@@ -719,7 +856,16 @@ public class DiagnosticMessageModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
 
         AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
-                Packet.create(ACK_PGN | GLOBAL_ADDR, 0x00, 0x01, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xB7, 0xFD, 0x00));
+                                                                Packet.create(ACK_PGN | GLOBAL_ADDR,
+                                                                              0x00,
+                                                                              0x01,
+                                                                              0xFF,
+                                                                              0xFF,
+                                                                              0xFF,
+                                                                              BUS_ADDR,
+                                                                              0xB7,
+                                                                              0xFD,
+                                                                              0x00));
 
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
@@ -817,7 +963,16 @@ public class DiagnosticMessageModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x21);
 
         DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
+                                                                                          Packet.create(pgn,
+                                                                                                        0x21,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
@@ -871,7 +1026,9 @@ public class DiagnosticMessageModuleTest {
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(
-                false, List.of(packet1), List.of());
+                                                                                              false,
+                                                                                              List.of(packet1),
+                                                                                              List.of());
         assertEquals(expectedResult, instance.requestDM26(listener, 0x00));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -897,7 +1054,8 @@ public class DiagnosticMessageModuleTest {
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(false,
-                                                                                              List.of(), List.of());
+                                                                                              List.of(),
+                                                                                              List.of());
         assertEquals(expectedResult, instance.requestDM26(listener, 0x17));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -915,13 +1073,41 @@ public class DiagnosticMessageModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         DM26TripDiagnosticReadinessPacket packet1 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(pgn, 0x00, 0, 0, 0, 0, 0, 0, 0, 0));
+                                                                                          Packet.create(pgn,
+                                                                                                        0x00,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0));
         DM26TripDiagnosticReadinessPacket packet2 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(pgn, 0x17, 0, 0, 0, 0, 0, 0, 0, 0));
+                                                                                          Packet.create(pgn,
+                                                                                                        0x17,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0));
         DM26TripDiagnosticReadinessPacket packet3 = new DM26TripDiagnosticReadinessPacket(
-                Packet.create(pgn, 0x21, 0, 0, 0, 0, 0, 0, 0, 0));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                                                                                          Packet.create(pgn,
+                                                                                                        0x21,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0,
+                                                                                                        0));
+        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                          .read(anyLong(),
+                                                                                                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
@@ -935,7 +1121,11 @@ public class DiagnosticMessageModuleTest {
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM26TripDiagnosticReadinessPacket> expectedResult = new RequestResult<>(
-                false, List.of(packet1, packet2, packet3), List.of());
+                                                                                              false,
+                                                                                              List.of(packet1,
+                                                                                                      packet2,
+                                                                                                      packet3),
+                                                                                              List.of());
         assertEquals(expectedResult, instance.requestDM26(listener));
         assertEquals(expected, listener.getResults());
         assertEquals("", listener.getMessages());
@@ -964,7 +1154,9 @@ public class DiagnosticMessageModuleTest {
                                                                                                         0xFF));
 
         doReturn(Stream.of(packet1.getPacket()), Stream.of(packet1.getPacket()), Stream.of(packet1.getPacket())).when(
-                j1939).read(anyLong(), any());
+                                                                                                                      j1939)
+                                                                                                                .read(anyLong(),
+                                                                                                                      any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM26 Request" + NL;
@@ -1013,7 +1205,16 @@ public class DiagnosticMessageModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
 
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                        Packet.create(pgn,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0xFF,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
@@ -1111,13 +1312,41 @@ public class DiagnosticMessageModuleTest {
         final int pgn = DM27AllPendingDTCsPacket.PGN;
 
         DM27AllPendingDTCsPacket packet1 = new DM27AllPendingDTCsPacket(
-                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                        Packet.create(pgn,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0xFF,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00));
         DM27AllPendingDTCsPacket packet2 = new DM27AllPendingDTCsPacket(
-                Packet.create(pgn, 0x17, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                        Packet.create(pgn,
+                                                                                      0x17,
+                                                                                      0x00,
+                                                                                      0xFF,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00));
         DM27AllPendingDTCsPacket packet3 = new DM27AllPendingDTCsPacket(
-                Packet.create(pgn, 0x21, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                                                                        Packet.create(pgn,
+                                                                                      0x21,
+                                                                                      0x00,
+                                                                                      0xFF,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00,
+                                                                                      0x00));
+        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                          .read(anyLong(),
+                                                                                                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM27 Request" + NL;
@@ -1137,7 +1366,8 @@ public class DiagnosticMessageModuleTest {
                 add(packet3);
             }
         };
-        RequestResult<DM27AllPendingDTCsPacket> expectedResult = new RequestResult<>(false, expectedPackets,
+        RequestResult<DM27AllPendingDTCsPacket> expectedResult = new RequestResult<>(false,
+                                                                                     expectedPackets,
                                                                                      List.of());
         assertEquals(expectedResult, instance.requestDM27(listener));
         assertEquals(expected, listener.getResults());
@@ -1183,7 +1413,8 @@ public class DiagnosticMessageModuleTest {
 
         TestResultsListener listener = new TestResultsListener();
         RequestResult<DM27AllPendingDTCsPacket> expectedResult = new RequestResult<>(false,
-                                                                                     List.of(packet1), List.of());
+                                                                                     List.of(packet1),
+                                                                                     List.of());
 
         assertEquals(expectedResult, instance.requestDM27(listener));
         assertEquals(expected, listener.getResults());
@@ -1251,7 +1482,8 @@ public class DiagnosticMessageModuleTest {
                 + NL;
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false, List.of(packet1),
+        RequestResult<DM28PermanentEmissionDTCPacket> expectedResult = new RequestResult<>(false,
+                                                                                           List.of(packet1),
                                                                                            List.of());
         assertEquals(expectedResult, instance.requestDM28(listener));
         assertEquals(expected, listener.getResults());
@@ -1302,8 +1534,16 @@ public class DiagnosticMessageModuleTest {
         expected += "Emission-Related Permanent DTC Count                             1" + NL;
 
         DM29DtcCounts packet1 = new DM29DtcCounts(
-                Packet.create(pgn | BUS_ADDR, 0x00,
-                              0x09, 0x20, 0x47, 0x31, 0x01, 0xFF, 0xFF, 0xFF));
+                                                  Packet.create(pgn | BUS_ADDR,
+                                                                0x00,
+                                                                0x09,
+                                                                0x20,
+                                                                0x47,
+                                                                0x31,
+                                                                0x01,
+                                                                0xFF,
+                                                                0xFF,
+                                                                0xFF));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
@@ -1352,8 +1592,16 @@ public class DiagnosticMessageModuleTest {
         expected += "Emission-Related Permanent DTC Count                             1" + NL;
 
         DM29DtcCounts packet1 = new DM29DtcCounts(
-                Packet.create(pgn | GLOBAL_ADDR, 0x00,
-                              0x09, 0x20, 0x47, 0x31, 0x01, 0xFF, 0xFF, 0xFF));
+                                                  Packet.create(pgn | GLOBAL_ADDR,
+                                                                0x00,
+                                                                0x09,
+                                                                0x20,
+                                                                0x47,
+                                                                0x31,
+                                                                0x01,
+                                                                0xFF,
+                                                                0xFF,
+                                                                0xFF));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
@@ -1401,7 +1649,16 @@ public class DiagnosticMessageModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x01);
 
         DM2PreviouslyActiveDTC packet1 = new DM2PreviouslyActiveDTC(
-                Packet.create(pgn, 0x01, 0x22, 0xDD, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                    Packet.create(pgn,
+                                                                                  0x01,
+                                                                                  0x22,
+                                                                                  0xDD,
+                                                                                  0x33,
+                                                                                  0x44,
+                                                                                  0x55,
+                                                                                  0x66,
+                                                                                  0x77,
+                                                                                  0x88));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
@@ -1432,13 +1689,41 @@ public class DiagnosticMessageModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, GLOBAL_ADDR);
 
         DM2PreviouslyActiveDTC packet1 = new DM2PreviouslyActiveDTC(
-                Packet.create(pgn, 0x00, 0x22, 0xDD, 0x33, 0x44, 0x55, 0x66, 0x77, 0x88));
+                                                                    Packet.create(pgn,
+                                                                                  0x00,
+                                                                                  0x22,
+                                                                                  0xDD,
+                                                                                  0x33,
+                                                                                  0x44,
+                                                                                  0x55,
+                                                                                  0x66,
+                                                                                  0x77,
+                                                                                  0x88));
         DM2PreviouslyActiveDTC packet2 = new DM2PreviouslyActiveDTC(
-                Packet.create(pgn, 0x17, 0x02, 0xFD, 0x03, 0x04, 0x05, 0x06, 0x07, 0x08));
+                                                                    Packet.create(pgn,
+                                                                                  0x17,
+                                                                                  0x02,
+                                                                                  0xFD,
+                                                                                  0x03,
+                                                                                  0x04,
+                                                                                  0x05,
+                                                                                  0x06,
+                                                                                  0x07,
+                                                                                  0x08));
         DM2PreviouslyActiveDTC packet3 = new DM2PreviouslyActiveDTC(
-                Packet.create(pgn, 0x21, 0x20, 0xDF, 0x30, 0x40, 0x50, 0x60, 0x70, 0x80));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                                                                    Packet.create(pgn,
+                                                                                  0x21,
+                                                                                  0x20,
+                                                                                  0xDF,
+                                                                                  0x30,
+                                                                                  0x40,
+                                                                                  0x50,
+                                                                                  0x60,
+                                                                                  0x70,
+                                                                                  0x80));
+        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                          .read(anyLong(),
+                                                                                                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM2 Request" + NL;
@@ -1584,31 +1869,36 @@ public class DiagnosticMessageModuleTest {
         expected += "]" + NL;
 
         DM31DtcToLampAssociation packet1 = new DM31DtcToLampAssociation(
-                Packet.create(pgn | BUS_ADDR, 0x21,
-                              0x61, // SPN least significant bit
-                              0x02, // SPN most significant bit
-                              0x13, // Failure mode indicator
-                              0x81, // SPN Conversion Occurrence Count
-                              0x62, // Lamp Status/Support
-                              0x1D, // Lamp Status/State
+                                                                        Packet.create(pgn | BUS_ADDR,
+                                                                                      0x21,
+                                                                                      0x61, // SPN least significant bit
+                                                                                      0x02, // SPN most significant bit
+                                                                                      0x13, // Failure mode indicator
+                                                                                      0x81, // SPN Conversion Occurrence
+                                                                                            // Count
+                                                                                      0x62, // Lamp Status/Support
+                                                                                      0x1D, // Lamp Status/State
 
-                              0x21, // SPN least significant bit
-                              0x06, // SPN most significant bit
-                              0x1F, // Failure mode indicator
-                              0x23, // SPN Conversion Occurrence Count
-                              0x22, // Lamp Status/Support
-                              0xDD, // Lamp Status/State
+                                                                                      0x21, // SPN least significant bit
+                                                                                      0x06, // SPN most significant bit
+                                                                                      0x1F, // Failure mode indicator
+                                                                                      0x23, // SPN Conversion Occurrence
+                                                                                            // Count
+                                                                                      0x22, // Lamp Status/Support
+                                                                                      0xDD, // Lamp Status/State
 
-                              0xEE, // SPN least significant bit
-                              0x10, // SPN most significant bit
-                              0x04, // Failure mode indicator
-                              0x00, // SPN Conversion Occurrence Count
-                              0xAA, // Lamp Status/Support
-                              0x55));// Lamp Status/State
+                                                                                      0xEE, // SPN least significant bit
+                                                                                      0x10, // SPN most significant bit
+                                                                                      0x04, // Failure mode indicator
+                                                                                      0x00, // SPN Conversion Occurrence
+                                                                                            // Count
+                                                                                      0xAA, // Lamp Status/Support
+                                                                                      0x55));// Lamp Status/State
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
-        RequestResult<DM31DtcToLampAssociation> expectedResult = new RequestResult<>(false, List.of(packet1),
+        RequestResult<DM31DtcToLampAssociation> expectedResult = new RequestResult<>(false,
+                                                                                     List.of(packet1),
                                                                                      List.of());
         assertEquals(expectedResult, instance.requestDM31(listener, 0x21));
         assertEquals(expected, listener.getResults());
@@ -1658,27 +1948,28 @@ public class DiagnosticMessageModuleTest {
         expected += "]" + NL;
 
         DM31DtcToLampAssociation packet1 = new DM31DtcToLampAssociation(
-                Packet.create(pgn, 0x21,
-                              0x61, // SPN least significant bit
-                              0x02, // SPN most significant bit
-                              0x13, // Failure mode indicator
-                              0x81,
-                              0x62,
-                              0x1D,
+                                                                        Packet.create(pgn,
+                                                                                      0x21,
+                                                                                      0x61, // SPN least significant bit
+                                                                                      0x02, // SPN most significant bit
+                                                                                      0x13, // Failure mode indicator
+                                                                                      0x81,
+                                                                                      0x62,
+                                                                                      0x1D,
 
-                              0x21, // SPN least significant bit
-                              0x06, // SPN most significant bit
-                              0x1F, // Failure mode indicator
-                              0x23,
-                              0x22,
-                              0xDD,
+                                                                                      0x21, // SPN least significant bit
+                                                                                      0x06, // SPN most significant bit
+                                                                                      0x1F, // Failure mode indicator
+                                                                                      0x23,
+                                                                                      0x22,
+                                                                                      0xDD,
 
-                              0xEE, // SPN least significant bit
-                              0x10, // SPN most significant bit
-                              0x04, // Failure mode indicator
-                              0x00,
-                              0xAA,
-                              0x55));
+                                                                                      0xEE, // SPN least significant bit
+                                                                                      0x10, // SPN most significant bit
+                                                                                      0x04, // Failure mode indicator
+                                                                                      0x00,
+                                                                                      0xAA,
+                                                                                      0x55));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         TestResultsListener listener = new TestResultsListener();
@@ -1696,7 +1987,7 @@ public class DiagnosticMessageModuleTest {
 
     @Test
     public void testRequestDM33DestinationSpecificEmissionIncreasingAuxiliaryEmissionControlDeviceActiveTime()
-            throws BusException {
+                                                                                                               throws BusException {
         final int pgn = DM33EmissionIncreasingAECDActiveTime.PGN;
 
         byte[] data = { 0x01, 0x2B, 0x0B, 0x01, 0x00, 0x2B, (byte) 0xC4, 0x0B, 0x00,
@@ -1828,7 +2119,16 @@ public class DiagnosticMessageModuleTest {
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0x00);
 
         DM6PendingEmissionDTCPacket packet1 = new DM6PendingEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                              Packet.create(pgn,
+                                                                                            0x00,
+                                                                                            0x00,
+                                                                                            0xFF,
+                                                                                            0x00,
+                                                                                            0x00,
+                                                                                            0x00,
+                                                                                            0x00,
+                                                                                            0x00,
+                                                                                            0x00));
         doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
 
         String expected = "";
@@ -1928,13 +2228,36 @@ public class DiagnosticMessageModuleTest {
         final int pgn = DM6PendingEmissionDTCPacket.PGN;
 
         DM6PendingEmissionDTCPacket packet1 = new DM6PendingEmissionDTCPacket(
-                Packet.create(pgn, 0x00, 0x00, 0xFF, 0x61));
+                                                                              Packet.create(pgn,
+                                                                                            0x00,
+                                                                                            0x00,
+                                                                                            0xFF,
+                                                                                            0x61));
         DM6PendingEmissionDTCPacket packet2 = new DM6PendingEmissionDTCPacket(
-                Packet.create(pgn, 0x17, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
+                                                                              Packet.create(pgn,
+                                                                                            0x17,
+                                                                                            0x00,
+                                                                                            0xFF,
+                                                                                            0x00,
+                                                                                            0x00,
+                                                                                            0x00,
+                                                                                            0x00,
+                                                                                            0x00,
+                                                                                            0x00));
         DM6PendingEmissionDTCPacket packet3 = new DM6PendingEmissionDTCPacket(
-                Packet.create(pgn, 0x21, 0x00, 0xFF, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00));
-        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939).read(anyLong(),
-                                                                                                            any());
+                                                                              Packet.create(pgn,
+                                                                                            0x21,
+                                                                                            0x00,
+                                                                                            0xFF,
+                                                                                            0x00,
+                                                                                            0x00,
+                                                                                            0x00,
+                                                                                            0x00,
+                                                                                            0x00,
+                                                                                            0x00));
+        doReturn(Stream.of(packet1.getPacket(), packet2.getPacket(), packet3.getPacket())).when(j1939)
+                                                                                          .read(anyLong(),
+                                                                                                any());
 
         String expected = "";
         expected += "10:15:30.0000 Global DM6 Request" + NL;
@@ -2033,7 +2356,10 @@ public class DiagnosticMessageModuleTest {
         DM56EngineFamilyPacket packet2 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x17, bytes));
         DM56EngineFamilyPacket packet3 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x21, bytes));
         doReturn(new RequestResult<>(false, packet1, packet2, packet3))
-                .when(j1939).requestGlobal("Global DM56 Request", DM56EngineFamilyPacket.class, NOOP);
+                                                                       .when(j1939)
+                                                                       .requestGlobal("Global DM56 Request",
+                                                                                      DM56EngineFamilyPacket.class,
+                                                                                      NOOP);
 
         List<DM56EngineFamilyPacket> packets = instance.requestDM56(NOOP);
         assertEquals(3, packets.size());
@@ -2047,8 +2373,10 @@ public class DiagnosticMessageModuleTest {
     @Test
     public void testReportEngineFamilyWithNoResponses() {
 
-        doReturn(RequestResult.empty()).when(j1939).requestGlobal("Global DM56 Request", DM56EngineFamilyPacket.class,
-                                                                  NOOP);
+        doReturn(RequestResult.empty()).when(j1939)
+                                       .requestGlobal("Global DM56 Request",
+                                                      DM56EngineFamilyPacket.class,
+                                                      NOOP);
 
         List<DM56EngineFamilyPacket> packets = instance.requestDM56(NOOP);
         assertEquals(0, packets.size());

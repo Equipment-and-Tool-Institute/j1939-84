@@ -10,6 +10,7 @@ import static org.etools.j1939_84.model.Outcome.FAIL;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -20,8 +21,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
 
 /**
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
- * <p>
- * The controller for 6.1.27 Part 1 to Part 2 Transition
+ *         <p>
+ *         The controller for 6.1.27 Part 1 to Part 2 Transition
  */
 public class Part01Step27Controller extends StepController {
 
@@ -63,23 +64,23 @@ public class Part01Step27Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         incrementProgress("Part 1, Step 27 - Part 1 to Part 2 Transition");
-        //  6.1.27.1 Actions:
-        //  a. Testing may be stopped for vehicles with failed tests and for
-        //  vehicles with the MIL on or a non-emissions related fault displayed
-        //  in DM1. Vehicles with the MIL on will fail subsequent tests.
+        // 6.1.27.1 Actions:
+        // a. Testing may be stopped for vehicles with failed tests and for
+        // vehicles with the MIL on or a non-emissions related fault displayed
+        // in DM1. Vehicles with the MIL on will fail subsequent tests.
         if (!isDevEnv()) {
             displayQuestionMessage();
         }
 
-        //  b. The transition from part 1 to part 2 shall be as provided below.
-        //        i. The engine shall be started without turning the key off.
-        //       ii. Or, an electric drive or hybrid drive system shall be placed in the operating
-        //           mode used to provide power to the drive system without moving the vehicle, if not
-        //           automatically provided during the initial key off to key on operation.
+        // b. The transition from part 1 to part 2 shall be as provided below.
+        // i. The engine shall be started without turning the key off.
+        // ii. Or, an electric drive or hybrid drive system shall be placed in the operating
+        // mode used to provide power to the drive system without moving the vehicle, if not
+        // automatically provided during the initial key off to key on operation.
         incrementProgress("Part 1, Step 27 b.i - Ensuring Key On, Engine On");
         ensureKeyOnEngineOn();
 
-        //      iii. The engine shall be allowed to idle one minute
+        // iii. The engine shall be allowed to idle one minute
         incrementProgress("Part 1, Step 27 b.iii - Allowing engine to idle one minute");
         if (!isDevEnv()) {
             pause("Step 1.27.b.iii Allowing engine to idle for %1$d seconds", 60L);
@@ -95,15 +96,17 @@ public class Part01Step27Controller extends StepController {
         // Only display question if there was a failure otherwise assume continuing
         // First of all, let's figure out if we have a failure
         boolean hasFailure = getPartResult(PART_NUMBER).getStepResults()
-                .stream()
-                .anyMatch(s -> s.getOutcome() == FAIL);
+                                                       .stream()
+                                                       .anyMatch(s -> s.getOutcome() == FAIL);
         if (hasFailure) {
-            //  a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on
-            //  or a non-emissions related fault displayed in DM1. Vehicles with the MIL on will fail subsequent tests.
+            // a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on
+            // or a non-emissions related fault displayed in DM1. Vehicles with the MIL on will fail subsequent tests.
             String message = "Ready to transition from Part 1 to Part 2 of the test" + NL;
-            message += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1." + NL;
+            message += "a. Testing may be stopped for vehicles with failed tests and for vehicles with the MIL on or a non-emissions related fault displayed in DM1."
+                    + NL;
             message += "   Vehicles with the MIL on will fail subsequent tests." + NL + NL;
-            message += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?" + NL;
+            message += "This vehicle has had failures and will likely fail subsequent tests.  Would you still like to continue?"
+                    + NL;
             displayInstructionAndWait(message, "Start Part 2", QUESTION);
         }
     }

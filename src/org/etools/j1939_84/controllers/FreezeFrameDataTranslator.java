@@ -38,8 +38,8 @@ public class FreezeFrameDataTranslator {
      */
     public List<Spn> getFreezeFrameSPNs(FreezeFrame freezeFrame, List<SupportedSPN> supportedSPNs) {
         List<SupportedSPN> supportedFreezeFrameSPNs = supportedSPNs.stream()
-                .filter(SupportedSPN::supportsExpandedFreezeFrame)
-                .collect(Collectors.toList());
+                                                                   .filter(SupportedSPN::supportsExpandedFreezeFrame)
+                                                                   .collect(Collectors.toList());
 
         byte[] spnData = toByteArray(freezeFrame.getSpnData());
 
@@ -47,8 +47,8 @@ public class FreezeFrameDataTranslator {
         int actualLength = spnData.length;
         if (actualLength != expectedLength) {
             getLogger().log(Level.SEVERE,
-                    "The expected (" + expectedLength + ") and actual (" + actualLength
-                            + ") data lengths are different");
+                            "The expected (" + expectedLength + ") and actual (" + actualLength
+                                    + ") data lengths are different");
             return List.of();
         }
 

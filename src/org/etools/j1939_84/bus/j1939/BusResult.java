@@ -31,9 +31,10 @@ public class BusResult<T extends ParsedPacket> {
 
     // FIXME ugly null parameter
     public BusResult(boolean retryUsed, AcknowledgmentPacket packet) {
-        this(retryUsed, packet == null
-                ? Optional.empty()
-                : Optional.of(new Either<>(null, packet)));
+        this(retryUsed,
+             packet == null
+                     ? Optional.empty()
+                     : Optional.of(new Either<>(null, packet)));
     }
 
     public BusResult(boolean retryUsed, Either<T, AcknowledgmentPacket> packet) {
@@ -43,9 +44,9 @@ public class BusResult<T extends ParsedPacket> {
     /**
      *
      * @param retryUsed
-     *            boolean representing retry has been used
+     *                      boolean representing retry has been used
      * @param packet
-     *            the packet on the bus
+     *                      the packet on the bus
      */
     public BusResult(boolean retryUsed, Optional<Either<T, AcknowledgmentPacket>> packet) {
         this.retryUsed = retryUsed;
@@ -54,9 +55,10 @@ public class BusResult<T extends ParsedPacket> {
 
     // FIXME ugly null parameter
     public BusResult(boolean retryUsed, T packet) {
-        this(retryUsed, packet == null
-                ? Optional.empty()
-                : Optional.of(new Either<>(packet, null)));
+        this(retryUsed,
+             packet == null
+                     ? Optional.empty()
+                     : Optional.of(new Either<>(packet, null)));
     }
 
     @Override
