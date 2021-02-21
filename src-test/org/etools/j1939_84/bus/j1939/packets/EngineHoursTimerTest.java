@@ -48,7 +48,6 @@ public class EngineHoursTimerTest {
         assertEquals(expected, noErrorInstance.toString());
     }
 
-    @SuppressWarnings({ "SimplifiableAssertion", "EqualsWithItself" })
     @Test
     public void testEquals() {
         int[] data = { 0x01, 0x00, 0x00, 0x00, 0x00, 0xFF, 0xFF, 0xFF, 0xFF };

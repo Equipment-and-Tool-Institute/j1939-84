@@ -17,10 +17,13 @@ import org.etools.j1939_84.model.StepResult;
 
 public class PartResultRepository {
 
-    private final Map<Integer, PartResult> partResultsMap = new HashMap<>();
-
-    private final PartResultFactory partResultFactory;
     private static PartResultRepository instance;
+    private final Map<Integer, PartResult> partResultsMap = new HashMap<>();
+    private final PartResultFactory partResultFactory;
+
+    private PartResultRepository() {
+        this.partResultFactory = new PartResultFactory();
+    }
 
     public static PartResultRepository getInstance() {
         if (instance == null) {
@@ -32,10 +35,6 @@ public class PartResultRepository {
     /** Only used by tests. */
     public static void setInstance(PartResultRepository instance) {
         PartResultRepository.instance = instance == null ? new PartResultRepository() : instance;
-    }
-
-    private PartResultRepository() {
-        this.partResultFactory = new PartResultFactory();
     }
 
     public PartResult getPartResult(int partNumber) {

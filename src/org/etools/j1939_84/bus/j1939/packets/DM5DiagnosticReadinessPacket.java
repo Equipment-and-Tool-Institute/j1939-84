@@ -17,9 +17,18 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  */
 public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
 
-    private static final List<Byte> obdValues = Arrays.asList(new Byte[] { 0x13, 0x14, 0x22, 0x23 });
-
     public static final int PGN = 65230; // 0xFECE
+    private static final List<Byte> obdValues = Arrays.asList(new Byte[] { 0x13, 0x14, 0x22, 0x23 });
+    private final byte activeCount;
+    private final byte obdCompliance;
+    private final byte previousCount;
+
+    public DM5DiagnosticReadinessPacket(Packet packet) {
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+        activeCount = getByte(0);
+        previousCount = getByte(1);
+        obdCompliance = getByte(2);
+    }
 
     public static DM5DiagnosticReadinessPacket create(int sourceAddress,
                                                       int activeCount,
@@ -106,35 +115,6 @@ public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
         }
     }
 
-    private final byte activeCount;
-
-    private final byte obdCompliance;
-
-    private final byte previousCount;
-
-    public DM5DiagnosticReadinessPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
-        activeCount = getByte(0);
-        previousCount = getByte(1);
-        obdCompliance = getByte(2);
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (!(obj instanceof DM5DiagnosticReadinessPacket)) {
-            return false;
-        }
-
-        DM5DiagnosticReadinessPacket that = (DM5DiagnosticReadinessPacket) obj;
-        return getActiveCodeCount() == that.getActiveCodeCount()
-                && getPreviouslyActiveCodeCount() == that.getPreviouslyActiveCodeCount()
-                && getOBDCompliance() == that.getOBDCompliance() && super.equals(obj);
-    }
-
     /**
      * Returns the number of active DTCs
      *
@@ -147,6 +127,14 @@ public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
     @Override
     public String getName() {
         return "DM5";
+    }
+
+    @Override
+    public String toString() {
+        final byte obd = getOBDCompliance();
+        return getStringPrefix() + "OBD Compliance: " + lookupObdCompliance(obd) + " (" + (obd & 0xFF) + "), "
+                + "Active Codes: " + getValueWithUnits(getActiveCodeCount(), null) + ", Previously Active Codes: "
+                + getValueWithUnits(getPreviouslyActiveCodeCount(), null);
     }
 
     /**
@@ -172,6 +160,22 @@ public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
         return Objects.hash(getActiveCodeCount(), getPreviouslyActiveCodeCount(), getOBDCompliance(), super.hashCode());
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof DM5DiagnosticReadinessPacket)) {
+            return false;
+        }
+
+        DM5DiagnosticReadinessPacket that = (DM5DiagnosticReadinessPacket) obj;
+        return getActiveCodeCount() == that.getActiveCodeCount()
+                && getPreviouslyActiveCodeCount() == that.getPreviouslyActiveCodeCount()
+                && getOBDCompliance() == that.getOBDCompliance() && super.equals(obj);
+    }
+
     /**
      * Returns true if this module reported that it supports HD OBD
      *
@@ -183,14 +187,6 @@ public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
 
     public boolean isObd() {
         return obdValues.contains(getOBDCompliance());
-    }
-
-    @Override
-    public String toString() {
-        final byte obd = getOBDCompliance();
-        return getStringPrefix() + "OBD Compliance: " + lookupObdCompliance(obd) + " (" + (obd & 0xFF) + "), "
-                + "Active Codes: " + getValueWithUnits(getActiveCodeCount(), null) + ", Previously Active Codes: "
-                + getValueWithUnits(getPreviouslyActiveCodeCount(), null);
     }
 
 }

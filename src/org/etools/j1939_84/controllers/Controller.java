@@ -32,136 +32,20 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  */
 public abstract class Controller {
 
-    /**
-     * The {@link ResultsListener} that combines other listeners for easier
-     * reporting
-     */
-    private static class CompositeResultsListener implements ResultsListener {
-
-        private final ResultsListener[] listeners;
-
-        private CompositeResultsListener(ResultsListener... listeners) {
-            this.listeners = listeners;
-        }
-
-        @Override
-        public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
-            Arrays.stream(listeners).forEach(l -> l.addOutcome(partNumber, stepNumber, outcome, message));
-        }
-
-        @Override
-        public void beginPart(PartResult partResult) {
-            Arrays.stream(listeners).forEach(l -> l.beginPart(partResult));
-        }
-
-        @Override
-        public void beginStep(StepResult stepResult) {
-            Arrays.stream(listeners).forEach(l -> l.beginStep(stepResult));
-        }
-
-        @Override
-        public void endPart(PartResult partResult) {
-            Arrays.stream(listeners).forEach(l -> l.endPart(partResult));
-        }
-
-        @Override
-        public void endStep(StepResult stepResult) {
-            Arrays.stream(listeners).forEach(l -> l.endStep(stepResult));
-        }
-
-        @Override
-        public void onComplete(boolean success) {
-            Arrays.stream(listeners).forEach(l -> l.onComplete(success));
-        }
-
-        @Override
-        public void onMessage(String message, String title, MessageType type) {
-            Arrays.stream(listeners).forEach(l -> l.onMessage(message, title, type));
-        }
-
-        @Override
-        public void onProgress(int currentStep, int totalSteps, String message) {
-            Arrays.stream(listeners).forEach(l -> l.onProgress(currentStep, totalSteps, message));
-        }
-
-        @Override
-        public void onProgress(String message) {
-            Arrays.stream(listeners).forEach(l -> l.onProgress(message));
-        }
-
-        @Override
-        public void onResult(List<String> results) {
-            Arrays.stream(listeners).forEach(l -> l.onResult(results));
-        }
-
-        @Override
-        public void onResult(String result) {
-            Arrays.stream(listeners).forEach(l -> l.onResult(result));
-        }
-
-        @Override
-        public void onUrgentMessage(String message, String title, MessageType type) {
-            Arrays.stream(listeners).forEach(l -> l.onUrgentMessage(message, title, type));
-        }
-
-        @Override
-        public void onUrgentMessage(String message, String title, MessageType type, QuestionListener listener) {
-            Arrays.stream(listeners).forEach(l -> l.onUrgentMessage(message, title, type, listener));
-        }
-
-        @Override
-        public void onVehicleInformationNeeded(VehicleInformationListener listener) {
-            Arrays.stream(listeners).forEach(l -> l.onVehicleInformationNeeded(listener));
-        }
-
-        @Override
-        public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
-            Arrays.stream(listeners).forEach(l -> l.onVehicleInformationReceived(vehicleInformation));
-        }
-    }
-
-    protected enum Ending {
-        ABORTED("Aborted"), COMPLETED("Completed"), FAILED("Failed"), STOPPED("Stopped");
-
-        private final String string;
-
-        Ending(String string) {
-            this.string = string;
-        }
-
-        @Override
-        public String toString() {
-            return string;
-        }
-    }
-
     private static final List<Ending> INTERUPPTABLE_ENDINGS = List.of(Ending.STOPPED, Ending.ABORTED, Ending.FAILED);
-
-    private final BannerModule bannerModule;
-
-    private CompositeResultsListener compositeListener;
-
     private static int currentStep;
-
     private static Ending ending;
-
-    private final EngineSpeedModule engineSpeedModule;
-
-    private final Executor executor;
-
-    private J1939 j1939;
-
     private static int maxSteps;
-
+    private final BannerModule bannerModule;
+    private final EngineSpeedModule engineSpeedModule;
+    private final Executor executor;
     private final PartResultRepository partResultRepository;
-
     private final VehicleInformationModule vehicleInformationModule;
-
     private final DateTimeModule dateTimeModule;
-
     private final DiagnosticMessageModule diagnosticMessageModule;
-
     private final DataRepository dataRepository;
+    private CompositeResultsListener compositeListener;
+    private J1939 j1939;
 
     protected Controller(Executor executor,
                          BannerModule bannerModule,
@@ -199,13 +83,6 @@ public abstract class Controller {
     }
 
     /**
-     * Adds a blank line to the report
-     */
-    protected void addBlankLineToReport() {
-        getListener().onResult("");
-    }
-
-    /**
      * Checks the Ending value and will throw an {@link InterruptedException} if
      * the value has been set to Stopped or Aborted
      *
@@ -216,6 +93,31 @@ public abstract class Controller {
         if (getEnding() != null && INTERUPPTABLE_ENDINGS.contains(getEnding())) {
             throw new InterruptedException(getEnding().toString());
         }
+    }
+
+    /**
+     * @return the ending
+     */
+    protected static Ending getEnding() {
+        return ending;
+    }
+
+    /**
+     * @param  ending
+     *                                  the ending to set
+     * @throws InterruptedException
+     *                                  if the ending was set to ABORTED or STOPPED
+     */
+    protected static void setEnding(Ending ending) throws InterruptedException {
+        Controller.ending = ending;
+        checkEnding();
+    }
+
+    /**
+     * Adds a blank line to the report
+     */
+    protected void addBlankLineToReport() {
+        getListener().onResult("");
     }
 
     /**
@@ -290,13 +192,6 @@ public abstract class Controller {
     public abstract String getDisplayName();
 
     /**
-     * @return the ending
-     */
-    protected static Ending getEnding() {
-        return ending;
-    }
-
-    /**
      * Returns the {@link EngineSpeedModule}
      *
      * @return {@link EngineSpeedModule}
@@ -319,6 +214,19 @@ public abstract class Controller {
      */
     protected J1939 getJ1939() {
         return j1939;
+    }
+
+    /**
+     * Sets the {@link J1939} to be used for communications
+     *
+     * @param j1939
+     *                  the {@link J1939} to set
+     */
+    private void setJ1939(J1939 j1939) {
+        this.j1939 = j1939;
+        getVehicleInformationModule().setJ1939(this.j1939);
+        getEngineSpeedModule().setJ1939(this.j1939);
+        getDiagnosticMessageModule().setJ1939(this.j1939);
     }
 
     /**
@@ -423,30 +331,6 @@ public abstract class Controller {
     }
 
     /**
-     * @param  ending
-     *                                  the ending to set
-     * @throws InterruptedException
-     *                                  if the ending was set to ABORTED or STOPPED
-     */
-    protected static void setEnding(Ending ending) throws InterruptedException {
-        Controller.ending = ending;
-        checkEnding();
-    }
-
-    /**
-     * Sets the {@link J1939} to be used for communications
-     *
-     * @param j1939
-     *                  the {@link J1939} to set
-     */
-    private void setJ1939(J1939 j1939) {
-        this.j1939 = j1939;
-        getVehicleInformationModule().setJ1939(this.j1939);
-        getEngineSpeedModule().setJ1939(this.j1939);
-        getDiagnosticMessageModule().setJ1939(this.j1939);
-    }
-
-    /**
      * Resets the progress to zero, clears the message displayed to the user and
      * sets the maximum number of steps
      *
@@ -488,5 +372,108 @@ public abstract class Controller {
     protected void updateProgress(String message) throws InterruptedException {
         getListener().onProgress(currentStep, maxSteps, message);
         checkEnding();
+    }
+
+    protected enum Ending {
+        ABORTED("Aborted"), COMPLETED("Completed"), FAILED("Failed"), STOPPED("Stopped");
+
+        private final String string;
+
+        Ending(String string) {
+            this.string = string;
+        }
+
+        @Override
+        public String toString() {
+            return string;
+        }
+    }
+
+    /**
+     * The {@link ResultsListener} that combines other listeners for easier
+     * reporting
+     */
+    private static class CompositeResultsListener implements ResultsListener {
+
+        private final ResultsListener[] listeners;
+
+        private CompositeResultsListener(ResultsListener... listeners) {
+            this.listeners = listeners;
+        }
+
+        @Override
+        public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {
+            Arrays.stream(listeners).forEach(l -> l.addOutcome(partNumber, stepNumber, outcome, message));
+        }
+
+        @Override
+        public void beginPart(PartResult partResult) {
+            Arrays.stream(listeners).forEach(l -> l.beginPart(partResult));
+        }
+
+        @Override
+        public void beginStep(StepResult stepResult) {
+            Arrays.stream(listeners).forEach(l -> l.beginStep(stepResult));
+        }
+
+        @Override
+        public void endPart(PartResult partResult) {
+            Arrays.stream(listeners).forEach(l -> l.endPart(partResult));
+        }
+
+        @Override
+        public void endStep(StepResult stepResult) {
+            Arrays.stream(listeners).forEach(l -> l.endStep(stepResult));
+        }
+
+        @Override
+        public void onComplete(boolean success) {
+            Arrays.stream(listeners).forEach(l -> l.onComplete(success));
+        }
+
+        @Override
+        public void onMessage(String message, String title, MessageType type) {
+            Arrays.stream(listeners).forEach(l -> l.onMessage(message, title, type));
+        }
+
+        @Override
+        public void onProgress(int currentStep, int totalSteps, String message) {
+            Arrays.stream(listeners).forEach(l -> l.onProgress(currentStep, totalSteps, message));
+        }
+
+        @Override
+        public void onProgress(String message) {
+            Arrays.stream(listeners).forEach(l -> l.onProgress(message));
+        }
+
+        @Override
+        public void onResult(List<String> results) {
+            Arrays.stream(listeners).forEach(l -> l.onResult(results));
+        }
+
+        @Override
+        public void onResult(String result) {
+            Arrays.stream(listeners).forEach(l -> l.onResult(result));
+        }
+
+        @Override
+        public void onUrgentMessage(String message, String title, MessageType type) {
+            Arrays.stream(listeners).forEach(l -> l.onUrgentMessage(message, title, type));
+        }
+
+        @Override
+        public void onUrgentMessage(String message, String title, MessageType type, QuestionListener listener) {
+            Arrays.stream(listeners).forEach(l -> l.onUrgentMessage(message, title, type, listener));
+        }
+
+        @Override
+        public void onVehicleInformationNeeded(VehicleInformationListener listener) {
+            Arrays.stream(listeners).forEach(l -> l.onVehicleInformationNeeded(listener));
+        }
+
+        @Override
+        public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
+            Arrays.stream(listeners).forEach(l -> l.onVehicleInformationReceived(vehicleInformation));
+        }
     }
 }

@@ -28,10 +28,14 @@ import org.etools.j1939_84.bus.Packet;
 public class Sim implements AutoCloseable {
 
     /**
+     * The collection of responses. If the response returns true, then don't try
+     * other responses.
+     */
+    public final Collection<Function<Packet, Boolean>> responses = new ArrayList<>();
+    /**
      * The communications bus
      */
     private final Bus bus;
-
     /**
      * The executor
      */
@@ -42,12 +46,6 @@ public class Sim implements AutoCloseable {
             t.printStackTrace();
         }
     }, "Sim Thread"));
-
-    /**
-     * The collection of responses. If the response returns true, then don't try
-     * other responses.
-     */
-    public final Collection<Function<Packet, Boolean>> responses = new ArrayList<>();
 
     public Sim(Bus bus) throws BusException {
         this.bus = bus;

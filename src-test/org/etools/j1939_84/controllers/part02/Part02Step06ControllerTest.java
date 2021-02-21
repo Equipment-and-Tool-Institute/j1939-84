@@ -43,6 +43,24 @@ import org.mockito.junit.MockitoJUnitRunner;
 @TestDoc(value = @TestItem(verifies = "Part 2 Step 6", description = "DM56: Model year and certification engine family"))
 public class Part02Step06ControllerTest extends AbstractControllerTest {
 
+    @Mock
+    private BannerModule bannerModule;
+    @Mock
+    private EngineSpeedModule engineSpeedModule;
+    @Mock
+    private Executor executor;
+    @Mock
+    private J1939 j1939;
+    private TestResultsListener listener;
+    @Mock
+    private ResultsListener mockListener;
+    @Mock
+    private ReportFileModule reportFileModule;
+    @Mock
+    private VehicleInformationModule vehicleInformationModule;
+    @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
+
     private static DM56EngineFamilyPacket createDM56(String modelYear, String familyName) {
         DM56EngineFamilyPacket packet = mock(DM56EngineFamilyPacket.class);
         when(packet.getModelYearField()).thenReturn(modelYear);
@@ -50,32 +68,6 @@ public class Part02Step06ControllerTest extends AbstractControllerTest {
 
         return packet;
     }
-
-    @Mock
-    private BannerModule bannerModule;
-
-    @Mock
-    private EngineSpeedModule engineSpeedModule;
-
-    @Mock
-    private Executor executor;
-
-    @Mock
-    private J1939 j1939;
-
-    private TestResultsListener listener;
-
-    @Mock
-    private ResultsListener mockListener;
-
-    @Mock
-    private ReportFileModule reportFileModule;
-
-    @Mock
-    private VehicleInformationModule vehicleInformationModule;
-
-    @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Before
     public void setUp() throws Exception {

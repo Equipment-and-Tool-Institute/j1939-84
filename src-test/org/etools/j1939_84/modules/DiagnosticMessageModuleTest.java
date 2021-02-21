@@ -2350,7 +2350,7 @@ public class DiagnosticMessageModuleTest {
     @Test
     public void testReportEngineFamily() {
         final int pgn = DM56EngineFamilyPacket.PGN;
-        final byte[] bytes = "2015MY-EUS HD ODB   *".getBytes(UTF_8);
+        byte[] bytes = "2015MY-EUS HD ODB   *".getBytes(UTF_8);
 
         DM56EngineFamilyPacket packet1 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x00, bytes));
         DM56EngineFamilyPacket packet2 = new DM56EngineFamilyPacket(Packet.create(pgn, 0x17, bytes));

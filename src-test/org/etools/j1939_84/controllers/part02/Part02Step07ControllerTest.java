@@ -55,43 +55,42 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 2;
 
     private static final int STEP_NUMBER = 7;
-
+    @Rule
+    public TestName name = new TestName();
     @Mock
     private BannerModule bannerModule;
-
     @Mock
     private DataRepository dataRepository;
-
     @Mock
     private DiagnosticMessageModule diagnosticMessageModule;
-
     @Mock
     private EngineSpeedModule engineSpeedModule;
-
     @Mock
     private Executor executor;
-
     private Part02Step07Controller instance;
-
     @Mock
     private J1939 j1939;
-
     @Mock
     private ReportFileModule reportFileModule;
-
     @Mock
     private ResultsListener mockListener;
-
     private TestResultsListener listener;
     @Mock
     private VehicleInformationModule vehicleInformationModule;
+    /*
+     * 6.1.9.1 ACTIONS:
+     *
+     * a. Destination Specific (DS) Component ID request (PGN 59904) for PGN
+     * 65259 (SPNs 586, 587, and 588) to each OBD ECU. b. Display each positive
+     * return in the log.
+     */
 
-    private OBDModuleInformation createOBDModuleInformation(Integer sourceAddress,
-                                                            Integer function,
-                                                            String make,
-                                                            String model,
-                                                            String serialNumber,
-                                                            String unitNumber) {
+    private static OBDModuleInformation createOBDModuleInformation(Integer sourceAddress,
+                                                                   Integer function,
+                                                                   String make,
+                                                                   String model,
+                                                                   String serialNumber,
+                                                                   String unitNumber) {
         OBDModuleInformation module = new OBDModuleInformation(sourceAddress);
         module.setFunction(function);
 
@@ -104,13 +103,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
         module.setComponentIdentification(componentIdentificationPacket.getComponentIdentification());
         return module;
     }
-    /*
-     * 6.1.9.1 ACTIONS:
-     *
-     * a. Destination Specific (DS) Component ID request (PGN 59904) for PGN
-     * 65259 (SPNs 586, 587, and 588) to each OBD ECU. b. Display each positive
-     * return in the log.
-     */
 
     @Before
     public void setUp() throws Exception {
@@ -264,9 +256,6 @@ public class Part02Step07ControllerTest extends AbstractControllerTest {
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 0, instance.getTotalSteps());
     }
-
-    @Rule
-    public TestName name = new TestName();
 
     @Test
     public void testGlobalRequestDoesNotMatchDestinationSpecificRequest() {

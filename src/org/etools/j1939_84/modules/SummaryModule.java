@@ -21,17 +21,16 @@ import org.etools.j1939_84.model.StepResult;
 public class SummaryModule {
 
     private static final int LINE_LENGTH = 80;
+    private final PartResultRepository partResultRepository;
+
+    public SummaryModule() {
+        partResultRepository = PartResultRepository.getInstance();
+    }
 
     private static String dots(int length) {
         char[] charArray = new char[length];
         Arrays.fill(charArray, '.');
         return new String(charArray);
-    }
-
-    private final PartResultRepository partResultRepository;
-
-    public SummaryModule() {
-        partResultRepository = PartResultRepository.getInstance();
     }
 
     public void addOutcome(int partNumber, int stepNumber, Outcome outcome, String message) {

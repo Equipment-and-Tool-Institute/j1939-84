@@ -20,6 +20,22 @@ import org.etools.j1939_84.bus.Packet;
  */
 public class DiagnosticTroubleCodePacket extends GenericPacket {
 
+    private LampStatus awlStatus;
+    private List<DiagnosticTroubleCode> dtcs;
+    private LampStatus milStatus;
+    private LampStatus plStatus;
+    private LampStatus rslStatus;
+
+    /**
+     * Constructor
+     *
+     * @param packet
+     *                   the {@link Packet} to parse
+     */
+    public DiagnosticTroubleCodePacket(Packet packet) {
+        super(packet);
+    }
+
     protected static Packet create(int address,
                                    int pgn,
                                    LampStatus mil,
@@ -41,22 +57,6 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
         }
 
         return Packet.create(pgn, address, data);
-    }
-
-    private LampStatus awlStatus;
-    private List<DiagnosticTroubleCode> dtcs;
-    private LampStatus milStatus;
-    private LampStatus plStatus;
-    private LampStatus rslStatus;
-
-    /**
-     * Constructor
-     *
-     * @param packet
-     *                   the {@link Packet} to parse
-     */
-    public DiagnosticTroubleCodePacket(Packet packet) {
-        super(packet);
     }
 
     /**
@@ -116,6 +116,22 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
         return "DM";
     }
 
+    @Override
+    public String toString() {
+        String result = getStringPrefix() + "MIL: " + getMalfunctionIndicatorLampStatus() + ", RSL: "
+                + getRedStopLampStatus() + ", AWL: " + getAmberWarningLampStatus() + ", PL: " + getProtectLampStatus();
+
+        if (getDtcs().isEmpty()) {
+            result += ", No DTCs";
+        } else {
+            result += NL;
+            String joinedDtcs = getDtcs().stream().map(DiagnosticTroubleCode::toString).collect(Collectors.joining(NL));
+            result += joinedDtcs;
+        }
+
+        return result;
+    }
+
     /**
      * Returns the Protect Lamp Status
      *
@@ -165,6 +181,16 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
     }
 
     @Override
+    public int hashCode() {
+        return Objects.hash(super.hashCode(),
+                            getAmberWarningLampStatus(),
+                            getDtcs(),
+                            getMalfunctionIndicatorLampStatus(),
+                            getProtectLampStatus(),
+                            getRedStopLampStatus());
+    }
+
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -182,31 +208,5 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
                 && getMalfunctionIndicatorLampStatus() == that.getMalfunctionIndicatorLampStatus()
                 && getProtectLampStatus() == that.getProtectLampStatus()
                 && getRedStopLampStatus() == that.getRedStopLampStatus();
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(super.hashCode(),
-                            getAmberWarningLampStatus(),
-                            getDtcs(),
-                            getMalfunctionIndicatorLampStatus(),
-                            getProtectLampStatus(),
-                            getRedStopLampStatus());
-    }
-
-    @Override
-    public String toString() {
-        String result = getStringPrefix() + "MIL: " + getMalfunctionIndicatorLampStatus() + ", RSL: "
-                + getRedStopLampStatus() + ", AWL: " + getAmberWarningLampStatus() + ", PL: " + getProtectLampStatus();
-
-        if (getDtcs().isEmpty()) {
-            result += ", No DTCs";
-        } else {
-            result += NL;
-            String joinedDtcs = getDtcs().stream().map(DiagnosticTroubleCode::toString).collect(Collectors.joining(NL));
-            result += joinedDtcs;
-        }
-
-        return result;
     }
 }

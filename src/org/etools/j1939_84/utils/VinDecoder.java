@@ -15,17 +15,12 @@ import java.util.Map;
  */
 public class VinDecoder {
 
+    public static final int MAX_MODEL_YEAR = 2039;
+    public static final int MIN_MODEL_YEAR = 2010;
+    public static final int VIN_LENGTH = 17; // characters
     private static final int[] LETTER_VALUE = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 0, 0, 0, 0, 0, 0, 0, 1, 2, 3, 4, 5, 6, 7,
             8, 0, 1, 2, 3, 4, 5, 0, 7, 0, 9, 2, 3, 4, 5, 6, 7, 8, 9 };
-
-    public static final int MAX_MODEL_YEAR = 2039;
-
-    public static final int MIN_MODEL_YEAR = 2010;
-
     private static final Map<String, Integer> MODEL_YEARS = new HashMap<>();
-
-    public static final int VIN_LENGTH = 17; // characters
-
     private static final int[] WEIGHT = { 8, 7, 6, 5, 4, 3, 2, 10, 0, 9, 8, 7, 6, 5, 4, 3, 2 };
 
     static {

@@ -35,9 +35,8 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 public class OverallController extends Controller {
-    private PartController activeController;
-
     private final List<PartController> partControllers = new ArrayList<>();
+    private PartController activeController;
 
     public OverallController() {
         this(DataRepository.getInstance());

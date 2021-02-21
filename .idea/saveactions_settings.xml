@@ -8,8 +8,7 @@
         <option value="activateOnBatch" />
         <option value="noActionIfCompileErrors" />
         <option value="organizeImports" />
-        <option value="reformat" />
-        <option value="rearrange" />
+        <option value="reformatChangedCode" />
         <option value="fieldCanBeFinal" />
         <option value="methodMayBeStatic" />
         <option value="missingOverrideAnnotation" />

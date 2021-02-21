@@ -59,6 +59,23 @@ public class Part02Step15Controller extends StepController {
               TOTAL_STEPS);
     }
 
+    private static List<EngineHoursTimer> getTimers(int address, List<DM33EmissionIncreasingAECDActiveTime> packets) {
+        return packets
+                      .stream()
+                      .filter(p -> p.getSourceAddress() == address)
+                      .map(DM33EmissionIncreasingAECDActiveTime::getEiAecdEngineHoursTimers)
+                      .findFirst()
+                      .orElse(List.of());
+    }
+
+    private static EngineHoursTimer getTimer(List<EngineHoursTimer> timers, int timerNumber) {
+        return timers
+                     .stream()
+                     .filter(t -> t.getEiAecdNumber() == timerNumber)
+                     .findFirst()
+                     .orElse(null);
+    }
+
     @Override
     protected void run() throws Throwable {
 
@@ -131,22 +148,5 @@ public class Part02Step15Controller extends StepController {
 
         // 6.2.15.5.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
         checkForNACKs(globalPackets, filterRequestResultAcks(dsResponses), obdModuleAddresses, "6.2.15.5.b");
-    }
-
-    private static List<EngineHoursTimer> getTimers(int address, List<DM33EmissionIncreasingAECDActiveTime> packets) {
-        return packets
-                      .stream()
-                      .filter(p -> p.getSourceAddress() == address)
-                      .map(DM33EmissionIncreasingAECDActiveTime::getEiAecdEngineHoursTimers)
-                      .findFirst()
-                      .orElse(List.of());
-    }
-
-    private static EngineHoursTimer getTimer(List<EngineHoursTimer> timers, int timerNumber) {
-        return timers
-                     .stream()
-                     .filter(t -> t.getEiAecdNumber() == timerNumber)
-                     .findFirst()
-                     .orElse(null);
     }
 }

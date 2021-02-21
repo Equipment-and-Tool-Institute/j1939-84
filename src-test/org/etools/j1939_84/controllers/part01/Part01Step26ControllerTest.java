@@ -101,6 +101,40 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
     @Mock
     private DiagnosticMessageModule diagnosticMessageModule;
 
+    private static List<SupportedSPN> spns(int... ids) {
+        return Arrays.stream(ids).mapToObj(id -> {
+            SupportedSPN spn = mock(SupportedSPN.class);
+            when(spn.getSpn()).thenReturn(id);
+            return spn;
+        }).collect(Collectors.toList());
+    }
+
+    private static GenericPacket packet(int spnId, Boolean isNotAvailable) {
+        GenericPacket mock = mock(GenericPacket.class);
+
+        Spn spn = mock(Spn.class);
+        when(spn.getId()).thenReturn(spnId);
+        if (isNotAvailable != null) {
+            when(spn.isNotAvailable()).thenReturn(isNotAvailable);
+        }
+        when(mock.getSpns()).thenReturn(List.of(spn));
+
+        return mock;
+    }
+
+    private static PgnDefinition pgnDef(int... spns) {
+        PgnDefinition mock = mock(PgnDefinition.class);
+        List<SpnDefinition> spnDefs = Arrays.stream(spns)
+                                            .mapToObj(s -> {
+                                                SpnDefinition spn = mock(SpnDefinition.class);
+                                                when(spn.getSpnId()).thenReturn(s);
+                                                return spn;
+                                            })
+                                            .collect(Collectors.toList());
+        when(mock.getSpnDefinitions()).thenReturn(spnDefs);
+        return mock;
+    }
+
     @Before
     public void setUp() throws Exception {
         listener = new TestResultsListener(mockListener);
@@ -414,39 +448,5 @@ public class Part01Step26ControllerTest extends AbstractControllerTest {
     @Test
     public void testGetTotalSteps() {
         assertEquals("Total Steps", 0, instance.getTotalSteps());
-    }
-
-    private static List<SupportedSPN> spns(int... ids) {
-        return Arrays.stream(ids).mapToObj(id -> {
-            SupportedSPN spn = mock(SupportedSPN.class);
-            when(spn.getSpn()).thenReturn(id);
-            return spn;
-        }).collect(Collectors.toList());
-    }
-
-    private static GenericPacket packet(int spnId, Boolean isNotAvailable) {
-        GenericPacket mock = mock(GenericPacket.class);
-
-        Spn spn = mock(Spn.class);
-        when(spn.getId()).thenReturn(spnId);
-        if (isNotAvailable != null) {
-            when(spn.isNotAvailable()).thenReturn(isNotAvailable);
-        }
-        when(mock.getSpns()).thenReturn(List.of(spn));
-
-        return mock;
-    }
-
-    private static PgnDefinition pgnDef(int... spns) {
-        PgnDefinition mock = mock(PgnDefinition.class);
-        List<SpnDefinition> spnDefs = Arrays.stream(spns)
-                                            .mapToObj(s -> {
-                                                SpnDefinition spn = mock(SpnDefinition.class);
-                                                when(spn.getSpnId()).thenReturn(s);
-                                                return spn;
-                                            })
-                                            .collect(Collectors.toList());
-        when(mock.getSpnDefinitions()).thenReturn(spnDefs);
-        return mock;
     }
 }

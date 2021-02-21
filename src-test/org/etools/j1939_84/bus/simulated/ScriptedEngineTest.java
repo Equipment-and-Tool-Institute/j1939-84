@@ -14,7 +14,7 @@ import org.etools.j1939_84.bus.Packet;
 import org.junit.Test;
 
 public class ScriptedEngineTest {
-    private boolean reqResp(String req, String resp) {
+    private static boolean reqResp(String req, String resp) {
         return ScriptedEngine.isRequestForPredicate(parsePacket(resp))
                              .test(parsePacket(req));
     }

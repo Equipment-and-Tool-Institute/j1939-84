@@ -103,7 +103,6 @@ public class TableA7ValidatorTest {
         return testResults;
     }
 
-    @SuppressWarnings("SameParameterValue")
     private static void remove(Collection<ScaledTestResult> testResults, int spn, int fmi) {
         for (ScaledTestResult testResult : testResults) {
             if (testResult.getSpn() == spn && testResult.getFmi() == fmi) {

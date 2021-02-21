@@ -46,6 +46,27 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class Part01Step08ControllerTest extends AbstractControllerTest {
 
+    @Mock
+    private BannerModule bannerModule;
+    @Mock
+    private DataRepository dataRepository;
+    @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
+    @Mock
+    private EngineSpeedModule engineSpeedModule;
+    @Mock
+    private Executor executor;
+    private Part01Step08Controller instance;
+    @Mock
+    private J1939 j1939;
+    private TestResultsListener listener;
+    @Mock
+    private ResultsListener mockListener;
+    @Mock
+    private ReportFileModule reportFileModule;
+    @Mock
+    private VehicleInformationModule vehicleInformationModule;
+
     private static DM20MonitorPerformanceRatioPacket createDM20(List<Integer> ratios) {
         DM20MonitorPerformanceRatioPacket packet = mock(DM20MonitorPerformanceRatioPacket.class);
 
@@ -60,37 +81,6 @@ public class Part01Step08ControllerTest extends AbstractControllerTest {
 
         return packet;
     }
-
-    @Mock
-    private BannerModule bannerModule;
-
-    @Mock
-    private DataRepository dataRepository;
-
-    @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
-
-    @Mock
-    private EngineSpeedModule engineSpeedModule;
-
-    @Mock
-    private Executor executor;
-
-    private Part01Step08Controller instance;
-
-    @Mock
-    private J1939 j1939;
-
-    private TestResultsListener listener;
-
-    @Mock
-    private ResultsListener mockListener;
-
-    @Mock
-    private ReportFileModule reportFileModule;
-
-    @Mock
-    private VehicleInformationModule vehicleInformationModule;
 
     @Before
     public void setUp() throws Exception {

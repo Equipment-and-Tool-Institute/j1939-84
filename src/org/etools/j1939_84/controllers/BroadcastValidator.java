@@ -31,6 +31,14 @@ import org.etools.j1939_84.model.Outcome;
 
 public class BroadcastValidator {
 
+    private final DataRepository dataRepository;
+    private final J1939DaRepository j1939DaRepository;
+
+    public BroadcastValidator(DataRepository dataRepository, J1939DaRepository j1939DaRepository) {
+        this.dataRepository = dataRepository;
+        this.j1939DaRepository = j1939DaRepository;
+    }
+
     private static void addOutcome(ResultsListener listener,
                                    int partNumber,
                                    int stepNumber,
@@ -48,13 +56,14 @@ public class BroadcastValidator {
         listener.addOutcome(partNumber, stepNumber, FAIL, section + " - " + message);
     }
 
-    private final DataRepository dataRepository;
-
-    private final J1939DaRepository j1939DaRepository;
-
-    public BroadcastValidator(DataRepository dataRepository, J1939DaRepository j1939DaRepository) {
-        this.dataRepository = dataRepository;
-        this.j1939DaRepository = j1939DaRepository;
+    private static Set<Integer> collectNotAvailableSPNs(List<Integer> requiredSpns,
+                                                        Stream<GenericPacket> packetStream) {
+        return packetStream
+                           .flatMap(p -> p.getSpns().stream())
+                           .filter(Spn::isNotAvailable)
+                           .map(Spn::getId)
+                           .filter(requiredSpns::contains)
+                           .collect(Collectors.toSet());
     }
 
     /**
@@ -306,16 +315,6 @@ public class BroadcastValidator {
         missingSpns.addAll(collectNotAvailableSPNs(supportedSPNs, foundPackets.stream()));
 
         return missingSpns;
-    }
-
-    private static Set<Integer> collectNotAvailableSPNs(List<Integer> requiredSpns,
-                                                        Stream<GenericPacket> packetStream) {
-        return packetStream
-                           .flatMap(p -> p.getSpns().stream())
-                           .filter(Spn::isNotAvailable)
-                           .map(Spn::getId)
-                           .filter(requiredSpns::contains)
-                           .collect(Collectors.toSet());
     }
 
 }

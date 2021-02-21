@@ -69,6 +69,13 @@ public class Lookup {
     }
 
     /**
+     * Not used. Use as a static
+     */
+    private Lookup() {
+
+    }
+
+    /**
      * Helper method to find a value in the given map
      *
      * @param  map
@@ -192,12 +199,5 @@ public class Lookup {
             J1939_84.getLogger().log(Level.SEVERE, "Error loading map from " + fileName, e);
         }
         return map;
-    }
-
-    /**
-     * Not used. Use as a static
-     */
-    private Lookup() {
-
     }
 }

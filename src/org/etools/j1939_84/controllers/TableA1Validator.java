@@ -33,6 +33,41 @@ import org.etools.j1939_84.modules.DateTimeModule;
 
 public class TableA1Validator {
 
+    private final DataRepository dataRepository;
+    private final DateTimeModule dateTimeModule;
+    // Map of Source Address to PGNs for packets already written to the log
+    private final Map<Integer, Set<Integer>> foundPackets = new HashMap<>();
+    // Map of Source Address to SPN for SPNs with invalid values (to avoid
+    // duplicate reporting)
+    private final Map<Integer, Set<Integer>> invalidSPNs = new HashMap<>();
+    private final J1939DaRepository j1939DaRepository;
+    // Map of Source Address to SPNs for packets already written to the log
+    private final Map<Integer, Set<Integer>> nonObdProvidedSPNs = new HashMap<>();
+    // Map of Source Address to SPN for SPNs with value of Not Available (to
+    // avoid duplicate reporting)
+    private final Map<Integer, Set<Integer>> notAvailableSPNs = new HashMap<>();
+    // Map of Source Address to SPN for SPNs provided by not supported (to avoid
+    // duplicate reporting)
+    private final Map<Integer, Set<Integer>> providedNotSupportedSPNs = new HashMap<>();
+    private final TableA1ValueValidator valueValidator;
+
+    public TableA1Validator(DataRepository dataRepository) {
+        this(new TableA1ValueValidator(dataRepository),
+             dataRepository,
+             new J1939DaRepository(),
+             DateTimeModule.getInstance());
+    }
+
+    TableA1Validator(TableA1ValueValidator valueValidator,
+                     DataRepository dataRepository,
+                     J1939DaRepository j1939DaRepository,
+                     DateTimeModule dateTimeModule) {
+        this.dataRepository = dataRepository;
+        this.valueValidator = valueValidator;
+        this.j1939DaRepository = j1939DaRepository;
+        this.dateTimeModule = dateTimeModule;
+    }
+
     private static void addOutcome(ResultsListener listener,
                                    int partNumber,
                                    int stepNumber,
@@ -147,47 +182,6 @@ public class TableA1Validator {
                                           7346));
         }
         return allWarningSPNs;
-    }
-
-    private final DataRepository dataRepository;
-
-    private final DateTimeModule dateTimeModule;
-
-    // Map of Source Address to PGNs for packets already written to the log
-    private final Map<Integer, Set<Integer>> foundPackets = new HashMap<>();
-
-    // Map of Source Address to SPN for SPNs with invalid values (to avoid
-    // duplicate reporting)
-    private final Map<Integer, Set<Integer>> invalidSPNs = new HashMap<>();
-
-    private final J1939DaRepository j1939DaRepository;
-
-    // Map of Source Address to SPNs for packets already written to the log
-    private final Map<Integer, Set<Integer>> nonObdProvidedSPNs = new HashMap<>();
-
-    // Map of Source Address to SPN for SPNs with value of Not Available (to
-    // avoid duplicate reporting)
-    private final Map<Integer, Set<Integer>> notAvailableSPNs = new HashMap<>();
-    // Map of Source Address to SPN for SPNs provided by not supported (to avoid
-    // duplicate reporting)
-    private final Map<Integer, Set<Integer>> providedNotSupportedSPNs = new HashMap<>();
-    private final TableA1ValueValidator valueValidator;
-
-    public TableA1Validator(DataRepository dataRepository) {
-        this(new TableA1ValueValidator(dataRepository),
-             dataRepository,
-             new J1939DaRepository(),
-             DateTimeModule.getInstance());
-    }
-
-    TableA1Validator(TableA1ValueValidator valueValidator,
-                     DataRepository dataRepository,
-                     J1939DaRepository j1939DaRepository,
-                     DateTimeModule dateTimeModule) {
-        this.dataRepository = dataRepository;
-        this.valueValidator = valueValidator;
-        this.j1939DaRepository = j1939DaRepository;
-        this.dateTimeModule = dateTimeModule;
     }
 
     private Collection<Integer> getAllSupportedSPNs() {

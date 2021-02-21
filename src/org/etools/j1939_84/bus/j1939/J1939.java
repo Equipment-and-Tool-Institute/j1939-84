@@ -77,22 +77,19 @@ import org.etools.j1939_84.modules.DateTimeModule;
 public class J1939 {
 
     /**
+     * The source address of the engine
+     */
+    public static final int ENGINE_ADDR = 0x00;
+    /**
+     * The global source address for broadcast
+     */
+    public static final int GLOBAL_ADDR = 0xFF;
+    /**
      * The time to wait for a response from a destination specific request (200
      * ms + 10% + fudge factor) This time come from J1939-21, 5.12.3 Device
      * Response Time and Timeout Defaults
      */
     private static final int DS_TIMEOUT = 230; // milliseconds
-
-    /**
-     * The source address of the engine
-     */
-    public static final int ENGINE_ADDR = 0x00;
-
-    /**
-     * The global source address for broadcast
-     */
-    public static final int GLOBAL_ADDR = 0xFF;
-
     /**
      * The time to wait for a response from a global request. This time come
      * from Eric. It is based on 200 ms + a delay due to a scheduled DM1.
@@ -108,6 +105,22 @@ public class J1939 {
     private static final String LATE_BAM_RESPONSE = "Warning: Late BAM response: ";
 
     private static final String TIMEOUT_MESSAGE = "Error: Timeout - No Response.";
+    private final Bus bus;
+    private int warnings;
+
+    public J1939() {
+        this(new EchoBus(0xA5));
+    }
+
+    /**
+     * Constructor to be used with tests
+     *
+     * @param bus
+     *                the {@link Bus} used to communicate with the vehicle
+     */
+    public J1939(Bus bus) {
+        this.bus = bus;
+    }
 
     /**
      * Reads the static field PGN from the given class. Returns null if the PGN
@@ -152,24 +165,6 @@ public class J1939 {
             throw new IllegalArgumentException("Invalid use of global source.");
         }
         return response -> response.getSource() == addr;
-    }
-
-    private final Bus bus;
-
-    private int warnings;
-
-    public J1939() {
-        this(new EchoBus(0xA5));
-    }
-
-    /**
-     * Constructor to be used with tests
-     *
-     * @param bus
-     *                the {@link Bus} used to communicate with the vehicle
-     */
-    public J1939(Bus bus) {
-        this.bus = bus;
     }
 
     /**

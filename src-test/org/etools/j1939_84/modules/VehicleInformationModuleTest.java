@@ -281,9 +281,9 @@ public class VehicleInformationModuleTest {
     @Test
     public void testReportCalibrationInformation() {
         final int pgn = DM19CalibrationInformationPacket.PGN;
-        final byte[] calBytes1 = "ABCD1234567890123456".getBytes(UTF8);
-        final byte[] calBytes2 = "EFGH1234567890123456".getBytes(UTF8);
-        final byte[] calBytes3 = "IJKL1234567890123456".getBytes(UTF8);
+        byte[] calBytes1 = "ABCD1234567890123456".getBytes(UTF8);
+        byte[] calBytes2 = "EFGH1234567890123456".getBytes(UTF8);
+        byte[] calBytes3 = "IJKL1234567890123456".getBytes(UTF8);
 
         DM19CalibrationInformationPacket packet1 = new DM19CalibrationInformationPacket(
                                                                                         Packet.create(pgn,
@@ -311,7 +311,7 @@ public class VehicleInformationModuleTest {
     @Test
     public void testReportCalibrationInformationWithAddress() {
         final int pgn = DM19CalibrationInformationPacket.PGN;
-        final byte[] calBytes1 = "ABCD1234567890123456".getBytes(UTF8);
+        byte[] calBytes1 = "ABCD1234567890123456".getBytes(UTF8);
 
         DM19CalibrationInformationPacket packet1 = new DM19CalibrationInformationPacket(
                                                                                         Packet.create(pgn,
@@ -366,9 +366,9 @@ public class VehicleInformationModuleTest {
     @Test
     public void testReportComponentIdentification() {
         final int pgn = ComponentIdentificationPacket.PGN;
-        final byte[] bytes1 = "Make1*Model1*SerialNumber1**".getBytes(UTF8);
-        final byte[] bytes2 = "****".getBytes(UTF8);
-        final byte[] bytes3 = "Make3*Model3***".getBytes(UTF8);
+        byte[] bytes1 = "Make1*Model1*SerialNumber1**".getBytes(UTF8);
+        byte[] bytes2 = "****".getBytes(UTF8);
+        byte[] bytes3 = "Make3*Model3***".getBytes(UTF8);
 
         Packet requestPacket = Packet.create(0xEA00 | 0xFF, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
         doReturn(requestPacket).when(j1939).createRequestPacket(pgn, 0xFF);
@@ -434,7 +434,7 @@ public class VehicleInformationModuleTest {
     @Test
     public void testReportVin() {
         final int pgn = VehicleIdentificationPacket.PGN;
-        final byte[] vinBytes = "12345678901234567890*".getBytes(UTF8);
+        byte[] vinBytes = "12345678901234567890*".getBytes(UTF8);
 
         VehicleIdentificationPacket packet1 = new VehicleIdentificationPacket(Packet.create(pgn, 0x00, vinBytes));
         VehicleIdentificationPacket packet2 = new VehicleIdentificationPacket(Packet.create(pgn, 0x17, vinBytes));

@@ -64,6 +64,28 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 1;
 
     private static final int STEP_NUMBER = 4;
+    @Mock
+    private BannerModule bannerModule;
+    @Mock
+    private DataRepository dataRepository;
+    @Mock
+    private EngineSpeedModule engineSpeedModule;
+    @Mock
+    private Executor executor;
+    private Part01Step04Controller instance;
+    @Mock
+    private J1939 j1939;
+    @Mock
+    private ResultsListener mockListener;
+    @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
+    @Mock
+    private ReportFileModule reportFileModule;
+    @Mock
+    private SupportedSpnModule supportedSpnModule;
+    @Mock
+    private VehicleInformationModule vehicleInformationModule;
+    private TestResultsListener listener;
 
     private static int[] convertToIntArray(byte[] input) {
         int[] intArray = new int[input.length];
@@ -73,40 +95,6 @@ public class Part01Step04ControllerTest extends AbstractControllerTest {
         }
         return intArray;
     }
-
-    @Mock
-    private BannerModule bannerModule;
-
-    @Mock
-    private DataRepository dataRepository;
-
-    @Mock
-    private EngineSpeedModule engineSpeedModule;
-
-    @Mock
-    private Executor executor;
-
-    private Part01Step04Controller instance;
-
-    @Mock
-    private J1939 j1939;
-
-    @Mock
-    private ResultsListener mockListener;
-
-    @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
-
-    @Mock
-    private ReportFileModule reportFileModule;
-
-    @Mock
-    private SupportedSpnModule supportedSpnModule;
-
-    @Mock
-    private VehicleInformationModule vehicleInformationModule;
-
-    private TestResultsListener listener;
 
     @Before
     public void setUp() throws Exception {

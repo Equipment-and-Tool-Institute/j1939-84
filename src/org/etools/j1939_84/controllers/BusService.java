@@ -23,10 +23,9 @@ import org.etools.j1939_84.modules.DateTimeModule;
 
 public class BusService {
 
-    private J1939 j1939;
-
     private final J1939DaRepository j1939DaRepository;
     private final DateTimeModule dateTimeModule;
+    private J1939 j1939;
     private ResultsListener listener;
 
     public BusService(J1939DaRepository j1939DaRepository) {

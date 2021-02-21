@@ -48,12 +48,30 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class Part01Step06ControllerTest extends AbstractControllerTest {
 
     private static final String familyName = "YCALIF HD OBD*";
+    @Mock
+    private BannerModule bannerModule;
+    private DataRepository dataRepository;
+    @Mock
+    private EngineSpeedModule engineSpeedModule;
+    @Mock
+    private Executor executor;
+    private Part01Step06Controller instance;
+    @Mock
+    private J1939 j1939;
+    private TestResultsListener listener;
+    @Mock
+    private ResultsListener mockListener;
+    @Mock
+    private ReportFileModule reportFileModule;
+    @Mock
+    private VehicleInformationModule vehicleInformationModule;
+    @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     /*
      * All values must be checked prior to mocking so that we are not creating
      * unnecessary mocks.
      */
-    @SuppressWarnings("SameParameterValue")
     private static DM56EngineFamilyPacket createDM56(int sourceAddress,
                                                      Integer engineYear,
                                                      String modelYear,
@@ -75,36 +93,6 @@ public class Part01Step06ControllerTest extends AbstractControllerTest {
         }
         return packet;
     }
-
-    @Mock
-    private BannerModule bannerModule;
-
-    private DataRepository dataRepository;
-
-    @Mock
-    private EngineSpeedModule engineSpeedModule;
-
-    @Mock
-    private Executor executor;
-
-    private Part01Step06Controller instance;
-
-    @Mock
-    private J1939 j1939;
-
-    private TestResultsListener listener;
-
-    @Mock
-    private ResultsListener mockListener;
-
-    @Mock
-    private ReportFileModule reportFileModule;
-
-    @Mock
-    private VehicleInformationModule vehicleInformationModule;
-
-    @Mock
-    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Before
     public void setUp() throws Exception {

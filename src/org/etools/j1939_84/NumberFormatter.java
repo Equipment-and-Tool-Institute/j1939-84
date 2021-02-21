@@ -15,6 +15,13 @@ import java.util.Locale;
 public class NumberFormatter {
 
     /**
+     * Use the static format method 
+     */
+    private NumberFormatter() {
+
+    }
+
+    /**
      * Formats the given number
      *
      * @param  number
@@ -23,12 +30,5 @@ public class NumberFormatter {
      */
     public static final String format(Number number) {
         return NumberFormat.getNumberInstance(Locale.US).format(number);
-    }
-
-    /**
-     * Use the static format method
-     */
-    private NumberFormatter() {
-
     }
 }

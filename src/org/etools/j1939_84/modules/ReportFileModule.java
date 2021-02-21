@@ -40,11 +40,8 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     private final BannerModule bannerModule;
 
     private final Logger logger;
-
-    private File reportFile;
-
     private final SummaryModule summaryModule;
-
+    private File reportFile;
     private VehicleInformation vehicleInformation;
 
     /**
@@ -106,10 +103,6 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
         summaryModule.endStep(stepResult);
     }
 
-    private Logger getLogger() {
-        return logger;
-    }
-
     @Override
     public void onComplete(boolean success) {
         writeFinalReport();
@@ -118,21 +111,6 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     @Override
     public void onMessage(String message, String title, MessageType type) {
         // Don't care
-    }
-
-    /**
-     * Called when the tool exits so it can be noted in the log file
-     */
-    public void onProgramExit() {
-        try {
-            if (writer != null) {
-                write(getTime() + " End of " + BannerModule.TOOL_NAME + " Execution" + NL);
-                writer.flush();
-                writer.close();
-            }
-        } catch (IOException e) {
-            getLogger().log(Level.SEVERE, "Error writing end of program statement", e);
-        }
     }
 
     @Override
@@ -179,6 +157,25 @@ public class ReportFileModule extends FunctionalModule implements ResultsListene
     @Override
     public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
         this.vehicleInformation = vehicleInformation;
+    }
+
+    private Logger getLogger() {
+        return logger;
+    }
+
+    /**
+     * Called when the tool exits so it can be noted in the log file
+     */
+    public void onProgramExit() {
+        try {
+            if (writer != null) {
+                write(getTime() + " End of " + BannerModule.TOOL_NAME + " Execution" + NL);
+                writer.flush();
+                writer.close();
+            }
+        } catch (IOException e) {
+            getLogger().log(Level.SEVERE, "Error writing end of program statement", e);
+        }
     }
 
     /**

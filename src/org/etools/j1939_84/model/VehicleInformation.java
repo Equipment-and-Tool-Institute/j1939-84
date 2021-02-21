@@ -43,22 +43,112 @@ public class VehicleInformation implements Cloneable {
 
     private String vin = "";
 
-    @Override
-    public VehicleInformation clone() {
-        VehicleInformation vehInfo = new VehicleInformation();
-        vehInfo.setAddressClaim(getAddressClaim());
-        vehInfo.setCalIds(getCalIds());
-        vehInfo.setCalIdsFound(getCalIdsFound());
-        vehInfo.setCertificationIntent(getCertificationIntent());
-        vehInfo.setEmissionUnits(getEmissionUnits());
-        vehInfo.setEmissionUnitsFound(getEmissionUnitsFound());
-        vehInfo.setEngineModelYear(getEngineModelYear());
-        vehInfo.setFuelType(getFuelType());
-        vehInfo.setNumberOfTripsForFaultBImplant(getNumberOfTripsForFaultBImplant());
-        vehInfo.setVehicleModelYear(getVehicleModelYear());
-        vehInfo.setVin(getVin());
+    public RequestResult<AddressClaimPacket> getAddressClaim() {
+        if (addressClaim == null) {
+            addressClaim = new RequestResult<>(false, Collections.emptyList());
+        }
+        return addressClaim;
+    }
 
-        return vehInfo;
+    public void setAddressClaim(RequestResult<AddressClaimPacket> addressClaim) {
+        this.addressClaim = addressClaim;
+    }
+
+    public int getCalIds() {
+        return calIds;
+    }
+
+    public void setCalIds(int calIds) {
+        this.calIds = calIds;
+    }
+
+    public List<DM19CalibrationInformationPacket> getCalIdsFound() {
+        return calIdsFound;
+    }
+
+    public void setCalIdsFound(List<DM19CalibrationInformationPacket> calIdsFound) {
+        this.calIdsFound = calIdsFound;
+    }
+
+    public String getCertificationIntent() {
+        return certificationIntent;
+    }
+
+    public void setCertificationIntent(String certificationIntent) {
+        this.certificationIntent = certificationIntent;
+    }
+
+    public int getEmissionUnits() {
+        return emissionUnits;
+    }
+
+    public void setEmissionUnits(int emissionUnits) {
+        this.emissionUnits = emissionUnits;
+    }
+
+    public List<ComponentIdentificationPacket> getEmissionUnitsFound() {
+        return emissionUnitsFound;
+    }
+
+    public void setEmissionUnitsFound(List<ComponentIdentificationPacket> emissionUnitsFound) {
+        this.emissionUnitsFound = emissionUnitsFound;
+    }
+
+    public int getEngineModelYear() {
+        return engineModelYear;
+    }
+
+    public void setEngineModelYear(int engineModelYear) {
+        this.engineModelYear = engineModelYear;
+    }
+
+    public FuelType getFuelType() {
+        return fuelType;
+    }
+
+    public void setFuelType(FuelType fuelType) {
+        this.fuelType = fuelType;
+    }
+
+    public int getNumberOfTripsForFaultBImplant() {
+        return numberOfTripsForFaultBImplant;
+    }
+
+    public void setNumberOfTripsForFaultBImplant(int numberOfTripsForFaultBImplant) {
+        this.numberOfTripsForFaultBImplant = numberOfTripsForFaultBImplant;
+    }
+
+    public int getVehicleModelYear() {
+        return vehicleModelYear;
+    }
+
+    public void setVehicleModelYear(int vehicleModelYear) {
+        this.vehicleModelYear = vehicleModelYear;
+    }
+
+    public String getVin() {
+        return vin;
+    }
+
+    public void setVin(String vin) {
+        if (vin == null) {
+            vin = "";
+        }
+        this.vin = vin;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(calIds,
+                            calIdsFound,
+                            certificationIntent,
+                            emissionUnits,
+                            emissionUnitsFound,
+                            engineModelYear,
+                            fuelType,
+                            vehicleModelYear,
+                            vin,
+                            numberOfTripsForFaultBImplant);
     }
 
     @Override
@@ -83,112 +173,22 @@ public class VehicleInformation implements Cloneable {
                 && numberOfTripsForFaultBImplant == that.numberOfTripsForFaultBImplant;
     }
 
-    public RequestResult<AddressClaimPacket> getAddressClaim() {
-        if (addressClaim == null) {
-            addressClaim = new RequestResult<>(false, Collections.emptyList());
-        }
-        return addressClaim;
-    }
-
-    public int getCalIds() {
-        return calIds;
-    }
-
-    public List<DM19CalibrationInformationPacket> getCalIdsFound() {
-        return calIdsFound;
-    }
-
-    public String getCertificationIntent() {
-        return certificationIntent;
-    }
-
-    public int getEmissionUnits() {
-        return emissionUnits;
-    }
-
-    public List<ComponentIdentificationPacket> getEmissionUnitsFound() {
-        return emissionUnitsFound;
-    }
-
-    public int getEngineModelYear() {
-        return engineModelYear;
-    }
-
-    public FuelType getFuelType() {
-        return fuelType;
-    }
-
-    public int getNumberOfTripsForFaultBImplant() {
-        return numberOfTripsForFaultBImplant;
-    }
-
-    public int getVehicleModelYear() {
-        return vehicleModelYear;
-    }
-
-    public String getVin() {
-        return vin;
-    }
-
     @Override
-    public int hashCode() {
-        return Objects.hash(calIds,
-                            calIdsFound,
-                            certificationIntent,
-                            emissionUnits,
-                            emissionUnitsFound,
-                            engineModelYear,
-                            fuelType,
-                            vehicleModelYear,
-                            vin,
-                            numberOfTripsForFaultBImplant);
-    }
+    public VehicleInformation clone() {
+        VehicleInformation vehInfo = new VehicleInformation();
+        vehInfo.setAddressClaim(getAddressClaim());
+        vehInfo.setCalIds(getCalIds());
+        vehInfo.setCalIdsFound(getCalIdsFound());
+        vehInfo.setCertificationIntent(getCertificationIntent());
+        vehInfo.setEmissionUnits(getEmissionUnits());
+        vehInfo.setEmissionUnitsFound(getEmissionUnitsFound());
+        vehInfo.setEngineModelYear(getEngineModelYear());
+        vehInfo.setFuelType(getFuelType());
+        vehInfo.setNumberOfTripsForFaultBImplant(getNumberOfTripsForFaultBImplant());
+        vehInfo.setVehicleModelYear(getVehicleModelYear());
+        vehInfo.setVin(getVin());
 
-    public void setAddressClaim(RequestResult<AddressClaimPacket> addressClaim) {
-        this.addressClaim = addressClaim;
-    }
-
-    public void setCalIds(int calIds) {
-        this.calIds = calIds;
-    }
-
-    public void setCalIdsFound(List<DM19CalibrationInformationPacket> calIdsFound) {
-        this.calIdsFound = calIdsFound;
-    }
-
-    public void setCertificationIntent(String certificationIntent) {
-        this.certificationIntent = certificationIntent;
-    }
-
-    public void setEmissionUnits(int emissionUnits) {
-        this.emissionUnits = emissionUnits;
-    }
-
-    public void setEmissionUnitsFound(List<ComponentIdentificationPacket> emissionUnitsFound) {
-        this.emissionUnitsFound = emissionUnitsFound;
-    }
-
-    public void setEngineModelYear(int engineModelYear) {
-        this.engineModelYear = engineModelYear;
-    }
-
-    public void setFuelType(FuelType fuelType) {
-        this.fuelType = fuelType;
-    }
-
-    public void setNumberOfTripsForFaultBImplant(int numberOfTripsForFaultBImplant) {
-        this.numberOfTripsForFaultBImplant = numberOfTripsForFaultBImplant;
-    }
-
-    public void setVehicleModelYear(int vehicleModelYear) {
-        this.vehicleModelYear = vehicleModelYear;
-    }
-
-    public void setVin(String vin) {
-        if (vin == null) {
-            vin = "";
-        }
-        this.vin = vin;
+        return vehInfo;
     }
 
     @Override

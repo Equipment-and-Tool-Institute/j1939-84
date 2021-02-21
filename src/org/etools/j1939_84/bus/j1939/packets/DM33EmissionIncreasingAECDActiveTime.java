@@ -21,6 +21,11 @@ import org.etools.j1939_84.utils.CollectionUtils;
  */
 public class DM33EmissionIncreasingAECDActiveTime extends GenericPacket {
     public static final int PGN = 41216; // 0xA100
+    private List<EngineHoursTimer> eiAecdEngineHoursTimers;
+
+    public DM33EmissionIncreasingAECDActiveTime(Packet packet) {
+        super(packet);
+    }
 
     public static DM33EmissionIncreasingAECDActiveTime create(int source, EngineHoursTimer... timers) {
         int[] data = new int[0];
@@ -28,12 +33,6 @@ public class DM33EmissionIncreasingAECDActiveTime extends GenericPacket {
             data = CollectionUtils.join(data, timer.getData());
         }
         return new DM33EmissionIncreasingAECDActiveTime(Packet.create(PGN, source, data));
-    }
-
-    private List<EngineHoursTimer> eiAecdEngineHoursTimers;
-
-    public DM33EmissionIncreasingAECDActiveTime(Packet packet) {
-        super(packet);
     }
 
     public List<EngineHoursTimer> getEiAecdEngineHoursTimers() {
@@ -48,6 +47,14 @@ public class DM33EmissionIncreasingAECDActiveTime extends GenericPacket {
         return "DM33 Emission Increasing AECD Active Time";
     }
 
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder(getStringPrefix()).append("{");
+        getEiAecdEngineHoursTimers().forEach(timer -> sb.append(NL).append(timer.toString()));
+        sb.append(NL).append("}").append(NL);
+        return sb.toString();
+    }
+
     private void parsePacket() {
         eiAecdEngineHoursTimers = new ArrayList<>();
         final int length = getPacket().getLength();
@@ -55,14 +62,6 @@ public class DM33EmissionIncreasingAECDActiveTime extends GenericPacket {
             int[] copyOfRange = getPacket().getData(i, i + 9);
             eiAecdEngineHoursTimers.add(new EngineHoursTimer(copyOfRange));
         }
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder(getStringPrefix()).append("{");
-        getEiAecdEngineHoursTimers().forEach(timer -> sb.append(NL).append(timer.toString()));
-        sb.append(NL).append("}").append(NL);
-        return sb.toString();
     }
 
 }

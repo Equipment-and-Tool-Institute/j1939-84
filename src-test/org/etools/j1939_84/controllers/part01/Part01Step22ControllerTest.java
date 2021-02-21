@@ -77,6 +77,10 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    private static DM27AllPendingDTCsPacket dm27(int source) {
+        return new DM27AllPendingDTCsPacket(Packet.create(DM27AllPendingDTCsPacket.PGN, source, 0, 0, 0, 0, 0, 0));
+    }
+
     @Before
     public void setUp() {
         dataRepository = DataRepository.newInstance();
@@ -265,10 +269,6 @@ public class Part01Step22ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
-    }
-
-    private static DM27AllPendingDTCsPacket dm27(int source) {
-        return new DM27AllPendingDTCsPacket(Packet.create(DM27AllPendingDTCsPacket.PGN, source, 0, 0, 0, 0, 0, 0));
     }
 
 }

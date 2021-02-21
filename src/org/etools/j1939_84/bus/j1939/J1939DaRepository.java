@@ -32,24 +32,13 @@ import com.opencsv.CSVReader;
 import com.opencsv.CSVReaderBuilder;
 
 public class J1939DaRepository {
-    static class ParseError extends Exception {
-        public ParseError(String string) {
-            super(string);
-        }
-
-    }
-
     final private static J1939DaRepository instance = new J1939DaRepository();
-
     private static Map<Integer, PgnDefinition> pgnLut;
-
     /**
      * The Map of SLOT ID to Slot for lookups
      */
     private static Map<Integer, Slot> slots;
-
     private static Map<Integer, SpnDefinition> spnLut;
-
     private static Map<Integer, Set<Integer>> spnToPgnMap = null;
 
     public static Slot findSlot(int slotId, int spn) {
@@ -433,6 +422,13 @@ public class J1939DaRepository {
     public Map<Integer, SpnDefinition> getSpnDefinitions() {
         loadLookUpTables();
         return Collections.unmodifiableMap(spnLut);
+    }
+
+    static class ParseError extends Exception {
+        public ParseError(String string) {
+            super(string);
+        }
+
     }
 
 }

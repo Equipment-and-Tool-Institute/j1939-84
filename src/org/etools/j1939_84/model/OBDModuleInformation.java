@@ -29,35 +29,21 @@ import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 public class OBDModuleInformation implements Cloneable {
 
     private final List<CalibrationInformation> calibrationInformation = new ArrayList<>();
-
-    private ComponentIdentification componentIdentification = null;
-
-    private int function;
-
-    private int ignitionCycleCounterValue;
-
     private final List<MonitoredSystem> monitoredSystems = new ArrayList<>();
-
-    private byte obdCompliance;
-
     private final Set<PerformanceRatio> performanceRatios = new HashSet<>();
-
     private final List<ScaledTestResult> scaledTestResults = new ArrayList<>();
-
     private final List<ScaledTestResult> nonInitializedTests = new ArrayList<>();
-
     private final int sourceAddress;
-
     private final List<SupportedSPN> supportedSPNs = new ArrayList<>();
-
-    private String engineFamilyName = "";
-
-    private String modelYear = "";
-
-    private PacketArchive packetArchive = new PacketArchive();
-
     /** These SPNs represent SP which appear in multiple PGs. */
     private final List<Integer> omittedSPNs = new ArrayList<>(List.of(588, 1213, 1220, 12675, 12730, 12783, 12797));
+    private ComponentIdentification componentIdentification = null;
+    private int function;
+    private int ignitionCycleCounterValue;
+    private byte obdCompliance;
+    private String engineFamilyName = "";
+    private String modelYear = "";
+    private PacketArchive packetArchive = new PacketArchive();
 
     public OBDModuleInformation(int sourceAddress) {
         this.sourceAddress = sourceAddress;
@@ -99,8 +85,17 @@ public class OBDModuleInformation implements Cloneable {
         return calibrationInformation;
     }
 
+    public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {
+        this.calibrationInformation.clear();
+        this.calibrationInformation.addAll(calibrationInformation);
+    }
+
     public ComponentIdentification getComponentIdentification() {
         return componentIdentification;
+    }
+
+    public void setComponentIdentification(ComponentIdentification componentIdentification) {
+        this.componentIdentification = componentIdentification;
     }
 
     public List<SupportedSPN> getDataStreamSPNs() {
@@ -136,20 +131,43 @@ public class OBDModuleInformation implements Cloneable {
         return function;
     }
 
+    public void setFunction(int function) {
+        this.function = function;
+    }
+
     public List<MonitoredSystem> getMonitoredSystems() {
         return monitoredSystems;
+    }
+
+    public void setMonitoredSystems(List<MonitoredSystem> monitoredSystems) {
+        this.monitoredSystems.clear();
+        this.monitoredSystems.addAll(monitoredSystems);
     }
 
     public byte getObdCompliance() {
         return obdCompliance;
     }
 
+    public void setObdCompliance(byte obdCompliance) {
+        this.obdCompliance = obdCompliance;
+    }
+
     public Set<PerformanceRatio> getPerformanceRatios() {
         return performanceRatios;
     }
 
+    public void setPerformanceRatios(Collection<PerformanceRatio> performanceRatios) {
+        this.performanceRatios.clear();
+        this.performanceRatios.addAll(performanceRatios);
+    }
+
     public List<ScaledTestResult> getScaledTestResults() {
         return scaledTestResults;
+    }
+
+    public void setScaledTestResults(List<ScaledTestResult> scaledTestResults) {
+        this.scaledTestResults.clear();
+        this.scaledTestResults.addAll(scaledTestResults);
     }
 
     public int getSourceAddress() {
@@ -167,47 +185,15 @@ public class OBDModuleInformation implements Cloneable {
                                                                      .collect(Collectors.toList());
     }
 
+    public void setSupportedSPNs(List<SupportedSPN> supportedSPNs) {
+        this.supportedSPNs.clear();
+        this.supportedSPNs.addAll(supportedSPNs);
+    }
+
     public List<SupportedSPN> getTestResultSPNs() {
         return getSupportedSPNs().stream()
                                  .filter(SupportedSPN::supportsScaledTestResults)
                                  .collect(Collectors.toList());
-    }
-
-    public void setCalibrationInformation(List<CalibrationInformation> calibrationInformation) {
-        this.calibrationInformation.clear();
-        this.calibrationInformation.addAll(calibrationInformation);
-    }
-
-    public void setComponentIdentification(ComponentIdentification componentIdentification) {
-        this.componentIdentification = componentIdentification;
-    }
-
-    public void setFunction(int function) {
-        this.function = function;
-    }
-
-    public void setMonitoredSystems(List<MonitoredSystem> monitoredSystems) {
-        this.monitoredSystems.clear();
-        this.monitoredSystems.addAll(monitoredSystems);
-    }
-
-    public void setObdCompliance(byte obdCompliance) {
-        this.obdCompliance = obdCompliance;
-    }
-
-    public void setPerformanceRatios(Collection<PerformanceRatio> performanceRatios) {
-        this.performanceRatios.clear();
-        this.performanceRatios.addAll(performanceRatios);
-    }
-
-    public void setScaledTestResults(List<ScaledTestResult> scaledTestResults) {
-        this.scaledTestResults.clear();
-        this.scaledTestResults.addAll(scaledTestResults);
-    }
-
-    public void setSupportedSPNs(List<SupportedSPN> supportedSPNs) {
-        this.supportedSPNs.clear();
-        this.supportedSPNs.addAll(supportedSPNs);
     }
 
     public List<ScaledTestResult> getNonInitializedTests() {

@@ -38,6 +38,16 @@ import org.mockito.junit.MockitoJUnitRunner;
 @RunWith(MockitoJUnitRunner.class)
 public class TableA1ValidatorTest {
 
+    private DataRepository dataRepository;
+    private TableA1Validator instance;
+    @Mock
+    private J1939DaRepository j1939DaRepository;
+    @Mock
+    private ResultsListener mockListener;
+    private TestResultsListener listener;
+    @Mock
+    private TableA1ValueValidator valueValidator;
+
     private static PgnDefinition mockPgnDef(int... spns) {
         PgnDefinition pgnDef = mock(PgnDefinition.class);
         List<SpnDefinition> spnDefs = new ArrayList<>();
@@ -48,7 +58,6 @@ public class TableA1ValidatorTest {
         return pgnDef;
     }
 
-    @SuppressWarnings("SameParameterValue")
     private static Spn mockSpn(int id, boolean isNotAvailable) {
         Spn mock = mock(Spn.class);
         when(mock.getId()).thenReturn(id);
@@ -74,21 +83,6 @@ public class TableA1ValidatorTest {
         when(mock.getSpn()).thenReturn(id);
         return mock;
     }
-
-    private DataRepository dataRepository;
-
-    private TableA1Validator instance;
-
-    @Mock
-    private J1939DaRepository j1939DaRepository;
-
-    @Mock
-    private ResultsListener mockListener;
-
-    private TestResultsListener listener;
-
-    @Mock
-    private TableA1ValueValidator valueValidator;
 
     @Before
     public void setUp() {

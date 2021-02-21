@@ -100,7 +100,6 @@ public class DTCLampStatusTest {
         assertEquals(SLOW_FLASH, instance.getProtectLampStatus());
     }
 
-    @SuppressWarnings({ "EqualsBetweenInconvertibleTypes", "SimplifiableAssertion" })
     @Test
     public void testEquals() {
 
@@ -160,7 +159,6 @@ public class DTCLampStatusTest {
      * Test method for
      * {@link org.etools.j1939_84.bus.j1939.packets.DTCLampStatus#hashCode()}.
      */
-    @SuppressWarnings("SimplifiableAssertion")
     @Test
     public void testHashCode() {
         DTCLampStatus instance = new DTCLampStatus(new int[] {

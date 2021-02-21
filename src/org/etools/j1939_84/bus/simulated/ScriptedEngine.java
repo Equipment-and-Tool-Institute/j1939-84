@@ -25,25 +25,134 @@ import com.google.gson.JsonNull;
 import com.google.gson.JsonObject;
 
 public class ScriptedEngine implements AutoCloseable {
+    private final Set<String> env = new HashSet<>();
+    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
+    private final Sim sim;
+
+    public ScriptedEngine(Bus bus, InputStream in) throws BusException {
+        sim = new Sim(bus);
+        // bus.log(p -> "P: " + p);
+
+        JsonArray a = new Gson().fromJson(new InputStreamReader(in), JsonArray.class);
+        a.forEach(e -> {
+            JsonObject o = e.getAsJsonObject();
+            JsonArray array = o.get("packets").getAsJsonArray();
+            Packet packet = Packet.parse(array.get(0).getAsJsonObject().get("packet").getAsString());
+            switch (o.has("onRequest") ? o.get("onRequest").getAsString() : "") {
+                case "dm7":
+                    // register a response in the simulator for each DM7 SPN
+                    // request
+                    StreamSupport.stream(array.spliterator(), false)
+                                 .map(element -> Packet.parse(element.getAsJsonObject().get("packet").getAsString()))
+                                 .map(ScriptedEngine::dm7Spn)
+                                 // we only need one DM17Provider for each SPN
+                                 .distinct()
+                                 .map(spn -> new DM7Provider(spn, packet.getSource(), o))
+                                 .forEach(provider -> sim.response(provider, provider));
+
+                    break;
+                case "true":
+                    sim.response(isRequestForPredicate(packet), new ResponseProvider(o));
+                    break;
+                case "DS":
+                case "ds":
+                    sim.response(isRequestForPredicate(packet).and(req -> req.getDestination() == packet.getSource()),
+                                 new ResponseProvider(o));
+                    break;
+                case "FF":
+                case "ff":
+                    sim.response(isRequestForPredicate(packet).and(req -> req.getDestination() == 0xFF),
+                                 new ResponseProvider(o));
+                    break;
+                default: { // register a periodic broadcast
+                    int period = o.get("period").getAsInt();
+                    if (period <= 0) {
+                        System.err.println("FAIL:" + o.get("response").getAsString());
+                        return;
+                    }
+                    ResponseProvider responseProvider = new ResponseProvider(o);
+                    sim.schedule(period,
+                                 period,
+                                 TimeUnit.MILLISECONDS,
+                                 () -> sim.sendNow(responseProvider.get()));
+                }
+                    break;
+            }
+        });
+    }
+
+    private static int dm7Spn(Packet packet) {
+        return (((packet.get(3) & 0xE0) << 11) & 0xFF0000) | ((packet.get(2) << 8) & 0xFF00)
+                | (packet.get(1) & 0xFF);
+    }
+
+    static Predicate<Packet> isRequestForPredicate(Packet response) {
+        int pgn = response.getPgn();
+        if (pgn < 0xF000) {
+            // if daPgn then only match response to requester
+            return request -> request.getPgn() == 0xEA00
+                    && request.get24(0) == pgn
+                    && (request.getDestination() == 0xFF
+                            || response.getSource() == request.getDestination());
+        } else {
+            return request -> request.getPgn() == 0xEA00
+                    && request.get24(0) == pgn;
+        }
+    }
+
+    @Override
+    public void close() {
+        sim.close();
+    }
+
+    /**
+     * Handle checking and updating the environment.
+     *
+     * @param  descriptor
+     *                        The possible response to be checked. If it passes, then the
+     *                        environment will be updated based on the set, setFor and clear
+     *                        commands.
+     * @return            Should this descriptor be used?
+     */
+    private boolean envHandler(JsonObject descriptor) {
+        if (descriptor.has("isSet")
+                && !env.contains(descriptor.get("isSet").getAsString())) {
+            return false;
+        }
+        if (descriptor.has("isClear")
+                && env.contains(descriptor.get("isClear").getAsString())) {
+            return false;
+        }
+        if (descriptor.has("set")) {
+            String symbol = descriptor.get("set").getAsString();
+            env.add(symbol);
+            if (descriptor.has("setFor")) {
+                executor.schedule(() -> env.remove(symbol),
+                                  descriptor.get("setFor").getAsLong(),
+                                  TimeUnit.MILLISECONDS);
+            }
+        }
+        if (descriptor.has("clear")) {
+            env.remove(descriptor.get("clear").getAsString());
+        }
+        return true;
+    }
+
     /** Handle responding to DM7 requests. */
     class DM7Provider implements Supplier<Packet>, Predicate<Packet> {
 
+        /** Possible responses for this request. */
+        final private JsonArray packetDescriptors;
+        /** source address */
+        final private int sa;
+        final private int spn;
         /**
          * Packet identified in last positive test. This avoids testing twice,
          * but makes assumptions about the process. It is fragile.
          */
         private Packet next;
-
-        /** Possible responses for this request. */
-        final private JsonArray packetDescriptors;
-
-        /** source address */
-        final private int sa;
-
         /** Next sequence to use in possible responses. */
         private int sequence = 0;
-
-        final private int spn;
 
         DM7Provider(int spn, int sa, JsonObject messageDescriptot) {
             this.spn = spn;
@@ -134,120 +243,5 @@ public class ScriptedEngine implements AutoCloseable {
             return null;
         }
 
-    }
-
-    private static int dm7Spn(Packet packet) {
-        return (((packet.get(3) & 0xE0) << 11) & 0xFF0000) | ((packet.get(2) << 8) & 0xFF00)
-                | (packet.get(1) & 0xFF);
-    }
-
-    static Predicate<Packet> isRequestForPredicate(Packet response) {
-        int pgn = response.getPgn();
-        if (pgn < 0xF000) {
-            // if daPgn then only match response to requester
-            return request -> request.getPgn() == 0xEA00
-                    && request.get24(0) == pgn
-                    && (request.getDestination() == 0xFF
-                            || response.getSource() == request.getDestination());
-        } else {
-            return request -> request.getPgn() == 0xEA00
-                    && request.get24(0) == pgn;
-        }
-    }
-
-    private final Set<String> env = new HashSet<>();
-
-    private final ScheduledExecutorService executor = Executors.newSingleThreadScheduledExecutor();
-
-    private final Sim sim;
-
-    public ScriptedEngine(Bus bus, InputStream in) throws BusException {
-        sim = new Sim(bus);
-        // bus.log(p -> "P: " + p);
-
-        JsonArray a = new Gson().fromJson(new InputStreamReader(in), JsonArray.class);
-        a.forEach(e -> {
-            JsonObject o = e.getAsJsonObject();
-            JsonArray array = o.get("packets").getAsJsonArray();
-            Packet packet = Packet.parse(array.get(0).getAsJsonObject().get("packet").getAsString());
-            switch (o.has("onRequest") ? o.get("onRequest").getAsString() : "") {
-                case "dm7":
-                    // register a response in the simulator for each DM7 SPN
-                    // request
-                    StreamSupport.stream(array.spliterator(), false)
-                                 .map(element -> Packet.parse(element.getAsJsonObject().get("packet").getAsString()))
-                                 .map(ScriptedEngine::dm7Spn)
-                                 // we only need one DM17Provider for each SPN
-                                 .distinct()
-                                 .map(spn -> new DM7Provider(spn, packet.getSource(), o))
-                                 .forEach(provider -> sim.response(provider, provider));
-
-                    break;
-                case "true":
-                    sim.response(isRequestForPredicate(packet), new ResponseProvider(o));
-                    break;
-                case "DS":
-                case "ds":
-                    sim.response(isRequestForPredicate(packet).and(req -> req.getDestination() == packet.getSource()),
-                                 new ResponseProvider(o));
-                    break;
-                case "FF":
-                case "ff":
-                    sim.response(isRequestForPredicate(packet).and(req -> req.getDestination() == 0xFF),
-                                 new ResponseProvider(o));
-                    break;
-                default: { // register a periodic broadcast
-                    int period = o.get("period").getAsInt();
-                    if (period <= 0) {
-                        System.err.println("FAIL:" + o.get("response").getAsString());
-                        return;
-                    }
-                    ResponseProvider responseProvider = new ResponseProvider(o);
-                    sim.schedule(period,
-                                 period,
-                                 TimeUnit.MILLISECONDS,
-                                 () -> sim.sendNow(responseProvider.get()));
-                }
-                    break;
-            }
-        });
-    }
-
-    @Override
-    public void close() {
-        sim.close();
-    }
-
-    /**
-     * Handle checking and updating the environment.
-     *
-     * @param  descriptor
-     *                        The possible response to be checked. If it passes, then the
-     *                        environment will be updated based on the set, setFor and clear
-     *                        commands.
-     * @return            Should this descriptor be used?
-     */
-    private boolean envHandler(JsonObject descriptor) {
-        if (descriptor.has("isSet")
-                && !env.contains(descriptor.get("isSet").getAsString())) {
-            return false;
-        }
-        if (descriptor.has("isClear")
-                && env.contains(descriptor.get("isClear").getAsString())) {
-            return false;
-        }
-        if (descriptor.has("set")) {
-            String symbol = descriptor.get("set").getAsString();
-            env.add(symbol);
-            if (descriptor.has("setFor")) {
-                executor.schedule(() -> env.remove(symbol),
-                                  descriptor.get("setFor").getAsLong(),
-                                  TimeUnit.MILLISECONDS);
-            }
-        }
-        if (descriptor.has("clear")) {
-            env.remove(descriptor.get("clear").getAsString());
-        }
-        return true;
     }
 }

@@ -22,19 +22,13 @@ import org.etools.j1939_84.model.VehicleInformationListener;
  */
 public class TestResultsListener implements ResultsListener {
 
-    private boolean complete = false;
-
     private final List<String> messages = new ArrayList<>();
-
     private final List<String> milestones = new ArrayList<>();
-
     private final ResultsListener mockListener;
-
     private final List<String> results = new ArrayList<>();
-
-    private boolean success;
-
     private final List<ActionOutcome> outcomes = new ArrayList<>();
+    private boolean complete = false;
+    private boolean success;
 
     public TestResultsListener() {
         this(null);
@@ -68,31 +62,6 @@ public class TestResultsListener implements ResultsListener {
     @Override
     public void endStep(StepResult stepResult) {
         milestones.add("End Step: " + stepResult);
-    }
-
-    public String getMessages() {
-        return String.join(NL, messages);
-    }
-
-    public String getMilestones() {
-        return String.join(NL, milestones);
-    }
-
-    public String getResults() {
-        StringBuilder sb = new StringBuilder();
-        results.forEach(t -> sb.append(t).append(NL));
-        return sb.toString();
-    }
-
-    public boolean isComplete() {
-        return complete;
-    }
-
-    public boolean isSuccess() {
-        if (!complete) {
-            throw new IllegalStateException("Complete was not received yet");
-        }
-        return success;
     }
 
     @Override
@@ -145,6 +114,31 @@ public class TestResultsListener implements ResultsListener {
     @Override
     public void onVehicleInformationReceived(VehicleInformation vehicleInformation) {
         mockListener.onVehicleInformationReceived(vehicleInformation);
+    }
+
+    public String getMessages() {
+        return String.join(NL, messages);
+    }
+
+    public String getMilestones() {
+        return String.join(NL, milestones);
+    }
+
+    public String getResults() {
+        StringBuilder sb = new StringBuilder();
+        results.forEach(t -> sb.append(t).append(NL));
+        return sb.toString();
+    }
+
+    public boolean isComplete() {
+        return complete;
+    }
+
+    public boolean isSuccess() {
+        if (!complete) {
+            throw new IllegalStateException("Complete was not received yet");
+        }
+        return success;
     }
 
     public List<ActionOutcome> getOutcomes() {

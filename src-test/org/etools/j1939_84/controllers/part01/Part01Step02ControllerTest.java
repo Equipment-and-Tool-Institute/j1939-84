@@ -74,11 +74,11 @@ public class Part01Step02ControllerTest {
         listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
 
-        this.instance = new Part01Step02Controller(executor,
-                                                   engineSpeedModule,
-                                                   bannerModule,
-                                                   vehicleInformationModule,
-                                                   DateTimeModule.getInstance());
+        instance = new Part01Step02Controller(executor,
+                                              engineSpeedModule,
+                                              bannerModule,
+                                              vehicleInformationModule,
+                                              DateTimeModule.getInstance());
     }
 
     @After

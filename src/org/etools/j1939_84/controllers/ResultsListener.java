@@ -20,29 +20,6 @@ import org.etools.j1939_84.model.VehicleInformationListener;
  * @author Matt Gumbel (matt@soliddesign.net)
  */
 public interface ResultsListener {
-    /**
-     * The different types of messages which can be displayed to the user
-     */
-    public enum MessageType {
-        // The values correspond to JOptionPane Types
-
-        ERROR(JOptionPane.OK_CANCEL_OPTION),
-        INFO(JOptionPane.INFORMATION_MESSAGE),
-        PLAIN(JOptionPane.PLAIN_MESSAGE),
-        QUESTION(JOptionPane.YES_NO_OPTION),
-        WARNING(JOptionPane.OK_CANCEL_OPTION);
-
-        private final int value;
-
-        MessageType(int value) {
-            this.value = value;
-        }
-
-        public int getValue() {
-            return value;
-        }
-    }
-
     ResultsListener NOOP = new ResultsListener() {
 
         @Override
@@ -214,4 +191,27 @@ public interface ResultsListener {
     void onVehicleInformationNeeded(VehicleInformationListener listener);
 
     void onVehicleInformationReceived(VehicleInformation vehicleInformation);
+
+    /**
+     * The different types of messages which can be displayed to the user
+     */
+    public enum MessageType {
+        // The values correspond to JOptionPane Types
+
+        ERROR(JOptionPane.OK_CANCEL_OPTION),
+        INFO(JOptionPane.INFORMATION_MESSAGE),
+        PLAIN(JOptionPane.PLAIN_MESSAGE),
+        QUESTION(JOptionPane.YES_NO_OPTION),
+        WARNING(JOptionPane.OK_CANCEL_OPTION);
+
+        private final int value;
+
+        MessageType(int value) {
+            this.value = value;
+        }
+
+        public int getValue() {
+            return value;
+        }
+    }
 }

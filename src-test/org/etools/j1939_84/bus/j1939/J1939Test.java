@@ -56,7 +56,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
-@SuppressWarnings("OptionalGetWithoutIsPresent")
 @RunWith(MockitoJUnitRunner.class)
 public class J1939Test {
 
@@ -71,6 +70,10 @@ public class J1939Test {
     private Bus bus;
     private J1939 instance;
     private ArgumentCaptor<Packet> sendPacketCaptor;
+
+    private static void sleep(double d) throws InterruptedException {
+        Thread.sleep((long) (d * 1000));
+    }
 
     @Test
     public void aTestTP() throws Exception {
@@ -117,7 +120,7 @@ public class J1939Test {
                                                                                             VehicleIdentificationPacket.PGN >> 16),
                                                                               NOOP);
             System.err.format("### post %d%n", System.currentTimeMillis());
-            final String vin2 = response.getPacket().get().left.get().getVin();
+            String vin2 = response.getPacket().get().left.get().getVin();
             System.err.format("### vin %d%n", System.currentTimeMillis());
             assertEquals(VIN, vin2);
         }
@@ -326,10 +329,6 @@ public class J1939Test {
 
         sendPacketCaptor = ArgumentCaptor.forClass(Packet.class);
         instance = new J1939(bus);
-    }
-
-    private void sleep(double d) throws InterruptedException {
-        Thread.sleep((long) (d * 1000));
     }
 
     @Test()
@@ -729,10 +728,10 @@ public class J1939Test {
 
     @Test
     public void testRequestMultipleReturnsAck() throws Exception {
-        final Packet packet1 = Packet.create(0xE8FF, 0x17, 0x01, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00);
-        final Packet packet2 = Packet.create(0xE8FF, 0x17, 0x00, 0xFF, 0xFF, 0xFF, 0x44, 0xD3, 0xFE, 0x00);
-        final Packet packet3 = Packet.create(0xEAFF, 0x44, 0x00, 0xFF, 0xFF, 0xFF);
-        final Packet packet4 = Packet.create(0xE8FF, 0x17, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00);
+        Packet packet1 = Packet.create(0xE8FF, 0x17, 0x01, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00);
+        Packet packet2 = Packet.create(0xE8FF, 0x17, 0x00, 0xFF, 0xFF, 0xFF, 0x44, 0xD3, 0xFE, 0x00);
+        Packet packet3 = Packet.create(0xEAFF, 0x44, 0x00, 0xFF, 0xFF, 0xFF);
+        Packet packet4 = Packet.create(0xE8FF, 0x17, 0x00, 0xFF, 0xFF, 0xFF, BUS_ADDR, 0xD3, 0xFE, 0x00);
         when(bus.read(ArgumentMatchers.anyLong(), ArgumentMatchers.any(TimeUnit.class)))
                                                                                         .thenReturn(Stream.of(packet1,
                                                                                                               packet2,
@@ -795,7 +794,6 @@ public class J1939Test {
 
     final private static class TestPacket extends GenericPacket {
         // used by tests in getPgn(Packet)
-        @SuppressWarnings("unused")
         public static int PGN = -1;
 
         public TestPacket(Packet packet) {

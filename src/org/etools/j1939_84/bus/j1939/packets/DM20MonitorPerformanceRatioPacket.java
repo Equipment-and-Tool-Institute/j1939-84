@@ -21,6 +21,11 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
 
     public static final int PGN = 49664; // 0xC200
+    private List<PerformanceRatio> ratios;
+
+    public DM20MonitorPerformanceRatioPacket(Packet packet) {
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+    }
 
     public static DM20MonitorPerformanceRatioPacket create(int sourceAddress,
                                                            int ignitionCycles,
@@ -33,12 +38,6 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
             data = join(data, ratio.getData());
         }
         return new DM20MonitorPerformanceRatioPacket(Packet.create(PGN, sourceAddress, data));
-    }
-
-    private List<PerformanceRatio> ratios;
-
-    public DM20MonitorPerformanceRatioPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     /**
@@ -64,6 +63,31 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
     @Override
     public String getName() {
         return "DM20";
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getStringPrefix()).append(" [").append(NL);
+        int max = getLongestName(getRatios()) + 1;
+        sb.append(padRight("", max)).append("  Num'r /  Den'r").append(NL);
+        sb.append(padRight("Ignition Cycles", max))
+          .append(padLeft(NumberFormatter.format(getIgnitionCycles()), 16))
+          .append(NL);
+        sb.append(padRight("OBD Monitoring Conditions Encountered", max))
+          .append(padLeft(NumberFormatter.format(getOBDConditionsCount()), 16))
+          .append(NL);
+
+        for (PerformanceRatio ratio : getRatios()) {
+            sb.append(padRight(ratio.getName(), max));
+            sb.append(" ");
+            sb.append(padLeft(NumberFormatter.format(ratio.getNumerator()), 6));
+            sb.append(" / ");
+            sb.append(padLeft(NumberFormatter.format(ratio.getDenominator()), 6));
+            sb.append(NL);
+        }
+        sb.append("]");
+        return sb.toString();
     }
 
     /**
@@ -128,31 +152,6 @@ public class DM20MonitorPerformanceRatioPacket extends GenericPacket {
         int numerator = getPacket().get16(index + 3);
         int denominator = getPacket().get16(index + 5);
         return new PerformanceRatio(spn, numerator, denominator, getSourceAddress());
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getStringPrefix()).append(" [").append(NL);
-        int max = getLongestName(getRatios()) + 1;
-        sb.append(padRight("", max)).append("  Num'r /  Den'r").append(NL);
-        sb.append(padRight("Ignition Cycles", max))
-          .append(padLeft(NumberFormatter.format(getIgnitionCycles()), 16))
-          .append(NL);
-        sb.append(padRight("OBD Monitoring Conditions Encountered", max))
-          .append(padLeft(NumberFormatter.format(getOBDConditionsCount()), 16))
-          .append(NL);
-
-        for (PerformanceRatio ratio : getRatios()) {
-            sb.append(padRight(ratio.getName(), max));
-            sb.append(" ");
-            sb.append(padLeft(NumberFormatter.format(ratio.getNumerator()), 6));
-            sb.append(" / ");
-            sb.append(padLeft(NumberFormatter.format(ratio.getDenominator()), 6));
-            sb.append(NL);
-        }
-        sb.append("]");
-        return sb.toString();
     }
 
 }

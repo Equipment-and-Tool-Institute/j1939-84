@@ -58,19 +58,16 @@ public class RP1210Bus implements Bus {
      * The {@link Logger} for errors
      */
     private final Logger logger;
-
-    /**
-     * The Queue of {@link Packet}s
-     */
-    private MultiQueue<Packet> queue = new MultiQueue<>();
     /**
      * The {@link RP1210Library}
      */
     private final RP1210Library rp1210Library;
-
-    private long timeStampStartMicroseconds;
-
     final private long timeStampWeight;
+    /**
+     * The Queue of {@link Packet}s
+     */
+    private MultiQueue<Packet> queue = new MultiQueue<>();
+    private long timeStampStartMicroseconds;
 
     /**
      * Constructor
@@ -160,6 +157,61 @@ public class RP1210Bus implements Bus {
         queue = new MultiQueue<>();
     }
 
+    @Override
+    public Stream<Packet> duplicate(Stream<Packet> stream, int time, TimeUnit unit) {
+        return queue.duplicate(stream, time, unit);
+    }
+
+    @Override
+    public int getAddress() {
+        return address;
+    }
+
+    @Override
+    public int getConnectionSpeed() throws BusException {
+        byte[] bytes = new byte[17];
+        sendCommand(CMD_GET_PROTOCOL_CONNECTION_SPEED, bytes);
+        String result = new String(bytes, StandardCharsets.UTF_8).trim();
+        return Integer.parseInt(result);
+    }
+
+    @Override
+    public Stream<Packet> read(long timeout, TimeUnit unit) throws BusException {
+        return queue.stream(timeout, unit);
+    }
+
+    /**
+     * Reset stream timeout for stream created with bus.read(). To be used in a
+     * stream call like peek, map or forEach.
+     */
+    @Override
+    public void resetTimeout(Stream<Packet> stream, int time, TimeUnit unit) {
+        queue.resetTimeout(stream, time, unit);
+    }
+
+    @Override
+    public Packet send(Packet tx) throws BusException {
+        byte[] data = encode(tx);
+        try (Stream<Packet> stream = read(1000, TimeUnit.MILLISECONDS)) {
+            // rp1210 libraries may not be thread safe
+            short rtn = exec.submit(() -> rp1210Library.RP1210_SendMessage(clientId,
+                                                                           data,
+                                                                           (short) data.length,
+                                                                           NOTIFICATION_NONE,
+                                                                           BLOCKING_NONE))
+                            .get();
+            verify(rtn);
+            final int id = tx.getId(0xFFFF);
+            final int source = tx.getSource();
+            return stream
+                         .filter(rx -> rx.isTransmitted() && id == rx.getId(0xFFFF) && rx.getSource() == source)
+                         .findFirst()
+                         .orElseThrow(() -> new BusException("Failed to send: " + tx));
+        } catch (Throwable e) {
+            throw e instanceof BusException ? (BusException) e : new BusException("Failed to send: " + tx, e);
+        }
+    }
+
     /**
      * Decodes the given byte array into a {@link Packet}
      *
@@ -201,11 +253,6 @@ public class RP1210Bus implements Bus {
                              Arrays.copyOfRange(data, 11, length));
     }
 
-    @Override
-    public Stream<Packet> duplicate(Stream<Packet> stream, int time, TimeUnit unit) {
-        return queue.duplicate(stream, time, unit);
-    }
-
     /**
      * Transforms the given {@link Packet} into a byte array so it can be sent
      * to the vehicle bus
@@ -227,19 +274,6 @@ public class RP1210Bus implements Bus {
             buf[6 + i] = (byte) packet.get(i);
         }
         return buf;
-    }
-
-    @Override
-    public int getAddress() {
-        return address;
-    }
-
-    @Override
-    public int getConnectionSpeed() throws BusException {
-        byte[] bytes = new byte[17];
-        sendCommand(CMD_GET_PROTOCOL_CONNECTION_SPEED, bytes);
-        String result = new String(bytes, StandardCharsets.UTF_8).trim();
-        return Integer.parseInt(result);
     }
 
     private Logger getLogger() {
@@ -274,43 +308,6 @@ public class RP1210Bus implements Bus {
             }
         } catch (BusException e) {
             getLogger().log(Level.SEVERE, "Failed to read RP1210", e);
-        }
-    }
-
-    @Override
-    public Stream<Packet> read(long timeout, TimeUnit unit) throws BusException {
-        return queue.stream(timeout, unit);
-    }
-
-    /**
-     * Reset stream timeout for stream created with bus.read(). To be used in a
-     * stream call like peek, map or forEach.
-     */
-    @Override
-    public void resetTimeout(Stream<Packet> stream, int time, TimeUnit unit) {
-        queue.resetTimeout(stream, time, unit);
-    }
-
-    @Override
-    public Packet send(Packet tx) throws BusException {
-        byte[] data = encode(tx);
-        try (Stream<Packet> stream = read(1000, TimeUnit.MILLISECONDS)) {
-            // rp1210 libraries may not be thread safe
-            short rtn = exec.submit(() -> rp1210Library.RP1210_SendMessage(clientId,
-                                                                           data,
-                                                                           (short) data.length,
-                                                                           NOTIFICATION_NONE,
-                                                                           BLOCKING_NONE))
-                            .get();
-            verify(rtn);
-            final int id = tx.getId(0xFFFF);
-            final int source = tx.getSource();
-            return stream
-                         .filter(rx -> rx.isTransmitted() && id == rx.getId(0xFFFF) && rx.getSource() == source)
-                         .findFirst()
-                         .orElseThrow(() -> new BusException("Failed to send: " + tx));
-        } catch (Throwable e) {
-            throw e instanceof BusException ? (BusException) e : new BusException("Failed to send: " + tx, e);
         }
     }
 

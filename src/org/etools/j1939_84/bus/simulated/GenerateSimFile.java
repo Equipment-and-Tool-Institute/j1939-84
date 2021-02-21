@@ -27,22 +27,6 @@ import com.google.gson.JsonArray;
 import com.google.gson.JsonObject;
 
 public class GenerateSimFile {
-    static class PacketDescriptor {
-        static public PacketDescriptor sum(PacketDescriptor a, PacketDescriptor b) {
-            return new PacketDescriptor(a.count + b.count, Math.min(a.min, b.min), Math.max(a.max, b.max));
-        }
-
-        final int count;
-
-        final long min, max;
-
-        public PacketDescriptor(int c, long min, long max) {
-            count = c;
-            this.min = min;
-            this.max = max;
-        }
-    }
-
     final static private List<Integer> pgns = Arrays.asList(
                                                             61444,
                                                             65248,
@@ -216,6 +200,21 @@ public class GenerateSimFile {
             for (int pgn : pgns) {
                 System.out.format("%8d %04X%n", pgn, pgn);
             }
+        }
+    }
+
+    static class PacketDescriptor {
+        final int count;
+        final long min, max;
+
+        public PacketDescriptor(int c, long min, long max) {
+            count = c;
+            this.min = min;
+            this.max = max;
+        }
+
+        static public PacketDescriptor sum(PacketDescriptor a, PacketDescriptor b) {
+            return new PacketDescriptor(a.count + b.count, Math.min(a.min, b.min), Math.max(a.max, b.max));
         }
     }
 }

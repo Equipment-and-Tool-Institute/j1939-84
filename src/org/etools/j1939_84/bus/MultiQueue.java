@@ -24,93 +24,8 @@ import java.util.stream.StreamSupport;
  */
 public class MultiQueue<T> implements AutoCloseable {
 
-    static private class Item<T> {
-        MultiQueue.Item<T> next;
-        final T value;
-
-        Item(T v) {
-            value = v;
-        }
-
-        synchronized MultiQueue.Item<T> add(T v) {
-            next = new MultiQueue.Item<>(v);
-            notifyAll();
-            return next;
-        }
-
-        synchronized MultiQueue.Item<T> next(long delay) {
-            if (next == null) {
-                try {
-                    wait(delay);
-                } catch (InterruptedException e) {
-                    // no problem
-                }
-            }
-            return next;
-        }
-    }
-
-    private final static class SpliteratorImplementation<T> implements Spliterator<T> {
-        // how often to check for new items
-        private static final int POLLING_PERIOD = 2;
-        // end time of stream
-        private long end;
-        // reference to tail
-        private Item<T> item;
-
-        private SpliteratorImplementation(Item<T> list, long timeout, TimeUnit unit) {
-            item = list;
-            setTimeout(timeout, unit);
-        }
-
-        public SpliteratorImplementation(MultiQueue.SpliteratorImplementation<T> that) {
-            this.item = that.item;
-            this.end = that.end;
-        }
-
-        @Override
-        public int characteristics() {
-            return IMMUTABLE | ORDERED;
-        }
-
-        @Override
-        public long estimateSize() {
-            return Long.MAX_VALUE;
-        }
-
-        public void setTimeout(long timeout, TimeUnit unit) {
-            end = System.currentTimeMillis() + unit.toMillis(timeout);
-        }
-
-        @Override
-        public boolean tryAdvance(Consumer<? super T> action) {
-            /*
-             * While not timed out, wait up to POLLING_PERIOD ms for next packet, then loop.
-             * This allows us to check for timeout and next packet in same thread.
-             */
-            while (System.currentTimeMillis() < end) {
-                Item<T> n = item.next(POLLING_PERIOD);
-                if (n != null) {
-                    item = n;
-                    action.accept(n.value);
-                    return true;
-                }
-            }
-            // lose reference to tail, to allow for faster cleanup
-            item = null;
-            return false;
-        }
-
-        @Override
-        public Spliterator<T> trySplit() {
-            // Do not split.
-            return null;
-        }
-    }
-
-    private MultiQueue.Item<T> list = new MultiQueue.Item<>(null);
-
     private final WeakHashMap<Stream<T>, SpliteratorImplementation<T>> spliterators = new WeakHashMap<>();
+    private MultiQueue.Item<T> list = new MultiQueue.Item<>(null);
 
     synchronized public void add(T v) {
         list = list.add(v);
@@ -177,5 +92,89 @@ public class MultiQueue<T> implements AutoCloseable {
         spliterators.put(stream, spliterator);
         stream.onClose(() -> spliterator.end = 0);
         return stream;
+    }
+
+    static private class Item<T> {
+        final T value;
+        MultiQueue.Item<T> next;
+
+        Item(T v) {
+            value = v;
+        }
+
+        synchronized MultiQueue.Item<T> add(T v) {
+            next = new MultiQueue.Item<>(v);
+            notifyAll();
+            return next;
+        }
+
+        synchronized MultiQueue.Item<T> next(long delay) {
+            if (next == null) {
+                try {
+                    wait(delay);
+                } catch (InterruptedException e) {
+                    // no problem
+                }
+            }
+            return next;
+        }
+    }
+
+    private final static class SpliteratorImplementation<T> implements Spliterator<T> {
+        // how often to check for new items
+        private static final int POLLING_PERIOD = 2;
+        // end time of stream
+        private long end;
+        // reference to tail
+        private Item<T> item;
+
+        private SpliteratorImplementation(Item<T> list, long timeout, TimeUnit unit) {
+            item = list;
+            setTimeout(timeout, unit);
+        }
+
+        public SpliteratorImplementation(MultiQueue.SpliteratorImplementation<T> that) {
+            this.item = that.item;
+            this.end = that.end;
+        }
+
+        public void setTimeout(long timeout, TimeUnit unit) {
+            end = System.currentTimeMillis() + unit.toMillis(timeout);
+        }
+
+        @Override
+        public boolean tryAdvance(Consumer<? super T> action) {
+            /*
+             * While not timed out, wait up to POLLING_PERIOD ms for next packet, then loop.
+             * This allows us to check for timeout and next packet in same thread.
+             */
+            while (System.currentTimeMillis() < end) {
+                Item<T> n = item.next(POLLING_PERIOD);
+                if (n != null) {
+                    item = n;
+                    action.accept(n.value);
+                    return true;
+                }
+            }
+            // lose reference to tail, to allow for faster cleanup
+            item = null;
+            return false;
+        }
+
+        @Override
+        public Spliterator<T> trySplit() {
+            // Do not split.
+            return null;
+        }
+
+        @Override
+        public long estimateSize() {
+            return Long.MAX_VALUE;
+        }
+
+        @Override
+        public int characteristics() {
+            return IMMUTABLE | ORDERED;
+        }
     }
 }

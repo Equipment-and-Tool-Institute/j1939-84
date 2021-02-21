@@ -26,6 +26,12 @@ import org.etools.j1939_84.model.FuelType;
  */
 public class TableA6Validator {
 
+    private final DataRepository dataRepository;
+
+    public TableA6Validator(DataRepository dataRepository) {
+        this.dataRepository = dataRepository;
+    }
+
     private static Collection<MonitoredSystemStatus> findStatus(boolean isSupported, boolean isComplete) {
         List<MonitoredSystemStatus> statuses = new ArrayList<>();
         statuses.add(MonitoredSystemStatus.findStatus(false, isSupported, isComplete));
@@ -52,12 +58,6 @@ public class TableA6Validator {
             passed = false;
         }
         return passed;
-    }
-
-    private final DataRepository dataRepository;
-
-    public TableA6Validator(DataRepository dataRepository) {
-        this.dataRepository = dataRepository;
     }
 
     private void addWarning(MonitoredSystem system,

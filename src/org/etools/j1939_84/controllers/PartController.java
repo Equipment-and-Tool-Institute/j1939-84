@@ -43,6 +43,11 @@ public abstract class PartController extends Controller {
     }
 
     @Override
+    public String getDisplayName() {
+        return "Part " + partNumber + " Test";
+    }
+
+    @Override
     protected void run() throws Throwable {
         List<StepController> stepControllers = getStepControllers();
         int totalSteps = stepControllers.stream()
@@ -76,11 +81,6 @@ public abstract class PartController extends Controller {
         getListener().onResult("End " + partResult);
         getListener().onResult("");
         getListener().endPart(partResult);
-    }
-
-    @Override
-    public String getDisplayName() {
-        return "Part " + partNumber + " Test";
     }
 
     protected PartResult getPartResult() {

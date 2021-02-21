@@ -38,10 +38,6 @@ import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
 
 public class SectionA5Verifier {
-    private static boolean isInvalid(int value) {
-        return (value != 0xFFFF && value != 0xFB00 && value != 0x0000);
-    }
-
     private final DataRepository dataRepository;
     private final DiagnosticMessageModule diagnosticMessageModule;
     private final VehicleInformationModule vehicleInformationModule;
@@ -66,6 +62,10 @@ public class SectionA5Verifier {
         this.vehicleInformationModule = vehicleInformationModule;
         this.partNumber = partNumber;
         this.stepNumber = stepNumber;
+    }
+
+    private static boolean isInvalid(int value) {
+        return (value != 0xFFFF && value != 0xFB00 && value != 0x0000);
     }
 
     public void setJ1939(J1939 j1939) {

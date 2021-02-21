@@ -79,6 +79,17 @@ public class Part04Step07ControllerTest extends AbstractControllerTest {
 
     private StepController instance;
 
+    private static DM31DtcToLampAssociation createDM31(int sourceAddress, int spn, int fmi, LampStatus milStatus) {
+        var dtc = DiagnosticTroubleCode.create(spn, fmi, 0, 5);
+        var lampStatus = DTCLampStatus.create(dtc, OFF, milStatus, OFF, OFF);
+        return DM31DtcToLampAssociation.create(sourceAddress, lampStatus);
+    }
+
+    private static DM12MILOnEmissionDTCPacket createDM12(int sourceAddress, int spn, int fmi, LampStatus milStatus) {
+        var dtc = DiagnosticTroubleCode.create(spn, fmi, 0, 5);
+        return DM12MILOnEmissionDTCPacket.create(sourceAddress, milStatus, OFF, OFF, OFF, dtc);
+    }
+
     @Before
     public void setUp() throws Exception {
         dataRepository = DataRepository.newInstance();
@@ -227,19 +238,6 @@ public class Part04Step07ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.4.7.2.b - OBD module Engine #1 (0) did not provide a NACK for the DS query");
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private static DM31DtcToLampAssociation createDM31(int sourceAddress, int spn, int fmi, LampStatus milStatus) {
-        var dtc = DiagnosticTroubleCode.create(spn, fmi, 0, 5);
-        var lampStatus = DTCLampStatus.create(dtc, OFF, milStatus, OFF, OFF);
-        return DM31DtcToLampAssociation.create(sourceAddress, lampStatus);
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private static DM12MILOnEmissionDTCPacket createDM12(int sourceAddress, int spn, int fmi, LampStatus milStatus) {
-        var dtc = DiagnosticTroubleCode.create(spn, fmi, 0, 5);
-        return DM12MILOnEmissionDTCPacket.create(sourceAddress, milStatus, OFF, OFF, OFF, dtc);
     }
 
 }

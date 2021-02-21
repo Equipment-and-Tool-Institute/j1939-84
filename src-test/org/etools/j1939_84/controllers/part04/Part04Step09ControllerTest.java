@@ -80,6 +80,16 @@ public class Part04Step09ControllerTest extends AbstractControllerTest {
 
     private StepController instance;
 
+    private static DM27AllPendingDTCsPacket createDM27(int sourceAddress, int spn, int fmi, LampStatus milStatus) {
+        var dtc = DiagnosticTroubleCode.create(spn, fmi, 0, 5);
+        return DM27AllPendingDTCsPacket.create(sourceAddress, milStatus, OFF, OFF, OFF, dtc);
+    }
+
+    private static DM12MILOnEmissionDTCPacket createDM12(int sourceAddress, int spn, int fmi, LampStatus milStatus) {
+        var dtc = DiagnosticTroubleCode.create(spn, fmi, 0, 5);
+        return DM12MILOnEmissionDTCPacket.create(sourceAddress, milStatus, OFF, OFF, OFF, dtc);
+    }
+
     @Before
     public void setUp() throws Exception {
         dataRepository = DataRepository.newInstance();
@@ -273,17 +283,5 @@ public class Part04Step09ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.4.9.4.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private static DM27AllPendingDTCsPacket createDM27(int sourceAddress, int spn, int fmi, LampStatus milStatus) {
-        var dtc = DiagnosticTroubleCode.create(spn, fmi, 0, 5);
-        return DM27AllPendingDTCsPacket.create(sourceAddress, milStatus, OFF, OFF, OFF, dtc);
-    }
-
-    @SuppressWarnings("SameParameterValue")
-    private static DM12MILOnEmissionDTCPacket createDM12(int sourceAddress, int spn, int fmi, LampStatus milStatus) {
-        var dtc = DiagnosticTroubleCode.create(spn, fmi, 0, 5);
-        return DM12MILOnEmissionDTCPacket.create(sourceAddress, milStatus, OFF, OFF, OFF, dtc);
     }
 }

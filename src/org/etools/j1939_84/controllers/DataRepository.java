@@ -19,6 +19,16 @@ import org.etools.j1939_84.model.VehicleInformation;
 public class DataRepository {
 
     private static DataRepository instance = new DataRepository();
+    /**
+     * Map of OBD Module Source Address to {@link OBDModuleInformation}
+     */
+    private final Map<Integer, OBDModuleInformation> obdModules = new HashMap<>();
+    private boolean isAfterCodeClear;
+    private double koeoEngineReferenceTorque;
+    private VehicleInformation vehicleInformation;
+
+    private DataRepository() {
+    }
 
     public static void clearInstance() {
         instance = null;
@@ -37,22 +47,12 @@ public class DataRepository {
         return getInstance();
     }
 
-    private boolean isAfterCodeClear;
-
-    private double koeoEngineReferenceTorque;
-
-    /**
-     * Map of OBD Module Source Address to {@link OBDModuleInformation}
-     */
-    private final Map<Integer, OBDModuleInformation> obdModules = new HashMap<>();
-
-    private VehicleInformation vehicleInformation;
-
-    private DataRepository() {
-    }
-
     public double getKoeoEngineReferenceTorque() {
         return koeoEngineReferenceTorque;
+    }
+
+    public void setKoeoEngineReferenceTorque(double koeoEngineReferenceTorque) {
+        this.koeoEngineReferenceTorque = koeoEngineReferenceTorque;
     }
 
     public int getFunctionZeroAddress() {
@@ -84,6 +84,10 @@ public class DataRepository {
         return Optional.ofNullable(vehicleInformation).map(VehicleInformation::clone).orElse(null);
     }
 
+    public void setVehicleInformation(VehicleInformation vehicleInformation) {
+        this.vehicleInformation = vehicleInformation;
+    }
+
     /**
      * Flag tracking DM11 code clear was sent {@link DM11ClearActiveDTCsPacket}
      */
@@ -101,13 +105,5 @@ public class DataRepository {
 
     public void setIsAfterCodeClear(boolean isAfterCodeClear) {
         this.isAfterCodeClear = isAfterCodeClear;
-    }
-
-    public void setKoeoEngineReferenceTorque(double koeoEngineReferenceTorque) {
-        this.koeoEngineReferenceTorque = koeoEngineReferenceTorque;
-    }
-
-    public void setVehicleInformation(VehicleInformation vehicleInformation) {
-        this.vehicleInformation = vehicleInformation;
     }
 }

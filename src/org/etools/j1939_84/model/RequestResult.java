@@ -22,18 +22,8 @@ import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
  */
 public class RequestResult<T extends ParsedPacket> {
 
-    public static <S extends ParsedPacket> RequestResult<S> empty() {
-        return empty(true);
-    }
-
-    public static <S extends ParsedPacket> RequestResult<S> empty(boolean retry) {
-        return new RequestResult<>(retry, Collections.emptyList());
-    }
-
     private final List<AcknowledgmentPacket> acks;
-
     private final List<T> packets;
-
     private final boolean retryUsed;
 
     public RequestResult(boolean retryUsed,
@@ -69,20 +59,12 @@ public class RequestResult<T extends ParsedPacket> {
         this.acks = Arrays.asList(packets);
     }
 
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
+    public static <S extends ParsedPacket> RequestResult<S> empty() {
+        return empty(true);
+    }
 
-        if (!(obj instanceof RequestResult)) {
-            return false;
-        }
-
-        RequestResult<?> that = (RequestResult<?>) obj;
-        return this.isRetryUsed() == that.isRetryUsed()
-                && Objects.equals(this.getPackets(), that.getPackets())
-                && Objects.equals(this.getAcks(), that.getAcks());
+    public static <S extends ParsedPacket> RequestResult<S> empty(boolean retry) {
+        return new RequestResult<>(retry, Collections.emptyList());
     }
 
     public List<AcknowledgmentPacket> getAcks() {
@@ -108,21 +90,20 @@ public class RequestResult<T extends ParsedPacket> {
         return Objects.hash(isRetryUsed(), getPackets(), getAcks());
     }
 
-    /**
-     * @return the retryUsed
-     */
-    public boolean isRetryUsed() {
-        return retryUsed;
-    }
-
-    public BusResult<T> busResult() {
-
-        List<Either<T, AcknowledgmentPacket>> either = getEither();
-        if (either.isEmpty()) {
-            return new BusResult<>(retryUsed);
-        } else {
-            return new BusResult<>(retryUsed, either.get(0));
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
         }
+
+        if (!(obj instanceof RequestResult)) {
+            return false;
+        }
+
+        RequestResult<?> that = (RequestResult<?>) obj;
+        return this.isRetryUsed() == that.isRetryUsed()
+                && Objects.equals(this.getPackets(), that.getPackets())
+                && Objects.equals(this.getAcks(), that.getAcks());
     }
 
     @Override
@@ -155,6 +136,23 @@ public class RequestResult<T extends ParsedPacket> {
         }
 
         return sb.toString();
+    }
+
+    /**
+     * @return the retryUsed
+     */
+    public boolean isRetryUsed() {
+        return retryUsed;
+    }
+
+    public BusResult<T> busResult() {
+
+        List<Either<T, AcknowledgmentPacket>> either = getEither();
+        if (either.isEmpty()) {
+            return new BusResult<>(retryUsed);
+        } else {
+            return new BusResult<>(retryUsed, either.get(0));
+        }
     }
 
 }

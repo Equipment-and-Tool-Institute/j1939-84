@@ -17,12 +17,7 @@ import org.etools.j1939_84.model.RequestResult;
  */
 public class BusResult<T extends ParsedPacket> {
 
-    public static <T extends ParsedPacket> BusResult<T> empty() {
-        return new BusResult<>(false);
-    }
-
     private final Optional<Either<T, AcknowledgmentPacket>> packet;
-
     private final boolean retryUsed;
 
     public BusResult(boolean retryUsed) {
@@ -61,6 +56,10 @@ public class BusResult<T extends ParsedPacket> {
                      : Optional.of(new Either<>(packet, null)));
     }
 
+    public static <T extends ParsedPacket> BusResult<T> empty() {
+        return new BusResult<>(false);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof BusResult) {
@@ -68,6 +67,11 @@ public class BusResult<T extends ParsedPacket> {
             return retryUsed == that.retryUsed && packet.equals(that.packet);
         }
         return false;
+    }
+
+    @Override
+    public String toString() {
+        return requestResult().toString();
     }
 
     /**
@@ -86,10 +90,5 @@ public class BusResult<T extends ParsedPacket> {
 
     public RequestResult<T> requestResult() {
         return new RequestResult<>(isRetryUsed(), getPacket().stream().collect(Collectors.toList()));
-    }
-
-    @Override
-    public String toString() {
-        return requestResult().toString();
     }
 }

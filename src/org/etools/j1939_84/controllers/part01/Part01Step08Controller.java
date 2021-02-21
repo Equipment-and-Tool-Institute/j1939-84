@@ -62,6 +62,10 @@ public class Part01Step08Controller extends StepController {
               TOTAL_STEPS);
     }
 
+    private static String spnToString(List<Integer> spns) {
+        return spns.stream().map(i -> "" + i).sorted().collect(Collectors.joining(", "));
+    }
+
     /**
      * 6.1.8 DM20: Monitor Performance Ratio
      * <p>
@@ -146,9 +150,5 @@ public class Part01Step08Controller extends StepController {
         if (failure) {
             addFailure(msg);
         }
-    }
-
-    private static String spnToString(List<Integer> spns) {
-        return spns.stream().map(i -> "" + i).sorted().collect(Collectors.joining(", "));
     }
 }

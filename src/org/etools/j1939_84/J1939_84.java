@@ -21,27 +21,23 @@ import org.etools.j1939_84.ui.UserInterfaceView;
  */
 public class J1939_84 {
 
-    private static final Logger logger = Logger.getGlobal();
-
     /**
      * System independent New Line
      */
     public static final String NL = System.lineSeparator();
-
     /** Page break including text for editors that do not support page break. */
     public static final String PAGE_BREAK = " <<PAGE BREAK>> " + NL + "\f";
-
     /**
      * The name of the property that is set when the application is being used
      * in a testing mode
      */
     public static final String TESTING_PROPERTY_NAME = "TESTING";
-
     /**
      * The name of the property that is set when the application is being used
      * in a development mode
      */
     public static final String DEV_PROPERTY_NAME = "DEV";
+    private static final Logger logger = Logger.getGlobal();
 
     static {
         try {
@@ -78,6 +74,16 @@ public class J1939_84 {
     }
 
     /**
+     * Sets the System Property to indicate the system is under test
+     *
+     * @param testing
+     *                    - true to indicate the system is under test
+     */
+    public static void setTesting(boolean testing) {
+        System.setProperty(TESTING_PROPERTY_NAME, Boolean.toString(testing));
+    }
+
+    /**
      * Returns true if the application is running in dev
      * environment
      *
@@ -85,6 +91,16 @@ public class J1939_84 {
      */
     public static boolean isDevEnv() {
         return Boolean.getBoolean(DEV_PROPERTY_NAME);
+    }
+
+    /**
+     * Sets the System Property to indicate the system is under development
+     *
+     * @param isDevEnv
+     *                     - true to indicate the environment is under development
+     */
+    private static void setDevEnv(boolean isDevEnv) {
+        System.setProperty(DEV_PROPERTY_NAME, Boolean.toString(isDevEnv));
     }
 
     /**
@@ -123,25 +139,5 @@ public class J1939_84 {
                      .map(Boolean::parseBoolean)
                      .findFirst()
                      .orElse(false);
-    }
-
-    /**
-     * Sets the System Property to indicate the system is under development
-     *
-     * @param isDevEnv
-     *                     - true to indicate the environment is under development
-     */
-    private static void setDevEnv(boolean isDevEnv) {
-        System.setProperty(DEV_PROPERTY_NAME, Boolean.toString(isDevEnv));
-    }
-
-    /**
-     * Sets the System Property to indicate the system is under test
-     *
-     * @param testing
-     *                    - true to indicate the system is under test
-     */
-    public static void setTesting(boolean testing) {
-        System.setProperty(TESTING_PROPERTY_NAME, Boolean.toString(testing));
     }
 }

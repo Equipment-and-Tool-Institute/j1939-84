@@ -16,6 +16,12 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  */
 public class DM21DiagnosticReadinessPacket extends GenericPacket {
 
+    public static final int PGN = 49408;
+
+    public DM21DiagnosticReadinessPacket(Packet packet) {
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+    }
+
     public static DM21DiagnosticReadinessPacket create(int source,
                                                        int kmWithMIL,
                                                        int kmSinceCodeClear,
@@ -26,12 +32,6 @@ public class DM21DiagnosticReadinessPacket extends GenericPacket {
                             toBytes(minutesWithMIL),
                             toBytes(minutesSinceCodeClear));
         return new DM21DiagnosticReadinessPacket(Packet.create(PGN, source, bytes));
-    }
-
-    public static final int PGN = 49408;
-
-    public DM21DiagnosticReadinessPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
     }
 
     private String getDistanceSinceDTCsClearedAsString() {
@@ -107,14 +107,6 @@ public class DM21DiagnosticReadinessPacket extends GenericPacket {
         return "DM21";
     }
 
-    private String getTimeSinceDTCsClearedAsString() {
-        return getValueWithUnits(getMinutesSinceDTCsCleared(), "minutes");
-    }
-
-    private String getTimeWithMILActiveAsString() {
-        return getValueWithUnits(getMinutesWhileMILIsActivated(), "minutes");
-    }
-
     @Override
     public String toString() {
         String result = getStringPrefix() + "[" + NL;
@@ -124,5 +116,13 @@ public class DM21DiagnosticReadinessPacket extends GenericPacket {
         result += "  Time Since DTCs Cleared:                      " + getTimeSinceDTCsClearedAsString() + NL;
         result += "]";
         return result;
+    }
+
+    private String getTimeSinceDTCsClearedAsString() {
+        return getValueWithUnits(getMinutesSinceDTCsCleared(), "minutes");
+    }
+
+    private String getTimeWithMILActiveAsString() {
+        return getValueWithUnits(getMinutesWhileMILIsActivated(), "minutes");
     }
 }

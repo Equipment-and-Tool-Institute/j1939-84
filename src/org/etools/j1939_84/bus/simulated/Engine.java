@@ -72,62 +72,10 @@ public class Engine implements AutoCloseable {
      * VIN can be any length up to 200 bytes, but should end with *
      */
     private static final byte[] VIN = "3HAMKSTN0FL575012*".getBytes(A_UTF8);
-
-    private static byte[] as2Bytes(int a) {
-        byte[] ret = new byte[4];
-        ret[0] = (byte) (a & 0xFF);
-        ret[1] = (byte) ((a >> 8) & 0xFF);
-        return ret;
-    }
-
-    private static byte[] as4Bytes(int a) {
-        byte[] ret = new byte[4];
-        ret[0] = (byte) (a & 0xFF);
-        ret[1] = (byte) ((a >> 8) & 0xFF);
-        ret[2] = (byte) ((a >> 16) & 0xFF);
-        ret[3] = (byte) ((a >> 24) & 0xFF);
-        return ret;
-    }
-
-    private static byte[] combine(byte[]... bytes) {
-        int length = 0;
-        for (byte[] b : bytes) {
-            length += b.length;
-        }
-        ByteBuffer bb = ByteBuffer.allocate(length);
-        for (byte[] data : bytes) {
-            bb.put(data);
-        }
-        return bb.array();
-    }
-
-    private static boolean isDM7For(int spn, Packet packet) {
-        boolean isId = packet.getPgn() == 0xE300;
-        if (!isId) {
-            return false;
-        }
-        boolean isTestId = packet.get(0) == 247;
-        boolean isFmi = (packet.get(3) & 0x1F) == 31;
-        int reqSpn = (((packet.get(3) & 0xE0) << 11) & 0xFF0000) | ((packet.get(2) << 8) & 0xFF00)
-                | (packet.get(1) & 0xFF);
-        boolean isSpn = spn == reqSpn;
-        return isTestId && isFmi && isSpn;
-    }
-
-    private static boolean isRequestFor(int pgn, int address, Packet packet) {
-        return (packet.getId(0xFFFF) == (0xEA00 | address) || packet.getId(0xFFFF) == 0xEAFF) && packet.get24(0) == pgn;
-    }
-
-    private static boolean isRequestFor(int pgn, Packet packet) {
-        return isRequestFor(pgn, ADDR, packet);
-    }
-
-    private boolean dtcsCleared = false;
-
     private final Boolean[] engineOn = { false };
     private final Boolean[] keyOn = { false };
-
     private final Sim sim;
+    private boolean dtcsCleared = false;
 
     public Engine(Bus bus) throws BusException {
         sim = new Sim(bus);
@@ -548,6 +496,55 @@ public class Engine implements AutoCloseable {
         // DM56 Engine Model Year
         sim.response(p -> isRequestFor(64711, p),
                      () -> Packet.create(64711, ADDR, ENGINE_MODEL_YEAR));
+    }
+
+    private static byte[] as2Bytes(int a) {
+        byte[] ret = new byte[4];
+        ret[0] = (byte) (a & 0xFF);
+        ret[1] = (byte) ((a >> 8) & 0xFF);
+        return ret;
+    }
+
+    private static byte[] as4Bytes(int a) {
+        byte[] ret = new byte[4];
+        ret[0] = (byte) (a & 0xFF);
+        ret[1] = (byte) ((a >> 8) & 0xFF);
+        ret[2] = (byte) ((a >> 16) & 0xFF);
+        ret[3] = (byte) ((a >> 24) & 0xFF);
+        return ret;
+    }
+
+    private static byte[] combine(byte[]... bytes) {
+        int length = 0;
+        for (byte[] b : bytes) {
+            length += b.length;
+        }
+        ByteBuffer bb = ByteBuffer.allocate(length);
+        for (byte[] data : bytes) {
+            bb.put(data);
+        }
+        return bb.array();
+    }
+
+    private static boolean isDM7For(int spn, Packet packet) {
+        boolean isId = packet.getPgn() == 0xE300;
+        if (!isId) {
+            return false;
+        }
+        boolean isTestId = packet.get(0) == 247;
+        boolean isFmi = (packet.get(3) & 0x1F) == 31;
+        int reqSpn = (((packet.get(3) & 0xE0) << 11) & 0xFF0000) | ((packet.get(2) << 8) & 0xFF00)
+                | (packet.get(1) & 0xFF);
+        boolean isSpn = spn == reqSpn;
+        return isTestId && isFmi && isSpn;
+    }
+
+    private static boolean isRequestFor(int pgn, int address, Packet packet) {
+        return (packet.getId(0xFFFF) == (0xEA00 | address) || packet.getId(0xFFFF) == 0xEAFF) && packet.get24(0) == pgn;
+    }
+
+    private static boolean isRequestFor(int pgn, Packet packet) {
+        return isRequestFor(pgn, ADDR, packet);
     }
 
     @Override

@@ -21,6 +21,10 @@ import java.util.concurrent.TimeUnit;
  */
 public class DateTimeModule {
     private static DateTimeModule instance = new DateTimeModule();
+    private DateTimeFormatter timeFormatter;
+
+    protected DateTimeModule() {
+    }
 
     public static DateTimeModule getInstance() {
         return instance;
@@ -29,11 +33,6 @@ public class DateTimeModule {
     /** Only used by tests. */
     public static void setInstance(DateTimeModule instance) {
         DateTimeModule.instance = instance == null ? new DateTimeModule() : instance;
-    }
-
-    private DateTimeFormatter timeFormatter;
-
-    protected DateTimeModule() {
     }
 
     /**

@@ -129,7 +129,7 @@ public class DM25ExpandedFreezeFrameTest {
         Packet packet = Packet.create(0x00, 0x00, realData);
         DM25ExpandedFreezeFrame instance = new DM25ExpandedFreezeFrame(packet);
 
-        final List<FreezeFrame> freezeFrames = instance.getFreezeFrames();
+        List<FreezeFrame> freezeFrames = instance.getFreezeFrames();
         assertEquals(1, freezeFrames.size());
         FreezeFrame actual = freezeFrames.get(0);
         assertEquals(157, actual.getDtc().getSuspectParameterNumber());
@@ -182,7 +182,7 @@ public class DM25ExpandedFreezeFrameTest {
         Packet packet = Packet.create(0x00, 0x00, realData);
         DM25ExpandedFreezeFrame instance = new DM25ExpandedFreezeFrame(packet);
 
-        final List<FreezeFrame> freezeFrames = instance.getFreezeFrames();
+        List<FreezeFrame> freezeFrames = instance.getFreezeFrames();
         assertEquals(2, freezeFrames.size());
         for (int i = 0; i < 2; i++) {
             FreezeFrame actual = freezeFrames.get(i);

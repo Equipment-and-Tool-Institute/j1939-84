@@ -11,11 +11,12 @@ import org.junit.Before;
 
 public class Part07ControllerTest extends AbstractPartControllerTest {
 
+    @Override
     @Before
     public void setUp() {
         DateTimeModule.setInstance(null);
 
-        this.partNumber = 7;
+        partNumber = 7;
         listener = new TestResultsListener(mockListener);
         instance = new Part07Controller(executor,
                                         bannerModule,

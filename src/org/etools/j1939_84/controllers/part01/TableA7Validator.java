@@ -22,36 +22,6 @@ import org.etools.j1939_84.model.Outcome;
  */
 public class TableA7Validator {
 
-    private class Row {
-
-        private static final int PART_NUMBER = 1;
-        private static final int STEP_NUMBER = 12;
-        private final Collection<ExpectedTestResult> expectedTestResults;
-        private final int minimumContains;
-        private final String monitorName;
-
-        public Row(String monitorName, int minimumContains, ExpectedTestResult... expectedTestResults) {
-            this.monitorName = monitorName;
-            this.minimumContains = minimumContains;
-            this.expectedTestResults = Arrays.asList(expectedTestResults);
-        }
-
-        public boolean validate(Collection<ScaledTestResult> actualTestResults, ResultsListener listener) {
-            boolean isValid = rowValidator.isValid(actualTestResults, expectedTestResults, minimumContains);
-            if (!isValid) {
-                listener.addOutcome(PART_NUMBER,
-                                    STEP_NUMBER,
-                                    Outcome.FAIL,
-                                    monitorName + " is missing required Test Result");
-            }
-            return isValid;
-        }
-    }
-
-    private static ExpectedTestResult etr(int spn, int fmi) {
-        return new ExpectedTestResult(spn, fmi);
-    }
-
     private final TableA7RowValidator rowValidator;
 
     public TableA7Validator() {
@@ -60,6 +30,10 @@ public class TableA7Validator {
 
     TableA7Validator(TableA7RowValidator rowValidator) {
         this.rowValidator = rowValidator;
+    }
+
+    private static ExpectedTestResult etr(int spn, int fmi) {
+        return new ExpectedTestResult(spn, fmi);
     }
 
     private Collection<Row> getCompressionIgnitionRows() {
@@ -177,5 +151,31 @@ public class TableA7Validator {
             }
         }
         return isValid;
+    }
+
+    private class Row {
+
+        private static final int PART_NUMBER = 1;
+        private static final int STEP_NUMBER = 12;
+        private final Collection<ExpectedTestResult> expectedTestResults;
+        private final int minimumContains;
+        private final String monitorName;
+
+        public Row(String monitorName, int minimumContains, ExpectedTestResult... expectedTestResults) {
+            this.monitorName = monitorName;
+            this.minimumContains = minimumContains;
+            this.expectedTestResults = Arrays.asList(expectedTestResults);
+        }
+
+        public boolean validate(Collection<ScaledTestResult> actualTestResults, ResultsListener listener) {
+            boolean isValid = rowValidator.isValid(actualTestResults, expectedTestResults, minimumContains);
+            if (!isValid) {
+                listener.addOutcome(PART_NUMBER,
+                                    STEP_NUMBER,
+                                    Outcome.FAIL,
+                                    monitorName + " is missing required Test Result");
+            }
+            return isValid;
+        }
     }
 }

@@ -86,7 +86,7 @@ public class Part01Step12ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    private OBDModuleInformation createOBDModuleInformation(SupportedSPN... testResultSpns) {
+    private static OBDModuleInformation createOBDModuleInformation(SupportedSPN... testResultSpns) {
         OBDModuleInformation module = new OBDModuleInformation(0);
         module.setSupportedSPNs(List.of(testResultSpns));
         return module;

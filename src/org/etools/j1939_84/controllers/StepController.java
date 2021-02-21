@@ -70,6 +70,46 @@ public abstract class StepController extends Controller {
         this.totalSteps = totalSteps;
     }
 
+    protected static <T extends GenericPacket> List<T> filterRequestResultPackets(List<RequestResult<T>> results) {
+        return results.stream().flatMap(r -> r.getPackets().stream()).collect(Collectors.toList());
+    }
+
+    protected static <T extends GenericPacket>
+              List<AcknowledgmentPacket>
+              filterRequestResultAcks(List<RequestResult<T>> results) {
+        return results.stream().flatMap(r -> r.getAcks().stream()).collect(Collectors.toList());
+    }
+
+    protected static <T extends GenericPacket> List<T> filterPackets(List<BusResult<T>> results) {
+        return results.stream()
+                      .map(BusResult::requestResult)
+                      .flatMap(r -> r.getPackets().stream())
+                      .collect(Collectors.toList());
+    }
+
+    protected static <T extends GenericPacket> List<AcknowledgmentPacket> filterAcks(List<BusResult<T>> results) {
+        return results.stream()
+                      .map(BusResult::getPacket)
+                      .filter(Optional::isPresent)
+                      .map(p -> p.get().right)
+                      .filter(Optional::isPresent)
+                      .map(Optional::get)
+                      .collect(Collectors.toList());
+    }
+
+    protected static String toString(List<DiagnosticTroubleCode> dtcs) {
+        return dtcs.stream()
+                   .map(d -> d.getSuspectParameterNumber() + ":" + d.getFailureModeIndicator())
+                   .sorted()
+                   .collect(Collectors.joining(","));
+    }
+
+    protected static boolean listContainsDTC(List<DiagnosticTroubleCode> dtcs, DiagnosticTroubleCode dtc) {
+        var dtcString = toString(List.of(dtc));
+        var listString = toString(dtcs);
+        return listString.contains(dtcString);
+    }
+
     /**
      * Ensures the Key is on with the Engine Off and prompts the user to make
      * the proper adjustments.
@@ -317,46 +357,6 @@ public abstract class StepController extends Controller {
                 break;
             }
         }
-    }
-
-    protected static <T extends GenericPacket> List<T> filterRequestResultPackets(List<RequestResult<T>> results) {
-        return results.stream().flatMap(r -> r.getPackets().stream()).collect(Collectors.toList());
-    }
-
-    protected static <T extends GenericPacket>
-              List<AcknowledgmentPacket>
-              filterRequestResultAcks(List<RequestResult<T>> results) {
-        return results.stream().flatMap(r -> r.getAcks().stream()).collect(Collectors.toList());
-    }
-
-    protected static <T extends GenericPacket> List<T> filterPackets(List<BusResult<T>> results) {
-        return results.stream()
-                      .map(BusResult::requestResult)
-                      .flatMap(r -> r.getPackets().stream())
-                      .collect(Collectors.toList());
-    }
-
-    protected static <T extends GenericPacket> List<AcknowledgmentPacket> filterAcks(List<BusResult<T>> results) {
-        return results.stream()
-                      .map(BusResult::getPacket)
-                      .filter(Optional::isPresent)
-                      .map(p -> p.get().right)
-                      .filter(Optional::isPresent)
-                      .map(Optional::get)
-                      .collect(Collectors.toList());
-    }
-
-    protected static String toString(List<DiagnosticTroubleCode> dtcs) {
-        return dtcs.stream()
-                   .map(d -> d.getSuspectParameterNumber() + ":" + d.getFailureModeIndicator())
-                   .sorted()
-                   .collect(Collectors.joining(","));
-    }
-
-    protected static boolean listContainsDTC(List<DiagnosticTroubleCode> dtcs, DiagnosticTroubleCode dtc) {
-        var dtcString = toString(List.of(dtc));
-        var listString = toString(dtcs);
-        return listString.contains(dtcString);
     }
 
 }

@@ -28,23 +28,14 @@ public class DM26TripDiagnosticReadinessPacket extends DiagnosticReadinessPacket
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) {
-            return true;
-        }
-
-        if (!(obj instanceof DM26TripDiagnosticReadinessPacket)) {
-            return false;
-        }
-
-        DM26TripDiagnosticReadinessPacket that = (DM26TripDiagnosticReadinessPacket) obj;
-        return getWarmUpsSinceClear() == that.getWarmUpsSinceClear()
-                && getTimeSinceEngineStart() == that.getTimeSinceEngineStart() && super.equals(obj);
+    public String getName() {
+        return "DM26";
     }
 
     @Override
-    public String getName() {
-        return "DM26";
+    public String toString() {
+        return getStringPrefix() + "Warm-ups: " + getValueWithUnits(getWarmUpsSinceClear(), null)
+                + ", Time Since Engine Start: " + getValueWithUnits(getTimeSinceEngineStart(), "seconds");
     }
 
     /**
@@ -72,9 +63,18 @@ public class DM26TripDiagnosticReadinessPacket extends DiagnosticReadinessPacket
     }
 
     @Override
-    public String toString() {
-        return getStringPrefix() + "Warm-ups: " + getValueWithUnits(getWarmUpsSinceClear(), null)
-                + ", Time Since Engine Start: " + getValueWithUnits(getTimeSinceEngineStart(), "seconds");
+    public boolean equals(Object obj) {
+        if (obj == this) {
+            return true;
+        }
+
+        if (!(obj instanceof DM26TripDiagnosticReadinessPacket)) {
+            return false;
+        }
+
+        DM26TripDiagnosticReadinessPacket that = (DM26TripDiagnosticReadinessPacket) obj;
+        return getWarmUpsSinceClear() == that.getWarmUpsSinceClear()
+                && getTimeSinceEngineStart() == that.getTimeSinceEngineStart() && super.equals(obj);
     }
 
 }

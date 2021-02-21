@@ -29,7 +29,6 @@ import org.junit.Test;
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
-@SuppressWarnings("SimplifiableAssertion")
 public class CompositeMonitoredSystemTest {
 
     @Test
@@ -41,7 +40,6 @@ public class CompositeMonitoredSystemTest {
         assertTrue(instance1.hashCode() == instance2.hashCode());
     }
 
-    @SuppressWarnings("EqualsWithItself")
     @Test
     public void testEqualsHashCodeSelf() {
         CompositeMonitoredSystem instance = new CompositeMonitoredSystem(COLD_START_AID_SYSTEM, false);

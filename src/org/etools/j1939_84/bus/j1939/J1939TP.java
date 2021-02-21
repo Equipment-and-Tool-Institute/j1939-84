@@ -25,44 +25,23 @@ import org.etools.j1939_84.bus.Packet.PacketException;
 
 public class J1939TP implements Bus {
 
-    static public class CtsBusException extends BusException {
-        private static final long serialVersionUID = 425016130552597972L;
-
-        public CtsBusException() {
-            super("CTS not received.");
-        }
-    }
-
-    static public class EomBusException extends BusException {
-        public EomBusException() {
-            super("EOM not received.");
-        }
-    }
-
     /** Constants from J1939-21 */
     final static public int CM = 0xEC00;
-
     final static public int CM_BAM = 0x20;
     final static public int CM_ConnAbort = 255;
-
     final static public int CM_CTS = 17;
-
     final static public int CM_EndOfMessageACK = 19;
-
     final static public int CM_RTS = 16;
     final static public int DT = 0xEB00;
-
-    static private final Logger logger = Logger.getLogger(J1939TP.class.getName());
     final static public int T1 = 750;
     final static public int T2 = 1250;
     final static public int T3 = 1250;
-
     final static public int T4 = 1050;
-
     final static public Map<Integer, String> table7;
     final static public int Th = 500;
     final static public int Tr = 200;
     final static public int TrPlus = 220;
+    static private final Logger logger = Logger.getLogger(J1939TP.class.getName());
 
     static {
         Map<Integer, String> err = new HashMap<>();
@@ -80,21 +59,8 @@ public class J1939TP implements Bus {
         table7 = Collections.unmodifiableMap(err);
     }
 
-    static private String getAbortError(int code) {
-        return table7.getOrDefault(code, "Unknown");
-    }
-
-    /** We do not care about interruptions. */
-    static private void sleep(int duration) {
-        try {
-            Thread.sleep(duration);
-        } catch (InterruptedException e) {
-        }
-    }
-
     /** bus representing CAN bus */
     private final Bus bus;
-
     /**
      * Support up to 255 concurrent TP sessions plus main kickoff thread, but we
      * only expect there to normally be 5, so shut down idle threads after 1 s.
@@ -104,22 +70,19 @@ public class J1939TP implements Bus {
                                                                 1L,
                                                                 TimeUnit.SECONDS,
                                                                 new LinkedBlockingQueue<Runnable>());
-
     /** Application side bus. */
     private final EchoBus inbound;
-    /** Optional j1939 used solely for counting warnings. */
-    private J1939 j1939;
-
     /**
      * map of active requests (pgn<<32)|addr -> callbacks that are called when
      * RTS is received.
      */
     private final Map<Long, Runnable> requestCBs = new WeakHashMap<>();
-
     /**
      * The inbound stream that RTS and BAM announcements will be detected on.
      */
     private final Stream<Packet> stream;
+    /** Optional j1939 used solely for counting warnings. */
+    private J1939 j1939;
 
     public J1939TP(Bus bus) throws BusException {
         this(bus, bus.getAddress());
@@ -131,6 +94,18 @@ public class J1939TP implements Bus {
         inbound = new EchoBus(address);
         // start processing
         exec.execute(() -> stream.forEach(p -> receive(p)));
+    }
+
+    static private String getAbortError(int code) {
+        return table7.getOrDefault(code, "Unknown");
+    }
+
+    /** We do not care about interruptions. */
+    static private void sleep(int duration) {
+        try {
+            Thread.sleep(duration);
+        } catch (InterruptedException e) {
+        }
     }
 
     @Override
@@ -149,18 +124,6 @@ public class J1939TP implements Bus {
         return inbound.duplicate(stream, time, unit);
     }
 
-    /** Record an error, which is more than just a warning. */
-    private void error(String msg, Throwable e) {
-        logger.log(Level.SEVERE, msg, e);
-    }
-
-    /** Used for debugging. */
-    private void fine(String str, Packet p) {
-        if (logger.isLoggable(Level.FINE)) {
-            logger.fine(str + ": " + p.toTimeString());
-        }
-    }
-
     @Override
     public int getAddress() {
         return inbound.getAddress();
@@ -174,6 +137,34 @@ public class J1939TP implements Bus {
     @Override
     public Stream<Packet> read(long timeout, TimeUnit unit) throws BusException {
         return inbound.read(timeout, unit);
+    }
+
+    @Override
+    public void resetTimeout(Stream<Packet> stream, int time, TimeUnit unit) {
+        bus.resetTimeout(stream, time, unit);
+    }
+
+    @Override
+    public Packet send(Packet packet) throws BusException {
+        if (packet.getLength() <= 8) {
+            return bus.send(packet);
+        } else if (packet.getPgn() >= 0xF000) {
+            return sendBam(packet);
+        } else {
+            return sendDestinationSpecific(packet);
+        }
+    }
+
+    /** Record an error, which is more than just a warning. */
+    private void error(String msg, Throwable e) {
+        logger.log(Level.SEVERE, msg, e);
+    }
+
+    /** Used for debugging. */
+    private void fine(String str, Packet p) {
+        if (logger.isLoggable(Level.FINE)) {
+            logger.fine(str + ": " + p.toTimeString());
+        }
     }
 
     private void receive(Packet packet) {
@@ -388,22 +379,6 @@ public class J1939TP implements Bus {
         }
     }
 
-    @Override
-    public void resetTimeout(Stream<Packet> stream, int time, TimeUnit unit) {
-        bus.resetTimeout(stream, time, unit);
-    }
-
-    @Override
-    public Packet send(Packet packet) throws BusException {
-        if (packet.getLength() <= 8) {
-            return bus.send(packet);
-        } else if (packet.getPgn() >= 0xF000) {
-            return sendBam(packet);
-        } else {
-            return sendDestinationSpecific(packet);
-        }
-    }
-
     private Packet sendBam(Packet packet) throws BusException {
         int pgn = packet.getPgn();
         int packetsToSend = packet.getLength() / 7 + 1;
@@ -533,5 +508,19 @@ public class J1939TP implements Bus {
             j1939.incrementWarning();
         }
         logger.warning(String.format(msg, a));
+    }
+
+    static public class CtsBusException extends BusException {
+        private static final long serialVersionUID = 425016130552597972L;
+
+        public CtsBusException() {
+            super("CTS not received.");
+        }
+    }
+
+    static public class EomBusException extends BusException {
+        public EomBusException() {
+            super("EOM not received.");
+        }
     }
 }

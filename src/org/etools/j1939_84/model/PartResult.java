@@ -24,10 +24,9 @@ public class PartResult implements IResult {
     private static final StepResultFactory stepResultFactory = new StepResultFactory();
 
     private final String name;
-    private Outcome outcome;
     private final int partNumber;
-
     private final Map<Integer, StepResult> stepResults = new HashMap<>();
+    private Outcome outcome;
 
     public PartResult(int partNumber, String name) {
 

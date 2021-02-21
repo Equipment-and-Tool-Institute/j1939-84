@@ -27,7 +27,7 @@ public class DM30ScaledTestResultsPacketTest {
     public void testWithOne() {
         ScaledTestResult testResult0 = ScaledTestResult.create(247, 3362, 31, 208, 951, 1000, 800);
         DM30ScaledTestResultsPacket instance = DM30ScaledTestResultsPacket.create(0, testResult0);
-        final List<ScaledTestResult> testResults = instance.getTestResults();
+        List<ScaledTestResult> testResults = instance.getTestResults();
         assertEquals(1, testResults.size());
         {
             ScaledTestResult testResult = testResults.get(0);
@@ -46,7 +46,7 @@ public class DM30ScaledTestResultsPacketTest {
                 0x00, 0x00, 0x00, 0x00, 0x00 };
         Packet packet = Packet.create(0, 0, data);
         DM30ScaledTestResultsPacket instance = new DM30ScaledTestResultsPacket(packet);
-        final List<ScaledTestResult> testResults = instance.getTestResults();
+        List<ScaledTestResult> testResults = instance.getTestResults();
         assertEquals(3, testResults.size());
         {
             ScaledTestResult testResult = testResults.get(0);

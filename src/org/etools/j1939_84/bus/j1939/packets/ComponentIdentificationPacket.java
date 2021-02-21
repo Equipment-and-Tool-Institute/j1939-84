@@ -19,23 +19,6 @@ import org.etools.j1939_84.model.ComponentIdentification;
 public class ComponentIdentificationPacket extends GenericPacket {
 
     public static final int PGN = 65259;
-
-    /*
-     * Helper method for unit testing purposes. Allows us to easily create
-     * a packet from the expected human readable data type. String are joined
-     * together to create a byte representation of the data values joined together
-     * with an '*" for parsing.
-     */
-    public static ComponentIdentificationPacket create(int sourceAddress,
-                                                       String make,
-                                                       String model,
-                                                       String serialNumber,
-                                                       String unitNumber) {
-
-        byte[] bytes = (make + "*" + model + "*" + serialNumber + "*" + unitNumber + "*").getBytes(UTF_8);
-        return new ComponentIdentificationPacket(Packet.create(PGN, sourceAddress, bytes));
-    }
-
     /**
      * Holds the different parts of the component identification:
      *
@@ -63,6 +46,22 @@ public class ComponentIdentificationPacket extends GenericPacket {
         }
     }
 
+    /*
+     * Helper method for unit testing purposes. Allows us to easily create
+     * a packet from the expected human readable data type. String are joined
+     * together to create a byte representation of the data values joined together
+     * with an '*" for parsing.
+     */
+    public static ComponentIdentificationPacket create(int sourceAddress,
+                                                       String make,
+                                                       String model,
+                                                       String serialNumber,
+                                                       String unitNumber) {
+
+        byte[] bytes = (make + "*" + model + "*" + serialNumber + "*" + unitNumber + "*").getBytes(UTF_8);
+        return new ComponentIdentificationPacket(Packet.create(PGN, sourceAddress, bytes));
+    }
+
     public String getMake() {
         return parts[0];
     }
@@ -74,18 +73,6 @@ public class ComponentIdentificationPacket extends GenericPacket {
     @Override
     public String getName() {
         return "Component Identification";
-    }
-
-    public String getSerialNumber() {
-        return stripLeadingAndTrailingNulls(parts[2]);
-    }
-
-    public String getUnitNumber() {
-        return parts[3];
-    }
-
-    public ComponentIdentification getComponentIdentification() {
-        return (new ComponentIdentification(this));
     }
 
     @Override
@@ -101,5 +88,17 @@ public class ComponentIdentificationPacket extends GenericPacket {
         result += "  Unit: " + (unitNumber == null ? "" : unitNumber.trim()) + NL;
         result += "}" + NL;
         return result;
+    }
+
+    public String getSerialNumber() {
+        return stripLeadingAndTrailingNulls(parts[2]);
+    }
+
+    public String getUnitNumber() {
+        return parts[3];
+    }
+
+    public ComponentIdentification getComponentIdentification() {
+        return (new ComponentIdentification(this));
     }
 }

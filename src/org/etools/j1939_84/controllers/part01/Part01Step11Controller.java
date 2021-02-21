@@ -59,6 +59,10 @@ public class Part01Step11Controller extends StepController {
               TOTAL_STEPS);
     }
 
+    private static boolean isNotZero(double value) {
+        return Double.valueOf(value).intValue() != 0;
+    }
+
     @Override
     protected void run() throws Throwable {
 
@@ -146,10 +150,6 @@ public class Part01Step11Controller extends StepController {
 
         // 6.1.11.4.f Fail if NACK not received from OBD ECUs that did not respond to global query.
         checkForNACKs(globalPackets, filterRequestResultAcks(dsResults), obdModuleAddresses, "6.1.11.4.f");
-    }
-
-    private static boolean isNotZero(double value) {
-        return Double.valueOf(value).intValue() != 0;
     }
 
 }

@@ -20,6 +20,11 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 public class DM30ScaledTestResultsPacket extends GenericPacket {
 
     public static final int PGN = 41984;
+    private List<ScaledTestResult> testResults;
+
+    public DM30ScaledTestResultsPacket(Packet packet) {
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+    }
 
     public static DM30ScaledTestResultsPacket create(int source, ScaledTestResult... testResults) {
 
@@ -31,15 +36,24 @@ public class DM30ScaledTestResultsPacket extends GenericPacket {
         return new DM30ScaledTestResultsPacket(Packet.create(PGN, source, data));
     }
 
-    private List<ScaledTestResult> testResults;
-
-    public DM30ScaledTestResultsPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
-    }
-
     @Override
     public String getName() {
         return "DM30";
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getStringPrefix());
+        boolean moreThanOne = getTestResults().size() > 1;
+        sb.append(moreThanOne ? "[" + NL : "");
+        for (ScaledTestResult testResult : getTestResults()) {
+            sb.append(moreThanOne ? "  " : "");
+            sb.append(testResult);
+            sb.append(moreThanOne ? NL : "");
+        }
+        sb.append(moreThanOne ? "]" : "");
+        return sb.toString();
     }
 
     @Override
@@ -66,21 +80,6 @@ public class DM30ScaledTestResultsPacket extends GenericPacket {
     private ScaledTestResult parseTestResult(int index) {
         final int[] data = getPacket().getData(index, index + 12);
         return new ScaledTestResult(data);
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getStringPrefix());
-        boolean moreThanOne = getTestResults().size() > 1;
-        sb.append(moreThanOne ? "[" + NL : "");
-        for (ScaledTestResult testResult : getTestResults()) {
-            sb.append(moreThanOne ? "  " : "");
-            sb.append(testResult);
-            sb.append(moreThanOne ? NL : "");
-        }
-        sb.append(moreThanOne ? "]" : "");
-        return sb.toString();
     }
 
 }

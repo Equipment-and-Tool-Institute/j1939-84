@@ -25,7 +25,7 @@ public class DM20MonitorPerformanceRatioPacketTest {
         DM20MonitorPerformanceRatioPacket instance = new DM20MonitorPerformanceRatioPacket(packet);
         assertEquals(42405, instance.getIgnitionCycles());
         assertEquals(23130, instance.getOBDConditionsCount());
-        final List<PerformanceRatio> ratios = instance.getRatios();
+        List<PerformanceRatio> ratios = instance.getRatios();
         assertEquals(1, ratios.size());
         {
             PerformanceRatio ratio = ratios.get(0);
@@ -61,7 +61,7 @@ public class DM20MonitorPerformanceRatioPacketTest {
 
         assertEquals(12, instance.getIgnitionCycles());
         assertEquals(1, instance.getOBDConditionsCount());
-        final List<PerformanceRatio> ratios = instance.getRatios();
+        List<PerformanceRatio> ratios = instance.getRatios();
         assertEquals(3, ratios.size());
         {
             PerformanceRatio ratio = ratios.get(0);

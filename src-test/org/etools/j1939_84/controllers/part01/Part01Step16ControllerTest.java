@@ -82,7 +82,7 @@ public class Part01Step16ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
-    private RequestResult<DM2PreviouslyActiveDTC> requestResult(DM2PreviouslyActiveDTC packet1) {
+    private static RequestResult<DM2PreviouslyActiveDTC> requestResult(DM2PreviouslyActiveDTC packet1) {
         return new RequestResult<>(false, List.of(new Either<>(packet1, null)));
     }
 

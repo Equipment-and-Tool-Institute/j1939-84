@@ -46,7 +46,6 @@ public class DiagnosticTroubleCodeTest {
         assertEquals(0, instance.getOccurrenceCount());
     }
 
-    @SuppressWarnings({ "SimplifiableAssertion", "EqualsBetweenInconvertibleTypes" })
     @Test
     public void testEquals() {
         int[] data = new int[] { 0x61, // conversion method

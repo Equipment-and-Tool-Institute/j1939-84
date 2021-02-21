@@ -44,6 +44,11 @@ public class VehicleIdentificationPacket extends GenericPacket {
         return NAME;
     }
 
+    @Override
+    public String toString() {
+        return getStringPrefix() + getVin();
+    }
+
     /**
      * Returns the Vehicle Identification Number
      *
@@ -55,10 +60,5 @@ public class VehicleIdentificationPacket extends GenericPacket {
             vin = parseField(getPacket().getBytes());
         }
         return vin;
-    }
-
-    @Override
-    public String toString() {
-        return getStringPrefix() + getVin();
     }
 }

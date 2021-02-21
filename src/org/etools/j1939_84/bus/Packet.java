@@ -24,21 +24,47 @@ import org.etools.j1939_84.modules.DateTimeModule;
  * @author Joe Batt (joe@soliddesign.net)
  */
 public class Packet {
-    static public class PacketException extends RuntimeException {
-
-        public PacketException(String string) {
-            super(string);
-        }
-
-    }
-
     // FIXME, eventually change to (RX)
     public static final String RX = "";
-
     /**
      * The indication that a packet was transmitted
      */
     public static final String TX = " (TX)";
+    private final int id;
+    private final int priority;
+    private final int source;
+    private final boolean transmitted;
+    private int[] data;
+    private List<Packet> fragments = Collections.emptyList();
+    private LocalDateTime timestamp;
+
+    /**
+     * Creates a Packet
+     *
+     * @param priority
+     *                        the priority of the packet
+     * @param id
+     *                        the ID of the packet
+     * @param source
+     *                        the source address of the packet
+     * @param transmitted
+     *                        indicates the packet was sent by the application
+     * @param data
+     *                        the data of the packet
+     */
+    private Packet(LocalDateTime timestamp, int priority, int id, int source, boolean transmitted, int... data) {
+        this.timestamp = timestamp;
+        this.priority = priority;
+        this.id = id;
+        this.source = source;
+        this.transmitted = transmitted;
+        this.data = data;
+        if (data != null) {
+            for (int i = 0; i < data.length; i++) {
+                data[i] &= 0xFF;
+            }
+        }
+    }
 
     public static Packet create(int id, int source, boolean transmitted, int... data) {
         return new Packet(LocalDateTime.now(), 6, id, source, transmitted, data);
@@ -174,62 +200,6 @@ public class Packet {
         return null;
     }
 
-    private int[] data;
-
-    private List<Packet> fragments = Collections.emptyList();
-
-    private final int id;
-
-    private final int priority;
-
-    private final int source;
-
-    private LocalDateTime timestamp;
-
-    private final boolean transmitted;
-
-    /**
-     * Creates a Packet
-     *
-     * @param priority
-     *                        the priority of the packet
-     * @param id
-     *                        the ID of the packet
-     * @param source
-     *                        the source address of the packet
-     * @param transmitted
-     *                        indicates the packet was sent by the application
-     * @param data
-     *                        the data of the packet
-     */
-    private Packet(LocalDateTime timestamp, int priority, int id, int source, boolean transmitted, int... data) {
-        this.timestamp = timestamp;
-        this.priority = priority;
-        this.id = id;
-        this.source = source;
-        this.transmitted = transmitted;
-        this.data = data;
-        if (data != null) {
-            for (int i = 0; i < data.length; i++) {
-                data[i] &= 0xFF;
-            }
-        }
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (!(obj instanceof Packet)) {
-            return false;
-        }
-        if (this == obj) {
-            return true;
-        }
-
-        Packet that = (Packet) obj;
-        return id == that.id && priority == that.priority && source == that.source && transmitted == that.transmitted
-                && Objects.deepEquals(getData(), that.getData());
-    }
-
     synchronized public void fail() {
         data = new int[0];
         notifyAll();
@@ -350,6 +320,17 @@ public class Packet {
         return data;
     }
 
+    synchronized public void setData(byte... data) {
+        if (isComplete()) {
+            throw new PacketException("Packet already initialized.");
+        }
+        this.data = new int[data.length];
+        for (int i = 0; i < data.length; i++) {
+            this.data[i] = (0xFF & data[i]);
+        }
+        notifyAll();
+    }
+
     /**
      * Returns the data from the beginIndex to the endIndex (inclusive).
      *
@@ -374,6 +355,10 @@ public class Packet {
 
     public List<Packet> getFragments() {
         return fragments;
+    }
+
+    public void setFragments(List<Packet> fragments) {
+        this.fragments = fragments;
     }
 
     /**
@@ -431,9 +416,39 @@ public class Packet {
         return timestamp;
     }
 
+    public void setTimestamp(LocalDateTime timestamp2) {
+        timestamp = timestamp2;
+    }
+
     @Override
     public int hashCode() {
         return Objects.hash(id, priority, source, transmitted, Arrays.hashCode(getData()));
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (!(obj instanceof Packet)) {
+            return false;
+        }
+        if (this == obj) {
+            return true;
+        }
+
+        Packet that = (Packet) obj;
+        return id == that.id && priority == that.priority && source == that.source && transmitted == that.transmitted
+                && Objects.deepEquals(getData(), that.getData());
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%06X%02X [%s] %s",
+                             priority << 18 | id,
+                             source,
+                             getLength(),
+                             Arrays.stream(getData())
+                                   .mapToObj(x -> String.format("%02X", x))
+                                   .collect(Collectors.joining(" "))
+                                     + (transmitted ? TX : RX));
     }
 
     public boolean isComplete() {
@@ -449,37 +464,6 @@ public class Packet {
         return transmitted;
     }
 
-    synchronized public void setData(byte... data) {
-        if (isComplete()) {
-            throw new PacketException("Packet already initialized.");
-        }
-        this.data = new int[data.length];
-        for (int i = 0; i < data.length; i++) {
-            this.data[i] = (0xFF & data[i]);
-        }
-        notifyAll();
-    }
-
-    public void setFragments(List<Packet> fragments) {
-        this.fragments = fragments;
-    }
-
-    public void setTimestamp(LocalDateTime timestamp2) {
-        timestamp = timestamp2;
-    }
-
-    @Override
-    public String toString() {
-        return String.format("%06X%02X [%s] %s",
-                             priority << 18 | id,
-                             source,
-                             getLength(),
-                             Arrays.stream(getData())
-                                   .mapToObj(x -> String.format("%02X", x))
-                                   .collect(Collectors.joining(" "))
-                                     + (transmitted ? TX : RX));
-    }
-
     /**
      * Creates the {@link String} of the Packet including the time received
      * formatted by the {@link DateTimeFormatter}. If the formatter is null, the
@@ -493,5 +477,13 @@ public class Packet {
                              .getTimeFormatter()
                              .format(timestamp)
                 + " " + toString();
+    }
+
+    static public class PacketException extends RuntimeException {
+
+        public PacketException(String string) {
+            super(string);
+        }
+
     }
 }

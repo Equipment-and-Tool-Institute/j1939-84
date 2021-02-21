@@ -43,7 +43,6 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-@SuppressWarnings("unchecked")
 @RunWith(MockitoJUnitRunner.class)
 public class RP1210BusTest {
 
@@ -124,7 +123,7 @@ public class RP1210BusTest {
                                               eq((short) 10))).thenReturn((short) -99);
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
-            final byte[] src = "Testing Failure".getBytes();
+            byte[] src = "Testing Failure".getBytes();
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
         });
@@ -158,7 +157,7 @@ public class RP1210BusTest {
                                                                                                    .thenReturn((short) 134);
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 134), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
-            final byte[] src = "Device Not Connected".getBytes();
+            byte[] src = "Device Not Connected".getBytes();
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
         });
@@ -189,7 +188,7 @@ public class RP1210BusTest {
                                               eq((short) 1))).thenReturn((short) -99);
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
-            final byte[] src = "Testing Failure".getBytes();
+            byte[] src = "Testing Failure".getBytes();
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
         });
@@ -241,7 +240,7 @@ public class RP1210BusTest {
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
-            final byte[] src = "Testing Failure".getBytes();
+            byte[] src = "Testing Failure".getBytes();
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
         });
@@ -297,13 +296,13 @@ public class RP1210BusTest {
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
-            final byte[] src = "Testing Failure".getBytes();
+            byte[] src = "Testing Failure".getBytes();
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
         });
         ArgumentCaptor<Callable<Short>> submitCaptor = ArgumentCaptor.forClass(Callable.class);
 
-        final RejectedExecutionException expectedCause = new RejectedExecutionException();
+        RejectedExecutionException expectedCause = new RejectedExecutionException();
         when(exec.submit(submitCaptor.capture())).thenThrow(expectedCause);
 
         try {
@@ -423,7 +422,7 @@ public class RP1210BusTest {
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
-            final byte[] src = "Testing Failure".getBytes();
+            byte[] src = "Testing Failure".getBytes();
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
         });
@@ -598,7 +597,7 @@ public class RP1210BusTest {
 
         when(rp1210Library.RP1210_GetErrorMsg(eq((short) 99), any())).thenAnswer(arg0 -> {
             byte[] dest = arg0.getArgument(1);
-            final byte[] src = "Testing Failure".getBytes();
+            byte[] src = "Testing Failure".getBytes();
             System.arraycopy(src, 0, dest, 0, src.length);
             return (short) 0;
         });
@@ -648,7 +647,7 @@ public class RP1210BusTest {
 
         ArgumentCaptor<Callable<Short>> submitCaptor = ArgumentCaptor.forClass(Callable.class);
 
-        final RejectedExecutionException expectedCause = new RejectedExecutionException();
+        RejectedExecutionException expectedCause = new RejectedExecutionException();
         when(exec.submit(submitCaptor.capture())).thenThrow(expectedCause);
 
         startInstance();

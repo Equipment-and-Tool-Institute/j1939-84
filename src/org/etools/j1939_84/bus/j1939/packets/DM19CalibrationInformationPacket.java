@@ -20,6 +20,98 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
  *
  */
 public class DM19CalibrationInformationPacket extends GenericPacket {
+    public static final int PGN = 54016;
+    private List<CalibrationInformation> info;
+
+    public DM19CalibrationInformationPacket(Packet packet) {
+        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
+    }
+
+    /**
+     * Returns the {@link CalibrationInformation} from the controller
+     *
+     * @return List of {@link CalibrationInformation}
+     */
+    public List<CalibrationInformation> getCalibrationInformation() {
+        if (info == null) {
+            info = parseAllInformation();
+        }
+        return info;
+    }
+
+    @Override
+    public String getName() {
+        return "DM19";
+    }
+
+    @Override
+    public String toString() {
+        final boolean moreThanOne = getCalibrationInformation().size() > 1;
+        StringBuilder sb = new StringBuilder();
+        sb.append(getStringPrefix());
+        sb.append(moreThanOne ? "[" + NL : "");
+        for (CalibrationInformation info : getCalibrationInformation()) {
+            sb.append(moreThanOne ? "  " : "");
+            sb.append(info.toString());
+            sb.append(moreThanOne ? NL : "");
+        }
+        sb.append(moreThanOne ? "]" : "");
+        return sb.toString();
+    }
+
+    @Override
+    public int hashCode() {
+        return getPacket().hashCode();
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (!(obj instanceof ParsedPacket)) {
+            return false;
+        }
+
+        ParsedPacket that = (ParsedPacket) obj;
+        return getPacket().equals(that.getPacket());
+    }
+
+    /**
+     * Parses all the data to return all the {@link CalibrationInformation} sent
+     *
+     * @return a List of {@link CalibrationInformation}
+     */
+    private List<CalibrationInformation> parseAllInformation() {
+        List<CalibrationInformation> result = new ArrayList<>();
+        final int length = getPacket().getLength();
+        for (int i = 0; i + 20 <= length; i = i + 20) {
+            CalibrationInformation info = parseInformation(i);
+            result.add(info);
+        }
+        return result;
+    }
+
+    /**
+     * Parses one calibration information from the packet
+     *
+     * @param  startingIndex
+     *                           the index of the data to start the parsing at
+     * @return               The parsed {@link CalibrationInformation}
+     */
+    private CalibrationInformation parseInformation(int startingIndex) {
+        String cvn = String.format("%08X", getPacket().get32(startingIndex) & 0xFFFFFFFFL);
+        byte[] bytes = getPacket().getBytes();
+        byte[] cvnBytes = Arrays.copyOfRange(bytes, startingIndex, startingIndex + 3);
+        byte[] idBytes = Arrays.copyOfRange(bytes, startingIndex + 4, startingIndex + 20);
+        String calId = format(idBytes);
+        if (!cvn.isEmpty()) {
+            cvn = "0x" + cvn;
+        }
+        return new CalibrationInformation(calId, cvn, idBytes, cvnBytes);
+    }
+
     /**
      * Contains the Calibration Identification and Calibration Verification
      * Number
@@ -39,23 +131,6 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
             calibrationVerificationNumber = cvn;
             this.rawCalId = Arrays.copyOf(rawCalId, rawCalId.length);
             this.rawCvn = Arrays.copyOf(rawCvn, rawCvn.length);
-        }
-
-        @Override
-        public boolean equals(Object obj) {
-            if (obj == this) {
-                return true;
-            }
-            if (!(obj instanceof CalibrationInformation)) {
-                return false;
-            }
-
-            CalibrationInformation that = (CalibrationInformation) obj;
-
-            return Objects.equals(getCalibrationIdentification(), that.getCalibrationIdentification())
-                    && Objects.equals(getCalibrationVerificationNumber(), that.getCalibrationVerificationNumber())
-                    && Arrays.equals(getRawCalId(), that.getRawCalId())
-                    && Arrays.equals(getRawCvn(), that.getRawCvn());
         }
 
         /**
@@ -93,102 +168,26 @@ public class DM19CalibrationInformationPacket extends GenericPacket {
         }
 
         @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof CalibrationInformation)) {
+                return false;
+            }
+
+            CalibrationInformation that = (CalibrationInformation) obj;
+
+            return Objects.equals(getCalibrationIdentification(), that.getCalibrationIdentification())
+                    && Objects.equals(getCalibrationVerificationNumber(), that.getCalibrationVerificationNumber())
+                    && Arrays.equals(getRawCalId(), that.getRawCalId())
+                    && Arrays.equals(getRawCvn(), that.getRawCvn());
+        }
+
+        @Override
         public String toString() {
             return "CAL ID of " + getCalibrationIdentification().trim()
                     + " and CVN of " + getCalibrationVerificationNumber();
         }
-    }
-
-    public static final int PGN = 54016;
-
-    private List<CalibrationInformation> info;
-
-    public DM19CalibrationInformationPacket(Packet packet) {
-        super(packet, new J1939DaRepository().findPgnDefinition(PGN));
-    }
-
-    @Override
-    public boolean equals(Object obj) {
-        if (this == obj) {
-            return true;
-        }
-
-        if (!(obj instanceof ParsedPacket)) {
-            return false;
-        }
-
-        ParsedPacket that = (ParsedPacket) obj;
-        return getPacket().equals(that.getPacket());
-    }
-
-    /**
-     * Returns the {@link CalibrationInformation} from the controller
-     *
-     * @return List of {@link CalibrationInformation}
-     */
-    public List<CalibrationInformation> getCalibrationInformation() {
-        if (info == null) {
-            info = parseAllInformation();
-        }
-        return info;
-    }
-
-    @Override
-    public String getName() {
-        return "DM19";
-    }
-
-    @Override
-    public int hashCode() {
-        return getPacket().hashCode();
-    }
-
-    /**
-     * Parses all the data to return all the {@link CalibrationInformation} sent
-     *
-     * @return a List of {@link CalibrationInformation}
-     */
-    private List<CalibrationInformation> parseAllInformation() {
-        List<CalibrationInformation> result = new ArrayList<>();
-        final int length = getPacket().getLength();
-        for (int i = 0; i + 20 <= length; i = i + 20) {
-            CalibrationInformation info = parseInformation(i);
-            result.add(info);
-        }
-        return result;
-    }
-
-    /**
-     * Parses one calibration information from the packet
-     *
-     * @param  startingIndex
-     *                           the index of the data to start the parsing at
-     * @return               The parsed {@link CalibrationInformation}
-     */
-    private CalibrationInformation parseInformation(int startingIndex) {
-        String cvn = String.format("%08X", getPacket().get32(startingIndex) & 0xFFFFFFFFL);
-        byte[] bytes = getPacket().getBytes();
-        byte[] cvnBytes = Arrays.copyOfRange(bytes, startingIndex, startingIndex + 3);
-        byte[] idBytes = Arrays.copyOfRange(bytes, startingIndex + 4, startingIndex + 20);
-        String calId = format(idBytes);
-        if (!cvn.isEmpty()) {
-            cvn = "0x" + cvn;
-        }
-        return new CalibrationInformation(calId, cvn, idBytes, cvnBytes);
-    }
-
-    @Override
-    public String toString() {
-        final boolean moreThanOne = getCalibrationInformation().size() > 1;
-        StringBuilder sb = new StringBuilder();
-        sb.append(getStringPrefix());
-        sb.append(moreThanOne ? "[" + NL : "");
-        for (CalibrationInformation info : getCalibrationInformation()) {
-            sb.append(moreThanOne ? "  " : "");
-            sb.append(info.toString());
-            sb.append(moreThanOne ? NL : "");
-        }
-        sb.append(moreThanOne ? "]" : "");
-        return sb.toString();
     }
 }

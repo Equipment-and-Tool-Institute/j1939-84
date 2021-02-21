@@ -40,7 +40,6 @@ public class MultiQueueTest {
         }
     }
 
-    @SuppressWarnings("OptionalGetWithoutIsPresent")
     @Test()
     @TestDoc(description = "Verifies that the streams generated from the MultiQueue can correctly support multiple items, findFirst(), skip() and an empty stream.")
     public void simpleTest() throws BusException {

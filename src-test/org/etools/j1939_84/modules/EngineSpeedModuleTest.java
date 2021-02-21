@@ -53,7 +53,7 @@ public class EngineSpeedModuleTest {
      *                   the engine speed in 1/8 RPMs
      * @return       an {@link EngineSpeedPacket}
      */
-    private EngineSpeedPacket getEngineSpeedPacket(int speed) {
+    private static EngineSpeedPacket getEngineSpeedPacket(int speed) {
         return new EngineSpeedPacket(Packet.create(PGN, 0x00, 0, 0, 0, speed & 0xFF, (speed >> 8) & 0xFF, 0, 0, 0));
     }
 

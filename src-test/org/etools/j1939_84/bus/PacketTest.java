@@ -20,7 +20,6 @@ import org.junit.Test;
  * @author Matt Gumbel (matt@soliddesign.net)
  *
  */
-@SuppressWarnings("ALL")
 public class PacketTest {
 
     @Before

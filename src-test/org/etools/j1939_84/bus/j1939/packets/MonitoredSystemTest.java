@@ -24,7 +24,6 @@ import org.junit.Test;
  *
  * @author Matt Gumbel (matt@soliddesign.net)
  */
-@SuppressWarnings("SimplifiableAssertion")
 public class MonitoredSystemTest {
 
     private static MonitoredSystemStatus getStatus(boolean b) {
@@ -41,7 +40,6 @@ public class MonitoredSystemTest {
         assertEquals(0, instance1.compareTo(instance2));
     }
 
-    @SuppressWarnings("EqualsWithItself")
     @Test
     public void testEqualsHashCodeSelf() {
         MonitoredSystem instance = new MonitoredSystem("Name", getStatus(true), 0, SECONDARY_AIR_SYSTEM, true);

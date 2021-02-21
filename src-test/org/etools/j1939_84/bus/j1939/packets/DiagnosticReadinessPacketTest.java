@@ -57,8 +57,14 @@ public abstract class DiagnosticReadinessPacketTest {
 
     public void testEqualsAndHashCodeSelf() {
         DiagnosticReadinessPacket instance = createInstance(
-                0x11, 0x22, 0x33, 0x00, 0x55, 0x66, 0x77,
-                0x88);
+                                                            0x11,
+                                                            0x22,
+                                                            0x33,
+                                                            0x00,
+                                                            0x55,
+                                                            0x66,
+                                                            0x77,
+                                                            0x88);
         assertTrue(instance.equals(instance));
         assertTrue(instance.hashCode() == instance.hashCode());
     }
@@ -156,16 +162,16 @@ public abstract class DiagnosticReadinessPacketTest {
     private void validateContinouslyMonitoredSystems(String name, int index, int value, MonitoredSystemStatus status) {
         DiagnosticReadinessPacket instance = createInstance(0, 0, 0, value, 0, 0, 0, 0);
 
-        final List<MonitoredSystem> systems = instance.getContinuouslyMonitoredSystems();
+        List<MonitoredSystem> systems = instance.getContinuouslyMonitoredSystems();
         assertEquals(3, systems.size());
 
-        final MonitoredSystem system = systems.get(index);
+        MonitoredSystem system = systems.get(index);
         assertEquals(name, system.getName());
         assertEquals(status, system.getStatus());
         assertEquals(instance.getSourceAddress(), system.getSourceAddress());
     }
 
-    private void validateNonContinouslyMonitoredSystem1(CompositeSystem system, final int sourceAddress) {
+    private void validateNonContinouslyMonitoredSystem1(CompositeSystem system, int sourceAddress) {
         validateNonContinouslyMonitoredSystems1(system, sourceAddress, 0x00, 0x00, findStatus(false, true));
         validateNonContinouslyMonitoredSystems1(system,
                                                 sourceAddress,
@@ -184,7 +190,7 @@ public abstract class DiagnosticReadinessPacketTest {
                                                 findStatus(true, false));
     }
 
-    private void validateNonContinouslyMonitoredSystem2(final CompositeSystem sys, final int sourceAddress) {
+    private void validateNonContinouslyMonitoredSystem2(CompositeSystem sys, int sourceAddress) {
         validateNonContinouslyMonitoredSystems2(sys.getName(), sourceAddress, 0x00, 0x00, findStatus(false, true));
         validateNonContinouslyMonitoredSystems2(sys.getName(),
                                                 sourceAddress,
@@ -210,10 +216,10 @@ public abstract class DiagnosticReadinessPacketTest {
                                                          MonitoredSystemStatus status) {
         DiagnosticReadinessPacket instance = createInstance(0, 0, 0, 0, lowerByte, 0, upperByte, 0);
 
-        final List<MonitoredSystem> monitoredSystems = instance.getNonContinuouslyMonitoredSystems();
+        List<MonitoredSystem> monitoredSystems = instance.getNonContinuouslyMonitoredSystems();
         assertEquals(13, monitoredSystems.size());
 
-        final MonitoredSystem monitoredSystem = monitoredSystems.get(sourceAddress);
+        MonitoredSystem monitoredSystem = monitoredSystems.get(sourceAddress);
         assertEquals(system.getName(), monitoredSystem.getName());
         assertEquals(status, monitoredSystem.getStatus());
     }
@@ -225,10 +231,10 @@ public abstract class DiagnosticReadinessPacketTest {
                                                          MonitoredSystemStatus status) {
         DiagnosticReadinessPacket instance = createInstance(0, 0, 0, 0, 0, lowerByte, 0, upperByte);
 
-        final List<MonitoredSystem> systems = instance.getNonContinuouslyMonitoredSystems();
+        List<MonitoredSystem> systems = instance.getNonContinuouslyMonitoredSystems();
         assertEquals(13, systems.size());
 
-        final MonitoredSystem system = systems.get(index);
+        MonitoredSystem system = systems.get(index);
         assertEquals(name, system.getName());
         assertEquals(status, system.getStatus());
         assertEquals(instance.getSourceAddress(), system.getSourceAddress());

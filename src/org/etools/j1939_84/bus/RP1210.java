@@ -33,22 +33,17 @@ public class RP1210 {
      */
     public static final short FAKE_DEV_ID = (short) -1;
     /**
-     * The {@link Adapter} that can be used for System Testing
-     */
-    private static final Adapter LOOP_BACK_ADAPTER = new Adapter("Loop Back Adapter", "Simulated", FAKE_DEV_ID);
-
-    /**
      * The device Id used to indicate the adapter should play a scripted
      * simulation.
      */
     public static final short SIM_DEV_ID = (short) -2;
-
     static final String WINDOWS_PATH = System.getenv("WINDIR");
-
-    private List<Adapter> adapters;
-
+    /**
+     * The {@link Adapter} that can be used for System Testing
+     */
+    private static final Adapter LOOP_BACK_ADAPTER = new Adapter("Loop Back Adapter", "Simulated", FAKE_DEV_ID);
     private final File base;
-
+    private List<Adapter> adapters;
     private AutoCloseable engine;
 
     /**

@@ -17,10 +17,10 @@ import java.util.List;
  */
 public class StepResult implements IResult {
     private final String name;
-    private Outcome outcome;
     private final int partNumber;
     private final List<ActionOutcome> results = new ArrayList<>();
     private final int stepNumber;
+    private Outcome outcome;
 
     public StepResult(int partNumber, int stepNumber, String name) {
         this.partNumber = partNumber;
