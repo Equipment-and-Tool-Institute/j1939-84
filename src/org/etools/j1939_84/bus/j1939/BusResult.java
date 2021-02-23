@@ -60,6 +60,14 @@ public class BusResult<T extends ParsedPacket> {
         return new BusResult<>(false);
     }
 
+    public static <T extends ParsedPacket> BusResult<T> of(T packet) {
+        return new BusResult<>(false, packet);
+    }
+
+    public static <T extends ParsedPacket> BusResult<T> of(AcknowledgmentPacket packet) {
+        return new BusResult<>(false, packet);
+    }
+
     @Override
     public boolean equals(Object o) {
         if (o instanceof BusResult) {
