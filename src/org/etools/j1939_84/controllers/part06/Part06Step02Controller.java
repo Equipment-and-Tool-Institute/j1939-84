@@ -3,11 +3,9 @@
  */
 package org.etools.j1939_84.controllers.part06;
 
-import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
-import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -57,8 +55,10 @@ public class Part06Step02Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.6.2.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1219)]).
-        List<DM5DiagnosticReadinessPacket> globalPackets = getDiagnosticMessageModule().requestDM5(getListener())
-                                                                                       .getPackets();
+        var globalPackets = getDiagnosticMessageModule().requestDM5(getListener()).getPackets();
+
+        // Save the DM5 response for each OBD ECU
+        globalPackets.stream().filter(p -> isObdModule(p.getSourceAddress())).forEach(this::save);
 
         // 6.6.2.2.a Fail if no OBD ECU reports a count of > 0 active DTCs.
         boolean noActiveDTCs = globalPackets.stream()
