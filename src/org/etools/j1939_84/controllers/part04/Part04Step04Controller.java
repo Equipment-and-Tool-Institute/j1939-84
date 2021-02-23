@@ -96,7 +96,7 @@ public class Part04Step04Controller extends StepController {
 
         // 6.4.4.4.b (if supported) Fail if NACK not received from OBD ECUs that did not respond to global query.
         List<AcknowledgmentPacket> dsAcks = filterAcks(dsResult);
-        checkForNACKs(globalPackets, dsAcks, obdAddresses, "6.4.4.4.b");
+        checkForNACKs(globalPackets, dsAcks, "6.4.4.4.b");
     }
 
 }

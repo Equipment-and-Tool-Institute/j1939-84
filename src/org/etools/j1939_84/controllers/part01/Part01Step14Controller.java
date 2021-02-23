@@ -182,7 +182,7 @@ public class Part01Step14Controller extends StepController {
             compareRequestPackets(globalResponse.getPackets(), destinationSpecificPackets, "6.1.14.5.a");
 
             // 6.1.14.5.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
-            checkForNACKs(globalResponse.getPackets(), dsAcks, obdModuleAddresses, "6.1.14.5.b");
+            checkForNACKs(globalResponse.getPackets(), dsAcks, "6.1.14.5.b");
 
         } else {
             // 6.1.14.2.f. Fail if no OBD ECU provides DM26.

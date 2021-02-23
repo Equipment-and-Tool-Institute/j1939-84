@@ -105,9 +105,7 @@ public class Part01Step11Controller extends StepController {
         }
 
         // 6.1.11.3.a. DS DM21 to each OBD ECU
-        List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
-
-        List<RequestResult<DM21DiagnosticReadinessPacket>> dsResults = obdModuleAddresses
+        List<RequestResult<DM21DiagnosticReadinessPacket>> dsResults = getDataRepository().getObdModuleAddresses()
                                                                                          .stream()
                                                                                          .map(addr -> getDiagnosticMessageModule().requestDM21(getListener(),
                                                                                                                                                addr)
@@ -149,7 +147,7 @@ public class Part01Step11Controller extends StepController {
         compareRequestPackets(globalPackets, dsPackets, "6.1.11.4.e");
 
         // 6.1.11.4.f Fail if NACK not received from OBD ECUs that did not respond to global query.
-        checkForNACKs(globalPackets, filterRequestResultAcks(dsResults), obdModuleAddresses, "6.1.11.4.f");
+        checkForNACKs(globalPackets, filterRequestResultAcks(dsResults), "6.1.11.4.f");
     }
 
 }

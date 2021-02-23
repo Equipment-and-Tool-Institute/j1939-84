@@ -90,7 +90,7 @@ public class Part03Step03Controller extends StepController {
 
         // 6.3.3.5.b Fail if NACK not received from OBD ECUs that did not respond to global query.
         List<AcknowledgmentPacket> dsAcks = filterRequestResultAcks(dsResults);
-        checkForNACKs(globalPackets, dsAcks, obdModuleAddresses, "6.3.3.5.b");
+        checkForNACKs(globalPackets, dsAcks, "6.3.3.5.b");
     }
 
     private void clearLastDm27(int obdAddress) {

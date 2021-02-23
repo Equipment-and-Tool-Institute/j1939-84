@@ -85,7 +85,7 @@ public class Part02Step13Controller extends StepController {
                  });
         // b. Fail if NACK not received from OBD ECUs that did not provide DM31.
         List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
-        checkForNACKs(dsPackets, ackPackets, obdModuleAddresses, "6.2.13.2.b");
+        checkForNACKs(dsPackets, ackPackets, "6.2.13.2.b");
     }
 
     private boolean isMilNotOffAndNotAltOff(DM31DtcToLampAssociation packet) {

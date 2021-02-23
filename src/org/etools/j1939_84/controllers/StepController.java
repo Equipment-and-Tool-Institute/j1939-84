@@ -18,7 +18,6 @@ import static org.etools.j1939_84.model.Outcome.WARN;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -251,9 +250,8 @@ public abstract class StepController extends Controller {
 
     protected void checkForNACKs(List<? extends GenericPacket> globalPackets,
                                  List<? extends AcknowledgmentPacket> dsAcks,
-                                 Collection<Integer> obdModuleAddresses,
                                  String section) {
-        List<Integer> addresses = new ArrayList<>(obdModuleAddresses);
+        List<Integer> addresses = new ArrayList<>(getDataRepository().getObdModuleAddresses());
 
         globalPackets
                      .stream()

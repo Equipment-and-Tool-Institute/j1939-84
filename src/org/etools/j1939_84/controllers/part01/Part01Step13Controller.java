@@ -5,15 +5,17 @@ package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.modules.DiagnosticMessageModule.getCompositeSystems;
 
+import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
+import org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -104,7 +106,6 @@ public class Part01Step13Controller extends StepController {
 
         // 6.1.13.2.b. Fail if any OBD ECU reports previously active DTCs count not = 0.
         obdGlobalPackets.stream()
-                        .filter(p -> p.getActiveCodeCount() != (byte) 0xFF)
                         .filter(p -> p.getPreviouslyActiveCodeCount() != (byte) 0xFF
                                 && p.getPreviouslyActiveCodeCount() != 0)
                         .map(ParsedPacket::getModuleName)
@@ -112,13 +113,12 @@ public class Part01Step13Controller extends StepController {
                                 + " reported previously active DTC count not = 0"));
 
         // 6.1.13.2.c. Fail if no OBD ECU provides DM5 with readiness bits showing monitor support.
-        List<DM5DiagnosticReadinessPacket> dm5PacketsShowingMonitorSupport = obdGlobalPackets.stream()
-                                                                                             .filter(packet -> packet.getMonitoredSystems()
-                                                                                                                     .stream()
-                                                                                                                     .anyMatch(system -> system.getStatus()
-                                                                                                                                               .isEnabled()))
-                                                                                             .collect(Collectors.toList());
-        if (dm5PacketsShowingMonitorSupport.isEmpty()) {
+        boolean isEnabled = obdGlobalPackets.stream()
+                                            .map(DiagnosticReadinessPacket::getMonitoredSystems)
+                                            .flatMap(Collection::stream)
+                                            .map(MonitoredSystem::getStatus)
+                                            .anyMatch(MonitoredSystemStatus::isEnabled);
+        if (!isEnabled) {
             addFailure("6.1.13.2.c - No OBD ECU provided DM5 with readiness bits showing monitor support");
         }
 
@@ -129,18 +129,17 @@ public class Part01Step13Controller extends StepController {
 
         List<Integer> obdAddresses = getDataRepository().getObdModuleAddresses();
         // 6.1.13.3.a. DS DM5 to each OBD ECU.
-        List<BusResult<DM5DiagnosticReadinessPacket>> destinationSpecificPackets = obdAddresses
-                                                                                               .stream()
-                                                                                               .map(address -> getDiagnosticMessageModule().requestDM5(getListener(),
-                                                                                                                                                       address))
-                                                                                               .collect(Collectors.toList());
+        var dsPackets = obdAddresses
+                                    .stream()
+                                    .map(address -> getDiagnosticMessageModule().requestDM5(getListener(), address))
+                                    .collect(Collectors.toList());
 
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.
-        List<DM5DiagnosticReadinessPacket> dsDM5s = filterPackets(destinationSpecificPackets);
+        List<DM5DiagnosticReadinessPacket> dsDM5s = filterPackets(dsPackets);
         compareRequestPackets(obdGlobalPackets, dsDM5s, "6.1.13.4.a");
 
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.
-        List<AcknowledgmentPacket> dsAcks = filterAcks(destinationSpecificPackets);
-        checkForNACKs(obdGlobalPackets, dsAcks, getDataRepository().getObdModuleAddresses(), "6.1.13.4.b.");
+        List<AcknowledgmentPacket> dsAcks = filterAcks(dsPackets);
+        checkForNACKs(obdGlobalPackets, dsAcks, "6.1.13.4.b.");
     }
 }

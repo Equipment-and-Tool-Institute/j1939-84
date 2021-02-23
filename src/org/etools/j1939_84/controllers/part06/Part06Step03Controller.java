@@ -3,9 +3,14 @@
  */
 package org.etools.j1939_84.controllers.part06;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
+
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -55,9 +60,32 @@ public class Part06Step03Controller extends StepController {
     protected void run() throws Throwable {
 
         // 6.6.3.1.a DS DM12 [(send Request (PGN 59904) for PGN 65236 (SPNs 1213-1215, 3038, 1706))] to each OBD ECU.
-        // 6.6.3.2.a Fail if no ([OBD]) ECU reports an MIL-on active DTC.
-        // 6.6.3.2.b Fail if no ECU reports MIL on. See Section A.8 for allowed values.
-        // 6.6.3.2.c Fail if NACK not received from OBD ECUs that did not provide a DM12 message.
-    }
+        var dsResults = getDataRepository().getObdModuleAddresses()
+                                           .stream()
+                                           .map(address -> getDiagnosticMessageModule().requestDM12(getListener(),
+                                                                                                    address))
+                                           .collect(Collectors.toList());
+        List<DM12MILOnEmissionDTCPacket> dsPackets = filterPackets(dsResults);
 
+        // 6.6.3.2.a Fail if no ([OBD]) ECU reports an MIL-on active DTC.
+        boolean isMILOn = dsPackets.stream()
+                                   .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                                   .anyMatch(p -> p.getMalfunctionIndicatorLampStatus() == ON
+                                           && p.getDtcs().size() > 0);
+        if (!isMILOn) {
+            addFailure("6.6.3.2.a - No ECU reported an active DTC and MIL on");
+        }
+
+        // 6.6.3.2.b Fail if no ECU reports MIL on. See Section A.8 for allowed values.
+        boolean isMILOnAllEcu = dsPackets.stream()
+                                         .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                                         .anyMatch(p -> p.getMalfunctionIndicatorLampStatus() == ON
+                                                 && p.getDtcs().size() > 0);
+        if (!isMILOnAllEcu) {
+            addFailure("6.6.3.2.a - No ECU reported MIL on");
+        }
+
+        // 6.6.3.2.c Fail if NACK not received from OBD ECUs that did not provide a DM12 message.
+        checkForNACKs(dsPackets, filterAcks(dsResults), "6.6.3.2.b");
+    }
 }

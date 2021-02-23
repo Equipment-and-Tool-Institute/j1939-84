@@ -136,7 +136,6 @@ public class Part02Step04Controller extends StepController {
         // 6.2.4.4.b. Fail if NACK not received from OBD ECUs that did not respond to global query
         checkForNACKs(globalPackets,
                       filterAcks(dsResults),
-                      getDataRepository().getObdModuleAddresses(),
                       "6.2.4.4.b");
 
     }

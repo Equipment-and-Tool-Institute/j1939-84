@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -135,7 +136,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                                 .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any());
@@ -204,7 +205,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                                 .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any());
@@ -257,7 +258,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                                 .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any());
@@ -311,7 +312,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                                 .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any());
@@ -361,7 +362,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                                 .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any());
@@ -403,7 +404,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any(), eq(0));
@@ -451,7 +452,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any());
@@ -502,7 +503,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
                                                                 .thenReturn(new BusResult<>(false, packet3));
 
         runTest();
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any());
@@ -552,7 +553,7 @@ public class Part01Step11ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM21(any(), eq(0));
