@@ -3,9 +3,12 @@
  */
 package org.etools.j1939_84.controllers.part06;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -54,9 +57,38 @@ public class Part06Step02Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.6.2.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1219)]).
-        // 6.6.2.2.a Fail if no OBD ECU reports a count of > 0 active DTCs.
-        // 6.6.2.2.b Fail if any OBD ECU reports > 0 previously active DTC.
-        // 6.6.2.3.a Warn if any ECU reports a count of > 1 active DTC or previously active DTC.
-    }
+        List<DM5DiagnosticReadinessPacket> globalPackets = getDiagnosticMessageModule().requestDM5(getListener())
+                                                                                       .getPackets();
 
+        // 6.6.2.2.a Fail if no OBD ECU reports a count of > 0 active DTCs.
+        boolean noActiveDTCs = globalPackets.stream()
+                                            .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                                            .noneMatch(p -> (p.getActiveCodeCount() > 0));
+        if (noActiveDTCs) {
+            addFailure("6.6.2.2.a - No OBD ECU reported a count of > 0 active DTCs");
+        }
+
+        // 6.6.2.2.b Fail if any OBD ECU reports > 0 previously active DTC.
+        globalPackets.stream()
+                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                        .filter(p -> p.getPreviouslyActiveCodeCount() != (byte) 0xFF
+                                && p.getPreviouslyActiveCodeCount() > 0)
+                        .map(ParsedPacket::getModuleName)
+                        .forEach(moduleName -> addFailure("6.6.2.2.b - OBD ECU " + moduleName
+                                + " reported > 0 previously active DTC"));
+
+        // 6.6.2.3.a Warn if any ECU reports a count of > 1 active DTC or previously active DTC.
+        globalPackets.forEach(p -> {
+            if (p.getPreviouslyActiveCodeCount() != (byte) 0xFF &&
+                    p.getPreviouslyActiveCodeCount() > 1) {
+                addWarning("6.6.2.3.a - ECU module " + p.getModuleName()
+                        + " reported a count of > 1 for previously active DTCs");
+            }
+            if (p.getActiveCodeCount() != (byte) 0xFF &&
+                    p.getActiveCodeCount() > 1) {
+                addWarning("6.6.2.3.a - ECU module " + p.getModuleName()
+                        + " reported a count of > 1 active DTCs");
+            }
+        });
+    }
 }
