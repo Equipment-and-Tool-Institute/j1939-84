@@ -3,16 +3,26 @@
  */
 package org.etools.j1939_84.controllers.part06;
 
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +129,69 @@ public class Part06Step05ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.setIgnitionCycleCounterValue(3);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 5, 7);
+        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(new BusResult<>(false, dm20));
+
+        var nack = AcknowledgmentPacket.create(1, NACK);
+        when(diagnosticMessageModule.requestDM20(any(), eq(1))).thenReturn(new BusResult<>(false, nack));
 
         runTest();
 
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM20(any(), eq(1));
+
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testFailureForTooFewCycles() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.setIgnitionCycleCounterValue(3);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+        var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 4, 7);
+        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(new BusResult<>(false, dm20));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.6.5.2.a - Ignition cycle counter (SPN 3048) from Engine #1 (0) has " +
+                                                "not incremented by two compared to the value recorded in part 5");
+    }
+
+    @Test
+    public void testFailureForTooManyCycles() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.setIgnitionCycleCounterValue(3);
+        dataRepository.putObdModule(obdModuleInformation0);
+
+        var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 6, 7);
+        when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(new BusResult<>(false, dm20));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM20(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.6.5.2.a - Ignition cycle counter (SPN 3048) from Engine #1 (0) has " +
+                                                "not incremented by two compared to the value recorded in part 5");
     }
 
 }
