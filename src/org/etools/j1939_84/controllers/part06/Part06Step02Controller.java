@@ -6,7 +6,6 @@ package org.etools.j1939_84.controllers.part06;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
@@ -60,18 +59,18 @@ public class Part06Step02Controller extends StepController {
         // 6.6.2.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1219)]).
         List<DM5DiagnosticReadinessPacket> globalPackets = getDiagnosticMessageModule().requestDM5(getListener())
                                                                                        .getPackets();
-        List<DM5DiagnosticReadinessPacket> obdGlobalPackets = globalPackets.stream()
-                                                                              .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                                                                              .collect(Collectors.toList());
 
         // 6.6.2.2.a Fail if no OBD ECU reports a count of > 0 active DTCs.
-        boolean noActiveDTCs = obdGlobalPackets.stream().noneMatch(p -> (p.getActiveCodeCount() > 0));
+        boolean noActiveDTCs = globalPackets.stream()
+                                            .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                                            .noneMatch(p -> (p.getActiveCodeCount() > 0));
         if (noActiveDTCs) {
             addFailure("6.6.2.2.a - No OBD ECU reported a count of > 0 active DTCs");
         }
 
         // 6.6.2.2.b Fail if any OBD ECU reports > 0 previously active DTC.
-        obdGlobalPackets.stream()
+        globalPackets.stream()
+                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                         .filter(p -> p.getPreviouslyActiveCodeCount() != (byte) 0xFF
                                 && p.getPreviouslyActiveCodeCount() > 0)
                         .map(ParsedPacket::getModuleName)
@@ -92,5 +91,4 @@ public class Part06Step02Controller extends StepController {
             }
         });
     }
-
 }
