@@ -125,7 +125,7 @@ public class MultiQueueTest {
 
     /** Verify that building a stream with a timeout works. */
     @Test
-    @TestDoc(description = "Verify that timeouts interrupts streams, so that a 205 ms stream only has 205 ms of data in it.")
+    @TestDoc(description = "Verify that timeouts interrupts streams, so that a 410 ms stream only has 410 ms of data in it.")
     public void testTimedInterruption() throws Exception {
         // sync on q, because thread startup is unpredictably slow
         try (MultiQueue<Integer> q = new MultiQueue<>()) {
@@ -147,12 +147,10 @@ public class MultiQueueTest {
                 // wait on notify
                 q.wait();
             }
-            Stream<Integer> s1 = q.stream(205, TimeUnit.MILLISECONDS);
-            Stream<Integer> s2 = q.stream(405, TimeUnit.MILLISECONDS);
-            // verify that roughly 20 packets were processed in 200 ms
-            assertEquals(20, s1.count(), 5);
-            // verify that roughly 40 packets were processed in 200 ms
-            assertEquals(40, s2.count(), 5);
+            Stream<Integer> s1 = q.stream(410, TimeUnit.MILLISECONDS);
+            Stream<Integer> s2 = q.stream(810, TimeUnit.MILLISECONDS);
+            assertEquals("40 packets were processed in 400 ms", 40, s1.count(), 10);
+            assertEquals("80 packets were processed in 800 ms", 80, s2.count(), 10);
         }
     }
 }
