@@ -3,9 +3,19 @@
  */
 package org.etools.j1939_84.controllers.part06;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
+
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -54,10 +64,55 @@ public class Part06Step04Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.6.4.1.a Receive broadcast DM1 [(PGN 65226 (SPNs 1213-1215, 3038, 1706)]).
+        List<DM1ActiveDTCsPacket> packets = getDiagnosticMessageModule().readDM1(getListener())
+                                                                        .stream()
+                                                                        .filter(p -> isObdModule(p.getSourceAddress()))
+                                                                        .collect(Collectors.toList());
+
         // 6.6.4.2.a Fail if no OBD ECU reports MIL on.
+        boolean noMil = packets.stream()
+                               .map(DiagnosticTroubleCodePacket::getMalfunctionIndicatorLampStatus)
+                               .noneMatch(mil -> mil == ON);
+        if (noMil) {
+            addFailure("6.6.4.2.a - No OBD ECU reported MIL on");
+        }
+
         // 6.6.4.2.b Fail the DTC provided by the OBD ECU in DM12 is not included in its DM1 display.
+        packets.forEach(p -> {
+            List<DiagnosticTroubleCode> dm12DTCs = getDTCs(p.getSourceAddress());
+            List<DiagnosticTroubleCode> dm1DTCs = p.getDtcs();
+
+            for (DiagnosticTroubleCode dtc : dm12DTCs) {
+                if (!listContainsDTC(dm1DTCs, dtc)) {
+                    int spn = dtc.getSuspectParameterNumber();
+                    int fmi = dtc.getFailureModeIndicator();
+                    addFailure("6.6.4.2.b - The DTC (" + spn + ":" + fmi + ") provided by " + p.getModuleName()
+                            + " in DM12 is not included in its DM1 display");
+                }
+            }
+        });
+
         // 6.6.4.2.c Fail if any OBD ECU reports a different number of active DTCs than what that ECU reported in DM5
         // for number of active DTCs.
+        packets.stream()
+               .filter(p -> p.getDtcs().size() != getDM5ActiveCount(p.getSourceAddress()))
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.6.4.2.c - " + moduleName
+                       + " reported a different number of active DTCs than what it reported in DM5 for number of active DTCs"));
+    }
+
+    private int getDM5ActiveCount(int moduleAddress) {
+        var dm5 = get(DM5DiagnosticReadinessPacket.class, moduleAddress);
+        return dm5 == null ? -1 : dm5.getActiveCodeCount();
+    }
+
+    private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {
+        var packet = getDTCPacket(moduleAddress);
+        return packet == null ? List.of() : packet.getDtcs();
+    }
+
+    private DiagnosticTroubleCodePacket getDTCPacket(int moduleAddress) {
+        return get(DM12MILOnEmissionDTCPacket.class, moduleAddress);
     }
 
 }
