@@ -4,6 +4,7 @@
 package org.etools.j1939_84.controllers.part06;
 
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -298,16 +299,19 @@ public class Part06Step02ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM5(any());
-        // verify(diagnosticMessageModule).requestDM5(any(), eq(0x00));
-        // verify(diagnosticMessageModule).requestDM5(any(), eq(0x17));
-        // verify(diagnosticMessageModule).requestDM5(any(), eq(0x21));
 
-        verify(mockListener).addOutcome(
-                                        PART_NUMBER,
+        verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.6.2.2.a - No OBD ECU reported a count of > 0 active DTCs");
-
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.6.2.3.a - ECU module Body Controller (33) reported a count of > 1 for previously active DTCs");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.6.2.3.a - ECU module Body Controller (33) reported a count of > 1 active DTCs");
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());

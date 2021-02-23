@@ -12,7 +12,6 @@ import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -59,9 +58,9 @@ public class Part06Step02Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.6.2.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1219)]).
-        RequestResult<DM5DiagnosticReadinessPacket> globalDM5Result = getDiagnosticMessageModule().requestDM5(getListener());
-        List<DM5DiagnosticReadinessPacket> globalDM5Packets = globalDM5Result.getPackets();
-        List<DM5DiagnosticReadinessPacket> obdGlobalPackets = globalDM5Packets.stream()
+        List<DM5DiagnosticReadinessPacket> globalPackets = getDiagnosticMessageModule().requestDM5(getListener())
+                                                                                       .getPackets();
+        List<DM5DiagnosticReadinessPacket> obdGlobalPackets = globalPackets.stream()
                                                                               .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                                                                               .collect(Collectors.toList());
 
@@ -80,15 +79,18 @@ public class Part06Step02Controller extends StepController {
                                 + " reported > 0 previously active DTC"));
 
         // 6.6.2.3.a Warn if any ECU reports a count of > 1 active DTC or previously active DTC.
-        obdGlobalPackets.stream()
-                        .filter(p -> (p.getPreviouslyActiveCodeCount() != (byte) 0xFF &&
-                                p.getPreviouslyActiveCodeCount() > 1) ||
-                                (p.getActiveCodeCount() != (byte) 0xFF &&
-                                        p.getActiveCodeCount() > 1))
-                        .map(ParsedPacket::getModuleName)
-                        .forEach(moduleName -> addWarning("6.6.2.3.a - ECU module " + moduleName
-                                + " reported a count of > 1 active DTC or previously active DTC"));
-
+        globalPackets.forEach(p -> {
+            if (p.getPreviouslyActiveCodeCount() != (byte) 0xFF &&
+                    p.getPreviouslyActiveCodeCount() > 1) {
+                addWarning("6.6.2.3.a - ECU module " + p.getModuleName()
+                        + " reported a count of > 1 for previously active DTCs");
+            }
+            if (p.getActiveCodeCount() != (byte) 0xFF &&
+                    p.getActiveCodeCount() > 1) {
+                addWarning("6.6.2.3.a - ECU module " + p.getModuleName()
+                        + " reported a count of > 1 active DTCs");
+            }
+        });
     }
 
 }
