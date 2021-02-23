@@ -3,9 +3,16 @@
  */
 package org.etools.j1939_84.controllers.part06;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
+
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -54,9 +61,30 @@ public class Part06Step06Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.6.6.1.a DS DM23 [(send Request (PGN 59904) for PGN 64949 (SPNs 1213-1215, 3038, 1706)]) to each OBD ECU.
+        var dsResults = getDataRepository().getObdModuleAddresses()
+                                           .stream()
+                                           .map(address -> getDiagnosticMessageModule().requestDM23(getListener(),
+                                                                                                    address))
+                                           .collect(Collectors.toList());
+
+        List<DM23PreviouslyMILOnEmissionDTCPacket> packets = filterPackets(dsResults);
+
         // 6.6.6.2.a. Fail if any OBD ECU reports a previously active DTC.
+        packets.stream()
+               .filter(p -> !p.getDtcs().isEmpty())
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.6.6.2.a - " + moduleName + " reported an previously active DTC"));
+
         // 6.6.6.2.b. Fail if no OBD ECU reports MIL on.
+        boolean noMil = packets.stream()
+                               .map(DiagnosticTroubleCodePacket::getMalfunctionIndicatorLampStatus)
+                               .noneMatch(mil -> mil == ON);
+        if (noMil) {
+            addFailure("6.6.6.2.b - No OBD ECU reported MIL on");
+        }
+
         // 6.6.6.2.c. Fail if NACK not received from OBD ECUs that did not provide a DM23 message.
+        checkForNACKsFromObdModules(packets, filterAcks(dsResults), "6.6.6.2.c");
     }
 
 }
