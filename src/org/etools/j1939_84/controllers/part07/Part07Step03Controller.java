@@ -74,6 +74,9 @@ public class Part07Step03Controller extends StepController {
             addFailure("6.7.3.2.a - No OBD ECU reported previously active DTC(s)");
         }
 
+        // Save the responses from each OBD Module
+        globalPackets.forEach(this::save);
+
         // 6.7.3.2.b (if supported) Fail if any OBD ECU reports a fewer previously active DTCs than in DM23 response
         // earlier in this part.
         globalPackets.stream()
