@@ -3,16 +3,26 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +129,78 @@ public class Part07Step05ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dm1_0 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF);
+
+        // Non-OBD Module
+        var dtc = DiagnosticTroubleCode.create(122, 12, 1, 12);
+        var dm1_1 = DM1ActiveDTCsPacket.create(1, ON, OFF, OFF, OFF, dtc);
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1));
 
         runTest();
 
+        verify(diagnosticMessageModule).readDM1(any());
+
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
+    }
+
+    @Test
+    public void testFailureForDTC() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dtc = DiagnosticTroubleCode.create(122, 12, 1, 12);
+        var dm1 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1));
+
+        runTest();
+
+        verify(diagnosticMessageModule).readDM1(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.7.5.2.a - Engine #1 (0) reported an active DTC");
+    }
+
+    @Test
+    public void testFailureForMILNotOff() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dm1 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF);
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1));
+
+        runTest();
+
+        verify(diagnosticMessageModule).readDM1(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.7.5.2.a - Engine #1 (0) did not report MIL off");
+    }
+
+    @Test
+    public void testFailureForNoDM1() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        // Non-OBD Module
+        var dtc = DiagnosticTroubleCode.create(122, 12, 1, 12);
+        var dm1 = DM1ActiveDTCsPacket.create(1, ON, OFF, OFF, OFF, dtc);
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1));
+
+        runTest();
+
+        verify(diagnosticMessageModule).readDM1(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.7.5.2.c - No OBD ECU provided a DM1");
     }
 
 }
