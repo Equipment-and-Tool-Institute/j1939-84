@@ -30,6 +30,7 @@ import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.CompositeSystem;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
@@ -112,6 +113,17 @@ public abstract class StepController extends Controller {
 
     protected boolean isObdModule(int address) {
         return getDataRepository().isObdModule(address);
+    }
+
+    protected boolean supportsDM27(int address) {
+        OBDModuleInformation obdModule = getDataRepository().getObdModule(address);
+        return obdModule != null && obdModule.supportsDM27();
+    }
+
+    protected <T extends DiagnosticTroubleCodePacket> List<DiagnosticTroubleCode> getDTCs(Class<T> packetClass,
+                                                                                          int address) {
+        var packet = get(packetClass, address);
+        return packet == null ? List.of() : packet.getDtcs();
     }
 
     protected void save(GenericPacket packet) {

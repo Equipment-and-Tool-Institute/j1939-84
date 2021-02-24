@@ -10,12 +10,10 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
-import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,14 +117,6 @@ public class Part02Step12Controller extends StepController {
 
         // 6.2.12.4.b Fail if NACK not received from OBD ECUs that did not respond to global query
         checkForNACKs(globalPackets, filterAcks(dsResults), "6.2.12.4.b");
-    }
-
-    private boolean supportsDM27(int address) {
-        return getDataRepository().getObdModules()
-                                  .stream()
-                                  .filter(m -> m.get(DM27AllPendingDTCsPacket.class) != null)
-                                  .map(OBDModuleInformation::getSourceAddress)
-                                  .anyMatch(a -> a == address);
     }
 
 }
