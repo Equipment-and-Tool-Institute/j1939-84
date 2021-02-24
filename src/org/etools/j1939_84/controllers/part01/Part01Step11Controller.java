@@ -147,7 +147,7 @@ public class Part01Step11Controller extends StepController {
         compareRequestPackets(globalPackets, dsPackets, "6.1.11.4.e");
 
         // 6.1.11.4.f Fail if NACK not received from OBD ECUs that did not respond to global query.
-        checkForNACKs(globalPackets, filterRequestResultAcks(dsResults), "6.1.11.4.f");
+        checkForNACKsDS(globalPackets, filterRequestResultAcks(dsResults), "6.1.11.4.f");
     }
 
 }

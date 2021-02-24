@@ -97,7 +97,7 @@ public class Part04Step08Controller extends StepController {
         compareRequestPackets(globalPackets, filterRequestResultPackets(dsResults), "6.4.8.4.a");
 
         // 6.4.8.4.b Fail if NACK not received from OBD ECUs that did not respond to global query.
-        checkForNACKs(globalPackets, filterRequestResultAcks(dsResults), "6.4.8.4.b");
+        checkForNACKsDS(globalPackets, filterRequestResultAcks(dsResults), "6.4.8.4.b");
     }
 
     private DiagnosticTroubleCodePacket getDTCPacket(int moduleAddress) {

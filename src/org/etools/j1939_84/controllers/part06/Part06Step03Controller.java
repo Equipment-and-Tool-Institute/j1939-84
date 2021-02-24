@@ -65,13 +65,15 @@ public class Part06Step03Controller extends StepController {
                                            .map(address -> getDiagnosticMessageModule().requestDM12(getListener(),
                                                                                                     address))
                                            .collect(Collectors.toList());
+
         List<DM12MILOnEmissionDTCPacket> dsPackets = filterPackets(dsResults);
+
+        dsPackets.forEach(this::save);
 
         // 6.6.3.2.a Fail if no ([OBD]) ECU reports an MIL-on active DTC.
         boolean isMILOn = dsPackets.stream()
                                    .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                                   .anyMatch(p -> p.getMalfunctionIndicatorLampStatus() == ON
-                                           && p.getDtcs().size() > 0);
+                                   .anyMatch(p -> p.getMalfunctionIndicatorLampStatus() == ON);
         if (!isMILOn) {
             addFailure("6.6.3.2.a - No ECU reported an active DTC and MIL on");
         }
@@ -86,6 +88,6 @@ public class Part06Step03Controller extends StepController {
         }
 
         // 6.6.3.2.c Fail if NACK not received from OBD ECUs that did not provide a DM12 message.
-        checkForNACKs(dsPackets, filterAcks(dsResults), "6.6.3.2.b");
+        checkForNACKsFromObdModules(dsPackets, filterAcks(dsResults), "6.6.3.2.b");
     }
 }

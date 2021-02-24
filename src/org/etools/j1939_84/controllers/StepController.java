@@ -278,15 +278,14 @@ public abstract class StepController extends Controller {
         }
     }
 
-    protected void checkForNACKs(List<? extends GenericPacket> globalPackets,
-                                 List<? extends AcknowledgmentPacket> dsAcks,
-                                 String section) {
+    protected void checkForNACKsDS(List<? extends GenericPacket> dsPackets,
+                                   List<? extends AcknowledgmentPacket> dsAcks,
+                                   String section) {
         List<Integer> addresses = new ArrayList<>(getDataRepository().getObdModuleAddresses());
 
-        globalPackets
-                     .stream()
-                     .map(ParsedPacket::getSourceAddress)
-                     .forEach(addresses::remove);
+        dsPackets.stream()
+                 .map(ParsedPacket::getSourceAddress)
+                 .forEach(addresses::remove);
 
         dsAcks
               .stream()
