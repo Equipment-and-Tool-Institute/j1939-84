@@ -63,7 +63,7 @@ public class Part04Step15Controller extends StepController {
 
         // 6.4.15.1.b Wait engine manufacturer’s recommended interval.
         incrementProgress("Waiting for manufacturer's recommended interval with the key in off position");
-        waitForManufacturerInterval();
+        waitForManufacturerInterval("6.4.15.1.b");
 
         // 6.4.15.1.c With the key in the off position remove the implanted Fault A according to the
         // manufacturer’s instructions for restoring the system to a fault- free operating condition.
@@ -75,15 +75,6 @@ public class Part04Step15Controller extends StepController {
         // 6.4.15.1.f Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished.
         // 6.4.15.1.g Wait for manufacturer’s recommended time for Fault A to be detected (as passed).
         waitForEngineStart();
-    }
-
-    private void waitForManufacturerInterval() {
-        if (!isDevEnv()) {
-            String message = "Please wait for the manufacturer's recommended interval with the key in off position"
-                    + NL;
-            message += "Press OK to continue the testing" + NL;
-            displayInstructionAndWait(message, "Part 6.4.15.1.b", WARNING);
-        }
     }
 
     private void confirmFaultRemoved() {

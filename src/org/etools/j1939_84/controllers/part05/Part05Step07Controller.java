@@ -55,11 +55,11 @@ public class Part05Step07Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.5.7.1.a Turn the engine off to complete the first1st cycle.
-        incrementProgress("Step 5.7.1.a - Turn Engine Off and keep the ignition key in the off position");
+        incrementProgress("Step 6.5.7.1.a - Turn Engine Off and keep the ignition key in the off position");
         ensureKeyOffEngineOff();
 
         // 6.5.7.1.b Wait manufacturer’s recommended interval with the key in the off position.
-        incrementProgress("Step 5.7.1.b - Waiting manufacturer’s recommended interval with the key in the off position");
+        incrementProgress("Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the key in the off position");
         waitForManufacturerInterval("Part 6.5.7.1.b");
 
         // 6.5.7.1.c Start Engine for second cycle.
@@ -75,15 +75,6 @@ public class Part05Step07Controller extends StepController {
         // 6.5.7.1.g Start the engine for part 6.
         // 6.5.7.1.h Wait for manufacturer’s recommended time for Fault A to be detected as passed
         waitForEngineStart();
-    }
-
-    private void waitForManufacturerInterval(String boxTitle) {
-        if (!isDevEnv()) {
-            String message = "Please wait for the manufacturer's recommended interval with the key in off position"
-                    + NL;
-            message += "Press OK to continue the testing" + NL;
-            displayInstructionAndWait(message, boxTitle, WARNING);
-        }
     }
 
     private void waitForEngineStart() {
