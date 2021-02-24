@@ -95,7 +95,7 @@ public class Part06Step10Controller extends StepController {
         }
 
         // 6.6.10.2.d. Fail if NACK not received from OBD ECUs that did not provide a DM21 message.
-        checkForNACKsFromObdModules(packets, filterAcks(dsResults), "6.6.10.2.d");
+        checkForNACKsDS(packets, filterAcks(dsResults), "6.6.10.2.d");
 
         // 6.6.10.3.a. Warn if no ECU reports time with MIL on (SPN 3295) greater than 0 minute.
         boolean noMilOnTime = packets.stream().noneMatch(p -> p.getMinutesWhileMILIsActivated() > 0);

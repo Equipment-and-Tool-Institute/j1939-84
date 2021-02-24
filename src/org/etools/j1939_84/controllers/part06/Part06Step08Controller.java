@@ -130,7 +130,7 @@ public class Part06Step08Controller extends StepController {
                        + " did not report number of all pending DTCs = 0xFF"));
 
         // 6.6.8.2.h. Fail if NACK not received from OBD ECUs that did not provide a DM29 message.
-        checkForNACKsFromObdModules(packets, filterAcks(dsResults), "6.6.8.2.h");
+        checkForNACKsDS(packets, filterAcks(dsResults), "6.6.8.2.h");
 
         // 6.6.8.3.a. Warn if any ECU reports > 1 for MIL on.
         packets.stream()

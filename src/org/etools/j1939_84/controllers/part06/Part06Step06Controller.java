@@ -84,7 +84,7 @@ public class Part06Step06Controller extends StepController {
         }
 
         // 6.6.6.2.c. Fail if NACK not received from OBD ECUs that did not provide a DM23 message.
-        checkForNACKsFromObdModules(packets, filterAcks(dsResults), "6.6.6.2.c");
+        checkForNACKsDS(packets, filterAcks(dsResults), "6.6.6.2.c");
     }
 
 }

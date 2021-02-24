@@ -105,7 +105,7 @@ public class Part05Step04Controller extends StepController {
         });
 
         // 6.5.4.2.d Fail if NACK not received from OBD ECUs that did not provide a DM28 message.
-        checkForNACKsFromObdModules(packets, filterRequestResultAcks(responses), "6.5.4.2.d");
+        checkForNACKsDS(packets, filterRequestResultAcks(responses), "6.5.4.2.d");
 
     }
 

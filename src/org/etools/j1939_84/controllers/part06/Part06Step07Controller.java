@@ -98,7 +98,7 @@ public class Part06Step07Controller extends StepController {
         }
 
         // 6.6.7.2.d. Fail if NACK not received from OBD ECUs that did not provide a DM28 message.
-        checkForNACKsFromObdModules(packets, filterAcks(dsResults), "6.6.7.2.d");
+        checkForNACKsDS(packets, filterAcks(dsResults), "6.6.7.2.d");
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {

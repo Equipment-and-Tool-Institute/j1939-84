@@ -202,7 +202,7 @@ public class Part03Step13Controller extends StepController {
                                                          + moduleName));
 
         // 6.3.13.2.g. Fail if NACK not received from OBD ECUs that did not provide DM25 response to query.
-        checkForNACKsFromObdModules(packets, filterRequestResultAcks(responses), "6.3.13.2.g");
+        checkForNACKsDS(packets, filterRequestResultAcks(responses), "6.3.13.2.g");
     }
 
 }

@@ -87,10 +87,9 @@ public class Part01Step17Controller extends StepController {
                          .forEach(moduleName -> addFailure("6.1.17.2.b - " + moduleName + " did not report MIL off"));
         }
 
-        List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
-
         // 6.1.17.3.a. DS DM6 to each OBD ECU.
-        List<RequestResult<DM6PendingEmissionDTCPacket>> dsResults = obdModuleAddresses.stream()
+        List<RequestResult<DM6PendingEmissionDTCPacket>> dsResults = getDataRepository().getObdModuleAddresses()
+                                                                                        .stream()
                                                                                        .map(address -> getDiagnosticMessageModule().requestDM6(getListener(),
                                                                                                                                                address))
                                                                                        .collect(Collectors.toList());
@@ -101,6 +100,6 @@ public class Part01Step17Controller extends StepController {
 
         // 6.1.17.4.b Fail if NACK not received from OBD ECUs that did not respond to global query
         List<AcknowledgmentPacket> dsAcks = filterRequestResultAcks(dsResults);
-        checkForNACKs(globalPackets, dsAcks, obdModuleAddresses, "6.1.17.4.b");
+        checkForNACKsGlobal(globalPackets, dsAcks, "6.1.17.4.b");
     }
 }

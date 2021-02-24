@@ -11,7 +11,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
@@ -135,11 +134,9 @@ public class Part01Step13Controller extends StepController {
                                     .collect(Collectors.toList());
 
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.
-        List<DM5DiagnosticReadinessPacket> dsDM5s = filterPackets(dsPackets);
-        compareRequestPackets(obdGlobalPackets, dsDM5s, "6.1.13.4.a");
+        compareRequestPackets(obdGlobalPackets, filterPackets(dsPackets), "6.1.13.4.a");
 
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.
-        List<AcknowledgmentPacket> dsAcks = filterAcks(dsPackets);
-        checkForNACKs(obdGlobalPackets, dsAcks, getDataRepository().getObdModuleAddresses(), "6.1.13.4.b.");
+        checkForNACKsGlobal(obdGlobalPackets, filterAcks(dsPackets), "6.1.13.4.b.");
     }
 }

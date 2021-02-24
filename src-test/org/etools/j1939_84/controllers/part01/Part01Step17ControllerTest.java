@@ -9,6 +9,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -272,7 +273,7 @@ public class Part01Step17ControllerTest extends AbstractControllerTest {
                                                                                                  List.of()));
 
         runTest();
-        verify(dataRepository).getObdModuleAddresses();
+        verify(dataRepository, times(2)).getObdModuleAddresses();
 
         verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM6(any());

@@ -108,6 +108,6 @@ public class Part01Step21Controller extends StepController {
 
         // 6.1.20.4.b Fail if NACK not received from OBD ECUs that did not respond to global query
         List<AcknowledgmentPacket> dsAcks = filterAcks(dsResults);
-        checkForNACKs(globalPackets, dsAcks, obdModuleAddresses, "6.1.21.4.b");
+        checkForNACKsGlobal(globalPackets, dsAcks, "6.1.21.4.b");
     }
 }
