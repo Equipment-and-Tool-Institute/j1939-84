@@ -49,14 +49,14 @@ public class RequestResult<T extends ParsedPacket> {
     public RequestResult(boolean retryUsed, T... packets) {
         this.retryUsed = retryUsed;
         this.packets = Arrays.asList(packets);
-        this.acks = Collections.emptyList();
+        acks = Collections.emptyList();
     }
 
     @SafeVarargs
     public <TP extends AcknowledgmentPacket> RequestResult(boolean retryUsed, TP... packets) {
         this.retryUsed = retryUsed;
         this.packets = Collections.emptyList();
-        this.acks = Arrays.asList(packets);
+        acks = Arrays.asList(packets);
     }
 
     public static <S extends ParsedPacket> RequestResult<S> empty() {
@@ -65,6 +65,11 @@ public class RequestResult<T extends ParsedPacket> {
 
     public static <S extends ParsedPacket> RequestResult<S> empty(boolean retry) {
         return new RequestResult<>(retry, Collections.emptyList());
+    }
+
+    @SafeVarargs
+    public static <S extends ParsedPacket> RequestResult<S> of(S... packets) {
+        return new RequestResult<>(false, packets);
     }
 
     public List<AcknowledgmentPacket> getAcks() {
@@ -101,9 +106,9 @@ public class RequestResult<T extends ParsedPacket> {
         }
 
         RequestResult<?> that = (RequestResult<?>) obj;
-        return this.isRetryUsed() == that.isRetryUsed()
-                && Objects.equals(this.getPackets(), that.getPackets())
-                && Objects.equals(this.getAcks(), that.getAcks());
+        return isRetryUsed() == that.isRetryUsed()
+                && Objects.equals(getPackets(), that.getPackets())
+                && Objects.equals(getAcks(), that.getAcks());
     }
 
     @Override
@@ -114,24 +119,24 @@ public class RequestResult<T extends ParsedPacket> {
           .append(isRetryUsed())
           .append(NL)
           .append("Response packets :");
-        this.getPackets()
+        getPackets()
             .forEach(packet -> sb.append(NL)
                                  .append("Source address : ")
                                  .append(packet.getSourceAddress())
                                  .append(" returned ")
                                  .append(packet.toString()));
-        if (this.getPackets().isEmpty()) {
+        if (getPackets().isEmpty()) {
             sb.append(NL).append("No packets returned");
         }
         sb.append(NL)
           .append("Ack packets :");
-        this.getAcks()
+        getAcks()
             .forEach(ack -> sb.append(NL)
                               .append("Source address : ")
                               .append(ack.getSourceAddress())
                               .append(" returned ")
                               .append(ack.toString()));
-        if (this.getAcks().isEmpty()) {
+        if (getAcks().isEmpty()) {
             sb.append(NL).append("No acks returned");
         }
 

@@ -135,11 +135,9 @@ public class Part01Step13Controller extends StepController {
                                     .collect(Collectors.toList());
 
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.
-        List<DM5DiagnosticReadinessPacket> dsDM5s = filterPackets(dsPackets);
-        compareRequestPackets(obdGlobalPackets, dsDM5s, "6.1.13.4.a");
+        compareRequestPackets(obdGlobalPackets, filterPackets(dsPackets), "6.1.13.4.a");
 
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.
-        List<AcknowledgmentPacket> dsAcks = filterAcks(dsPackets);
-        checkForNACKs(obdGlobalPackets, dsAcks, "6.1.13.4.b.");
+        checkForNACKs(obdGlobalPackets, filterAcks(dsPackets), "6.1.13.4.b.");
     }
 }

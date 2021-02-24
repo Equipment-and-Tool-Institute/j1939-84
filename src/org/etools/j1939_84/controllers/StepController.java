@@ -34,6 +34,7 @@ import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
@@ -107,6 +108,23 @@ public abstract class StepController extends Controller {
         var dtcString = toString(List.of(dtc));
         var listString = toString(dtcs);
         return listString.contains(dtcString);
+    }
+
+    protected boolean isObdModule(int address) {
+        return getDataRepository().isObdModule(address);
+    }
+
+    protected void save(GenericPacket packet) {
+        OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(packet.getSourceAddress());
+        if (obdModuleInformation != null) {
+            obdModuleInformation.set(packet);
+            getDataRepository().putObdModule(obdModuleInformation);
+        }
+    }
+
+    protected <T extends GenericPacket> T get(Class<T> packetClass, int address) {
+        OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(address);
+        return obdModuleInformation == null ? null : obdModuleInformation.get(packetClass);
     }
 
     /**
