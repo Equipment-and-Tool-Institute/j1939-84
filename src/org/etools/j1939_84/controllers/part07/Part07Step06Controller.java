@@ -6,6 +6,9 @@ package org.etools.j1939_84.controllers.part07;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
+import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -53,11 +56,34 @@ public class Part07Step06Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.7.6.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNSPs 1218-1219)]).
+        // 6.7.6.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1219)]).
+        var packets = getDiagnosticMessageModule().requestDM5(getListener()).getPackets();
+
         // 6.7.6.2.a Fail if any OBD ECU reports > 0 for active DTCs.
-        // 6.7.6.2.b Fail if no ECU reports > 0 for previously active DTCs.
+        packets.stream()
+               .filter(p -> isObdModule(p.getSourceAddress()))
+               .filter(p -> p.getActiveCodeCount() > 0)
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.7.6.2.a - " + moduleName + " reported > 0 for active DTCs"));
+
+        // 6.7.6.2.b Fail if no [OBD] ECU reports > 0 for previously active DTCs.
+        boolean noPrev = packets.stream()
+                                .filter(p -> isObdModule(p.getSourceAddress()))
+                                .map(DM5DiagnosticReadinessPacket::getPreviouslyActiveCodeCount)
+                                .allMatch(c -> c == 0);
+        if (noPrev) {
+            addFailure("6.7.6.2.b - No ECU reported > 0 for previously active DTCs");
+        }
+
         // 6.7.6.2.c Fail if any OBD ECU reports a different number of previously active DTCs than in DM2 response
         // earlier in this Part.
+        packets.stream()
+               .filter(p -> isObdModule(p.getSourceAddress()))
+               .filter(p -> p.getPreviouslyActiveCodeCount() != getDTCs(DM2PreviouslyActiveDTC.class,
+                                                                        p.getSourceAddress()).size())
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.7.6.2.c - " + moduleName
+                       + " reported a different number of previously active DTCs than in DM2 response earlier in this part"));
     }
 
 }
