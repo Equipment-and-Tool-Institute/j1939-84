@@ -56,6 +56,7 @@ public class Part07Step01Controller extends StepController {
         // 6.7.1.1.a Gather broadcast data for engine speed (e.g., SPNSP 190). Warn Criteria
         // 6.7.1.2.a If engine speed is > 0 rpm, prompt/warn operator to confirm engine is not running and then press
         // enter.
+        ensureKeyOnEngineOff();
     }
 
 }
