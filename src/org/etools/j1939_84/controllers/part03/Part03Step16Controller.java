@@ -68,7 +68,7 @@ public class Part03Step16Controller extends StepController {
 
         // 6.3.16.1.c. Wait manufacturer’s recommended interval with the key in the off position.
         incrementProgress("Waiting for manufacturer's recommended interval with the key in off position");
-        waitForManufacturerInterval();
+        waitForManufacturerInterval("6.3.16.1.c");
 
         // 6.3.16.1.d. Turn ignition key to the ON position.
         // 6.3.16.1.e. Observe MIL and Wait to Start Lamp in Instrument Cluster
@@ -83,15 +83,6 @@ public class Part03Step16Controller extends StepController {
         String boxTitle = "Part 6.3.16.1.b";
         if (!isDevEnv()) {
             displayInstructionAndWait(message, boxTitle, WARNING);
-        }
-    }
-
-    private void waitForManufacturerInterval() {
-        if (!isDevEnv()) {
-            String message = "Please wait for the manufacturer's recommended interval with the key in off position"
-                    + NL;
-            message += "Press OK to continue the testing" + NL;
-            displayInstructionAndWait(message, "Part 6.3.16.1.c", WARNING);
         }
     }
 

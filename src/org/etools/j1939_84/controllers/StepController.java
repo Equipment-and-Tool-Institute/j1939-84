@@ -377,4 +377,13 @@ public abstract class StepController extends Controller {
         }
     }
 
+    protected void waitForManufacturerInterval(String boxTitle) {
+        if (!isDevEnv()) {
+            String message = "Please wait for the manufacturer's recommended interval with the key in off position"
+                    + NL;
+            message += "Press OK to continue the testing" + NL;
+            displayInstructionAndWait(message, boxTitle, WARNING);
+        }
+    }
+
 }
