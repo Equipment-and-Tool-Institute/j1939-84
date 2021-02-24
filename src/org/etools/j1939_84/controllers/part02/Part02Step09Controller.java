@@ -136,6 +136,6 @@ public class Part02Step09Controller extends StepController {
         compareRequestPackets(globalResponse.getPackets(), dsPackets, "6.2.9.4.a");
 
         // 6.2.9.4.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
-        checkForNACKsDS(globalResponse.getPackets(), dsAcks, "6.2.9.4.b");
+        checkForNACKsGlobal(globalResponse.getPackets(), dsAcks, "6.2.9.4.b");
     }
 }

@@ -137,6 +137,6 @@ public class Part01Step13Controller extends StepController {
         compareRequestPackets(obdGlobalPackets, filterPackets(dsPackets), "6.1.13.4.a");
 
         // 6.1.13.4.a. Fail if any difference compared to data received during global request.
-        checkForNACKsDS(obdGlobalPackets, filterAcks(dsPackets), "6.1.13.4.b.");
+        checkForNACKsGlobal(obdGlobalPackets, filterAcks(dsPackets), "6.1.13.4.b.");
     }
 }

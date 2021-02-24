@@ -94,7 +94,7 @@ public class Part06Step09Controller extends StepController {
         }
 
         // 6.6.9.2.c (if supported) Fail if NACK not received from OBD ECUs that did not provide a DM31 message.
-        checkForNACKsFromObdModules(packets, filterRequestResultAcks(dsResults), "6.6.9.2.c");
+        checkForNACKsDS(packets, filterRequestResultAcks(dsResults), "6.6.9.2.c");
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int address) {

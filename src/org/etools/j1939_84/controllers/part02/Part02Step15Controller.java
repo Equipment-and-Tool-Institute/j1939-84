@@ -147,6 +147,6 @@ public class Part02Step15Controller extends StepController {
         }
 
         // 6.2.15.5.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
-        checkForNACKsDS(globalPackets, filterRequestResultAcks(dsResponses), "6.2.15.5.b");
+        checkForNACKsGlobal(globalPackets, filterRequestResultAcks(dsResponses), "6.2.15.5.b");
     }
 }

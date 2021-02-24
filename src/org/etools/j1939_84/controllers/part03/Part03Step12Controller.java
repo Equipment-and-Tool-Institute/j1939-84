@@ -77,7 +77,7 @@ public class Part03Step12Controller extends StepController {
         });
 
         // 6.3.12.2.b. Fail if NACK not received from OBD ECUs that did not provide DM24
-        checkForNACKsFromObdModules(filterPackets(dsResults), filterAcks(dsResults), "6.3.12.2.b");
+        checkForNACKsDS(filterPackets(dsResults), filterAcks(dsResults), "6.3.12.2.b");
     }
 
 }

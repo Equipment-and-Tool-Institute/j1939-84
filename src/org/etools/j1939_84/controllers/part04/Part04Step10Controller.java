@@ -90,7 +90,7 @@ public class Part04Step10Controller extends StepController {
                        + " did not report DTC in freeze frame data which included the DTC reported in DM12 earlier in this part"));
 
         // 6.4.10.2.c. Fail if NACK not received from OBD ECUs that did not provide DM25 response.
-        checkForNACKsFromObdModules(packets, filterAcks(dsResults), "6.4.10.2.c");
+        checkForNACKsDS(packets, filterAcks(dsResults), "6.4.10.2.c");
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {

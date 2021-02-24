@@ -163,7 +163,7 @@ public class Part06Step03ControllerTest extends AbstractControllerTest {
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
         when(diagnosticMessageModule.requestDM12(any(), eq(0x01)))
-                                                                  .thenReturn(new BusResult<>(false, Optional.empty()));
+                                                                  .thenReturn(BusResult.empty());
 
         runTest();
 
@@ -214,9 +214,9 @@ public class Part06Step03ControllerTest extends AbstractControllerTest {
                                                                                              0x88));
 
         when(diagnosticMessageModule.requestDM12(any(), eq(0x01)))
-                                                                  .thenReturn(new BusResult<>(false, packet1));
+                                                                  .thenReturn(BusResult.of(packet1));
         when(diagnosticMessageModule.requestDM12(any(), eq(0x03)))
-                                                                  .thenReturn(new BusResult<>(false, obdPacket3));
+                                                                  .thenReturn(BusResult.of(obdPacket3));
 
         runTest();
 
