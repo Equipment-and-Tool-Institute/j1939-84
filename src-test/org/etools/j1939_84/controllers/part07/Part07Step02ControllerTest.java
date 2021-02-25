@@ -178,7 +178,7 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.7.2.2.b - OBD module Engine #1 (0) reported a different DTCs from the DM6 DTCs");
+                                        "6.7.2.2.b - OBD module Engine #1 (0) reported a different DTCs from the DM12 DTCs");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,

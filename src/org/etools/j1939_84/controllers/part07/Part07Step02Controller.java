@@ -86,7 +86,7 @@ public class Part07Step02Controller extends StepController {
                                                                      .getDtcs();
             if (!dtcListsAreSame(p.getDtcs(), dm6Dtcs)) {
                 addFailure("6.7.2.2.b - OBD module " + p.getModuleName()
-                        + " reported a different DTCs from the DM6 DTCs");
+                        + " reported a different DTCs from the DM12 DTCs");
             }
             // 6.7.2.2.c. Fail if any ECU does not report MIL off and not flashing.
             if (p.getMalfunctionIndicatorLampStatus() != OFF) {
