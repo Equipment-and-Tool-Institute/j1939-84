@@ -3,8 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.BUSY;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.DENIED;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 
 import java.util.Collection;
@@ -95,13 +93,11 @@ public class Part07Step16Controller extends StepController {
                  .peek(acknowledgmentPacket -> verifier.verifyDataNotErased(getListener(), "6.7.16.4.a"))
                  .filter(p -> {
                      AcknowledgmentPacket.Response r = p.getResponse();
-                     return r != NACK && r != DENIED && r != BUSY;
+                     return r != NACK;
                  })
                  .forEach(packet -> {
                      AcknowledgmentPacket.Response response = packet.getResponse();
-                     if (response != NACK &&
-                             response != DENIED &&
-                             response != BUSY) {
+                     if (response != NACK) {
                          addFailure("6.7.16.4.a - " + packet.getModuleName()
                                  + " did not NACK the DS DM3 request");
                      }

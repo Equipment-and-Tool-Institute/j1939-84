@@ -5,14 +5,11 @@ package org.etools.j1939_84.controllers.part07;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.BUSY;
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.DENIED;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -141,34 +138,20 @@ public class Part07Step16ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
 
         dataRepository.putObdModule(new OBDModuleInformation(0));
-        dataRepository.putObdModule(new OBDModuleInformation(1));
-        dataRepository.putObdModule(new OBDModuleInformation(2));
-        dataRepository.putObdModule(new OBDModuleInformation(3));
 
         var nackPacket = AcknowledgmentPacket.create(0, NACK);
-        var deniedPacket = AcknowledgmentPacket.create(1, DENIED);
-        var busyPacket = AcknowledgmentPacket.create(1, BUSY);
-        when(diagnosticMessageModule.requestDM3(any())).thenReturn(List.of(nackPacket, deniedPacket, busyPacket));
+        when(diagnosticMessageModule.requestDM3(any())).thenReturn(List.of(nackPacket));
         when(diagnosticMessageModule.requestDM3(any(), eq(0)))
                                                               .thenReturn(List.of(nackPacket));
-        when(diagnosticMessageModule.requestDM3(any(), eq(1)))
-                                                              .thenReturn(List.of(deniedPacket));
-        when(diagnosticMessageModule.requestDM3(any(), eq(2)))
-                                                              .thenReturn(List.of());
-        when(diagnosticMessageModule.requestDM3(any(), eq(3)))
-                                                              .thenReturn(List.of(busyPacket));
 
         runTest();
 
         verify(diagnosticMessageModule).requestDM3(any());
         verify(diagnosticMessageModule).requestDM3(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM3(any(), eq(1));
-        verify(diagnosticMessageModule).requestDM3(any(), eq(2));
-        verify(diagnosticMessageModule).requestDM3(any(), eq(3));
 
         verify(verifier).setJ1939(any());
         verify(verifier).verifyDataNotErased(any(), eq("6.7.16.2.a"));
-        verify(verifier, times(3)).verifyDataNotErased(any(), eq("6.7.16.4.a"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.7.16.4.a"));
 
         String expected = "";
         expected += "Step 6.7.16.1.b Waiting 5 seconds" + NL;
