@@ -111,6 +111,12 @@ public abstract class StepController extends Controller {
         return listString.contains(dtcString);
     }
 
+    protected static boolean dtcListsAreSame(List<DiagnosticTroubleCode> dtcs1, List<DiagnosticTroubleCode> dtcs2) {
+        var dtcs1String = toString(dtcs1);
+        var lists2String = toString(dtcs2);
+        return dtcs1String.contains(lists2String);
+    }
+
     protected boolean isObdModule(int address) {
         return getDataRepository().isObdModule(address);
     }

@@ -84,7 +84,7 @@ public class Part07Step02Controller extends StepController {
             List<DiagnosticTroubleCode> dm6Dtcs = getDataRepository().getObdModule(p.getSourceAddress())
                                                                      .get(DM6PendingEmissionDTCPacket.class)
                                                                      .getDtcs();
-            if (!p.getDtcs().equals(dm6Dtcs)) {
+            if (!dtcListsAreSame(p.getDtcs(), dm6Dtcs)) {
                 addFailure("6.7.2.2.b - OBD module " + p.getModuleName()
                         + " reported a different DTCs from the DM6 DTCs");
             }
