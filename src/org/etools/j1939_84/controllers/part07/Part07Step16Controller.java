@@ -10,7 +10,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.part01.SectionA5Verifier;
@@ -91,10 +90,7 @@ public class Part07Step16Controller extends StepController {
         // A.5 for more information.
         dsPackets.stream()
                  .peek(acknowledgmentPacket -> verifier.verifyDataNotErased(getListener(), "6.7.16.4.a"))
-                 .filter(p -> {
-                     AcknowledgmentPacket.Response r = p.getResponse();
-                     return r != NACK;
-                 })
+                 .filter(p -> p.getResponse() != NACK)
                  .forEach(packet -> {
                      addFailure("6.7.16.4.a - " + packet.getModuleName()
                              + " did not NACK the DS DM3 request");
