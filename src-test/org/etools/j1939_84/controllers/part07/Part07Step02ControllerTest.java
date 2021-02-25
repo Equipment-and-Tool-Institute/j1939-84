@@ -3,16 +3,31 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +134,167 @@ public class Part07Step02ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        var dtc = DiagnosticTroubleCode.create(1569, 31, 0, 0);
+        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        obdModule.set(dm6);
+        dataRepository.putObdModule(obdModule);
+
+        var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(new BusResult<>(false, dm23));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        var nack = AcknowledgmentPacket.create(1, NACK);
+        when(diagnosticMessageModule.requestDM23(any(), eq(1))).thenReturn(new BusResult<>(false, nack));
 
         runTest();
+
+        verify(diagnosticMessageModule).requestDM23(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM23(any(), eq(1));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
 
+    @Test
+    public void testFailureForDTCs() {
+        var dtc = DiagnosticTroubleCode.create(1569, 31, 0, 0);
+        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        obdModule.set(dm6);
+        dataRepository.putObdModule(obdModule);
+
+        var dtc23 = DiagnosticTroubleCode.create(123, 12, 0, 4);
+        var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc23);
+        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(new BusResult<>(false, dm23));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM23(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.7.2.2.b - OBD module Engine #1 (0) reported a different DTCs from the DM12 DTCs");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.7.2.2.c - OBD module Engine #1 (0) reported MIL off and not flashing");
+    }
+
+    @Test
+    public void testFailureForMoreThanOneDtc() {
+        var dtc = DiagnosticTroubleCode.create(609, 19, 0, 0);
+        var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
+        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc, dtc1);
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        obdModule.set(dm6);
+        dataRepository.putObdModule(obdModule);
+
+        var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc, dtc1);
+        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(new BusResult<>(false, dm23));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM23(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.7.2.3.c - OBD module Engine #1 (0) reported > 1 previously active DTCs");
+    }
+
+    @Test
+    public void testFailureForDtcDuplicate() {
+        var dtc = DiagnosticTroubleCode.create(609, 19, 0, 0);
+        var dtc1 = DiagnosticTroubleCode.create(1569, 31, 0, 0);
+        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        var dm6_1 = DM6PendingEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        obdModule.set(dm6);
+        dataRepository.putObdModule(obdModule);
+
+        OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
+        obdModule1.set(dm6_1);
+        dataRepository.putObdModule(obdModule1);
+
+        var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(new BusResult<>(false, dm23));
+
+        var dm23_1 = DM23PreviouslyMILOnEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1);
+        when(diagnosticMessageModule.requestDM23(any(), eq(1))).thenReturn(new BusResult<>(false, dm23_1));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM23(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM23(any(), eq(1));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.7.2.3.b - More than one ECU reported previously active DTC");
+    }
+
+    @Test
+    public void testFailureForEmptyDtcs() {
+        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        obdModule.set(dm6);
+        dataRepository.putObdModule(obdModule);
+
+        var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(new BusResult<>(false, dm23));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM23(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.7.2.2.b - No OBD ECU reported a previously active DTC");
+    }
+
+    @Test
+    public void testFailureForNoNACK() {
+        var dtc = DiagnosticTroubleCode.create(1569, 31, 0, 0);
+        var dm6 = DM6PendingEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        obdModule.set(dm6);
+        dataRepository.putObdModule(obdModule);
+
+        var dm23 = DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        when(diagnosticMessageModule.requestDM23(any(), eq(0))).thenReturn(new BusResult<>(false, dm23));
+
+        OBDModuleInformation obdModule1 = new OBDModuleInformation(1);
+        obdModule1.set(dm6);
+        dataRepository.putObdModule(obdModule1);
+        when(diagnosticMessageModule.requestDM23(any(), eq(1))).thenReturn(new BusResult<>(true));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM23(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM23(any(), eq(1));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.7.2.2.d - OBD module Engine #2 (1) did not provide a NACK for the DS query");
+
+    }
 }

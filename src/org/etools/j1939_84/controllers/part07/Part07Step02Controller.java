@@ -3,9 +3,16 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -55,12 +62,54 @@ public class Part07Step02Controller extends StepController {
     protected void run() throws Throwable {
         // 6.7.2.1.a DS DM23 ([send Request (PGN 59904) for PGN 64949 (SPNs 1213-1215, 1706, and 3038)]) to each OBD
         // ECU.
-        // 6.7.2.2.a Fail if no OBD ECU reports previously active DTC.
-        // 6.7.2.2.b Fail if reported previously active DTC does not match DM12 active DTC from part 6.
-        // 6.7.2.2.c Fail if any ECU does not report MIL off and not flashing.
-        // 6.7.2.2.d Fail if NACK not received from OBD ECUs that did not provide a DM23 message.
-        // 6.7.2.3.a Warn if any ECU reports > 1 previously active DTC.
+        var dsResults = getDataRepository().getObdModuleAddresses()
+                                           .stream()
+                                           .map(address -> getDiagnosticMessageModule().requestDM23(getListener(),
+                                                                                                    address))
+                                           .collect(Collectors.toList());
+
+        List<DM23PreviouslyMILOnEmissionDTCPacket> packets = filterPackets(dsResults);
+
+        // 6.7.2.2.b Fail if no OBD ECU reports previously active DTC.
+        long activeDtcCount = packets.stream()
+                                     .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
+                                     .filter(p -> !p.getDtcs().isEmpty())
+                                     .count();
+        if (activeDtcCount == 0) {
+            addFailure("6.7.2.2.b - No OBD ECU reported a previously active DTC");
+        }
+
+        packets.stream().peek(this::save).forEach(p -> {
+            // 6.7.2.2.b Fail if reported previously active DTC does not match DM12 active DTC from part 6.
+            List<DiagnosticTroubleCode> dm6Dtcs = getDataRepository().getObdModule(p.getSourceAddress())
+                                                                     .get(DM6PendingEmissionDTCPacket.class)
+                                                                     .getDtcs();
+            if (!dtcListsAreSame(p.getDtcs(), dm6Dtcs)) {
+                addFailure("6.7.2.2.b - OBD module " + p.getModuleName()
+                        + " reported a different DTCs from the DM12 DTCs");
+            }
+            // 6.7.2.2.c. Fail if any ECU does not report MIL off and not flashing.
+            if (p.getMalfunctionIndicatorLampStatus() != OFF) {
+                addFailure("6.7.2.2.c - OBD module " + p.getModuleName()
+                        + " reported MIL off and not flashing");
+
+            }
+            // 6.7.2.3.a Warn if any ECU reports > 1 previously active DTC.
+            if (p.getDtcs().size() > 1) {
+                addWarning("6.7.2.3.c - OBD module " + p.getModuleName()
+                        + " reported > 1 previously active DTCs");
+
+            }
+        });
+
         // 6.7.2.3.b Warn if more than one ECU reports a previously active DTC.
+        long acitveDtcCount = packets.stream().filter(p -> !p.getDtcs().isEmpty()).count();
+        if (acitveDtcCount > 1) {
+            addWarning("6.7.2.3.b - More than one ECU reported previously active DTC");
+        }
+
+        // 6.7.2.2.d Fail if NACK not received from OBD ECUs that did not provide a DM23 message.
+        checkForNACKsDS(packets, filterAcks(dsResults), "6.7.2.2.d");
     }
 
 }
