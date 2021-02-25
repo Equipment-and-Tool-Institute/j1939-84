@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part06;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -11,15 +13,12 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Optional;
 import java.util.concurrent.Executor;
 
-import org.etools.j1939_84.bus.Packet;
 import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
-import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
@@ -44,7 +43,6 @@ import org.mockito.junit.MockitoJUnitRunner;
 public class Part06Step03ControllerTest extends AbstractControllerTest {
     private static final int PART_NUMBER = 6;
     private static final int STEP_NUMBER = 3;
-    private static final int PGN = DM12MILOnEmissionDTCPacket.PGN;
 
     @Mock
     private BannerModule bannerModule;
@@ -132,24 +130,13 @@ public class Part06Step03ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
-
-        DM12MILOnEmissionDTCPacket packet1 = DM12MILOnEmissionDTCPacket.create(0x01,
-                                                                               LampStatus.ON,
-                                                                               LampStatus.OFF,
-                                                                               LampStatus.OFF,
-                                                                               LampStatus.OFF,
-                                                                               DiagnosticTroubleCode.create(1569,
-                                                                                                            31,
-                                                                                                            0,
-                                                                                                            0));
-
         dataRepository.putObdModule(new OBDModuleInformation(0x01));
-
-        when(diagnosticMessageModule.requestDM12(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(1569, 31, 0, 0);
+        var packet1 = DM12MILOnEmissionDTCPacket.create(0x01, ON, OFF, OFF, OFF, dtc);
+        when(diagnosticMessageModule.requestDM12(any(), eq(0x01))).thenReturn(BusResult.of(packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM12(any(), eq(0x01));
 
         assertEquals("", listener.getResults());
@@ -162,8 +149,7 @@ public class Part06Step03ControllerTest extends AbstractControllerTest {
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
 
-        when(diagnosticMessageModule.requestDM12(any(), eq(0x01)))
-                                                                  .thenReturn(BusResult.empty());
+        when(diagnosticMessageModule.requestDM12(any(), eq(0x01))).thenReturn(BusResult.empty());
 
         runTest();
 
@@ -175,92 +161,44 @@ public class Part06Step03ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.6.3.2.a - No ECU reported an active DTC and MIL on");
+                                        "6.6.3.2.a - No ECU reported a MIL-on active DTC");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.6.3.2.a - No ECU reported MIL on");
+                                        "6.6.3.2.b - No ECU reported MIL on");
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.6.3.2.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.6.3.2.c - OBD module Engine #2 (1) did not provide a NACK for the DS query");
     }
 
     @Test
-    public void testFailures() {
-        DM12MILOnEmissionDTCPacket packet1 = new DM12MILOnEmissionDTCPacket(Packet.create(PGN,
-                                                                                          0x01,
-                                                                                          0x11,
-                                                                                          0x22,
-                                                                                          0x33,
-                                                                                          0x44,
-                                                                                          0x55,
-                                                                                          0x66,
-                                                                                          0x77,
-                                                                                          0x88));
-
-        dataRepository.putObdModule(new OBDModuleInformation(1));
-        dataRepository.putObdModule(new OBDModuleInformation(3));
-
-        DM12MILOnEmissionDTCPacket obdPacket3 = new DM12MILOnEmissionDTCPacket(Packet.create(PGN,
-                                                                                             0x03,
-                                                                                             0x11,
-                                                                                             0x22,
-                                                                                             0x13,
-                                                                                             0x44,
-                                                                                             0x55,
-                                                                                             0x66,
-                                                                                             0x77,
-                                                                                             0x88));
-
-        when(diagnosticMessageModule.requestDM12(any(), eq(0x01)))
-                                                                  .thenReturn(BusResult.of(packet1));
-        when(diagnosticMessageModule.requestDM12(any(), eq(0x03)))
-                                                                  .thenReturn(BusResult.of(obdPacket3));
+    public void testFailureForNoDTC() {
+        dataRepository.putObdModule(new OBDModuleInformation(0x01));
+        var packet1 = DM12MILOnEmissionDTCPacket.create(0x01, ON, OFF, OFF, OFF);
+        when(diagnosticMessageModule.requestDM12(any(), eq(0x01))).thenReturn(BusResult.of(packet1));
 
         runTest();
 
         verify(diagnosticMessageModule).requestDM12(any(), eq(0x01));
-        verify(diagnosticMessageModule).requestDM12(any(), eq(0x03));
 
         assertEquals("", listener.getResults());
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.6.3.2.a - No ECU reported an active DTC and MIL on");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.6.3.2.a - No ECU reported MIL on");
+                                        "6.6.3.2.a - No ECU reported a MIL-on active DTC");
     }
 
     @Test
-    public void testMoreFailures() {
-        dataRepository.putObdModule(new OBDModuleInformation(1));
-        dataRepository.putObdModule(new OBDModuleInformation(3));
-
-        DM12MILOnEmissionDTCPacket packet3b = new DM12MILOnEmissionDTCPacket(
-                                                                             Packet.create(PGN,
-                                                                                           0x03,
-                                                                                           0x00,
-                                                                                           0x00,
-                                                                                           0x00,
-                                                                                           0x00,
-                                                                                           0xFF,
-                                                                                           0xFF,
-                                                                                           0xFF,
-                                                                                           0xFF));
-
-        when(diagnosticMessageModule.requestDM12(any(), eq(0x01)))
-                                                                  .thenReturn(new BusResult<>(false, Optional.empty()));
-        when(diagnosticMessageModule.requestDM12(any(), eq(0x03)))
-                                                                  .thenReturn(new BusResult<>(false, packet3b));
+    public void testFailureForNoMIL() {
+        dataRepository.putObdModule(new OBDModuleInformation(0x01));
+        DiagnosticTroubleCode dtc = DiagnosticTroubleCode.create(1569, 31, 0, 0);
+        var packet1 = DM12MILOnEmissionDTCPacket.create(0x01, OFF, OFF, OFF, OFF, dtc);
+        when(diagnosticMessageModule.requestDM12(any(), eq(0x01))).thenReturn(BusResult.of(packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM12(any(), eq(0x01));
-        verify(diagnosticMessageModule).requestDM12(any(), eq(0x03));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
@@ -269,15 +207,7 @@ public class Part06Step03ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.6.3.2.a - No ECU reported an active DTC and MIL on");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.6.3.2.a - No ECU reported MIL on");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.6.3.2.b - OBD module Engine #2 (1) did not provide a response to Global query and did not provide a NACK for the DS query");
+                                        "6.6.3.2.b - No ECU reported MIL on");
     }
 
 }

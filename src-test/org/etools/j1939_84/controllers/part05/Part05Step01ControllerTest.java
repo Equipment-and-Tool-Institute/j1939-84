@@ -32,7 +32,6 @@ import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -72,6 +71,8 @@ public class Part05Step01ControllerTest extends AbstractControllerTest {
     @Before
     public void setUp() throws Exception {
         DataRepository dataRepository = DataRepository.newInstance();
+        DateTimeModule.setInstance(null);
+
         listener = new TestResultsListener(mockListener);
 
         instance = new Part05Step01Controller(executor,
@@ -157,20 +158,13 @@ public class Part05Step01ControllerTest extends AbstractControllerTest {
             }
         }, 750);
 
-        instance.execute(listener, j1939, reportFileModule);
-        ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
-        verify(executor).execute(runnableCaptor.capture());
-        runnableCaptor.getValue().run();
+        runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-
-        verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).isEngineRunning();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         verify(mockListener).onUrgentMessage("Please turn the Key ON with Engine ON", "Adjust Key Switch", WARNING);
 
-        verify(vehicleInformationModule).setJ1939(j1939);
         String expectedMessages = "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Waiting for Key ON, Engine ON...";
         assertEquals(expectedMessages, listener.getMessages());
@@ -196,21 +190,13 @@ public class Part05Step01ControllerTest extends AbstractControllerTest {
             }
         }, 750);
 
-        instance.execute(listener, j1939, reportFileModule);
-        ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
-        verify(executor).execute(runnableCaptor.capture());
-        runnableCaptor.getValue().run();
+        runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
-
-        verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).isEngineRunning();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 5 Step 1");
         verify(mockListener).onUrgentMessage("Please turn the Key ON with Engine ON", "Adjust Key Switch", WARNING);
-
-        verify(vehicleInformationModule).setJ1939(j1939);
 
         String expectedMessages = "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;

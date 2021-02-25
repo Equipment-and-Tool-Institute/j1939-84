@@ -63,7 +63,7 @@ public class Part04Step15Controller extends StepController {
 
         // 6.4.15.1.b Wait engine manufacturer’s recommended interval.
         incrementProgress("Waiting for manufacturer's recommended interval with the key in off position");
-        waitForManufacturerInterval("6.4.15.1.b");
+        waitForManufacturerInterval("Part 6.4.15.1.b");
 
         // 6.4.15.1.c With the key in the off position remove the implanted Fault A according to the
         // manufacturer’s instructions for restoring the system to a fault- free operating condition.

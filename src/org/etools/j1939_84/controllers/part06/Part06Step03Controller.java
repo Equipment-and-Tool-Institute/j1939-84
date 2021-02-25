@@ -71,23 +71,22 @@ public class Part06Step03Controller extends StepController {
         dsPackets.forEach(this::save);
 
         // 6.6.3.2.a Fail if no ([OBD]) ECU reports an MIL-on active DTC.
-        boolean isMILOn = dsPackets.stream()
+        boolean dtcReported = dsPackets.stream()
                                    .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                                   .anyMatch(p -> p.getMalfunctionIndicatorLampStatus() == ON);
-        if (!isMILOn) {
-            addFailure("6.6.3.2.a - No ECU reported an active DTC and MIL on");
+                                       .anyMatch(p -> !p.getDtcs().isEmpty());
+        if (!dtcReported) {
+            addFailure("6.6.3.2.a - No ECU reported a MIL-on active DTC");
         }
 
         // 6.6.3.2.b Fail if no ECU reports MIL on. See Section A.8 for allowed values.
-        boolean isMILOnAllEcu = dsPackets.stream()
+        boolean milOn = dsPackets.stream()
                                          .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                                         .anyMatch(p -> p.getMalfunctionIndicatorLampStatus() == ON
-                                                 && p.getDtcs().size() > 0);
-        if (!isMILOnAllEcu) {
-            addFailure("6.6.3.2.a - No ECU reported MIL on");
+                                 .anyMatch(p -> p.getMalfunctionIndicatorLampStatus() == ON);
+        if (!milOn) {
+            addFailure("6.6.3.2.b - No ECU reported MIL on");
         }
 
         // 6.6.3.2.c Fail if NACK not received from OBD ECUs that did not provide a DM12 message.
-        checkForNACKsDS(dsPackets, filterAcks(dsResults), "6.6.3.2.b");
+        checkForNACKsDS(dsPackets, filterAcks(dsResults), "6.6.3.2.c");
     }
 }

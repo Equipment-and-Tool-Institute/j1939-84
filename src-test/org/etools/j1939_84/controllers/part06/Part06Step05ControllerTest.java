@@ -133,7 +133,11 @@ public class Part06Step05ControllerTest extends AbstractControllerTest {
         obdModuleInformation0.setIgnitionCycleCounterValue(3);
         dataRepository.putObdModule(obdModuleInformation0);
 
-        dataRepository.putObdModule(new OBDModuleInformation(1));
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        obdModuleInformation1.setIgnitionCycleCounterValue(3);
+        dataRepository.putObdModule(obdModuleInformation1);
+
+        dataRepository.putObdModule(new OBDModuleInformation(2));
 
         var dm20 = DM20MonitorPerformanceRatioPacket.create(0, 5, 7);
         when(diagnosticMessageModule.requestDM20(any(), eq(0))).thenReturn(new BusResult<>(false, dm20));

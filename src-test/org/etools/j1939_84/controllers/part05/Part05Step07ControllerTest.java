@@ -185,10 +185,10 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String expectedMessages = "Step 5.7.1.a - Turn Engine Off and keep the ignition key in the off position" + NL;
-        expectedMessages += "Step 5.7.1.b - Waiting manufacturer’s recommended interval with the key in the off position"
+        String expectedMessages = "Step 6.5.7.1.a - Turn Engine Off and keep the ignition key in the off position" + NL;
+        expectedMessages += "Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the key in the off position"
                 + NL;
-        expectedMessages += "6.5.7.1.c Turn Engine on and keep the ignition key in the on position" + NL;
+        expectedMessages += "Step 6.5.7.1.c Turn Engine on and keep the ignition key in the on position" + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Waiting manufacturer’s recommended time for Fault A to be detected as passed";
@@ -264,10 +264,10 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 5 Step 7");
 
-        String expectedMessages = "Step 5.7.1.a - Turn Engine Off and keep the ignition key in the off position" + NL;
-        expectedMessages += "Step 5.7.1.b - Waiting manufacturer’s recommended interval with the key in the off position"
+        String expectedMessages = "Step 6.5.7.1.a - Turn Engine Off and keep the ignition key in the off position" + NL;
+        expectedMessages += "Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the key in the off position"
                 + NL;
-        expectedMessages += "6.5.7.1.c Turn Engine on and keep the ignition key in the on position" + NL;
+        expectedMessages += "Step 6.5.7.1.c Turn Engine on and keep the ignition key in the on position" + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Waiting manufacturer’s recommended time for Fault A to be detected as passed" + NL;
@@ -339,10 +339,10 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 5 Step 7");
 
-        String expectedMessages = "Step 5.7.1.a - Turn Engine Off and keep the ignition key in the off position" + NL;
-        expectedMessages += "Step 5.7.1.b - Waiting manufacturer’s recommended interval with the key in the off position"
+        String expectedMessages = "Step 6.5.7.1.a - Turn Engine Off and keep the ignition key in the off position" + NL;
+        expectedMessages += "Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the key in the off position"
                 + NL;
-        expectedMessages += "6.5.7.1.c Turn Engine on and keep the ignition key in the on position" + NL;
+        expectedMessages += "Step 6.5.7.1.c Turn Engine on and keep the ignition key in the on position" + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
         expectedMessages += "Waiting manufacturer’s recommended time for Fault A to be detected as passed" + NL;

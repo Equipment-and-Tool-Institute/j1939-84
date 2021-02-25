@@ -176,7 +176,7 @@ public class Part03Step14ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        assertEquals(0, dataRepository.getObdModule(0).getIgnitionCycleCounterValue());
+        assertEquals(-1, dataRepository.getObdModule(0).getIgnitionCycleCounterValue());
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());

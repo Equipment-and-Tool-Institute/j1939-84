@@ -63,7 +63,7 @@ public class Part05Step07Controller extends StepController {
         waitForManufacturerInterval("Part 6.5.7.1.b");
 
         // 6.5.7.1.c Start Engine for second cycle.
-        incrementProgress("6.5.7.1.c Turn Engine on and keep the ignition key in the on position");
+        incrementProgress("Step 6.5.7.1.c Turn Engine on and keep the ignition key in the on position");
         ensureKeyOnEngineOn();
 
         // 6.5.7.1.d Wait for manufacturer’s recommended time for Fault A to be detected as passed.
