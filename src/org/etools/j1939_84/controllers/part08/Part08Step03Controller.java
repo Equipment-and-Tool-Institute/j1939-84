@@ -66,6 +66,8 @@ public class Part08Step03Controller extends StepController {
         // 6.8.3.1.a Receive broadcast data [(PGN 65226 (SPNs 1213-1215, 1706, and 3038)]).
         List<DM1ActiveDTCsPacket> packets = getDiagnosticMessageModule().readDM1(getListener());
 
+        packets.forEach(this::save);
+
         // 6.8.3.2.a Fail if no ECU reporting MIL on.
         boolean noReports = packets.stream()
                                    .noneMatch(p -> p.getMalfunctionIndicatorLampStatus() == ON);
