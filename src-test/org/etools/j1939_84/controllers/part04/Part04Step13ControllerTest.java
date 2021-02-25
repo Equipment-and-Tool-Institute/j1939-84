@@ -147,10 +147,10 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM3(any(), eq(0)))
                                                               .thenReturn(List.of(AcknowledgmentPacket.create(0,
                                                                                                               NACK)));
-        when(diagnosticMessageModule.requestDM3(any(), eq(0)))
-                                                              .thenReturn(List.of(AcknowledgmentPacket.create(0,
+        when(diagnosticMessageModule.requestDM3(any(), eq(1)))
+                                                              .thenReturn(List.of(AcknowledgmentPacket.create(1,
                                                                                                               DENIED)));
-        when(diagnosticMessageModule.requestDM3(any(), eq(0)))
+        when(diagnosticMessageModule.requestDM3(any(), eq(2)))
                                                               .thenReturn(List.of());
 
         runTest();
@@ -165,16 +165,16 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
         verify(verifier).verifyDataNotErased(any(), eq("6.4.13.4.a"));
 
         String expected = "";
-        expected += "Step 4.13.1.b. Waiting 5 seconds" + NL;
-        expected += "Step 4.13.1.b. Waiting 4 seconds" + NL;
-        expected += "Step 4.13.1.b. Waiting 3 seconds" + NL;
-        expected += "Step 4.13.1.b. Waiting 2 seconds" + NL;
-        expected += "Step 4.13.1.b. Waiting 1 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 5 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 4 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 3 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 2 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 1 seconds";
+        expected += "Step 4.13.1.b Waiting 5 seconds" + NL;
+        expected += "Step 4.13.1.b Waiting 4 seconds" + NL;
+        expected += "Step 4.13.1.b Waiting 3 seconds" + NL;
+        expected += "Step 4.13.1.b Waiting 2 seconds" + NL;
+        expected += "Step 4.13.1.b Waiting 1 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 5 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 4 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 3 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 2 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 1 seconds";
         assertEquals(expected, listener.getMessages());
         assertEquals("", listener.getResults());
     }
@@ -197,16 +197,16 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
         verify(verifier).verifyDataNotErased(any(), eq("6.4.13.4.a"));
 
         String expected = "";
-        expected += "Step 4.13.1.b. Waiting 5 seconds" + NL;
-        expected += "Step 4.13.1.b. Waiting 4 seconds" + NL;
-        expected += "Step 4.13.1.b. Waiting 3 seconds" + NL;
-        expected += "Step 4.13.1.b. Waiting 2 seconds" + NL;
-        expected += "Step 4.13.1.b. Waiting 1 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 5 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 4 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 3 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 2 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 1 seconds";
+        expected += "Step 4.13.1.b Waiting 5 seconds" + NL;
+        expected += "Step 4.13.1.b Waiting 4 seconds" + NL;
+        expected += "Step 4.13.1.b Waiting 3 seconds" + NL;
+        expected += "Step 4.13.1.b Waiting 2 seconds" + NL;
+        expected += "Step 4.13.1.b Waiting 1 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 5 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 4 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 3 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 2 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 1 seconds";
         assertEquals(expected, listener.getMessages());
         assertEquals("", listener.getResults());
 
@@ -235,16 +235,16 @@ public class Part04Step13ControllerTest extends AbstractControllerTest {
         verify(verifier).verifyDataNotErased(any(), eq("6.4.13.4.a"));
 
         String expected = "";
-        expected += "Step 4.13.1.b. Waiting 5 seconds" + NL;
-        expected += "Step 4.13.1.b. Waiting 4 seconds" + NL;
-        expected += "Step 4.13.1.b. Waiting 3 seconds" + NL;
-        expected += "Step 4.13.1.b. Waiting 2 seconds" + NL;
-        expected += "Step 4.13.1.b. Waiting 1 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 5 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 4 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 3 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 2 seconds" + NL;
-        expected += "Step 4.13.3.b. Waiting 1 seconds";
+        expected += "Step 4.13.1.b Waiting 5 seconds" + NL;
+        expected += "Step 4.13.1.b Waiting 4 seconds" + NL;
+        expected += "Step 4.13.1.b Waiting 3 seconds" + NL;
+        expected += "Step 4.13.1.b Waiting 2 seconds" + NL;
+        expected += "Step 4.13.1.b Waiting 1 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 5 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 4 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 3 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 2 seconds" + NL;
+        expected += "Step 4.13.3.b Waiting 1 seconds";
         assertEquals(expected, listener.getMessages());
         assertEquals("", listener.getResults());
 
