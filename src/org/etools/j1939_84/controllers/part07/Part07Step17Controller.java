@@ -3,11 +3,15 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
+import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -55,8 +59,26 @@ public class Part07Step17Controller extends StepController {
     protected void run() throws Throwable {
         // 6.7.17.1.a. DS DM7 with TID 250 and each specific SPN+FMI that had non-initialized test results on list
         // created in step 6.7.15.1.b.
-        // 6.7.17.2.a. Fail if any non-initialized tests reports now report initialized values.
-        // Use this to help verify no diagnostic information was cleared with DM3 request.43
+        for (OBDModuleInformation obdModuleInformation : getDataRepository().getObdModules()) {
+            int moduleAddress = obdModuleInformation.getSourceAddress();
+            String moduleName = obdModuleInformation.getModuleName();
+
+            for (ScaledTestResult str : obdModuleInformation.getNonInitializedTests()) {
+                int spn = str.getSpn();
+                int fmi = str.getFmi();
+
+                // 6.7.17.2.a. Fail if any non-initialized tests reports now report initialized values.
+                // Use this to help verify no diagnostic information was cleared with DM3 request.
+                getDiagnosticMessageModule().requestTestResults(getListener(), moduleAddress, 250, spn, fmi)
+                                            .stream()
+                                            .map(DM30ScaledTestResultsPacket::getTestResults)
+                                            .flatMap(Collection::stream)
+                                            .filter(ScaledTestResult::isInitialized)
+                                            .forEach(s -> addFailure("6.7.17.2.a - " + moduleName
+                                                    + " is now reporting an initialize test for SPN = " + spn
+                                                    + ", FMI = " + fmi));
+            }
+        }
     }
 
 }
