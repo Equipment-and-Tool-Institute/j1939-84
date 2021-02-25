@@ -8,7 +8,6 @@ import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
-import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
@@ -159,10 +158,11 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         StringBuilder expectedMessages = new StringBuilder();
         for (int i = 1; i <= 300; i++) {
-            expectedMessages.append("Step 4.2. Requesting DM12 Attempt ").append(i).append(NL);
+            expectedMessages.append("Step 4.2. Requesting DM12 Attempt ").append(i);
+            if (i != 300) {
+                expectedMessages.append(NL);
+            }
         }
-        expectedMessages.append("User cancelled testing at Part 4 Step 2").append(NL);
-        expectedMessages.append("Step 4.2. Requesting DM12 Attempt 1");
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
         assertEquals("", listener.getMilestones());
@@ -176,7 +176,14 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
         verify(diagnosticMessageModule, times(300)).requestDM12(any());
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 4 Step 2");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.4.2.1.a.ii - User said 'no' and no ECU reported a confirmed and active DTC");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.4.2.2.a - No ECU reported MIL on");
 
         assertEquals(299000, dateTimeModule.getTimeAsLong());
     }
@@ -185,8 +192,8 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
     public void testNoDTCs() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
-        var DM12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
-        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, DM12));
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        when(diagnosticMessageModule.requestDM12(any())).thenReturn(new RequestResult<>(false, dm12));
 
         String promptMsg = "No module has reported a confirmed and active DTC." + NL + "Do you wish to continue?";
         String promptTitle = "No Confirmed and Active DTCs Found";
@@ -197,14 +204,17 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
             return null;
         }).when(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
 
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
+
         runTest();
 
         StringBuilder expectedMessages = new StringBuilder();
         for (int i = 1; i <= 300; i++) {
-            expectedMessages.append("Step 4.2. Requesting DM12 Attempt ").append(i).append(NL);
+            expectedMessages.append("Step 4.2. Requesting DM12 Attempt ").append(i);
+            if (i != 300) {
+                expectedMessages.append(NL);
+            }
         }
-        expectedMessages.append("User cancelled testing at Part 4 Step 2").append(NL);
-        expectedMessages.append("Step 4.2. Requesting DM12 Attempt 1");
         assertEquals(expectedMessages.toString(), listener.getMessages());
 
         assertEquals("", listener.getMilestones());
@@ -217,8 +227,16 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
         verify(diagnosticMessageModule, times(300)).requestDM12(any());
+        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
         verify(mockListener).onUrgentMessage(eq(promptMsg), eq(promptTitle), eq(QUESTION), any());
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 4 Step 2");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.4.2.1.a.ii - User said 'no' and no ECU reported a confirmed and active DTC");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.4.2.2.a - No ECU reported MIL on");
 
         assertEquals(299000, dateTimeModule.getTimeAsLong());
     }
