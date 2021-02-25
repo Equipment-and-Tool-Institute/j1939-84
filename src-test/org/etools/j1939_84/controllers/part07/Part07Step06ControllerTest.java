@@ -3,16 +3,27 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
+import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +130,88 @@ public class Part07Step06ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        var dtc = DiagnosticTroubleCode.create(123, 12, 1, 1);
+        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 0, 1, 0x22);
+
+        var dm5_1 = DM5DiagnosticReadinessPacket.create(1, 1, 0, 0x05);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0, dm5_1));
 
         runTest();
 
+        verify(diagnosticMessageModule).requestDM5(any());
+
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
+    }
+
+    @Test
+    public void testFailureForActiveDTC() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        var dtc = DiagnosticTroubleCode.create(123, 12, 1, 1);
+        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 1, 1, 0x22);
+
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.7.6.2.a - Engine #1 (0) reported > 0 for active DTCs");
+    }
+
+    @Test
+    public void testFailureForNoPreviouslyActiveDTC() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22);
+
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.7.6.2.b - No ECU reported > 0 for previously active DTCs");
+    }
+
+    @Test
+    public void testFailureForDifferentPreviouslyActiveDTC() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm5_0 = DM5DiagnosticReadinessPacket.create(0, 0, 1, 0x22);
+
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.7.6.2.c - Engine #1 (0) reported a different number of previously active DTCs than in DM2 response earlier in this part");
     }
 
 }
