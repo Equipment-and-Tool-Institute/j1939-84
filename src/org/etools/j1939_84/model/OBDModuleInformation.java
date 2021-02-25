@@ -39,7 +39,7 @@ public class OBDModuleInformation implements Cloneable {
     private final List<Integer> omittedSPNs = new ArrayList<>(List.of(588, 1213, 1220, 12675, 12730, 12783, 12797));
     private ComponentIdentification componentIdentification = null;
     private int function;
-    private int ignitionCycleCounterValue;
+    private int ignitionCycleCounterValue = -1;
     private byte obdCompliance;
     private String engineFamilyName = "";
     private String modelYear = "";
@@ -201,8 +201,8 @@ public class OBDModuleInformation implements Cloneable {
     }
 
     public void setNonInitializedTests(List<ScaledTestResult> tests) {
-        this.nonInitializedTests.clear();
-        this.nonInitializedTests.addAll(tests);
+        nonInitializedTests.clear();
+        nonInitializedTests.addAll(tests);
     }
 
     public String getEngineFamilyName() {
@@ -245,7 +245,6 @@ public class OBDModuleInformation implements Cloneable {
             packetArchive.put(packet.getClass(), packet);
         }
 
-        @SuppressWarnings("unchecked")
         public <T extends GenericPacket> T get(Class<T> clazz) {
             return (T) packetArchive.get(clazz);
         }
