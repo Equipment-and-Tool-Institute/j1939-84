@@ -96,11 +96,9 @@ public class Part07Step16Controller extends StepController {
                      return r != NACK;
                  })
                  .forEach(packet -> {
-                     AcknowledgmentPacket.Response response = packet.getResponse();
-                     if (response != NACK) {
-                         addFailure("6.7.16.4.a - " + packet.getModuleName()
-                                 + " did not NACK the DS DM3 request");
-                     }
+                     addFailure("6.7.16.4.a - " + packet.getModuleName()
+                             + " did not NACK the DS DM3 request");
+
                  });
     }
 }
