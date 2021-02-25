@@ -3,16 +3,27 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -120,10 +131,65 @@ public class Part07Step14ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
 
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0);
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        var nack = AcknowledgmentPacket.create(1, NACK);
+        when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(BusResult.of(nack));
+
         runTest();
+
+        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM21(any(), eq(1));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
     }
 
+    @Test
+    public void testFailureForNoEcuReportsMinutesWithMilOn() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 1, 0, 0, 0);
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.7.14.2.a - No ECU reported time with MIL on greater than or equal to 1 minute");
+    }
+
+    @Test
+    public void testFailureForNoNACK() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0);
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(BusResult.empty());
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM21(any(), eq(1));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.7.14.2.b - OBD module Engine #2 (1) did not provide a NACK for the DS query");
+    }
 }
