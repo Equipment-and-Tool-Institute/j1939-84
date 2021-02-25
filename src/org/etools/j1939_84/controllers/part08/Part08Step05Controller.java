@@ -67,6 +67,8 @@ public class Part08Step05Controller extends StepController {
                                                   .filter(p -> isObdModule(p.getSourceAddress()))
                                                   .collect(Collectors.toList());
 
+        packets.forEach(this::save);
+
         // 6.8.5.2.a (if supported) Fail if any OBD ECU does not include all DTCs from its DM23 response in its DM2
         // response.
         packets.stream()
