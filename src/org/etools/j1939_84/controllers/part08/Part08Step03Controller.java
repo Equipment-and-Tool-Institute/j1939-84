@@ -3,11 +3,20 @@
  */
 package org.etools.j1939_84.controllers.part08;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
+
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.LampStatus;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -53,10 +62,51 @@ public class Part08Step03Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
+
         // 6.8.3.1.a Receive broadcast data [(PGN 65226 (SPNs 1213-1215, 1706, and 3038)]).
+        List<DM1ActiveDTCsPacket> packets = getDiagnosticMessageModule().readDM1(getListener());
+
         // 6.8.3.2.a Fail if no ECU reporting MIL on.
+        boolean noReports = packets.stream()
+                                   .noneMatch(p -> p.getMalfunctionIndicatorLampStatus() == ON);
+        if (noReports) {
+            addFailure("6.8.3.2.a - No ECU reported MIL on");
+        }
+
         // 6.8.3.2.b Fail if any OBD ECU does not include all DTCs from its DM12 response in its DM1 response.
+        for (OBDModuleInformation moduleInfo : getDataRepository().getObdModules()) {
+            int moduleAddress = moduleInfo.getSourceAddress();
+
+            packets.stream()
+                   .filter(p -> p.getSourceAddress() == moduleAddress)
+                   .filter(p -> !dtcListsAreSame(p.getDtcs(), getDTCs(moduleAddress)))
+                   .map(ParsedPacket::getModuleName)
+                   .findFirst()
+                   .ifPresent(moduleName -> addFailure("6.8.3.2.b - " + moduleName
+                           + " did not include all DTCs from its DM12 response"));
+        }
+
         // 6.8.3.2.c Fail if any OBD ECU reporting different MIL status than DM12 response earlier in this part.
+        for (OBDModuleInformation moduleInfo : getDataRepository().getObdModules()) {
+            int moduleAddress = moduleInfo.getSourceAddress();
+
+            packets.stream()
+                   .filter(p -> p.getSourceAddress() == moduleAddress)
+                   .filter(p -> getMIL(moduleAddress) != null)
+                   .filter(p -> p.getMalfunctionIndicatorLampStatus() != getMIL(moduleAddress))
+                   .map(ParsedPacket::getModuleName)
+                   .findFirst()
+                   .ifPresent(moduleName -> addFailure("6.8.3.2.c - " + moduleName
+                           + " reported a different MIL status than DM12 response earlier in this part"));
+        }
     }
 
+    private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, moduleAddress);
+    }
+
+    private LampStatus getMIL(int moduleAddress) {
+        var dm12 = get(DM12MILOnEmissionDTCPacket.class, moduleAddress);
+        return dm12 == null ? null : dm12.getMalfunctionIndicatorLampStatus();
+    }
 }
