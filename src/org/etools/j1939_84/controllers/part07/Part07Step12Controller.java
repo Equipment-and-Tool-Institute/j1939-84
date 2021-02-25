@@ -3,9 +3,15 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
+import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -53,12 +59,45 @@ public class Part07Step12Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.7.12.1.a. DS DM25 ([send Request (PGNPG 59904) for PGNPG 64951 (SPNSPs 3300, 1214-1215)]) to each OBD ECU.
+        // 6.7.12.1.a. DS DM25 ([send Request (PGN 59904) for PGN 64951 (SPNs 3300, 1214-1215)]) to each OBD ECU.
+        var dsResults = getDataRepository().getObdModuleAddresses()
+                                           .stream()
+                                           .map(a -> getDiagnosticMessageModule().requestDM25(getListener(), a))
+                                           .collect(Collectors.toList());
+
+        var packets = filterPackets(dsResults);
+
         // 6.7.12.2.a. Fail if no ECU reports Freeze Frame data.
+        boolean hasFreezeFrame = packets.stream()
+                                        .map(DM25ExpandedFreezeFrame::getFreezeFrames)
+                                        .flatMap(Collection::stream)
+                                        .findAny()
+                                        .isPresent();
+        if (!hasFreezeFrame) {
+            addFailure("6.7.12.2.a - No ECU reported Freeze Frame data");
+        }
+
         // 6.7.12.2.b. Fail if DTC in reported Freeze Frame data does not include the DTC provided by DM23 earlier in
         // this part.
+        for (DM25ExpandedFreezeFrame dm25 : packets) {
+            for (DiagnosticTroubleCode dtc : getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class,
+                                                     dm25.getSourceAddress())) {
+                if (dm25.getFreezeFrameWithDTC(dtc) == null) {
+                    addFailure("6.7.12.2.b - " + dm25.getModuleName()
+                            + " did not reported DTC in Freeze Frame data which included the DTC provided by DM23 earlier in this part");
+                }
+            }
+        }
+
         // 6.7.12.2.c. Fail if NACK not received from OBD ECUs that did not provide DM25 message.
+        checkForNACKsDS(packets, filterAcks(dsResults), "6.7.12.2.c");
+
         // 6.7.12.3.a. Warn if more than one Freeze Frame is provided
+        packets.stream()
+               .filter(p -> p.getFreezeFrames().size() > 1)
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addWarning("6.7.12.3.a - " + moduleName
+                       + " reported more than one Freeze Frame"));
     }
 
 }

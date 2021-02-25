@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame.PGN;
 import static org.junit.Assert.assertArrayEquals;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
 
 import java.util.List;
 
@@ -207,6 +208,35 @@ public class DM25ExpandedFreezeFrameTest {
         expected += "]";
 
         assertEquals(expected, instance.toString());
+    }
+
+    @Test
+    public void testGetFreezeFrameForDTC() {
+        //@formatter:off
+        int[] realData = new int[] {
+                0x56, 0x9D, 0x00, 0x07, 0x7F, 0x00, 0x01, 0x7B,
+                0x00, 0x00, 0x39, 0x3A, 0x5C, 0x0F, 0xC4, 0xFB,
+                0x00, 0x00, 0x00, 0xF1, 0x26, 0x00, 0x00, 0x00,
+                0x12, 0x7A, 0x7D, 0x80, 0x65, 0x00, 0x00, 0x32,
+                0x00, 0x00, 0x00, 0x00, 0x84, 0xAD, 0x00, 0x39,
+                0x2C, 0x30, 0x39, 0xFC, 0x38, 0xC6, 0x35, 0xE0,
+                0x34, 0x2C, 0x2F, 0x00, 0x00, 0x7D, 0x7D, 0x8A,
+                0x28, 0xA0, 0x0F, 0xA0, 0x0F, 0xD1, 0x37, 0x00,
+                0xCA, 0x28, 0x01, 0xA4, 0x0D, 0x00, 0xA8, 0xC3,
+                0xB2, 0xC2, 0xC3, 0x00, 0x00, 0x00, 0x00, 0x7E,
+                0xD0, 0x07, 0x00, 0x7D, 0x04, 0xFF, 0xFA };
+        //@formatter:on
+
+        Packet packet = Packet.create(0x00, 0x00, realData);
+        DM25ExpandedFreezeFrame instance = new DM25ExpandedFreezeFrame(packet);
+
+        var dtc = DiagnosticTroubleCode.create(157, 7, 0, 1);
+        var actual = instance.getFreezeFrameWithDTC(dtc);
+        assertEquals(157, actual.getDtc().getSuspectParameterNumber());
+        assertEquals(7, actual.getDtc().getFailureModeIndicator());
+
+        var dtc2 = DiagnosticTroubleCode.create(123, 12, 0, 1);
+        assertNull(instance.getFreezeFrameWithDTC(dtc2));
     }
 
 }
