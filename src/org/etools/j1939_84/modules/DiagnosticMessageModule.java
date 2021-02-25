@@ -220,6 +220,14 @@ public class DiagnosticMessageModule extends FunctionalModule {
         return getJ1939().requestTestResults(tid, spn, fmi, address, listener).requestResult().getPackets();
     }
 
+    public BusResult<DM30ScaledTestResultsPacket> requestTestResult(ResultsListener listener,
+                                                                    int address,
+                                                                    int tid,
+                                                                    int spn,
+                                                                    int fmi) {
+        return getJ1939().requestTestResults(tid, spn, fmi, address, listener);
+    }
+
     public RequestResult<DM31DtcToLampAssociation> requestDM31(ResultsListener listener) {
         return requestDMPackets("DM31", DM31DtcToLampAssociation.class, GLOBAL_ADDR, listener);
     }
