@@ -3,9 +3,13 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -53,11 +57,30 @@ public class Part07Step09Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.7.9.1.a DS DM28 [(send Request (PGN 59904) for PGN 64896 (SPNs 1213-1215, 1706, and 3038)]) to each OBD
-        // ECU.
+        // 6.7.9.1.a DS DM28 [send Request (PGN 59904) for PGN 64896 (SPNs 1213-1215, 1706, and 3038)] to each OBD ECU
+        var dsResults = getDataRepository().getObdModuleAddresses()
+                                           .stream()
+                                           .map(a -> getDiagnosticMessageModule().requestDM28(getListener(), a))
+                                           .collect(Collectors.toList());
+
+        var packets = filterPackets(dsResults);
+
         // 6.7.9.2.a Fail if any ECU reports a permanent DTC.
+        packets.stream()
+               .filter(p -> isObdModule(p.getSourceAddress()))
+               .filter(p -> !p.getDtcs().isEmpty())
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.7.9.2.a - " + moduleName + " reported a permanent DTC"));
+
         // 6.7.9.2.b Fail if any ECU does not report MIL off.
+        packets.stream()
+               .filter(p -> isObdModule(p.getSourceAddress()))
+               .filter(p -> p.getMalfunctionIndicatorLampStatus() != OFF)
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.7.9.2.a - " + moduleName + " did not report MIL off"));
+
         // 6.7.9.2.c Fail if NACK not received from OBD ECUs that did not provide DM28 message.
+        checkForNACKsDS(packets, filterAcks(dsResults), "6.7.9.2.c");
     }
 
 }
