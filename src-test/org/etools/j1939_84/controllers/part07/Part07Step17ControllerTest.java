@@ -4,15 +4,24 @@
 package org.etools.j1939_84.controllers.part07;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.Outcome;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -120,10 +129,63 @@ public class Part07Step17ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
 
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        ScaledTestResult str1 = ScaledTestResult.create(247, 123, 12, 6, 100, 0, 250);
+        ScaledTestResult str2 = ScaledTestResult.create(247, 456, 9, 4, 9, 12, 3);
+        obdModuleInformation.setNonInitializedTests(List.of(str1, str2));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm30_123_12 = DM30ScaledTestResultsPacket.create(0, str1);
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(250), eq(123), eq(12)))
+                                                                                                .thenReturn(List.of(dm30_123_12));
+
+        var dm30_456_9 = DM30ScaledTestResultsPacket.create(0, str2);
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(250), eq(456), eq(9)))
+                                                                                               .thenReturn(List.of(dm30_456_9));
+
         runTest();
+
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(250), eq(123), eq(12));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
     }
 
+    @Test
+    public void testFailureForInitializedTests() {
+
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        obdModuleInformation.setNonInitializedTests(List.of(ScaledTestResult.create(247, 123, 12, 6, 100, 0, 250),
+                                                            ScaledTestResult.create(247, 456, 9, 4, 9, 12, 3)));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var str_123_12 = ScaledTestResult.create(247, 123, 12, 6, 0, 0, 0);
+        var dm30_123_12 = DM30ScaledTestResultsPacket.create(0, str_123_12);
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(250), eq(123), eq(12)))
+                                                                                                .thenReturn(List.of(dm30_123_12));
+
+        var str_456_9 = ScaledTestResult.create(247, 456, 9, 4, 0xFB00, 0xFFFF, 0xFFFF);
+        var dm30_456_9 = DM30ScaledTestResultsPacket.create(0, str_456_9);
+        when(diagnosticMessageModule.requestTestResults(any(), eq(0), eq(250), eq(456), eq(9)))
+                                                                                               .thenReturn(List.of(dm30_456_9));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(250), eq(123), eq(12));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        Outcome.FAIL,
+                                        "6.7.17.2.a - Engine #1 (0) is now reporting an initialize test for SPN = 123, FMI = 12");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        Outcome.FAIL,
+                                        "6.7.17.2.a - Engine #1 (0) is now reporting an initialize test for SPN = 456, FMI = 9");
+    }
 }
