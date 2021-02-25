@@ -47,6 +47,17 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
         return freezeFrames;
     }
 
+    public FreezeFrame getFreezeFrameWithDTC(DiagnosticTroubleCode dtc) {
+        for (FreezeFrame freezeFrame : getFreezeFrames()) {
+            var ffDtc = freezeFrame.getDtc();
+            if (ffDtc.getSuspectParameterNumber() == dtc.getSuspectParameterNumber()
+                    && ffDtc.getFailureModeIndicator() == dtc.getFailureModeIndicator()) {
+                return freezeFrame;
+            }
+        }
+        return null;
+    }
+
     @Override
     public String getName() {
         return "DM25";
