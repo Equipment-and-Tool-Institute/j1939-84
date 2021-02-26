@@ -5,14 +5,11 @@ package org.etools.j1939_84.controllers.part04;
 
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
-import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
@@ -78,40 +75,20 @@ public class Part04Step03Controller extends StepController {
         }
 
         // Save DM1 for use later
-        packets.forEach(p -> {
-            OBDModuleInformation moduleInfo = getDataRepository().getObdModule(p.getSourceAddress());
-            if (moduleInfo != null) {
-                moduleInfo.set(p);
-                getDataRepository().putObdModule(moduleInfo);
-            }
-        });
+        packets.forEach(this::save);
 
         // 6.4.3.2.b Fail if any OBD ECU report does not include its DM12 DTCs in the list of active DTCs.
+
         for (OBDModuleInformation moduleInfo : getDataRepository().getObdModules()) {
             int moduleAddress = moduleInfo.getSourceAddress();
-            String moduleName = Lookup.getAddressName(moduleAddress);
-            DM12MILOnEmissionDTCPacket dm12 = moduleInfo.get(DM12MILOnEmissionDTCPacket.class);
-            List<DiagnosticTroubleCode> existingDTCs = dm12 == null ? List.of() : dm12.getDtcs();
 
-            List<DM1ActiveDTCsPacket> modulePackets = packets.stream()
-                                                             .filter(p -> p.getSourceAddress() == moduleAddress)
-                                                             .collect(Collectors.toList());
-            for (DM1ActiveDTCsPacket packet : modulePackets) {
-                boolean failure = false;
-                var packetDTCs = toString(packet.getDtcs());
-                for (DiagnosticTroubleCode dtc : existingDTCs) {
-                    String key = dtc.getSuspectParameterNumber() + ":" + dtc.getFailureModeIndicator();
-                    if (!packetDTCs.contains(key)) {
-                        failure = true;
-                        addFailure("6.4.3.2.b - " + moduleName
-                                + " did not include its DM12 DTCs in the list of active DTCs");
-                        break;
-                    }
-                }
-                if (failure) {
-                    break;
-                }
-            }
+            packets.stream()
+                   .filter(p -> p.getSourceAddress() == moduleAddress)
+                   .filter(p -> !dtcListsAreSame(p.getDtcs(), getDTCs(moduleAddress)))
+                   .map(ParsedPacket::getModuleName)
+                   .findFirst()
+                   .ifPresent(moduleName -> addFailure("6.4.3.2.b - " + moduleName
+                           + " did not include its DM12 DTCs in the list of active DTCs"));
         }
 
         // 6.4.3.2.c Fail if any OBD ECU reports fewer active DTCs in its DM1 response than its DM12 response.
@@ -137,17 +114,7 @@ public class Part04Step03Controller extends StepController {
     }
 
     private List<DiagnosticTroubleCode> getDTCs(int moduleAddress) {
-        List<DiagnosticTroubleCode> results = new ArrayList<>();
-
-        OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(moduleAddress);
-        if (obdModuleInformation != null) {
-            DM12MILOnEmissionDTCPacket packet = obdModuleInformation.get(DM12MILOnEmissionDTCPacket.class);
-            if (packet != null) {
-                results.addAll(packet.getDtcs());
-            }
-        }
-
-        return results;
+        return getDTCs(DM12MILOnEmissionDTCPacket.class, moduleAddress);
     }
 
 }
