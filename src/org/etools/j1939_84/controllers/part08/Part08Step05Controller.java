@@ -3,9 +3,16 @@
  */
 package org.etools.j1939_84.controllers.part08;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.LampStatus;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -54,10 +61,38 @@ public class Part08Step05Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.8.5.1.a Global DM2 ([send Request (PGN 59904) for PGN 65227 (SPNs 1213-1215, 3038, 1706)]).
+        var packets = getDiagnosticMessageModule().requestDM2(getListener())
+                                                  .getPackets()
+                                                  .stream()
+                                                  .filter(p -> isObdModule(p.getSourceAddress()))
+                                                  .collect(Collectors.toList());
+
+        packets.forEach(this::save);
+
         // 6.8.5.2.a (if supported) Fail if any OBD ECU does not include all DTCs from its DM23 response in its DM2
         // response.
+        packets.stream()
+               .filter(p -> !dtcListsAreSame(p.getDtcs(), getDTCs(p.getSourceAddress())))
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.8.5.2.a - " + moduleName
+                       + " did not include all DTCs from its DM23 response in its DM2 response"));
+
         // 6.8.5.2.b (if supported) Fail if any OBD ECU reporting a different MIL status than DM12 response earlier in
         // this part.
+        packets.stream()
+               .filter(p -> getMIL(p.getSourceAddress()) != null)
+               .filter(p -> p.getMalfunctionIndicatorLampStatus() != getMIL(p.getSourceAddress()))
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> addFailure("6.8.5.2.b - " + moduleName
+                       + " reported different MIL status than DM12 response earlier in this part"));
     }
 
+    private List<DiagnosticTroubleCode> getDTCs(int address) {
+        return getDTCs(DM23PreviouslyMILOnEmissionDTCPacket.class, address);
+    }
+
+    private LampStatus getMIL(int address) {
+        var dm12 = get(DM12MILOnEmissionDTCPacket.class, address);
+        return dm12 == null ? null : dm12.getMalfunctionIndicatorLampStatus();
+    }
 }

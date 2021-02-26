@@ -3,16 +3,29 @@
  */
 package org.etools.j1939_84.controllers.part08;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.FAST_FLASH;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +132,77 @@ public class Part08Step05ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF));
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 2);
+        obdModuleInformation0.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm2_0 = DM2PreviouslyActiveDTC.create(0, ON, OFF, OFF, OFF, dtc);
+
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        dataRepository.putObdModule(obdModuleInformation1);
+        var dm2_1 = DM2PreviouslyActiveDTC.create(1, OFF, OFF, OFF, OFF);
+
+        var dtc1 = DiagnosticTroubleCode.create(1289, 3, 0, 1);
+        var dm2_2 = DM2PreviouslyActiveDTC.create(2, ON, OFF, OFF, OFF, dtc1);
+
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(RequestResult.of(dm2_0, dm2_1, dm2_2));
 
         runTest();
 
+        verify(diagnosticMessageModule).requestDM2(any());
+
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testFailureForDifferentDTC() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF));
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 2);
+        obdModuleInformation0.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        dataRepository.putObdModule(obdModuleInformation0);
+
+        var dtc1 = DiagnosticTroubleCode.create(1289, 3, 0, 1);
+        var dm2 = DM2PreviouslyActiveDTC.create(0, ON, OFF, OFF, OFF, dtc1);
+
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(RequestResult.of(dm2));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM2(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.8.5.2.a - Engine #1 (0) did not include all DTCs from its DM23 response in its DM2 response");
+    }
+
+    @Test
+    public void testFailureForDifferentMIL() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF));
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 2);
+        obdModuleInformation0.set(DM23PreviouslyMILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        dataRepository.putObdModule(obdModuleInformation0);
+
+        var dm2 = DM2PreviouslyActiveDTC.create(0, FAST_FLASH, OFF, OFF, OFF, dtc);
+
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(RequestResult.of(dm2));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM2(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.8.5.2.b - Engine #1 (0) reported different MIL status than DM12 response earlier in this part");
     }
 
 }
