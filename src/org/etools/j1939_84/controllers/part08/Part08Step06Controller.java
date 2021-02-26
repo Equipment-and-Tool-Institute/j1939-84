@@ -5,7 +5,11 @@ package org.etools.j1939_84.controllers.part08;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -53,11 +57,41 @@ public class Part08Step06Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        // 6.8.6.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)]). Fail Criteria
-        // 6.8.6.2.a Fail if any OBD ECU reports different number of DTCs than corresponding DM1 or DM2 response earlier
+        // 6.8.6.1.a Global DM5 [(send Request (PGN 59904) for PGN 65230 (SPNs 1218-1223)]).
+        var globalPackets = getDiagnosticMessageModule().requestDM5(getListener()).getPackets();
+
+        // 6.8.6.2.a Fail if any OBD ECU reports different number of DTCs than corresponding DM1 response earlier
         // this part.
+        globalPackets.stream()
+                     .filter(p -> p.getActiveCodeCount() != dm1Count(p.getSourceAddress()))
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> addFailure("6.8.6.2.a - " + moduleName
+                             + " reported different number of DTCs than correspond DM1 response earlier in this part"));
+
+        // 6.8.6.2.a Fail if any OBD ECU reports different number of DTCs than corresponding DM2 response earlier
+        // this part.
+        globalPackets.stream()
+                     .filter(p -> p.getPreviouslyActiveCodeCount() != dm2Count(p.getSourceAddress()))
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> addFailure("6.8.6.2.a - " + moduleName
+                             + " reported different number of DTCs than correspond DM2 response earlier in this part"));
+
         // 6.8.6.3.a DS DM5 to each OBD ECU.
+        var dsResults = getDataRepository().getObdModuleAddresses()
+                                           .stream()
+                                           .map(a -> getDiagnosticMessageModule().requestDM5(getListener(), a))
+                                           .collect(Collectors.toList());
+
         // 6.8.6.4.a Fail if any difference in data compared to global response.
+        compareRequestPackets(globalPackets, filterPackets(dsResults), "6.8.6.4.a");
+    }
+
+    private int dm1Count(int address) {
+        return getDTCs(DM1ActiveDTCsPacket.class, address).size();
+    }
+
+    private int dm2Count(int address) {
+        return getDTCs(DM2PreviouslyActiveDTC.class, address).size();
     }
 
 }

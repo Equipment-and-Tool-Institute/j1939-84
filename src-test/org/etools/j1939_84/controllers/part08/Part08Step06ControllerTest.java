@@ -3,16 +3,29 @@
  */
 package org.etools.j1939_84.controllers.part08;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM2PreviouslyActiveDTC;
+import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +132,107 @@ public class Part08Step06ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 1, 0, 1);
+        var dtc2 = DiagnosticTroubleCode.create(234, 1, 0, 1);
+        obdModuleInformation.set(DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2));
+        var dtc3 = DiagnosticTroubleCode.create(1098, 1, 0, 1);
+        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc3));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm5 = DM5DiagnosticReadinessPacket.create(0, 2, 1, 0x22);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5));
+        when(diagnosticMessageModule.requestDM5(any(), eq(0))).thenReturn(BusResult.of(dm5));
 
         runTest();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+        verify(diagnosticMessageModule).requestDM5(any(), eq(0));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
 
+    @Test
+    public void testFailureForDifferentActiveCodes() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 1, 0, 1);
+        var dtc2 = DiagnosticTroubleCode.create(234, 1, 0, 1);
+        obdModuleInformation.set(DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2));
+        var dtc3 = DiagnosticTroubleCode.create(1098, 1, 0, 1);
+        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc3));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm5 = DM5DiagnosticReadinessPacket.create(0, 1, 1, 0x22);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5));
+        when(diagnosticMessageModule.requestDM5(any(), eq(0))).thenReturn(BusResult.of(dm5));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+        verify(diagnosticMessageModule).requestDM5(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.8.6.2.a - Engine #1 (0) reported different number of DTCs than correspond DM1 response earlier in this part");
+    }
+
+    @Test
+    public void testFailureForDifferentPrevActiveCount() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 1, 0, 1);
+        var dtc2 = DiagnosticTroubleCode.create(234, 1, 0, 1);
+        obdModuleInformation.set(DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2));
+        var dtc3 = DiagnosticTroubleCode.create(1098, 1, 0, 1);
+        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc3));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm5 = DM5DiagnosticReadinessPacket.create(0, 2, 2, 0x22);
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5));
+        when(diagnosticMessageModule.requestDM5(any(), eq(0))).thenReturn(BusResult.of(dm5));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+        verify(diagnosticMessageModule).requestDM5(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.8.6.2.a - Engine #1 (0) reported different number of DTCs than correspond DM2 response earlier in this part");
+    }
+
+    @Test
+    public void testFailureForDifferentGlobalVsDS() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 1, 0, 1);
+        var dtc2 = DiagnosticTroubleCode.create(234, 1, 0, 1);
+        obdModuleInformation.set(DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2));
+        var dtc3 = DiagnosticTroubleCode.create(1098, 1, 0, 1);
+        obdModuleInformation.set(DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF, dtc3));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var dm5_1 = DM5DiagnosticReadinessPacket.create(0, 2, 1, 0x22);
+
+        when(diagnosticMessageModule.requestDM5(any())).thenReturn(RequestResult.of(dm5_1));
+        var dm5_2 = DM5DiagnosticReadinessPacket.create(0, 1, 2, 0x22);
+        when(diagnosticMessageModule.requestDM5(any(), eq(0))).thenReturn(BusResult.of(dm5_2));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM5(any());
+        verify(diagnosticMessageModule).requestDM5(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.8.6.4.a - Difference compared to data received during global request from Engine #1 (0)");
+    }
 }
