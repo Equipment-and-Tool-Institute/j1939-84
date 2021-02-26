@@ -32,16 +32,16 @@ public class DM29DtcCounts extends GenericPacket {
     }
 
     public static DM29DtcCounts create(int source,
-                                       int pendingCount,
-                                       int allCount,
-                                       int milCount,
-                                       int previousCount,
+                                       int emissionPendingCount,
+                                       int allPendingCount,
+                                       int milOnCount,
+                                       int previousMilOnCount,
                                        int permanentCount) {
         byte[] data = new byte[8];
-        data[0] = (byte) (pendingCount & 0xFF);
-        data[1] = (byte) (allCount & 0xFF);
-        data[2] = (byte) (milCount & 0xFF);
-        data[3] = (byte) (previousCount & 0xFF);
+        data[0] = (byte) (emissionPendingCount & 0xFF);
+        data[1] = (byte) (allPendingCount & 0xFF);
+        data[2] = (byte) (milOnCount & 0xFF);
+        data[3] = (byte) (previousMilOnCount & 0xFF);
         data[4] = (byte) (permanentCount & 0xFF);
         data[5] = (byte) 0xFF;
         data[6] = (byte) 0xFF;
@@ -126,13 +126,13 @@ public class DM29DtcCounts extends GenericPacket {
     }
 
     private void parsePacket() {
-        final int length = getPacket().getLength();
+        int length = getPacket().getLength();
         byte[] data = Arrays.copyOf(getPacket().getBytes(), length);
-        emissionRelatedPendingDTCCount = data[0];
-        allPendingDTCCount = data[1];
-        emissionRelatedMILOnDTCCount = data[2];
-        emissionRelatedPreviouslyMILOnDTCCount = data[3];
-        emissionRelatedPermanentDTCCount = data[4];
+        emissionRelatedPendingDTCCount = data[0] & 0xFF;
+        allPendingDTCCount = data[1] & 0xFF;
+        emissionRelatedMILOnDTCCount = data[2] & 0xFF;
+        emissionRelatedPreviouslyMILOnDTCCount = data[3] & 0xFF;
+        emissionRelatedPermanentDTCCount = data[4] & 0xFF;
     }
 
     @Override
