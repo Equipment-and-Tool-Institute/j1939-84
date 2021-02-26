@@ -158,7 +158,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         StringBuilder expectedMessages = new StringBuilder();
         for (int i = 1; i <= 300; i++) {
-            expectedMessages.append("Step 4.2. Requesting DM12 Attempt ").append(i);
+            expectedMessages.append("Step 6.4.2.1.a Requesting DM12 Attempt ").append(i);
             if (i != 300) {
                 expectedMessages.append(NL);
             }
@@ -210,7 +210,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         StringBuilder expectedMessages = new StringBuilder();
         for (int i = 1; i <= 300; i++) {
-            expectedMessages.append("Step 4.2. Requesting DM12 Attempt ").append(i);
+            expectedMessages.append("Step 6.4.2.1.a Requesting DM12 Attempt ").append(i);
             if (i != 300) {
                 expectedMessages.append(NL);
             }
@@ -256,7 +256,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Step 4.2. Requesting DM12 Attempt 1";
+        String expectedMessages = "Step 6.4.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
         assertEquals("", listener.getMilestones());
@@ -291,7 +291,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Step 4.2. Requesting DM12 Attempt 1";
+        String expectedMessages = "Step 6.4.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
         assertEquals("", listener.getMilestones());
@@ -324,7 +324,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Step 4.2. Requesting DM12 Attempt 1";
+        String expectedMessages = "Step 6.4.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
         assertEquals("", listener.getMilestones());
@@ -359,7 +359,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Step 4.2. Requesting DM12 Attempt 1";
+        String expectedMessages = "Step 6.4.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
         assertEquals("", listener.getMilestones());
@@ -394,7 +394,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Step 4.2. Requesting DM12 Attempt 1";
+        String expectedMessages = "Step 6.4.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
         assertEquals("", listener.getMilestones());
@@ -431,7 +431,7 @@ public class Part04Step02ControllerTest extends AbstractControllerTest {
 
         runTest();
 
-        String expectedMessages = "Step 4.2. Requesting DM12 Attempt 1";
+        String expectedMessages = "Step 6.4.2.1.a Requesting DM12 Attempt 1";
         assertEquals(expectedMessages, listener.getMessages());
 
         assertEquals("", listener.getMilestones());
