@@ -7,7 +7,7 @@ import org.etools.j1939_84.bus.j1939.J1939DaRepository;
 import org.etools.j1939_84.bus.j1939.packets.Slot;
 import org.etools.j1939_84.utils.CollectionUtils;
 
-public class Spn {
+public class Spn implements Comparable<Spn> {
 
     private final byte[] data;
     private final int id;
@@ -78,4 +78,8 @@ public class Spn {
                              slot.asString(data));
     }
 
+    @Override
+    public int compareTo(Spn spn) {
+        return Integer.compare(id, spn.getId());
+    }
 }

@@ -5,6 +5,7 @@ package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.etools.j1939_84.J1939_84.NL;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,7 +20,7 @@ public class FreezeFrame {
 
     private final DiagnosticTroubleCode dtc;
     private final int[] spnData;
-    private List<Spn> spns;
+    private final List<Spn> spns = new ArrayList<>();
 
     public FreezeFrame(DiagnosticTroubleCode dtc, Spn... spns) {
         this(dtc, Arrays.asList(spns));
@@ -27,7 +28,7 @@ public class FreezeFrame {
 
     public FreezeFrame(DiagnosticTroubleCode dtc, List<Spn> spns) {
         this.dtc = dtc;
-        this.spnData = spns.stream().flatMapToInt(s -> Arrays.stream(s.getData())).toArray();
+        spnData = spns.stream().flatMapToInt(s -> Arrays.stream(s.getData())).toArray();
     }
 
     public FreezeFrame(DiagnosticTroubleCode dtc, int[] spnData) {
@@ -53,7 +54,8 @@ public class FreezeFrame {
     }
 
     public void setSPNs(List<Spn> spns) {
-        this.spns = spns;
+        this.spns.clear();
+        this.spns.addAll(spns);
     }
 
     public Spn getSpn(int spnId) {
@@ -71,12 +73,9 @@ public class FreezeFrame {
                             .collect(Collectors.joining(" ")))
               .append(NL);
 
-        List<Spn> spns = getSPNs();
-        if (spns != null) {
-            for (Spn spn : spns) {
-                result.append(spn.toString()).append(NL);
-            }
-        }
+        spns.stream().sorted().forEach(spn -> {
+            result.append(spn.toString()).append(NL);
+        });
 
         result.append("}");
 
