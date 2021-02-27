@@ -8,7 +8,6 @@ import java.util.concurrent.Executors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
-import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -121,7 +120,7 @@ public class Part08Step08Controller extends StepController {
         // 6.8.8.2.h. For ECUs that support DM27, fail if any ECU reports > 0 for all pending DTCs (SPN 4105).
         getDataRepository().getObdModules()
                            .stream()
-                           .filter(m -> m.get(DM27AllPendingDTCsPacket.class) != null)
+                           .filter(OBDModuleInformation::supportsDM27)
                            .map(OBDModuleInformation::getSourceAddress)
                            .flatMap(a -> packets.stream().filter(p -> p.getSourceAddress() == a))
                            .filter(p -> p.getAllPendingDTCCount() > 0)
@@ -134,7 +133,7 @@ public class Part08Step08Controller extends StepController {
         // 0xFF.
         getDataRepository().getObdModules()
                            .stream()
-                           .filter(m -> m.get(DM27AllPendingDTCsPacket.class) == null)
+                           .filter(m -> !m.supportsDM27())
                            .map(OBDModuleInformation::getSourceAddress)
                            .flatMap(a -> packets.stream().filter(p -> p.getSourceAddress() == a))
                            .filter(p -> p.getAllPendingDTCCount() != 0xFF)
