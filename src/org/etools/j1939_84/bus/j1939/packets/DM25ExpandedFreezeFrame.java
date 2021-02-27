@@ -28,8 +28,12 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
     public static DM25ExpandedFreezeFrame create(int sourceAddress, FreezeFrame... freezeFrames) {
 
         int[] data = new int[0];
-        for (FreezeFrame freezeFrame : freezeFrames) {
-            data = CollectionUtils.join(data, freezeFrame.getData());
+        if (freezeFrames.length > 0) {
+            for (FreezeFrame freezeFrame : freezeFrames) {
+                data = CollectionUtils.join(data, freezeFrame.getData());
+            }
+        } else {
+            data = new int[] { 0, 0, 0, 0, 0, 0xFF, 0xFF, 0xFF };
         }
 
         return new DM25ExpandedFreezeFrame(Packet.create(PGN, sourceAddress, data));
@@ -48,14 +52,7 @@ public class DM25ExpandedFreezeFrame extends GenericPacket {
     }
 
     public FreezeFrame getFreezeFrameWithDTC(DiagnosticTroubleCode dtc) {
-        for (FreezeFrame freezeFrame : getFreezeFrames()) {
-            var ffDtc = freezeFrame.getDtc();
-            if (ffDtc.getSuspectParameterNumber() == dtc.getSuspectParameterNumber()
-                    && ffDtc.getFailureModeIndicator() == dtc.getFailureModeIndicator()) {
-                return freezeFrame;
-            }
-        }
-        return null;
+        return getFreezeFrames().stream().filter(f -> f.getDtc().equals(dtc)).findFirst().orElse(null);
     }
 
     @Override
