@@ -30,9 +30,13 @@ public class DM31DtcToLampAssociation extends GenericPacket {
     }
 
     public static DM31DtcToLampAssociation create(int sourceAddress, DTCLampStatus... lampStatuses) {
-        int[] data = new int[] {};
-        for (DTCLampStatus dtcLampStatus : lampStatuses) {
-            data = join(data, dtcLampStatus.getData());
+        int[] data = new int[0];
+        if (lampStatuses.length > 0) {
+            for (DTCLampStatus dtcLampStatus : lampStatuses) {
+                data = join(data, dtcLampStatus.getData());
+            }
+        } else {
+            data = new int[] { 0, 0, 0, 0, 0, 0xFF, 0xFF, 0xFF };
         }
         return new DM31DtcToLampAssociation(Packet.create(PGN, sourceAddress, data));
     }
