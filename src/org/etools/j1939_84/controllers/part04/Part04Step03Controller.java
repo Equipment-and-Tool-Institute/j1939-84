@@ -84,7 +84,7 @@ public class Part04Step03Controller extends StepController {
 
             packets.stream()
                    .filter(p -> p.getSourceAddress() == moduleAddress)
-                   .filter(p -> !dtcListsAreSame(p.getDtcs(), getDTCs(moduleAddress)))
+                   .filter(p -> !p.getDtcs().equals(getDTCs(moduleAddress)))
                    .map(ParsedPacket::getModuleName)
                    .findFirst()
                    .ifPresent(moduleName -> addFailure("6.4.3.2.b - " + moduleName

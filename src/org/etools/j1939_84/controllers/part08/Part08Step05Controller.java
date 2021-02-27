@@ -72,7 +72,7 @@ public class Part08Step05Controller extends StepController {
         // 6.8.5.2.a (if supported) Fail if any OBD ECU does not include all DTCs from its DM23 response in its DM2
         // response.
         packets.stream()
-               .filter(p -> !dtcListsAreSame(p.getDtcs(), getDTCs(p.getSourceAddress())))
+               .filter(p -> !p.getDtcs().equals(getDTCs(p.getSourceAddress())))
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> addFailure("6.8.5.2.a - " + moduleName
                        + " did not include all DTCs from its DM23 response in its DM2 response"));

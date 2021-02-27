@@ -95,7 +95,7 @@ public class Part05Step04Controller extends StepController {
         packets.forEach(p -> {
             var dm12DTCs = getDTCs(p.getSourceAddress());
             for (DiagnosticTroubleCode dtc : p.getDtcs()) {
-                if (!listContainsDTC(dm12DTCs, dtc)) {
+                if (!dm12DTCs.contains(dtc)) {
                     int spn = dtc.getSuspectParameterNumber();
                     int fmi = dtc.getFailureModeIndicator();
                     addFailure("6.5.4.2.c - " + p.getModuleName() + " permanent DTC (" + spn + ":" + fmi

@@ -84,7 +84,7 @@ public class Part04Step10Controller extends StepController {
                .filter(p -> !getDTCs(p.getSourceAddress()).isEmpty())
                .filter(p -> p.getFreezeFrames()
                              .stream()
-                             .anyMatch(f -> !listContainsDTC(getDTCs(p.getSourceAddress()), f.getDtc())))
+                             .anyMatch(f -> !getDTCs(p.getSourceAddress()).contains(f.getDtc())))
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> addFailure("6.4.10.2.b - " + moduleName
                        + " did not report DTC in freeze frame data which included the DTC reported in DM12 earlier in this part"));

@@ -130,7 +130,7 @@ public class Part04Step02Controller extends StepController {
         // 6.4.2.2.b. Fail if DM12 DTC(s) is (are) not the same SPN+FMI(s) as DM6 pending DTC in part 3.
         globalPackets.stream()
                      .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-                     .filter(p -> !toString(p.getDtcs()).equals(toString(getDTCs(p.getSourceAddress()))))
+                     .filter(p -> !p.getDtcs().equals(getDTCs(p.getSourceAddress())))
                      .map(ParsedPacket::getModuleName)
                      .forEach(moduleName -> addFailure("6.4.2.2.b - " + moduleName
                              + " reported DM12 DTC(s) different than DM6 pending DTC(s) in part 3"));

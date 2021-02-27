@@ -75,7 +75,7 @@ public class Part08Step04Controller extends StepController {
 
         // 6.8.4.2.b Fail if previously active DTC reported is not the same as previously active DTC from part 7.
         packets.stream()
-               .filter(p -> !dtcListsAreSame(p.getDtcs(), getDTCs(p.getSourceAddress())))
+               .filter(p -> !p.getDtcs().equals(getDTCs(p.getSourceAddress())))
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> addFailure("6.8.4.2.b - Previously active DTC reported by " + moduleName
                        + " is not the same as previously active DTC from part 7"));

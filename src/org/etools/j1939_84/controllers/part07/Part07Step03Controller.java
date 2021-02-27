@@ -96,7 +96,7 @@ public class Part07Step03Controller extends StepController {
                          var dm2DTCs = p.getDtcs();
                          for (DiagnosticTroubleCode dtc : getDTCs(DM12MILOnEmissionDTCPacket.class,
                                                                   p.getSourceAddress())) {
-                             if (!listContainsDTC(dm2DTCs, dtc)) {
+                             if (!dm2DTCs.contains(dtc)) {
                                  int spn = dtc.getSuspectParameterNumber();
                                  int fmi = dtc.getFailureModeIndicator();
                                  addFailure("6.7.3.2.c - " + p.getModuleName() + " DM2 response does not include SPN = "

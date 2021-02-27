@@ -121,10 +121,7 @@ public class DiagnosticTroubleCode {
     @Override
     public int hashCode() {
         return Objects.hash(getSuspectParameterNumber(),
-                            getOccurrenceCount(),
-                            getFailureModeIndicator(),
-                            getConversionMethod(),
-                            getSuspectParameterNumber());
+                            getFailureModeIndicator());
     }
 
     @Override
@@ -132,14 +129,14 @@ public class DiagnosticTroubleCode {
         if (this == obj) {
             return true;
         }
+
         if (!(obj instanceof DiagnosticTroubleCode)) {
             return false;
         }
+
         DiagnosticTroubleCode that = (DiagnosticTroubleCode) obj;
-        return (getSuspectParameterNumber() == that.getSuspectParameterNumber() &&
-                getOccurrenceCount() == that.getOccurrenceCount() &&
-                getFailureModeIndicator() == that.getFailureModeIndicator() &&
-                getConversionMethod() == that.getConversionMethod());
+        return getSuspectParameterNumber() == that.getSuspectParameterNumber() &&
+                getFailureModeIndicator() == that.getFailureModeIndicator();
     }
 
     @Override

@@ -80,7 +80,7 @@ public class Part06Step07Controller extends StepController {
             List<DiagnosticTroubleCode> dm28DTCs = p.getDtcs();
 
             for (DiagnosticTroubleCode dtc : dm12DTCs) {
-                if (!listContainsDTC(dm28DTCs, dtc)) {
+                if (!dm28DTCs.contains(dtc)) {
                     int spn = dtc.getSuspectParameterNumber();
                     int fmi = dtc.getFailureModeIndicator();
                     addFailure("6.6.7.2.b - The DTC (" + spn + ":" + fmi + ") provided by " + p.getModuleName()

@@ -66,9 +66,6 @@ public class DiagnosticTroubleCodeTest {
         DiagnosticTroubleCode instance5 = new DiagnosticTroubleCode(data3);
         assertFalse(instance.equals(instance5));
         assertEquals(3, instance5.getFailureModeIndicator());
-        int[] data4 = new int[] { 0x61, 0x02, 0x13, 0x21 };
-        DiagnosticTroubleCode instance6 = new DiagnosticTroubleCode(data4);
-        assertFalse(instance.equals(instance6));
     }
 
     @Test

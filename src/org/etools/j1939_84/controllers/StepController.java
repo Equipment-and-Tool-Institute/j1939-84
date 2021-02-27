@@ -98,25 +98,6 @@ public abstract class StepController extends Controller {
                       .collect(Collectors.toList());
     }
 
-    protected static String toString(List<DiagnosticTroubleCode> dtcs) {
-        return dtcs.stream()
-                   .map(d -> d.getSuspectParameterNumber() + ":" + d.getFailureModeIndicator())
-                   .sorted()
-                   .collect(Collectors.joining(","));
-    }
-
-    protected static boolean listContainsDTC(List<DiagnosticTroubleCode> dtcs, DiagnosticTroubleCode dtc) {
-        var dtcString = toString(List.of(dtc));
-        var listString = toString(dtcs);
-        return listString.contains(dtcString);
-    }
-
-    protected static boolean dtcListsAreSame(List<DiagnosticTroubleCode> dtcs1, List<DiagnosticTroubleCode> dtcs2) {
-        var dtcs1String = toString(dtcs1);
-        var lists2String = toString(dtcs2);
-        return dtcs1String.contains(lists2String);
-    }
-
     protected boolean isObdModule(int address) {
         return getDataRepository().isObdModule(address);
     }

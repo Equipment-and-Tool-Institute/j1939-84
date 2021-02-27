@@ -74,7 +74,7 @@ public class Part05Step03Controller extends StepController {
         packets.forEach(p -> {
             var dm1DTCs = p.getDtcs();
             for (DiagnosticTroubleCode dtc : getDTCs(p.getSourceAddress())) {
-                if (!listContainsDTC(dm1DTCs, dtc)) {
+                if (!dm1DTCs.contains(dtc)) {
                     int spn = dtc.getSuspectParameterNumber();
                     int fmi = dtc.getFailureModeIndicator();
                     addFailure("6.5.3.2.a - " + p.getModuleName() + " DM1 response does not include SPN = " + spn +

@@ -81,7 +81,7 @@ public class Part05Step02Controller extends StepController {
             // 6.5.2.2.c Fail if DM12 DTC reported does not match the DM6 DTC SPN and FMI reported from step 6.4.2.
             var dm6 = getDataRepository().getObdModule(packet.getSourceAddress())
                                          .get(DM6PendingEmissionDTCPacket.class);
-            if (!toString(packet.getDtcs()).equals(toString(dm6.getDtcs()))) {
+            if (!packet.getDtcs().equals(dm6.getDtcs())) {
                 addFailure("6.5.2.2.c - OBD module " + packet.getModuleName() +
                         " had a discrepancy between reported DM12 DTCs and DM6 DTCs reported in 6.4.2");
 
