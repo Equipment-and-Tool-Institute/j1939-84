@@ -56,8 +56,8 @@ public class DM5DiagnosticReadinessPacketTest extends DiagnosticReadinessPacketT
 
     @Test
     @Override
-    public void testEqualsContinouslyMonitoredSystems() {
-        super.testEqualsContinouslyMonitoredSystems();
+    public void testEqualsContinuouslyMonitoredSystems() {
+        super.testEqualsContinuouslyMonitoredSystems();
     }
 
     @Test
@@ -68,20 +68,20 @@ public class DM5DiagnosticReadinessPacketTest extends DiagnosticReadinessPacketT
 
     @Test
     @Override
-    public void testGetContinouslyMonitoredSystemsComprehensiveComponentMonitoring() {
-        super.testGetContinouslyMonitoredSystemsComprehensiveComponentMonitoring();
+    public void testGetContinuouslyMonitoredSystemsComprehensiveComponentMonitoring() {
+        super.testGetContinuouslyMonitoredSystemsComprehensiveComponentMonitoring();
     }
 
     @Test
     @Override
-    public void testGetContinouslyMonitoredSystemsFuelSystemMonitoring() {
-        super.testGetContinouslyMonitoredSystemsFuelSystemMonitoring();
+    public void testGetContinuouslyMonitoredSystemsFuelSystemMonitoring() {
+        super.testGetContinuouslyMonitoredSystemsFuelSystemMonitoring();
     }
 
     @Test
     @Override
-    public void testGetContinouslyMonitoredSystemsMisfireMonitoring() {
-        super.testGetContinouslyMonitoredSystemsMisfireMonitoring();
+    public void testGetContinuouslyMonitoredSystemsMisfireMonitoring() {
+        super.testGetContinuouslyMonitoredSystemsMisfireMonitoring();
     }
 
     @Test
@@ -92,20 +92,20 @@ public class DM5DiagnosticReadinessPacketTest extends DiagnosticReadinessPacketT
 
     @Test
     @Override
-    public void testGetNonContinouslyMonitoredSystems() {
-        super.testGetNonContinouslyMonitoredSystems();
+    public void testGetNonContinuouslyMonitoredSystems() {
+        super.testGetNonContinuouslyMonitoredSystems();
     }
 
     @Test
     @Override
-    public void testNotEqualsNonContinouslyMonitoredSystemsCompleted() {
-        super.testNotEqualsNonContinouslyMonitoredSystemsCompleted();
+    public void testNotEqualsNonContinuouslyMonitoredSystemsCompleted() {
+        super.testNotEqualsNonContinuouslyMonitoredSystemsCompleted();
     }
 
     @Test
     @Override
-    public void testNotEqualsNonContinouslyMonitoredSystemsSupported() {
-        super.testNotEqualsNonContinouslyMonitoredSystemsSupported();
+    public void testNotEqualsNonContinuouslyMonitoredSystemsSupported() {
+        super.testNotEqualsNonContinuouslyMonitoredSystemsSupported();
     }
 
     @Test
