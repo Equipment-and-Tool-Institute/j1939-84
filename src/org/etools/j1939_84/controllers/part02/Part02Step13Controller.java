@@ -12,7 +12,6 @@ import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
 import org.etools.j1939_84.bus.j1939.packets.DTCLampStatus;
-import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.RequestResult;
@@ -92,7 +91,6 @@ public class Part02Step13Controller extends StepController {
         return packet.getDtcLampStatuses()
                      .stream()
                      .map(DTCLampStatus::getMalfunctionIndicatorLampStatus)
-                     .anyMatch(lampStatus -> lampStatus != LampStatus.OFF
-                             && lampStatus != LampStatus.ALTERNATE_OFF);
+                     .anyMatch(this::isNotOff);
     }
 }

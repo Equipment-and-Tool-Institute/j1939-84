@@ -4,8 +4,6 @@
 package org.etools.j1939_84.controllers.part03;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
 
 import java.util.List;
@@ -17,7 +15,6 @@ import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM6PendingEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
-import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
@@ -156,8 +153,7 @@ public class Part03Step02Controller extends StepController {
         dsPackets.stream()
                  .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                  .filter(p -> {
-                     LampStatus milStatus = p.getMalfunctionIndicatorLampStatus();
-                     return milStatus != OFF && milStatus != ALTERNATE_OFF;
+                     return isNotOff(p.getMalfunctionIndicatorLampStatus());
                  })
                  .map(ParsedPacket::getSourceAddress)
                  .map(Lookup::getAddressName)
