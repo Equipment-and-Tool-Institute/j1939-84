@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part09;
 
-import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 
 import java.util.Collection;
@@ -14,7 +13,6 @@ import java.util.stream.Collectors;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
-import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -89,19 +87,7 @@ public class Part09Step13Controller extends StepController {
         }
 
         // 6.9.13.2.b. (if supported) Fail if NACK not received from OBD ECUs that did not provide a DM31 message.
-        packets.stream().map(ParsedPacket::getSourceAddress).forEach(addresses::remove);
-        filterRequestResultAcks(results).stream()
-                                        .filter(a -> a.getResponse() == NACK)
-                                        .map(ParsedPacket::getSourceAddress)
-                                        .forEach(addresses::remove);
-
-        addresses.stream()
-                 .distinct()
-                 .sorted()
-                 .map(Lookup::getAddressName)
-                 .forEach(moduleName -> {
-                     addFailure("6.9.13.2.b - OBD module " + moduleName + " did not provide a NACK for the DS query");
-                 });
+        checkForNACKsDS(packets, filterRequestResultAcks(results), "6.9.13.2.b", addresses);
     }
 
 }

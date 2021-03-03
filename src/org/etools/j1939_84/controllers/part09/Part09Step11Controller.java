@@ -10,7 +10,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
@@ -109,20 +108,7 @@ public class Part09Step11Controller extends StepController {
             });
 
         // 6.9.11.2.c. Fail if any NACK not received from an OBD ECU that did not provide a DM20 message.
-        packets.stream().map(ParsedPacket::getSourceAddress).forEach(addresses::remove);
-
-        acks.stream()
-            .filter(a -> a.getResponse() == NACK)
-            .map(ParsedPacket::getSourceAddress)
-            .forEach(addresses::remove);
-
-        addresses.stream()
-                 .distinct()
-                 .sorted()
-                 .map(Lookup::getAddressName)
-                 .forEach(moduleName -> {
-                     addFailure("6.9.11.2.c - OBD module " + moduleName + " did not provide a NACK for the DS query");
-                 });
+        checkForNACKsDS(packets, acks, "6.9.11.2.c", addresses);
     }
 
     private DM20MonitorPerformanceRatioPacket getDM20(int address) {
