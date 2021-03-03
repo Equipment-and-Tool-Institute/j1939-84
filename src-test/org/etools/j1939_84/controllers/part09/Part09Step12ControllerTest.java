@@ -4,9 +4,11 @@
 package org.etools.j1939_84.controllers.part09;
 
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
 import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -156,6 +158,29 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testWarningAltOff() {
+        OBDModuleInformation obdModule0 = new OBDModuleInformation(0);
+        var dtc = DiagnosticTroubleCode.create(123, 1, 0, 3);
+        obdModule0.set(DM12MILOnEmissionDTCPacket.create(0, ALTERNATE_OFF, OFF, OFF, OFF, dtc));
+        dataRepository.putObdModule(obdModule0);
+        var dm28 = DM28PermanentEmissionDTCPacket.create(0, ALTERNATE_OFF, OFF, OFF, OFF, dtc);
+        when(diagnosticMessageModule.requestDM28(any(), eq(0))).thenReturn(BusResult.of(dm28));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM28(any(), eq(0));
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "A.8 - Alternate coding for off (0b00, 0b00) has been accepted");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+    }
+
+    @Test
     public void testFailureForDifferentFromDM12() {
         dataRepository.putObdModule(new OBDModuleInformation(0));
         var dtc = DiagnosticTroubleCode.create(123, 1, 0, 3);
@@ -193,7 +218,7 @@ public class Part09Step12ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.12.2.b - Engine #1 (0) did not report MIL off");
+                                        "6.9.12.2.b - Engine #1 (0) did not report MIL 'off'");
     }
 
     @Test

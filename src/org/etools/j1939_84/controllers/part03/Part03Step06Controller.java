@@ -3,7 +3,6 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.NOT_SUPPORTED;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 
@@ -81,10 +80,7 @@ public class Part03Step06Controller extends StepController {
         // 6.3.6.2.c Fail if any OBD ECU does not report MIL off. See section A.8 for allowed values.
         packets.stream()
                .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
-               .filter(p -> {
-                   LampStatus mil = p.getMalfunctionIndicatorLampStatus();
-                   return mil != OFF && mil != ALTERNATE_OFF;
-               })
+               .filter(p -> isNotOff(p.getMalfunctionIndicatorLampStatus()))
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> addFailure("6.3.6.2.c - " + moduleName + " did not report MIL 'off'"));
 

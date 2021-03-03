@@ -4,8 +4,6 @@
 package org.etools.j1939_84.controllers.part03;
 
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -86,8 +84,7 @@ public class Part03Step05Controller extends StepController {
                                                               .stream()
                                                               .flatMap(p -> p.getDtcLampStatuses().stream())
                                                               .map(DTCLampStatus::getMalfunctionIndicatorLampStatus)
-                                                              .anyMatch(milStatus -> milStatus != OFF
-                                                                      && milStatus != ALTERNATE_OFF);
+                                                              .anyMatch(this::isNotOff);
                                    if (milNotOff) {
                                        addFailure("6.3.5.2.a - " + moduleName
                                                + " did not report MIL 'off' in all returned DTCs");

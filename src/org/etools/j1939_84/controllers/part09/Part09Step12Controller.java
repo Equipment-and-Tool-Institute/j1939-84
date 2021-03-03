@@ -81,10 +81,10 @@ public class Part09Step12Controller extends StepController {
 
         // 6.9.12.2.b. Fail if any ECU does not report MIL off. See Section A.8 for more information.
         dsPackets.stream()
-                 .filter(p -> p.getMalfunctionIndicatorLampStatus() != LampStatus.OFF)
+                 .filter(p -> isNotOff(p.getMalfunctionIndicatorLampStatus()))
                  .map(ParsedPacket::getSourceAddress)
                  .map(Lookup::getAddressName)
-                 .forEach(moduleName -> addFailure("6.9.12.2.b - " + moduleName + " did not report MIL off"));
+                 .forEach(moduleName -> addFailure("6.9.12.2.b - " + moduleName + " did not report MIL 'off'"));
 
         // 6.9.12.2.c. Fail if NACK not received from OBD ECUs that did not provide a DM28 message.
         checkForNACKsDS(dsPackets, filterRequestResultAcks(dsResults), "6.9.12.2.c");
@@ -102,5 +102,4 @@ public class Part09Step12Controller extends StepController {
         var dm12 = get(DM12MILOnEmissionDTCPacket.class, moduleAddress);
         return dm12 == null ? null : dm12.getMalfunctionIndicatorLampStatus();
     }
-
 }
