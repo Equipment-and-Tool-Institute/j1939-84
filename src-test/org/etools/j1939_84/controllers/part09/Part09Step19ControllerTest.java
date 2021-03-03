@@ -3,16 +3,29 @@
  */
 package org.etools.j1939_84.controllers.part09;
 
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +132,98 @@ public class Part09Step19ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        var nack = AcknowledgmentPacket.create(1, NACK);
+        when(diagnosticMessageModule.requestDM12(any(), eq(1))).thenReturn(BusResult.of(nack));
 
         runTest();
+
+        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM12(any(), eq(1));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
     }
 
+    @Test
+    public void testFailureForDTCs() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.19.2.a - Engine #1 (0) reported an active MIL DTC");
+    }
+
+    @Test
+    public void testFailureForMILNotOff() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, ALTERNATE_OFF, OFF, OFF, OFF);
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.19.2.b - Engine #1 (0) did not report MIL off");
+    }
+
+    @Test
+    public void testFailureForNoNACK() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dm12 = DM12MILOnEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF);
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(dm12));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        when(diagnosticMessageModule.requestDM12(any(), eq(1))).thenReturn(BusResult.empty());
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM12(any(), eq(1));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.19.2.d - OBD module Engine #2 (1) did not provide a NACK for the DS query");
+    }
+
+    @Test
+    public void testFailureForNoDM12() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var nack = AcknowledgmentPacket.create(0, NACK);
+        when(diagnosticMessageModule.requestDM12(any(), eq(0))).thenReturn(BusResult.of(nack));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM12(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.19.2.c - No DM12 message received from any OBD ECU");
+    }
 }
