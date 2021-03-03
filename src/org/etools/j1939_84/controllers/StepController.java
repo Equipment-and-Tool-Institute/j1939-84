@@ -8,6 +8,8 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.isDevEnv;
 import static org.etools.j1939_84.J1939_84.isTesting;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 import static org.etools.j1939_84.controllers.Controller.Ending.STOPPED;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
@@ -36,6 +38,7 @@ import org.etools.j1939_84.bus.j1939.packets.DiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
 import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
+import org.etools.j1939_84.bus.j1939.packets.LampStatus;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
@@ -342,6 +345,13 @@ public abstract class StepController extends Controller {
             message += "Press OK to continue the testing.";
             displayInstructionAndWait(message, boxTitle, WARNING);
         }
+    }
+
+    protected boolean isNotOff(LampStatus lampStatus) {
+        if (lampStatus == ALTERNATE_OFF) {
+            addWarning("A.8 - Alternate coding for off (0b00, 0b00) has been accepted");
+        }
+        return lampStatus != OFF && lampStatus != ALTERNATE_OFF;
     }
 
 }
