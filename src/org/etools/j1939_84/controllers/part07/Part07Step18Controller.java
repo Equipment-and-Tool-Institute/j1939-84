@@ -131,7 +131,7 @@ public class Part07Step18Controller extends StepController {
     private void implantFaultB() {
         String message = "Implant Fault B according to engine manufacturer’s instruction" + NL;
         message += "Press OK to continue the testing";
-        waitForFault("Step 6.2.18.1.b", message);
+        waitForFault("Step 6.7.18.1.b", message);
     }
 
 }

@@ -181,7 +181,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         String urgentMessages = "Implant Fault B according to engine manufacturer’s instruction"
                 + NL;
         urgentMessages += "Press OK to continue the testing";
-        String expectedTitle = "Step 6.2.18.1.b";
+        String expectedTitle = "Step 6.7.18.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
                                              eq(WARNING),
@@ -324,7 +324,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         String urgentMessages = "Implant Fault B according to engine manufacturer’s instruction"
                 + NL;
         urgentMessages += "Press OK to continue the testing";
-        String expectedTitle = "Step 6.2.18.1.b";
+        String expectedTitle = "Step 6.7.18.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
                                              eq(WARNING),
@@ -570,7 +570,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         String urgentMessages = "Implant Fault B according to engine manufacturer’s instruction"
                 + NL;
         urgentMessages += "Press OK to continue the testing";
-        String expectedTitle = "Step 6.2.18.1.b";
+        String expectedTitle = "Step 6.7.18.1.b";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
                                              eq(WARNING),
