@@ -84,6 +84,10 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
         return dtcs;
     }
 
+    public boolean hasDTCs() {
+        return !getDtcs().isEmpty();
+    }
+
     /**
      * Helper method to get a {@link LampStatus}
      *
@@ -169,10 +173,10 @@ public class DiagnosticTroubleCodePacket extends GenericPacket {
     private List<DiagnosticTroubleCode> parseDTCs() {
         List<DiagnosticTroubleCode> dtcs = new ArrayList<>();
         // Every 4 bytes is a DTC; there might be two extra bytes
-        final int length = getPacket().getLength();
+        int length = getPacket().getLength();
         for (int i = 2; i + 4 <= length; i = i + 4) {
             DiagnosticTroubleCode dtc = parseDTC(i);
-            final int spn = dtc.getSuspectParameterNumber();
+            int spn = dtc.getSuspectParameterNumber();
             if (spn != 0 && spn != 524287) {
                 dtcs.add(dtc);
             }
