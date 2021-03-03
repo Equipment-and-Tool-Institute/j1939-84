@@ -58,16 +58,6 @@ public class EngineSpeedModule extends FunctionalModule {
         }
         return KEY_ON_ENGINE_OFF;
     }
-    /**
-     * Returns true if the Engine is communicating with an Engine Speed less
-     * than 300 RPM.
-     *
-     * @return true if the engine is not running; false otherwise
-     */
-    private boolean isEngineNotRunning() {
-        EngineSpeedPacket packet = getEngineSpeedPacket();
-        return !(packet == null || packet.isError() || packet.isNotAvailable() || packet.getEngineSpeed() > 300);
-    }
 
     /**
      * Returns true if the Engine is communicating with an Engine Speed greater
