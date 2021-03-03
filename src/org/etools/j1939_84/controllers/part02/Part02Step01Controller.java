@@ -32,24 +32,28 @@ public class Part02Step01Controller extends StepController {
 
     Part02Step01Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
-             new EngineSpeedModule(),
              new BannerModule(),
+             DateTimeModule.getInstance(),
+             DataRepository.getInstance(),
+             new EngineSpeedModule(),
              new VehicleInformationModule(),
-             DateTimeModule.getInstance());
+             new DiagnosticMessageModule());
     }
 
     Part02Step01Controller(Executor executor,
-                           EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
+                           DateTimeModule dateTimeModule,
+                           DataRepository dataRepository,
+                           EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DateTimeModule dateTimeModule) {
+                           DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
-              DataRepository.getInstance(),
+              dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(),
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);

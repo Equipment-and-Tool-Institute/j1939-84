@@ -19,18 +19,21 @@ import java.util.TimerTask;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
+import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
 import org.etools.j1939_84.modules.VehicleInformationModule;
+import org.etools.j1939_84.utils.AbstractControllerTest;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -41,18 +44,21 @@ import org.mockito.junit.MockitoJUnitRunner;
  * @author Marianne Schaefer (marianne.m.schaefer@gmail.com)
  */
 @RunWith(MockitoJUnitRunner.class)
-public class Part02Step01ControllerTest {
+public class Part02Step01ControllerTest extends AbstractControllerTest {
+    private static final int PART_NUMBER = 2;
+    private static final int STEP_NUMBER = 1;
 
     @Mock
     private BannerModule bannerModule;
+
+    @Mock
+    private DiagnosticMessageModule diagnosticMessageModule;
 
     @Mock
     private EngineSpeedModule engineSpeedModule;
 
     @Mock
     private Executor executor;
-
-    private Part02Step01Controller instance;
 
     @Mock
     private J1939 j1939;
@@ -68,20 +74,37 @@ public class Part02Step01ControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    private StepController instance;
+
     @Before
     public void setUp() throws Exception {
-        listener = new TestResultsListener(mockListener);
         DateTimeModule.setInstance(null);
+        DateTimeModule dateTimeModule = DateTimeModule.getInstance();
+        DataRepository dataRepository = DataRepository.newInstance();
 
+        listener = new TestResultsListener(mockListener);
         instance = new Part02Step01Controller(executor,
-                                              engineSpeedModule,
                                               bannerModule,
+                                              dateTimeModule,
+                                              dataRepository,
+                                              engineSpeedModule,
                                               vehicleInformationModule,
-                                              DateTimeModule.getInstance());
+                                              diagnosticMessageModule);
+
+        setup(instance,
+              listener,
+              j1939,
+              executor,
+              reportFileModule,
+              engineSpeedModule,
+              vehicleInformationModule,
+              diagnosticMessageModule);
     }
 
     @After
     public void tearDown() throws Exception {
+        DateTimeModule.setInstance(null);
+
         verifyNoMoreInteractions(executor,
                                  engineSpeedModule,
                                  bannerModule,
@@ -91,12 +114,22 @@ public class Part02Step01ControllerTest {
 
     @Test
     public void testGetDisplayName() {
-        assertEquals("Display Name", "Part 2 Step 1", instance.getDisplayName());
+        assertEquals("Part " + PART_NUMBER + " Step " + STEP_NUMBER, instance.getDisplayName());
+    }
+
+    @Test
+    public void testGetPartNumber() {
+        assertEquals(PART_NUMBER, instance.getPartNumber());
+    }
+
+    @Test
+    public void testGetStepNumber() {
+        assertEquals(STEP_NUMBER, instance.getStepNumber());
     }
 
     @Test
     public void testGetTotalSteps() {
-        assertEquals("Total Steps", 0, instance.getTotalSteps());
+        assertEquals(0, instance.getTotalSteps());
     }
 
     @Test
@@ -104,21 +137,13 @@ public class Part02Step01ControllerTest {
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
-        instance.execute(listener, j1939, reportFileModule);
-        ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
-        verify(executor).execute(runnableCaptor.capture());
-        runnableCaptor.getValue().run();
+        runTest();
 
-        verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
-        verify(vehicleInformationModule).setJ1939(j1939);
 
         String expectedMessages = "";
         assertEquals(expectedMessages, listener.getMessages());
-
-        String expectedMilestones = "";
-        assertEquals(expectedMilestones, listener.getMilestones());
 
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -138,23 +163,15 @@ public class Part02Step01ControllerTest {
             }
         }, 750);
 
-        instance.execute(listener, j1939, reportFileModule);
-        ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
-        verify(executor).execute(runnableCaptor.capture());
-        runnableCaptor.getValue().run();
+        runTest();
 
-        verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
-        verify(vehicleInformationModule).setJ1939(j1939);
         verify(mockListener).onUrgentMessage("Please turn Key ON/Engine RUNNING", "Adjust Key Switch", WARNING);
 
-        String expectedMessages = "Waiting for Key ON/Engine RUNNING..." + NL;
-        expectedMessages += "Waiting for Key ON/Engine RUNNING...";
-        assertEquals(expectedMessages, listener.getMessages());
-
-        String expectedMilestones = "";
-        assertEquals(expectedMilestones, listener.getMilestones());
+        // String expectedMessages = "Waiting for Key ON/Engine RUNNING..." + NL;
+        // expectedMessages += "Waiting for Key ON/Engine RUNNING...";
+        // assertEquals(expectedMessages, listener.getMessages());
 
         String expectedResults = "Initial Engine Speed = 148.6 RPMs" + NL;
         expectedResults += "Final Engine Speed = 148.6 RPMs" + NL;
@@ -166,34 +183,27 @@ public class Part02Step01ControllerTest {
 
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("300.0 RPMs");
-        instance.execute(listener, j1939, reportFileModule);
+
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
                 instance.stop();
             }
         }, 750);
-        ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
-        verify(executor).execute(runnableCaptor.capture());
-        runnableCaptor.getValue().run();
 
-        verify(engineSpeedModule).setJ1939(j1939);
+        runTest();
+
         verify(engineSpeedModule).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
-        verify(mockListener).addOutcome(2, 1, ABORT, "User cancelled testing at Part 2 Step 1");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 2 Step 1");
         verify(mockListener).onUrgentMessage("Please turn Key ON/Engine RUNNING", "Adjust Key Switch", WARNING);
-
-        verify(vehicleInformationModule).setJ1939(j1939);
 
         String expectedMessages = "Waiting for Key ON/Engine RUNNING..." + NL;
         expectedMessages += "Waiting for Key ON/Engine RUNNING..." + NL;
         expectedMessages += "Waiting for Key ON/Engine RUNNING..." + NL;
         expectedMessages += "User cancelled testing at Part 2 Step 1";
         assertEquals(expectedMessages, listener.getMessages());
-
-        String expectedMilestones = "";
-        assertEquals(expectedMilestones, listener.getMilestones());
 
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 300.0 RPMs" + NL;
