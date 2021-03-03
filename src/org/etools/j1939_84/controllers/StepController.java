@@ -14,7 +14,7 @@ import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
-import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_ON;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
@@ -143,10 +143,12 @@ public abstract class StepController extends Controller {
             if (isTesting()) {
                 getVehicleInformationModule().requestKeyOnEngineOn(getListener());
             }
-            if (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_ON && !isDevEnv()) {
-                getListener().onUrgentMessage("Please turn the Key ON with Engine ON", "Adjust Key Switch", WARNING);
-                while (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_ON) {
-                    updateProgress("Waiting for Key ON, Engine ON...");
+            if (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_RUNNING && !isDevEnv()) {
+                getListener().onUrgentMessage(format("Please turn %s", KEY_ON_ENGINE_RUNNING.getName()),
+                                              "Adjust Key Switch",
+                                              WARNING);
+                while (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_RUNNING) {
+                    updateProgress(format("Waiting for %s...", KEY_ON_ENGINE_RUNNING.getName()));
                     getDateTimeModule().pauseFor(500);
                 }
             }
@@ -170,9 +172,11 @@ public abstract class StepController extends Controller {
                 getVehicleInformationModule().requestKeyOnEngineOff(getListener());
             }
             if (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_OFF && !isDevEnv()) {
-                getListener().onUrgentMessage("Please turn the Key ON with Engine OFF", "Adjust Key Switch", WARNING);
+                getListener().onUrgentMessage(format("Please turn %s", KEY_ON_ENGINE_OFF.getName()),
+                                              "Adjust Key Switch",
+                                              WARNING);
                 while (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_OFF) {
-                    updateProgress("Waiting for Key ON, Engine OFF...");
+                    updateProgress(format("Waiting for %s...", KEY_ON_ENGINE_OFF.getName()));
                     getDateTimeModule().pauseFor(500);
                 }
             }
@@ -196,9 +200,11 @@ public abstract class StepController extends Controller {
                 getVehicleInformationModule().requestKeyOffEngineOff(getListener());
             }
             if (getEngineSpeedModule().getKeyState() != KEY_OFF_ENGINE_OFF && !isDevEnv()) {
-                getListener().onUrgentMessage("Please turn the Key OFF with Engine OFF", "Adjust Key Switch", WARNING);
+                getListener().onUrgentMessage(format("Please turn %s", KEY_OFF_ENGINE_OFF.getName()),
+                                              "Adjust Key Switch",
+                                              WARNING);
                 while (getEngineSpeedModule().getKeyState() != KEY_OFF_ENGINE_OFF) {
-                    updateProgress("Waiting for Key OFF, Engine OFF...");
+                    updateProgress(format("Waiting for %s...", KEY_OFF_ENGINE_OFF.getName()));
                     getDateTimeModule().pauseFor(500);
                 }
             }

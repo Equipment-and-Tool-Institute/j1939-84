@@ -9,7 +9,7 @@ import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
-import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_ON;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
@@ -141,20 +141,20 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailuresOneFaultB() {
 
         // ensureKeyOffEngineOff()
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_ON,
-                                                         KEY_ON_ENGINE_ON,
-                                                         KEY_ON_ENGINE_ON,
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_RUNNING,
+                                                         KEY_ON_ENGINE_RUNNING,
+                                                         KEY_ON_ENGINE_RUNNING,
                                                          KEY_OFF_ENGINE_OFF,
                                                          KEY_OFF_ENGINE_OFF,
                                                          KEY_OFF_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
-                                                         KEY_ON_ENGINE_ON,
-                                                         KEY_ON_ENGINE_ON,
+                                                         KEY_ON_ENGINE_RUNNING,
+                                                         KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_OFF_ENGINE_OFF,
                                                          KEY_OFF_ENGINE_OFF,
-                                                         KEY_ON_ENGINE_ON);
+                                                         KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs",
                                                                     "0.0 RPMs",
                                                                     "0.0 RPMs",
@@ -174,7 +174,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         // ensureKeyOffEngineOff()
-        String urgentMessages_5 = "Please turn the Key OFF with Engine OFF";
+        String urgentMessages_5 = "Please turn Key OFF";
         String expectedTitle_5 = "Adjust Key Switch";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages_5), eq(expectedTitle_5), eq(WARNING));
 
@@ -189,12 +189,12 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         // 6.7.18.1.d.
-        String urgentMessages1 = "Please turn the Key ON with Engine OFF";
+        String urgentMessages1 = "Please turn Key ON/Engine OFF";
         String expectedTitle1 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING));
 
         // 6.7.18.1.e.
-        String urgentMessages1_5 = "Please turn the Key ON with Engine ON";
+        String urgentMessages1_5 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle1_5 = "Adjust Key Switch";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages1_5), eq(expectedTitle1_5), eq(WARNING));
 
@@ -210,7 +210,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         // 6.7.18.1.g.
-        String urgentMessages2_5 = "Please turn the Key OFF with Engine OFF";
+        String urgentMessages2_5 = "Please turn Key OFF";
         String expectedTitle2_5 = "Adjust Key Switch";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages2_5), eq(expectedTitle2_5), eq(WARNING));
 
@@ -225,22 +225,22 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                                             questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages3_5 = "Please turn the Key ON with Engine ON";
+        String urgentMessages3_5 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle3_5 = "Adjust Key Switch";
         verify(mockListener, times(2)).onUrgentMessage(eq(urgentMessages3_5), eq(expectedTitle3_5), eq(WARNING));
 
         String expectedMessages = "Step 6.7.18.1.a - Turn Engine Off and keep the ignition key in the off position"
                 + NL;
-        expectedMessages += "Waiting for Key OFF, Engine OFF..." + NL;
-        expectedMessages += "Waiting for Key OFF, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key OFF..." + NL;
+        expectedMessages += "Waiting for Key OFF..." + NL;
         expectedMessages += "Step 6.7.18.1.b & c - Implant Fault B according to engine manufacturer’s instruction" + NL;
         expectedMessages += "Step 6.7.18.1.d - Turn key to on with the with the engine off" + NL;
-        expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
         expectedMessages += "Step 6.7.18.1.e - Turn Engine On and keep the ignition key in the on position" + NL;
         expectedMessages += "Step 6.7.18.1.f - Waiting for manufacturer’s recommended time for Fault B to be detected as failed"
                 + NL;
         expectedMessages += "Step 6.7.18.1.g - Turn Engine Off and keep the ignition key in the off position" + NL;
-        expectedMessages += "Waiting for Key OFF, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key OFF..." + NL;
         expectedMessages += "Step 6.7.18.1.i - Turn Engine on with the ignition key in the on position" + NL;
         expectedMessages += "Step 6.7.18.1.j - Fault B is a single trip fault; proceeding with part 8 immediately";
         assertEquals(expectedMessages, listener.getMessages());
@@ -274,15 +274,15 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                                          KEY_OFF_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
-                                                         KEY_ON_ENGINE_ON,
+                                                         KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_OFF_ENGINE_OFF,
-                                                         KEY_ON_ENGINE_ON,
+                                                         KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_OFF_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
-                                                         KEY_ON_ENGINE_ON);
+                                                         KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs",
                                                                     "0.0 RPMs",
                                                                     // ensureKeyOnEngineOff();
@@ -317,7 +317,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         // ensureKeyOffEngineOff()
-        String urgentMessages_5 = "Please turn the Key OFF with Engine OFF";
+        String urgentMessages_5 = "Please turn Key OFF";
         String expectedTitle_5 = "Adjust Key Switch";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages_5), eq(expectedTitle_5), eq(WARNING));
 
@@ -332,7 +332,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         // 6.7.18.1.e.
-        String urgentMessages1 = "Please turn the Key ON with Engine OFF";
+        String urgentMessages1 = "Please turn Key ON/Engine OFF";
         String expectedTitle1 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING));
 
@@ -348,7 +348,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         // 6.7.18.1.g.
-        String urgentMessages2_5 = "Please turn the Key OFF with Engine OFF";
+        String urgentMessages2_5 = "Please turn Key OFF";
         String expectedTitle2_5 = "Adjust Key Switch";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages2_5), eq(expectedTitle2_5), eq(WARNING));
 
@@ -363,7 +363,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                                             questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages3_5 = "Please turn the Key ON with Engine ON";
+        String urgentMessages3_5 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle3_5 = "Adjust Key Switch";
         verify(mockListener, times(2)).onUrgentMessage(eq(urgentMessages3_5), eq(expectedTitle3_5), eq(WARNING));
 
@@ -387,21 +387,21 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages4_5 = "Please turn the Key ON with Engine ON";
+        String urgentMessages4_5 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle4_5 = "Adjust Key Switch";
         verify(mockListener, times(2)).onUrgentMessage(eq(urgentMessages4_5), eq(expectedTitle4_5), eq(WARNING));
 
         String expectedMessages = "Step 6.7.18.1.a - Turn Engine Off and keep the ignition key in the off position"
                 + NL;
-        expectedMessages += "Waiting for Key OFF, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key OFF..." + NL;
         expectedMessages += "Step 6.7.18.1.b & c - Implant Fault B according to engine manufacturer’s instruction" + NL;
         expectedMessages += "Step 6.7.18.1.d - Turn key to on with the with the engine off" + NL;
-        expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
         expectedMessages += "Step 6.7.18.1.e - Turn Engine On and keep the ignition key in the on position" + NL;
         expectedMessages += "Step 6.7.18.1.f - Waiting for manufacturer’s recommended time for Fault B to be detected as failed"
                 + NL;
         expectedMessages += "Step 6.7.18.1.g - Turn Engine Off and keep the ignition key in the off position" + NL;
-        expectedMessages += "Waiting for Key OFF, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key OFF..." + NL;
         expectedMessages += "Step 6.7.18.1.i - Turn Engine on with the ignition key in the on position" + NL;
         expectedMessages += "Step 6.7.18.1.j - Running fault B trip #2 of 2 total fault trips" + NL;
         expectedMessages += "Step 6.7.18.1.k - Waiting for manufacturer’s recommended time for Fault B to be detected as failed"
@@ -462,7 +462,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages1 = "Please turn the Key ON with Engine OFF";
+        String urgentMessages1 = "Please turn Key ON/Engine OFF";
         String expectedTitle1 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING));
 
@@ -501,8 +501,8 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         expectedMessages += "Step 6.6.11.1.b - Waiting manufacturer’s recommended interval with the key in the off position"
                 + NL;
         expectedMessages += "6.6.11.1.c Turn the ignition key in the on position" + NL;
-        expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
-        expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
         expectedMessages += "Step 6.6.11.g - Waiting manufacturer’s recommended interval with the key in the off position"
                 + NL;
         expectedMessages += "User cancelled testing at Part 6 Step 11";
@@ -530,13 +530,13 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                                          KEY_OFF_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
-                                                         KEY_ON_ENGINE_ON,
-                                                         KEY_ON_ENGINE_ON,
+                                                         KEY_ON_ENGINE_RUNNING,
+                                                         KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_OFF_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
-                                                         KEY_ON_ENGINE_ON);
+                                                         KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs",
                                                                     "0.0 RPMs",
                                                                     "0.0 RPMs",
@@ -563,7 +563,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         // ensureKeyOffEngineOff()
-        String urgentMessages_5 = "Please turn the Key OFF with Engine OFF";
+        String urgentMessages_5 = "Please turn Key OFF";
         String expectedTitle_5 = "Adjust Key Switch";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages_5), eq(expectedTitle_5), eq(WARNING));
 
@@ -578,12 +578,12 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         // 6.7.18.1.d.
-        String urgentMessages1 = "Please turn the Key ON with Engine OFF";
+        String urgentMessages1 = "Please turn Key ON/Engine OFF";
         String expectedTitle1 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING));
 
         // 6.7.18.1.e.
-        String urgentMessages1_5 = "Please turn the Key ON with Engine ON";
+        String urgentMessages1_5 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle1_5 = "Adjust Key Switch";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages1_5), eq(expectedTitle1_5), eq(WARNING));
 
@@ -599,7 +599,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         questionCaptor.getValue().answered(YES);
 
         // 6.7.18.1.g.
-        String urgentMessages2_5 = "Please turn the Key OFF with Engine OFF";
+        String urgentMessages2_5 = "Please turn Key OFF";
         String expectedTitle2_5 = "Adjust Key Switch";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages2_5), eq(expectedTitle2_5), eq(WARNING));
 
@@ -614,23 +614,23 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
                                                             questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages3_5 = "Please turn the Key ON with Engine ON";
+        String urgentMessages3_5 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle3_5 = "Adjust Key Switch";
         verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages3_5), eq(expectedTitle3_5), eq(WARNING));
 
         String expectedMessages = "Step 6.7.18.1.a - Turn Engine Off and keep the ignition key in the off position"
                 + NL;
-        expectedMessages += "Waiting for Key OFF, Engine OFF..." + NL;
-        expectedMessages += "Waiting for Key OFF, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key OFF..." + NL;
+        expectedMessages += "Waiting for Key OFF..." + NL;
         expectedMessages += "Step 6.7.18.1.b & c - Implant Fault B according to engine manufacturer’s instruction" + NL;
         expectedMessages += "Step 6.7.18.1.d - Turn key to on with the with the engine off" + NL;
-        expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
         expectedMessages += "Step 6.7.18.1.e - Turn Engine On and keep the ignition key in the on position" + NL;
         expectedMessages += "Step 6.7.18.1.f - Waiting for manufacturer’s recommended time for Fault B to be detected as failed"
                 + NL;
         expectedMessages += "Step 6.7.18.1.g - Turn Engine Off and keep the ignition key in the off position" + NL;
-        expectedMessages += "Waiting for Key OFF, Engine OFF..." + NL;
-        expectedMessages += "Waiting for Key OFF, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key OFF..." + NL;
+        expectedMessages += "Waiting for Key OFF..." + NL;
         expectedMessages += "Step 6.7.18.1.i - Turn Engine on with the ignition key in the on position";
         assertEquals(expectedMessages, listener.getMessages());
 

@@ -156,13 +156,13 @@ public class Part01Step02ControllerTest {
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(vehicleInformationModule).setJ1939(j1939);
-        verify(mockListener).onUrgentMessage(eq("Please turn the Key ON with Engine OFF"),
+        verify(mockListener).onUrgentMessage(eq("Please turn Key ON/Engine OFF"),
                                              eq("Adjust Key Switch"),
                                              eq(WARNING));
 
-        String expectedMessages = "Waiting for Key ON, Engine OFF..." + NL;
-        expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
-        expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
+        String expectedMessages = "Waiting for Key ON/Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
         expectedMessages += "User cancelled testing at Part 1 Step 2";
         assertEquals(expectedMessages, listener.getMessages());
 

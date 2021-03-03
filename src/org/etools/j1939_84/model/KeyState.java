@@ -6,9 +6,9 @@ package org.etools.j1939_84.model;
 
 public enum KeyState {
 
-    KEY_OFF_ENGINE_OFF("key off"),
-    KEY_ON_ENGINE_OFF("key on/engine off"),
-    KEY_ON_ENGINE_ON("key on/engine on");
+    KEY_OFF_ENGINE_OFF("Key OFF"),
+    KEY_ON_ENGINE_OFF("Key ON/Engine OFF"),
+    KEY_ON_ENGINE_RUNNING("Key ON/Engine RUNNING");
 
     private final String name;
 
@@ -16,7 +16,7 @@ public enum KeyState {
         this.name = name;
     }
 
-    private String getName() {
+    public String getName() {
         return name;
     }
 }

@@ -8,7 +8,7 @@ import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
-import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_ON;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -141,7 +141,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_ON);
+                when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_RUNNING);
             }
         }, 750);
 
@@ -161,7 +161,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages1 = "Please turn the Key ON with Engine ON";
+        String urgentMessages1 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle1 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING));
 
@@ -191,8 +191,8 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         expectedMessages += "Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the key in the off position"
                 + NL;
         expectedMessages += "Step 6.5.7.1.c Turn Engine on and keep the ignition key in the on position" + NL;
-        expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
-        expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
+        expectedMessages += "Waiting for Key ON/Engine RUNNING..." + NL;
+        expectedMessages += "Waiting for Key ON/Engine RUNNING..." + NL;
         expectedMessages += "Waiting manufacturer’s recommended time for Fault A to be detected as passed";
         assertEquals(expectedMessages, listener.getMessages());
 
@@ -216,7 +216,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_ON);
+                when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_RUNNING);
             }
         }, 750);
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
@@ -236,7 +236,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages1 = "Please turn the Key ON with Engine ON";
+        String urgentMessages1 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle1 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING));
 
@@ -271,8 +271,8 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         expectedMessages += "Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the key in the off position"
                 + NL;
         expectedMessages += "Step 6.5.7.1.c Turn Engine on and keep the ignition key in the on position" + NL;
-        expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
-        expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
+        expectedMessages += "Waiting for Key ON/Engine RUNNING..." + NL;
+        expectedMessages += "Waiting for Key ON/Engine RUNNING..." + NL;
         expectedMessages += "Waiting manufacturer’s recommended time for Fault A to be detected as passed" + NL;
         expectedMessages += "User cancelled testing at Part 5 Step 7";
         assertEquals(expectedMessages, listener.getMessages());
@@ -295,7 +295,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_ON);
+                when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_RUNNING);
             }
         }, 750);
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
@@ -316,7 +316,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
                                              questionCaptor.capture());
         questionCaptor.getValue().answered(YES);
 
-        String urgentMessages1 = "Please turn the Key ON with Engine ON";
+        String urgentMessages1 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle1 = "Adjust Key Switch";
         verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING));
 
@@ -344,8 +344,8 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
         expectedMessages += "Step 6.5.7.1.b - Waiting manufacturer’s recommended interval with the key in the off position"
                 + NL;
         expectedMessages += "Step 6.5.7.1.c Turn Engine on and keep the ignition key in the on position" + NL;
-        expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
-        expectedMessages += "Waiting for Key ON, Engine ON..." + NL;
+        expectedMessages += "Waiting for Key ON/Engine RUNNING..." + NL;
+        expectedMessages += "Waiting for Key ON/Engine RUNNING..." + NL;
         expectedMessages += "Waiting manufacturer’s recommended time for Fault A to be detected as passed" + NL;
         expectedMessages += "User cancelled testing at Part 5 Step 7";
         assertEquals(expectedMessages, listener.getMessages());

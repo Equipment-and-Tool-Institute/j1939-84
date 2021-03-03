@@ -5,7 +5,7 @@ package org.etools.j1939_84.modules;
 
 import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
-import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_ON;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 
 import java.util.concurrent.TimeUnit;
 
@@ -40,7 +40,7 @@ public class EngineSpeedModule extends FunctionalModule {
      * @return true if the engine is communicating; false if the engine is not
      *         communicating
      */
-    protected boolean isEngineCommunicating() {
+    private boolean isEngineCommunicating() {
         return getEngineSpeedPacket() != null;
     }
 
@@ -54,7 +54,7 @@ public class EngineSpeedModule extends FunctionalModule {
             return KEY_OFF_ENGINE_OFF;
         }
         if (isEngineRunning()) {
-            return KEY_ON_ENGINE_ON;
+            return KEY_ON_ENGINE_RUNNING;
         }
         return KEY_ON_ENGINE_OFF;
     }
@@ -64,7 +64,7 @@ public class EngineSpeedModule extends FunctionalModule {
      *
      * @return true if the engine is not running; false otherwise
      */
-    protected boolean isEngineNotRunning() {
+    private boolean isEngineNotRunning() {
         EngineSpeedPacket packet = getEngineSpeedPacket();
         return !(packet == null || packet.isError() || packet.isNotAvailable() || packet.getEngineSpeed() > 300);
     }
@@ -75,7 +75,7 @@ public class EngineSpeedModule extends FunctionalModule {
      *
      * @return true if the engine is not running; false otherwise
      */
-    protected boolean isEngineRunning() {
+    private boolean isEngineRunning() {
         EngineSpeedPacket packet = getEngineSpeedPacket();
         return !(packet == null || packet.isError() || packet.isNotAvailable() || packet.getEngineSpeed() <= 300);
     }
