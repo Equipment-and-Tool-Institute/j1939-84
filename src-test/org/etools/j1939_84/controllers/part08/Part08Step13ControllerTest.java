@@ -3,16 +3,28 @@
  */
 package org.etools.j1939_84.controllers.part08;
 
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.ACK;
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.controllers.part01.SectionA5Verifier;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -57,9 +69,14 @@ public class Part08Step13ControllerTest extends AbstractControllerTest {
     @Mock
     private VehicleInformationModule vehicleInformationModule;
 
+    @Mock
+    private SectionA5Verifier verifier;
+
     private TestResultsListener listener;
 
     private DataRepository dataRepository;
+
+    private TestDateTimeModule dateTimeModule;
 
     private StepController instance;
 
@@ -68,13 +85,15 @@ public class Part08Step13ControllerTest extends AbstractControllerTest {
         dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
 
+        dateTimeModule = new TestDateTimeModule();
         instance = new Part08Step13Controller(executor,
                                               bannerModule,
-                                              new TestDateTimeModule(),
+                                              dateTimeModule,
                                               dataRepository,
                                               engineSpeedModule,
                                               vehicleInformationModule,
-                                              diagnosticMessageModule);
+                                              diagnosticMessageModule,
+                                              verifier);
 
         setup(instance,
               listener,
@@ -94,7 +113,8 @@ public class Part08Step13ControllerTest extends AbstractControllerTest {
                                  engineSpeedModule,
                                  vehicleInformationModule,
                                  diagnosticMessageModule,
-                                 mockListener);
+                                 mockListener,
+                                 verifier);
     }
 
     @Test
@@ -119,11 +139,72 @@ public class Part08Step13ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        var nack = AcknowledgmentPacket.create(0, NACK);
+        when(diagnosticMessageModule.requestDM3(any(), eq(0))).thenReturn(List.of(nack));
 
         runTest();
 
-        assertEquals("", listener.getMessages());
+        verify(diagnosticMessageModule).requestDM3(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM3(any());
+
+        verify(verifier).verifyDataNotErased(any(), eq("6.8.13.2.a"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.8.13.4.a"));
+
+        assertEquals(10000, dateTimeModule.getTimeAsLong());
+
+        String expected = "";
+        expected += "Step 6.8.13.1.b. Waiting 5 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b. Waiting 4 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b. Waiting 3 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b. Waiting 2 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b. Waiting 1 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b. Waiting 5 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b. Waiting 4 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b. Waiting 3 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b. Waiting 2 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b. Waiting 1 seconds before checking for erased information";
+        assertEquals(expected, listener.getMessages());
         assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testFailureForNoNACK() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        var nack = AcknowledgmentPacket.create(0, ACK);
+        when(diagnosticMessageModule.requestDM3(any(), eq(0))).thenReturn(List.of(nack));
+        when(diagnosticMessageModule.requestDM3(any(), eq(1))).thenReturn(List.of());
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM3(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM3(any(), eq(1));
+        verify(diagnosticMessageModule).requestDM3(any());
+
+        verify(verifier).verifyDataNotErased(any(), eq("6.8.13.2.a"));
+        verify(verifier).verifyDataNotErased(any(), eq("6.8.13.4.a"));
+
+        assertEquals(10000, dateTimeModule.getTimeAsLong());
+
+        String expected = "";
+        expected += "Step 6.8.13.1.b. Waiting 5 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b. Waiting 4 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b. Waiting 3 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b. Waiting 2 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.1.b. Waiting 1 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b. Waiting 5 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b. Waiting 4 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b. Waiting 3 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b. Waiting 2 seconds before checking for erased information" + NL;
+        expected += "Step 6.8.13.3.b. Waiting 1 seconds before checking for erased information";
+        assertEquals(expected, listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.8.13.2.a - Engine #1 (0) did not NACK");
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.8.13.2.a - Engine #2 (1) did not NACK");
     }
 
 }
