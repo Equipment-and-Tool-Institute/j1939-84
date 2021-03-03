@@ -69,9 +69,11 @@ public class Part08Step14Controller extends StepController {
                              .map(DM30ScaledTestResultsPacket::getTestResults)
                              .flatMap(Collection::stream)
                              .filter(ScaledTestResult::isInitialized)
-                             .forEach(r -> addFailure("6.8.14.2.a - " + moduleInformation.getModuleName()
-                                     + " reported test result for SPN = " + r.getSpn() + ", FMI = " + r.getFmi()
-                                     + " is now initialized"));
+                             .forEach(r -> {
+                                 addFailure("6.8.14.2.a - " + moduleInformation.getModuleName()
+                                         + " reported test result for SPN = " + r.getSpn() + ", FMI = " + r.getFmi()
+                                         + " is now initialized");
+                             });
         }
 
     }
