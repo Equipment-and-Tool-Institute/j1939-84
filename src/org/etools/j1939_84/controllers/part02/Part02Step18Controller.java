@@ -65,28 +65,35 @@ public class Part02Step18Controller extends StepController {
         incrementProgress("Part 2, Step 18 Turn Engine Off and keep the ignition key in the off position");
         ensureKeyOffEngineOff();
 
-        // 6.2.18.1.b. Implant Fault A according to engine manufacturer’s instruction. (See section 5 for additional
+        // 6.2.18.1.b. Implant Fault A according to engine manufacturer’s instruction (See section 5 for additional
         // discussion).
         incrementProgress("Waiting for implant of Fault A according to the engine manufacturer's instruction");
-        if (!isDevEnv()) {
-            waitForFault("Part 6.2.18.1.b");
-        }
+        waitForFaultA();
 
         // 6.2.18.1.c. Turn ignition key to the ON position.
         // 6.2.18.1.d. Observe MIL and Wait to Start Lamps in Instrument Cluster
         // 6.2.18.1.e. Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished.
         incrementProgress("Part 2, Step 18 Turn ignition key to the ON position after MIL & WSL have cleared");
+        waitForEngineStart();
+
+    }
+
+    private void waitForFaultA() {
         if (!isDevEnv()) {
-            waitForEngineStart();
+            String message = "Implant Fault A according to engine manufacturer’s instruction" + NL;
+            message += "Press OK to continue testing" + NL;
+            waitForFault("Part 6.2.18.1.b", message);
         }
     }
 
     private void waitForEngineStart() {
-        String message = "Turn ignition key to the ON position" + NL;
-        message += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;
-        message += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
-        message += "Press OK when ready to continue testing" + NL;
-        displayInstructionAndWait(message, "Part 6.2.18.1.c-e", WARNING);
+        if (!isDevEnv()) {
+            String message = "Turn ignition key to the ON position" + NL;
+            message += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;
+            message += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
+            message += "Press OK to continue testing" + NL;
+            displayInstructionAndWait(message, "Part 6.2.18.1.c-e", WARNING);
+        }
     }
 
 }

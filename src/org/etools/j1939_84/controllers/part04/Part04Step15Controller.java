@@ -63,7 +63,7 @@ public class Part04Step15Controller extends StepController {
 
         // 6.4.15.1.b Wait engine manufacturer’s recommended interval.
         incrementProgress("Waiting for manufacturer's recommended interval with the key in off position");
-        waitForManufacturerInterval("Part 6.4.15.1.b");
+        waitForManufacturerInterval("Part 6.4.15.1.b", "off");
 
         // 6.4.15.1.c With the key in the off position remove the implanted Fault A according to the
         // manufacturer’s instructions for restoring the system to a fault- free operating condition.
@@ -78,9 +78,10 @@ public class Part04Step15Controller extends StepController {
     }
 
     private void confirmFaultRemoved() {
-        String message = "With the key in the off position remove the implanted Fault A according to the" + NL;
+        String message = "6.4.15.1.c - With the key in the off position remove the implanted Fault A according to the"
+                + NL;
         message += "manufacturer’s instructions for restoring the system to a fault- free operating condition" + NL;
-        message += "Press OK when ready to continue testing" + NL;
+        message += "Press OK to continue testing.";
         String boxTitle = "Part 6.4.15.1.c";
         if (!isDevEnv()) {
             displayInstructionAndWait(message, boxTitle, WARNING);
@@ -89,12 +90,15 @@ public class Part04Step15Controller extends StepController {
 
     private void waitForEngineStart() {
         if (!isDevEnv()) {
-            String message = "Turn ignition key to the ON position" + NL;
-            message += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;
-            message += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
-            message += "Please wait as indicated by the engine manufacturer’s recommendations for Fault A" + NL;
-            message += "Press OK when ready to continue testing" + NL;
-            displayInstructionAndWait(message, "Part 6.4.15.1.d-g", WARNING);
+            String message = "6.4.15.1.d - Turn ignition key to the ON position." + NL;
+            message += "6.4.15.1.e - Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster."
+                    + NL;
+            message += "6.4.15.1.f - Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished."
+                    + NL;
+            message += "6.4.15.1.g - Please wait as indicated by the engine manufacturer’s recommendations for Fault A."
+                    + NL;
+            message += "Press OK to continue testing.";
+            displayInstructionAndWait(message, "Part 6.4.15.1.d - g", WARNING);
         }
     }
 

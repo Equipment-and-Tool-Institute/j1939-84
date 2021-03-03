@@ -3,6 +3,9 @@
  */
 package org.etools.j1939_84.controllers.part07;
 
+import static java.lang.String.format;
+import static org.etools.j1939_84.J1939_84.NL;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -54,21 +57,81 @@ public class Part07Step18Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.7.18.1.a. Turn the engine off.
+        // 6.2.18.1.a. Turn Engine Off and keep the ignition key in the off position.
+        incrementProgress("Step 6.7.18.1.a - Turn Engine Off and keep the ignition key in the off position");
+        ensureKeyOffEngineOff();
+
         // 6.7.18.1.b. Keep the ignition key in the off position.
         // 6.7.18.1.c. Implant Fault B according to engine manufacturer’s instruction. (See Section 5 for additional
         // discussion.)
+        incrementProgress("Step 6.7.18.1.b & c - Implant Fault B according to engine manufacturer’s instruction");
+        implantFaultB();
+
         // 6.7.18.1.d. Turn ignition key to the ON position.
+        incrementProgress("Step 6.7.18.1.d - Turn key to on with the with the engine off");
+        ensureKeyOnEngineOff();
+
         // 6.7.18.1.e. Start the engine for cycle 8a.
+        incrementProgress("Step 6.7.18.1.e - Turn Engine On and keep the ignition key in the on position");
+        ensureKeyOnEngineOn();
+
         // 6.7.18.1.f. Wait for manufacturer’s recommended time for Fault B to be detected as failed.
+        waitForFault("Step 6.7.18.1.f");
+
         // 6.7.18.1.g. Turn engine off.
+        incrementProgress("Step 6.7.18.1.g - Turn Engine Off and keep the ignition key in the off position");
+        ensureKeyOffEngineOff();
+
         // 6.7.18.1.h. Wait engine manufacturer’s recommended interval for permanent fault recording.
+        waitForManufacturerInterval("Step 6.7.18.1.h", "off");
+
         // 6.7.18.1.i. Start Engine.
+        incrementProgress("Step 6.7.18.1.i - Turn Engine on with the ignition key in the on position");
+        ensureKeyOnEngineOn();
+
         // 6.7.18.1.j. If Fault B is a single trip fault proceed with part 8 immediately.
-        // 6.7.18.1.k. Wait for manufacturer’s recommended time for Fault B to be detected as failed.
-        // 6.7.18.1.l. Turn engine off.
-        // 6.7.18.1.m. Wait engine manufacturer’s recommended interval for permanent fault recording.
-        // 6.7.18.1.n. Start Engine.
-        // 6.7.18.1.o. Proceed with part 8 (cycle 8b).
+        int numberOfTripsForFaultBImplant = getDataRepository().getVehicleInformation()
+                                                               .getNumberOfTripsForFaultBImplant();
+        if (numberOfTripsForFaultBImplant != 1) {
+            // We already handle the first fault B, so only iterate over rest
+            for (int i = 2; i <= numberOfTripsForFaultBImplant; i++) {
+                incrementProgress(format("Step 6.7.18.1.j - Running fault B trip #%d of %d total fault trips",
+                                         i,
+                                         numberOfTripsForFaultBImplant));
+                // 6.7.18.1.k. Wait for manufacturer’s recommended time for Fault B to be detected as failed.
+                waitForFault("Step 6.7.18.1.k");
+
+                // 6.7.18.1.l. Turn engine off.
+                incrementProgress("Step 6.7.18.1.l - Turn Engine Off and keep the ignition key in the off position.");
+                ensureKeyOffEngineOff();
+
+                // 6.7.18.1.m. Wait engine manufacturer’s recommended interval for permanent fault recording.
+                waitForManufacturerInterval("Step 6.7.18.1.m", "off");
+
+                // 6.7.18.1.n. Start Engine.
+                // 6.7.18.1.o. Proceed with part 8 (cycle 8b).
+                incrementProgress("Step 6.7.18.1.n & o - With the ignition key on and engine on proceeding to Part 8");
+                ensureKeyOnEngineOn();
+            }
+        } else {
+            // 6.7.18.1.j. If Fault B is a single trip fault proceed with part 8 immediately.
+            incrementProgress("Step 6.7.18.1.j - Fault B is a single trip fault; proceeding with part 8 immediately");
+        }
+    }
+
+    private void waitForFault(String stepId) throws InterruptedException {
+        incrementProgress(format("%s - Waiting for manufacturer’s recommended time for Fault B to be detected as failed",
+                                 stepId));
+        String message = "Wait for manufacturer’s recommended time for Fault B to be detected as failed." + NL;
+        message += "Press OK to continue the testing.";
+        waitForFault(stepId, message);
+
+    }
+
+    private void implantFaultB() {
+        String message = "Implant Fault B according to engine manufacturer’s instruction" + NL;
+        message += "Press OK to continue the testing";
+        waitForFault("Step 6.2.18.1.b", message);
     }
 
 }

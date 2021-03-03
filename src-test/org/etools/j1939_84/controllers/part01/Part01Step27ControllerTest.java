@@ -8,6 +8,9 @@ import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_ON;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.PASS;
@@ -19,6 +22,8 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -130,13 +135,16 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
         partResultRepository.setStepResult(1, stepResult);
 
-        when(engineSpeedModule.isEngineRunning()).thenReturn(false, false, false, true);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_ON_ENGINE_OFF,
+                                                         KEY_ON_ENGINE_ON);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         runTest();
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule, atLeastOnce()).isEngineRunning();
+        verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         String urgentMessages = "";
@@ -220,7 +228,10 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
         partResultRepository.setStepResult(1, stepResult);
 
-        when(engineSpeedModule.isEngineRunning()).thenReturn(false, false, false, true);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_ON_ENGINE_OFF,
+                                                         KEY_ON_ENGINE_ON);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
@@ -228,7 +239,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
-        verify(engineSpeedModule, atLeastOnce()).isEngineRunning();
+        verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
         String urgentMessages = "";
         urgentMessages += "Ready to transition from Part 1 to Part 2 of the test" + NL;
@@ -278,14 +289,23 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
         stepResult.addResult(new ActionOutcome(FAIL, "6.1.2.1.b - Fail for testing"));
 
         partResultRepository.setStepResult(PART_NUMBER, stepResult);
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                instance.stop();
+            }
+        }, 750);
 
-        when(engineSpeedModule.isEngineRunning()).thenReturn(false, false, false, true);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_ON_ENGINE_OFF,
+                                                         KEY_ON_ENGINE_ON);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         runTest();
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule, atLeastOnce()).isEngineRunning();
+        verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         String urgentMessages = "";

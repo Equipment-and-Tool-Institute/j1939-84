@@ -68,7 +68,7 @@ public class Part03Step16Controller extends StepController {
 
         // 6.3.16.1.c. Wait manufacturer’s recommended interval with the key in the off position.
         incrementProgress("Waiting for manufacturer's recommended interval with the key in off position");
-        waitForManufacturerInterval("Part 6.3.16.1.c");
+        waitForManufacturerInterval("Step 6.3.16.1.c", "off");
 
         // 6.3.16.1.d. Turn ignition key to the ON position.
         // 6.3.16.1.e. Observe MIL and Wait to Start Lamp in Instrument Cluster
@@ -78,9 +78,9 @@ public class Part03Step16Controller extends StepController {
     }
 
     private void confirmFault() {
-        String message = "Please confirm Fault A is still implanted according to the manufacturer's instruction" + NL;
-        message += "Press OK when ready to continue testing" + NL;
-        String boxTitle = "Part 6.3.16.1.b";
+        String message = "Confirm Fault A is still implanted according to the manufacturer's instruction." + NL;
+        message += "Press OK to continue testing.";
+        String boxTitle = "Step 6.3.16.1.b";
         if (!isDevEnv()) {
             displayInstructionAndWait(message, boxTitle, WARNING);
         }
@@ -88,12 +88,15 @@ public class Part03Step16Controller extends StepController {
 
     private void waitForEngineStart() {
         if (!isDevEnv()) {
-            String message = "Turn ignition key to the ON position" + NL;
-            message += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;
-            message += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
-            message += "Please wait as indicated by the engine manufacturer’s recommendations for Fault A" + NL;
-            message += "Press OK when ready to continue testing" + NL;
-            displayInstructionAndWait(message, "Part 6.3.16.1.d-g", WARNING);
+            String message = "6.3.16.1.d - Turn ignition key to the ON position." + NL;
+            message += "6.3.16.1.e - Observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster."
+                    + NL;
+            message += "6.3.16.1.f - Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished."
+                    + NL;
+            message += "6.3.16.1.g - Wait as indicated by the engine manufacturer’s recommendations for Fault A."
+                    + NL;
+            message += "Press OK to continue testing.";
+            displayInstructionAndWait(message, "Step 6.3.16.1.d - g", WARNING);
         }
     }
 

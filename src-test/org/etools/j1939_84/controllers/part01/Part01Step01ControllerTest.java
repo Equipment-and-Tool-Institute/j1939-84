@@ -5,12 +5,15 @@ package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -187,21 +190,23 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         vehicleInfo.setAddressClaim(requestResult);
 
         DataRepository.getInstance().setVehicleInformation(vehicleInfo);
-        when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF, KEY_ON_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         runTest();
 
-        String urgentMessages = "";
-        urgentMessages += "Ready to begin Part 1" + NL;
+        String urgentMessages = "Ready to begin Part 1" + NL;
         urgentMessages += "a. Confirm the vehicle is in a safe location and condition for the test" + NL;
         urgentMessages += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts)" + NL;
         urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
                 + NL;
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule).isEngineNotRunning();
+        verify(engineSpeedModule, times(2)).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
+        verify(mockListener).onUrgentMessage(eq("Please turn the Key ON with Engine OFF"),
+                                             eq("Adjust Key Switch"),
+                                             eq(WARNING));
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq(expectedTitle), eq(WARNING), any());
         verify(mockListener).onVehicleInformationReceived(vehicleInfo);
         verify(vehicleInformationModule).setJ1939(j1939);
@@ -211,8 +216,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         verify(mockListener).onVehicleInformationNeeded(vehicleInfoCaptor.capture());
         vehicleInfoCaptor.getValue().onResult(vehicleInfo);
 
-        String expectedMessages = "";
-        expectedMessages += "Part 1, Step 1 a-c Displaying Warning Message" + NL;
+        String expectedMessages = "Part 1, Step 1 a-c Displaying Warning Message" + NL;
         expectedMessages += "Part 1, Step 1 d Ensuring Key On, Engine Off" + NL;
         expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information";
         assertEquals(expectedMessages, listener.getMessages());
@@ -220,8 +224,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         String expectedMilestones = "";
         assertEquals(expectedMilestones, listener.getMilestones());
 
-        String expectedResults = "";
-        expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
+        String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
         expectedResults += vehicleInfo + NL;
         assertEquals(expectedResults, listener.getResults());
@@ -238,7 +241,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
     }, description = "Verify vehicle data collection is empty when the engine is not running and no data is collected.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testRunVehicleInfoNull() {
-        when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
         ArgumentCaptor<VehicleInformationListener> vehicleInfoCaptor = ArgumentCaptor
                                                                                      .forClass(VehicleInformationListener.class);
@@ -266,7 +269,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
                 + NL;
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule).isEngineNotRunning();
+        verify(engineSpeedModule).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 1"), eq(WARNING), any());
@@ -295,7 +298,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
                     "VehicleInformationModuleTest" }) }, description = "After the key was detected off, notify user to 'Please turn the Engine OFF with Key ON.', then continue with data collection.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testWaitForKey() {
-        when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         new Timer().schedule(new TimerTask() {
@@ -316,7 +319,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).setJ1939(j1939);
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule, atLeastOnce()).isEngineNotRunning();
+        verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(vehicleInformationModule).setJ1939(j1939);
 

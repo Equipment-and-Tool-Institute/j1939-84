@@ -63,7 +63,7 @@ public class Part06Step11Controller extends StepController {
 
         // 6.6.11.1.b Wait engine manufacturer’s recommended interval.
         incrementProgress("Step 6.6.11.1.b - Waiting manufacturer’s recommended interval with the key in the off position");
-        waitForManufacturerInterval("Step 6.6.11.1.b");
+        waitForManufacturerInterval("Step 6.6.11.1.b", "off");
 
         // 6.6.11.1.c Turn key to on position.
         incrementProgress("6.6.11.1.c Turn the ignition key in the on position");
@@ -78,7 +78,7 @@ public class Part06Step11Controller extends StepController {
 
         // 6.6.11.1.g Wait engine manufacturer’s recommended interval.
         incrementProgress("Step 6.6.11.g - Waiting manufacturer’s recommended interval with the key in the off position");
-        waitForManufacturerInterval("Step 6.6.11.1.g");
+        waitForManufacturerInterval("Step 6.6.11.1.g", "off");
 
         // 6.6.11.1.h Turn the key to the on position.
         // 6.6.11.1.i Proceed with part 7.
@@ -89,8 +89,8 @@ public class Part06Step11Controller extends StepController {
         if (!isDevEnv()) {
             String message = "Turn the key to the on position" + NL;
             message += "Proceeding with Part 7" + NL;
-            message += "Press OK when ready to continue testing" + NL;
-            displayInstructionAndWait(message, "Step 6.6.11.1.h-i", WARNING);
+            message += "Press OK when ready to continue testing";
+            displayInstructionAndWait(message, "Step 6.6.11.1.h - i", WARNING);
         }
     }
 
@@ -103,7 +103,7 @@ public class Part06Step11Controller extends StepController {
             // or a non-emissions related fault displayed in DM1. Vehicles with the MIL on will fail subsequent tests.
             String message = "If required by engine manufacturer, start the engine for start to start operating cycle effects"
                     + NL;
-            message += "Press OK when when ready to continue testing" + NL;
+            message += "Press OK when ready to continue testing";
 
             displayInstructionAndWait(message, "Step 6.6.11.d & e", WARNING);
         }

@@ -5,6 +5,8 @@ package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.eq;
@@ -106,7 +108,7 @@ public class Part01Step02ControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.2.1.a", description = "Verify if the engine is running that there are no messages when already KOEO.", dependsOn = {
             "EngineSpeedModuleTest" }))
     public void testRun() {
-        when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         instance.execute(listener, j1939, reportFileModule);
@@ -116,7 +118,7 @@ public class Part01Step02ControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
-        verify(engineSpeedModule).isEngineNotRunning();
+        verify(engineSpeedModule).getKeyState();
         verify(vehicleInformationModule).setJ1939(j1939);
 
         String expectedMessages = "";
@@ -135,7 +137,7 @@ public class Part01Step02ControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.2.1.a", description = "Verify user is requested to turn KOEO when engine is not KOEO.", dependsOn = {
             "EngineSpeedModuleTest" }))
     public void testWaitForKeyOn() {
-        when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         new Timer().schedule(new TimerTask() {
@@ -152,7 +154,7 @@ public class Part01Step02ControllerTest {
 
         verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
-        verify(engineSpeedModule, atLeastOnce()).isEngineNotRunning();
+        verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(vehicleInformationModule).setJ1939(j1939);
         verify(mockListener).onUrgentMessage(eq("Please turn the Key ON with Engine OFF"),
                                              eq("Adjust Key Switch"),

@@ -7,6 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -139,16 +140,16 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
     @Test
     public void testUserAbortForFail() {
 
-        when(engineSpeedModule.isEngineCommunicating()).thenReturn(false, false, false, false);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
         runTest();
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
+        verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         String urgentMessages = "Implant Fault A according to engine manufacturer’s instruction" + NL;
-        urgentMessages += "Press OK when ready to continue testing" + NL;
+        urgentMessages += "Press OK to continue testing" + NL;
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq("Part 6.2.18.1.b"),
@@ -160,7 +161,7 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
         String urgentMessages2 = "Turn ignition key to the ON position" + NL;
         urgentMessages2 += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;
         urgentMessages2 += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
-        urgentMessages2 += "Press OK when ready to continue testing" + NL;
+        urgentMessages2 += "Press OK to continue testing" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
                                              eq("Part 6.2.18.1.c-e"),
                                              eq(WARNING),
@@ -189,17 +190,17 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
     @Test
     public void testRun() throws InterruptedException {
 
-        when(engineSpeedModule.isEngineCommunicating()).thenReturn(false);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         runTest();
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
+        verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         String urgentMessages = "Implant Fault A according to engine manufacturer’s instruction" + NL;
-        urgentMessages += "Press OK when ready to continue testing" + NL;
+        urgentMessages += "Press OK to continue testing" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq("Part 6.2.18.1.b"),
                                              eq(WARNING),
@@ -209,7 +210,7 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
         String urgentMessages2 = "Turn ignition key to the ON position" + NL;
         urgentMessages2 += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;
         urgentMessages2 += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
-        urgentMessages2 += "Press OK when ready to continue testing" + NL;
+        urgentMessages2 += "Press OK to continue testing" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq("Part 6.2.18.1.c-e"), eq(WARNING), any());
 
         String expected = "";
@@ -221,18 +222,18 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
     @Test
     public void testEngineThrowInterruptedException() {
 
-        when(engineSpeedModule.isEngineCommunicating()).thenReturn(false, false, false, false);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         ArgumentCaptor<QuestionListener> questionCaptor = ArgumentCaptor.forClass(QuestionListener.class);
         runTest();
 
         verify(engineSpeedModule).setJ1939(j1939);
-        verify(engineSpeedModule, atLeastOnce()).isEngineCommunicating();
+        verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         String urgentMessages = "Implant Fault A according to engine manufacturer’s instruction" + NL;
-        urgentMessages += "Press OK when ready to continue testing" + NL;
+        urgentMessages += "Press OK to continue testing" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq("Part 6.2.18.1.b"),
                                              eq(WARNING),
@@ -242,7 +243,7 @@ public class Part02Step18ControllerTest extends AbstractControllerTest {
         String urgentMessages2 = "Turn ignition key to the ON position" + NL;
         urgentMessages2 += "Please observe the MIL and Wait to Start Lamp (if equipped) in the Instrument Cluster" + NL;
         urgentMessages2 += "Start Engine after MIL and Wait to Start Lamp (if equipped) have extinguished" + NL;
-        urgentMessages2 += "Press OK when ready to continue testing" + NL;
+        urgentMessages2 += "Press OK to continue testing" + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages2),
                                              eq("Part 6.2.18.1.c-e"),
                                              eq(WARNING),

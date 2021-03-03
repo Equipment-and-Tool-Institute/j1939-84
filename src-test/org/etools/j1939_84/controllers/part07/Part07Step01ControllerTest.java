@@ -5,6 +5,9 @@ package org.etools.j1939_84.controllers.part07;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_ON;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.Mockito.atLeastOnce;
@@ -127,20 +130,20 @@ public class Part07Step01ControllerTest extends AbstractControllerTest {
     @Test
     public void testHappyPathNoFailures() {
 
-        when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         new Timer().schedule(new TimerTask() {
             @Override
             public void run() {
-                when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
+                when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF);
             }
         }, 750);
 
         runTest();
 
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
-        verify(engineSpeedModule, atLeastOnce()).isEngineNotRunning();
+        verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
         verify(mockListener).onUrgentMessage("Please turn the Key ON with Engine OFF", "Adjust Key Switch", WARNING);
 
@@ -159,24 +162,33 @@ public class Part07Step01ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testWaitForKeyOff() {
-        when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_ON,
+                                                         KEY_ON_ENGINE_ON,
+                                                         KEY_ON_ENGINE_ON,
+                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_ON_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("148.6 RPMs");
 
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                when(engineSpeedModule.isEngineNotRunning()).thenReturn(true);
-            }
-        }, 750);
+        // new Timer().schedule(new TimerTask() {
+        // @Override
+        // public void run() {
+        // when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF);
+        // }
+        // }, 750);
 
         runTest();
 
-        verify(engineSpeedModule, atLeastOnce()).isEngineNotRunning();
+        verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         verify(mockListener).onUrgentMessage("Please turn the Key ON with Engine OFF", "Adjust Key Switch", WARNING);
 
         String expectedMessages = "Waiting for Key ON, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
+        expectedMessages += "Waiting for Key ON, Engine OFF..." + NL;
         expectedMessages += "Waiting for Key ON, Engine OFF...";
         assertEquals(expectedMessages, listener.getMessages());
 
@@ -191,7 +203,7 @@ public class Part07Step01ControllerTest extends AbstractControllerTest {
     @Test
     public void testEngineThrowInterruptedException() {
 
-        when(engineSpeedModule.isEngineNotRunning()).thenReturn(false);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("300.0 RPMs");
 
         new Timer().schedule(new TimerTask() {
@@ -204,7 +216,7 @@ public class Part07Step01ControllerTest extends AbstractControllerTest {
         runTest();
 
         verify(engineSpeedModule).getEngineSpeedAsString();
-        verify(engineSpeedModule, atLeastOnce()).isEngineNotRunning();
+        verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 7 Step 1");
         verify(mockListener).onUrgentMessage("Please turn the Key ON with Engine OFF", "Adjust Key Switch", WARNING);

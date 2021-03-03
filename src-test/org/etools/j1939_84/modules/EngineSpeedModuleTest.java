@@ -65,9 +65,6 @@ public class EngineSpeedModuleTest {
 
     @After
     public void tearDown() {
-        // verify that isEngineCommunicating() and isEngineNotRunning() are both
-        // called
-        verify(j1939, times(4)).read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS);
         verifyNoMoreInteractions(j1939);
     }
 
@@ -83,6 +80,8 @@ public class EngineSpeedModuleTest {
         assertTrue(instance.isEngineCommunicating());
         assertTrue(instance.isEngineNotRunning());
         assertEquals("Engine speed", Math.floor(0.0), instance.getEngineSpeed(), 1);
+        verify(j1939, times(4)).read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS);
+
     }
 
     @Test
@@ -93,10 +92,13 @@ public class EngineSpeedModuleTest {
         when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS))
                                                                                    .thenReturn(Optional.of(new Either<>(packet,
                                                                                                                         null)));
-        assertTrue(instance.isEngineRunning());
+        assertFalse(instance.isEngineRunning());
         assertTrue(instance.isEngineCommunicating());
         assertTrue(instance.isEngineNotRunning());
         assertEquals("Engine speed", Math.floor(300.0), instance.getEngineSpeed(), 1);
+
+        verify(j1939, times(4)).read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS);
+
     }
 
     @Test
@@ -110,6 +112,9 @@ public class EngineSpeedModuleTest {
         assertTrue(instance.isEngineCommunicating());
         assertFalse(instance.isEngineNotRunning());
         assertEquals("Engine speed", Math.floor(301.0), instance.getEngineSpeed(), 1);
+
+        verify(j1939, times(4)).read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS);
+
     }
 
     @Test
@@ -121,6 +126,8 @@ public class EngineSpeedModuleTest {
         assertFalse(instance.isEngineNotRunning());
         assertFalse(instance.isEngineRunning());
         assertNull(instance.getEngineSpeed());
+        verify(j1939, times(4)).read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS);
+
     }
 
     /**
@@ -136,6 +143,8 @@ public class EngineSpeedModuleTest {
         assertTrue(instance.isEngineCommunicating());
         assertFalse(instance.isEngineNotRunning());
         assertEquals("Engine speed", Math.floor(1.7976931348623157E308), instance.getEngineSpeed(), 1);
+        verify(j1939, times(4)).read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS);
+
     }
 
     @Test
@@ -149,6 +158,8 @@ public class EngineSpeedModuleTest {
         assertFalse(instance.isEngineNotRunning());
         assertTrue(instance.isEngineRunning());
         assertEquals("Engine speed", Math.floor(8127.875), instance.getEngineSpeed(), 1);
+        verify(j1939, times(4)).read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS);
+
     }
 
     @Test
@@ -163,6 +174,8 @@ public class EngineSpeedModuleTest {
         assertFalse(instance.isEngineNotRunning());
         assertFalse(instance.isEngineRunning());
         assertEquals("Engine speed", Math.floor(4.9E-324), instance.getEngineSpeed(), 1);
+        verify(j1939, times(4)).read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS);
+
     }
 
     @Test
@@ -177,6 +190,8 @@ public class EngineSpeedModuleTest {
         assertFalse(instance.isEngineNotRunning());
         assertFalse(instance.isEngineRunning());
         assertEquals("Engine speed", Math.floor(1.7976931348623157E308), instance.getEngineSpeed(), 1);
+        verify(j1939, times(4)).read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS);
+
     }
 
 }
