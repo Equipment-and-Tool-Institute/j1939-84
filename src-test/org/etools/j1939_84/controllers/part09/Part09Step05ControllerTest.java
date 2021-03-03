@@ -190,7 +190,7 @@ public class Part09Step05ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testFailureForNoDM12() {
+    public void testFailureForNoDM21() {
 
         runTest();
 
@@ -199,7 +199,7 @@ public class Part09Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.5.2.c - No OBD ECU provided a DM12 message");
+                                        "6.9.5.2.c - No OBD ECU provided a DM21 message");
     }
 
     @Test

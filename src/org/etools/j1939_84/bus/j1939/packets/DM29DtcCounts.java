@@ -115,7 +115,7 @@ public class DM29DtcCounts extends GenericPacket {
     public boolean hasNonZeroCounts(Boolean allPendingSupported) {
         boolean result = false;
         if (allPendingSupported != null) {
-            result = getAllPendingDTCCount() != (allPendingSupported ? 0 : (byte) 0xFF);
+            result = (byte) getAllPendingDTCCount() != (byte) (allPendingSupported ? 0 : 0xFF);
         }
 
         return result

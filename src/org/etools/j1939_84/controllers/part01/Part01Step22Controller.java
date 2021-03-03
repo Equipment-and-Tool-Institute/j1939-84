@@ -73,8 +73,10 @@ public class Part01Step22Controller extends StepController {
                      .map(ParsedPacket::getSourceAddress)
                      .filter(this::supportsDM27)
                      .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.1.22.2.a - " + moduleName
-                             + " did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"));
+                     .forEach(moduleName -> {
+                         addFailure("6.1.22.2.a - " + moduleName
+                                 + " did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
+                     });
 
         // 6.1.22.2.b. For ECUs that do not support DM27, fail if any ECU does not
         // report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0.
@@ -83,8 +85,10 @@ public class Part01Step22Controller extends StepController {
                      .map(ParsedPacket::getSourceAddress)
                      .filter(address -> !supportsDM27(address))
                      .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.1.22.2.b - " + moduleName
-                             + " did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0"));
+                     .forEach(moduleName -> {
+                         addFailure("6.1.22.2.b - " + moduleName
+                                 + " did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
+                     });
 
         // 6.1.22.2.c. For non-OBD ECUs, fail if any ECU reports pending, MIL-on, previously MIL-on or permanent DTC
         // count greater than 0
@@ -93,8 +97,10 @@ public class Part01Step22Controller extends StepController {
                      .map(ParsedPacket::getSourceAddress)
                      .filter(address -> !getDataRepository().isObdModule(address))
                      .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.1.22.2.c - A non-OBD ECU " + moduleName
-                             + " reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"));
+                     .forEach(moduleName -> {
+                         addFailure("6.1.22.2.c - A non-OBD ECU " + moduleName
+                                 + " reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0");
+                     });
 
         // 6.1.22.2.d. Fail if no OBD ECU provides DM29.
         boolean noObdResponses = globalPackets

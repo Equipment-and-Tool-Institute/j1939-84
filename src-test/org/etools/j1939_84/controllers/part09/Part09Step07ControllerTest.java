@@ -156,6 +156,11 @@ public class Part09Step07ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testNoResponses() {
+        VehicleInformation vehicleInformation = new VehicleInformation();
+        vehicleInformation.setEngineModelYear(2020);
+        vehicleInformation.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehicleInformation);
+
         when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
 
         runTest();

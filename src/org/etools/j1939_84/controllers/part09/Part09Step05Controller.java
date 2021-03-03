@@ -85,7 +85,7 @@ public class Part09Step05Controller extends StepController {
 
         // 6.9.5.2.c. Fail if no OBD ECU provides a DM21 message
         if (packets.isEmpty()) {
-            addFailure("6.9.5.2.c - No OBD ECU provided a DM12 message");
+            addFailure("6.9.5.2.c - No OBD ECU provided a DM21 message");
         }
 
         // 6.9.5.2.d. Fail if NACK not received from OBD ECUs that did not support a DM21 message.
