@@ -3,16 +3,28 @@
  */
 package org.etools.j1939_84.controllers.part09;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM27AllPendingDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +131,255 @@ public class Part09Step15ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 1);
+
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        dataRepository.putObdModule(obdModuleInformation1);
+        var dm29_1 = DM29DtcCounts.create(1, 0, 0xFF, 0, 0, 0);
+
+        var dm29_2 = DM29DtcCounts.create(2, 0, 0, 0, 0, 0);
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0, dm29_1, dm29_2));
 
         runTest();
 
+        verify(diagnosticMessageModule).requestDM29(any());
+
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testNoResponse() {
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of());
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.15.2.b - No ECU reported > 0 for permanent DTC");
+    }
+
+    @Test
+    public void testFailureForPendingNoZero() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm29_0 = DM29DtcCounts.create(0, 1, 0, 0, 0, 1);
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.15.2.a - Engine #1 (0) reported > 0 for emission-related pending");
+    }
+
+    @Test
+    public void testFailureForMILNonZero() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 1, 0, 1);
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.15.2.a - Engine #1 (0) reported > 0 for MIL-on");
+    }
+
+    @Test
+    public void testFailureForPreviousMILNonZero() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 1, 1);
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.15.2.a - Engine #1 (0) reported > 0 for previous MIL on");
+    }
+
+    @Test
+    public void testFailureForNoPermanent() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0);
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.15.2.b - No ECU reported > 0 for permanent DTC");
+    }
+
+    @Test
+    public void testFailureForDTCDifference() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        var dtc2 = DiagnosticTroubleCode.create(456, 1, 1, 1);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 1);
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.15.2.c - Engine #1 (0) reported different number for permanent DTC than what it reported in DM28");
+    }
+
+    @Test
+    public void testFailureForSupportDM27AllPendingWrong() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 1, 0, 0, 1);
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.15.2.d - Engine #1 (0) reported > 0 for all pending DTCs");
+    }
+
+    @Test
+    public void testFailureForDoesNotSupportDM27AllPendingWrong() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 1);
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.15.2.e - Engine #1 (0) did not report all pending DTCs = 0xFF");
+    }
+
+    @Test
+    public void testWarningForMoreThanOneDTC() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        var dtc1 = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        var dtc2 = DiagnosticTroubleCode.create(4456, 1, 1, 1);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc1, dtc2));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 2);
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.9.15.3.a - Engine #1 (0) reported > 1 for permanent DTC");
+    }
+
+    @Test
+    public void testWarningForMoreThanOneDTCModule() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, OFF, OFF, OFF, OFF));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 1);
+
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        var dtc1 = DiagnosticTroubleCode.create(456, 1, 1, 1);
+        obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF, dtc1));
+        dataRepository.putObdModule(obdModuleInformation1);
+        var dm29_1 = DM29DtcCounts.create(1, 0, 0xFF, 0, 0, 1);
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(dm29_0, dm29_1));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.9.15.3.b - More than one ECU reported > 0 for permanent DTC");
     }
 
 }
