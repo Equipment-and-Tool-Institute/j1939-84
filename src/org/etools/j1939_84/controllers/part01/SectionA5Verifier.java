@@ -98,6 +98,20 @@ public class SectionA5Verifier {
         verifyDM31NotErased(listener, section);
     }
 
+    public void verifyDataNotMixedErased(ResultsListener listener, String section) {
+        listener.addOutcome(partNumber,
+                            stepNumber,
+                            INCOMPLETE,
+                            section + " - hasn't finished implementing Section A.5 verifyDataNotMixedErased");
+    }
+
+    public void verifyDataNotPartialErased(ResultsListener listener, String section) {
+        listener.addOutcome(partNumber,
+                            stepNumber,
+                            INCOMPLETE,
+                            section + " - hasn't finished implementing Section A.5 verifyDataNotPartialErased");
+    }
+
     public void verifyDataErased(ResultsListener listener, String section) {
         if (true) {
             listener.addOutcome(partNumber,
@@ -330,8 +344,8 @@ public class SectionA5Verifier {
     public void verifyDM31Erased(ResultsListener listener, String section) {
         // 3.a. DM31 lamp status shall report no DTCs causing MIL on
         diagnosticMessageModule.requestDM31(listener)
-                                                                            .getPackets()
-                                                                            .stream()
+                               .getPackets()
+                               .stream()
                                .filter(p -> {
                                    return p.getDtcLampStatuses()
                                            .stream()
