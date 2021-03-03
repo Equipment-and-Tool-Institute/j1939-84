@@ -256,6 +256,44 @@ public class DiagnosticMessageModuleTest {
     }
 
     @Test
+    public void testRequestDM11DS() throws BusException {
+        final int pgn = DM11ClearActiveDTCsPacket.PGN;
+
+        DataRepository.getInstance().putObdModule(new OBDModuleInformation(0));
+
+        Packet requestPacket1 = Packet.create(REQUEST_PGN, BUS_ADDR, true, pgn, pgn >> 8, pgn >> 16);
+        doReturn(requestPacket1).when(j1939).createRequestPacket(pgn, 0);
+
+        AcknowledgmentPacket packet1 = new AcknowledgmentPacket(
+                                                                Packet.create(ACK_PGN | BUS_ADDR,
+                                                                              0x00,
+                                                                              0x00,
+                                                                              0xFF,
+                                                                              0xFF,
+                                                                              0xFF,
+                                                                              BUS_ADDR,
+                                                                              0xD3,
+                                                                              0xFE,
+                                                                              0x00));
+
+        doReturn(Stream.of(packet1.getPacket())).when(j1939).read(anyLong(), any());
+
+        String expected = "";
+        expected += "10:15:30.0000 Destination Specific DM11 Request to Engine #1 (0)" + NL;
+        expected += "10:15:30.0000 18EA00A5 [3] D3 FE 00 (TX)" + NL;
+        expected += "10:15:30.0000 18E8A500 [8] 00 FF FF FF A5 D3 FE 00" + NL;
+        expected += "Acknowledgment from Engine #1 (0): Response: ACK, Group Function: 255, Address Acknowledged: 165, PGN Requested: 65235"
+                + NL;
+
+        TestResultsListener listener = new TestResultsListener();
+        assertEquals(List.of(packet1), instance.requestDM11(listener, 0));
+        assertEquals(expected, listener.getResults());
+
+        verify(j1939).createRequestPacket(pgn, 0);
+        verify(j1939).read(anyLong(), any());
+    }
+
+    @Test
     public void testRequestDM12DestinationSpecific() throws BusException {
         final int pgn = DM12MILOnEmissionDTCPacket.PGN;
         DataRepository.getInstance().putObdModule(new OBDModuleInformation(0));

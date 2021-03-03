@@ -142,6 +142,11 @@ public class DiagnosticMessageModule extends FunctionalModule {
         return getJ1939().requestForAcks(listener, "Global DM11 Request", DM11ClearActiveDTCsPacket.PGN);
     }
 
+    public List<AcknowledgmentPacket> requestDM11(ResultsListener listener, int address) {
+        String title = "Destination Specific DM11 Request to " + Lookup.getAddressName(address);
+        return getJ1939().requestForAcks(listener, title, DM11ClearActiveDTCsPacket.PGN, address);
+    }
+
     public RequestResult<DM12MILOnEmissionDTCPacket> requestDM12(ResultsListener listener) {
         return requestDMPackets("DM12", DM12MILOnEmissionDTCPacket.class, GLOBAL_ADDR, listener);
     }
