@@ -12,7 +12,7 @@ import static org.etools.j1939_84.controllers.Controller.Ending.STOPPED;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
@@ -199,12 +199,12 @@ public abstract class StepController extends Controller {
             if (isTesting()) {
                 getVehicleInformationModule().requestKeyOffEngineOff(getListener());
             }
-            if (getEngineSpeedModule().getKeyState() != KEY_OFF_ENGINE_OFF && !isDevEnv()) {
-                getListener().onUrgentMessage(format("Please turn %s", KEY_OFF_ENGINE_OFF.getName()),
+            if (getEngineSpeedModule().getKeyState() != KEY_OFF && !isDevEnv()) {
+                getListener().onUrgentMessage(format("Please turn %s", KEY_OFF.getName()),
                                               "Adjust Key Switch",
                                               WARNING);
-                while (getEngineSpeedModule().getKeyState() != KEY_OFF_ENGINE_OFF) {
-                    updateProgress(format("Waiting for %s...", KEY_OFF_ENGINE_OFF.getName()));
+                while (getEngineSpeedModule().getKeyState() != KEY_OFF) {
+                    updateProgress(format("Waiting for %s...", KEY_OFF.getName()));
                     getDateTimeModule().pauseFor(500);
                 }
             }
@@ -332,7 +332,6 @@ public abstract class StepController extends Controller {
             if (answerType == CANCEL || answerType == NO) {
                 try {
                     abort();
-                    setEnding(Ending.ABORTED);
                 } catch (InterruptedException ignored) {
                 }
             }

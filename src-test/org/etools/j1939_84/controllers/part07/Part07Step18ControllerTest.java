@@ -7,7 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
@@ -144,16 +144,16 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_RUNNING,
-                                                         KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs",
                                                                     "0.0 RPMs",
@@ -269,18 +269,18 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         // ensureKeyOffEngineOff()
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs",
@@ -436,7 +436,7 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
     @Ignore
     public void testUserAbortForFail() {
 
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs", "500.0 RPMs");
 
         new Timer().schedule(new TimerTask() {
@@ -525,16 +525,16 @@ public class Part07Step18ControllerTest extends AbstractControllerTest {
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_RUNNING,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs",

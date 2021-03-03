@@ -5,7 +5,7 @@ package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.junit.Assert.assertEquals;
@@ -137,7 +137,7 @@ public class Part01Step02ControllerTest {
     @TestDoc(value = @TestItem(verifies = "6.1.2.1.a", description = "Verify user is requested to turn KOEO when engine is not KOEO.", dependsOn = {
             "EngineSpeedModuleTest" }))
     public void testWaitForKeyOn() {
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         new Timer().schedule(new TimerTask() {

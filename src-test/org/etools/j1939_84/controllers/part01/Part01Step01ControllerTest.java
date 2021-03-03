@@ -5,7 +5,7 @@ package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.junit.Assert.assertEquals;
@@ -190,7 +190,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         vehicleInfo.setAddressClaim(requestResult);
 
         DataRepository.getInstance().setVehicleInformation(vehicleInfo);
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF, KEY_ON_ENGINE_OFF);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF, KEY_ON_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         runTest();
@@ -298,7 +298,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
                     "VehicleInformationModuleTest" }) }, description = "After the key was detected off, notify user to 'Please turn the Engine OFF with Key ON.', then continue with data collection.")
     @SuppressFBWarnings(value = "RV_RETURN_VALUE_IGNORED_NO_SIDE_EFFECT", justification = "The method is called just to get some exception.")
     public void testWaitForKey() {
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
         new Timer().schedule(new TimerTask() {

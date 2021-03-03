@@ -8,7 +8,7 @@ import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
@@ -135,8 +135,8 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
         partResultRepository.setStepResult(1, stepResult);
 
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
@@ -228,8 +228,8 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
         partResultRepository.setStepResult(1, stepResult);
 
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
@@ -296,8 +296,8 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
             }
         }, 750);
 
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");

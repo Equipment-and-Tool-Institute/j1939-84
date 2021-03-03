@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.modules;
 
-import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.junit.Assert.assertEquals;
@@ -117,7 +117,7 @@ public class EngineSpeedModuleTest {
     public void testEngineNotCommunicating() {
         // should we send non F004 traffic?
         when(j1939.read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS)).thenReturn(Optional.empty());
-        assertEquals(KEY_OFF_ENGINE_OFF, instance.getKeyState());
+        assertEquals(KEY_OFF, instance.getKeyState());
         assertNull(instance.getEngineSpeed());
         verify(j1939, times(2)).read(EngineSpeedPacket.class, 0x00, 300, TimeUnit.MILLISECONDS);
 

@@ -7,7 +7,7 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.YES;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
@@ -136,10 +136,10 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
     public void testHappyPathNoFailures() {
 
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_OFF,
@@ -228,10 +228,10 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
     public void testUserAbortForFail() {
 
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs", "500.0 RPMs");
 
@@ -323,8 +323,8 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
     public void testEngineThrowInterruptedException() {
 
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_OFF,
                                                          KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");

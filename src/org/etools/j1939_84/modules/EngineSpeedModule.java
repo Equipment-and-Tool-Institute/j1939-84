@@ -3,7 +3,7 @@
  */
 package org.etools.j1939_84.modules;
 
-import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 
@@ -51,7 +51,7 @@ public class EngineSpeedModule extends FunctionalModule {
      */
     public KeyState getKeyState() {
         if (!isEngineCommunicating()) {
-            return KEY_OFF_ENGINE_OFF;
+            return KEY_OFF;
         }
         if (isEngineRunning()) {
             return KEY_ON_ENGINE_RUNNING;

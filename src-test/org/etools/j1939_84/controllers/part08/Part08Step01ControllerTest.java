@@ -5,7 +5,7 @@ package org.etools.j1939_84.controllers.part08;
 
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.KeyState.KEY_OFF_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
@@ -149,13 +149,13 @@ public class Part08Step01ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testWaitForKeyOn() {
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_OFF,
-                                                         KEY_OFF_ENGINE_OFF,
+                                                         KEY_OFF,
                                                          KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("148.6 RPMs");
 
@@ -185,7 +185,7 @@ public class Part08Step01ControllerTest extends AbstractControllerTest {
     @Test
     public void testEngineThrowInterruptedException() {
 
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF_ENGINE_OFF);
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("300.0 RPMs");
 
         new Timer().schedule(new TimerTask() {
