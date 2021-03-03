@@ -3,9 +3,18 @@
  */
 package org.etools.j1939_84.controllers.part09;
 
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+
+import java.util.Collection;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.Lookup;
+import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM31DtcToLampAssociation;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -55,8 +64,44 @@ public class Part09Step13Controller extends StepController {
     protected void run() throws Throwable {
         // 6.9.13.1.a. DS DM31 [(send Request (PGN 59904) for PGN 41728 (SPNs 1214-1215, 4113, 4117)]) to each ECU(s)
         // that has any DM28 permanent DTCs.
+        var addresses = getDataRepository().getObdModuleAddresses()
+                                           .stream()
+                                           .filter(a -> !getDTCs(DM28PermanentEmissionDTCPacket.class, a).isEmpty())
+                                           .collect(Collectors.toList());
+
+        var results = addresses.stream()
+                               .map(a -> getDiagnosticMessageModule().requestDM31(getListener(), a))
+                               .collect(Collectors.toList());
+
+        var packets = filterRequestResultPackets(results);
+
         // 6.9.13.2.a. (if supported) Fail if MIL is not reported off for all reported DTCs.
+        for (int address : addresses) {
+            packets.stream()
+                   .filter(p -> p.getSourceAddress() == address)
+                   .map(DM31DtcToLampAssociation::getDtcLampStatuses)
+                   .flatMap(Collection::stream)
+                   .filter(s -> s.getMalfunctionIndicatorLampStatus() != OFF)
+                   .map(s -> Lookup.getAddressName(address))
+                   .forEach(moduleName -> {
+                       addFailure("6.9.13.2.a - " + moduleName + " reported MIL not off for all reported DTCs");
+                   });
+        }
+
         // 6.9.13.2.b. (if supported) Fail if NACK not received from OBD ECUs that did not provide a DM31 message.
+        packets.stream().map(ParsedPacket::getSourceAddress).forEach(addresses::remove);
+        filterRequestResultAcks(results).stream()
+                                        .filter(a -> a.getResponse() == NACK)
+                                        .map(ParsedPacket::getSourceAddress)
+                                        .forEach(addresses::remove);
+
+        addresses.stream()
+                 .distinct()
+                 .sorted()
+                 .map(Lookup::getAddressName)
+                 .forEach(moduleName -> {
+                     addFailure("6.9.13.2.b - OBD module " + moduleName + " did not provide a NACK for the DS query");
+                 });
     }
 
 }
