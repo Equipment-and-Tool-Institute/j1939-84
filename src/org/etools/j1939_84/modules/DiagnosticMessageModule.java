@@ -27,6 +27,8 @@ import org.etools.j1939_84.bus.j1939.packets.DM12MILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket.ControlByte;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
@@ -162,6 +164,33 @@ public class DiagnosticMessageModule extends FunctionalModule {
 
     public BusResult<DM21DiagnosticReadinessPacket> requestDM21(ResultsListener listener, int address) {
         return requestDMPackets("DM21", DM21DiagnosticReadinessPacket.class, address, listener).busResult();
+    }
+
+    public BusResult<DM22IndividualClearPacket> requestDM22(ResultsListener listener,
+                                                            int address,
+                                                            ControlByte controlByte,
+                                                            int spn,
+                                                            int fmi) {
+        String title = "Destination Specific DM22 Request to " + Lookup.getAddressName(address);
+        var requestPacket = DM22IndividualClearPacket.createRequest(getJ1939().getBus().getAddress(),
+                                                                    address,
+                                                                    controlByte,
+                                                                    spn,
+                                                                    fmi);
+        return getJ1939().requestDS(title, DM22IndividualClearPacket.PGN, requestPacket, listener);
+    }
+
+    public RequestResult<DM22IndividualClearPacket> requestDM22(ResultsListener listener,
+                                                                ControlByte controlByte,
+                                                                int spn,
+                                                                int fmi) {
+        String title = "Global DM22 Request";
+        var requestPacket = DM22IndividualClearPacket.createRequest(getJ1939().getBus().getAddress(),
+                                                                    GLOBAL_ADDR,
+                                                                    controlByte,
+                                                                    spn,
+                                                                    fmi);
+        return getJ1939().requestGlobal(title, DM22IndividualClearPacket.PGN, requestPacket, listener);
     }
 
     public RequestResult<DM23PreviouslyMILOnEmissionDTCPacket> requestDM23(ResultsListener listener) {
