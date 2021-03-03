@@ -115,7 +115,7 @@ public class Part01Step01Controller extends StepController {
             displayWarningMessage();
         }
 
-        incrementProgress("Part 1, Step 1 d Ensuring Key On, Engine Off");
+        incrementProgress("Part 1, Step 1 d Ensuring Key ON/Engine OFF");
         ensureKeyOnEngineOff();
 
         incrementProgress("Part 1, Step 1 e Collecting Vehicle Information");

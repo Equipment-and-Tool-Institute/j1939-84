@@ -3,10 +3,15 @@
  */
 package org.etools.j1939_84.modules;
 
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
+
 import java.util.concurrent.TimeUnit;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.bus.j1939.packets.EngineSpeedPacket;
+import org.etools.j1939_84.model.KeyState;
 
 /**
  * {@link FunctionalModule} used to determine if the Engine is communicating
@@ -35,30 +40,34 @@ public class EngineSpeedModule extends FunctionalModule {
      * @return true if the engine is communicating; false if the engine is not
      *         communicating
      */
-    public boolean isEngineCommunicating() {
+    private boolean isEngineCommunicating() {
         return getEngineSpeedPacket() != null;
     }
 
     /**
-     * Returns true if the Engine is communicating with an Engine Speed less
-     * than 300 RPM.
-     *
-     * @return true if the engine is not running; false otherwise
+     * 
+     * @return the current keystate of the vehicle based on requirements around
+     *         engine communications and RPMs {@link KeyState}
      */
-    public boolean isEngineNotRunning() {
-        EngineSpeedPacket packet = getEngineSpeedPacket();
-        return !(packet == null || packet.isError() || packet.isNotAvailable() || packet.getEngineSpeed() > 300);
+    public KeyState getKeyState() {
+        if (!isEngineCommunicating()) {
+            return KEY_OFF;
+        }
+        if (isEngineRunning()) {
+            return KEY_ON_ENGINE_RUNNING;
+        }
+        return KEY_ON_ENGINE_OFF;
     }
 
     /**
      * Returns true if the Engine is communicating with an Engine Speed greater
-     * than 300 RPM.
+     * than or equal to 300 RPM.
      *
      * @return true if the engine is not running; false otherwise
      */
-    public boolean isEngineRunning() {
+    private boolean isEngineRunning() {
         EngineSpeedPacket packet = getEngineSpeedPacket();
-        return !(packet == null || packet.isError() || packet.isNotAvailable() || packet.getEngineSpeed() < 300);
+        return !(packet == null || packet.isError() || packet.isNotAvailable() || packet.getEngineSpeed() <= 300);
     }
 
     /**

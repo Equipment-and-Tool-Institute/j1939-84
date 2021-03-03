@@ -558,7 +558,7 @@ public class Engine implements AutoCloseable {
             engineOn[0] = true;
             keyOn[0] = true;
         } else if (pgn == 0x1FFFE) {
-            J1939_84.getLogger().log(Level.INFO, "to Key On, Engine Off");
+            J1939_84.getLogger().log(Level.INFO, "to Key ON/Engine OFF");
             engineOn[0] = false;
             keyOn[0] = true;
         } else if (pgn == 0x1FFFC) {

@@ -374,7 +374,7 @@ public class VehicleInformationDialog extends JDialog implements VehicleInformat
 
     private JSpinner getNumberOfTripsForFaultBImplantJSpinner() {
         if (numberOfTripsForFaultBImplantSpinner == null) {
-            numberOfTripsForFaultBImplantSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 99, 1));
+            numberOfTripsForFaultBImplantSpinner = new JSpinner(new SpinnerNumberModel(1, 1, 2, 1));
             JSpinner.NumberEditor editor = new JSpinner.NumberEditor(numberOfTripsForFaultBImplantSpinner, "#");
             editor.getTextField().setColumns(2);
             numberOfTripsForFaultBImplantSpinner.setEditor(editor);

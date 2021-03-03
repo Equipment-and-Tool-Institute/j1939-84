@@ -3,6 +3,7 @@
  */
 package org.etools.j1939_84.controllers;
 
+import static java.lang.String.format;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.isDevEnv;
 import static org.etools.j1939_84.J1939_84.isTesting;
@@ -11,6 +12,9 @@ import static org.etools.j1939_84.controllers.Controller.Ending.STOPPED;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
@@ -139,10 +143,12 @@ public abstract class StepController extends Controller {
             if (isTesting()) {
                 getVehicleInformationModule().requestKeyOnEngineOn(getListener());
             }
-            if (!getEngineSpeedModule().isEngineRunning() && !isDevEnv()) {
-                getListener().onUrgentMessage("Please turn the Key ON with Engine ON", "Adjust Key Switch", WARNING);
-                while (!getEngineSpeedModule().isEngineRunning()) {
-                    updateProgress("Waiting for Key ON, Engine ON...");
+            if (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_RUNNING && !isDevEnv()) {
+                getListener().onUrgentMessage(format("Please turn %s", KEY_ON_ENGINE_RUNNING.getName()),
+                                              "Adjust Key Switch",
+                                              WARNING);
+                while (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_RUNNING) {
+                    updateProgress(format("Waiting for %s...", KEY_ON_ENGINE_RUNNING.getName()));
                     getDateTimeModule().pauseFor(500);
                 }
             }
@@ -165,10 +171,12 @@ public abstract class StepController extends Controller {
             if (isTesting()) {
                 getVehicleInformationModule().requestKeyOnEngineOff(getListener());
             }
-            if (!getEngineSpeedModule().isEngineNotRunning() && !isDevEnv()) {
-                getListener().onUrgentMessage("Please turn the Key ON with Engine OFF", "Adjust Key Switch", WARNING);
-                while (!getEngineSpeedModule().isEngineNotRunning()) {
-                    updateProgress("Waiting for Key ON, Engine OFF...");
+            if (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_OFF && !isDevEnv()) {
+                getListener().onUrgentMessage(format("Please turn %s", KEY_ON_ENGINE_OFF.getName()),
+                                              "Adjust Key Switch",
+                                              WARNING);
+                while (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_OFF) {
+                    updateProgress(format("Waiting for %s...", KEY_ON_ENGINE_OFF.getName()));
                     getDateTimeModule().pauseFor(500);
                 }
             }
@@ -191,10 +199,12 @@ public abstract class StepController extends Controller {
             if (isTesting()) {
                 getVehicleInformationModule().requestKeyOffEngineOff(getListener());
             }
-            if (getEngineSpeedModule().isEngineCommunicating() && !isDevEnv()) {
-                getListener().onUrgentMessage("Please turn the Key OFF with Engine OFF", "Adjust Key Switch", WARNING);
-                while (getEngineSpeedModule().isEngineCommunicating()) {
-                    updateProgress("Waiting for Key OFF, Engine OFF...");
+            if (getEngineSpeedModule().getKeyState() != KEY_OFF && !isDevEnv()) {
+                getListener().onUrgentMessage(format("Please turn %s", KEY_OFF.getName()),
+                                              "Adjust Key Switch",
+                                              WARNING);
+                while (getEngineSpeedModule().getKeyState() != KEY_OFF) {
+                    updateProgress(format("Waiting for %s...", KEY_OFF.getName()));
                     getDateTimeModule().pauseFor(500);
                 }
             }
@@ -310,9 +320,7 @@ public abstract class StepController extends Controller {
                         .forEach(this::addFailure);
     }
 
-    protected void waitForFault(String boxTitle) {
-        String message = "Implant Fault A according to engine manufacturer’s instruction" + NL;
-        message += "Press OK when ready to continue testing" + NL;
+    protected void waitForFault(String boxTitle, String message) {
         if (!isDevEnv()) {
             displayInstructionAndWait(message, boxTitle, WARNING);
         }
@@ -365,7 +373,7 @@ public abstract class StepController extends Controller {
         while (true) {
             secondsToGo = (stopTime - getDateTimeModule().getTimeAsLong()) / 1000;
             if (secondsToGo > 0) {
-                getListener().onProgress(String.format(message, secondsToGo));
+                getListener().onProgress(format(message, secondsToGo));
                 getDateTimeModule().pauseFor(1000);
             } else {
                 break;
@@ -373,11 +381,11 @@ public abstract class StepController extends Controller {
         }
     }
 
-    protected void waitForManufacturerInterval(String boxTitle) {
+    protected void waitForManufacturerInterval(String boxTitle, String keyState) {
         if (!isDevEnv()) {
-            String message = "Please wait for the manufacturer's recommended interval with the key in off position"
-                    + NL;
-            message += "Press OK to continue the testing" + NL;
+            String message = format("Wait for the manufacturer's recommended interval with the key in %s position."
+                    + NL, keyState);
+            message += "Press OK to continue the testing.";
             displayInstructionAndWait(message, boxTitle, WARNING);
         }
     }

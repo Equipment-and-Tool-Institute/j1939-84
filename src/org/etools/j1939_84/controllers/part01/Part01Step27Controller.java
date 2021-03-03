@@ -77,7 +77,7 @@ public class Part01Step27Controller extends StepController {
         // ii. Or, an electric drive or hybrid drive system shall be placed in the operating
         // mode used to provide power to the drive system without moving the vehicle, if not
         // automatically provided during the initial key off to key on operation.
-        incrementProgress("Part 1, Step 27 b.i - Ensuring Key On, Engine On");
+        incrementProgress("Part 1, Step 27 b.i - Ensuring Key ON/Engine RUNNING");
         ensureKeyOnEngineOn();
 
         // iii. The engine shall be allowed to idle one minute
