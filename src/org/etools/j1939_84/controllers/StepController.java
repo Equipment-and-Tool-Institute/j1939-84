@@ -39,6 +39,7 @@ import org.etools.j1939_84.bus.j1939.packets.GenericPacket;
 import org.etools.j1939_84.bus.j1939.packets.MonitoredSystem;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.ResultsListener.MessageType;
+import org.etools.j1939_84.model.KeyState;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
@@ -130,81 +131,30 @@ public abstract class StepController extends Controller {
         return obdModuleInformation == null ? null : obdModuleInformation.get(packetClass);
     }
 
-    /**
-     * Ensures the Key is on with the Engine Off and prompts the user to make
-     * the proper adjustments.
-     *
-     * @throws InterruptedException
-     *                                  if the user cancels the operation
-     */
     protected void ensureKeyOnEngineOn() throws InterruptedException {
-        try {
-            reportInitialEngineSpeed();
-            if (isTesting()) {
-                getVehicleInformationModule().requestKeyOnEngineOn(getListener());
-            }
-            if (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_RUNNING && !isDevEnv()) {
-                getListener().onUrgentMessage(format("Please turn %s", KEY_ON_ENGINE_RUNNING.getName()),
-                                              "Adjust Key Switch",
-                                              WARNING);
-                while (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_RUNNING) {
-                    updateProgress(format("Waiting for %s...", KEY_ON_ENGINE_RUNNING.getName()));
-                    getDateTimeModule().pauseFor(500);
-                }
-            }
-            reportFinalEngineSpeed();
-        } catch (InterruptedException e) {
-            abort();
-        }
+        ensureKeyState(KEY_ON_ENGINE_RUNNING);
     }
 
-    /**
-     * Ensures the Key is on with the Engine Off and prompts the user to make
-     * the proper adjustments.
-     *
-     * @throws InterruptedException
-     *                                  if the user cancels the operation
-     */
     protected void ensureKeyOnEngineOff() throws InterruptedException {
+        ensureKeyState(KEY_ON_ENGINE_OFF);
+    }
+
+    protected void ensureKeyOffEngineOff() throws InterruptedException {
+        ensureKeyState(KEY_OFF);
+    }
+
+    private void ensureKeyState(KeyState keyState) throws InterruptedException {
         try {
             reportInitialEngineSpeed();
             if (isTesting()) {
                 getVehicleInformationModule().requestKeyOnEngineOff(getListener());
             }
-            if (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_OFF && !isDevEnv()) {
-                getListener().onUrgentMessage(format("Please turn %s", KEY_ON_ENGINE_OFF.getName()),
+            if (getEngineSpeedModule().getKeyState() != keyState && !isDevEnv()) {
+                getListener().onUrgentMessage(format("Please turn %s", keyState.getName()),
                                               "Adjust Key Switch",
                                               WARNING);
-                while (getEngineSpeedModule().getKeyState() != KEY_ON_ENGINE_OFF) {
-                    updateProgress(format("Waiting for %s...", KEY_ON_ENGINE_OFF.getName()));
-                    getDateTimeModule().pauseFor(500);
-                }
-            }
-            reportFinalEngineSpeed();
-        } catch (InterruptedException e) {
-            abort();
-        }
-    }
-
-    /**
-     * Ensures the Key is off with the Engine Off and prompts the user to make
-     * the proper adjustments.
-     *
-     * @throws InterruptedException
-     *                                  if the user cancels the operation
-     */
-    protected void ensureKeyOffEngineOff() throws InterruptedException {
-        try {
-            reportInitialEngineSpeed();
-            if (isTesting()) {
-                getVehicleInformationModule().requestKeyOffEngineOff(getListener());
-            }
-            if (getEngineSpeedModule().getKeyState() != KEY_OFF && !isDevEnv()) {
-                getListener().onUrgentMessage(format("Please turn %s", KEY_OFF.getName()),
-                                              "Adjust Key Switch",
-                                              WARNING);
-                while (getEngineSpeedModule().getKeyState() != KEY_OFF) {
-                    updateProgress(format("Waiting for %s...", KEY_OFF.getName()));
+                while (getEngineSpeedModule().getKeyState() != keyState) {
+                    updateProgress(format("Waiting for %s...", keyState.getName()));
                     getDateTimeModule().pauseFor(500);
                 }
             }
@@ -302,16 +252,20 @@ public abstract class StepController extends Controller {
     protected void checkForNACKsDS(List<? extends GenericPacket> packets,
                                    List<? extends AcknowledgmentPacket> acks,
                                    String section) {
+        checkForNACKsDS(packets, acks, section, getDataRepository().getObdModuleAddresses());
+    }
 
-        List<Integer> missingAddresses = getDataRepository().getObdModuleAddresses();
-
-        packets.stream().map(ParsedPacket::getSourceAddress).forEach(missingAddresses::remove);
+    protected void checkForNACKsDS(List<? extends GenericPacket> packets,
+                                   List<? extends AcknowledgmentPacket> acks,
+                                   String section,
+                                   List<Integer> addresses) {
+        packets.stream().map(ParsedPacket::getSourceAddress).forEach(addresses::remove);
         acks.stream()
             .filter(a -> a.getResponse() == NACK)
             .map(ParsedPacket::getSourceAddress)
-            .forEach(missingAddresses::remove);
+            .forEach(addresses::remove);
 
-        missingAddresses.stream()
+        addresses.stream()
                         .distinct()
                         .sorted()
                         .map(Lookup::getAddressName)

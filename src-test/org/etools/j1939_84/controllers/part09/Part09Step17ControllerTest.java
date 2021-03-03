@@ -3,16 +3,29 @@
  */
 package org.etools.j1939_84.controllers.part09;
 
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
+import org.etools.j1939_84.bus.j1939.packets.FreezeFrame;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +132,75 @@ public class Part09Step17ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        // Module 0 responds normally
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM25ExpandedFreezeFrame.create(0));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm25 = DM25ExpandedFreezeFrame.create(0);
+        when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
+
+        // Module 1 - NACKs
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        obdModuleInformation1.set(DM25ExpandedFreezeFrame.create(1));
+        dataRepository.putObdModule(obdModuleInformation1);
+        var nack = AcknowledgmentPacket.create(1, NACK);
+        when(diagnosticMessageModule.requestDM25(any(), eq(1))).thenReturn(BusResult.of(nack));
+
+        // Module 2 - No Previous DM25 and no NACK
+        dataRepository.putObdModule(new OBDModuleInformation(2));
+        when(diagnosticMessageModule.requestDM25(any(), eq(2))).thenReturn(BusResult.empty());
 
         runTest();
 
+        verify(diagnosticMessageModule).requestDM25(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM25(any(), eq(1));
+        verify(diagnosticMessageModule).requestDM25(any(), eq(2));
+
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
+    }
+
+    @Test
+    public void tesFailureForFreezeFramesPresent() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM25ExpandedFreezeFrame.create(0));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        var freezeFrame = new FreezeFrame(dtc, new int[10]);
+        var dm25 = DM25ExpandedFreezeFrame.create(0, freezeFrame);
+        when(diagnosticMessageModule.requestDM25(any(), eq(0))).thenReturn(BusResult.of(dm25));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM25(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.17.2.a - Engine #1 (0) reported other than no Freeze Frame data stored");
+    }
+
+    @Test
+    public void testFailureForNoNACK() {
+        // Module 1 - NACKs
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        obdModuleInformation1.set(DM25ExpandedFreezeFrame.create(1));
+        dataRepository.putObdModule(obdModuleInformation1);
+        when(diagnosticMessageModule.requestDM25(any(), eq(1))).thenReturn(BusResult.empty());
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM25(any(), eq(1));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.17.2.b - OBD module Engine #2 (1) did not provide a NACK for the DS query");
     }
 
 }
