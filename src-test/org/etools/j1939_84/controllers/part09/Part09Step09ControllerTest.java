@@ -3,16 +3,27 @@
  */
 package org.etools.j1939_84.controllers.part09;
 
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +130,102 @@ public class Part09Step09ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0);
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        var dm21_1 = DM21DiagnosticReadinessPacket.create(1, 0, 0, 0xFFFF, 0xFFFF);
+        when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(BusResult.of(dm21_1));
+
+        dataRepository.putObdModule(new OBDModuleInformation(2));
+        var nack = AcknowledgmentPacket.create(2, NACK);
+        when(diagnosticMessageModule.requestDM21(any(), eq(2))).thenReturn(BusResult.of(nack));
 
         runTest();
 
+        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM21(any(), eq(1));
+        verify(diagnosticMessageModule).requestDM21(any(), eq(2));
+
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
     }
 
+    @Test
+    public void testFailureForMIL() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 1, 0);
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.9.2.a - Engine #1 (0) reported time with MIL on > 0 minutes");
+    }
+
+    @Test
+    public void testFailureForTSCC() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 1);
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.9.2.b - Engine #1 (0) reported time SCC is > 0 minutes");
+    }
+
+    @Test
+    public void testFailureForNoDM21() {
+        dataRepository.putObdModule(new OBDModuleInformation(2));
+        var nack = AcknowledgmentPacket.create(2, NACK);
+        when(diagnosticMessageModule.requestDM21(any(), eq(2))).thenReturn(BusResult.of(nack));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM21(any(), eq(2));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.9.2.c - No OBD ECU provided a DM21 message");
+    }
+
+    @Test
+    public void testFailureForNoNACK() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dm21_0 = DM21DiagnosticReadinessPacket.create(0, 0, 0, 0, 0);
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21_0));
+
+        dataRepository.putObdModule(new OBDModuleInformation(2));
+        when(diagnosticMessageModule.requestDM21(any(), eq(2))).thenReturn(BusResult.empty());
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM21(any(), eq(2));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.9.2.d - OBD module Turbocharger (2) did not provide a response to Global query and did not provide a NACK for the DS query");
+    }
 }
