@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
@@ -129,10 +130,13 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testNoResponsesSIEngine() {
+    public void testHappyPathNoFailures() {
+        var globalPacket = create(0, EngineHoursTimer.create(1, 4, 10));
+        var dsPacket = create(0, EngineHoursTimer.create(1, 4, 10));
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(globalPacket));
+
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -147,7 +151,28 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
+        assertEquals(List.of(), listener.getOutcomes());
+    }
+
+    @Test
+    public void testNoResponsesSIEngine() {
+
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.empty());
+
+        var vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2020);
+        vehInfo.setFuelType(FuelType.DSL);
+        dataRepository.setVehicleInformation(vehInfo);
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM33(any());
+
+        assertEquals("", listener.getResults());
+        assertEquals("", listener.getMessages());
 
         verify(mockListener).addOutcome(PART, STEP, FAIL, "6.2.15.2.a - No ECU responded to the global request");
         verify(mockListener).addOutcome(PART,
@@ -159,8 +184,8 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoResponsesCIEngine() {
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.empty());
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -175,7 +200,6 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART,
                                         STEP,
@@ -187,8 +211,8 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
     @Test
     public void testNoResponsesCIEngine2024() {
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.empty());
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2024);
@@ -203,7 +227,6 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART, STEP, FAIL, "6.2.15.2.a - No ECU responded to the global request");
         verify(mockListener).addOutcome(PART,
@@ -216,9 +239,9 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
     public void testFailNoGlobalResponse() {
         var packet = create(0, EngineHoursTimer.create(0, 0, 0));
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.empty());
 
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(packet));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -233,7 +256,6 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART, STEP, FAIL, "6.2.15.2.a - No ECU responded to the global request");
         verify(mockListener).addOutcome(PART,
@@ -251,9 +273,9 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
     public void testWarnValueOfFB() {
         var packet = create(0, EngineHoursTimer.create(0xFB, 0, 0));
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(packet));
 
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false, packet));
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(packet));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -268,7 +290,6 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART,
                                         STEP,
@@ -281,9 +302,9 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
         var globalPacket = create(0, EngineHoursTimer.create(1, 4, 10));
         var dsPacket = create(0, EngineHoursTimer.create(1, 7, 13));
 
-        when(diagnosticMessageModule.requestDM33(any())).thenReturn(new RequestResult<>(false, globalPacket));
+        when(diagnosticMessageModule.requestDM33(any())).thenReturn(RequestResult.of(globalPacket));
 
-        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(new RequestResult<>(false, dsPacket));
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
@@ -298,7 +319,6 @@ public class Part02Step15ControllerTest extends AbstractControllerTest {
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
 
         verify(mockListener).addOutcome(PART,
                                         STEP,

@@ -6,6 +6,8 @@ package org.etools.j1939_84.controllers.part09;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -54,10 +56,36 @@ public class Part09Step07Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.9.7.1.a Global DM33 [(send Request (PGN 59904) for PGN 41216 (SPNs 4124-4126)]).
-        // 6.9.7.1.b Create a list of ECU address + EI-AECD number + actual time (for Timer 1 and/or Timer 2) for any
-        // with non-zero timer values.
+        var packets = getDiagnosticMessageModule().requestDM33(getListener()).getPackets();
+
         // 6.9.7.2.a Fail if any ECU reports a different number of EI-AECD timers than was reported in part 2.
         // [Engines using SI technology need not respond until the 2024 engine model year]
+        if (!isSparkIgnition() || getEngineModelYear() >= 2024) {
+            packets.stream()
+                   .filter(p -> isObdModule(p.getSourceAddress()))
+                   .filter(p -> {
+                       var prevDm31 = get(DM33EmissionIncreasingAECDActiveTime.class, p.getSourceAddress());
+                       return prevDm31 == null
+                               || prevDm31.getEiAecdEngineHoursTimers().size() != p.getEiAecdEngineHoursTimers().size();
+                   })
+                   .map(ParsedPacket::getModuleName)
+                   .forEach(moduleName -> {
+                       addFailure("6.9.7.2.a - " + moduleName
+                               + " reported a different number of EI-AECD timers than was reported in part 2");
+                   });
+        }
+
+        // 6.9.7.1.b Create a list of ECU address + EI-AECD number + actual time (for Timer 1 and/or Timer 2) for any
+        // with non-zero timer values.
+        packets.forEach(this::save);
+    }
+
+    private boolean isSparkIgnition() {
+        return getDataRepository().getVehicleInformation().getFuelType().isSparkIgnition();
+    }
+
+    private int getEngineModelYear() {
+        return getDataRepository().getVehicleInformation().getEngineModelYear();
     }
 
 }

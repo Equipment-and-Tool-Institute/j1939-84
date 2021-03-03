@@ -13,8 +13,6 @@ import org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTim
 import org.etools.j1939_84.bus.j1939.packets.EngineHoursTimer;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
-import org.etools.j1939_84.model.FuelType;
-import org.etools.j1939_84.model.VehicleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -83,15 +81,12 @@ public class Part02Step15Controller extends StepController {
         var globalPackets = getDiagnosticMessageModule().requestDM33(getListener()).getPackets();
 
         // 6.2.15.1.b. Create list of reported EI-AECD timers by ECU.
-        // The timers are stored on the global packets
+        globalPackets.forEach(this::save);
 
-        // 6.2.15.2.a. Fail if no ECU responds. [Engines using SI technology need not respond until the 2024 engine
-        // model year].
+        // 6.2.15.2.a. Fail if no ECU responds.
+        // [Engines using SI technology need not respond until the 2024 engine model year].
         if (globalPackets.isEmpty()) {
-            VehicleInformation vehicleInformation = getDataRepository().getVehicleInformation();
-            FuelType fuelType = vehicleInformation.getFuelType();
-            int engineModelYear = vehicleInformation.getEngineModelYear();
-            if ((fuelType.isSparkIgnition() && engineModelYear >= 2024) || fuelType.isCompressionIgnition()) {
+            if (!isSparkIgnition() || getEngineModelYear() >= 2024) {
                 addFailure("6.2.15.2.a - No ECU responded to the global request");
             }
         } else {
@@ -102,7 +97,7 @@ public class Part02Step15Controller extends StepController {
                     .findFirst()
                     .map(EngineHoursTimer::getEiAecdNumber)
                     .filter(n -> n == 0xFB)
-                    .map(v -> Lookup.getAddressName(dm33.getSourceAddress()))
+                    .map(v -> dm33.getModuleName())
                     .ifPresent(moduleName -> addWarning("6.2.15.3.a - " + moduleName
                             + " responded 0xFB for EI-AECD number"));
             }
@@ -148,5 +143,13 @@ public class Part02Step15Controller extends StepController {
 
         // 6.2.15.5.b. Fail if NACK not received from OBD ECUs that did not respond to global query.
         checkForNACKsGlobal(globalPackets, filterRequestResultAcks(dsResponses), "6.2.15.5.b");
+    }
+
+    private boolean isSparkIgnition() {
+        return getDataRepository().getVehicleInformation().getFuelType().isSparkIgnition();
+    }
+
+    private int getEngineModelYear() {
+        return getDataRepository().getVehicleInformation().getEngineModelYear();
     }
 }
