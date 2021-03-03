@@ -5,7 +5,9 @@ package org.etools.j1939_84.controllers.part09;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
+import java.util.stream.Collectors;
 
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -54,10 +56,28 @@ public class Part09Step14Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.9.14.1.a. Global DM27 [(send Request (PGN 59904) for PGN 64898 (SPNs 1213-1215, 1706, and 3038)]).
+        var globalPackets = getDiagnosticMessageModule().requestDM27(getListener()).getPackets();
+
         // 6.9.14.2.a. (if supported) Fail if any OBD ECU reports a pending DTC.
+        globalPackets.stream()
+                     .filter(p -> isObdModule(p.getSourceAddress()))
+                     .filter(p -> !p.getDtcs().isEmpty())
+                     .map(ParsedPacket::getModuleName)
+                     .forEach(moduleName -> {
+                         addFailure("6.9.14.2.a - " + moduleName + " reported a pending DTC");
+                     });
+
         // 6.9.14.3.a. DS DM27 to each OBD ECU.
+        var dsResults = getDataRepository().getObdModuleAddresses()
+                                           .stream()
+                                           .map(a -> getDiagnosticMessageModule().requestDM27(getListener(), a))
+                                           .collect(Collectors.toList());
+
         // 6.9.14.4.a. (if supported) Fail if any difference compared to data received during global request.
+        compareRequestPackets(globalPackets, filterPackets(dsResults), "6.9.14.4.a");
+
         // 6.9.14.4.b. (if supported) Fail if NACK not received from OBD ECUs that did not respond to global query.
+        checkForNACKsGlobal(globalPackets, filterAcks(dsResults), "6.9.14.4.b");
     }
 
 }
