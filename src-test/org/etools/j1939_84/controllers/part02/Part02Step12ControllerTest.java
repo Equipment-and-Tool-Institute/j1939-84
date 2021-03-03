@@ -138,84 +138,33 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
         obdModuleInformation.set(dm27(1));
         dataRepository.putObdModule(obdModuleInformation);
 
-        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, packet1));
-        when(diagnosticMessageModule.requestDM29(any(), eq(0x01))).thenReturn(new BusResult<>(false, packet1));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(packet1));
+        when(diagnosticMessageModule.requestDM29(any(), eq(0x01))).thenReturn(BusResult.of(packet1));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM29(any());
         verify(diagnosticMessageModule).requestDM29(any(), eq(0x01));
 
         assertEquals("", listener.getResults());
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
     }
 
     @Test
-    public void testFailures() {
-
-        // Module 0 will support DM27 and have no errors
-        OBDModuleInformation module0 = new OBDModuleInformation(0);
-        module0.set(dm27(0));
-        dataRepository.putObdModule(module0);
-        DM29DtcCounts packet0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0);
-
-        // Module 1 will not support DM27 and have no errors
-        dataRepository.putObdModule(new OBDModuleInformation(1));
-        DM29DtcCounts packet1 = DM29DtcCounts.create(0x01, 0, 0xFF, 0, 0, 0);
-
+    public void testFailureForSupportDM27WithNonZeros() {
         // Module 2 will support DM27 but return bad values
         OBDModuleInformation module2 = new OBDModuleInformation(2);
         module2.set(dm27(2));
         dataRepository.putObdModule(module2);
         DM29DtcCounts packet2 = DM29DtcCounts.create(0x02, 0x00, 0x00, 0x04, 0x00, 0xFF);
 
-        // Module 3 will not support DM27 but return bad values
-        dataRepository.putObdModule(new OBDModuleInformation(3));
-        DM29DtcCounts packet3 = DM29DtcCounts.create(0x03, 0x00, 0x00, 0x04, 0x00, 0xFF);
-
-        // Module 4 will not respond at all
-        dataRepository.putObdModule(new OBDModuleInformation(4));
-
-        // Module 5 will be a non-obd module with no issues
-        DM29DtcCounts packet5 = DM29DtcCounts.create(0x05, 0, 0xFF, 0, 0, 0);
-
-        // Module 6 will be a non-obd module with bad values
-        DM29DtcCounts packet6 = DM29DtcCounts.create(0x06, 0xFF, 0xFF, 0xFF, 0xFF, 0xFF);
-
-        // Module 7 will return different values global/ds
-        dataRepository.putObdModule(new OBDModuleInformation(7));
-        DM29DtcCounts packet71 = DM29DtcCounts.create(0x07, 0, 0xFF, 0, 0, 0);
-        DM29DtcCounts packet72 = DM29DtcCounts.create(0x07, 1, 0xFF, 0, 0, 0);
-
-        when(diagnosticMessageModule.requestDM29(any()))
-                                                        .thenReturn(new RequestResult<>(false,
-                                                                                        packet0,
-                                                                                        packet1,
-                                                                                        packet2,
-                                                                                        packet3,
-                                                                                        packet5,
-                                                                                        packet6,
-                                                                                        packet71));
-
-        when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(new BusResult<>(false, packet0));
-        when(diagnosticMessageModule.requestDM29(any(), eq(1))).thenReturn(new BusResult<>(false, packet1));
-        when(diagnosticMessageModule.requestDM29(any(), eq(2))).thenReturn(new BusResult<>(false, packet2));
-        when(diagnosticMessageModule.requestDM29(any(), eq(3))).thenReturn(new BusResult<>(false, packet3));
-        when(diagnosticMessageModule.requestDM29(any(), eq(4))).thenReturn(new BusResult<>(true));
-        when(diagnosticMessageModule.requestDM29(any(), eq(7))).thenReturn(new BusResult<>(false, packet72));
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(packet2));
+        when(diagnosticMessageModule.requestDM29(any(), eq(2))).thenReturn(BusResult.of(packet2));
 
         runTest();
 
-        verify(diagnosticMessageModule).setJ1939(j1939);
         verify(diagnosticMessageModule).requestDM29(any());
-        verify(diagnosticMessageModule).requestDM29(any(), eq(0));
-        verify(diagnosticMessageModule).requestDM29(any(), eq(1));
         verify(diagnosticMessageModule).requestDM29(any(), eq(2));
-        verify(diagnosticMessageModule).requestDM29(any(), eq(3));
-        verify(diagnosticMessageModule).requestDM29(any(), eq(4));
-        verify(diagnosticMessageModule).requestDM29(any(), eq(7));
 
         assertEquals("", listener.getResults());
 
@@ -223,22 +172,109 @@ public class Part02Step12ControllerTest extends AbstractControllerTest {
                                         STEP,
                                         FAIL,
                                         "6.2.12.2.a - Turbocharger (2) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
+    }
+
+    @Test
+    public void testFailureForNoSupportAndNonZero() {
+        // Module 3 will not support DM27 but return bad values
+        dataRepository.putObdModule(new OBDModuleInformation(3));
+        DM29DtcCounts packet3 = DM29DtcCounts.create(0x03, 0x00, 0, 0x00, 0x00, 0x00);
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(packet3));
+        when(diagnosticMessageModule.requestDM29(any(), eq(3))).thenReturn(BusResult.of(packet3));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+        verify(diagnosticMessageModule).requestDM29(any(), eq(3));
+
+        assertEquals("", listener.getResults());
+
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
                                         "6.2.12.2.b - Transmission #1 (3) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
+    }
+
+    @Test
+    public void testFailureForNonOBDModule() {
+        dataRepository.putObdModule(new OBDModuleInformation(3));
+        DM29DtcCounts packet3 = DM29DtcCounts.create(0x03, 0x00, 0xFF, 0x00, 0x00, 0x00);
+
+        when(diagnosticMessageModule.requestDM29(any(), eq(3))).thenReturn(BusResult.of(packet3));
+
+        // Module 6 will be a non-obd module with bad values
+        DM29DtcCounts packet6 = DM29DtcCounts.create(0x06, 0, 0xFF, 0, 0, 1);
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(packet3, packet6));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any(), eq(3));
+        verify(diagnosticMessageModule).requestDM29(any());
+
+        assertEquals("", listener.getResults());
+
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
                                         "6.2.12.2.b - Shift Console - Secondary (6) did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
+
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
                                         "6.2.12.2.c - A non-OBD ECU Shift Console - Secondary (6) reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0");
+    }
+
+    @Test
+    public void testFailureForDifference() {
+
+        // Module 7 will return different values global/ds
+        dataRepository.putObdModule(new OBDModuleInformation(7));
+        DM29DtcCounts packet71 = DM29DtcCounts.create(0x07, 0, 0xFF, 0, 0, 0);
+        DM29DtcCounts packet72 = DM29DtcCounts.create(0x07, 1, 0xFF, 0, 0, 0);
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(packet71));
+        when(diagnosticMessageModule.requestDM29(any(), eq(7))).thenReturn(BusResult.of(packet72));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+        verify(diagnosticMessageModule).requestDM29(any(), eq(7));
+
+        assertEquals("", listener.getResults());
+
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,
                                         "6.2.12.4.a - Difference compared to data received during global request from Power TakeOff - (Main or Rear) (7)");
+    }
+
+    @Test
+    public void testFailureForNoNACK() {
+
+        // Module 0 will support DM27 and have no errors
+        OBDModuleInformation module0 = new OBDModuleInformation(0);
+        module0.set(dm27(0));
+        dataRepository.putObdModule(module0);
+        DM29DtcCounts packet0 = DM29DtcCounts.create(0, 0, 0, 0, 0, 0);
+
+        // Module 4 will not respond at all
+        dataRepository.putObdModule(new OBDModuleInformation(4));
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(RequestResult.of(packet0));
+
+        when(diagnosticMessageModule.requestDM29(any(), eq(0))).thenReturn(BusResult.of(packet0));
+        when(diagnosticMessageModule.requestDM29(any(), eq(4))).thenReturn(new BusResult<>(true));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+        verify(diagnosticMessageModule).requestDM29(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM29(any(), eq(4));
+
+        assertEquals("", listener.getResults());
+
         verify(mockListener).addOutcome(PART,
                                         STEP,
                                         FAIL,

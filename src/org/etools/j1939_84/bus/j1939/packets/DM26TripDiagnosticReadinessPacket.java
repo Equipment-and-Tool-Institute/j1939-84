@@ -18,6 +18,14 @@ public class DM26TripDiagnosticReadinessPacket extends DiagnosticReadinessPacket
 
     public static final int PGN = 64952;
 
+    public static DM26TripDiagnosticReadinessPacket create(int address, int secondsSCC, int warmUpsSCC) {
+        int[] data = new int[8];
+        data[0] = secondsSCC & 0xFF;
+        data[1] = (secondsSCC >> 8) & 0xFF;
+        data[2] = warmUpsSCC & 0xFF;
+        return new DM26TripDiagnosticReadinessPacket(Packet.create(PGN, address, data));
+    }
+
     private final double timeRunning;
     private final byte warmUps;
 

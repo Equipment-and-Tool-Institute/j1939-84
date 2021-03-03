@@ -23,17 +23,7 @@ public class DM25ExpandedFreezeFrameTest {
 
     @Test
     public void testActual() {
-        Packet packet = Packet.create(PGN,
-                                      0,
-                                      0x00,
-                                      0x00,
-                                      0x00,
-                                      0x00,
-                                      0x00,
-                                      0xFF,
-                                      0xFF,
-                                      0xFF);
-        DM25ExpandedFreezeFrame instance = new DM25ExpandedFreezeFrame(packet);
+        DM25ExpandedFreezeFrame instance = DM25ExpandedFreezeFrame.create(0);
         List<FreezeFrame> freezeFrame = instance.getFreezeFrames();
         assertEquals(0, freezeFrame.size());
         String expected = "DM25 from Engine #1 (0): " + NL;
@@ -114,7 +104,7 @@ public class DM25ExpandedFreezeFrameTest {
     public void testOne() {
         //@formatter:off
         int[] realData = new int[] {
-                0x56, 0x9D, 0x00, 0x07, 0x7F, 0x00, 0x01, 0x7B,
+                0x00, 0x01, 0x7B,
                 0x00, 0x00, 0x39, 0x3A, 0x5C, 0x0F, 0xC4, 0xFB,
                 0x00, 0x00, 0x00, 0xF1, 0x26, 0x00, 0x00, 0x00,
                 0x12, 0x7A, 0x7D, 0x80, 0x65, 0x00, 0x00, 0x32,
@@ -127,8 +117,9 @@ public class DM25ExpandedFreezeFrameTest {
                 0xD0, 0x07, 0x00, 0x7D, 0x04, 0xFF, 0xFA };
         //@formatter:on
 
-        Packet packet = Packet.create(0x00, 0x00, realData);
-        DM25ExpandedFreezeFrame instance = new DM25ExpandedFreezeFrame(packet);
+        var dtc = DiagnosticTroubleCode.create(157, 7, 0, 0x3F);
+        var freezeFrame = new FreezeFrame(dtc, realData);
+        DM25ExpandedFreezeFrame instance = DM25ExpandedFreezeFrame.create(0, freezeFrame);
 
         List<FreezeFrame> freezeFrames = instance.getFreezeFrames();
         assertEquals(1, freezeFrames.size());

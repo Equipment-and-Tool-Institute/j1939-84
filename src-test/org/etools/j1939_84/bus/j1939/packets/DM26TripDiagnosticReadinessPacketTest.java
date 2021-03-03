@@ -1,10 +1,10 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 
 import java.util.List;
 
@@ -49,8 +49,8 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
 
     @Test
     @Override
-    public void testEqualsContinouslyMonitoredSystems() {
-        super.testEqualsContinouslyMonitoredSystems();
+    public void testEqualsContinuouslyMonitoredSystems() {
+        super.testEqualsContinuouslyMonitoredSystems();
     }
 
     @Test
@@ -61,20 +61,20 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
 
     @Test
     @Override
-    public void testGetContinouslyMonitoredSystemsComprehensiveComponentMonitoring() {
-        super.testGetContinouslyMonitoredSystemsComprehensiveComponentMonitoring();
+    public void testGetContinuouslyMonitoredSystemsComprehensiveComponentMonitoring() {
+        super.testGetContinuouslyMonitoredSystemsComprehensiveComponentMonitoring();
     }
 
     @Test
     @Override
-    public void testGetContinouslyMonitoredSystemsFuelSystemMonitoring() {
-        super.testGetContinouslyMonitoredSystemsFuelSystemMonitoring();
+    public void testGetContinuouslyMonitoredSystemsFuelSystemMonitoring() {
+        super.testGetContinuouslyMonitoredSystemsFuelSystemMonitoring();
     }
 
     @Test
     @Override
-    public void testGetContinouslyMonitoredSystemsMisfireMonitoring() {
-        super.testGetContinouslyMonitoredSystemsMisfireMonitoring();
+    public void testGetContinuouslyMonitoredSystemsMisfireMonitoring() {
+        super.testGetContinuouslyMonitoredSystemsMisfireMonitoring();
     }
 
     @Test
@@ -85,20 +85,20 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
 
     @Test
     @Override
-    public void testGetNonContinouslyMonitoredSystems() {
-        super.testGetNonContinouslyMonitoredSystems();
+    public void testGetNonContinuouslyMonitoredSystems() {
+        super.testGetNonContinuouslyMonitoredSystems();
     }
 
     @Test
     @Override
-    public void testNotEqualsNonContinouslyMonitoredSystemsCompleted() {
-        super.testNotEqualsNonContinouslyMonitoredSystemsCompleted();
+    public void testNotEqualsNonContinuouslyMonitoredSystemsCompleted() {
+        super.testNotEqualsNonContinuouslyMonitoredSystemsCompleted();
     }
 
     @Test
     @Override
-    public void testNotEqualsNonContinouslyMonitoredSystemsSupported() {
-        super.testNotEqualsNonContinouslyMonitoredSystemsSupported();
+    public void testNotEqualsNonContinuouslyMonitoredSystemsSupported() {
+        super.testNotEqualsNonContinuouslyMonitoredSystemsSupported();
     }
 
     @Test
@@ -143,9 +143,9 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
 
     @Test
     public void testGetTimeSinceEngineStart() {
-        Packet packet = Packet.create(0, 0, 11, 22, 33, 44, 55, 66, 77, 88);
-        DM26TripDiagnosticReadinessPacket instance = new DM26TripDiagnosticReadinessPacket(packet);
+        DM26TripDiagnosticReadinessPacket instance = DM26TripDiagnosticReadinessPacket.create(0, 5643, 33);
         assertEquals(5643, instance.getTimeSinceEngineStart(), 0.0);
+        assertEquals(33, instance.getWarmUpsSinceClear());
     }
 
     @Test
@@ -187,30 +187,30 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
     public void testNotEqualsTimeSinceClear() {
         Packet packet1 = Packet.create(0, 0, 11, 22, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance1 = new DM26TripDiagnosticReadinessPacket(packet1);
-        Packet packet2 = Packet.create(0, 0, 00, 22, 33, 44, 55, 66, 77, 88);
+        Packet packet2 = Packet.create(0, 0, 0, 22, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance2 = new DM26TripDiagnosticReadinessPacket(packet2);
 
-        assertFalse(instance1.equals(instance2));
+        assertNotEquals(instance1, instance2);
     }
 
     @Test
     public void testNotEqualsTimeSinceClearByte2() {
         Packet packet1 = Packet.create(0, 0, 11, 22, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance1 = new DM26TripDiagnosticReadinessPacket(packet1);
-        Packet packet2 = Packet.create(0, 0, 11, 00, 33, 44, 55, 66, 77, 88);
+        Packet packet2 = Packet.create(0, 0, 11, 0, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance2 = new DM26TripDiagnosticReadinessPacket(packet2);
 
-        assertFalse(instance1.equals(instance2));
+        assertNotEquals(instance1, instance2);
     }
 
     @Test
     public void testNotEqualsWarmUps() {
         Packet packet1 = Packet.create(0, 0, 11, 22, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance1 = new DM26TripDiagnosticReadinessPacket(packet1);
-        Packet packet2 = Packet.create(0, 0, 11, 22, 00, 44, 55, 66, 77, 88);
+        Packet packet2 = Packet.create(0, 0, 11, 22, 0, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance2 = new DM26TripDiagnosticReadinessPacket(packet2);
 
-        assertFalse(instance1.equals(instance2));
+        assertNotEquals(instance1, instance2);
     }
 
     @Test
@@ -228,14 +228,14 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
 
     @Test
     public void testToStringWithError() {
-        Packet packet = Packet.create(0, 0, 00, 0xFE, 0xFE, 44, 55, 66, 77, 88);
+        Packet packet = Packet.create(0, 0, 0, 0xFE, 0xFE, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance = new DM26TripDiagnosticReadinessPacket(packet);
         assertEquals("DM26 from Engine #1 (0): Warm-ups: error, Time Since Engine Start: error", instance.toString());
     }
 
     @Test
     public void testToStringWithNA() {
-        Packet packet = Packet.create(0, 0, 00, 0xFF, 0xFF, 44, 55, 66, 77, 88);
+        Packet packet = Packet.create(0, 0, 0, 0xFF, 0xFF, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance = new DM26TripDiagnosticReadinessPacket(packet);
         assertEquals("DM26 from Engine #1 (0): Warm-ups: not available, Time Since Engine Start: not available",
                      instance.toString());

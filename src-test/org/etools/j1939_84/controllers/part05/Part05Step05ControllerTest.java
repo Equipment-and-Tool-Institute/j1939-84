@@ -333,7 +333,7 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.5.5.2.e.i - Engine #1 (0) reported 0xFF for all pending DTCs");
+                                        "6.5.5.2.e.ii - Engine #1 (0) reported 0xFF for all pending DTCs");
     }
 
     @Test
@@ -358,7 +358,7 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.5.5.2.e.i - Engine #1 (0) did not report all pending DTCs = 0xFF");
+                                        "6.5.5.2.f.i - Engine #1 (0) did not report all pending DTCs = 0xFF");
     }
 
     @Test
@@ -416,12 +416,67 @@ public class Part05Step05ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testFailureForMoreThanOneModuleWithMILOn() {
+    public void testWarningForMoreThanOneModuleWithMILOn() {
 
+        var dtc0 = DiagnosticTroubleCode.create(123, 4, 0, 9);
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc0));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 1, 0, 1);
+
+        var dtc1 = DiagnosticTroubleCode.create(123, 4, 0, 9);
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        obdModuleInformation1.set(DM12MILOnEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1));
+        obdModuleInformation1.set(DM27AllPendingDTCsPacket.create(1, ON, OFF, OFF, OFF, dtc1));
+        dataRepository.putObdModule(obdModuleInformation1);
+
+        var dm29_1 = DM29DtcCounts.create(1, 0, 0, 1, 0, 0);
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29_0, dm29_1));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.5.5.3.b - More than one ECU reported > 0 for MIL on");
     }
 
     @Test
-    public void testFaliureForMoreThanOneModuleWithPermanent() {
+    public void testWarningForMoreThanOneModuleWithPermanent() {
+        var dtc0 = DiagnosticTroubleCode.create(123, 4, 0, 9);
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM12MILOnEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0));
+        obdModuleInformation0.set(DM28PermanentEmissionDTCPacket.create(0, ON, OFF, OFF, OFF, dtc0));
+        obdModuleInformation0.set(DM27AllPendingDTCsPacket.create(0, ON, OFF, OFF, OFF, dtc0));
+        dataRepository.putObdModule(obdModuleInformation0);
+        var dm29_0 = DM29DtcCounts.create(0, 0, 0, 1, 0, 1);
 
+        var dtc1 = DiagnosticTroubleCode.create(123, 4, 0, 9);
+        OBDModuleInformation obdModuleInformation1 = new OBDModuleInformation(1);
+        obdModuleInformation1.set(DM28PermanentEmissionDTCPacket.create(1, ON, OFF, OFF, OFF, dtc1));
+        obdModuleInformation1.set(DM27AllPendingDTCsPacket.create(1, ON, OFF, OFF, OFF, dtc1));
+        dataRepository.putObdModule(obdModuleInformation1);
+
+        var dm29_1 = DM29DtcCounts.create(1, 0, 0, 0, 0, 1);
+
+        when(diagnosticMessageModule.requestDM29(any())).thenReturn(new RequestResult<>(false, dm29_0, dm29_1));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM29(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "6.5.5.3.b - More than one ECU reported > 0 for permanent");
     }
 }

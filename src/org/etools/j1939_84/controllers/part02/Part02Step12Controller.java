@@ -8,7 +8,6 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 import java.util.stream.Collectors;
 
-import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.Lookup;
 import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
@@ -70,8 +69,10 @@ public class Part02Step12Controller extends StepController {
                      .map(ParsedPacket::getSourceAddress)
                      .filter(this::supportsDM27)
                      .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.2.12.2.a - " + moduleName
-                             + " did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0"));
+                     .forEach(moduleName -> {
+                         addFailure("6.2.12.2.a - " + moduleName
+                                 + " did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0/0/0/0");
+                     });
 
         // 6.2.12.2.b. For OBD ECUs that did not support DM27 in step 6.2.10, fail if any ECU does not report
         // pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0.
@@ -80,8 +81,10 @@ public class Part02Step12Controller extends StepController {
                      .map(ParsedPacket::getSourceAddress)
                      .filter(address -> !supportsDM27(address))
                      .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.2.12.2.b - " + moduleName
-                             + " did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0"));
+                     .forEach(moduleName -> {
+                         addFailure("6.2.12.2.b - " + moduleName
+                                 + " did not report pending/all pending/MIL on/previous MIL on/permanent = 0/0xFF/0/0/0");
+                     });
 
         // 6.2.12.2.c. For non-OBD ECUs, fail if any ECU reports any pending, MIL-on, previously MIL-on,
         // or permanent DTC count that is greater than 0
@@ -90,8 +93,10 @@ public class Part02Step12Controller extends StepController {
                      .map(ParsedPacket::getSourceAddress)
                      .filter(address -> !getDataRepository().isObdModule(address))
                      .map(Lookup::getAddressName)
-                     .forEach(moduleName -> addFailure("6.2.12.2.c - A non-OBD ECU " + moduleName
-                             + " reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0"));
+                     .forEach(moduleName -> {
+                         addFailure("6.2.12.2.c - A non-OBD ECU " + moduleName
+                                 + " reported pending, MIL-on, previously MIL-on or permanent DTC count greater than 0");
+                     });
 
         // 6.2.12.2.d. Fail if no OBD ECU provides DM29.
         boolean noObdResponses = globalPackets
@@ -104,13 +109,12 @@ public class Part02Step12Controller extends StepController {
             addFailure("6.2.12.2.d - No OBD ECU provided DM29");
         }
 
-        List<Integer> obdModuleAddresses = getDataRepository().getObdModuleAddresses();
-
         // 6.2.12.3.a. DS DM29 to each OBD ECU.
-        List<BusResult<DM29DtcCounts>> dsResults = obdModuleAddresses.stream()
-                                                                     .map(address -> getDiagnosticMessageModule().requestDM29(getListener(),
-                                                                                                                              address))
-                                                                     .collect(Collectors.toList());
+        var dsResults = getDataRepository().getObdModuleAddresses()
+                                           .stream()
+                                           .map(address -> getDiagnosticMessageModule().requestDM29(getListener(),
+                                                                                                    address))
+                                           .collect(Collectors.toList());
 
         // 6.2.12.4.a. Fail if any difference compared to data received during global request.
         compareRequestPackets(globalPackets, filterPackets(dsResults), "6.2.12.4.a");
