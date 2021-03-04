@@ -64,11 +64,10 @@ public class Part09Step22Controller extends StepController {
                                                         .filter(p -> getDataRepository().isObdModule(p.getSourceAddress()))
                                                         .peek(p -> {
                                                             // 6.9.22.2.a. (if supported) Fail if any ECU does not
-                                                            // report
-                                                            // MIL off or MIL not supported.
+                                                            // report MIL off or MIL not supported.
                                                             // See Section A.8 for allowed values.
                                                             if (isNotOff(p.getMalfunctionIndicatorLampStatus())) {
-                                                                addFailure(format("6.9.22.2.a - ECU %s reported MIL off",
+                                                                addFailure(format("6.9.22.2.a - ECU %s did not report MIL off",
                                                                                   p.getModuleName()));
                                                             }
                                                             // 6.9.22.2.b. (if supported) Fail if any OBD ECU reports a
