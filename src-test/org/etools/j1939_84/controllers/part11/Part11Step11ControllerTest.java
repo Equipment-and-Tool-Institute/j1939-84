@@ -136,7 +136,7 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
         OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
         obdModuleInformation.set(DM26TripDiagnosticReadinessPacket.create(0, 0, 0));
         dataRepository.putObdModule(obdModuleInformation);
-        var dm26 = DM26TripDiagnosticReadinessPacket.create(0, 1, 1);
+        var dm26 = DM26TripDiagnosticReadinessPacket.create(0, 9, 1);
         when(diagnosticMessageModule.requestDM26(any(), eq(0))).thenReturn(RequestResult.of(dm26));
 
         dataRepository.putObdModule(new OBDModuleInformation(1));
@@ -151,6 +151,7 @@ public class Part11Step11ControllerTest extends AbstractControllerTest {
         assertSame(dm26, dataRepository.getObdModule(0).get(DM26TripDiagnosticReadinessPacket.class));
         assertNull(dataRepository.getObdModule(1).get(DM26TripDiagnosticReadinessPacket.class));
 
+        assertEquals(9.0, dataRepository.getObdModule(0).getDeltaEngineStart(), 0.0);
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
         assertEquals(List.of(), listener.getOutcomes());

@@ -44,6 +44,7 @@ public class OBDModuleInformation implements Cloneable {
     private String engineFamilyName = "";
     private String modelYear = "";
     private PacketArchive packetArchive = new PacketArchive();
+    private Double deltaEngineStart = null;
 
     public OBDModuleInformation(int sourceAddress) {
         this.sourceAddress = sourceAddress;
@@ -68,6 +69,7 @@ public class OBDModuleInformation implements Cloneable {
         obdInfo.setEngineFamilyName(getEngineFamilyName());
         obdInfo.setModelYear(getModelYear());
         obdInfo.setNonInitializedTests(getNonInitializedTests());
+        obdInfo.setDeltaEngineStart(getDeltaEngineStart());
         obdInfo.packetArchive = packetArchive;
 
         return obdInfo;
@@ -235,6 +237,14 @@ public class OBDModuleInformation implements Cloneable {
 
     public boolean supportsDM27() {
         return get(DM27AllPendingDTCsPacket.class) != null;
+    }
+
+    public Double getDeltaEngineStart() {
+        return deltaEngineStart;
+    }
+
+    public void setDeltaEngineStart(Double deltaEngineStart) {
+        this.deltaEngineStart = deltaEngineStart;
     }
 
     private static class PacketArchive {
