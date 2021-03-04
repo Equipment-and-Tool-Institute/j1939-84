@@ -1,10 +1,11 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
+import static org.junit.Assert.assertNotEquals;
 import static org.junit.Assert.assertTrue;
 
 import java.util.HashMap;
@@ -222,30 +223,30 @@ public class DM5DiagnosticReadinessPacketTest extends DiagnosticReadinessPacketT
     public void testNotEqualsActiveCount() {
         Packet packet1 = Packet.create(65230, 0, 11, 22, 33, 44, 55, 66, 77, 88);
         DM5DiagnosticReadinessPacket instance1 = new DM5DiagnosticReadinessPacket(packet1);
-        Packet packet2 = Packet.create(65230, 0, 00, 22, 33, 44, 55, 66, 77, 88);
+        Packet packet2 = Packet.create(65230, 0, 0, 22, 33, 44, 55, 66, 77, 88);
         DM5DiagnosticReadinessPacket instance2 = new DM5DiagnosticReadinessPacket(packet2);
 
-        assertFalse(instance1.equals(instance2));
+        assertNotEquals(instance1, instance2);
     }
 
     @Test
     public void testNotEqualsOBDCompliance() {
         Packet packet1 = Packet.create(65230, 0, 11, 22, 33, 44, 55, 66, 77, 88);
         DM5DiagnosticReadinessPacket instance1 = new DM5DiagnosticReadinessPacket(packet1);
-        Packet packet2 = Packet.create(65230, 0, 11, 22, 00, 44, 55, 66, 77, 88);
+        Packet packet2 = Packet.create(65230, 0, 11, 22, 0, 44, 55, 66, 77, 88);
         DM5DiagnosticReadinessPacket instance2 = new DM5DiagnosticReadinessPacket(packet2);
 
-        assertFalse(instance1.equals(instance2));
+        assertNotEquals(instance1, instance2);
     }
 
     @Test
     public void testNotEqualsPreviouslyActiveCount() {
         Packet packet1 = Packet.create(65230, 0, 11, 22, 33, 44, 55, 66, 77, 88);
         DM5DiagnosticReadinessPacket instance1 = new DM5DiagnosticReadinessPacket(packet1);
-        Packet packet2 = Packet.create(65230, 0, 11, 00, 33, 44, 55, 66, 77, 88);
+        Packet packet2 = Packet.create(65230, 0, 11, 0, 33, 44, 55, 66, 77, 88);
         DM5DiagnosticReadinessPacket instance2 = new DM5DiagnosticReadinessPacket(packet2);
 
-        assertFalse(instance1.equals(instance2));
+        assertNotEquals(instance1, instance2);
     }
 
     @Test
@@ -255,10 +256,8 @@ public class DM5DiagnosticReadinessPacketTest extends DiagnosticReadinessPacketT
 
     @Test
     public void testToString() {
-        Packet packet = Packet.create(65230, 0, 11, 22, 20, 44, 55, 66, 77, 88);
-        DM5DiagnosticReadinessPacket instance = new DM5DiagnosticReadinessPacket(packet);
-        assertEquals(
-                     "DM5 from Engine #1 (0): OBD Compliance: HD OBD (20), Active Codes: 11, Previously Active Codes: 22",
+        DM5DiagnosticReadinessPacket instance = DM5DiagnosticReadinessPacket.create(0, 11, 22, 20);
+        assertEquals("DM5 from Engine #1 (0): OBD Compliance: HD OBD (20), Active Codes: 11, Previously Active Codes: 22",
                      instance.toString());
     }
 
