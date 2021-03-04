@@ -3,16 +3,25 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +128,66 @@ public class Part11Step02ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dm26_0 = DM26TripDiagnosticReadinessPacket.create(0, 15, 1);
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        var dm26_1 = DM26TripDiagnosticReadinessPacket.create(1, 17, 1);
+
+        when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.of(dm26_0, dm26_1));
 
         runTest();
 
+        verify(diagnosticMessageModule).requestDM26(any());
+
+        assertSame(dm26_0, dataRepository.getObdModule(0).get(DM26TripDiagnosticReadinessPacket.class));
+        assertSame(dm26_1, dataRepository.getObdModule(1).get(DM26TripDiagnosticReadinessPacket.class));
+
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
+    }
+
+    @Test
+    public void testNoResponses() {
+        when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.empty());
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM26(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.11.2.2.b - NO OBD ECU provided a DM26 message");
+    }
+
+    @Test
+    public void testFailureForTimeDifference() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dm26_0 = DM26TripDiagnosticReadinessPacket.create(0, 15, 1);
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        var dm26_1 = DM26TripDiagnosticReadinessPacket.create(1, 18, 1);
+
+        when(diagnosticMessageModule.requestDM26(any())).thenReturn(RequestResult.of(dm26_0, dm26_1));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM26(any());
+
+        assertSame(dm26_0, dataRepository.getObdModule(0).get(DM26TripDiagnosticReadinessPacket.class));
+        assertSame(dm26_1, dataRepository.getObdModule(1).get(DM26TripDiagnosticReadinessPacket.class));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.11.2.2.a - More than one ECU responded and times since engine start differ by > 2 seconds");
+
     }
 
 }
