@@ -40,6 +40,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM19CalibrationInformationPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM20MonitorPerformanceRatioPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM22IndividualClearPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM23PreviouslyMILOnEmissionDTCPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM24SPNSupportPacket;
 import org.etools.j1939_84.bus.j1939.packets.DM25ExpandedFreezeFrame;
@@ -261,7 +262,6 @@ public class J1939 {
      *                    the {@link Packet} to process
      * @return        a subclass of {@link ParsedPacket}
      */
-    @SuppressWarnings("unchecked")
     private <T extends GenericPacket> Either<T, AcknowledgmentPacket> process(Packet packet) {
         ParsedPacket pp = processRaw(packet.getPgn(), packet);
         if (pp instanceof AcknowledgmentPacket) {
@@ -306,6 +306,9 @@ public class J1939 {
 
             case DM21DiagnosticReadinessPacket.PGN:
                 return new DM21DiagnosticReadinessPacket(packet);
+
+            case DM22IndividualClearPacket.PGN:
+                return new DM22IndividualClearPacket(packet);
 
             case DM23PreviouslyMILOnEmissionDTCPacket.PGN:
                 return new DM23PreviouslyMILOnEmissionDTCPacket(packet);
@@ -439,7 +442,7 @@ public class J1939 {
                                                                                   TimeUnit unit) {
         try {
             Stream<Packet> stream = read(timeout, unit);
-            final int pgn = getPgn(T);
+            int pgn = getPgn(T);
             if (pgn >= 0) {
                 stream = stream.filter(pgnFilter(pgn));
             }
@@ -560,7 +563,7 @@ public class J1939 {
     }
 
     public <T extends GenericPacket> RequestResult<T> requestGlobal(String title,
-                                                                    final int pgn,
+                                                                    int pgn,
                                                                     Packet requestPacket,
                                                                     ResultsListener listener) {
         boolean retry = false;
@@ -624,7 +627,6 @@ public class J1939 {
     /**
      * Request from global only once.
      */
-    @SuppressWarnings("unchecked")
     private <T extends GenericPacket> List<Either<T, AcknowledgmentPacket>> requestGlobalOnce(int pgn,
                                                                                               Packet request,
                                                                                               ResultsListener listener) {
@@ -636,7 +638,7 @@ public class J1939 {
         try {
             Stream<Packet> stream = read(GLOBAL_TIMEOUT, MILLISECONDS);
             Packet sent = bus.send(request);
-            final LocalDateTime lateTime;
+            LocalDateTime lateTime;
             if (sent != null) {
                 listener.onResult(sent.toTimeString());
                 lateTime = sent.getTimestamp().plus(GLOBAL_WARN_TIMEOUT, ChronoUnit.MILLIS);
