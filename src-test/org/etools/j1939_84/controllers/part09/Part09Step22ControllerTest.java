@@ -14,6 +14,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.BusResult;
@@ -129,6 +130,36 @@ public class Part09Step22ControllerTest extends AbstractControllerTest {
     @Test
     public void testGetTotalSteps() {
         assertEquals(0, instance.getTotalSteps());
+    }
+
+    @Test
+    public void testEmptyGlobalPacketsFailure() {
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+
+        var dm2 = DM2PreviouslyActiveDTC.create(0, OFF, OFF, OFF, OFF);
+        when(diagnosticMessageModule.requestDM2(any())).thenReturn(new RequestResult<>(false, List.of(), List.of()));
+
+        when(diagnosticMessageModule.requestDM2(any(), eq(0))).thenReturn(BusResult.of(dm2));
+
+        var nack = AcknowledgmentPacket.create(1, NACK);
+        when(diagnosticMessageModule.requestDM2(any(), eq(1))).thenReturn(BusResult.of(nack));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM2(any());
+        verify(diagnosticMessageModule).requestDM2(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM2(any(), eq(1));
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.22.1.a - Global DM2 Request did not receive any responses");
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getResults());
     }
 
     @Test

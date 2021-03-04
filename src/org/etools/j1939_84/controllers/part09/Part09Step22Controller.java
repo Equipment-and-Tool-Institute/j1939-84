@@ -80,6 +80,9 @@ public class Part09Step22Controller extends StepController {
                                                             }
                                                         })
                                                         .collect(Collectors.toList());
+        if (globalPackets.isEmpty()) {
+            addFailure("6.9.22.1.a - Global DM2 Request did not receive any responses");
+        }
         // 6.9.22.3.a. DS DM2 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
