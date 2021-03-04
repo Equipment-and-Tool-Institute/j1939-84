@@ -4,23 +4,25 @@
 package org.etools.j1939_84.controllers.part08;
 
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Timer;
-import java.util.TimerTask;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
 import org.etools.j1939_84.controllers.DataRepository;
+import org.etools.j1939_84.controllers.QuestionListener;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
@@ -37,6 +39,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 @RunWith(MockitoJUnitRunner.class)
 public class Part08Step01ControllerTest extends AbstractControllerTest {
@@ -126,7 +129,7 @@ public class Part08Step01ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testRun() {
+    public void testEngineAlreadyRunning() {
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_RUNNING);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
 
@@ -138,9 +141,6 @@ public class Part08Step01ControllerTest extends AbstractControllerTest {
         String expectedMessages = "";
         assertEquals(expectedMessages, listener.getMessages());
 
-        String expectedMilestones = "";
-        assertEquals(expectedMilestones, listener.getMilestones());
-
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
@@ -148,73 +148,59 @@ public class Part08Step01ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testWaitForKeyOn() {
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF,
-                                                         KEY_OFF,
-                                                         KEY_OFF,
-                                                         KEY_OFF,
-                                                         KEY_OFF,
-                                                         KEY_ON_ENGINE_OFF,
-                                                         KEY_OFF,
-                                                         KEY_ON_ENGINE_RUNNING);
-        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("148.6 RPMs");
+    public void testKeyOffTransitionsToKeyOnEngineRunning() {
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF, KEY_ON_ENGINE_OFF, KEY_ON_ENGINE_RUNNING);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs", "500.0 RPMs");
 
         runTest();
 
-        verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
+        verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
-        verify(mockListener).onUrgentMessage("Please turn Key ON/Engine RUNNING", "Adjust Key Switch", WARNING);
+        verify(mockListener).onUrgentMessage(eq("Please turn Key ON/Engine RUNNING"),
+                                             eq("Adjust Key Switch"),
+                                             eq(WARNING),
+                                             any());
 
-        String expectedMessages = "Waiting for Key ON/Engine RUNNING..." + NL;
-        expectedMessages += "Waiting for Key ON/Engine RUNNING..." + NL;
-        expectedMessages += "Waiting for Key ON/Engine RUNNING..." + NL;
-        expectedMessages += "Waiting for Key ON/Engine RUNNING..." + NL;
-        expectedMessages += "Waiting for Key ON/Engine RUNNING..." + NL;
-        expectedMessages += "Waiting for Key ON/Engine RUNNING...";
+        String expectedMessages = "Waiting for Key ON/Engine RUNNING...";
         assertEquals(expectedMessages, listener.getMessages());
 
-        String expectedMilestones = "";
-        assertEquals(expectedMilestones, listener.getMilestones());
-
-        String expectedResults = "Initial Engine Speed = 148.6 RPMs" + NL;
-        expectedResults += "Final Engine Speed = 148.6 RPMs" + NL;
+        String expectedResults = "";
+        expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
+        expectedResults += "Final Engine Speed = 500.0 RPMs" + NL;
         assertEquals(expectedResults, listener.getResults());
     }
 
     @Test
-    public void testEngineThrowInterruptedException() {
+    public void testUserQuits() {
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF, KEY_ON_ENGINE_OFF, KEY_ON_ENGINE_RUNNING);
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs", "500.0 RPMs");
 
-        when(engineSpeedModule.getKeyState()).thenReturn(KEY_OFF);
-        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("300.0 RPMs");
-
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                instance.stop();
-            }
-        }, 750);
+        doAnswer((Answer<Void>) invocation -> {
+            ((QuestionListener) invocation.getArguments()[3]).answered(CANCEL);
+            return null;
+        }).when(mockListener)
+          .onUrgentMessage(eq("Please turn Key ON/Engine RUNNING"),
+                           eq("Adjust Key Switch"),
+                           eq(WARNING),
+                           any());
 
         runTest();
 
-        verify(engineSpeedModule).getEngineSpeedAsString();
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 8 Step 1");
-        verify(mockListener).onUrgentMessage("Please turn Key ON/Engine RUNNING", "Adjust Key Switch", WARNING);
+        verify(mockListener).onUrgentMessage(eq("Please turn Key ON/Engine RUNNING"),
+                                             eq("Adjust Key Switch"),
+                                             eq(WARNING),
+                                             any());
 
-        String expectedMessages = "Waiting for Key ON/Engine RUNNING..." + NL;
-        expectedMessages += "Waiting for Key ON/Engine RUNNING..." + NL;
-        expectedMessages += "Waiting for Key ON/Engine RUNNING..." + NL;
-        expectedMessages += "User cancelled testing at Part 8 Step 1";
-        assertEquals(expectedMessages, listener.getMessages());
+        String userCancelledMessage = "User cancelled testing at Part " + PART_NUMBER + " Step " + STEP_NUMBER;
+        assertEquals(userCancelledMessage + NL + "Waiting for Key ON/Engine RUNNING...", listener.getMessages());
 
-        String expectedMilestones = "";
-        assertEquals(expectedMilestones, listener.getMilestones());
+        assertEquals("Initial Engine Speed = 0.0 RPMs" + NL, listener.getResults());
 
-        String expectedResults = "";
-        expectedResults += "Initial Engine Speed = 300.0 RPMs" + NL;
-        assertEquals(expectedResults, listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, userCancelledMessage);
     }
 
 }

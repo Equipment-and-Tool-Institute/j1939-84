@@ -3,16 +3,26 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM28PermanentEmissionDTCPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +129,63 @@ public class Part11Step06ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM29DtcCounts.create(0, 5, 4, 3, 2, 1));
+        dataRepository.putObdModule(obdModuleInformation0);
+
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        var dm28_0 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        var dm28_1 = DM28PermanentEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF);
+
+        when(diagnosticMessageModule.requestDM28(any())).thenReturn(RequestResult.of(dm28_0, dm28_1));
 
         runTest();
 
+        verify(diagnosticMessageModule).requestDM28(any());
+
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testFailureForNoDTC() {
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        var dm28_1 = DM28PermanentEmissionDTCPacket.create(1, OFF, OFF, OFF, OFF);
+
+        when(diagnosticMessageModule.requestDM28(any())).thenReturn(RequestResult.of(dm28_1));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM28(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.11.6.2.a - No ECU report a permanent DTC");
+    }
+
+    @Test
+    public void testFailureForDifferentNumberOfDTCs() {
+        OBDModuleInformation obdModuleInformation0 = new OBDModuleInformation(0);
+        obdModuleInformation0.set(DM29DtcCounts.create(0, 5, 4, 3, 2, 2));
+        dataRepository.putObdModule(obdModuleInformation0);
+
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        var dm28_0 = DM28PermanentEmissionDTCPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+
+        when(diagnosticMessageModule.requestDM28(any())).thenReturn(RequestResult.of(dm28_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM28(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.11.6.2.b - Engine #1 (0) reported a different number of permanent DTCs that indicate in DM29 response earlier in test 6.11.4");
     }
 
 }

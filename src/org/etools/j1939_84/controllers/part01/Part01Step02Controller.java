@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part01;
 
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -22,24 +24,28 @@ public class Part01Step02Controller extends StepController {
 
     Part01Step02Controller() {
         this(Executors.newSingleThreadScheduledExecutor(),
-             new EngineSpeedModule(),
              new BannerModule(),
+             DateTimeModule.getInstance(),
+             DataRepository.getInstance(),
+             new EngineSpeedModule(),
              new VehicleInformationModule(),
-             DateTimeModule.getInstance());
+             new DiagnosticMessageModule());
     }
 
     Part01Step02Controller(Executor executor,
-                           EngineSpeedModule engineSpeedModule,
                            BannerModule bannerModule,
+                           DateTimeModule dateTimeModule,
+                           DataRepository dataRepository,
+                           EngineSpeedModule engineSpeedModule,
                            VehicleInformationModule vehicleInformationModule,
-                           DateTimeModule dateTimeModule) {
+                           DiagnosticMessageModule diagnosticMessageModule) {
         super(executor,
               bannerModule,
               dateTimeModule,
-              DataRepository.getInstance(),
+              dataRepository,
               engineSpeedModule,
               vehicleInformationModule,
-              new DiagnosticMessageModule(),
+              diagnosticMessageModule,
               PART_NUMBER,
               STEP_NUMBER,
               TOTAL_STEPS);
@@ -47,6 +53,6 @@ public class Part01Step02Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-        ensureKeyOnEngineOff();
+        ensureKeyStateIs(KEY_ON_ENGINE_OFF);
     }
 }

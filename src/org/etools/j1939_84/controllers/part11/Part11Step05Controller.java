@@ -55,6 +55,7 @@ public class Part11Step05Controller extends StepController {
     protected void run() throws Throwable {
         // 6.11.5.1.a. Global DM20 [(send Request (PGN 59904) for PGN 49664 (SPNs 3048-3049, 3066-3068)]).
         // 6.11.5.1.b. Record all data (ignition cycles, numerators, and denominators).
+        getDiagnosticMessageModule().requestDM20(getListener()).getPackets().forEach(this::save);
     }
 
 }

@@ -163,7 +163,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
 
         String urgentMessages1 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle1 = "Adjust Key Switch";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING));
+        verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING), any());
 
         String urgentMessages2 = "Wait for the manufacturer's recommended interval with the key in on position."
                 + NL;
@@ -238,7 +238,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
 
         String urgentMessages1 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle1 = "Adjust Key Switch";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING));
+        verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING), any());
 
         String urgentMessages2 = "Wait for the manufacturer's recommended interval with the key in on position."
                 + NL;
@@ -318,7 +318,7 @@ public class Part05Step07ControllerTest extends AbstractControllerTest {
 
         String urgentMessages1 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle1 = "Adjust Key Switch";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING));
+        verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING), any());
 
         String urgentMessages2 = "Wait for the manufacturer's recommended interval with the key in on position."
                 + NL;

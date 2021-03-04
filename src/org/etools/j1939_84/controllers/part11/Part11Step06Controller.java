@@ -6,6 +6,9 @@ package org.etools.j1939_84.controllers.part11;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM29DtcCounts;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCodePacket;
+import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -54,9 +57,28 @@ public class Part11Step06Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.11.6.1.a. Global DM28 [(send Request (PGN 59904) for PGN 64896 (SPNs 1213-1215, 1706, and 3038)]).
+        var packets = getDiagnosticMessageModule().requestDM28(getListener()).getPackets();
+
         // 6.11.6.2.a. Fail if no ECU reports a permanent DTC.
+        boolean noDTCs = packets.stream().noneMatch(DiagnosticTroubleCodePacket::hasDTCs);
+        if (noDTCs) {
+            addFailure("6.11.6.2.a - No ECU report a permanent DTC");
+        }
+
         // 6.11.6.2.b. Fail if any ECU reports a different number of permanent DTCs than indicated in DM29 response
         // earlier in test 6.11.4.
+        packets.stream()
+               .filter(p -> p.getDtcs().size() != getDTCCount(p.getSourceAddress()))
+               .map(ParsedPacket::getModuleName)
+               .forEach(moduleName -> {
+                   addFailure("6.11.6.2.b - " + moduleName
+                           + " reported a different number of permanent DTCs that indicate in DM29 response earlier in test 6.11.4");
+               });
+    }
+
+    private int getDTCCount(int address) {
+        var dm29 = get(DM29DtcCounts.class, address);
+        return dm29 == null ? 0 : dm29.getEmissionRelatedPermanentDTCCount();
     }
 
 }

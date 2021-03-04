@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part03;
 
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -55,7 +57,7 @@ public class Part03Step01Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.3.1.1.a Gather broadcast data for engine speed (e.g., SPN 190).
-        ensureKeyOnEngineOn();
+        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
     }
 
 }

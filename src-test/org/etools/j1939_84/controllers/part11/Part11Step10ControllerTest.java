@@ -3,16 +3,27 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket.PGN;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.bus.Packet;
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM5DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +130,72 @@ public class Part11Step10ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        dataRepository.putObdModule(new OBDModuleInformation(0x17));
+        dataRepository.putObdModule(new OBDModuleInformation(0x23));
+
+        var packet0 = new DM5DiagnosticReadinessPacket(Packet.create(PGN,
+                                                                     0x00,
+                                                                     0x00,
+                                                                     0x00,
+                                                                     0x14,
+                                                                     0x37,
+                                                                     0xE0,
+                                                                     0x1E,
+                                                                     0xE0,
+                                                                     0x1E));
+        var packet17 = new DM5DiagnosticReadinessPacket(Packet.create(PGN,
+                                                                      0x17,
+                                                                      0x00,
+                                                                      0x00,
+                                                                      0x05,
+                                                                      0x00,
+                                                                      0x00,
+                                                                      0x00,
+                                                                      0x00,
+                                                                      0x00));
+        var packet23 = new DM5DiagnosticReadinessPacket(Packet.create(PGN,
+                                                                      0x21,
+                                                                      0x00,
+                                                                      0x00,
+                                                                      0x05,
+                                                                      0x00,
+                                                                      0x00,
+                                                                      0x00,
+                                                                      0x00,
+                                                                      0x00));
+
+        when(diagnosticMessageModule.requestDM5(any(), eq(0x00))).thenReturn(BusResult.of(packet0));
+        when(diagnosticMessageModule.requestDM5(any(), eq(0x17))).thenReturn(BusResult.of(packet17));
+        when(diagnosticMessageModule.requestDM5(any(), eq(0x23))).thenReturn(BusResult.of(packet23));
 
         runTest();
 
+        verify(diagnosticMessageModule).requestDM5(any(), eq(0x00));
+        verify(diagnosticMessageModule).requestDM5(any(), eq(0x17));
+        verify(diagnosticMessageModule).requestDM5(any(), eq(0x23));
+
+        assertSame(packet0, dataRepository.getObdModule(0).get(DM5DiagnosticReadinessPacket.class));
+
         assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        String expectedVehicleComposite = NL + "Vehicle Composite of DM5:" + NL +
+                "    A/C system refrigerant     not supported,     complete" + NL +
+                "    Boost pressure control sys     supported, not complete" + NL +
+                "    Catalyst                   not supported,     complete" + NL +
+                "    Cold start aid system      not supported,     complete" + NL +
+                "    Comprehensive component        supported,     complete" + NL +
+                "    Diesel Particulate Filter      supported, not complete" + NL +
+                "    EGR/VVT system                 supported, not complete" + NL +
+                "    Evaporative system         not supported,     complete" + NL +
+                "    Exhaust Gas Sensor             supported, not complete" + NL +
+                "    Exhaust Gas Sensor heater      supported, not complete" + NL +
+                "    Fuel System                    supported, not complete" + NL +
+                "    Heated catalyst            not supported,     complete" + NL +
+                "    Misfire                        supported, not complete" + NL +
+                "    NMHC converting catalyst       supported, not complete" + NL +
+                "    NOx catalyst/adsorber          supported, not complete" + NL +
+                "    Secondary air system       not supported,     complete" + NL;
+        assertEquals(expectedVehicleComposite, listener.getResults());
     }
 
 }

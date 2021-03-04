@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers.part01;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.isDevEnv;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.QUESTION;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 
 import java.util.concurrent.Executor;
@@ -78,7 +79,7 @@ public class Part01Step27Controller extends StepController {
         // mode used to provide power to the drive system without moving the vehicle, if not
         // automatically provided during the initial key off to key on operation.
         incrementProgress("Part 1, Step 27 b.i - Ensuring Key ON/Engine RUNNING");
-        ensureKeyOnEngineOn();
+        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
 
         // iii. The engine shall be allowed to idle one minute
         incrementProgress("Part 1, Step 27 b.iii - Allowing engine to idle one minute");

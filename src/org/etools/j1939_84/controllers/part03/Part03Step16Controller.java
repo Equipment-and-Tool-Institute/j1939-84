@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers.part03;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.isDevEnv;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -60,7 +61,7 @@ public class Part03Step16Controller extends StepController {
     protected void run() throws Throwable {
         // 6.3.16.1.a. Turn the engine off.
         incrementProgress("Part 3, Step 16 Turn Engine Off and keep the ignition key in the off position");
-        ensureKeyOffEngineOff();
+        ensureKeyStateIs(KEY_OFF);
 
         // 6.3.16.1.b. Confirm Fault A is still implanted according to the manufacturer’s instruction.
         incrementProgress("Confirming Fault A is still implanted according to the manufacturer's instruction");
@@ -80,10 +81,7 @@ public class Part03Step16Controller extends StepController {
     private void confirmFault() {
         String message = "Confirm Fault A is still implanted according to the manufacturer's instruction." + NL;
         message += "Press OK to continue testing.";
-        String boxTitle = "Step 6.3.16.1.b";
-        if (!isDevEnv()) {
-            displayInstructionAndWait(message, boxTitle, WARNING);
-        }
+        displayInstructionAndWait(message, "Step 6.3.16.1.b", WARNING);
     }
 
     private void waitForEngineStart() {
