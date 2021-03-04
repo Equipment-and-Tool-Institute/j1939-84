@@ -10,7 +10,6 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
-import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -127,31 +126,6 @@ public class Part09Step21ControllerTest extends AbstractControllerTest {
     @Test
     public void testGetTotalSteps() {
         assertEquals(0, instance.getTotalSteps());
-    }
-
-    @Test
-    public void testModulesEmpty() {
-
-        var dm5 = DM5DiagnosticReadinessPacket.create(0, 0, 0, 0x22);
-
-        RequestResult<DM5DiagnosticReadinessPacket> globalRequestResponse = new RequestResult<>(false,
-                                                                                                List.of(dm5),
-                                                                                                Collections.emptyList());
-        when(diagnosticMessageModule.requestDM5(any())).thenReturn(globalRequestResponse);
-
-        runTest();
-
-        verify(diagnosticMessageModule).setJ1939(j1939);
-        verify(diagnosticMessageModule).requestDM5(any());
-
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.6.2.2.a - No OBD ECU reported a count of > 0 active DTCs");
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
     }
 
     @Test
