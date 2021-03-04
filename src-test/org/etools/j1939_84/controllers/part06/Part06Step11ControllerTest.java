@@ -12,6 +12,7 @@ import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
@@ -164,7 +165,7 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
 
         String urgentMessages1 = "Please turn Key ON/Engine OFF";
         String expectedTitle1 = "Adjust Key Switch";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING));
+        verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING), any());
 
         String urgentMessages2 = "If required by engine manufacturer, start the engine for start to start operating cycle effects"
                 + NL;
@@ -178,7 +179,7 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
 
         String urgentMessages3 = "Please turn Key OFF";
         String expectedTitle3 = "Adjust Key Switch";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages3), eq(expectedTitle3), eq(WARNING));
+        verify(mockListener).onUrgentMessage(eq(urgentMessages3), eq(expectedTitle3), eq(WARNING), any());
 
         String urgentMessages4 = "Wait for the manufacturer's recommended interval with the key in off position."
                 + NL;
@@ -250,7 +251,7 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
 
         String urgentMessage0 = "Please turn Key OFF";
         String expectedTitle0 = "Adjust Key Switch";
-        verify(mockListener).onUrgentMessage(eq(urgentMessage0), eq(expectedTitle0), eq(WARNING));
+        verify(mockListener).onUrgentMessage(eq(urgentMessage0), eq(expectedTitle0), eq(WARNING), any());
 
         String urgentMessages = "Wait for the manufacturer's recommended interval with the key in off position."
                 + NL;
@@ -274,7 +275,7 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
 
         String urgentMessages1 = "Please turn Key ON/Engine OFF";
         String expectedTitle1 = "Adjust Key Switch";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING));
+        verify(mockListener).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING), any());
 
         String urgentMessages4 = "Wait for the manufacturer's recommended interval with the key in off position."
                 + NL;
@@ -345,7 +346,10 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
 
         String urgentMessages1 = "Please turn Key OFF";
         String expectedTitle1 = "Adjust Key Switch";
-        verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages1), eq(expectedTitle1), eq(WARNING));
+        verify(mockListener, atLeastOnce()).onUrgentMessage(eq(urgentMessages1),
+                                                            eq(expectedTitle1),
+                                                            eq(WARNING),
+                                                            any());
 
         String urgentMessages = "Wait for the manufacturer's recommended interval with the key in off position."
                 + NL;
@@ -359,7 +363,7 @@ public class Part06Step11ControllerTest extends AbstractControllerTest {
 
         String urgentMessages1_5 = "Please turn Key ON/Engine OFF";
         String expectedTitle1_5 = "Adjust Key Switch";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages1_5), eq(expectedTitle1_5), eq(WARNING));
+        verify(mockListener).onUrgentMessage(eq(urgentMessages1_5), eq(expectedTitle1_5), eq(WARNING), any());
 
         String urgentMessages2 = "If required by engine manufacturer, start the engine for start to start operating cycle effects"
                 + NL;
@@ -384,7 +388,6 @@ verify(mockListener, atLeastOnce()).addOutcome(PART_NUMBER,
         expectedMessages += "Waiting for Key OFF..." + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
         expectedMessages += "Waiting for Key OFF..." + NL;
-        expectedMessages += "User cancelled testing at Part 6 Step 11" + NL;
         expectedMessages += "User cancelled testing at Part 6 Step 11";
         assertEquals(expectedMessages, listener.getMessages());
 

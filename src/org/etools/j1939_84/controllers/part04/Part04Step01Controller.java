@@ -3,6 +3,8 @@
  */
 package org.etools.j1939_84.controllers.part04;
 
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
+
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -56,7 +58,7 @@ public class Part04Step01Controller extends StepController {
         // 6.4.1.1.a. Gather broadcast data for engine speed (e.g., SPN 190).
         // 6.4.1.2.a. If engine speed is <400 rpm, prompt/warn operator to confirm engine is running and then press
         // enter.
-        ensureKeyOnEngineOn();
+        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
     }
 
 }

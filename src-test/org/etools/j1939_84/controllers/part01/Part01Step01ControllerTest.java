@@ -7,7 +7,6 @@ import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
 import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
-import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
@@ -201,18 +200,16 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
                 + NL;
 
-        verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, times(2)).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
         verify(mockListener).onUrgentMessage(eq("Please turn Key ON/Engine OFF"),
                                              eq("Adjust Key Switch"),
-                                             eq(WARNING));
+                                             eq(WARNING),
+                                             any());
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq(expectedTitle), eq(WARNING), any());
         verify(mockListener).onVehicleInformationReceived(vehicleInfo);
-        verify(vehicleInformationModule).setJ1939(j1939);
 
-        ArgumentCaptor<VehicleInformationListener> vehicleInfoCaptor = ArgumentCaptor
-                                                                                     .forClass(VehicleInformationListener.class);
+        var vehicleInfoCaptor = ArgumentCaptor.forClass(VehicleInformationListener.class);
         verify(mockListener).onVehicleInformationNeeded(vehicleInfoCaptor.capture());
         vehicleInfoCaptor.getValue().onResult(vehicleInfo);
 
@@ -220,9 +217,6 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         expectedMessages += "Part 1, Step 1 d Ensuring Key ON/Engine OFF" + NL;
         expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information";
         assertEquals(expectedMessages, listener.getMessages());
-
-        String expectedMilestones = "";
-        assertEquals(expectedMilestones, listener.getMilestones());
 
         String expectedResults = "Initial Engine Speed = 0.0 RPMs" + NL;
         expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
@@ -243,8 +237,7 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
     public void testRunVehicleInfoNull() {
         when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_OFF);
         when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("0.0 RPMs");
-        ArgumentCaptor<VehicleInformationListener> vehicleInfoCaptor = ArgumentCaptor
-                                                                                     .forClass(VehicleInformationListener.class);
+        var vehicleInfoCaptor = ArgumentCaptor.forClass(VehicleInformationListener.class);
 
         Timer timer = new Timer();
         timer.schedule(new TimerTask() {
@@ -268,20 +261,16 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
                 + NL;
 
-        verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
 
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 1"), eq(WARNING), any());
-        verify(vehicleInformationModule).setJ1939(j1939);
 
         String expectedMessages = "Part 1, Step 1 a-c Displaying Warning Message" + NL;
         expectedMessages += "Part 1, Step 1 d Ensuring Key ON/Engine OFF" + NL;
         expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information" + NL;
         expectedMessages += "Part 1, Step 1 e Collecting Vehicle Information";
         assertEquals(expectedMessages, listener.getMessages());
-
-        assertEquals("", listener.getMilestones());
 
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
@@ -308,20 +297,10 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
             }
         }, 500);
 
-        try {
-            instance.execute(listener, j1939, reportFileModule);
-            ArgumentCaptor<Runnable> runnableCaptor = ArgumentCaptor.forClass(Runnable.class);
-            verify(executor).execute(runnableCaptor.capture());
-            runnableCaptor.getValue().run();
-        } catch (Throwable e) {
-            e.printStackTrace();
-        }
-        verify(diagnosticMessageModule).setJ1939(j1939);
+        runTest();
 
-        verify(engineSpeedModule).setJ1939(j1939);
         verify(engineSpeedModule, atLeastOnce()).getKeyState();
         verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
-        verify(vehicleInformationModule).setJ1939(j1939);
 
         String urgentMessages = "Ready to begin Part 1" + NL;
         urgentMessages += "a. Confirm the vehicle is in a safe location and condition for the test" + NL;
@@ -329,18 +308,16 @@ public class Part01Step01ControllerTest extends AbstractControllerTest {
         urgentMessages += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
                 + NL;
         verify(mockListener).onUrgentMessage(eq(urgentMessages), eq("Start Part 1"), eq(WARNING), any());
-        verify(mockListener).onUrgentMessage("Please turn Key ON/Engine OFF", "Adjust Key Switch", WARNING);
-        verify(mockListener).addOutcome(1, 1, ABORT, "User cancelled testing at Part 1 Step 1");
+        verify(mockListener).onUrgentMessage(eq("Please turn Key ON/Engine OFF"),
+                                             eq("Adjust Key Switch"),
+                                             eq(WARNING),
+                                             any());
 
         String expectedMessages = "Part 1, Step 1 a-c Displaying Warning Message" + NL;
         expectedMessages += "Part 1, Step 1 d Ensuring Key ON/Engine OFF" + NL;
         expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
-        expectedMessages += "Waiting for Key ON/Engine OFF..." + NL;
-        expectedMessages += "User cancelled testing at Part 1 Step 1";
+        expectedMessages += "Waiting for Key ON/Engine OFF...";
         assertEquals(expectedMessages, listener.getMessages());
-
-        String expectedMilestones = "";
-        assertEquals(expectedMilestones, listener.getMilestones());
 
         String expectedResults = "";
         expectedResults += "Initial Engine Speed = 0.0 RPMs" + NL;
