@@ -14,9 +14,6 @@ import static org.etools.j1939_84.controllers.Controller.Ending.STOPPED;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.CANCEL;
 import static org.etools.j1939_84.controllers.QuestionListener.AnswerType.NO;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
-import static org.etools.j1939_84.model.KeyState.KEY_OFF;
-import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
-import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.etools.j1939_84.model.Outcome.ABORT;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.etools.j1939_84.model.Outcome.INFO;
@@ -134,45 +131,30 @@ public abstract class StepController extends Controller {
         return obdModuleInformation == null ? null : obdModuleInformation.get(packetClass);
     }
 
-    protected void ensureKeyOnEngineOn() throws InterruptedException {
-        ensureKeyState(KEY_ON_ENGINE_RUNNING);
-    }
-
-    protected void ensureKeyOnEngineOff() throws InterruptedException {
-        ensureKeyState(KEY_ON_ENGINE_OFF);
-    }
-
-    protected void ensureKeyOffEngineOff() throws InterruptedException {
-        ensureKeyState(KEY_OFF);
-    }
-
-    private void ensureKeyState(KeyState keyState) throws InterruptedException {
-        try {
-            reportInitialEngineSpeed();
-            if (isTesting()) {
-                getVehicleInformationModule().requestKeyOnEngineOff(getListener());
-            }
-            if (getEngineSpeedModule().getKeyState() != keyState && !isDevEnv()) {
-                getListener().onUrgentMessage(format("Please turn %s", keyState.getName()),
-                                              "Adjust Key Switch",
-                                              WARNING);
-                while (getEngineSpeedModule().getKeyState() != keyState) {
-                    updateProgress(format("Waiting for %s...", keyState.getName()));
-                    getDateTimeModule().pauseFor(500);
+    protected void ensureKeyStateIs(KeyState requestedKeyState) throws InterruptedException {
+        getListener().onResult("Initial Engine Speed = " + getEngineSpeedAsString());
+        if (getCurrentKeyState() != requestedKeyState && !isDevEnv()) {
+            getListener().onUrgentMessage("Please turn " + requestedKeyState,
+                                          "Adjust Key Switch",
+                                          WARNING,
+                                          getQuestionListener());
+            while (getCurrentKeyState() != requestedKeyState) {
+                updateProgress("Waiting for " + requestedKeyState + "...");
+                getDateTimeModule().pauseFor(500);
+                if (isTesting()) {
+                    getVehicleInformationModule().changeKeyState(getListener(), requestedKeyState);
                 }
             }
-            reportFinalEngineSpeed();
-        } catch (InterruptedException e) {
-            abort();
         }
+        getListener().onResult("Final Engine Speed = " + getEngineSpeedAsString());
     }
 
-    private void reportFinalEngineSpeed() {
-        getListener().onResult("Final Engine Speed = " + getEngineSpeedModule().getEngineSpeedAsString());
+    private String getEngineSpeedAsString() {
+        return getEngineSpeedModule().getEngineSpeedAsString();
     }
 
-    private void reportInitialEngineSpeed() {
-        getListener().onResult("Initial Engine Speed = " + getEngineSpeedModule().getEngineSpeedAsString());
+    private KeyState getCurrentKeyState() {
+        return getEngineSpeedModule().getKeyState();
     }
 
     protected void addFailure(String message) {
@@ -234,8 +216,8 @@ public abstract class StepController extends Controller {
         List<Integer> addresses = new ArrayList<>(getDataRepository().getObdModuleAddresses());
 
         globalPackets.stream()
-                 .map(ParsedPacket::getSourceAddress)
-                 .forEach(addresses::remove);
+                     .map(ParsedPacket::getSourceAddress)
+                     .forEach(addresses::remove);
 
         dsAcks
               .stream()
@@ -269,21 +251,15 @@ public abstract class StepController extends Controller {
             .forEach(addresses::remove);
 
         addresses.stream()
-                        .distinct()
-                        .sorted()
-                        .map(Lookup::getAddressName)
-                        .map(moduleName -> section + " - OBD module " + moduleName
-                                + " did not provide a NACK for the DS query")
-                        .forEach(this::addFailure);
+                 .distinct()
+                 .sorted()
+                 .map(Lookup::getAddressName)
+                 .map(moduleName -> section + " - OBD module " + moduleName
+                         + " did not provide a NACK for the DS query")
+                 .forEach(this::addFailure);
     }
 
-    protected void waitForFault(String boxTitle, String message) {
-        if (!isDevEnv()) {
-            displayInstructionAndWait(message, boxTitle, WARNING);
-        }
-    }
-
-    protected QuestionListener getQuestionListener() {
+    private QuestionListener getQuestionListener() {
         return answerType -> {
             // end test if user hits cancel button
             if (answerType == CANCEL || answerType == NO) {
@@ -303,7 +279,9 @@ public abstract class StepController extends Controller {
     }
 
     protected void displayInstructionAndWait(String message, String boxTitle, MessageType messageType) {
-        getListener().onUrgentMessage(message, boxTitle, messageType, getQuestionListener());
+        if (!isDevEnv()) {
+            getListener().onUrgentMessage(message, boxTitle, messageType, getQuestionListener());
+        }
     }
 
     protected void reportDuplicateCompositeSystems(List<? extends DiagnosticReadinessPacket> packets, String section) {
@@ -339,12 +317,10 @@ public abstract class StepController extends Controller {
     }
 
     protected void waitForManufacturerInterval(String boxTitle, String keyState) {
-        if (!isDevEnv()) {
-            String message = format("Wait for the manufacturer's recommended interval with the key in %s position."
-                    + NL, keyState);
-            message += "Press OK to continue the testing.";
-            displayInstructionAndWait(message, boxTitle, WARNING);
-        }
+        String message = format("Wait for the manufacturer's recommended interval with the key in %s position."
+                + NL, keyState);
+        message += "Press OK to continue the testing.";
+        displayInstructionAndWait(message, boxTitle, WARNING);
     }
 
     protected boolean isNotOff(LampStatus lampStatus) {

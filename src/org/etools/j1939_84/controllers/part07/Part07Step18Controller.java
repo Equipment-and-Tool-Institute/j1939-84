@@ -5,6 +5,10 @@ package org.etools.j1939_84.controllers.part07;
 
 import static java.lang.String.format;
 import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -59,7 +63,7 @@ public class Part07Step18Controller extends StepController {
         // 6.7.18.1.a. Turn the engine off.
         // 6.2.18.1.a. Turn Engine Off and keep the ignition key in the off position.
         incrementProgress("Step 6.7.18.1.a - Turn Engine Off and keep the ignition key in the off position");
-        ensureKeyOffEngineOff();
+        ensureKeyStateIs(KEY_OFF);
 
         // 6.7.18.1.b. Keep the ignition key in the off position.
         // 6.7.18.1.c. Implant Fault B according to engine manufacturer’s instruction. (See Section 5 for additional
@@ -69,25 +73,25 @@ public class Part07Step18Controller extends StepController {
 
         // 6.7.18.1.d. Turn ignition key to the ON position.
         incrementProgress("Step 6.7.18.1.d - Turn key to on with the with the engine off");
-        ensureKeyOnEngineOff();
+        ensureKeyStateIs(KEY_ON_ENGINE_OFF);
 
         // 6.7.18.1.e. Start the engine for cycle 8a.
         incrementProgress("Step 6.7.18.1.e - Turn Engine On and keep the ignition key in the on position");
-        ensureKeyOnEngineOn();
+        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
 
         // 6.7.18.1.f. Wait for manufacturer’s recommended time for Fault B to be detected as failed.
         waitForFault("Step 6.7.18.1.f");
 
         // 6.7.18.1.g. Turn engine off.
         incrementProgress("Step 6.7.18.1.g - Turn Engine Off and keep the ignition key in the off position");
-        ensureKeyOffEngineOff();
+        ensureKeyStateIs(KEY_OFF);
 
         // 6.7.18.1.h. Wait engine manufacturer’s recommended interval for permanent fault recording.
         waitForManufacturerInterval("Step 6.7.18.1.h", "off");
 
         // 6.7.18.1.i. Start Engine.
         incrementProgress("Step 6.7.18.1.i - Turn Engine on with the ignition key in the on position");
-        ensureKeyOnEngineOn();
+        ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
 
         // 6.7.18.1.j. If Fault B is a single trip fault proceed with part 8 immediately.
         int numberOfTripsForFaultBImplant = getDataRepository().getVehicleInformation()
@@ -103,7 +107,7 @@ public class Part07Step18Controller extends StepController {
 
                 // 6.7.18.1.l. Turn engine off.
                 incrementProgress("Step 6.7.18.1.l - Turn Engine Off and keep the ignition key in the off position.");
-                ensureKeyOffEngineOff();
+                ensureKeyStateIs(KEY_OFF);
 
                 // 6.7.18.1.m. Wait engine manufacturer’s recommended interval for permanent fault recording.
                 waitForManufacturerInterval("Step 6.7.18.1.m", "off");
@@ -111,7 +115,7 @@ public class Part07Step18Controller extends StepController {
                 // 6.7.18.1.n. Start Engine.
                 // 6.7.18.1.o. Proceed with part 8 (cycle 8b).
                 incrementProgress("Step 6.7.18.1.n & o - With the ignition key on and engine on proceeding to Part 8");
-                ensureKeyOnEngineOn();
+                ensureKeyStateIs(KEY_ON_ENGINE_RUNNING);
             }
         } else {
             // 6.7.18.1.j. If Fault B is a single trip fault proceed with part 8 immediately.
@@ -124,14 +128,14 @@ public class Part07Step18Controller extends StepController {
                                  stepId));
         String message = "Wait for manufacturer’s recommended time for Fault B to be detected as failed." + NL;
         message += "Press OK to continue the testing.";
-        waitForFault(stepId, message);
+        displayInstructionAndWait(message, stepId, WARNING);
 
     }
 
     private void implantFaultB() {
         String message = "Implant Fault B according to engine manufacturer’s instruction" + NL;
         message += "Press OK to continue the testing";
-        waitForFault("Step 6.7.18.1.b", message);
+        displayInstructionAndWait(message, "Step 6.7.18.1.b", WARNING);
     }
 
 }

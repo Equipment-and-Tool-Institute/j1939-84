@@ -166,7 +166,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
         String urgentMessages2 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle2 = "Adjust Key Switch";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING));
+        verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING), any());
 
         String outcomeMessage = "User cancelled testing at Part 1 Step 27";
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, outcomeMessage);
@@ -256,7 +256,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
 
         String urgentMessages2 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle2 = "Adjust Key Switch";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING));
+        verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING), any());
 
         StringBuilder expectedMessages = new StringBuilder("Part 1, Step 27 - Part 1 to Part 2 Transition" + NL);
         expectedMessages.append("Part 1, Step 27 b.i - Ensuring Key ON/Engine RUNNING").append(NL);
@@ -321,7 +321,7 @@ public class Part01Step27ControllerTest extends AbstractControllerTest {
                                              any());
         String urgentMessages2 = "Please turn Key ON/Engine RUNNING";
         String expectedTitle2 = "Adjust Key Switch";
-        verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING));
+        verify(mockListener).onUrgentMessage(eq(urgentMessages2), eq(expectedTitle2), eq(WARNING), any());
 
         StringBuilder expectedMessages = new StringBuilder("Part 1, Step 27 - Part 1 to Part 2 Transition" + NL);
         expectedMessages.append("Part 1, Step 27 b.i - Ensuring Key ON/Engine RUNNING").append(NL);

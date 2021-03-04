@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers.part04;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.J1939_84.isDevEnv;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -59,7 +60,7 @@ public class Part04Step15Controller extends StepController {
     protected void run() throws Throwable {
         // 6.4.15.1.a Turn the engine off.
         incrementProgress("Part 4, Step 15 Turn Engine Off and keep the ignition key in the off position");
-        ensureKeyOffEngineOff();
+        ensureKeyStateIs(KEY_OFF);
 
         // 6.4.15.1.b Wait engine manufacturer’s recommended interval.
         incrementProgress("Waiting for manufacturer's recommended interval with the key in off position");
@@ -82,10 +83,7 @@ public class Part04Step15Controller extends StepController {
                 + NL;
         message += "manufacturer’s instructions for restoring the system to a fault- free operating condition" + NL;
         message += "Press OK to continue testing.";
-        String boxTitle = "Step 6.4.15.1.c";
-        if (!isDevEnv()) {
-            displayInstructionAndWait(message, boxTitle, WARNING);
-        }
+        displayInstructionAndWait(message, "Step 6.4.15.1.c", WARNING);
     }
 
     private void waitForEngineStart() {

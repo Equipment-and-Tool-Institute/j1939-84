@@ -6,6 +6,9 @@ package org.etools.j1939_84.modules;
 import static org.etools.j1939_84.J1939_84.NL;
 import static org.etools.j1939_84.bus.j1939.J1939.GLOBAL_ADDR;
 import static org.etools.j1939_84.controllers.ResultsListener.NOOP;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 
 import java.io.IOException;
 import java.text.NumberFormat;
@@ -32,6 +35,7 @@ import org.etools.j1939_84.bus.j1939.packets.EngineHoursPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.bus.j1939.packets.VehicleIdentificationPacket;
 import org.etools.j1939_84.controllers.ResultsListener;
+import org.etools.j1939_84.model.KeyState;
 import org.etools.j1939_84.model.RequestResult;
 
 /**
@@ -312,29 +316,19 @@ public class VehicleInformationModule extends FunctionalModule {
                                                                                                  .collect(Collectors.toList());
     }
 
-    public void requestKeyOnEngineOff(ResultsListener listener) {
-        requestKeyStateEngineState(true, false, listener);
-    }
-
-    public void requestKeyOnEngineOn(ResultsListener listener) {
-        requestKeyStateEngineState(true, true, listener);
-    }
-
-    public void requestKeyOffEngineOff(ResultsListener listener) {
-        requestKeyStateEngineState(false, false, listener);
-    }
-
-    private void requestKeyStateEngineState(boolean isKeyOn, boolean isEngineOn, ResultsListener listener) {
+    public void changeKeyState(ResultsListener listener, KeyState keyState) {
         int pgn;
-        if (isKeyOn && isEngineOn) {
+        if (keyState == KEY_ON_ENGINE_RUNNING) {
             pgn = 0x1FFFF;
-        } else if (isKeyOn) {
+        } else if (keyState == KEY_ON_ENGINE_OFF) {
             pgn = 0x1FFFE;
-        } else {
+        } else if (keyState == KEY_OFF) {
             pgn = 0x1FFFC;
+        } else {
+            throw new IllegalArgumentException("Unknown Key State of " + keyState);
         }
-        getJ1939().requestGlobal("Requesting Key " + isKeyOn + " Engine " + isEngineOn
-                + " - REPORT IF SEEN IN THE FIELD",
+
+        getJ1939().requestGlobal("Requesting " + keyState + " - REPORT IF SEEN IN THE FIELD",
                                  pgn,
                                  getJ1939().createRequestPacket(pgn, GLOBAL_ADDR),
                                  listener);

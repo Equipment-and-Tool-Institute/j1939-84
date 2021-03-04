@@ -4,8 +4,8 @@
 package org.etools.j1939_84.controllers.part01;
 
 import static org.etools.j1939_84.J1939_84.NL;
-import static org.etools.j1939_84.J1939_84.isDevEnv;
 import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -104,19 +104,16 @@ public class Part01Step01Controller extends StepController {
         message += "b. Confirm that the vehicle battery is well charged. (Battery voltage >> 12 volts)" + NL;
         message += "c. Confirm the vehicle condition and operator control settings according to the engine manufacturer’s instructions"
                 + NL;
-        String boxTitle = "Start Part 1";
-        displayInstructionAndWait(message, boxTitle, WARNING);
+        displayInstructionAndWait(message, "Start Part 1", WARNING);
     }
 
     @Override
     protected void run() throws Throwable {
         incrementProgress("Part 1, Step 1 a-c Displaying Warning Message");
-        if (!isDevEnv()) {
-            displayWarningMessage();
-        }
+        displayWarningMessage();
 
         incrementProgress("Part 1, Step 1 d Ensuring Key ON/Engine OFF");
-        ensureKeyOnEngineOff();
+        ensureKeyStateIs(KEY_ON_ENGINE_OFF);
 
         incrementProgress("Part 1, Step 1 e Collecting Vehicle Information");
         collectVehicleInformation();
