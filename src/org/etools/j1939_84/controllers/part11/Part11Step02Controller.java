@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers.part11;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
+import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.modules.BannerModule;
@@ -54,10 +55,34 @@ public class Part11Step02Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.11.2.1.a. Global DM26 ([send Request (PGN 59904) for PGN 64952 (SPN 3301)]).
+        var packets = getDiagnosticMessageModule().requestDM26(getListener()).getPackets();
+
         // 6.11.2.1.a.i. Record time since engine start.
+        packets.forEach(this::save);
+
         // 6.11.2.1.a.ii. Separately start tracking time in software to compare to reported values later in part 11.
+        // The timestamp from the packet will be our time marker
+
         // 6.11.2.2.a. If more than one ECU responds, fail if times (since engine start) differ by > 2 seconds.
+        int max = packets.stream()
+                         .map(DM26TripDiagnosticReadinessPacket::getTimeSinceEngineStart)
+                         .mapToInt(Double::intValue)
+                         .max()
+                         .orElse(0);
+        int min = packets.stream()
+                         .map(DM26TripDiagnosticReadinessPacket::getTimeSinceEngineStart)
+                         .mapToInt(Double::intValue)
+                         .min()
+                         .orElse(0);
+        if ((max - min) > 2) {
+            addFailure("6.11.2.2.a - More than one ECU responded and times since engine start differ by > 2 seconds");
+        }
+
         // 6.11.2.2.b. Fail if no OBD ECU provides a DM26 message
+        boolean noDM26 = packets.stream().noneMatch(p -> isObdModule(p.getSourceAddress()));
+        if (noDM26) {
+            addFailure("6.11.2.2.b - NO OBD ECU provided a DM26 message");
+        }
     }
 
 }
