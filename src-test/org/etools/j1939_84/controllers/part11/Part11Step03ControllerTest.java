@@ -3,16 +3,29 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
+import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
+import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertNull;
+import static org.junit.Assert.assertSame;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
+import org.etools.j1939_84.bus.j1939.BusResult;
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket;
+import org.etools.j1939_84.bus.j1939.packets.DM21DiagnosticReadinessPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +132,43 @@ public class Part11Step03ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        var dm21 = DM21DiagnosticReadinessPacket.create(0, 1, 2, 3, 4);
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.of(dm21));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
+        var nack = AcknowledgmentPacket.create(1, NACK);
+        when(diagnosticMessageModule.requestDM21(any(), eq(1))).thenReturn(BusResult.of(nack));
 
         runTest();
 
+        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
+        verify(diagnosticMessageModule).requestDM21(any(), eq(1));
+
+        assertSame(dm21, dataRepository.getObdModule(0).get(DM21DiagnosticReadinessPacket.class));
+        assertNull(dataRepository.getObdModule(1).get(DM21DiagnosticReadinessPacket.class));
+
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
+    }
+
+    @Test
+    public void testFailureForNoNACK() {
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+        when(diagnosticMessageModule.requestDM21(any(), eq(0))).thenReturn(BusResult.empty());
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM21(any(), eq(0));
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.11.3.2.a - OBD module Engine #1 (0) did not provide a NACK for the DS query");
     }
 
 }
