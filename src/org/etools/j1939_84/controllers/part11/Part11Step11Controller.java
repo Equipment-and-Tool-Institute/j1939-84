@@ -12,6 +12,7 @@ import org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket;
 import org.etools.j1939_84.bus.j1939.packets.ParsedPacket;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -70,7 +71,7 @@ public class Part11Step11Controller extends StepController {
         // since then);.
         // i.e., Fail if ABS[(Time Since Engine StartB - Time Since Engine StartA) - Delta Time] > 10 seconds.
         packets.stream()
-               .filter(p -> !areTimeConsistent(p))
+               .filter(p -> !areTimesConsistent(p))
                .map(ParsedPacket::getModuleName)
                .forEach(moduleName -> {
                    addFailure("6.11.11.2.a - " + moduleName
@@ -80,13 +81,25 @@ public class Part11Step11Controller extends StepController {
         // 6.11.11.2.b. Fail if NACK not received from OBD ECUs that did not provide a DM26 message.
         checkForNACKsDS(packets, filterRequestResultAcks(dsResults), "6.11.11.2.b");
 
+        // Save Delta Engine Start
+        packets.forEach(p -> {
+            Double delta = getDeltaEngineStart(p);
+            if (delta != null) {
+                OBDModuleInformation obdModuleInformation = getDataRepository().getObdModule(p.getSourceAddress());
+                obdModuleInformation.setDeltaEngineStart(delta);
+                getDataRepository().putObdModule(obdModuleInformation);
+            }
+        });
+
         // 6.11.11.1.b. Record all monitor readiness this trip data (i.e., which supported monitors are complete this
         // trip or supported and not complete this trip).
         // This is out of order to prevent overwriting previous data before use.
         packets.forEach(this::save);
     }
 
-    private boolean areTimeConsistent(DM26TripDiagnosticReadinessPacket currentPacket) {
+    private boolean areTimesConsistent(DM26TripDiagnosticReadinessPacket currentPacket) {
+        final int THRESHOLD = 10; // seconds
+
         var previousPacket = get(DM26TripDiagnosticReadinessPacket.class, currentPacket.getSourceAddress());
         if (previousPacket == null) {
             return false;
@@ -94,13 +107,23 @@ public class Part11Step11Controller extends StepController {
 
         var currentTime = currentPacket.getPacket().getTimestamp();
         var previousTime = previousPacket.getPacket().getTimestamp();
-        var timeDifference = previousTime.until(currentTime, ChronoUnit.SECONDS);
+        var deltaTime = previousTime.until(currentTime, ChronoUnit.SECONDS);
 
-        var currentWarmUpSeconds = currentPacket.getTimeSinceEngineStart();
-        var previousWarmUpSeconds = previousPacket.getTimeSinceEngineStart();
-        var warmUpDifference = currentWarmUpSeconds - previousWarmUpSeconds;
+        var deltaTSES = getDeltaEngineStart(currentPacket);
+        deltaTSES = deltaTSES == null ? 0 : deltaTSES;
 
-        return Math.abs(timeDifference - warmUpDifference) < 10; // seconds
+        return Math.abs(deltaTime - deltaTSES) < THRESHOLD;
+    }
+
+    private Double getDeltaEngineStart(DM26TripDiagnosticReadinessPacket currentPacket) {
+        var previousPacket = get(DM26TripDiagnosticReadinessPacket.class, currentPacket.getSourceAddress());
+        if (previousPacket == null) {
+            return null;
+        }
+
+        var currentTSES = currentPacket.getTimeSinceEngineStart();
+        var previousTSES = previousPacket.getTimeSinceEngineStart();
+        return currentTSES - previousTSES;
     }
 
 }
