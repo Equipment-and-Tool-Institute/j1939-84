@@ -238,11 +238,8 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.24.2.b - ECU Engine #1 (0) reported 6.9.7.1 timer 2 value less than previously observed in 6.9.7.1");
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.9.24.2.b - ECU Engine #1 (0) reported 6.9.7.1 timer 1 value less than previously observed in 6.9.7.1");
+                                        "6.9.24.2.b - ECU Engine #1 (0) reported timer 1 value less than previously observed in 6.9.7.1");
+
     }
 
     @Test
@@ -270,12 +267,9 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.24.2.b - ECU Engine #1 (0) reported 6.9.7.1 timer 2 value less than previously observed in 6.9.7.1");
+                                        "6.9.24.2.b - ECU Engine #1 (0) reported timer 2 value less than previously observed in 6.9.7.1");
 
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.9.24.2.b - ECU Engine #1 (0) reported differing timers than those reported in 6.9.7.1");
+
     }
 
     @Test
@@ -303,12 +297,9 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.24.2.b - ECU Engine #1 (0) reported 6.9.7.1 timer 1 value less than previously observed in 6.9.7.1");
+                                        "6.9.24.2.b - ECU Engine #1 (0) reported timer 1 value less than previously observed in 6.9.7.1");
 
-        verify(mockListener).addOutcome(PART_NUMBER,
-                                        STEP_NUMBER,
-                                        FAIL,
-                                        "6.9.24.2.b - ECU Engine #1 (0) reported differing timers than those reported in 6.9.7.1");
+
     }
 
 }

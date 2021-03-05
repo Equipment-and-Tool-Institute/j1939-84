@@ -84,21 +84,16 @@ public class Part09Step24Controller extends StepController {
                     if (currentTimer != null) {
                         if (currentTimer.getEiAecdTimer1() < previousTimer.getEiAecdTimer1()) {
                             addFailure("6.9.24.2.b - ECU " + packet.getModuleName()
-                                    + " reported 6.9.7.1 timer 1 value less than previously observed in 6.9.7.1");
+                                    + " reported timer 1 value less than previously observed in 6.9.7.1");
                         }
                         if (currentTimer.getEiAecdTimer2() < previousTimer.getEiAecdTimer2()) {
                             addFailure("6.9.24.2.b - ECU " + packet.getModuleName()
-                                    + " reported 6.9.7.1 timer 2 value less than previously observed in 6.9.7.1");
+                                    + " reported timer 2 value less than previously observed in 6.9.7.1");
                         }
 
                     }
                 }
             }
-            if (!packetTimers.containsAll(previousDM33Timers)) {
-                addFailure("6.9.24.2.b - ECU " + packet.getModuleName()
-                        + " reported differing timers than those reported in 6.9.7.1");
-            }
-
         });
 
         // 6.9.24.2.c. Fail if NACK not received from OBD ECUs that did not provide a DM33 message.
