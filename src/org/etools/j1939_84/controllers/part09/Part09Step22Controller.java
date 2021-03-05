@@ -5,7 +5,6 @@ package org.etools.j1939_84.controllers.part09;
 
 import static java.lang.String.format;
 import static org.etools.j1939_84.bus.j1939.packets.LampStatus.NOT_SUPPORTED;
-import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -68,8 +67,8 @@ public class Part09Step22Controller extends StepController {
                                                             // 6.9.22.2.a. (if supported) Fail if any ECU does not
                                                             // report MIL off or MIL not supported.
                                                             // See Section A.8 for allowed values.
-                                                            if (p.getMalfunctionIndicatorLampStatus() != OFF) {
-                                                                addFailure(format("6.9.22.2.a - ECU %s did not report MIL off",
+                                                            if (isNotOff(p.getMalfunctionIndicatorLampStatus())) {
+                                                                addFailure(format("6.9.22.2.a - ECU %s did not report MIL 'off'",
                                                                                   p.getModuleName()));
                                                             }
                                                             if (p.getMalfunctionIndicatorLampStatus() == NOT_SUPPORTED) {
