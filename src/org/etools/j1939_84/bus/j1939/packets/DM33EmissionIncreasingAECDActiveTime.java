@@ -35,6 +35,12 @@ public class DM33EmissionIncreasingAECDActiveTime extends GenericPacket {
         return new DM33EmissionIncreasingAECDActiveTime(Packet.create(PGN, source, data));
     }
 
+    public EngineHoursTimer getTimer(int number) {
+        return getEiAecdEngineHoursTimers().stream().filter(t -> {
+            return t.getEiAecdNumber() == number;
+        }).findFirst().orElse(null);
+    }
+
     public List<EngineHoursTimer> getEiAecdEngineHoursTimers() {
         if (eiAecdEngineHoursTimers == null) {
             parsePacket();
@@ -57,7 +63,7 @@ public class DM33EmissionIncreasingAECDActiveTime extends GenericPacket {
 
     private void parsePacket() {
         eiAecdEngineHoursTimers = new ArrayList<>();
-        final int length = getPacket().getLength();
+        int length = getPacket().getLength();
         for (int i = 0; i + 8 < length; i = i + 9) {
             int[] copyOfRange = getPacket().getData(i, i + 9);
             eiAecdEngineHoursTimers.add(new EngineHoursTimer(copyOfRange));
