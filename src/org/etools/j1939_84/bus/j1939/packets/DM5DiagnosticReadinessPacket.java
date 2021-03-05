@@ -34,9 +34,27 @@ public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
                                                       int activeCount,
                                                       int previouslyActiveCount,
                                                       int obdCompliance) {
-        int[] data = new int[] { (byte) activeCount, (byte) previouslyActiveCount, (byte) obdCompliance, (byte) 0xFF,
-                (byte) 0xFF, (byte) 0xFF, (byte) 0xFF, (byte) 0xFF };
-        return new DM5DiagnosticReadinessPacket(Packet.create(DM5DiagnosticReadinessPacket.PGN, sourceAddress, data));
+        return create(sourceAddress, activeCount, previouslyActiveCount, obdCompliance, List.of(), List.of());
+    }
+
+    public static DM5DiagnosticReadinessPacket create(int sourceAddress,
+                                                      int activeCount,
+                                                      int previouslyActiveCount,
+                                                      int obdCompliance,
+                                                      List<CompositeSystem> supportedSystems,
+                                                      List<CompositeSystem> completeSystems) {
+        int[] data = new int[8];
+        data[0] = (byte) activeCount;
+        data[1] = (byte) previouslyActiveCount;
+        data[2] = (byte) obdCompliance;
+
+        for (CompositeSystem systemId : CompositeSystem.values()) {
+            boolean isEnabled = supportedSystems.contains(systemId);
+            boolean isComplete = completeSystems.contains(systemId);
+            populateData(systemId, isComplete, isEnabled, data);
+        }
+
+        return new DM5DiagnosticReadinessPacket(Packet.create(PGN, sourceAddress, data));
     }
 
     @SuppressWarnings("DuplicateBranchesInSwitch")
@@ -131,7 +149,7 @@ public class DM5DiagnosticReadinessPacket extends DiagnosticReadinessPacket {
 
     @Override
     public String toString() {
-        final byte obd = getOBDCompliance();
+        byte obd = getOBDCompliance();
         return getStringPrefix() + "OBD Compliance: " + lookupObdCompliance(obd) + " (" + (obd & 0xFF) + "), "
                 + "Active Codes: " + getValueWithUnits(getActiveCodeCount(), null) + ", Previously Active Codes: "
                 + getValueWithUnits(getPreviouslyActiveCodeCount(), null);

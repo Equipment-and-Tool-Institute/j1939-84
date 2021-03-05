@@ -19,8 +19,8 @@ import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.NOX_CATALYST
 import static org.etools.j1939_84.bus.j1939.packets.CompositeSystem.SECONDARY_AIR_SYSTEM;
 import static org.etools.j1939_84.bus.j1939.packets.MonitoredSystemStatus.findStatus;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.assertNotEquals;
+import static org.junit.Assert.assertNull;
 
 import org.junit.Test;
 
@@ -35,16 +35,16 @@ public class CompositeMonitoredSystemTest {
     public void testEqualsHashCode() {
         CompositeMonitoredSystem instance1 = new CompositeMonitoredSystem(AC_SYSTEM_REFRIGERANT, false);
         CompositeMonitoredSystem instance2 = new CompositeMonitoredSystem(AC_SYSTEM_REFRIGERANT, false);
-        assertTrue(instance1.equals(instance2));
-        assertTrue(instance2.equals(instance1));
-        assertTrue(instance1.hashCode() == instance2.hashCode());
+        assertEquals(instance1, instance2);
+        assertEquals(instance2, instance1);
+        assertEquals(instance1.hashCode(), instance2.hashCode());
     }
 
     @Test
     public void testEqualsHashCodeSelf() {
         CompositeMonitoredSystem instance = new CompositeMonitoredSystem(COLD_START_AID_SYSTEM, false);
-        assertTrue(instance.equals(instance));
-        assertTrue(instance.hashCode() == instance.hashCode());
+        assertEquals(instance, instance);
+        assertEquals(instance.hashCode(), instance.hashCode());
     }
 
     @Test
@@ -68,25 +68,25 @@ public class CompositeMonitoredSystemTest {
     @Test
     public void testGetStatus() {
         CompositeMonitoredSystem instance = new CompositeMonitoredSystem(NOX_CATALYST_ABSORBER, false);
-        assertEquals(null, instance.getStatus());
+        assertNull(instance.getStatus());
     }
 
     @Test
     public void testGetStatusComplete() {
-        MonitoredSystem system1 = new MonitoredSystem("System",
+        MonitoredSystem system1 = new MonitoredSystem(
+                                                      SECONDARY_AIR_SYSTEM,
                                                       findStatus(false, true, true),
                                                       123,
-                                                      SECONDARY_AIR_SYSTEM,
                                                       true);
-        MonitoredSystem system2 = new MonitoredSystem("System",
+        MonitoredSystem system2 = new MonitoredSystem(
+                                                      NMHC_CONVERTING_CATALYST,
                                                       findStatus(false, true, true),
                                                       2,
-                                                      NMHC_CONVERTING_CATALYST,
                                                       true);
-        MonitoredSystem system3 = new MonitoredSystem("System",
+        MonitoredSystem system3 = new MonitoredSystem(
+                                                      EVAPORATIVE_SYSTEM,
                                                       findStatus(false, true, true),
                                                       3,
-                                                      EVAPORATIVE_SYSTEM,
                                                       true);
         CompositeMonitoredSystem instance = new CompositeMonitoredSystem(system1, false);
         instance.addMonitoredSystems(system2);
@@ -96,16 +96,16 @@ public class CompositeMonitoredSystemTest {
 
     @Test
     public void testGetStatusNotComplete() {
-        MonitoredSystem system1 = new MonitoredSystem("System",
+        MonitoredSystem system1 = new MonitoredSystem(
+                                                      BOOST_PRESSURE_CONTROL_SYS,
                                                       findStatus(false, true, true),
                                                       1,
-                                                      BOOST_PRESSURE_CONTROL_SYS,
                                                       true);
-        MonitoredSystem system2 = new MonitoredSystem("System", findStatus(false, true, false), 2, CATALYST, true);
-        MonitoredSystem system3 = new MonitoredSystem("System",
+        MonitoredSystem system2 = new MonitoredSystem(CATALYST, findStatus(false, true, false), 2, true);
+        MonitoredSystem system3 = new MonitoredSystem(
+                                                      EGR_VVT_SYSTEM,
                                                       findStatus(false, false, false),
                                                       3,
-                                                      EGR_VVT_SYSTEM,
                                                       true);
         CompositeMonitoredSystem instance = new CompositeMonitoredSystem(system1, false);
         instance.addMonitoredSystems(system2);
@@ -115,20 +115,20 @@ public class CompositeMonitoredSystemTest {
 
     @Test
     public void testGetStatusNotMonitored() {
-        MonitoredSystem system1 = new MonitoredSystem("System",
+        MonitoredSystem system1 = new MonitoredSystem(
+                                                      FUEL_SYSTEM,
                                                       findStatus(false, false, false),
                                                       1,
-                                                      FUEL_SYSTEM,
                                                       true);
-        MonitoredSystem system2 = new MonitoredSystem("System",
+        MonitoredSystem system2 = new MonitoredSystem(
+                                                      EVAPORATIVE_SYSTEM,
                                                       findStatus(false, false, false),
                                                       2,
-                                                      EVAPORATIVE_SYSTEM,
                                                       true);
-        MonitoredSystem system3 = new MonitoredSystem("System",
+        MonitoredSystem system3 = new MonitoredSystem(
+                                                      EXHAUST_GAS_SENSOR,
                                                       findStatus(false, false, false),
                                                       3,
-                                                      EXHAUST_GAS_SENSOR,
                                                       true);
         CompositeMonitoredSystem instance = new CompositeMonitoredSystem(system1, false);
         instance.addMonitoredSystems(system2);
@@ -140,58 +140,57 @@ public class CompositeMonitoredSystemTest {
     public void testNotEqualsByAddress() {
         CompositeMonitoredSystem instance1 = new CompositeMonitoredSystem(EXHAUST_GAS_SENSOR, false);
         CompositeMonitoredSystem instance2 = new CompositeMonitoredSystem(EXHAUST_GAS_SENSOR_HEATER, false);
-        assertFalse(instance1.equals(instance2));
-        assertFalse(instance2.equals(instance1));
+        assertNotEquals(instance1, instance2);
+        assertNotEquals(instance2, instance1);
     }
 
     @Test
     public void testNotEqualsById() {
         CompositeMonitoredSystem instance1 = new CompositeMonitoredSystem(AC_SYSTEM_REFRIGERANT, false);
         CompositeMonitoredSystem instance2 = new CompositeMonitoredSystem(COLD_START_AID_SYSTEM, false);
-        assertFalse(instance1.equals(instance2));
-        assertFalse(instance2.equals(instance1));
+        assertNotEquals(instance1, instance2);
+        assertNotEquals(instance2, instance1);
     }
 
     @Test
     public void testNotEqualsByName() {
         CompositeMonitoredSystem instance1 = new CompositeMonitoredSystem(HEATED_CATALYST, false);
         CompositeMonitoredSystem instance2 = new CompositeMonitoredSystem(EGR_VVT_SYSTEM, false);
-        assertFalse(instance1.equals(instance2));
-        assertFalse(instance2.equals(instance1));
+        assertNotEquals(instance1, instance2);
+        assertNotEquals(instance2, instance1);
     }
 
     @Test
     public void testNotEqualsByStatus() {
-        MonitoredSystem system1 = new MonitoredSystem("System",
+        MonitoredSystem system1 = new MonitoredSystem(
+                                                      EXHAUST_GAS_SENSOR,
                                                       findStatus(false, true, true),
                                                       1,
-                                                      EXHAUST_GAS_SENSOR,
                                                       true);
         CompositeMonitoredSystem instance1 = new CompositeMonitoredSystem(system1, false);
-        MonitoredSystem system2 = new MonitoredSystem("System",
+        MonitoredSystem system2 = new MonitoredSystem(
+                                                      EXHAUST_GAS_SENSOR,
                                                       findStatus(false, true, false),
                                                       1,
-                                                      EXHAUST_GAS_SENSOR,
                                                       true);
         CompositeMonitoredSystem instance2 = new CompositeMonitoredSystem(system2, false);
-        assertFalse(instance1.equals(instance2));
-        assertFalse(instance2.equals(instance1));
+        assertNotEquals(instance1, instance2);
+        assertNotEquals(instance2, instance1);
     }
 
     @Test
     public void testNotEqualsObject() {
         CompositeMonitoredSystem instance = new CompositeMonitoredSystem(CompositeSystem.MISFIRE, false);
-        assertFalse(instance.equals(new Object()));
+        assertNotEquals(instance, new Object());
     }
 
     @Test
     public void testToString() {
-        MonitoredSystem system1 = new MonitoredSystem("System",
+        MonitoredSystem system1 = new MonitoredSystem(BOOST_PRESSURE_CONTROL_SYS,
                                                       findStatus(false, true, true),
                                                       1,
-                                                      BOOST_PRESSURE_CONTROL_SYS,
                                                       false);
         CompositeMonitoredSystem instance = new CompositeMonitoredSystem(system1, false);
-        assertEquals("    System     enabled,     complete", instance.toString());
+        assertEquals("    Boost pressure control sys     enabled,     complete", instance.toString());
     }
 }

@@ -37,24 +37,56 @@ public abstract class DiagnosticReadinessPacket extends GenericPacket {
         super(packet, pgnDefinition);
     }
 
-    private MonitoredSystem createContinuouslyMonitoredSystem(CompositeSystem compositeSystem) {
-        String name = compositeSystem.getName();
-        int completedMask = compositeSystem.getMask();
-        int supportedMask = completedMask >> 4;
-        boolean notCompleted = (getByte(3) & completedMask) == completedMask;
-        boolean supported = isOBDModule() && (getByte(3) & supportedMask) == supportedMask;
+    private MonitoredSystem createMonitoredSystem(CompositeSystem compositeSystem) {
+        int lowerByte = compositeSystem.getLowerByte();
+        boolean notCompleted;
+        boolean supported;
+
+        if (compositeSystem.isContinuouslyMonitored()) {
+            int completedMask = compositeSystem.getMask();
+            int supportedMask = completedMask >> 4;
+            notCompleted = (getByte(lowerByte) & completedMask) == completedMask;
+            supported = isOBDModule() && (getByte(lowerByte) & supportedMask) == supportedMask;
+        } else {
+            int mask = compositeSystem.getMask();
+            notCompleted = (getByte(lowerByte + 2) & mask) == mask;
+            supported = isOBDModule() && (getByte(lowerByte) & mask) == mask;
+        }
+
         MonitoredSystemStatus status = MonitoredSystemStatus.findStatus(isDM5(), supported, !notCompleted);
-        return new MonitoredSystem(name, status, getSourceAddress(), compositeSystem, isDM5());
+        return new MonitoredSystem(compositeSystem, status, getSourceAddress(), isDM5());
     }
 
-    private MonitoredSystem createNonContinuouslyMonitoredSystem(CompositeSystem compositeSystem) {
-        String name = compositeSystem.getName();
-        int lowerByte = compositeSystem.getLowerByte();
-        int mask = compositeSystem.getMask();
-        boolean notCompleted = (getByte(lowerByte + 2) & mask) == mask;
-        boolean supported = isOBDModule() && (getByte(lowerByte) & mask) == mask;
-        MonitoredSystemStatus status = MonitoredSystemStatus.findStatus(isDM5(), supported, !notCompleted);
-        return new MonitoredSystem(name, status, getSourceAddress(), compositeSystem, isDM5());
+    protected static void populateData(CompositeSystem systemId, boolean isComplete, boolean isEnabled, int[] data) {
+        int index = systemId.getLowerByte();
+
+        if (systemId.isContinuouslyMonitored()) {
+            int completeMask = systemId.getMask();
+            if (!isComplete) {
+                data[index] |= completeMask;
+            } else {
+                data[index] &= ~completeMask;
+            }
+
+            int supportedMask = systemId.getMask() >> 4;
+            if (isEnabled) {
+                data[index] |= supportedMask;
+            } else {
+                data[index] &= ~supportedMask;
+            }
+        } else {
+            int mask = systemId.getMask();
+            if (!isComplete) {
+                data[index + 2] |= mask;
+            } else {
+                data[index + 2] &= ~mask;
+            }
+            if (isEnabled) {
+                data[index] |= mask;
+            } else {
+                data[index] &= ~mask;
+            }
+        }
     }
 
     /**
@@ -64,9 +96,9 @@ public abstract class DiagnosticReadinessPacket extends GenericPacket {
      */
     public List<MonitoredSystem> getContinuouslyMonitoredSystems() {
         List<MonitoredSystem> systems = new ArrayList<>();
-        systems.add(createContinuouslyMonitoredSystem(CompositeSystem.COMPREHENSIVE_COMPONENT));
-        systems.add(createContinuouslyMonitoredSystem(CompositeSystem.FUEL_SYSTEM));
-        systems.add(createContinuouslyMonitoredSystem(CompositeSystem.MISFIRE));
+        systems.add(createMonitoredSystem(CompositeSystem.COMPREHENSIVE_COMPONENT));
+        systems.add(createMonitoredSystem(CompositeSystem.FUEL_SYSTEM));
+        systems.add(createMonitoredSystem(CompositeSystem.MISFIRE));
         return systems;
     }
 
@@ -77,10 +109,10 @@ public abstract class DiagnosticReadinessPacket extends GenericPacket {
      * @return {@link Set}
      */
     public List<MonitoredSystem> getMonitoredSystems() {
-        List<MonitoredSystem> set = new ArrayList<>();
-        set.addAll(getContinuouslyMonitoredSystems());
-        set.addAll(getNonContinuouslyMonitoredSystems());
-        return set;
+        List<MonitoredSystem> systems = new ArrayList<>();
+        systems.addAll(getContinuouslyMonitoredSystems());
+        systems.addAll(getNonContinuouslyMonitoredSystems());
+        return systems;
     }
 
     /**
@@ -90,6 +122,7 @@ public abstract class DiagnosticReadinessPacket extends GenericPacket {
      */
     public List<MonitoredSystem> getNonContinuouslyMonitoredSystems() {
         List<MonitoredSystem> systems = new ArrayList<>();
+
         for (CompositeSystem compositeSystem : Arrays.asList(EGR_VVT_SYSTEM,
                                                              EXHAUST_GAS_SENSOR_HEATER,
                                                              EXHAUST_GAS_SENSOR,
@@ -103,7 +136,7 @@ public abstract class DiagnosticReadinessPacket extends GenericPacket {
                                                              DIESEL_PARTICULATE_FILTER,
                                                              BOOST_PRESSURE_CONTROL_SYS,
                                                              COLD_START_AID_SYSTEM)) {
-            systems.add(createNonContinuouslyMonitoredSystem(compositeSystem));
+            systems.add(createMonitoredSystem(compositeSystem));
         }
 
         return systems;

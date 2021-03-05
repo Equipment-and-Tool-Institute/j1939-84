@@ -10,31 +10,33 @@ package org.etools.j1939_84.bus.j1939.packets;
  */
 public enum CompositeSystem {
 
-    AC_SYSTEM_REFRIGERANT("A/C system refrigerant", 4, 0x10),
-    BOOST_PRESSURE_CONTROL_SYS("Boost pressure control sys", 5, 0x02),
-    CATALYST("Catalyst", 4, 0x01),
-    COLD_START_AID_SYSTEM("Cold start aid system", 5, 0x01),
-    COMPREHENSIVE_COMPONENT("Comprehensive component", 0, 0x40),
-    DIESEL_PARTICULATE_FILTER("Diesel Particulate Filter", 5, 0x04),
-    EGR_VVT_SYSTEM("EGR/VVT system", 4, 0x80),
-    EVAPORATIVE_SYSTEM("Evaporative system", 4, 0x04),
-    EXHAUST_GAS_SENSOR("Exhaust Gas Sensor", 4, 0x20),
-    EXHAUST_GAS_SENSOR_HEATER("Exhaust Gas Sensor heater", 4, 0x40),
-    FUEL_SYSTEM("Fuel System", 0, 0x20),
-    HEATED_CATALYST("Heated catalyst", 4, 0x02),
-    MISFIRE("Misfire", 0, 0x10),
-    NMHC_CONVERTING_CATALYST("NMHC converting catalyst", 5, 0x10),
-    NOX_CATALYST_ABSORBER("NOx catalyst/adsorber", 5, 0x08),
-    SECONDARY_AIR_SYSTEM("Secondary air system", 4, 0x08);
+    AC_SYSTEM_REFRIGERANT("A/C system refrigerant", 4, 0x10, false),
+    BOOST_PRESSURE_CONTROL_SYS("Boost pressure control sys", 5, 0x02, false),
+    CATALYST("Catalyst", 4, 0x01, false),
+    COLD_START_AID_SYSTEM("Cold start aid system", 5, 0x01, false),
+    COMPREHENSIVE_COMPONENT("Comprehensive component", 3, 0x40, true),
+    DIESEL_PARTICULATE_FILTER("Diesel Particulate Filter", 5, 0x04, false),
+    EGR_VVT_SYSTEM("EGR/VVT system", 4, 0x80, false),
+    EVAPORATIVE_SYSTEM("Evaporative system", 4, 0x04, false),
+    EXHAUST_GAS_SENSOR("Exhaust Gas Sensor", 4, 0x20, false),
+    EXHAUST_GAS_SENSOR_HEATER("Exhaust Gas Sensor heater", 4, 0x40, false),
+    FUEL_SYSTEM("Fuel System", 3, 0x20, true),
+    HEATED_CATALYST("Heated catalyst", 4, 0x02, false),
+    MISFIRE("Misfire", 3, 0x10, true),
+    NMHC_CONVERTING_CATALYST("NMHC converting catalyst", 5, 0x10, false),
+    NOX_CATALYST_ABSORBER("NOx catalyst/adsorber", 5, 0x08, false),
+    SECONDARY_AIR_SYSTEM("Secondary air system", 4, 0x08, false);
 
     private final int lowerByte;
     private final int mask;
     private final String name;
+    private final boolean isContinuouslyMonitored;
 
-    CompositeSystem(String name, int lowerByte, int mask) {
+    CompositeSystem(String name, int lowerByte, int mask, boolean isContinuouslyMonitored) {
         this.name = name;
         this.lowerByte = lowerByte;
         this.mask = mask;
+        this.isContinuouslyMonitored = isContinuouslyMonitored;
     }
 
     public int getLowerByte() {
@@ -43,6 +45,10 @@ public enum CompositeSystem {
 
     public int getMask() {
         return mask;
+    }
+
+    public boolean isContinuouslyMonitored() {
+        return isContinuouslyMonitored;
     }
 
     public String getName() {

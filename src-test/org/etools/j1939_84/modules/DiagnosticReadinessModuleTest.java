@@ -72,48 +72,48 @@ public class DiagnosticReadinessModuleTest {
     @Test
     public void testGetCompositeSystems() {
         Set<MonitoredSystem> monitoredSystems = new ConcurrentSkipListSet<>();
-        monitoredSystems.add(new MonitoredSystem("System123", getStatus(true, true), 1, AC_SYSTEM_REFRIGERANT, true));
-        monitoredSystems.add(new MonitoredSystem("System123", getStatus(true, true), 2, AC_SYSTEM_REFRIGERANT, true));
-        monitoredSystems.add(new MonitoredSystem("System123", getStatus(true, true), 3, AC_SYSTEM_REFRIGERANT, true));
-        monitoredSystems.add(new MonitoredSystem("System456",
+        monitoredSystems.add(new MonitoredSystem(AC_SYSTEM_REFRIGERANT, getStatus(true, true), 1, true));
+        monitoredSystems.add(new MonitoredSystem(AC_SYSTEM_REFRIGERANT, getStatus(true, true), 2, true));
+        monitoredSystems.add(new MonitoredSystem(AC_SYSTEM_REFRIGERANT, getStatus(true, true), 3, true));
+        monitoredSystems.add(new MonitoredSystem(
+                                                 BOOST_PRESSURE_CONTROL_SYS,
                                                  getStatus(true, true),
                                                  1,
-                                                 BOOST_PRESSURE_CONTROL_SYS,
                                                  true));
-        monitoredSystems.add(new MonitoredSystem("System456",
+        monitoredSystems.add(new MonitoredSystem(
+                                                 BOOST_PRESSURE_CONTROL_SYS,
                                                  getStatus(true, false),
                                                  2,
-                                                 BOOST_PRESSURE_CONTROL_SYS,
                                                  true));
-        monitoredSystems.add(new MonitoredSystem("System456",
+        monitoredSystems.add(new MonitoredSystem(
+                                                 BOOST_PRESSURE_CONTROL_SYS,
                                                  getStatus(false, false),
                                                  3,
-                                                 BOOST_PRESSURE_CONTROL_SYS,
                                                  true));
-        monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 1, CATALYST, true));
-        monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 2, CATALYST, true));
-        monitoredSystems.add(new MonitoredSystem("System789", getStatus(false, false), 3, CATALYST, true));
+        monitoredSystems.add(new MonitoredSystem(CATALYST, getStatus(false, false), 1, true));
+        monitoredSystems.add(new MonitoredSystem(CATALYST, getStatus(false, false), 2, true));
+        monitoredSystems.add(new MonitoredSystem(CATALYST, getStatus(false, false), 3, true));
 
         List<CompositeMonitoredSystem> expected = new ArrayList<>();
         expected.add(new CompositeMonitoredSystem(
-                                                  new MonitoredSystem("System123",
+                                                  new MonitoredSystem(
+                                                                      AC_SYSTEM_REFRIGERANT,
                                                                       getStatus(true, true),
                                                                       -1,
-                                                                      AC_SYSTEM_REFRIGERANT,
                                                                       true),
                                                   true));
         expected.add(new CompositeMonitoredSystem(
-                                                  new MonitoredSystem("System456",
+                                                  new MonitoredSystem(
+                                                                      BOOST_PRESSURE_CONTROL_SYS,
                                                                       getStatus(true, false),
                                                                       -1,
-                                                                      BOOST_PRESSURE_CONTROL_SYS,
                                                                       true),
                                                   true));
         expected.add(new CompositeMonitoredSystem(
-                                                  new MonitoredSystem("System789",
+                                                  new MonitoredSystem(
+                                                                      CATALYST,
                                                                       getStatus(false, false),
                                                                       -1,
-                                                                      CATALYST,
                                                                       true),
                                                   true));
 
