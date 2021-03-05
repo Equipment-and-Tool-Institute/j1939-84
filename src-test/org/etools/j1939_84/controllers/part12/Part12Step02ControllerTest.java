@@ -6,6 +6,7 @@ package org.etools.j1939_84.controllers.part12;
 import static org.etools.j1939_84.bus.j1939.packets.AcknowledgmentPacket.Response.NACK;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertSame;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
@@ -189,6 +190,10 @@ public class Part12Step02ControllerTest extends AbstractControllerTest {
         verify(diagnosticMessageModule).requestDM26(any(), eq(1));
         verify(diagnosticMessageModule).requestDM26(any(), eq(2));
         verify(diagnosticMessageModule).requestDM26(any(), eq(3));
+
+        assertSame(dm26_0, dataRepository.getObdModule(0).get(DM26TripDiagnosticReadinessPacket.class));
+        assertSame(dm26_1, dataRepository.getObdModule(1).get(DM26TripDiagnosticReadinessPacket.class));
+        assertSame(dm26_3, dataRepository.getObdModule(3).get(DM26TripDiagnosticReadinessPacket.class));
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());

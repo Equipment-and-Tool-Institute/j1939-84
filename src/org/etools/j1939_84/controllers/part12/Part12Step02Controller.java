@@ -73,6 +73,9 @@ public class Part12Step02Controller extends StepController {
 
         // 6.12.2.2.b. Fail if NACK not received from OBD ECUs that did not provide a DM26 message
         checkForNACKsDS(packets, filterRequestResultAcks(dsResults), "6.12.2.2.b");
+
+        // Save packets for next step
+        packets.forEach(this::save);
     }
 
     private void reportNotCompleteSystems(DM26TripDiagnosticReadinessPacket currentDM26) {
