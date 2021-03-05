@@ -4,6 +4,8 @@
 package org.etools.j1939_84.controllers.part09;
 
 import static java.lang.String.format;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.NOT_SUPPORTED;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
 
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
@@ -66,13 +68,18 @@ public class Part09Step22Controller extends StepController {
                                                             // 6.9.22.2.a. (if supported) Fail if any ECU does not
                                                             // report MIL off or MIL not supported.
                                                             // See Section A.8 for allowed values.
-                                                            if (isNotOff(p.getMalfunctionIndicatorLampStatus())) {
+                                                            if (p.getMalfunctionIndicatorLampStatus() != OFF) {
                                                                 addFailure(format("6.9.22.2.a - ECU %s did not report MIL off",
                                                                                   p.getModuleName()));
                                                             }
+                                                            if (p.getMalfunctionIndicatorLampStatus() == NOT_SUPPORTED) {
+                                                                addFailure(format("6.9.22.2.a - ECU %s reported MIL not supported",
+                                                                                  p.getModuleName()));
+
+                                                            }
                                                             // 6.9.22.2.b. (if supported) Fail if any OBD ECU reports a
-                                                            // previously active DTC.
-                                                            // DM2 DTC are only previously active DTCs
+                                                            // previously active DTC. DM2 DTC are only previously active
+                                                            // DTCs
                                                             if (p.hasDTCs()) {
                                                                 addFailure(format("6.9.22.2.b - ECU %s reported a previously active DTC",
                                                                                   p.getModuleName()));
@@ -80,9 +87,7 @@ public class Part09Step22Controller extends StepController {
                                                             }
                                                         })
                                                         .collect(Collectors.toList());
-        if (globalPackets.isEmpty()) {
-            addFailure("6.9.22.1.a - Global DM2 Request did not receive any responses");
-        }
+
         // 6.9.22.3.a. DS DM2 to each OBD ECU.
         var dsResults = getDataRepository().getObdModuleAddresses()
                                            .stream()
