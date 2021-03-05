@@ -3,8 +3,19 @@
  */
 package org.etools.j1939_84.controllers.part11;
 
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.controllers.ResultsListener.MessageType.WARNING;
+import static org.etools.j1939_84.model.KeyState.KEY_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_OFF;
+import static org.etools.j1939_84.model.KeyState.KEY_ON_ENGINE_RUNNING;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.atLeastOnce;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
 import java.util.concurrent.Executor;
 
@@ -14,7 +25,6 @@ import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
 import org.etools.j1939_84.modules.BannerModule;
-import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
 import org.etools.j1939_84.modules.EngineSpeedModule;
 import org.etools.j1939_84.modules.ReportFileModule;
@@ -59,19 +69,20 @@ public class Part11Step13ControllerTest extends AbstractControllerTest {
 
     private TestResultsListener listener;
 
-    private DataRepository dataRepository;
+    private TestDateTimeModule dateTimeModule;
 
     private StepController instance;
 
     @Before
     public void setUp() throws Exception {
-        dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
+
+        dateTimeModule = new TestDateTimeModule();
 
         instance = new Part11Step13Controller(executor,
                                               bannerModule,
-                                              new TestDateTimeModule(),
-                                              dataRepository,
+                                              dateTimeModule,
+                                              DataRepository.newInstance(),
                                               engineSpeedModule,
                                               vehicleInformationModule,
                                               diagnosticMessageModule);
@@ -88,7 +99,6 @@ public class Part11Step13ControllerTest extends AbstractControllerTest {
 
     @After
     public void tearDown() throws Exception {
-        DateTimeModule.setInstance(null);
         verifyNoMoreInteractions(executor,
                                  bannerModule,
                                  engineSpeedModule,
@@ -119,11 +129,80 @@ public class Part11Step13ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        String OFF_MSG = "Wait for the manufacturer's recommended interval with the key in off position."
+                + NL + "Press OK to continue the testing.";
+
+        when(engineSpeedModule.getEngineSpeedAsString()).thenReturn("500.0 RPMs",
+                                                                    "---- RPMs",
+                                                                    // Engine Off
+                                                                    "---- RPMs",
+                                                                    "500.0 RPMs",
+                                                                    // Engine On
+                                                                    "500.0 RPMs",
+                                                                    "---- RPMs",
+                                                                    // Engine off
+                                                                    "---- RPMs",
+                                                                    "0.0 RPMs");
+        when(engineSpeedModule.getKeyState()).thenReturn(KEY_ON_ENGINE_RUNNING,
+                                                         KEY_ON_ENGINE_RUNNING,
+                                                         KEY_OFF,
+                                                         // Key is now off
+                                                         KEY_OFF,
+                                                         KEY_OFF,
+                                                         KEY_ON_ENGINE_RUNNING,
+                                                         // Engine is now running
+                                                         KEY_ON_ENGINE_RUNNING,
+                                                         KEY_ON_ENGINE_RUNNING,
+                                                         KEY_OFF,
+                                                         // Engine is now off
+                                                         KEY_OFF,
+                                                         KEY_OFF,
+                                                         KEY_ON_ENGINE_OFF);
 
         runTest();
 
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getResults());
+        verify(engineSpeedModule, atLeastOnce()).getEngineSpeedAsString();
+        verify(engineSpeedModule, atLeastOnce()).getKeyState();
+
+        verify(mockListener, times(2)).onUrgentMessage(eq("Please turn " + KEY_OFF),
+                                                       eq("Adjust Key Switch"),
+                                                       eq(WARNING),
+                                                       any());
+        verify(mockListener).onUrgentMessage(eq("Please turn " + KEY_ON_ENGINE_RUNNING),
+                                             eq("Adjust Key Switch"),
+                                             eq(WARNING),
+                                             any());
+        verify(mockListener).onUrgentMessage(eq("Please turn " + KEY_ON_ENGINE_OFF),
+                                             eq("Adjust Key Switch"),
+                                             eq(WARNING),
+                                             any());
+
+        verify(mockListener).onUrgentMessage(eq(OFF_MSG), eq("Step 6.11.31.1.b"), eq(WARNING), any());
+        verify(mockListener).onUrgentMessage(eq(OFF_MSG), eq("Step 6.11.31.1.g"), eq(WARNING), any());
+
+        assertEquals(62000, dateTimeModule.getTimeAsLong());
+
+        StringBuilder expectedMessages = new StringBuilder();
+        expectedMessages.append("Waiting for Key OFF...").append(NL);
+        expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
+        for (int i = 60; i > 0; i--) {
+            expectedMessages.append("Step 6.11.13.1.e - Waiting ").append(i).append(" seconds").append(NL);
+        }
+        expectedMessages.append("Waiting for Key OFF...").append(NL);
+        expectedMessages.append("Waiting for Key ON/Engine OFF...");
+        assertEquals(expectedMessages.toString(), listener.getMessages());
+
+        String expectedResults = "";
+        expectedResults += "Initial Engine Speed = 500.0 RPMs" + NL;
+        expectedResults += "Final Engine Speed = ---- RPMs" + NL;
+        expectedResults += "Initial Engine Speed = ---- RPMs" + NL;
+        expectedResults += "Final Engine Speed = 500.0 RPMs" + NL;
+        expectedResults += "Initial Engine Speed = 500.0 RPMs" + NL;
+        expectedResults += "Final Engine Speed = ---- RPMs" + NL;
+        expectedResults += "Initial Engine Speed = ---- RPMs" + NL;
+        expectedResults += "Final Engine Speed = 0.0 RPMs" + NL;
+
+        assertEquals(expectedResults, listener.getResults());
     }
 
 }

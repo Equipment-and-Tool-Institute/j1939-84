@@ -8,6 +8,7 @@ import java.util.concurrent.Executors;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.KeyState;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -54,13 +55,27 @@ public class Part11Step13Controller extends StepController {
     @Override
     protected void run() throws Throwable {
         // 6.11.13.1.a. Turn Engine Off.
+        ensureKeyStateIs(KeyState.KEY_OFF);
+
         // 6.11.13.1.b. Wait manufacturer's recommended interval.
+        waitForManufacturerInterval("Step 6.11.31.1.b", "off");
+
         // 6.11.13.1.c. Turn Key On.
         // 6.11.13.1.d. Start Engine Immediately.
+        ensureKeyStateIs(KeyState.KEY_ON_ENGINE_RUNNING);
+
         // 6.11.13.1.e. Wait 60 seconds.
+        pause("Step 6.11.13.1.e - Waiting %1$d seconds", 60);
+
         // 6.11.13.1.f. Turn engine off.
+        ensureKeyStateIs(KeyState.KEY_OFF);
+
         // 6.11.13.1.g. Wait manufacturer's recommended interval.
+        waitForManufacturerInterval("Step 6.11.31.1.g", "off");
+
         // 6.11.13.1.h. Turn Key On.
+        ensureKeyStateIs(KeyState.KEY_ON_ENGINE_OFF);
+
         // 6.11.13.1.i. Proceed to Part 12.
     }
 
