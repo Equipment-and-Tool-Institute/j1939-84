@@ -3,12 +3,24 @@
  */
 package org.etools.j1939_84.controllers.part12;
 
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ALTERNATE_OFF;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.NOT_SUPPORTED;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.OFF;
+import static org.etools.j1939_84.bus.j1939.packets.LampStatus.ON;
+import static org.etools.j1939_84.model.Outcome.FAIL;
+import static org.etools.j1939_84.model.Outcome.WARN;
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM1ActiveDTCsPacket;
+import org.etools.j1939_84.bus.j1939.packets.DiagnosticTroubleCode;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
@@ -119,11 +131,72 @@ public class Part12Step06ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        var dm1_0 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF);
+        var dm1_1 = DM1ActiveDTCsPacket.create(1, NOT_SUPPORTED, OFF, OFF, OFF);
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_1));
 
         runTest();
 
+        verify(diagnosticMessageModule).readDM1(any());
+
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+    }
+
+    @Test
+    public void testWarningForAlternativeOff() {
+        var dm1_0 = DM1ActiveDTCsPacket.create(0, ALTERNATE_OFF, OFF, OFF, OFF);
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).readDM1(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        WARN,
+                                        "A.8 - Alternate coding for off (0b00, 0b00) has been accepted");
+    }
+
+    @Test
+    public void testFailureForMILNotOff() {
+        var dm1_0 = DM1ActiveDTCsPacket.create(0, ON, OFF, OFF, OFF);
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).readDM1(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.12.6.2.a - Engine #1 (0) did not report MIL 'off' or not supported");
+    }
+
+    @Test
+    public void testFailureForDTC() {
+        var dtc = DiagnosticTroubleCode.create(123, 1, 1, 1);
+        var dm1_0 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF, dtc);
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0));
+
+        runTest();
+
+        verify(diagnosticMessageModule).readDM1(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getResults());
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.12.6.2.b - Engine #1 (0) reported active DTC(s)");
     }
 
 }
