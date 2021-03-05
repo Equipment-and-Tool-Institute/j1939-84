@@ -148,6 +148,24 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
     }
 
     @Test
+    public void testPacketsEmpty() {
+        var dm1_0 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF);
+        var dm1_21 = DM1ActiveDTCsPacket.create(0x21, OFF, OFF, OFF, OFF);
+
+        dataRepository.putObdModule(new OBDModuleInformation(0));
+
+        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1_0, dm1_21));
+
+        runTest();
+
+        verify(diagnosticMessageModule).readDM1(any());
+
+        assertEquals("", listener.getMessages());
+        assertEquals("", listener.getMilestones());
+        assertEquals("", listener.getResults());
+    }
+
+    @Test
     public void testNoFailuresAlternateValues() {
         var dm1_0 = DM1ActiveDTCsPacket.create(0, ALTERNATE_OFF, OFF, OFF, OFF);
         var dm1_21 = DM1ActiveDTCsPacket.create(0x21, NOT_SUPPORTED, OFF, OFF, OFF);
@@ -160,10 +178,10 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
 
         verify(diagnosticMessageModule).readDM1(any());
 
-        // verify(mockListener).addOutcome(PART_NUMBER,
-        // STEP_NUMBER,
-        // WARN,
-        // "A.8 - Alternate coding for off (0b00, 0b00) has been accepted");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.22.2.a - ECU Engine #1 (0) reported MIL status of alternate off");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
@@ -171,7 +189,7 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
     }
 
     @Test
-    public void testNoMessages() {
+    public void testFailureForNoResponse() {
         when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of());
 
         runTest();
@@ -182,25 +200,7 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         assertEquals("", listener.getMilestones());
         assertEquals("", listener.getResults());
 
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.9.23.2.a - No OBD ECU supports DM1");
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.9.23.2.c - No OBD ECU provided a DM1");
-    }
-
-    @Test
-    public void testFailureForNoOBDSupport() {
-        var dm1 = DM1ActiveDTCsPacket.create(0, OFF, OFF, OFF, OFF);
-
-        when(diagnosticMessageModule.readDM1(any())).thenReturn(List.of(dm1));
-
-        runTest();
-
-        verify(diagnosticMessageModule).readDM1(any());
-
-        assertEquals("", listener.getMessages());
-        assertEquals("", listener.getMilestones());
-        assertEquals("", listener.getResults());
-
-        verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, FAIL, "6.9.23.2.a - No OBD ECU supports DM1");
     }
 
     @Test
@@ -224,7 +224,15 @@ public class Part09Step23ControllerTest extends AbstractControllerTest {
         verify(mockListener).addOutcome(PART_NUMBER,
                                         STEP_NUMBER,
                                         FAIL,
-                                        "6.9.23.2.b - ECU Engine #1 (0) reported an active DTC");
+                                        "6.9.22.2.a - ECU Engine #1 (0) reported MIL status of on");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.22.2.b - ECU Engine #1 (0) reported a previously active DTC");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.22.2.a - ECU Body Controller (33) reported MIL status of on");
 
     }
 }
