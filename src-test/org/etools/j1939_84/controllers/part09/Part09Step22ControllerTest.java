@@ -156,6 +156,10 @@ public class Part09Step22ControllerTest extends AbstractControllerTest {
                                         STEP_NUMBER,
                                         FAIL,
                                         "6.9.22.1.a - Global DM2 Request did not receive any responses");
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.22.4.b - OBD module Engine #1 (0) did not provide a response to Global query and did not provide a NACK for the DS query");
 
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getMilestones());
