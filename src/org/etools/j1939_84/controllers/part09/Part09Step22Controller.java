@@ -67,14 +67,11 @@ public class Part09Step22Controller extends StepController {
                                                             // 6.9.22.2.a. (if supported) Fail if any ECU does not
                                                             // report MIL off or MIL not supported.
                                                             // See Section A.8 for allowed values.
-                                                            if (isNotOff(p.getMalfunctionIndicatorLampStatus())) {
-                                                                addFailure(format("6.9.22.2.a - ECU %s did not report MIL 'off'",
-                                                                                  p.getModuleName()));
-                                                            }
-                                                            if (p.getMalfunctionIndicatorLampStatus() == NOT_SUPPORTED) {
-                                                                addFailure(format("6.9.22.2.a - ECU %s reported MIL not supported",
-                                                                                  p.getModuleName()));
-
+                                                            if (isNotOff(p.getMalfunctionIndicatorLampStatus()) &&
+                                                                    p.getMalfunctionIndicatorLampStatus() != NOT_SUPPORTED) {
+                                                                addFailure(format("6.9.22.2.a - ECU %s reported MIL status of %s",
+                                                                                  p.getModuleName(),
+                                                                                  p.getMalfunctionIndicatorLampStatus()));
                                                             }
                                                             // 6.9.22.2.b. (if supported) Fail if any OBD ECU reports a
                                                             // previously active DTC. DM2 DTC are only previously active
