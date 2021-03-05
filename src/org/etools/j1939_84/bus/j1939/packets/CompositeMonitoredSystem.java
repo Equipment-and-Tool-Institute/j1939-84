@@ -37,7 +37,7 @@ public class CompositeMonitoredSystem extends MonitoredSystem {
      *                  true to indicate this system is for a DM5 message
      */
     public CompositeMonitoredSystem(CompositeSystem id, boolean isDm5) {
-        super(id.getName(), null, -1, id, isDm5);
+        super(id, null, -1, isDm5);
         this.isDm5 = isDm5;
     }
 
@@ -51,7 +51,7 @@ public class CompositeMonitoredSystem extends MonitoredSystem {
      *                   true to indicate this system is from a DM5 message
      */
     public CompositeMonitoredSystem(MonitoredSystem system, boolean isDm5) {
-        super(system.getName(), system.getStatus(), -1, system.getId(), isDm5);
+        super(system.getId(), system.getStatus(), -1, isDm5);
         this.isDm5 = isDm5;
         addMonitoredSystems(system);
     }

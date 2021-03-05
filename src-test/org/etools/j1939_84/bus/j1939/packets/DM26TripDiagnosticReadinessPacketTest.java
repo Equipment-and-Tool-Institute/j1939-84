@@ -3,6 +3,9 @@
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import static org.etools.j1939_84.J1939_84.NL;
+import static org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket.PGN;
+import static org.etools.j1939_84.bus.j1939.packets.DM26TripDiagnosticReadinessPacket.create;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNotEquals;
 
@@ -150,28 +153,28 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
 
     @Test
     public void testGetTimeSinceEngineStartWithError() {
-        Packet packet = Packet.create(0, 0, 0x00, 0xFE, 33, 44, 55, 66, 77, 88);
+        Packet packet = Packet.create(PGN, 0, 0x00, 0xFE, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance = new DM26TripDiagnosticReadinessPacket(packet);
         assertEquals(ParsedPacket.ERROR, instance.getTimeSinceEngineStart(), 0.0);
     }
 
     @Test
     public void testGetTimeSinceEngineStartWithNA() {
-        Packet packet = Packet.create(0, 0, 0x00, 0xFF, 33, 44, 55, 66, 77, 88);
+        Packet packet = Packet.create(PGN, 0, 0x00, 0xFF, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance = new DM26TripDiagnosticReadinessPacket(packet);
         assertEquals(ParsedPacket.NOT_AVAILABLE, instance.getTimeSinceEngineStart(), 0.0);
     }
 
     @Test
     public void testGetWarmUpsSinceClear() {
-        Packet packet = Packet.create(0, 0, 11, 22, 33, 44, 55, 66, 77, 88);
+        Packet packet = Packet.create(PGN, 0, 11, 22, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance = new DM26TripDiagnosticReadinessPacket(packet);
         assertEquals(33, instance.getWarmUpsSinceClear());
     }
 
     @Test
     public void testGetWarmUpsSinceClearWithError() {
-        Packet packet = Packet.create(0, 0, 11, 22, 0xFE, 44, 55, 66, 77, 88);
+        Packet packet = Packet.create(PGN, 0, 11, 22, 0xFE, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance = new DM26TripDiagnosticReadinessPacket(packet);
         assertEquals((byte) 0xFE, instance.getWarmUpsSinceClear());
     }
@@ -185,9 +188,9 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
 
     @Test
     public void testNotEqualsTimeSinceClear() {
-        Packet packet1 = Packet.create(0, 0, 11, 22, 33, 44, 55, 66, 77, 88);
+        Packet packet1 = Packet.create(PGN, 0, 11, 22, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance1 = new DM26TripDiagnosticReadinessPacket(packet1);
-        Packet packet2 = Packet.create(0, 0, 0, 22, 33, 44, 55, 66, 77, 88);
+        Packet packet2 = Packet.create(PGN, 0, 0, 22, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance2 = new DM26TripDiagnosticReadinessPacket(packet2);
 
         assertNotEquals(instance1, instance2);
@@ -195,9 +198,9 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
 
     @Test
     public void testNotEqualsTimeSinceClearByte2() {
-        Packet packet1 = Packet.create(0, 0, 11, 22, 33, 44, 55, 66, 77, 88);
+        Packet packet1 = Packet.create(PGN, 0, 11, 22, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance1 = new DM26TripDiagnosticReadinessPacket(packet1);
-        Packet packet2 = Packet.create(0, 0, 11, 0, 33, 44, 55, 66, 77, 88);
+        Packet packet2 = Packet.create(PGN, 0, 11, 0, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance2 = new DM26TripDiagnosticReadinessPacket(packet2);
 
         assertNotEquals(instance1, instance2);
@@ -205,9 +208,9 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
 
     @Test
     public void testNotEqualsWarmUps() {
-        Packet packet1 = Packet.create(0, 0, 11, 22, 33, 44, 55, 66, 77, 88);
+        Packet packet1 = Packet.create(PGN, 0, 11, 22, 33, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance1 = new DM26TripDiagnosticReadinessPacket(packet1);
-        Packet packet2 = Packet.create(0, 0, 11, 22, 0, 44, 55, 66, 77, 88);
+        Packet packet2 = Packet.create(PGN, 0, 11, 22, 0, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance2 = new DM26TripDiagnosticReadinessPacket(packet2);
 
         assertNotEquals(instance1, instance2);
@@ -215,27 +218,67 @@ public class DM26TripDiagnosticReadinessPacketTest extends DiagnosticReadinessPa
 
     @Test
     public void testPGN() {
-        assertEquals(64952, DM26TripDiagnosticReadinessPacket.PGN);
+        assertEquals(64952, PGN);
     }
 
     @Test
     public void testToString() {
-        Packet packet = Packet.create(0, 0, 11, 22, 20, 44, 55, 66, 77, 88);
-        DM26TripDiagnosticReadinessPacket instance = new DM26TripDiagnosticReadinessPacket(packet);
+        var enabledSystems = List.of(CompositeSystem.COMPREHENSIVE_COMPONENT,
+                                     CompositeSystem.EXHAUST_GAS_SENSOR,
+                                     CompositeSystem.AC_SYSTEM_REFRIGERANT,
+                                     CompositeSystem.EVAPORATIVE_SYSTEM,
+                                     CompositeSystem.HEATED_CATALYST,
+                                     CompositeSystem.CATALYST,
+                                     CompositeSystem.BOOST_PRESSURE_CONTROL_SYS);
+        var completeSystems = List.of(CompositeSystem.COMPREHENSIVE_COMPONENT,
+                                      CompositeSystem.MISFIRE,
+                                      CompositeSystem.EGR_VVT_SYSTEM,
+                                      CompositeSystem.EXHAUST_GAS_SENSOR,
+                                      CompositeSystem.AC_SYSTEM_REFRIGERANT,
+                                      CompositeSystem.HEATED_CATALYST,
+                                      CompositeSystem.DIESEL_PARTICULATE_FILTER,
+                                      CompositeSystem.BOOST_PRESSURE_CONTROL_SYS,
+                                      CompositeSystem.COLD_START_AID_SYSTEM);
+
+        DM26TripDiagnosticReadinessPacket instance = create(0, 5643, 20, enabledSystems, completeSystems);
         assertEquals("DM26 from Engine #1 (0): Warm-ups: 20, Time Since Engine Start: 5,643 seconds",
                      instance.toString());
+
+        StringBuilder actual = new StringBuilder();
+        for (MonitoredSystem system : instance.getMonitoredSystems()) {
+            actual.append(system.toString()).append(NL);
+        }
+
+        String expected = "";
+        expected += "    Comprehensive component        enabled,     complete" + NL;
+        expected += "    Fuel System                not enabled, not complete" + NL;
+        expected += "    Misfire                    not enabled,     complete" + NL;
+        expected += "    EGR/VVT system             not enabled,     complete" + NL;
+        expected += "    Exhaust Gas Sensor heater  not enabled, not complete" + NL;
+        expected += "    Exhaust Gas Sensor             enabled,     complete" + NL;
+        expected += "    A/C system refrigerant         enabled,     complete" + NL;
+        expected += "    Secondary air system       not enabled, not complete" + NL;
+        expected += "    Evaporative system             enabled, not complete" + NL;
+        expected += "    Heated catalyst                enabled,     complete" + NL;
+        expected += "    Catalyst                       enabled, not complete" + NL;
+        expected += "    NMHC converting catalyst   not enabled, not complete" + NL;
+        expected += "    NOx catalyst/adsorber      not enabled, not complete" + NL;
+        expected += "    Diesel Particulate Filter  not enabled,     complete" + NL;
+        expected += "    Boost pressure control sys     enabled,     complete" + NL;
+        expected += "    Cold start aid system      not enabled,     complete" + NL;
+        assertEquals(expected, actual.toString());
     }
 
     @Test
     public void testToStringWithError() {
-        Packet packet = Packet.create(0, 0, 0, 0xFE, 0xFE, 44, 55, 66, 77, 88);
+        Packet packet = Packet.create(PGN, 0, 0, 0xFE, 0xFE, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance = new DM26TripDiagnosticReadinessPacket(packet);
         assertEquals("DM26 from Engine #1 (0): Warm-ups: error, Time Since Engine Start: error", instance.toString());
     }
 
     @Test
     public void testToStringWithNA() {
-        Packet packet = Packet.create(0, 0, 0, 0xFF, 0xFF, 44, 55, 66, 77, 88);
+        Packet packet = Packet.create(PGN, 0, 0, 0xFF, 0xFF, 44, 55, 66, 77, 88);
         DM26TripDiagnosticReadinessPacket instance = new DM26TripDiagnosticReadinessPacket(packet);
         assertEquals("DM26 from Engine #1 (0): Warm-ups: not available, Time Since Engine Start: not available",
                      instance.toString());

@@ -1,8 +1,9 @@
-/**
+/*
  * Copyright 2019 Equipment & Tool Institute
  */
 package org.etools.j1939_84.bus.j1939.packets;
 
+import java.util.List;
 import java.util.Objects;
 
 import org.etools.j1939_84.bus.Packet;
@@ -19,10 +20,25 @@ public class DM26TripDiagnosticReadinessPacket extends DiagnosticReadinessPacket
     public static final int PGN = 64952;
 
     public static DM26TripDiagnosticReadinessPacket create(int address, int secondsSCC, int warmUpsSCC) {
+        return DM26TripDiagnosticReadinessPacket.create(address, secondsSCC, warmUpsSCC, List.of(), List.of());
+    }
+
+    public static DM26TripDiagnosticReadinessPacket create(int address,
+                                                           int secondsSCC,
+                                                           int warmUpsSCC,
+                                                           List<CompositeSystem> enabledSystems,
+                                                           List<CompositeSystem> completeSystems) {
         int[] data = new int[8];
         data[0] = secondsSCC & 0xFF;
         data[1] = (secondsSCC >> 8) & 0xFF;
         data[2] = warmUpsSCC & 0xFF;
+
+        for (CompositeSystem systemId : CompositeSystem.values()) {
+            boolean isEnabled = enabledSystems.contains(systemId);
+            boolean isComplete = completeSystems.contains(systemId);
+            populateData(systemId, isComplete, isEnabled, data);
+        }
+
         return new DM26TripDiagnosticReadinessPacket(Packet.create(PGN, address, data));
     }
 
