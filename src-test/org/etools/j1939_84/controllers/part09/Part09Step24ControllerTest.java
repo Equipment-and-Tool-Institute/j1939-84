@@ -4,6 +4,8 @@
 package org.etools.j1939_84.controllers.part09;
 
 import static org.etools.j1939_84.bus.j1939.packets.DM33EmissionIncreasingAECDActiveTime.create;
+import static org.etools.j1939_84.model.FuelType.DSL;
+import static org.etools.j1939_84.model.FuelType.GAS;
 import static org.etools.j1939_84.model.Outcome.FAIL;
 import static org.junit.Assert.assertEquals;
 import static org.mockito.ArgumentMatchers.any;
@@ -21,7 +23,6 @@ import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
-import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.model.RequestResult;
 import org.etools.j1939_84.model.VehicleInformation;
@@ -141,7 +142,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
-        vehInfo.setFuelType(FuelType.DSL);
+        vehInfo.setFuelType(DSL);
         dataRepository.setVehicleInformation(vehInfo);
 
         runTest();
@@ -159,8 +160,8 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.empty());
 
         var vehInfo = new VehicleInformation();
-        vehInfo.setEngineModelYear(2020);
-        vehInfo.setFuelType(FuelType.GAS);
+        vehInfo.setEngineModelYear(2025);
+        vehInfo.setFuelType(GAS);
         dataRepository.setVehicleInformation(vehInfo);
 
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
@@ -193,7 +194,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
-        vehInfo.setFuelType(FuelType.DSL);
+        vehInfo.setFuelType(DSL);
         dataRepository.setVehicleInformation(vehInfo);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
         obdModule.set(previousPacket);
@@ -221,8 +222,8 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
         when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(packet));
 
         var vehInfo = new VehicleInformation();
-        vehInfo.setEngineModelYear(2020);
-        vehInfo.setFuelType(FuelType.DSL);
+        vehInfo.setEngineModelYear(2024);
+        vehInfo.setFuelType(DSL);
         dataRepository.setVehicleInformation(vehInfo);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
         obdModule.set(create(0, timer2));
@@ -251,7 +252,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
-        vehInfo.setFuelType(FuelType.DSL);
+        vehInfo.setFuelType(DSL);
         dataRepository.setVehicleInformation(vehInfo);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
         obdModule.set(globalPacket);
@@ -281,7 +282,7 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
 
         var vehInfo = new VehicleInformation();
         vehInfo.setEngineModelYear(2020);
-        vehInfo.setFuelType(FuelType.DSL);
+        vehInfo.setFuelType(DSL);
         dataRepository.setVehicleInformation(vehInfo);
         OBDModuleInformation obdModule = new OBDModuleInformation(0);
         obdModule.set(globalPacket);
@@ -299,6 +300,35 @@ public class Part09Step24ControllerTest extends AbstractControllerTest {
                                         FAIL,
                                         "6.9.24.2.b - ECU Engine #1 (0) reported timer 1 value less than previously observed in 6.9.7.1");
 
+
+    }
+
+    @Test
+    public void testEngineModelYearGreaterThan2024() {
+        var globalPacket = create(0, EngineHoursTimer.create(1, 7, 9));
+        var dsPacket = create(0, EngineHoursTimer.create(1, 3, 10));
+
+        when(diagnosticMessageModule.requestDM33(any(), eq(0))).thenReturn(RequestResult.of(dsPacket));
+
+        var vehInfo = new VehicleInformation();
+        vehInfo.setEngineModelYear(2025);
+        vehInfo.setFuelType(GAS);
+        dataRepository.setVehicleInformation(vehInfo);
+        OBDModuleInformation obdModule = new OBDModuleInformation(0);
+        obdModule.set(globalPacket);
+        dataRepository.putObdModule(obdModule);
+
+        runTest();
+
+        verify(diagnosticMessageModule).requestDM33(any(), eq(0x00));
+
+        assertEquals("", listener.getResults());
+        assertEquals("", listener.getMessages());
+
+        verify(mockListener).addOutcome(PART_NUMBER,
+                                        STEP_NUMBER,
+                                        FAIL,
+                                        "6.9.24.2.b - ECU Engine #1 (0) reported timer 1 value less than previously observed in 6.9.7.1");
 
     }
 
