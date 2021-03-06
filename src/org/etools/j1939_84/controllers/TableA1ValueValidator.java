@@ -16,7 +16,7 @@ public class TableA1ValueValidator {
     /**
      * Returns true if the supplied value is not valid (implausible) given the conditions according to Table A1
      */
-    public boolean isImplausible(int spn, Double value, boolean isEngineOn, FuelType fuelType) {
+    public boolean isImplausible(int spn, Double value, boolean isEngineRunning, FuelType fuelType) {
         if (value == null) {
             return false;
         }
@@ -24,7 +24,7 @@ public class TableA1ValueValidator {
         switch (spn) {
             case 92:
             case 513:
-                if (isEngineOn) {
+                if (isEngineRunning) {
                     return value >= 50;
                 } else {
                     return value > 0;
@@ -34,7 +34,7 @@ public class TableA1ValueValidator {
                 return value > 0;
             case 514:
             case 2978:
-                if (isEngineOn) {
+                if (isEngineRunning) {
                     return value <= 0;
                 } else {
                     return value > 0;
@@ -43,13 +43,13 @@ public class TableA1ValueValidator {
             case 540:
                 return value < 10;
             case 541:
-                if (isEngineOn) {
+                if (isEngineRunning) {
                     return value < 30;
                 } else {
                     return value < 20;
                 }
             case 542:
-                if (isEngineOn) {
+                if (isEngineRunning) {
                     return value < 20;
                 } else {
                     return value < 15;
@@ -57,7 +57,7 @@ public class TableA1ValueValidator {
             case 543:
                 return value >= 100;
             case 544:
-                if (isEngineOn) {
+                if (isEngineRunning) {
                     return value < 200 || value > 4000 || value != dataRepository.getKoeoEngineReferenceTorque();
                 } else {
                     dataRepository.setKoeoEngineReferenceTorque(value);
@@ -75,7 +75,7 @@ public class TableA1ValueValidator {
             case 4201:
             case 723:
             case 4202:
-                if (isEngineOn) {
+                if (isEngineRunning) {
                     return value < 250;
                 } else {
                     return value > 0;
@@ -83,12 +83,12 @@ public class TableA1ValueValidator {
             case 84:
                 return value != 0;
             case 108:
-                return !isEngineOn && (value < 25 || value > 110);
+                return !isEngineRunning && (value < 25 || value > 110);
             case 158:
             case 168:
-                return isEngineOn && value < 6;
+                return isEngineRunning && value < 6;
             case 3700:
-                return !isEngineOn && value == 1; // Active
+                return !isEngineRunning && value == 1; // Active
             case 5837:
                 if (fuelType.isCompressionIgnition()) {
                     return value != 4; // Diesel
@@ -99,13 +99,13 @@ public class TableA1ValueValidator {
                 break;
             case 183:
             case 1600:
-                if (isEngineOn) {
+                if (isEngineRunning) {
                     return value == 0 || value > 4;
                 } else {
                     return value > 0;
                 }
             case 6895:
-                if (isEngineOn) {
+                if (isEngineRunning) {
                     return value < 15;
                 } else {
                     return value > 0;
@@ -114,37 +114,37 @@ public class TableA1ValueValidator {
             case 3609:
             case 3610:
             case 3251:
-                return !isEngineOn && value > 0;
+                return !isEngineRunning && value > 0;
             case 3226:
-                return !isEngineOn && value != 3012.8 && value > 500;
+                return !isEngineRunning && value != 3012.8 && value > 500;
             case 132:
-                if (isEngineOn) {
+                if (isEngineRunning) {
                     return value < 0;
                 } else {
                     return value > 0.20;
                 }
             case 6393:
-                if (isEngineOn) {
+                if (isEngineRunning) {
                     return value < 0;
                 } else {
                     return value > 0.04;
                 }
             case 102:
             case 1127:
-                if (isEngineOn) {
+                if (isEngineRunning) {
                     return value > 10;
                 } else {
                     return value > 2;
                 }
             case 106:
             case 3563:
-                if (isEngineOn) {
+                if (isEngineRunning) {
                     return value > 111;
                 } else {
                     return value > 104;
                 }
             case 5829:
-                if (isEngineOn) {
+                if (isEngineRunning) {
                     return value > 50;
                 } else {
                     return value > 5;

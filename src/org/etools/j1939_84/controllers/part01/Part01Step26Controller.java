@@ -67,6 +67,9 @@ import org.etools.j1939_84.modules.VehicleInformationModule;
  * Table A-1, if two or more ECUs provide an SPN listed in Table A-1.
  */
 public class Part01Step26Controller extends StepController {
+    private static final int PART_NUMBER = 1;
+    private static final int STEP_NUMBER = 26;
+    private static final int TOTAL_STEPS = 0;
 
     private final BroadcastValidator broadcastValidator;
     private final BusService busService;
@@ -83,7 +86,7 @@ public class Part01Step26Controller extends StepController {
              new EngineSpeedModule(),
              new VehicleInformationModule(),
              new DiagnosticMessageModule(),
-             new TableA1Validator(DataRepository.getInstance()),
+             new TableA1Validator(DataRepository.getInstance(), PART_NUMBER, STEP_NUMBER),
              J1939DaRepository.getInstance(),
              new BroadcastValidator(DataRepository.getInstance(), J1939DaRepository.getInstance()),
              new BusService(J1939DaRepository.getInstance()));
@@ -155,8 +158,6 @@ public class Part01Step26Controller extends StepController {
                                                   // with the Source Address matching the received message) in DM24.
                                                   tableA1Validator.reportNotAvailableSPNs(p,
                                                                                           getListener(),
-                                                                                          getPartNumber(),
-                                                                                          getStepNumber(),
                                                                                           "6.1.26.2.a"))
                                                   .peek(p ->
                                                   // 6.1.26.2.d. Fail/warn if any broadcast data is not valid for KOEO
@@ -166,8 +167,6 @@ public class Part01Step26Controller extends StepController {
                                                                                               getListener(),
                                                                                               false,
                                                                                               fuelType,
-                                                                                              getPartNumber(),
-                                                                                              getStepNumber(),
                                                                                               "6.1.26.2.d"))
                                                   .peek(p ->
                                                   // 6.1.26.2.e. Fail/warn per Table A-1, if an expected SPN from the
@@ -176,8 +175,6 @@ public class Part01Step26Controller extends StepController {
                                                   // extraneously)
                                                   tableA1Validator.reportNonObdModuleProvidedSPNs(p,
                                                                                                   getListener(),
-                                                                                                  getPartNumber(),
-                                                                                                  getStepNumber(),
                                                                                                   "6.1.26.2.e"))
                                                   .peek(p ->
                                                   // 6.1.26.3.a. Identify SPNs provided in the data stream that are
@@ -189,8 +186,6 @@ public class Part01Step26Controller extends StepController {
                                                   tableA1Validator.reportProvidedButNotSupportedSPNs(p,
                                                                                                      getListener(),
                                                                                                      fuelType,
-                                                                                                     getPartNumber(),
-                                                                                                     getStepNumber(),
                                                                                                      "6.1.26.4.a"))
                                                   .peek(p -> tableA1Validator.reportPacketIfNotReported(p,
                                                                                                         getListener(),
@@ -198,7 +193,7 @@ public class Part01Step26Controller extends StepController {
                                                   .collect(Collectors.toList());
 
         // 6.1.26.2.f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
-        tableA1Validator.reportDuplicateSPNs(packets, getListener(), getPartNumber(), getStepNumber(), "6.1.26.2.f");
+        tableA1Validator.reportDuplicateSPNs(packets, getListener(), "6.1.26.2.f");
 
         // Check the Broadcast Period of the received packets1
         // Map of PGN to (Map of Source Address to List of Packets)
@@ -263,8 +258,6 @@ public class Part01Step26Controller extends StepController {
                 List<GenericPacket> dsResponse = busService.dsRequest(pgn, moduleAddress, spns)
                                                            .peek(p -> tableA1Validator.reportNotAvailableSPNs(p,
                                                                                                               getListener(),
-                                                                                                              getPartNumber(),
-                                                                                                              getStepNumber(),
                                                                                                               "6.1.26.6.a"))
                                                            .peek(p ->
                                                            // 6.1.26.6.d. Fail/warn if any broadcast data is not valid
@@ -274,8 +267,6 @@ public class Part01Step26Controller extends StepController {
                                                                                                        getListener(),
                                                                                                        false,
                                                                                                        fuelType,
-                                                                                                       getPartNumber(),
-                                                                                                       getStepNumber(),
                                                                                                        "6.1.26.6.d"))
                                                            .peek(p ->
                                                            // 6.1.26.2.e. Fail/warn per Table A-1, if an expected SPN
@@ -284,8 +275,6 @@ public class Part01Step26Controller extends StepController {
                                                            // (provided extraneously)
                                                            tableA1Validator.reportNonObdModuleProvidedSPNs(p,
                                                                                                            getListener(),
-                                                                                                           getPartNumber(),
-                                                                                                           getStepNumber(),
                                                                                                            "6.1.26.6.e"))
                                                            .collect(Collectors.toList());
                 onRequestPackets.addAll(dsResponse);
@@ -306,8 +295,6 @@ public class Part01Step26Controller extends StepController {
                     List<GenericPacket> globalPackets = busService.globalRequest(pgn, globalMessage)
                                                                   .peek(p -> tableA1Validator.reportNotAvailableSPNs(p,
                                                                                                                      getListener(),
-                                                                                                                     getPartNumber(),
-                                                                                                                     getStepNumber(),
                                                                                                                      "6.1.26.6.a"))
                                                                   .peek(p ->
                                                                   // 6.1.26.6.d. Fail/warn if any broadcast data is not
@@ -317,8 +304,6 @@ public class Part01Step26Controller extends StepController {
                                                                                                               getListener(),
                                                                                                               false,
                                                                                                               fuelType,
-                                                                                                              getPartNumber(),
-                                                                                                              getStepNumber(),
                                                                                                               "6.1.26.6.d"))
                                                                   .peek(p ->
                                                                   // 6.1.26.6.e. Fail/warn per Table A-1, if an expected
@@ -327,8 +312,6 @@ public class Part01Step26Controller extends StepController {
                                                                   // (provided extraneously)
                                                                   tableA1Validator.reportNonObdModuleProvidedSPNs(p,
                                                                                                                   getListener(),
-                                                                                                                  getPartNumber(),
-                                                                                                                  getStepNumber(),
                                                                                                                   "6.1.26.6.e"))
                                                                   .collect(Collectors.toList());
                     onRequestPackets.addAll(globalPackets);
@@ -347,8 +330,6 @@ public class Part01Step26Controller extends StepController {
         // 6.1.26.6.f. Fail/warn per Table A-1 if two or more ECUs provide an SPN listed in Table A-1
         tableA1Validator.reportDuplicateSPNs(onRequestPackets,
                                              getListener(),
-                                             getPartNumber(),
-                                             getStepNumber(),
                                              "6.1.26.6.f");
 
         updateProgress("End Part 1 Step 26");

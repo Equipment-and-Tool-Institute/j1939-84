@@ -27,7 +27,6 @@ import org.etools.j1939_84.bus.j1939.packets.model.Spn;
 import org.etools.j1939_84.bus.j1939.packets.model.SpnDefinition;
 import org.etools.j1939_84.model.FuelType;
 import org.etools.j1939_84.model.OBDModuleInformation;
-import org.etools.j1939_84.modules.TestDateTimeModule;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -88,7 +87,7 @@ public class TableA1ValidatorTest {
     public void setUp() {
         dataRepository = DataRepository.newInstance();
         listener = new TestResultsListener(mockListener);
-        instance = new TableA1Validator(valueValidator, dataRepository, j1939DaRepository, new TestDateTimeModule());
+        instance = new TableA1Validator(valueValidator, dataRepository, j1939DaRepository, 1, 26);
     }
 
     @After
@@ -127,7 +126,7 @@ public class TableA1ValidatorTest {
             packets.add(packet2);
         }
 
-        instance.reportDuplicateSPNs(packets, listener, 1, 26, "6.1.26");
+        instance.reportDuplicateSPNs(packets, listener, "6.1.26");
 
         verify(mockListener).addOutcome(1, 26, FAIL, "6.1.26 - N.5 SPN 92 provided by more than one module");
         verify(mockListener).addOutcome(1, 26, WARN, "6.1.26 - N.5 SPN 84 provided by more than one module");
@@ -207,7 +206,7 @@ public class TableA1ValidatorTest {
         dataRepository.putObdModule(new OBDModuleInformation(0));
 
         for (GenericPacket packet : packets) {
-            instance.reportImplausibleSPNValues(packet, listener, true, FuelType.DSL, 1, 26, "6.1.26");
+            instance.reportImplausibleSPNValues(packet, listener, true, FuelType.DSL, "6.1.26");
         }
 
         verify(valueValidator).isImplausible(1, 100.0, true, FuelType.DSL);
@@ -285,7 +284,7 @@ public class TableA1ValidatorTest {
         }
 
         for (GenericPacket packet : packets) {
-            instance.reportNonObdModuleProvidedSPNs(packet, listener, 1, 26, "6.1.26");
+            instance.reportNonObdModuleProvidedSPNs(packet, listener, "6.1.26");
         }
 
         String expected = "";
