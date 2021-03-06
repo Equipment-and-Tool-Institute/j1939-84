@@ -4,15 +4,23 @@
 package org.etools.j1939_84.controllers.part12;
 
 import static org.junit.Assert.assertEquals;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
+import static org.mockito.Mockito.when;
 
+import java.util.List;
 import java.util.concurrent.Executor;
 
 import org.etools.j1939_84.bus.j1939.J1939;
+import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
+import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.ResultsListener;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.controllers.TestResultsListener;
+import org.etools.j1939_84.model.OBDModuleInformation;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -119,11 +127,40 @@ public class Part12Step10ControllerTest extends AbstractControllerTest {
 
     @Test
     public void testHappyPathNoFailures() {
+        OBDModuleInformation obdModuleInformation = new OBDModuleInformation(0);
+
+        ScaledTestResult str1 = ScaledTestResult.create(250, 123, 14, 0, 1, 0, 0);
+        ScaledTestResult str2 = ScaledTestResult.create(250, 456, 9, 0, 1, 0, 0);
+        ScaledTestResult str3 = ScaledTestResult.create(250, 456, 9, 0, 1, 0, 0);
+        obdModuleInformation.setNonInitializedTests(List.of(str1, str2, str3));
+        dataRepository.putObdModule(obdModuleInformation);
+
+        var str123 = ScaledTestResult.create(250, 123, 14, 0, 0, 0, 0);
+        var dm30_123 = DM30ScaledTestResultsPacket.create(0, str123);
+        when(diagnosticMessageModule.requestTestResults(any(),
+                                                        eq(0),
+                                                        eq(250),
+                                                        eq(123),
+                                                        eq(14))).thenReturn(List.of(dm30_123));
+
+        var str456 = ScaledTestResult.create(250, 456, 9, 0, 0, 0, 0);
+        var dm30_456 = DM30ScaledTestResultsPacket.create(0, str456, str456);
+        when(diagnosticMessageModule.requestTestResults(any(),
+                                                        eq(0),
+                                                        eq(250),
+                                                        eq(456),
+                                                        eq(9))).thenReturn(List.of(dm30_456));
+
+        dataRepository.putObdModule(new OBDModuleInformation(1));
 
         runTest();
 
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(250), eq(123), eq(14));
+        verify(diagnosticMessageModule).requestTestResults(any(), eq(0), eq(250), eq(456), eq(9));
+
         assertEquals("", listener.getMessages());
         assertEquals("", listener.getResults());
+        assertEquals(List.of(), listener.getOutcomes());
     }
 
 }

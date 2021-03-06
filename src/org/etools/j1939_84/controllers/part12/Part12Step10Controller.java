@@ -8,6 +8,8 @@ import java.util.concurrent.Executors;
 
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
+import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.SpnFmi;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -55,8 +57,22 @@ public class Part12Step10Controller extends StepController {
     protected void run() throws Throwable {
         // 6.12.10.1.a. DS DM7 with TID 250 for specific ECU address + SPN + FMI that had non-initialized values earlier
         // in part 12 test 8.
-        // 6.12.10.1.b. Use responses to help verify coordinated DM11 code clear in this part (i.e., all or no ECUs
-        // clear).
+        for (OBDModuleInformation moduleInformation : getDataRepository().getObdModules()) {
+            moduleInformation.getNonInitializedTests()
+                             .stream()
+                             .map(SpnFmi::of)
+                             .distinct()
+                             .forEach(k -> {
+                                 getDiagnosticMessageModule().requestTestResults(getListener(),
+                                                                                 moduleInformation.getSourceAddress(),
+                                                                                 250,
+                                                                                 k.spn,
+                                                                                 k.fmi);
+                             });
+        }
+
+        // 6.12.10.1.b. Use responses to help verify coordinated DM11 code clear in this part
+        // (i.e., all or no ECUs clear).
         // For example, this will be evident in the increased count of initialized test results for the SPN and FMI
         // pairs that were listed with non-initialized values.
     }
