@@ -165,7 +165,7 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
         String urgentMessages = "Wait for manufacturer’s recommended time for Fault B to be detected as passed."
                 + NL;
         urgentMessages += "Press OK to continue the testing.";
-        String expectedTitle = "Step - 6.10.5.1.a";
+        String expectedTitle = "Step 6.10.5.1.a";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
                                              eq(WARNING),
@@ -190,15 +190,15 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
                                                             any());
 
         StringBuilder expectedMessages = new StringBuilder(
-                                                           "Step - 6.10.5.1.a - Waiting for manufacturer’s recommended time for Fault B to be detected as passed"
+                                                           "Step 6.10.5.1.a - Waiting for manufacturer’s recommended time for Fault B to be detected as passed"
                                                                    + NL);
         for (int i = 120; i > 0; i--) {
-            expectedMessages.append(format("Step - 6.10.5.1.b Waiting %1$d seconds", i)).append(NL);
+            expectedMessages.append(format("Step 6.10.5.1.b Waiting %1$d seconds", i)).append(NL);
         }
         expectedMessages.append("Waiting for Key OFF...").append(NL);
         expectedMessages.append("Waiting for Key OFF...").append(NL);
         for (int i = 60; i > 0; i--) {
-            expectedMessages.append(format("Step - 6.10.5.1.d - Waiting %1$d seconds", i)).append(NL);
+            expectedMessages.append(format("Step 6.10.5.1.d Waiting %1$d seconds", i)).append(NL);
         }
         expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
         expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
@@ -248,7 +248,7 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
         String urgentMessages = "Wait for manufacturer’s recommended time for Fault B to be detected as passed."
                 + NL;
         urgentMessages += "Press OK to continue the testing.";
-        String expectedTitle = "Step - 6.10.5.1.a";
+        String expectedTitle = "Step 6.10.5.1.a";
         verify(mockListener).onUrgentMessage(eq(urgentMessages),
                                              eq(expectedTitle),
                                              eq(WARNING),
@@ -273,16 +273,15 @@ public class Part10Step05ControllerTest extends AbstractControllerTest {
                                                             any());
         verify(mockListener).addOutcome(PART_NUMBER, STEP_NUMBER, ABORT, "User cancelled testing at Part 10 Step 5");
 
-        StringBuilder expectedMessages = new StringBuilder(
-                                                           "Step - 6.10.5.1.a - Waiting for manufacturer’s recommended time for Fault B to be detected as passed"
+        StringBuilder expectedMessages = new StringBuilder("Step 6.10.5.1.a - Waiting for manufacturer’s recommended time for Fault B to be detected as passed"
                                                                    + NL);
         for (int i = 120; i > 0; i--) {
-            expectedMessages.append(format("Step - 6.10.5.1.b Waiting %1$d seconds", i)).append(NL);
+            expectedMessages.append(format("Step 6.10.5.1.b Waiting %1$d seconds", i)).append(NL);
         }
         expectedMessages.append("Waiting for Key OFF...").append(NL);
         expectedMessages.append("Waiting for Key OFF...").append(NL);
         for (int i = 60; i > 0; i--) {
-            expectedMessages.append(format("Step - 6.10.5.1.d - Waiting %1$d seconds", i)).append(NL);
+            expectedMessages.append(format("Step 6.10.5.1.d Waiting %1$d seconds", i)).append(NL);
         }
         expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
         expectedMessages.append("Waiting for Key ON/Engine RUNNING...").append(NL);
