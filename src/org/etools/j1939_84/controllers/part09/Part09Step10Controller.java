@@ -11,10 +11,10 @@ import java.util.stream.Collectors;
 
 import org.etools.j1939_84.bus.j1939.packets.DM30ScaledTestResultsPacket;
 import org.etools.j1939_84.bus.j1939.packets.ScaledTestResult;
-import org.etools.j1939_84.bus.j1939.packets.SupportedSPN;
 import org.etools.j1939_84.controllers.DataRepository;
 import org.etools.j1939_84.controllers.StepController;
 import org.etools.j1939_84.model.OBDModuleInformation;
+import org.etools.j1939_84.model.SpnFmi;
 import org.etools.j1939_84.modules.BannerModule;
 import org.etools.j1939_84.modules.DateTimeModule;
 import org.etools.j1939_84.modules.DiagnosticMessageModule;
@@ -60,17 +60,17 @@ public class Part09Step10Controller extends StepController {
 
     @Override
     protected void run() throws Throwable {
-
-        // 6.9.10.1.a. DS DM7 with TID [247], [FMI=31] and each SPN from list in part 1 to the OBD ECU that supports the
-        // SPN with test results.
+        // 6.9.10.1.a. DS DM7 with TID 250 and each SPN+FMI from list in part 1 to the OBD ECU that supports the SPN and
+        // FMI with test results.
         for (OBDModuleInformation moduleInformation : getDataRepository().getObdModules()) {
             String moduleName = moduleInformation.getModuleName();
             int address = moduleInformation.getSourceAddress();
 
-            var scaledTestResults = moduleInformation.getTestResultSPNs()
+            var scaledTestResults = moduleInformation.getScaledTestResults()
                                                      .stream()
-                                                     .map(SupportedSPN::getSpn)
-                                                     .map(spn -> requestTestResults(address, spn))
+                                                     .map(SpnFmi::of)
+                                                     .distinct()
+                                                     .map(k -> requestTestResults(address, k.spn, k.fmi))
                                                      .flatMap(Collection::stream)
                                                      .map(DM30ScaledTestResultsPacket::getTestResults)
                                                      .flatMap(Collection::stream)
@@ -97,8 +97,8 @@ public class Part09Step10Controller extends StepController {
 
     }
 
-    private List<DM30ScaledTestResultsPacket> requestTestResults(int address, int spn) {
-        return getDiagnosticMessageModule().requestTestResults(getListener(), address, 247, spn, 31);
+    private List<DM30ScaledTestResultsPacket> requestTestResults(int address, int spn, int fmi) {
+        return getDiagnosticMessageModule().requestTestResults(getListener(), address, 250, spn, fmi);
     }
 
     private static String toString(List<ScaledTestResult> testResults) {
